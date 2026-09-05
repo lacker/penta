@@ -509,14 +509,85 @@ pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord =
     .with_composition(embereth_shieldbreaker_composition);
 
 // ELD 137 — Rimrock Knight
-// Audit: unsupported — Card rules have not been implemented.
+const fn rimrock_knight_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{1}{R}"), &const { ["Dwarf", "Knight"] }, 3, 1)
+        .with_ability(AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ))
+}
+
+fn rimrock_knight_composition() -> CardComposition {
+    let knight = rimrock_knight_rules();
+    let rush = const {
+        CardRules::new_instant(mana_cost!("{R}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target creature gets +2/+0 until end of turn.",
+                    &const {
+                        [AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )]
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Rimrock Knight", knight),
+            CardPart::new(CardPartId(1), "Boulder Rush", rush),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Adventure,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Rimrock Knight",
+                SpellForm::Part(CardPartId::PRIMARY),
+                knight
+                    .mana_cost()
+                    .expect("the Knight has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Boulder Rush",
+                SpellForm::Part(CardPartId(1)),
+                rush.mana_cost()
+                    .expect("Boulder Rush has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static RIMROCK_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a3d13d84-01e4-4429-93db-e5afff811527"),
     "Rimrock Knight",
-    crate::card::CardArt::new("a3d13d84-01e4-4429-93db-e5afff811527", "Chris Rallis"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("a3d13d84-01e4-4429-93db-e5afff811527", "Chris Rallis"),
+    CardSet::ThroneOfEldraine,
+    // Three power for two that only ever attacks, and a trick that turns a
+    // stalled board into damage: an aggressive deck wants both halves.
+    rimrock_knight_rules(),
+)
+.with_composition(rimrock_knight_composition);
 
 // ELD 138 — Robber of the Rich
 pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::new(

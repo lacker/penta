@@ -10,13 +10,15 @@ use crate::card::{
 use crate::mana_cost;
 
 // FRF 72 — Gurmag Angler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GURMAG_ANGLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9"),
     "Gurmag Angler",
-    crate::card::CardArt::new("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9", "YW Tang"),
-    crate::card::CardSet::FateReforged,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9", "YW Tang"),
+    CardSet::FateReforged,
+    // Printed at seven and cast for one, which is why a deck that fills its
+    // own graveyard treats the mana cost as a formality.
+    CardRules::new_creature(mana_cost!("{6}{B}"), &["Zombie", "Fish"], 5, 5)
+        .with_ability(abilities::delve()),
 );
 
 // FRF 84 — Soulflayer

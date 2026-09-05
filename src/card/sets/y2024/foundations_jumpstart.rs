@@ -188,13 +188,29 @@ pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord:
 // J25 114 — Dark Confidant (reprint)
 
 // J25 212 — Inspiring Overseer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSPIRING_OVERSEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35d9da1d-8678-4252-b0f8-9960795642f0"),
     "Inspiring Overseer",
-    crate::card::CardArt::new("be1c0c41-cd92-49b2-be07-0c44219bcb6a", "Irina Nordsol"),
-    crate::card::CardSet::FoundationsJumpstart,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("be1c0c41-cd92-49b2-be07-0c44219bcb6a", "Irina Nordsol"),
+    CardSet::FoundationsJumpstart,
+    // Three mana that replaces itself and leaves a flier behind, which is
+    // the whole reason a limited deck plays it over a bigger body.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Angel", "Cleric"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, you gain 1 life and draw a card.",
+            EffectDef::Sequence(&[
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // J25 343 — Pestermite

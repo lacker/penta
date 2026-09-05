@@ -194,7 +194,7 @@ pub(in crate::card::sets) static PHANTOM_FLOCK: CardRecord = CardRecord::new(
 );
 
 // JUD 17 — Phantom Nomad
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a damage-prevention follow-up that removes a counter. DamagePreventionFollowUpDef offers only GainLife, so the prevention can be expressed but the "remove a +1/+1 counter from this creature" half cannot; preventing without it would make the creature permanently immune.
 pub(in crate::card::sets) static PHANTOM_NOMAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c5309f5-8b32-4a57-99f2-dcf7a8341898"),
     "Phantom Nomad",
@@ -1462,7 +1462,7 @@ pub(in crate::card::sets) static PHANTOM_NANTUKO: CardRecord = CardRecord::new(
 );
 
 // JUD 129 — Phantom Tiger
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a damage-prevention follow-up that removes a counter. DamagePreventionFollowUpDef offers only GainLife, so the prevention can be expressed but the "remove a +1/+1 counter from this creature" half cannot; preventing without it would make the creature permanently immune.
 pub(in crate::card::sets) static PHANTOM_TIGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("32839296-e583-4f71-aa44-dbe16408665e"),
     "Phantom Tiger",

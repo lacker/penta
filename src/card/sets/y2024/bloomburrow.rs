@@ -275,13 +275,27 @@ pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::n
 );
 
 // BLB 235 — Tempest Angler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("850daae4-f0b7-4604-95e7-ad044ec165c3"),
     "Tempest Angler",
-    crate::card::CardArt::new("850daae4-f0b7-4604-95e7-ad044ec165c3", "Raluca Marinescu"),
-    crate::card::CardSet::Bloomburrow,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("850daae4-f0b7-4604-95e7-ad044ec165c3", "Raluca Marinescu"),
+    CardSet::Bloomburrow,
+    // Counters rather than prowess: what it grows it keeps, so a slow turn
+    // of cheap spells leaves a threat rather than a one-turn swing.
+    CardRules::new_creature(mana_cost!("{1}{U/R}{U/R}"), &["Otter", "Wizard"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever you cast a noncreature spell, put a +1/+1 counter on this creature.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::NoncreatureSpell,
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // BLB 254 — Hidden Grotto

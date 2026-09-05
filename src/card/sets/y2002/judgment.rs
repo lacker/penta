@@ -204,7 +204,7 @@ pub(in crate::card::sets) static PHANTOM_NOMAD: CardRecord = CardRecord::new(
 );
 
 // JUD 18 — Prismatic Strands
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a player-scoped damage-prevention shield parameterized by a colour chosen on resolution. ChooseColor attaches to an object and ColorChoiceOperationDef offers only protection and colour-changing, so there is no way to say "prevent all damage sources of the chosen colour would deal this turn".
 pub(in crate::card::sets) static PRISMATIC_STRANDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3454ef42-2e0b-4ce4-945f-e4ec3e83c39d"),
     "Prismatic Strands",

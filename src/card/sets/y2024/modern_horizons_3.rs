@@ -889,13 +889,63 @@ pub(in crate::card::sets) static MOLTEN_GATEKEEPER: CardRecord = CardRecord::new
 );
 
 // MH3 145 — Basking Broodscale
-// Audit: unsupported — Card rules have not been implemented.
+/// The Spawn token that more than one MH3 card prints in full: a 0/1 body
+/// whose only job is to be sacrificed for one colourless mana. A static
+/// rather than a const fn, because the ability slice only gets a `'static`
+/// lifetime in a static initializer.
+static ELDRAZI_SPAWN_TOKEN: EffectDef =
+    EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1).with_abilities(&[
+        AbilityDef::activated_mana(
+            "Sacrifice this token: Add {C}.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+    ]);
+
 pub(in crate::card::sets) static BASKING_BROODSCALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5feba5d6-99a6-4e9b-8a7d-90d955868fc3"),
     "Basking Broodscale",
-    crate::card::CardArt::new("5feba5d6-99a6-4e9b-8a7d-90d955868fc3", "Caio Monteiro"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5feba5d6-99a6-4e9b-8a7d-90d955868fc3", "Caio Monteiro"),
+    CardSet::ModernHorizons3,
+    // Adapt only ever fires once, so the token engine is what a deck is
+    // really buying: anything else that puts counters on this keeps paying.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Eldrazi", "Lizard"], 2, 2).with_abilities(&[
+        abilities::devoid(),
+        AbilityDef::activated(
+            "{1}{G}: Adapt 1. (If this creature has no +1/+1 counters on it, put a +1/+1 counter \
+             on it.)",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+            // Adapt is a conditional rather than a cost: the ability always
+            // resolves, and finding a counter already there is what makes it
+            // do nothing.
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    comparison: ComparisonDef::LessOrEqual,
+                    amount: 0,
+                },
+                then: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever one or more +1/+1 counters are put on this creature, you may create a 0/1 \
+             colorless Eldrazi Spawn creature token with \"Sacrifice this token: Add {C}.\"",
+            // "One or more" is one trigger for the whole placement, not one
+            // per counter.
+            TriggerEventDef::CountersPlaced {
+                object: ObjectPredicateDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &ELDRAZI_SPAWN_TOKEN,
+            },
+        ),
+    ]),
 );
 
 // MH3 147 — Collective Resistance
@@ -1077,13 +1127,7 @@ pub(in crate::card::sets) static MALEVOLENT_RUMBLE: CardRecord = CardRecord::new
                 0,
                 1,
             ),
-            EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1).with_abilities(&[
-                AbilityDef::activated_mana(
-                    "Sacrifice this token: Add {C}.",
-                    &[AbilityCostDef::SacrificeSource],
-                    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
-                ),
-            ]),
+            ELDRAZI_SPAWN_TOKEN,
         ]),
     )),
 );

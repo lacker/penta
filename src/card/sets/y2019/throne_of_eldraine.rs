@@ -29,14 +29,88 @@ pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::n
 );
 
 // ELD 11 — Faerie Guidemother
-// Audit: unsupported — Card rules have not been implemented.
+const fn faerie_guidemother_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{W}"), &const { ["Faerie"] }, 1, 1)
+        .with_ability(abilities::flying())
+}
+
+fn faerie_guidemother_composition() -> CardComposition {
+    let faerie = faerie_guidemother_rules();
+    let gift = const {
+        CardRules::new_sorcery(mana_cost!("{1}{W}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target creature gets +2/+1 and gains flying until end of turn.",
+                    &const {
+                        [AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )]
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(
+                            &const {
+                                [
+                                    AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::Constant(2),
+                                        ValueDef::Constant(1),
+                                    ),
+                                    AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                                ]
+                            },
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                )
+                // Exiled on resolution rather than put in the graveyard,
+                // which is what makes the Faerie castable afterwards.
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Faerie Guidemother", faerie),
+            CardPart::new(CardPartId(1), "Gift of the Fae", gift),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Adventure,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Faerie Guidemother",
+                SpellForm::Part(CardPartId::PRIMARY),
+                faerie
+                    .mana_cost()
+                    .expect("the Faerie has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Gift of the Fae",
+                SpellForm::Part(CardPartId(1)),
+                gift.mana_cost()
+                    .expect("Gift of the Fae has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8bbece8-9620-44d9-b991-350fe952538a"),
     "Faerie Guidemother",
-    crate::card::CardArt::new("e8bbece8-9620-44d9-b991-350fe952538a", "Mila Pesic"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("e8bbece8-9620-44d9-b991-350fe952538a", "Mila Pesic"),
+    CardSet::ThroneOfEldraine,
+    // A combat trick that leaves a flier behind, which is the whole appeal
+    // of the cheap end of the Adventure cycle.
+    faerie_guidemother_rules(),
+)
+.with_composition(faerie_guidemother_composition);
 
 // ELD 39 — Brazen Borrower
 const fn brazen_borrower_rules() -> CardRules {

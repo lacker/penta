@@ -156,13 +156,31 @@ pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRec
 );
 
 // THB 105 — Mire Triton
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRE_TRITON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f8427d3-4d9e-48c9-838b-239fd1357d95"),
     "Mire Triton",
-    crate::card::CardArt::new("3f8427d3-4d9e-48c9-838b-239fd1357d95", "Seb McKinnon"),
-    crate::card::CardSet::TherosBeyondDeath,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f8427d3-4d9e-48c9-838b-239fd1357d95", "Seb McKinnon"),
+    CardSet::TherosBeyondDeath,
+    // A deathtouch blocker that fills the graveyard and pays for the two
+    // cards with life, which is what makes the self-mill upside instead of
+    // a cost.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie", "Merfolk"], 2, 1).with_abilities(&[
+        abilities::deathtouch(),
+        abilities::enters_trigger(
+            "When this creature enters, mill two cards and you gain 2 life. (To mill a card, put \
+             the top card of your library into your graveyard.)",
+            EffectDef::Sequence(&[
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // THB 120 — Underworld Charger

@@ -23,13 +23,48 @@ pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::ne
 );
 
 // CLB 22 — Greatsword of Tyr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("50088a60-642b-47ed-a289-ef0b617b688f"),
     "Greatsword of Tyr",
-    crate::card::CardArt::new("50088a60-642b-47ed-a289-ef0b617b688f", "Titus Lunter"),
-    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("50088a60-642b-47ed-a289-ef0b617b688f", "Titus Lunter"),
+    CardSet::CommanderLegendsBattleForBaldursGate,
+    // One white to move it and a counter every swing, so the Equipment is
+    // the threat and whichever creature carries it is interchangeable.
+    CardRules::new_artifact(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "Whenever equipped creature attacks, put a +1/+1 counter on it and tap up to one \
+                 target creature defending player controls.",
+                TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
+                // "Up to one" so the trigger still puts the counter on when
+                // the defender has nothing worth tapping, or nothing at all.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::DefendingPlayer),
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::AttachedPermanent,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                ]),
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+                "Equip {W} ({W}: Attach to target creature you control. Equip only as a \
+                 sorcery.)",
+            ),
+        ]),
 );
 
 // CLB 99 — Sword Coast Serpent

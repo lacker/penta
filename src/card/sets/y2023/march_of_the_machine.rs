@@ -131,13 +131,23 @@ pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new
 );
 
 // MOM 66 — Meeting of Minds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MEETING_OF_MINDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("508b8650-c283-4e54-abdc-32ec2fb1ee34"),
     "Meeting of Minds",
-    crate::card::CardArt::new("508b8650-c283-4e54-abdc-32ec2fb1ee34", "Milivoj Ćeran"),
-    crate::card::CardSet::MarchOfTheMachine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("508b8650-c283-4e54-abdc-32ec2fb1ee34", "Milivoj Ćeran"),
+    CardSet::MarchOfTheMachine,
+    // Convoke is doing all the work: a board that has already committed
+    // draws two for free at instant speed, and pays four otherwise.
+    CardRules::new_instant(mana_cost!("{3}{U}")).with_abilities(&[
+        abilities::convoke(),
+        AbilityDef::spell(
+            "Draw two cards.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // MOM 73 — Preening Champion

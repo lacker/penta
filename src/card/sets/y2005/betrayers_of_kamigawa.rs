@@ -3,21 +3,40 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef,
-    ValueDef, abilities,
+    CardRules, CardSet, CardSupertype, CardType, CounterKind, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
+    TriggerEventDef, ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // BOK 76 — Okiba-Gang Shinobi
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5cd9297e-301e-4e70-af9b-3218eacacf8d"),
     "Okiba-Gang Shinobi",
-    crate::card::CardArt::new("5cd9297e-301e-4e70-af9b-3218eacacf8d", "Mark Zug"),
-    crate::card::CardSet::BetrayersOfKamigawa,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5cd9297e-301e-4e70-af9b-3218eacacf8d", "Mark Zug"),
+    CardSet::BetrayersOfKamigawa,
+    // Two cards out of their hand every time it connects, and ninjutsu is
+    // what makes it connect: the attacker they chose not to block is traded
+    // for the one they would have.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Rat", "Ninja"], 3, 2).with_abilities(&[
+        abilities::ninjutsu(
+            "Ninjutsu {3}{B} ({3}{B}, Return an unblocked attacker you control to hand: Put this \
+             card onto the battlefield from your hand tapped and attacking.)",
+            mana_cost!("{3}{B}"),
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, that player discards two \
+             cards.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(2),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // BOK 104 — Fumiko the Lowblood

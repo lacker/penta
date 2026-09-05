@@ -556,6 +556,30 @@ pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
 
+/// Ninjutsu (CR 702.49): "`cost`, Return an unblocked attacker you control
+/// to hand: Put this card onto the battlefield from your hand tapped and
+/// attacking."
+///
+/// The return is a cost rather than an effect, so a Ninja whose activation
+/// is answered has already swapped the attacker away. Activation waits for
+/// attackers to be declared, since until then there is no unblocked attacker
+/// to give back. The caller supplies the printed text, which repeats the
+/// cost inside its own reminder.
+#[must_use]
+pub const fn ninjutsu(text: &'static str, cost: ManaCost) -> AbilityDef {
+    AbilityDef::activated_with_cost_list_and_targets(
+        text,
+        AbilityCostList::two(
+            AbilityCostDef::Mana(cost),
+            AbilityCostDef::ReturnUnblockedAttackerToHand,
+        ),
+        &[],
+        EffectDef::PutSourceOntoBattlefieldAttacking,
+    )
+    .with_source_zones(&[ZoneKind::Hand])
+    .with_activation_timing(ActivationTimingDef::AfterAttackersDeclared)
+}
+
 /// The one type every eternalized token gains, whatever it was before.
 static ETERNALIZE_ADDED_TYPES: [&str; 1] = ["Zombie"];
 

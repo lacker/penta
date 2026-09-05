@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityKindDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -171,13 +171,32 @@ pub(in crate::card::sets) static FAITH_S_FETTERS: CardRecord = CardRecord::new(
 );
 
 // C15 99 — Ninja of the Deep Hours
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("367a67c7-54db-4336-b55a-3fa27625172a"),
     "Ninja of the Deep Hours",
-    crate::card::CardArt::new("26184ff2-3b8c-419a-9b28-95d6e4e996bb", "Dan Murayama Scott"),
-    crate::card::CardSet::Commander2015,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("26184ff2-3b8c-419a-9b28-95d6e4e996bb", "Dan Murayama Scott"),
+    CardSet::Commander2015,
+    // Nobody casts this for four. Two mana off an unblocked one-drop is the
+    // card: the attacker that got through goes back to be replayed, and the
+    // 2/2 that replaced it is already connecting for a card a turn.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Ninja"], 2, 2).with_abilities(&[
+        abilities::ninjutsu(
+            "Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this \
+             card onto the battlefield from your hand tapped and attacking.)",
+            mana_cost!("{1}{U}"),
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you may draw a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

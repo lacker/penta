@@ -570,17 +570,11 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
     CardRules::new_planeswalker(mana_cost!("{2}{U}{B}"), &["Kaito"], 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::activated(
+            abilities::ninjutsu(
                 "Ninjutsu {1}{U}{B} ({1}{U}{B}, Return an unblocked attacker you control to hand: Put \
                  this card onto the battlefield from your hand tapped and attacking.)",
-                &[
-                    AbilityCostDef::Mana(mana_cost!("{1}{U}{B}")),
-                    AbilityCostDef::ReturnUnblockedAttackerToHand,
-                ],
-                EffectDef::PutSourceOntoBattlefieldAttacking,
-            )
-            .with_source_zones(&[ZoneKind::Hand])
-            .with_activation_timing(ActivationTimingDef::AfterAttackersDeclared),
+                mana_cost!("{1}{U}{B}"),
+            ),
             AbilityDef::static_ability(
                 "During your turn, as long as Kaito has one or more loyalty counters on him, he's a 3/4 \
                  Ninja creature and has hexproof.",

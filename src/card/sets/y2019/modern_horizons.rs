@@ -993,16 +993,10 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_wi
     // free, every time.
     CardRules::new_creature(mana_cost!("{3}{U}{B}"), &["Zombie", "Ninja"], 5, 4)
         .with_abilities(&[
-            AbilityDef::activated(
+            abilities::ninjutsu(
                 "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
-                &[
-                    AbilityCostDef::Mana(mana_cost!("{2}{U}{B}")),
-                    AbilityCostDef::ReturnUnblockedAttackerToHand,
-                ],
-                EffectDef::PutSourceOntoBattlefieldAttacking,
-            )
-            .with_source_zones(&[ZoneKind::Hand])
-            .with_activation_timing(ActivationTimingDef::AfterAttackersDeclared),
+                mana_cost!("{2}{U}{B}"),
+            ),
             AbilityDef::triggered(
                 "Whenever this creature deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),

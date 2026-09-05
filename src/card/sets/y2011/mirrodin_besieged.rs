@@ -22,33 +22,6 @@ use crate::card::{
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
-/// Battle cry is confined to Mirrodin Besieged in the catalog. Each printed
-/// instance triggers independently and boosts only the other creatures
-/// attacking alongside its source.
-#[must_use]
-const fn battle_cry() -> AbilityDef {
-    AbilityDef::triggered(
-        "Battle cry (Whenever this creature attacks, each other attacking creature gets +1/+0 until end of turn.)",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Attacking,
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                ]),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(1),
-                ValueDef::Constant(0),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    )
-}
-
 // MBS 1 — Accorder Paladin
 pub(in crate::card::sets) static ACCORDER_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("df0a4370-729d-40e7-b68b-21902648492d"),
@@ -56,7 +29,7 @@ pub(in crate::card::sets) static ACCORDER_PALADIN: CardRecord = CardRecord::new(
     crate::card::CardArt::new("df0a4370-729d-40e7-b68b-21902648492d", "Kekai Kotaki"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 3, 1)
-        .with_ability(battle_cry()),
+        .with_ability(abilities::battle_cry()),
 );
 
 // MBS 2 — Ardent Recruit
@@ -182,7 +155,7 @@ pub(in crate::card::sets) static HERO_OF_BLADEHOLD: CardRecord = CardRecord::new
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 3, 4).with_abilities(
         &[
-            battle_cry(),
+            abilities::battle_cry(),
             AbilityDef::triggered(
                 "Whenever this creature attacks, create two 1/1 white Soldier creature tokens that are tapped and attacking.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
@@ -251,7 +224,7 @@ pub(in crate::card::sets) static LOXODON_PARTISAN: CardRecord = CardRecord::new(
     crate::card::CardArt::new("a4a76016-96a1-40f5-9002-4b3bed65cd5c", "Matt Stewart"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{4}{W}"), &["Elephant", "Soldier"], 3, 4)
-        .with_ability(battle_cry()),
+        .with_ability(abilities::battle_cry()),
 );
 
 // MBS 13 — Master's Call
@@ -1386,7 +1359,7 @@ pub(in crate::card::sets) static GOBLIN_WARDRIVER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("2e220c87-1223-4998-b0e5-23e2d930fa6b", "Chippy"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{R}{R}"), &["Goblin", "Warrior"], 2, 2)
-        .with_ability(battle_cry()),
+        .with_ability(abilities::battle_cry()),
 );
 
 // MBS 65 — Hellkite Igniter
@@ -1421,7 +1394,7 @@ pub(in crate::card::sets) static HERO_OF_OXID_RIDGE: CardRecord = CardRecord::ne
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Human", "Knight"], 4, 2).with_abilities(&[
         abilities::haste(),
-        battle_cry(),
+        abilities::battle_cry(),
         AbilityDef::triggered(
             "Whenever this creature attacks, creatures with power 1 or less can't block this turn.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
@@ -1523,8 +1496,10 @@ pub(in crate::card::sets) static KULDOTHA_RINGLEADER: CardRecord = CardRecord::n
     "Kuldotha Ringleader",
     crate::card::CardArt::new("3cda5434-c0a5-4551-8e30-b1923f0001b8", "Greg Staples"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Berserker"], 4, 4)
-        .with_abilities(&[battle_cry(), abilities::attacks_each_combat_if_able()]),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Berserker"], 4, 4).with_abilities(&[
+        abilities::battle_cry(),
+        abilities::attacks_each_combat_if_able(),
+    ]),
 );
 
 // MBS 71 — Metallic Mastery
@@ -2860,7 +2835,7 @@ pub(in crate::card::sets) static SIGNAL_PEST: CardRecord = CardRecord::new(
     crate::card::CardArt::new("be065962-f2ed-4ab9-be6b-bfc66d63ff4e", "Mark Zug"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_artifact_creature(mana_cost!("{1}"), &["Pest"], 0, 1).with_abilities(&[
-        battle_cry(),
+        abilities::battle_cry(),
         AbilityDef::static_ability(
             "This creature can't be blocked except by creatures with flying or reach.",
             EffectDef::StaticApply {

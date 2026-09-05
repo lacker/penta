@@ -101,13 +101,31 @@ pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
 );
 
 // MH1 24 — Rhox Veteran
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6384e266-d0dc-4af1-b3ab-ecaf9be2553c"),
     "Rhox Veteran",
-    crate::card::CardArt::new("6384e266-d0dc-4af1-b3ab-ecaf9be2553c", "Milivoj Ćeran"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6384e266-d0dc-4af1-b3ab-ecaf9be2553c", "Milivoj Ćeran"),
+    CardSet::ModernHorizons1,
+    // A 2/4 that attacks profitably because everything beside it gets
+    // bigger and the best blocker is tapped out of the way first.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Rhino", "Soldier"], 2, 4).with_abilities(&[
+        abilities::battle_cry(),
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature attacks, tap target creature an opponent controls.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // MH1 27 — Settle Beyond Reality

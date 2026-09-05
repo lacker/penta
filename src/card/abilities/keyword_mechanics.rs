@@ -615,3 +615,34 @@ static CREW_COSTS: [[AbilityCostDef; 1]; 10] = [
 const fn crew_tap(minimum: u8) -> [AbilityCostDef; 1] {
     [AbilityCostDef::TapCreaturesWithTotalPower { minimum }]
 }
+
+/// "Battle cry (Whenever this creature attacks, each other attacking creature
+/// gets +1/+0 until end of turn.)"
+///
+/// Written out as the triggered ability it abbreviates. Each printed instance
+/// triggers independently and boosts only the creatures attacking alongside
+/// its own source.
+#[must_use]
+pub const fn battle_cry() -> AbilityDef {
+    AbilityDef::triggered(
+        "Battle cry (Whenever this creature attacks, each other attacking creature gets +1/+0 \
+         until end of turn.)",
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(0),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )
+}

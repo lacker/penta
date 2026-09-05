@@ -5,7 +5,8 @@ use crate::card::PlayOptionDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AlternateSpellKind, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardComposition,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, BlockRestrictionDef,
+    BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardComposition,
     CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
     CardTypeSet, ColorSet, ComparisonDef, ConditionDef, ControlDurationDef, CounterKind,
     CreatureTypeSetDef, EffectDef, EffectRecipientDef, ExilePlayConditionDef, ExilePlayDurationDef,
@@ -559,13 +560,49 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
 );
 
 // ELD 219 — Gingerbrute
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f55fe038-c903-4d92-b689-72dd6d041a91"),
     "Gingerbrute",
-    crate::card::CardArt::new("f55fe038-c903-4d92-b689-72dd6d041a91", "Vincent Proce"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f55fe038-c903-4d92-b689-72dd6d041a91", "Andrea Radeck"),
+    CardSet::ThroneOfEldraine,
+    // One mana for a hasty evasive body that is also a Food, which is why
+    // an artifact deck plays it over a bigger one-drop.
+    CardRules::new_artifact_creature(mana_cost!("{1}"), &["Food", "Golem"], 1, 1).with_abilities(
+        &[
+            abilities::haste(),
+            AbilityDef::activated(
+                "{1}: This creature can't be blocked this turn except by creatures with haste.",
+                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    // A pairing restriction on the attacker: every prospective
+                    // blocker outside the predicate is barred, which is what
+                    // "except by" says.
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                        BlockRestrictionDef::prohibit(
+                            BlockRestrictionSubjectDef::Attacker,
+                            BlockRestrictionMatchDef::Except(ObjectPredicateDef::HasKeyword(
+                                KeywordAbility::Haste,
+                            )),
+                        ),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, {T}, Sacrifice this creature: You gain 3 life.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{2}")),
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::SacrificeSource,
+                ],
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+        ],
+    ),
 );
 
 // ELD 235 — Stonecoil Serpent

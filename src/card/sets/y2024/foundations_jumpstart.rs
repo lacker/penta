@@ -7,8 +7,8 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ComparisonDef, CounterKind, CreatureTypeSetDef,
     EffectChoiceDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    ObjectRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -296,13 +296,65 @@ pub(in crate::card::sets) static REMAND: CardRecord = CardRecord::new(
 );
 
 // J25 641 — Bushwhack
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BUSHWHACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("712a0640-d9c8-46fc-b38b-bf20a40fa902"),
     "Bushwhack",
-    crate::card::CardArt::new("f6b92766-1ab8-462d-bd45-ccd6f55cbe14", "Artur Nakhodkin"),
-    crate::card::CardSet::FoundationsJumpstart,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f6b92766-1ab8-462d-bd45-ccd6f55cbe14", "Artur Nakhodkin"),
+    CardSet::FoundationsJumpstart,
+    // One mana that is never dead: it fixes a land drop early and answers a
+    // creature late, which is what the modal split is buying.
+    CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Search your library for a basic land card, reveal it, put it into your hand, \
+                 then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature you control fights target creature you don't control. (Each \
+                 deals damage equal to its power to the other.)",
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::NotYou),
+                        owner: None,
+                    }),
+                ],
+                // Fighting is one event rather than two damage clauses, so
+                // neither creature dies before dealing its own damage.
+                EffectDef::Fight {
+                    first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    second: ObjectRefDef::Target(TargetIndex(1)),
+                    excess: None,
+                },
+            ),
+        ],
+    )),
 );
 
 // J25 684 — Llanowar Visionary

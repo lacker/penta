@@ -397,13 +397,32 @@ pub(in crate::card::sets) static LEYLINE_OF_RESONANCE: CardRecord = CardRecord::
 );
 
 // DSK 178 — Flesh Burrower
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("60499c90-a512-4abb-98eb-0735a7138421"),
     "Flesh Burrower",
-    crate::card::CardArt::new("60499c90-a512-4abb-98eb-0735a7138421", "Maxime Minard"),
-    crate::card::CardSet::DuskmournHouseOfHorror,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("60499c90-a512-4abb-98eb-0735a7138421", "Maxime Minard"),
+    CardSet::DuskmournHouseOfHorror,
+    // It already has deathtouch, which is why the trigger says "another":
+    // the point is to make a second attacker just as unblockable.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 2, 2).with_abilities(&[
+        abilities::deathtouch(),
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature attacks, another target creature you control gains deathtouch until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DSK 188 — Leyline of Mutation

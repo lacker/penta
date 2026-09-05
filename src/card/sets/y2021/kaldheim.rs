@@ -194,13 +194,23 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
 );
 
 // KHM 192 — Sarulf's Packmate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SARULF_S_PACKMATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6061113e-7dd8-4739-b4dd-55bb7f9e39a2"),
     "Sarulf's Packmate",
-    crate::card::CardArt::new("6061113e-7dd8-4739-b4dd-55bb7f9e39a2", "Ilse Gort"),
-    crate::card::CardSet::Kaldheim,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6061113e-7dd8-4739-b4dd-55bb7f9e39a2", "Ilse Gort"),
+    CardSet::Kaldheim,
+    // Foretelling costs the same four mana in total but splits it across two
+    // turns, which is what lets a green deck spend an otherwise dead turn.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Wolf"], 3, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::foretell(mana_cost!("{1}{G}")),
+    ]),
 );
 
 // KHM 194 — Snakeskin Veil

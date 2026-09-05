@@ -8,7 +8,7 @@ use crate::card::{
     ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -272,13 +272,36 @@ pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
 );
 
 // ZEN 115 — Vampire Lacerator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VAMPIRE_LACERATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("114eca6c-76de-4b87-8174-78e2d17ad0e3"),
     "Vampire Lacerator",
-    crate::card::CardArt::new("114eca6c-76de-4b87-8174-78e2d17ad0e3", "Steve Argyle"),
-    crate::card::CardSet::Zendikar,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("114eca6c-76de-4b87-8174-78e2d17ad0e3", "Steve Argyle"),
+    CardSet::Zendikar,
+    // A 2/2 for one that bills you a life a turn until the race is won,
+    // which is a cost an aggressive deck expects to stop paying.
+    CardRules::new_creature(mana_cost!("{B}"), &["Vampire", "Warrior"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, you lose 1 life unless an opponent has 10 or less \
+             life.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            // The trigger always goes on the stack; the "unless" is read as
+            // it resolves, so a life total that changed in response counts.
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::LifeTotal(PlayerRelation::Opponent),
+                    comparison: ComparisonDef::Greater,
+                    right: ValueDef::Constant(10),
+                }),
+                then: &EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ),
 );
 
 // ZEN 119 — Burst Lightning

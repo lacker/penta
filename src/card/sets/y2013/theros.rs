@@ -3,20 +3,44 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ValueDef, ZoneKind, abilities,
+    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
+    ColorChoiceOperationDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // THS 16 — Gods Willing
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GODS_WILLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b"),
     "Gods Willing",
-    crate::card::CardArt::new("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b", "Mark Winters"),
-    crate::card::CardSet::Theros,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b", "Mark Winters"),
+    CardSet::Theros,
+    // One mana that beats a removal spell and pushes damage through, and the
+    // scry is what keeps it from being a dead card when neither is needed.
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature you control gains protection from the color of your choice until end of \
+         turn. (It can't be blocked, targeted, dealt damage, enchanted, or equipped by anything \
+         of that color.)\nScry 1.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::ChooseColor {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                operation: ColorChoiceOperationDef::ProtectionFromChosenColor,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            // The scry happens even when the protection did nothing, so it
+            // is sequenced after rather than made conditional.
+            abilities::scry(ValueDef::Constant(1)),
+        ]),
+    )),
 );
 
 // THS 169 — Nylea's Presence

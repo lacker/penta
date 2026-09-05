@@ -1331,13 +1331,25 @@ pub(in crate::card::sets) static EXPANDING_OOZE: CardRecord = CardRecord::new(
 );
 
 // MH3 185 — Faithful Watchdog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAITHFUL_WATCHDOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9afac99-a094-41a8-8323-90dec29691c4"),
     "Faithful Watchdog",
-    crate::card::CardArt::new("b9afac99-a094-41a8-8323-90dec29691c4", "Samuel Perin"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b9afac99-a094-41a8-8323-90dec29691c4", "Samuel Perin"),
+    CardSet::ModernHorizons3,
+    // Printed 0/0, so the counters are the body rather than a bonus: it
+    // dies to anything that removes them.
+    CardRules::new_creature(mana_cost!("{G}{W}"), &["Dog"], 0, 0).with_abilities(&[
+        abilities::vigilance(),
+        AbilityDef::as_enters(
+            "This creature enters with three +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 3,
+                },
+            ),
+        ),
+    ]),
 );
 
 // MH3 197 — Phlage, Titan of Fire's Fury

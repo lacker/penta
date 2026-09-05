@@ -3,12 +3,106 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::ManaColor;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
+    CardNameDef, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ParentBinding;
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
+
+// DST 21 — Echoing Truth
+pub(in crate::card::sets) static ECHOING_TRUTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4aefedd7-1bf5-4148-9084-d7d8f1138140"),
+    "Echoing Truth",
+    CardArt::new("4aefedd7-1bf5-4148-9084-d7d8f1138140", "Greg Staples"),
+    CardSet::Darksteel,
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target nonland permanent and all other permanents with the same name as that permanent to their owners' hands.",
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
+            &ObjectPredicateDef::HasType(CardType::Land),
+        ))],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Battlefield],
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                },
+            ])),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
+);
+
+// DST 59 — Echoing Ruin
+pub(in crate::card::sets) static ECHOING_RUIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("01f842c8-cd6c-4f4d-9aa8-417a92b37867"),
+    "Echoing Ruin",
+    CardArt::new("01f842c8-cd6c-4f4d-9aa8-417a92b37867", "Greg Staples"),
+    CardSet::Darksteel,
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target artifact and all other artifacts with the same name as that artifact.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                },
+            ])),
+            can_regenerate: true,
+            then: None,
+        },
+    )),
+);
+
+// DST 74 — Echoing Courage
+pub(in crate::card::sets) static ECHOING_COURAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6f37bf33-f340-44eb-a092-1cb9385c8981"),
+    "Echoing Courage",
+    CardArt::new("6f37bf33-f340-44eb-a092-1cb9385c8981", "Greg Staples"),
+    CardSet::Darksteel,
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature and all other creatures with the same name as that creature get +2/+2 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                },
+            ])),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(2),
+                ValueDef::Constant(2),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
+);
 
 // DST 112 — Darksteel Ingot
 pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new_with_legacy_id(
@@ -146,6 +240,9 @@ pub(in crate::card::sets) static VULSHOK_MORNINGSTAR: CardRecord = CardRecord::n
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ECHOING_TRUTH,
+    &ECHOING_RUIN,
+    &ECHOING_COURAGE,
     &DARKSTEEL_INGOT,
     &LEONIN_BOLA,
     &SERUM_POWDER,

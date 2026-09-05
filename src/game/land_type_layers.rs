@@ -407,6 +407,15 @@ impl Game {
         affected: &Permanent,
     ) -> bool {
         match recipient.0 {
+            EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().any(
+                |objects| {
+                    self.land_type_recipient_matches(
+                        EffectRecipientDef::objects(objects),
+                        source,
+                        affected,
+                    )
+                },
+            ),
             EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::Source)) => {
                 source.card.id == affected.card.id
             }
@@ -455,8 +464,7 @@ impl Game {
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
-                | ObjectSetDef::SharingNameWith(_)
-                | ObjectSetDef::SharingNameWithBinding { .. }
+                | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
             // A static clause names what it affects outright; nothing static
@@ -494,12 +502,18 @@ impl Game {
             ObjectPredicateDef::Not(predicate) => {
                 !self.land_type_object_predicate_matches(*predicate, source, affected)
             }
-            ObjectPredicateDef::HasSourcesChosenScalar(
-                crate::card::BattlefieldEntryChoiceDestinationDef::CardName,
-            ) => source.chosen_card_name.as_deref().is_some_and(|chosen| {
-                self.object_card_name(affected.card.id)
-                    .is_some_and(|actual| actual == chosen)
-            }),
+            ObjectPredicateDef::NameEquals(name) => self
+                .source_card_name(name, source.card.id)
+                .is_some_and(|expected| {
+                    self.object_card_name(affected.card.id)
+                        .is_some_and(|actual| actual == expected)
+                }),
+            ObjectPredicateDef::NameIn(names) => self
+                .object_card_name(affected.card.id)
+                .is_some_and(|actual| {
+                    self.source_card_name_set(*names, source.card.id)
+                        .contains(actual.as_ref())
+                }),
             ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::Spell
             | ObjectPredicateDef::Ability
@@ -512,8 +526,6 @@ impl Game {
             | ObjectPredicateDef::Color(_)
             | ObjectPredicateDef::ColorCount(_)
             | ObjectPredicateDef::Subtype(_)
-            | ObjectPredicateDef::Named(_)
-            | ObjectPredicateDef::HasChosenName
             | ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::GenericManaCostAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -530,7 +542,6 @@ impl Game {
             | ObjectPredicateDef::ControlledBy(_)
             | ObjectPredicateDef::OwnedBy(_)
             | ObjectPredicateDef::DebutSet(_)
-            | ObjectPredicateDef::HasName(_)
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
             | ObjectPredicateDef::TargetsObjectMatching(_)
             | ObjectPredicateDef::AttackingOrBlocking

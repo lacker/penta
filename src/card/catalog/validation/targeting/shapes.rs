@@ -216,10 +216,13 @@ fn validate_object_set_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match objects {
+        ObjectSetDef::Union(sets) => sets
+            .iter()
+            .copied()
+            .try_for_each(|objects| validate_object_set_shape(objects, targets)),
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
-        | ObjectSetDef::SharingNameWith(reference)
         | ObjectSetDef::TokensCreatedBy(reference) => {
             validate_object_reference_shape(reference, targets)
         }
@@ -227,6 +230,10 @@ fn validate_object_set_shape(
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_shape(*objects, targets)?;
             validate_object_predicate_shape(object.predicate(), targets)
+        }
+        ObjectSetDef::ExceptObject { objects, object } => {
+            validate_object_set_shape(*objects, targets)?;
+            validate_object_reference_shape(object, targets)
         }
         ObjectSetDef::CardsDrawnThisTurnInHand(player)
         | ObjectSetDef::PermanentsControlledBy(player) => {
@@ -244,7 +251,6 @@ fn validate_object_set_shape(
         | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::LinkedExiles
         | ObjectSetDef::BottomOfGraveyard(_)
-        | ObjectSetDef::SharingNameWithBinding { .. }
         | ObjectSetDef::TopOfGraveyardMatching { .. } => Ok(()),
     }
 }
@@ -441,12 +447,13 @@ fn validate_object_predicate_shape(
         | ObjectPredicateDef::PowerGreaterThan(value)
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => validate_value_shape(value, targets),
-        ObjectPredicateDef::HasName(reference) => {
-            validate_object_reference_shape(reference, targets)
-        }
+        ObjectPredicateDef::NameEquals(name) => validate_card_name_shape(name, targets),
+        ObjectPredicateDef::NameIn(names) => validate_card_name_set_shape(*names, targets),
         _ => Ok(()),
     }
 }
+
+include!("name_shapes.rs");
 
 fn validate_damage_matcher_shape(
     matcher: DamageEventMatcherDef,
@@ -534,7 +541,6 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
         | TriggerConditionDef::CreatureDiedThisTurn
-        | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
         | TriggerConditionDef::SourceInZone(_)
@@ -670,6 +676,15 @@ fn recipient_may_name_nonbattlefield_object(
     triggering_object_zone: Option<ZoneKind>,
 ) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().any(
+            |objects| {
+                recipient_may_name_nonbattlefield_object(
+                    EffectRecipientDef::objects(objects),
+                    targets,
+                    triggering_object_zone,
+                )
+            },
+        ),
         EffectRecipientSetDef::LegalTargets(target)
         | EffectRecipientSetDef::Objects(
             ObjectSetDef::LegalTargets(target) | ObjectSetDef::One(ObjectRefDef::Target(target)),
@@ -690,6 +705,7 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
+            | ObjectSetDef::ExceptObject { .. }
             // A graveyard is not the battlefield, which is the whole point of
             // naming a card at either end of it.
             | ObjectSetDef::LinkedExiles
@@ -697,9 +713,6 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         ) => true,
-        EffectRecipientSetDef::Objects(ObjectSetDef::SharingNameWithBinding { zone, .. }) => {
-            zone != ZoneKind::Battlefield
-        }
         EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::TriggeringObject)) => {
             triggering_object_zone != Some(ZoneKind::Battlefield)
         }
@@ -720,7 +733,6 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::PermanentsTargetedBy(_)
             | ObjectSetDef::PlayerAttachments(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
-            | ObjectSetDef::SharingNameWith(_)
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::TokensCreatedBy(_),
         )
@@ -740,6 +752,15 @@ fn recipient_nonbattlefield_zones_support_flashback(
     triggering_object_zone: Option<ZoneKind>,
 ) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().all(
+            |objects| {
+                recipient_nonbattlefield_zones_support_flashback(
+                    EffectRecipientDef::objects(objects),
+                    targets,
+                    triggering_object_zone,
+                )
+            },
+        ),
         EffectRecipientSetDef::LegalTargets(target)
         | EffectRecipientSetDef::Objects(
             ObjectSetDef::LegalTargets(target) | ObjectSetDef::One(ObjectRefDef::Target(target)),
@@ -765,10 +786,10 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
+            | ObjectSetDef::ExceptObject { .. }
             | ObjectSetDef::LinkedExiles
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)
-            | ObjectSetDef::SharingNameWithBinding { .. }
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         ) => false,
         EffectRecipientSetDef::Objects(
@@ -788,7 +809,6 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::PermanentsTargetedBy(_)
             | ObjectSetDef::PlayerAttachments(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
-            | ObjectSetDef::SharingNameWith(_)
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::TokensCreatedBy(_),
         )
@@ -937,46 +957,5 @@ fn validate_applied_effect_shapes(
         AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Object)
         }
-    }
-}
-
-fn validate_predicated_player_rule_shape(
-    recipient: EffectRecipientDef,
-    predicate: ObjectPredicateDef,
-    targets: &[AbilityTargetDef],
-) -> Result<(), GrantedAbilityValidationError> {
-    validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
-    validate_object_predicate_shape(predicate, targets)
-}
-
-fn validate_attack_restriction_shape(
-    recipient: EffectRecipientDef,
-    restriction: AttackRestrictionDef,
-    targets: &[AbilityTargetDef],
-) -> Result<(), GrantedAbilityValidationError> {
-    let expectation = match restriction.defender {
-        AttackDefenderScopeDef::Any => RecipientExpectation::Object,
-        AttackDefenderScopeDef::AffectedPlayer
-        | AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker => RecipientExpectation::Player,
-    };
-    validate_recipient_shape(recipient, targets, expectation)?;
-    validate_object_predicate_shape(restriction.attacker, targets)
-}
-
-fn validate_block_restriction_shape(
-    recipient: EffectRecipientDef,
-    restriction: BlockRestrictionDef,
-    targets: &[AbilityTargetDef],
-) -> Result<(), GrantedAbilityValidationError> {
-    validate_recipient_shape(recipient, targets, RecipientExpectation::Object)?;
-    match restriction {
-        BlockRestrictionDef::Pair { counterpart, .. } => match counterpart {
-            BlockRestrictionMatchDef::Any => Ok(()),
-            BlockRestrictionMatchDef::Matching(predicate)
-            | BlockRestrictionMatchDef::Except(predicate) => {
-                validate_object_predicate_shape(predicate, targets)
-            }
-        },
-        BlockRestrictionDef::MinimumBlockers(_) => Ok(()),
     }
 }

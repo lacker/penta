@@ -828,15 +828,16 @@ impl Game {
         object: &TriggerEventObject,
     ) -> bool {
         self.visit_play_restrictions(player, |applied| {
-            if applied.restriction.action
-                == crate::card::PlayActionMatcherDef::ActivateNonManaAbility
-                && self.trigger_object_matches(
-                    applied.restriction.object,
-                    object,
-                    applied.source,
-                    false,
-                )
-            {
+            if matches!(
+                applied.restriction.action,
+                crate::card::PlayActionMatcherDef::ActivateNonManaAbility
+                    | crate::card::PlayActionMatcherDef::ActivateAbility
+            ) && self.trigger_object_matches(
+                applied.restriction.object,
+                object,
+                applied.source,
+                false,
+            ) {
                 ControlFlow::Break(())
             } else {
                 ControlFlow::Continue(())
@@ -854,6 +855,40 @@ impl Game {
         self.printed_trigger_event_object(card.id, card.definition, player, context)
             .is_some_and(|object| {
                 self.nonmana_ability_activation_of_object_is_prohibited(player, &object)
+            })
+    }
+
+    pub(in crate::game) fn mana_ability_activation_of_object_is_prohibited(
+        &self,
+        player: PlayerId,
+        object: &TriggerEventObject,
+    ) -> bool {
+        self.visit_play_restrictions(player, |applied| {
+            if applied.restriction.action == crate::card::PlayActionMatcherDef::ActivateAbility
+                && self.trigger_object_matches(
+                    applied.restriction.object,
+                    object,
+                    applied.source,
+                    false,
+                )
+            {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(())
+            }
+        })
+        .is_break()
+    }
+
+    pub(in crate::game) fn nonbattlefield_mana_ability_activation_is_prohibited(
+        &self,
+        player: PlayerId,
+        card: &CardInstance,
+        context: &CharacteristicContext,
+    ) -> bool {
+        self.printed_trigger_event_object(card.id, card.definition, player, context)
+            .is_some_and(|object| {
+                self.mana_ability_activation_of_object_is_prohibited(player, &object)
             })
     }
 }

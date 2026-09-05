@@ -4,10 +4,10 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SumValueDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChooseDef, EffectDef, EffectRecipientDef, ManaColor, NONBASIC_LAND_SUBTYPES,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SumValueDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -165,6 +165,31 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
     ),
 );
 
+// M3C 80 — Planar Nexus
+pub(in crate::card::sets) static PLANAR_NEXUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("28603c1c-f9b4-4001-bc56-d1453d5cacf5"),
+    "Planar Nexus",
+    CardArt::new("28603c1c-f9b4-4001-bc56-d1453d5cacf5", "Sam Burley"),
+    CardSet::ModernHorizons3Commander,
+    CardRules::new_land(NONBASIC_LAND_SUBTYPES).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
+);
+
+// M3C 132 — Planar Nexus (alternate printing)
+
 // M3C 134 — Talon Gates of Madara
 pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c565f8fe-acf7-40dd-8100-8f692d1e232c"),
@@ -266,8 +291,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BARROWGOYF,
     &PYROGOYF,
     &BLOODBRAID_CHALLENGER,
+    &PLANAR_NEXUS,
     &TALON_GATES_OF_MADARA,
     &BASILISK_GATE,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&PLANAR_NEXUS, 1), // M3C 132
+];

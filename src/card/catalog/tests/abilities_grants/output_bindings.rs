@@ -74,6 +74,54 @@ fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
 }
 
 #[test]
+fn resolving_card_name_choices_require_and_expose_a_typed_binding() {
+    let binding = Binding!("cabal_therapy_name");
+    let consume_name = Box::leak(Box::new(EffectDef::Destroy {
+        object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+            ObjectPredicateDef::NameEquals(CardNameDef::Binding(binding)),
+            &[ZoneKind::Battlefield],
+        ))),
+        can_regenerate: true,
+        then: None,
+    }));
+    let producer = Box::leak(Box::new(EffectDef::ChooseCardName {
+        chooser: PlayerRefDef::EffectController,
+        names: CardNameSetDef::AllCardNames,
+    }));
+    let bound_name = EffectDef::BindOutput {
+        binding,
+        effect: producer,
+    };
+    let valid = Box::leak(Box::new([bound_name, *consume_name]));
+    super::validate_ability_targets(&[], EffectDef::Sequence(valid))
+    .expect("the continuation may consume the explicitly chosen name");
+
+    let reversed = Box::leak(Box::new([*consume_name, bound_name]));
+    assert_eq!(
+        super::validate_ability_targets(&[], EffectDef::Sequence(reversed)),
+        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "card-name binding",
+            operation: "a binding declared for another value kind",
+        }),
+        "the chosen name is unavailable before its binding step",
+    );
+
+    assert_eq!(
+        super::validate_ability_targets(
+            &[],
+            EffectDef::BindOutput {
+                binding: ParentBinding,
+                effect: producer,
+            },
+        ),
+        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "binding",
+            operation: "BindOutput requires a durable labeled binding",
+        }),
+    );
+}
+
+#[test]
 fn named_collection_outputs_may_escape_to_later_sequence_steps() {
     let moved = Binding!("produced_cards");
     let effects = Box::leak(Box::new([

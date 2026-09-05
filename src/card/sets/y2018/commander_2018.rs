@@ -2,9 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardType,
-    ControlDurationDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRefDef,
-    PlayerRelation, TriggerEventDef, ValueDef, abilities,
+    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardNameSetDef, CardRules, CardSet,
+    CardType, ComparisonDef, ControlDurationDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
+    ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -61,6 +63,53 @@ pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
             ]),
         ),
     ]),
+);
+
+// C18 55 — Endless Atlas
+pub(in crate::card::sets) static ENDLESS_ATLAS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d2547a42-b2b9-4887-8671-4cf63a7b0eff"),
+    "Endless Atlas",
+    CardArt::new("d2547a42-b2b9-4887-8671-4cf63a7b0eff", "Titus Lunter"),
+    CardSet::Commander2018,
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(
+        AbilityDef::activated(
+            "{2}, {T}: Draw a card. Activate only if you control three or more lands with the same name.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        )
+        .with_activation_condition(&TriggerConditionDef::ObjectSetCount(
+            &ObjectSetCountConditionDef {
+                objects: &ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameIn(&
+                        CardNameSetDef::NamesAppearingAtLeast {
+                            objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            count: 3,
+                        },
+                    )),
+                },
+                predicate: ObjectSetPredicateDef {
+                    filter: None,
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+            },
+        )),
+    ),
 );
 
 // C18 57 — Retrofitter Foundry
@@ -120,6 +169,7 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COVETED_JEWEL, &RETROFITTER_FOUNDRY];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&COVETED_JEWEL, &ENDLESS_ATLAS, &RETROFITTER_FOUNDRY];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

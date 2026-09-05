@@ -11,10 +11,11 @@ use crate::card::catalog::{
 };
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef,
-    AppliedEffectDef, BattlefieldEntryModificationDef, CardDefinition, CharacteristicOperationDef,
-    CopyAbilityDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
-    ObjectSetDef, ReplacementEffectDef, ReplacementEventDef, SpellForm, TargetChooserDef,
-    TokenCharacteristics, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    AppliedEffectDef, BattlefieldEntryChoiceDestinationDef, BattlefieldEntryModificationDef,
+    BattlefieldEntryScalarChoiceDef, CardDefinition, CharacteristicOperationDef, CopyAbilityDef,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EmblemCharacteristics, ObjectSetDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ScalarChoiceListDef,
+    SpellForm, TargetChooserDef, TokenCharacteristics, ValueDef, ZoneKind, ZoneMoveCauseDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId, TargetIndex,
@@ -717,6 +718,17 @@ fn validate_draw_replacement_program(effect: ReplacementEffectDef) -> Result<(),
 
 fn validate_entry_replacement_program(effect: ReplacementEffectDef) -> Result<(), &'static str> {
     match effect {
+        ReplacementEffectDef::BindOutput {
+            effect:
+                &ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    BattlefieldEntryScalarChoiceDef {
+                        list: ScalarChoiceListDef::CardNames(_),
+                        destination: BattlefieldEntryChoiceDestinationDef::CardName,
+                    },
+                )),
+            binding,
+        } if binding != crate::ParentBinding => Ok(()),
+        ReplacementEffectDef::BindOutput { .. } => Err("invalid BindOutput"),
         ReplacementEffectDef::ModifyBattlefieldEntry(
             BattlefieldEntryModificationDef::AddCountersValue { amount, .. },
         ) if !entry_value_supported(amount) => Err("AddCountersValue with unsupported value"),
@@ -794,6 +806,7 @@ fn validate_begin_turn_replacement_program(
             Ok(())
         }
         ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::BindOutput { .. }
         | ReplacementEffectDef::Perform(_)
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
@@ -844,6 +857,7 @@ fn validate_battlefield_exit_replacement_program(
             Ok(())
         }
         ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::BindOutput { .. }
         | ReplacementEffectDef::MoveToZone(_)
         | ReplacementEffectDef::Perform(_)
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
@@ -860,6 +874,7 @@ fn validate_battlefield_exit_replacement_program(
 const fn replacement_operation_name(effect: ReplacementEffectDef) -> &'static str {
     match effect {
         ReplacementEffectDef::Sequence(_) => "Sequence",
+        ReplacementEffectDef::BindOutput { .. } => "BindOutput",
         ReplacementEffectDef::ReplaceEventWithNothing => "ReplaceEventWithNothing",
         ReplacementEffectDef::MoveToZone(_) => "MoveToZone",
         ReplacementEffectDef::Perform(_) => "Perform",

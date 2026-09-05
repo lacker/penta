@@ -513,6 +513,7 @@ pub(super) fn parse_battlefield(
                         .get("chosenCardName")
                         .and_then(Value::as_str)
                         .map(str::to_owned),
+                    chosen_card_name_binding: None,
                 },
                 catalog,
             )
@@ -549,6 +550,7 @@ struct PermanentPresentation {
     chosen_basic_land_type: Option<BasicLandType>,
     chosen_color: Option<ManaColor>,
     chosen_card_name: Option<String>,
+    chosen_card_name_binding: Option<crate::Binding>,
 }
 
 #[allow(clippy::too_many_lines)]
@@ -778,6 +780,7 @@ fn parse_permanent(
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;
+    permanent.chosen_card_name_binding = shown.chosen_card_name_binding;
     permanent.face_down = state.face_down.map(face_down_characteristics_from_snapshot);
     permanent.turn_up_for_mana_cost = state.turn_up_for_mana_cost;
     permanent.temporary_keywords = state
@@ -928,6 +931,14 @@ pub(super) fn parse_detached_permanent(
             chosen_basic_land_type: snapshot.chosen_basic_land_type.map(parse_basic_land_type),
             chosen_color: snapshot.chosen_color.map(parse_mana_color),
             chosen_card_name: snapshot.chosen_card_name.clone(),
+            chosen_card_name_binding: snapshot
+                .chosen_card_name_binding
+                .as_deref()
+                .map(|label| {
+                    crate::Binding::try_from_label(label)
+                        .ok_or_else(|| format!("unknown card-name binding label {label:?}"))
+                })
+                .transpose()?,
         },
         catalog,
     )

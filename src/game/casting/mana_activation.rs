@@ -74,6 +74,7 @@ impl Game {
                 | AbilityCostDef::MoveToZone(_)
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
+                | AbilityCostDef::RevealCardFromHand(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::MillCards(_)
                 | AbilityCostDef::ReturnUnblockedAttackerToHand

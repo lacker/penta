@@ -251,12 +251,16 @@ fn meddling_mage_naming(game: &mut Game, named: &str) -> GameObjectId {
     .expect("the Mage is cast");
     pass_priority_pair(game);
     choose_scalar(game, PlayerId::One, named);
-    game.battlefield
+    let permanent = game
+        .battlefield
         .iter()
         .find(|permanent| permanent.card.definition == cards::MEDDLING_MAGE)
-        .expect("the Mage entered once its name was chosen")
-        .card
-        .id
+        .expect("the Mage entered once its name was chosen");
+    assert_eq!(
+        permanent.chosen_card_name_binding,
+        Some(Binding!("meddling_mage_name")),
+    );
+    permanent.card.id
 }
 
 /// Whether `player` is offered a cast of the card object `card`.

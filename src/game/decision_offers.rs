@@ -216,26 +216,17 @@ impl Game {
         amount
     }
 
-    /// Asks `player` to name a card while an effect resolves, then continues
-    /// that effect with the answer. The catalog supplies the list, which is
-    /// the same one an entering permanent's naming choice offers.
-    #[allow(clippy::too_many_arguments)]
+    /// Asks `player` to name a card while an effect resolves. The surrounding
+    /// sequence attaches its remaining steps before yielding the decision.
     pub(super) fn queue_card_name_choice(
         &mut self,
         player: PlayerId,
-        nonland_only: bool,
-        searched: PlayerId,
-        zone: ZoneKind,
+        names: crate::card::CardNameSetDef,
         binding: crate::Binding,
         object: StackObject,
         context: EffectResolutionContext,
-        effect: ScopedEffect,
     ) {
-        let choice = if nonland_only {
-            crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME
-        } else {
-            crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME
-        };
+        let choice = crate::card::BattlefieldEntryScalarChoiceDef::card_name(names);
         let (prompt, choices) = self.entry_scalar_choices(player, choice);
         let options = choices
             .iter()
@@ -259,12 +250,12 @@ impl Game {
             options,
             DecisionContinuation::CardNameChoice {
                 choices,
-                searched,
-                zone,
                 binding: binding.into(),
-                object: Box::new(object),
-                context,
-                effect,
+                resume: Box::new(super::PendingProcedure::ResolveEffects {
+                    effects: Vec::new(),
+                    object: Box::new(object),
+                    context,
+                }),
             },
         );
     }

@@ -1,9 +1,9 @@
 //! Three lands that each pay more once the other two are down.
 //!
-//! Each names the other two by name, so the extra mana arrives only when the
-//! set is complete and disappears again the moment one piece leaves. The
-//! amount is resolved as the activation is offered, which is what keeps the
-//! payment planner and the mana pool agreeing about how much a tap is worth.
+//! Each asks for the other two-part land subtypes, so a permanent with every
+//! nonbasic land type can stand in for both missing pieces. The amount is
+//! resolved as the activation is offered, which keeps the payment planner and
+//! the mana pool agreeing about how much a tap is worth.
 
 use super::*;
 
@@ -56,7 +56,7 @@ fn one_piece_alone_taps_for_one() {
     }
 }
 
-/// Two thirds is still one apiece: each land names *both* others.
+/// Two thirds is still one apiece: each land asks for *both* other subtypes.
 #[test]
 fn two_pieces_still_tap_for_one_each() {
     let (mut game, ids) = lands(&[cards::URZA_S_MINE, cards::URZA_S_TOWER]);
@@ -126,4 +126,49 @@ fn pieces_across_the_table_do_not_count() {
         ));
     }
     assert_eq!(tap_for_colorless(&mut game, ids[0]), 1);
+}
+
+#[test]
+fn each_piece_has_its_two_printed_land_subtypes() {
+    for (piece, subtype) in [
+        (cards::URZA_S_MINE, "Mine"),
+        (cards::URZA_S_POWER_PLANT, "Power-Plant"),
+        (cards::URZA_S_TOWER, "Tower"),
+    ] {
+        let (game, ids) = lands(&[piece]);
+        let permanent = game
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == ids[0])
+            .expect("the land is on the battlefield");
+        let subtypes = game.effective_subtypes(permanent);
+        assert!(subtypes.contains(&"Urza's"));
+        assert!(subtypes.contains(&subtype));
+    }
+}
+
+#[test]
+fn planar_nexus_supplies_both_missing_urza_land_types() {
+    for (piece, expected) in [
+        (cards::URZA_S_MINE, 2),
+        (cards::URZA_S_POWER_PLANT, 2),
+        (cards::URZA_S_TOWER, 3),
+    ] {
+        let (mut game, ids) = lands(&[piece, cards::PLANAR_NEXUS]);
+        assert_eq!(tap_for_colorless(&mut game, ids[0]), expected);
+    }
+}
+
+#[test]
+fn planar_nexus_has_every_urza_land_subtype() {
+    let (game, ids) = lands(&[cards::PLANAR_NEXUS]);
+    let nexus = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == ids[0])
+        .expect("Planar Nexus is on the battlefield");
+    let subtypes = game.effective_subtypes(nexus);
+    for subtype in ["Urza's", "Mine", "Power-Plant", "Tower"] {
+        assert!(subtypes.contains(&subtype), "missing {subtype}");
+    }
 }

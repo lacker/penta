@@ -280,6 +280,67 @@ impl Game {
     }
 
     #[allow(clippy::too_many_arguments)]
+    fn visit_nonbattlefield_cards_matching_query(
+        &self,
+        query: ObjectQueryDef,
+        evaluation_controller: PlayerId,
+        source: GameObjectId,
+        context: TriggerContext,
+        effect_context: Option<(&StackObject, ScopedEffect, &EffectResolutionContext)>,
+        visitor: &mut impl FnMut(Target) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        for zone in [
+            ZoneKind::Library,
+            ZoneKind::Hand,
+            ZoneKind::Graveyard,
+            ZoneKind::Exile,
+            ZoneKind::Command,
+        ] {
+            if !query.zones.contains(&zone) {
+                continue;
+            }
+            for card in self.cards_in_zone(zone) {
+                if !query.relative_position.is_none_or(|relative| {
+                    self.query_relative_position_matches(
+                        card.id,
+                        relative,
+                        source,
+                        context,
+                        effect_context,
+                    )
+                }) {
+                    continue;
+                }
+                let matches = effect_context.map_or_else(
+                    || self.card_object_matches(query.object, card, zone, source),
+                    |(object, scoped, resolution)| {
+                        self.effect_collection_target_matches(
+                            query.object,
+                            Target::Card(card.id),
+                            object,
+                            resolution,
+                            scoped,
+                        )
+                    },
+                );
+                if self.query_player_constraints_match(
+                    None,
+                    card.owner,
+                    query,
+                    (evaluation_controller, source),
+                    context,
+                    effect_context,
+                ) && matches
+                    && visitor(Target::Card(card.id)).is_break()
+                {
+                    return ControlFlow::Break(());
+                }
+            }
+        }
+        ControlFlow::Continue(())
+    }
+
+    #[allow(clippy::too_many_arguments)]
     fn visit_objects_matching_query_with_context(
         &self,
         query: ObjectQueryDef,
@@ -323,9 +384,19 @@ impl Game {
                         self.trigger_event_object_with_prospective(permanent, prospective)
                     },
                 );
-                if self.trigger_object_matches(query.object, &characteristics, source, false)
-                    && visitor(Target::Permanent(permanent.card.id)).is_break()
-                {
+                let matches = effect_context.map_or_else(
+                    || self.trigger_object_matches(query.object, &characteristics, source, false),
+                    |(object, scoped, resolution)| {
+                        self.effect_collection_target_matches(
+                            query.object,
+                            Target::Permanent(permanent.card.id),
+                            object,
+                            resolution,
+                            scoped,
+                        )
+                    },
+                );
+                if matches && visitor(Target::Permanent(permanent.card.id)).is_break() {
                     return ControlFlow::Break(());
                 }
             }
@@ -347,51 +418,32 @@ impl Game {
                 let Some(characteristics) = self.stack_trigger_event_object(candidate) else {
                     continue;
                 };
-                if self.trigger_object_matches(query.object, &characteristics, source, true)
-                    && visitor(Target::Spell(candidate.id)).is_break()
-                {
+                let matches = effect_context.map_or_else(
+                    || self.trigger_object_matches(query.object, &characteristics, source, true),
+                    |(object, scoped, resolution)| {
+                        self.effect_collection_target_matches(
+                            query.object,
+                            Target::Spell(candidate.id),
+                            object,
+                            resolution,
+                            scoped,
+                        )
+                    },
+                );
+                if matches && visitor(Target::Spell(candidate.id)).is_break() {
                     return ControlFlow::Break(());
                 }
             }
         }
         // The same card zones the target enumerator understands. Without this
         // a sweep over graveyards matched nothing and the clause was inert.
-        for zone in [
-            ZoneKind::Library,
-            ZoneKind::Hand,
-            ZoneKind::Graveyard,
-            ZoneKind::Exile,
-            ZoneKind::Command,
-        ] {
-            if !query.zones.contains(&zone) {
-                continue;
-            }
-            for card in self.cards_in_zone(zone) {
-                if !query.relative_position.is_none_or(|relative| {
-                    self.query_relative_position_matches(
-                        card.id,
-                        relative,
-                        source,
-                        context,
-                        effect_context,
-                    )
-                }) {
-                    continue;
-                }
-                if self.query_player_constraints_match(
-                    None,
-                    card.owner,
-                    query,
-                    (evaluation_controller, source),
-                    context,
-                    effect_context,
-                ) && self.card_object_matches(query.object, card, zone, source)
-                    && visitor(Target::Card(card.id)).is_break()
-                {
-                    return ControlFlow::Break(());
-                }
-            }
-        }
-        ControlFlow::Continue(())
+        self.visit_nonbattlefield_cards_matching_query(
+            query,
+            evaluation_controller,
+            source,
+            context,
+            effect_context,
+            &mut visitor,
+        )
     }
 }

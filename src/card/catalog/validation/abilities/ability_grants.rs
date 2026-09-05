@@ -88,6 +88,9 @@ fn collect_replacement_ability_grants(
     emblems: &mut Vec<EmblemCharacteristics>,
 ) {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => {
+            collect_replacement_ability_grants(*effect, grants, tokens, emblems);
+        }
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
                 collect_replacement_ability_grants(*effect, grants, tokens, emblems);
@@ -186,6 +189,9 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
 
 fn replacement_ability_grant_sites(effect: ReplacementEffectDef) -> usize {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => {
+            replacement_ability_grant_sites(*effect)
+        }
         ReplacementEffectDef::Sequence(effects) => effects
             .iter()
             .map(|effect| replacement_ability_grant_sites(*effect))

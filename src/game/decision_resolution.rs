@@ -100,15 +100,11 @@ impl Game {
             }
             DecisionContinuation::CardNameChoice {
                 choices,
-                searched,
-                zone,
                 binding,
-                object,
-                context,
-                effect,
-            } => self.resolve_card_name_choice(
-                &choices, searched, zone, &binding, &object, context, effect, options,
-            ),
+                resume,
+            } => {
+                self.resolve_card_name_choice(&choices, &binding, resume, options);
+            }
             DecisionContinuation::ChooseForEachPlayer {
                 definition,
                 task,

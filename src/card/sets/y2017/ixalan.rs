@@ -128,11 +128,21 @@ pub(in crate::card::sets) static SORCEROUS_SPYGLASS: CardRecord = CardRecord::ne
     crate::card::CardArt::new("85506a24-8d60-475c-9f43-65994caca7d4", "Kieran Yanner"),
     crate::card::CardSet::Ixalan,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::look_at_opponent_hand_then_choose_card_name_as_enters(
+        AbilityDef::as_enters(
             "As this artifact enters, look at an opponent's hand, then choose any card name.",
+            crate::card::ReplacementEffectDef::Sequence(&[
+                crate::card::ReplacementEffectDef::LookAtHand(PlayerRelation::Opponent),
+                crate::card::ReplacementEffectDef::BindOutput {
+                    binding: crate::Binding!("sorcerous_spyglass_name"),
+                    effect: &abilities::choose_card_name_as_enters(
+                        crate::card::CardNameSetDef::AllCardNames,
+                    ),
+                },
+            ]),
         ),
-        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
+        abilities::cannot_activate_nonmana_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            crate::card::CardNameDef::Binding(crate::Binding!("sorcerous_spyglass_name")),
         ),
     ]),
 );

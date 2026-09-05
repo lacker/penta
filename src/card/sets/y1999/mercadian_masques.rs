@@ -17,12 +17,14 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardNameDef,
+    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind,
+    abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
 
 // MMQ 1 — Afterlife (reprint)
 
@@ -169,7 +171,6 @@ pub(in crate::card::sets) static COMMON_CAUSE: CardRecord = CardRecord::new(
 );
 
 // MMQ 14 — Cornered Market
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CORNERED_MARKET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0d4f3c1d-d25e-4263-ab2b-19534c852678"),
     "Cornered Market",
@@ -178,7 +179,44 @@ pub(in crate::card::sets) static CORNERED_MARKET: CardRecord = CardRecord::new(
         "Edward P. Beard, Jr.",
     ),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(AbilityDef::static_ability(
+        "Players can't cast spells with the same name as a nontoken permanent. Players can't play nonbasic lands with the same name as a nontoken permanent.",
+        EffectDef::Sequence(&[
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                    PlayRestrictionDef::new(
+                        PlayActionMatcherDef::CastSpell,
+                        ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
+                            &ObjectSetDef::Query(ObjectQueryDef::new(
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                                &[ZoneKind::Battlefield],
+                            )),
+                        )),
+                    ),
+                )),
+            },
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                    PlayRestrictionDef::new(
+                        PlayActionMatcherDef::PlayLand,
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                CardSupertype::Basic,
+                            )),
+                            ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
+                                &ObjectSetDef::Query(ObjectQueryDef::new(
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                                    &[ZoneKind::Battlefield],
+                                )),
+                            )),
+                        ]),
+                    ),
+                )),
+            },
+        ]),
+    )),
 );
 
 // MMQ 15 — Crackdown
@@ -2914,13 +2952,36 @@ pub(in crate::card::sets) static VINE_TRELLIS: CardRecord = CardRecord::new(
 );
 
 // MMQ 286 — Assembly Hall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ASSEMBLY_HALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1676ccbb-91d2-4f26-b3a5-ccb1a21bdebf"),
     "Assembly Hall",
     crate::card::CardArt::new("1676ccbb-91d2-4f26-b3a5-ccb1a21bdebf", "Val Mayerik"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
+        "{4}, {T}, Reveal a creature card from your hand: Search your library for a card with the same name as the revealed card, reveal it, put it into your hand, then shuffle.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{4}")),
+            AbilityCostDef::TapSource,
+            AbilityCostDef::RevealCardFromHand(ObjectPredicateDef::HasType(CardType::Creature)),
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                ObjectRefDef::AdditionalCostObject(AdditionalCostObjectIndex::PRIMARY),
+            )),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: crate::card::ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // MMQ 287 — Barbed Wire

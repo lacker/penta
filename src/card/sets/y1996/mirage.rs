@@ -11,11 +11,12 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -695,13 +696,62 @@ pub(in crate::card::sets) static BAY_FALCON: CardRecord = CardRecord::new(
 );
 
 // MIR 55 — Bazaar of Wonders
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BAZAAR_OF_WONDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("78e7a165-e135-4b85-943d-8352b6e65870"),
     "Bazaar of Wonders",
     crate::card::CardArt::new("78e7a165-e135-4b85-943d-8352b6e65870", "Liz Danforth"),
     crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}{U}"))
+        .with_supertype(CardSupertype::World)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this enchantment enters, exile all cards from all graveyards.",
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::new(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                        ),
+                    )),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever a player casts a spell, counter it if a card with the same name is in a graveyard or a nontoken permanent with the same name is on the battlefield.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ObjectSetCount(
+                        &ObjectSetCountConditionDef {
+                            objects: &ObjectSetDef::One(ObjectRefDef::TriggeringObject),
+                            predicate: ObjectSetPredicateDef::contains(
+                                &ObjectPredicateDef::NameIn(&CardNameSetDef::Union(&[
+                                    CardNameSetDef::NamesOf(&ObjectSetDef::Query(
+                                        ObjectQueryDef::new(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Graveyard],
+                                        ),
+                                    )),
+                                    CardNameSetDef::NamesOf(&ObjectSetDef::Query(
+                                        ObjectQueryDef::new(
+                                            ObjectPredicateDef::Not(
+                                                &ObjectPredicateDef::Token,
+                                            ),
+                                            &[ZoneKind::Battlefield],
+                                        ),
+                                    )),
+                                ])),
+                            ),
+                        },
+                    ),
+                    then: &EffectDef::Counter {
+                        object: EffectRecipientDef::TriggeringObject,
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                    },
+                },
+            ),
+        ]),
 );
 
 // MIR 56 — Boomerang (reprint)

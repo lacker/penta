@@ -495,6 +495,8 @@ pub enum PlayActionMatcherDef {
     /// same prohibition machinery answers it, because a rule barring one is
     /// aimed at a player exactly the way a rule barring a cast is.
     ActivateNonManaAbility,
+    /// Any activated ability, including a mana ability.
+    ActivateAbility,
 }
 
 impl PlayActionMatcherDef {
@@ -502,7 +504,7 @@ impl PlayActionMatcherDef {
     pub const fn matches(self, action: PlayActionKind) -> bool {
         // `Any` is any *play* action; an activation is asked about
         // separately because it is not one.
-        if matches!(self, Self::ActivateNonManaAbility) {
+        if matches!(self, Self::ActivateNonManaAbility | Self::ActivateAbility) {
             return false;
         }
         matches!(self, Self::Any)

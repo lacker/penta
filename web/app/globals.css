@@ -2114,12 +2114,54 @@ button {
   border-color: rgba(193, 146, 219, 0.42);
 }
 
+.decision-filter {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.decision-filter input {
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(15, 12, 10, 0.72);
+  color: #f5eedf;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.decision-filter input:focus-visible {
+  border-color: var(--gold);
+  outline: 2px solid rgba(212, 170, 93, 0.22);
+  outline-offset: 1px;
+}
+
+.decision-filter small {
+  white-space: nowrap;
+}
+
 .decision-options {
   display: grid;
   gap: 7px;
   max-height: min(42vh, 360px);
   overflow-y: auto;
   padding-right: 4px;
+}
+
+.decision-options-empty {
+  margin: 0;
+  padding: 18px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  text-align: center;
 }
 
 .decision-options button,

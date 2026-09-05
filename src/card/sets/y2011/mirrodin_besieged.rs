@@ -2607,13 +2607,27 @@ pub(in crate::card::sets) static PHYREXIAN_JUGGERNAUT: CardRecord = CardRecord::
 );
 
 // MBS 122 — Phyrexian Revoker
-// Audit: unsupported — Needs a chosen-name activation restriction that reaches mana and nonmana abilities across every source zone without treating activation as a play action.
 pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c7bec21-61b0-4e72-848b-82f38e1910e0"),
     "Phyrexian Revoker",
     crate::card::CardArt::new("7c7bec21-61b0-4e72-848b-82f38e1910e0", "Kev Walker"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Horror"], 2, 1)
+        .with_abilities(&[
+            AbilityDef::as_enters(
+                "As this creature enters, choose a nonland card name.",
+                crate::card::ReplacementEffectDef::BindOutput {
+                    binding: Binding!("phyrexian_revoker_name"),
+                    effect: &abilities::choose_card_name_as_enters(
+                        crate::card::CardNameSetDef::NonlandCardNames,
+                    ),
+                },
+            ),
+            abilities::cannot_activate_abilities_with_name(
+                "Activated abilities of sources with the chosen name can't be activated.",
+                crate::card::CardNameDef::Binding(Binding!("phyrexian_revoker_name")),
+            ),
+        ]),
 );
 
 // MBS 123 — Pierce Strider

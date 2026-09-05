@@ -148,13 +148,13 @@ struct BindingRegistry {
     next_parent: std::cell::Cell<u8>,
     parent_reads: std::cell::Cell<u64>,
     binding_reads: std::cell::Cell<u64>,
-    chosen_name_reads: std::cell::Cell<u64>,
 }
 
 #[derive(Clone, Copy)]
 struct BindingScope<'registry> {
     objects: u64,
     object_sets: u64,
+    card_names: u64,
     escaping_object_sets: u64,
     parent_object: Option<u8>,
     parent_object_set: Option<u8>,
@@ -166,6 +166,7 @@ impl<'registry> BindingScope<'registry> {
         Self {
             objects: 0,
             object_sets: 0,
+            card_names: 0,
             escaping_object_sets: 0,
             parent_object: None,
             parent_object_set: None,
@@ -295,16 +296,6 @@ impl<'registry> BindingScope<'registry> {
             .is_some_and(|bit| self.bindings.binding_reads.get() & bit != 0)
     }
 
-    fn chosen_name_read_count(self) -> u64 {
-        self.bindings.chosen_name_reads.get()
-    }
-
-    fn mark_chosen_name_read(self) {
-        self.bindings
-            .chosen_name_reads
-            .set(self.bindings.chosen_name_reads.get() + 1);
-    }
-
     fn with_object(
         self,
         binding: Binding,
@@ -412,6 +403,8 @@ impl<'registry> BindingScope<'registry> {
     }
 
 }
+
+include!("name_binding_scope.rs");
 
 fn validate_target_index(
     target: TargetIndex,
@@ -555,6 +548,7 @@ fn validate_query(
     target_count: usize,
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
+    validate_object_predicate_references(query.object, target_count, scope)?;
     if let Some(controller) = query.controller {
         validate_player_set(controller, target_count, scope)?;
     }
@@ -619,10 +613,6 @@ fn validate_trigger_condition(
         // a condition reading one that was never saved names nothing.
         TriggerConditionDef::BoundObjectMatches { binding, .. } => {
             validate_object_reference(ObjectRefDef::Binding(binding), target_count, scope)
-        }
-        TriggerConditionDef::BoundObjectsShareName { first, second } => {
-            validate_object_set_target_references(*first, target_count, scope)?;
-            validate_object_set_target_references(*second, target_count, scope)
         }
         TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
@@ -692,10 +682,12 @@ fn validate_object_set_target_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match objects {
+        ObjectSetDef::Union(sets) => sets.iter().copied().try_for_each(|objects| {
+            validate_object_set_target_references(objects, target_count, scope)
+        }),
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
-        | ObjectSetDef::SharingNameWith(reference)
         | ObjectSetDef::TokensCreatedBy(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
@@ -707,6 +699,10 @@ fn validate_object_set_target_references(
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_target_references(*objects, target_count, scope)?;
             validate_object_predicate_references(object.predicate(), target_count, scope)
+        }
+        ObjectSetDef::ExceptObject { objects, object } => {
+            validate_object_set_target_references(*objects, target_count, scope)?;
+            validate_object_reference(object, target_count, scope)
         }
         ObjectSetDef::LegalTargets(target) => {
             validate_target_index(target, target_count)
@@ -721,7 +717,6 @@ fn validate_object_set_target_references(
         ObjectSetDef::BottomOfGraveyard(player)
             | ObjectSetDef::CardsDrawnThisTurnInHand(player)
             | ObjectSetDef::PermanentsControlledBy(player)
-            | ObjectSetDef::SharingNameWithBinding { player, .. }
             | ObjectSetDef::TopOfGraveyardMatching { player, .. } => {
             validate_player_reference(player, target_count, scope)
         }
@@ -970,13 +965,26 @@ fn validate_object_predicate_references(
         | ObjectPredicateDef::PowerLessThan(value) => {
             validate_value_target_references(value, target_count, scope)
         }
-        ObjectPredicateDef::HasName(reference) => {
-            validate_object_reference(reference, target_count, scope)
+        ObjectPredicateDef::NameEquals(name) => {
+            validate_card_name_references(name, target_count, scope)
         }
-        ObjectPredicateDef::HasChosenName => {
-            scope.mark_chosen_name_read();
-            Ok(())
+        ObjectPredicateDef::NameIn(names) => {
+            validate_card_name_set_references(*names, target_count, scope)
         }
         _ => Ok(()),
     }
 }
+
+fn validate_card_name_references(
+    name: CardNameDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    match name {
+        CardNameDef::NameOf(reference) => validate_object_reference(reference, target_count, scope),
+        CardNameDef::Binding(binding) => scope.validate_card_name_binding_reference(binding),
+        CardNameDef::Literal(_) => Ok(()),
+    }
+}
+
+include!("name_references.rs");

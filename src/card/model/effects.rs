@@ -25,16 +25,18 @@ use crate::Format;
 use crate::ids::{AdditionalCostObjectIndex, Binding, TargetIndex};
 
 use super::{
-    AbilityDef, AddManaEffectDef, AlternativeCastKindDef, BasicLandType, CardSupertype,
-    CardSupertypeSet, CardTypeSet, ColorSet, ComparisonDef, CounterKind, DeclarativeAbilityDef,
-    KeywordAbility, ManaColor, ManaCost, ManaTypeDef, ObjectPredicateDef, PlayActionKind,
-    PlayerRelation, TokenCharacteristics, TriggerConditionDef, ZoneKind, ZonePlacement,
+    AbilityDef, AddManaEffectDef, AlternativeCastKindDef, BasicLandType, CardNameSetDef,
+    CardSupertype, CardSupertypeSet, CardTypeSet, ColorSet, ComparisonDef, CounterKind,
+    DeclarativeAbilityDef, KeywordAbility, ManaColor, ManaCost, ManaTypeDef, ObjectPredicateDef,
+    PlayActionKind, PlayerRelation, TokenCharacteristics, TriggerConditionDef, ZoneKind,
+    ZonePlacement,
 };
 
 // Effect subjects, lifetimes, and event matchers form the shared vocabulary
 // consumed by both resolving and continuously applied effects below.
 include!("effects/zone_change_references.rs");
 include!("effects/recipients_and_matchers.rs");
+include!("effects/damage_event_matcher_helpers.rs");
 include!("effects/durations.rs");
 include!("effects/zone_change_event_matchers.rs");
 include!("effects/combat_restrictions.rs");

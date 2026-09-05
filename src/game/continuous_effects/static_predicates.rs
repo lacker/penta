@@ -88,6 +88,27 @@ impl Game {
         }
     }
 
+    fn static_name_predicate_matches_lazily(
+        &self,
+        predicate: ObjectPredicateDef,
+        source: &Permanent,
+        affected: &Permanent,
+    ) -> Option<bool> {
+        match predicate {
+            ObjectPredicateDef::NameEquals(name) => self
+                .source_card_name(name, source.card.id)
+                .zip(self.object_card_name(affected.card.id))
+                .map(|(expected, actual)| actual == expected),
+            ObjectPredicateDef::NameIn(names) => self
+                .object_card_name(affected.card.id)
+                .map(|actual| {
+                    self.source_card_name_set(*names, source.card.id)
+                        .contains(actual.as_ref())
+                }),
+            _ => None,
+        }
+    }
+
     fn lazy_match(
         &self,
         predicate: ObjectPredicateDef,
@@ -136,6 +157,9 @@ impl Game {
                 )
             }
             ObjectPredicateDef::Not(predicate) => nested(*predicate).map(|matches| !matches),
+            predicate @ (ObjectPredicateDef::NameEquals(_) | ObjectPredicateDef::NameIn(_)) => {
+                self.static_name_predicate_matches_lazily(predicate, source, affected)
+            }
             ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::GenericManaCostAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -155,9 +179,6 @@ impl Game {
             | ObjectPredicateDef::ControlledBy(_)
             | ObjectPredicateDef::OwnedBy(_)
             | ObjectPredicateDef::DebutSet(_)
-            | ObjectPredicateDef::HasName(_)
-            | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
             | ObjectPredicateDef::AttackingOrBlocking
             | ObjectPredicateDef::HasKeyword(_)
             | ObjectPredicateDef::HasAbility(_)

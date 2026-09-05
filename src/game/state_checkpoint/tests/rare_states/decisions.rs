@@ -325,8 +325,8 @@ fn an_entering_copy_with_added_characteristics_reconstructs() {
 }
 
 /// A permanent that named a card as it entered carries that name for the rest
-/// of the game. The name is free text rather than a catalog id, so it is the
-/// one piece of permanent state a locator cannot address.
+/// of the game. The name remains free text rather than a catalog id, while its
+/// authored binding label makes the producing and consuming clauses explicit.
 #[test]
 fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
     let mut game = staged_modern_game();
@@ -352,12 +352,14 @@ fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
                 .first()
                 .map(|pending| &pending.continuation),
             Some(DecisionContinuation::BattlefieldEntryScalarChoice {
-                choice: crate::card::BattlefieldEntryScalarChoiceDef {
-                    destination: crate::card::BattlefieldEntryChoiceDestinationDef::CardName,
+                authored_effect: crate::card::ReplacementEffectDef::BindOutput {
+                    binding,
                     ..
                 },
+                choice,
                 ..
-            })
+            }) if *binding == Binding!("pithing_needle_name")
+                && choice.destination == crate::card::BattlefieldEntryChoiceDestinationDef::CardName
         ),
         "entering must ask for a card name, not {:?}",
         game.pending_decisions
@@ -432,6 +434,55 @@ fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
         "the choice must leave a named permanent behind"
     );
     assert_reconstructs(&game, "a permanent holding a chosen card name");
+}
+
+#[test]
+fn a_resolving_card_name_binding_reconstructs() {
+    let mut game = staged_game();
+    let scroll = creature(
+        11_500,
+        crate::card::cards::CURSED_SCROLL,
+        PlayerId::One,
+    );
+    let scroll_id = scroll.card.id;
+    game.battlefield.push(scroll);
+    fill_mana(&mut game, PlayerId::One, 3);
+
+    let activation = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::ActivateAbility { source, targets, .. }
+                    if *source == scroll_id
+                        && targets.iter().any(|slot| {
+                            slot.targets().contains(&Target::Player(PlayerId::Two))
+                        })
+            )
+        })
+        .expect("Cursed Scroll can target the opponent");
+    game.apply(PlayerId::One, activation)
+        .expect("Cursed Scroll is activated");
+    resolve_top_of_stack(&mut game);
+
+    assert!(
+        matches!(
+            game.pending_decisions
+                .first()
+                .map(|pending| &pending.continuation),
+            Some(DecisionContinuation::CardNameChoice {
+                binding, resume, ..
+            })
+                if *binding == RuntimeBinding::Label("cursed_scroll_name".into())
+                    && matches!(
+                        resume.as_ref(),
+                        PendingProcedure::ResolveEffects { effects, .. } if effects.len() == 2
+                    )
+        ),
+        "the pending decision carries the chosen-name binding and two remaining sequence steps",
+    );
+    assert_reconstructs(&game, "Cursed Scroll choosing a card name");
 }
 
 /// A chosen player shares the scalar entry continuation but lands in typed

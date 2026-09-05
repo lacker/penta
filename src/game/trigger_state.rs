@@ -84,10 +84,6 @@ pub(super) struct EffectResolutionContext {
     /// What those same matched objects add up to in mana value, for a
     /// follow-up measured by what the step before it turned up.
     pub(super) matched_mana_value: Option<u16>,
-    /// A card name chosen while this effect resolves, which the rest of the
-    /// same resolution reads back. Cabal Therapy names one and then discards
-    /// every copy of it.
-    pub(super) chosen_name: Option<String>,
     /// A counter kind selected by a nested counter-choice effect.
     pub(super) chosen_counter: Option<CounterKind>,
     parent_object: Shared<Option<Target>>,
@@ -160,6 +156,7 @@ impl<T: Clone + Eq> Eq for Shared<T> {}
 pub(super) enum EffectBindingValue {
     Object(Option<Target>),
     Objects(Vec<Target>),
+    CardName(String),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -201,7 +198,6 @@ impl EffectResolutionContext {
             matched_count: self.matched_count,
             matched_card_types: self.matched_card_types,
             matched_mana_value: self.matched_mana_value,
-            chosen_name: self.chosen_name.clone(),
             chosen_counter: self.chosen_counter,
             parent_object,
             parent_objects,
@@ -228,7 +224,6 @@ impl EffectResolutionContext {
             matched_count: None,
             matched_card_types: None,
             matched_mana_value: None,
-            chosen_name: None,
             chosen_counter: None,
             parent_object: Shared::default(),
             parent_objects: Shared::default(),
@@ -252,7 +247,9 @@ impl EffectResolutionContext {
         self.bindings
             .with(|bindings| match bindings.values.get(label) {
                 Some(EffectBindingValue::Object(object)) => *object,
-                Some(EffectBindingValue::Objects(_)) | None => None,
+                Some(EffectBindingValue::Objects(_) | EffectBindingValue::CardName(_)) | None => {
+                    None
+                }
             })
     }
 
@@ -293,7 +290,9 @@ impl EffectResolutionContext {
         self.bindings
             .with(|bindings| match bindings.values.get(label) {
                 Some(EffectBindingValue::Objects(objects)) => objects.clone(),
-                Some(EffectBindingValue::Object(_)) | None => Vec::new(),
+                Some(EffectBindingValue::Object(_) | EffectBindingValue::CardName(_)) | None => {
+                    Vec::new()
+                }
             })
     }
 
@@ -364,6 +363,7 @@ impl EffectResolutionContext {
                     EffectBindingValue::Objects(group) => {
                         group.retain(|object| !objects.contains(object));
                     }
+                    EffectBindingValue::CardName(_) => {}
                 }
             }
         });
@@ -400,6 +400,7 @@ impl EffectResolutionContext {
             |binding| match binding {
                 EffectBindingValue::Object(object) => object.iter().copied().collect::<Vec<_>>(),
                 EffectBindingValue::Objects(objects) => objects.clone(),
+                EffectBindingValue::CardName(_) => Vec::new(),
             },
         ));
         targets
@@ -418,7 +419,6 @@ impl EffectResolutionContext {
             matched_count: None,
             matched_card_types: None,
             matched_mana_value: None,
-            chosen_name: None,
             chosen_counter: None,
             parent_object: Shared::new(parent_object),
             parent_objects: Shared::new(parent_objects),
@@ -426,6 +426,8 @@ impl EffectResolutionContext {
         }
     }
 }
+
+include!("trigger_state/name_bindings.rs");
 
 impl From<TriggerContext> for EffectResolutionContext {
     fn from(trigger: TriggerContext) -> Self {

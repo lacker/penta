@@ -5,15 +5,51 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
-    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    ComparisonDef, CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
+    CardEffectStatus, CardNameDef, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
+    CardType, ComparisonDef, CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
     SacrificedAmountDef, SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef,
     TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
     ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
+
+// CLB 8 — Banishment
+pub(in crate::card::sets) static BANISHMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a71caadb-31ab-4b7f-b304-e7d3e8f9d132"),
+    "Banishment",
+    CardArt::new("a71caadb-31ab-4b7f-b304-e7d3e8f9d132", "Darek Zabrocki"),
+    CardSet::CommanderLegendsBattleForBaldursGate,
+    CardRules::new_enchantment(mana_cost!("{3}{W}")).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this enchantment enters, exile target nonland permanent an opponent controls and all other nonland permanents your opponents control with the same name until this enchantment leaves the battlefield.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            })],
+            abilities::exile_until_source_leaves(EffectRecipientDef::objects(
+                ObjectSetDef::Union(&[
+                    ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Opponent,
+                        )),
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                            CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                        )),
+                    },
+                ]),
+            )),
+        ),
+    ]),
+);
 
 // CLB 11 — Blessed Hippogriff
 const fn blessed_hippogriff_rules() -> CardRules {
@@ -775,6 +811,7 @@ pub(in crate::card::sets) static IZZET_BOILERWORKS: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BANISHMENT,
     &BLESSED_HIPPOGRIFF,
     &GREATSWORD_OF_TYR,
     &SWORD_COAST_SERPENT,

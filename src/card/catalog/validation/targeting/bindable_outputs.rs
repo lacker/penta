@@ -3,7 +3,8 @@ fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidati
         EffectDef::Mill { .. }
         | EffectDef::MillUntil(_)
         | EffectDef::SelectAtRandomFromZone { .. }
-        | EffectDef::RevealAtRandomFromHand { .. } => Ok(true),
+        | EffectDef::RevealAtRandomFromHand { .. }
+        | EffectDef::ChooseCardName { .. } => Ok(true),
         EffectDef::IfCondition { then, .. } => has_bindable_output(*then),
         EffectDef::IfFormat {
             then, otherwise, ..
@@ -28,6 +29,10 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
         }
     };
     match effect {
+        EffectDef::BindOutput {
+            effect: &EffectDef::ChooseCardName { .. },
+            ..
+        } => {}
         EffectDef::BindOutput { binding, .. } => push(binding),
         EffectDef::WithZoneMoveResult { binding, then, .. } => {
             push(binding);
@@ -120,6 +125,26 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
     }
 }
 
+fn durable_card_name_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
+    let mut push = |binding: Binding| {
+        if binding != crate::ParentBinding && !outputs.contains(&binding) {
+            outputs.push(binding);
+        }
+    };
+    match effect {
+        EffectDef::BindOutput {
+            binding,
+            effect: &EffectDef::ChooseCardName { .. },
+        } => push(binding),
+        EffectDef::Sequence(effects) => {
+            for effect in effects {
+                durable_card_name_outputs(*effect, outputs);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn scope_after_sequence_effect(
     effect: EffectDef,
     mut scope: BindingScope<'_>,
@@ -128,6 +153,11 @@ fn scope_after_sequence_effect(
     durable_object_set_outputs(effect, &mut outputs);
     for binding in outputs {
         scope = scope.with_declared_object_set(binding)?;
+    }
+    let mut name_outputs = Vec::new();
+    durable_card_name_outputs(effect, &mut name_outputs);
+    for binding in name_outputs {
+        scope = scope.with_declared_card_name(binding)?;
     }
     Ok(scope)
 }

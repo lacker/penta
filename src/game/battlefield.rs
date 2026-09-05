@@ -10,38 +10,12 @@ use super::{
     PendingBattlefieldEntry, PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent,
     PlayerId, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
     ReplacementEventDef, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Step, Target,
-    TargetSlotId, TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
+    TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
 };
 use crate::Binding;
 
 impl Game {
-    /// Every battlefield permanent whose printed name matches the chosen
-    /// target's, the target included.
-    pub(super) fn objects_sharing_name_with_target(
-        &self,
-        slot: TargetSlotId,
-        object: &StackObject,
-    ) -> Vec<Target> {
-        let Some(name) = Self::chosen_targets(object, slot)
-            .filter(|target| self.stack_ability_target_is_legal(object, slot, *target))
-            .find_map(|target| match target {
-                Target::Permanent(id) => self.permanent_card_name(id),
-                _ => None,
-            })
-        else {
-            return Vec::new();
-        };
-        self.battlefield
-            .iter()
-            .filter(|permanent| {
-                self.permanent_card_name(permanent.card.id)
-                    .is_some_and(|candidate| candidate == name)
-            })
-            .map(|permanent| Target::Permanent(permanent.card.id))
-            .collect()
-    }
-
-    /// The printed name of any object the engine can still find, wherever it
+    /// The copiable name of any object the engine can still find, wherever it
     /// is. Used by the cards that speak about names rather than identity.
     pub(super) fn object_card_name(&self, id: GameObjectId) -> Option<Cow<'_, str>> {
         self.permanent_card_name(id)
@@ -56,6 +30,12 @@ impl Game {
                     })
                     .and_then(|card| self.catalog.get(card.definition))
                     .map(|card| Cow::Borrowed(card.name.as_str()))
+            })
+            .or_else(|| {
+                self.stack
+                    .iter()
+                    .find(|object| object.id == id)
+                    .and_then(|object| self.presentation_name(object.presentation()))
             })
             .or_else(|| match self.retired_objects.get(&id) {
                 Some(RetiredObject::Permanent { permanent, .. }) => {

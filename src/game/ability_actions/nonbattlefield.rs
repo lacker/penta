@@ -118,6 +118,7 @@ impl Game {
                 | AbilityCostDef::MillCards(_)
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
+                | AbilityCostDef::RevealCardFromHand(_)
                 | AbilityCostDef::ExileCardFromHand(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::SacrificePermanent { .. }

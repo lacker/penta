@@ -246,7 +246,8 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                 | EffectRecipientSetDef::DefenderOf(_)
                 | EffectRecipientSetDef::LegalTargets(_)
                 | EffectRecipientSetDef::Objects(
-                    ObjectSetDef::One(
+                    ObjectSetDef::Union(_)
+                    | ObjectSetDef::One(
                         ObjectRefDef::ResolvingObject
                         | ObjectRefDef::CreatingSource
                         | ObjectRefDef::ZoneChangeSuccessor(_)
@@ -271,8 +272,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                     | ObjectSetDef::PermanentsTargetedBy(_)
                     | ObjectSetDef::PlayerAttachments(_)
                     | ObjectSetDef::LegalAttachmentHosts(_)
-                    | ObjectSetDef::SharingNameWith(_)
-                    | ObjectSetDef::SharingNameWithBinding { .. }
+                    | ObjectSetDef::ExceptObject { .. }
                     | ObjectSetDef::TokensCreatedBy(_)
                     | ObjectSetDef::TopOfGraveyardMatching { .. },
                 )

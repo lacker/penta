@@ -45,7 +45,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::May { effect, .. }
         | EffectDef::ChooseCounterKind { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
-        | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
         | EffectDef::WithBattlefieldArrival { effect, .. }
         | EffectDef::PermitLookAtExiled { then: effect, .. }
@@ -156,6 +155,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ExileOneFromEachZone { .. }
         | EffectDef::PermitCastFromGraveyardThisTurn { .. }
         | EffectDef::LookAtRandomCardInHand { .. }
+        | EffectDef::ChooseCardName { .. }
         | EffectDef::LoseLife { .. }
         | EffectDef::LoseTheGame { .. }
         | EffectDef::WinTheGame { .. }

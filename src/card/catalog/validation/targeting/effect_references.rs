@@ -45,32 +45,6 @@ fn validate_object_set_continuation(
     Ok(())
 }
 
-fn validate_card_name_continuation(
-    binding: Binding,
-    effect: EffectDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-) -> Result<(), GrantedAbilityValidationError> {
-    if binding != crate::ParentBinding {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "then continuation",
-            operation: "ChooseCardName continuations must use ParentBinding",
-        });
-    }
-    let nested = scope.with_object_set(binding)?;
-    let chosen_name_reads = nested.chosen_name_read_count();
-    validate_effect_references(effect, target_count, nested)?;
-    if !nested.parent_binding_was_read()
-        && nested.chosen_name_read_count() == chosen_name_reads
-    {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "then continuation",
-            operation: "a continuation that does not read ParentBinding or the chosen name; use Sequence",
-        });
-    }
-    Ok(())
-}
-
 #[allow(clippy::too_many_lines)]
 fn validate_effect_references(
     effect: EffectDef,
@@ -79,13 +53,18 @@ fn validate_effect_references(
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
         EffectDef::BindOutput { effect, binding } => {
-            validate_effect_references(*effect, target_count, scope)?;
             if binding == crate::ParentBinding {
                 return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
                     context: "binding",
                     operation: "BindOutput requires a durable labeled binding",
                 });
             }
+            if let EffectDef::ChooseCardName { chooser, .. } = *effect {
+                validate_player_reference(chooser, target_count, scope)?;
+                let _ = scope.declare_binding(binding)?;
+                return Ok(());
+            }
+            validate_effect_references(*effect, target_count, scope)?;
             let _ = has_bindable_output(*effect)?;
             let _ = scope.declare_binding(binding)?;
             Ok(())
@@ -117,7 +96,11 @@ fn validate_effect_references(
             )
         }
         EffectDef::Sequence(effects) => {
-            let mut scope = scope;
+            let mut name_outputs = Vec::new();
+            for effect in effects {
+                durable_card_name_outputs(*effect, &mut name_outputs);
+            }
+            let mut scope = scope.with_known_binding_labels(&name_outputs)?;
             for effect in effects {
                 let mut outputs = Vec::new();
                 durable_object_set_outputs(*effect, &mut outputs);
@@ -170,18 +153,11 @@ fn validate_effect_references(
                 "Destroy follow-ups must expose a result binding consumed by their continuation",
             )
         }
-        EffectDef::ChooseCardName {
-            chooser,
-            matched_in,
-            binding,
-            then,
-            ..
-        } => {
-            validate_player_reference(chooser, target_count, scope)?;
-            validate_player_reference(matched_in, target_count, scope)?;
-            // The cards of the chosen name are bound as it is answered, so
-            // the follow-up may name that set.
-            validate_card_name_continuation(binding, *then, target_count, scope)
+        EffectDef::ChooseCardName { .. } => {
+            Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "card-name choice",
+                operation: "ChooseCardName must be wrapped in BindOutput",
+            })
         }
         EffectDef::Choose(choice) => {
             validate_player_reference(choice.chooser, target_count, scope)?;

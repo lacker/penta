@@ -81,9 +81,8 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
-        EffectDef::ChooseCardName { chooser, then, .. } => {
-            validate_player_reference_shape(chooser, targets)?;
-            validate_effect_target_shapes(*then, targets, None)
+        EffectDef::ChooseCardName { chooser, .. } => {
+            validate_player_reference_shape(chooser, targets)
         }
         EffectDef::Choose(choice) => {
             validate_player_reference_shape(choice.chooser, targets)?;
@@ -681,6 +680,31 @@ fn validate_replacement_effect_target_shapes(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, binding } => {
+            if binding == crate::ParentBinding {
+                return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "binding",
+                    operation: "BindOutput requires a durable labeled binding",
+                });
+            }
+            let ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) = *effect
+            else {
+                return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "binding",
+                    operation: "entry BindOutput requires a scalar choice producer",
+                });
+            };
+            match (choice.list, choice.destination) {
+                (
+                    ScalarChoiceListDef::CardNames(names),
+                    BattlefieldEntryChoiceDestinationDef::CardName,
+                ) if names.is_catalog_defined() => Ok(()),
+                _ => Err(GrantedAbilityValidationError::InvalidScalarChoice {
+                    list: choice.list,
+                    destination: choice.destination,
+                }),
+            }
+        }
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
                 validate_replacement_effect_target_shapes(*effect, targets)?;
@@ -713,26 +737,23 @@ fn validate_replacement_effect_target_shapes(
             validate_effect_target_shapes(*effect, targets, None)
         }
         ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) => {
-            if matches!(
+            let valid = matches!(
                 (choice.list, choice.destination),
                 (ScalarChoiceListDef::Players, BattlefieldEntryChoiceDestinationDef::Player)
-                | (
-                    ScalarChoiceListDef::CardNames
-                        | ScalarChoiceListDef::NonlandCardNames
-                        | ScalarChoiceListDef::NonbasicLandCardNames
-                        | ScalarChoiceListDef::CardNamesOtherThanBasicLands,
-                    BattlefieldEntryChoiceDestinationDef::CardName
-                ) | (
-                    ScalarChoiceListDef::CreatureTypes,
-                    BattlefieldEntryChoiceDestinationDef::CreatureType
-                ) | (
-                    ScalarChoiceListDef::BasicLandTypes,
-                    BattlefieldEntryChoiceDestinationDef::BasicLandType
-                ) | (
-                    ScalarChoiceListDef::Colors,
-                    BattlefieldEntryChoiceDestinationDef::Color
-                )
-            ) {
+                    | (
+                        ScalarChoiceListDef::CreatureTypes,
+                        BattlefieldEntryChoiceDestinationDef::CreatureType
+                    )
+                    | (
+                        ScalarChoiceListDef::BasicLandTypes,
+                        BattlefieldEntryChoiceDestinationDef::BasicLandType
+                    )
+                    | (
+                        ScalarChoiceListDef::Colors,
+                        BattlefieldEntryChoiceDestinationDef::Color
+                    )
+            );
+            if valid {
                 Ok(())
             } else {
                 Err(GrantedAbilityValidationError::InvalidScalarChoice {
@@ -757,11 +778,14 @@ fn validate_replacement_effect_target_shapes(
 }
 
 #[cfg(test)]
+#[path = "effect_shape_entry_choice_tests.rs"]
+mod entry_choice_tests;
+
+#[cfg(test)]
 mod recipient_shape_tests {
     use super::*;
     use crate::card::{
-        BattlefieldEntryScalarChoiceDef, PlayActionMatcherDef, PlayRestrictionDef,
-        ResolvedEffectDurationDef,
+        PlayActionMatcherDef, PlayRestrictionDef, ResolvedEffectDurationDef,
     };
 
     const PLAYER_TARGET: AbilityTargetDef =
@@ -935,24 +959,6 @@ mod recipient_shape_tests {
                 }),
             );
         }
-    }
-
-    #[test]
-    fn scalar_entry_choices_reject_mismatched_lists_and_destinations() {
-        let choice = BattlefieldEntryScalarChoiceDef {
-            list: ScalarChoiceListDef::CardNames,
-            destination: BattlefieldEntryChoiceDestinationDef::CreatureType,
-        };
-        assert_eq!(
-            validate_replacement_ability_targets(
-                &[],
-                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)),
-            ),
-            Err(GrantedAbilityValidationError::InvalidScalarChoice {
-                list: choice.list,
-                destination: choice.destination,
-            }),
-        );
     }
 
     #[test]

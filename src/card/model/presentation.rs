@@ -9,9 +9,9 @@ use super::presentation_predicates::{
 };
 use super::{
     AbilityDef, AbilityKindDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    CardEffectStatus, CardSupertype, CardType, ConditionalModeMaximumDef, DeclarativeAbilityDef,
-    DividedTotal, ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
-    TargetPredicate, ZoneKind,
+    CardEffectStatus, CardNameDef, CardSupertype, CardType, ConditionalModeMaximumDef,
+    DeclarativeAbilityDef, DividedTotal, ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef,
+    PlayerRelation, TargetPredicate, ZoneKind,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -94,6 +94,8 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::EnteredThisTurn
         | ObjectPredicateDef::AttackedDuringControllersLastTurn
         | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::NameEquals(_)
+        | ObjectPredicateDef::NameIn(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::Ability
         | ObjectPredicateDef::ActivatedAbility
@@ -105,8 +107,6 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
-        | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -125,7 +125,6 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::HasName(_)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
@@ -548,7 +547,10 @@ impl AbilityTargetDef {
                 if predicate_negates(object, ObjectPredicateDef::Source) {
                     label.insert_str("target ".len(), "another ");
                 }
-                if predicate_negates(object, ObjectPredicateDef::HasName(ObjectRefDef::Source)) {
+                if predicate_negates(
+                    object,
+                    ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Source)),
+                ) {
                     label.push_str(" with a different name from this source");
                 }
                 let relation = controller.or_else(|| predicate_controller(object));

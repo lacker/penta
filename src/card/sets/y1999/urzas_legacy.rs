@@ -497,13 +497,45 @@ pub(in crate::card::sets) static SLOW_MOTION: CardRecord = CardRecord::new(
 );
 
 // ULG 43 — Snap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7e0549e-2d23-4ea8-b8d1-ae21af2c9091"),
     "Snap",
-    crate::card::CardArt::new("f7e0549e-2d23-4ea8-b8d1-ae21af2c9091", "Mike Raabe"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f7e0549e-2d23-4ea8-b8d1-ae21af2c9091", "Mike Raabe"),
+    CardSet::UrzasLegacy,
+    // The two lands pay the two mana back, so this bounces for free -- which
+    // is what makes it a combo piece rather than a tempo card.
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target creature to its owner's hand. Untap up to two lands.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                // Any lands, not only your own: the printed clause names no
+                // controller.
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: 2,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::Untap {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                },
+            }),
+        ]),
+    )),
 );
 
 // ULG 44 — Thornwind Faeries

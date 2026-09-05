@@ -157,13 +157,23 @@ pub(in crate::card::sets) static DESCENDANT_OF_STORMS: CardRecord = CardRecord::
 );
 
 // TDM 12 — Fortress Kin-Guard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORTRESS_KIN_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b647a018-1d70-43a1-a265-928bcd863689"),
     "Fortress Kin-Guard",
-    crate::card::CardArt::new("b647a018-1d70-43a1-a265-928bcd863689", "Daneen Wilkerson"),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b647a018-1d70-43a1-a265-928bcd863689", "Daneen Wilkerson"),
+    CardSet::TarkirDragonstorm,
+    // Two mana for two bodies or one bigger one, and the choice is made
+    // where it matters: a board that wants a blocker takes the Spirit.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Dog", "Soldier"], 1, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, it endures 1. (Put a +1/+1 counter on it or create a 1/1 \
+             white Spirit creature token.)",
+            EffectDef::Endure {
+                object: EffectRecipientDef::Source,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // TDM 21 — Riling Dawnbreaker

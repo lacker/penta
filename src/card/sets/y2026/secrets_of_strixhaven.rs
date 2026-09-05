@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef,
-    ValueDef, ZoneKind, abilities,
+    AbilityCostDef, AbilityCostList, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet,
+    CardType, EffectDef, EffectRecipientDef, ManaColor, ManaCost, ObjectPredicateDef,
+    PlayerRelation, SpellAdditionalCostDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -141,44 +141,67 @@ pub(in crate::card::sets) static FIELDS_OF_STRIFE: CardRecord = CardRecord::new(
     ]),
 );
 
+/// The SOS cycle of tapped duals that surveil. Unlike the flat-cost tapped
+/// duals elsewhere, each of these prices its surveil in its own two colours,
+/// so the activation cost is a parameter beside the colours rather than
+/// something the helper can derive.
+///
+/// The abilities are added one at a time in printed order: an array holding
+/// the parameterized ones could not be given a `'static` lifetime.
+const fn guildhall_surveil_land(
+    mana_text: &'static str,
+    colors: &'static [ManaColor],
+    surveil_text: &'static str,
+    surveil_cost: ManaCost,
+) -> CardRules {
+    CardRules::new_land(&[])
+        .with_ability(abilities::enters_tapped(CardType::Land))
+        .with_ability(AbilityDef::activated_mana(
+            mana_text,
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(colors)),
+        ))
+        // A cost list rather than a slice: the mana cost is a parameter, and
+        // a slice holding it could not be given a 'static lifetime.
+        .with_ability(AbilityDef::activated_with_cost_list_and_targets(
+            surveil_text,
+            AbilityCostList::two(
+                AbilityCostDef::Mana(surveil_cost),
+                AbilityCostDef::TapSource,
+            ),
+            &[],
+            abilities::surveil(ValueDef::Constant(1)),
+        ))
+}
+
 // SOS 256 — Forum of Amity
 pub(in crate::card::sets) static FORUM_OF_AMITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1de6c6cc-0c55-4997-8623-d7f796bd9ab8"),
     "Forum of Amity",
     CardArt::new("1de6c6cc-0c55-4997-8623-d7f796bd9ab8", "Richard Wright"),
     CardSet::SecretsOfStrixhaven,
-    // The surveil is priced in this land's own two colours, so unlike the
-    // generic tapped duals it only ever pays the deck that already runs it.
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped(CardType::Land),
-        AbilityDef::activated_mana(
-            "{T}: Add {W} or {B}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[
-                ManaColor::White,
-                ManaColor::Black,
-            ])),
-        ),
-        AbilityDef::activated(
-            "{2}{W}{B}, {T}: Surveil 1. (Look at the top card of your library. You may put it \
-             into your graveyard.)",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}{W}{B}")),
-                AbilityCostDef::TapSource,
-            ],
-            abilities::surveil(ValueDef::Constant(1)),
-        ),
-    ]),
+    guildhall_surveil_land(
+        "{T}: Add {W} or {B}.",
+        &[ManaColor::White, ManaColor::Black],
+        "{2}{W}{B}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
+         your graveyard.)",
+        mana_cost!("{2}{W}{B}"),
+    ),
 );
 
 // SOS 258 — Paradox Gardens
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARADOX_GARDENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbc3447e-1329-4ea1-b4ca-b321b0ffec8f"),
     "Paradox Gardens",
-    crate::card::CardArt::new("dbc3447e-1329-4ea1-b4ca-b321b0ffec8f", "Leon Tukker"),
-    crate::card::CardSet::SecretsOfStrixhaven,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dbc3447e-1329-4ea1-b4ca-b321b0ffec8f", "Leon Tukker"),
+    CardSet::SecretsOfStrixhaven,
+    guildhall_surveil_land(
+        "{T}: Add {G} or {U}.",
+        &[ManaColor::Green, ManaColor::Blue],
+        "{2}{G}{U}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
+         your graveyard.)",
+        mana_cost!("{2}{G}{U}"),
+    ),
 );
 
 // SOS 262 — Spectacle Summit

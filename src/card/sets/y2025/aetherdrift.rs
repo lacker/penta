@@ -3,8 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    AppliedEffectDef, BasicLandType, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
+    CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeDef,
+    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
@@ -189,13 +190,31 @@ pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
 );
 
 // DFT 258 — Night Market
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8c1dce3-6136-4294-9d2b-5ef8527d733b"),
     "Night Market",
-    crate::card::CardArt::new("a8c1dce3-6136-4294-9d2b-5ef8527d733b", "David Álvarez"),
-    crate::card::CardSet::Aetherdrift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a8c1dce3-6136-4294-9d2b-5ef8527d733b", "David Álvarez"),
+    CardSet::Aetherdrift,
+    // A tapped land that fixes one colour and cycles away once the mana is
+    // there, so it is never the draw that loses the game.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::as_enters(
+            "As this land enters, choose a color.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::COLOR,
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of the chosen color.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)),
+        ),
+        abilities::cycling(
+            "Cycling {3} ({3}, Discard this card: Draw a card.)",
+            mana_cost!("{3}"),
+        ),
+    ]),
 );
 
 // DFT 260 — Riverpyre Verge

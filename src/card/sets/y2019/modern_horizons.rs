@@ -111,13 +111,68 @@ pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
 );
 
 // MH1 27 — Settle Beyond Reality
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72ed8e57-61bb-4e89-9484-ff2be800a449"),
     "Settle Beyond Reality",
-    crate::card::CardArt::new("72ed8e57-61bb-4e89-9484-ff2be800a449", "Anthony Palumbo"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("72ed8e57-61bb-4e89-9484-ff2be800a449", "Anthony Palumbo"),
+    CardSet::ModernHorizons1,
+    // Five mana for exile plus a blink is why both modes are on one card:
+    // the answer and the value are the same spell in a limited deck.
+    CardRules::new_sorcery(mana_cost!("{4}{W}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose one or both —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "Exile target creature you don't control.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::NotYou),
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Exile target creature you control, then return it to the battlefield under \
+                     its owner's control.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        },
+                    )],
+                    // Exiled linked to this spell and returned by the same
+                    // resolution, so it comes back as a new object with its
+                    // enters triggers armed.
+                    EffectDef::Sequence(&[
+                        EffectDef::ExileLinkedToSource {
+                            until_source_leaves: false,
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            face_down: false,
+                            then: None,
+                        },
+                        EffectDef::ReturnLinkedExiles {
+                            object: ObjectPredicateDef::Any,
+                            counters: None,
+                            zone: ZoneKind::Battlefield,
+                            grant: None,
+                            controller: None,
+                            transformed: false,
+                        },
+                    ]),
+                ),
+            ],
+        )
+        .with_mode_selection(1, 2, false),
+    ),
 );
 
 // MH1 37 — Winds of Abandon

@@ -13,35 +13,49 @@ use crate::card::{
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
+/// "When this creature enters, you get {E}{E} (two energy counters)." --
+/// the entry both Aether artificers share, and the two energy that pay for
+/// exactly one Servo before the board has to supply more.
+const fn two_energy_on_enters() -> AbilityDef {
+    abilities::enters_trigger(
+        "When this creature enters, you get {E}{E} (two energy counters).",
+        EffectDef::AddPlayerCounters {
+            recipient: EffectRecipientDef::Controller,
+            kind: CounterKind::named("energy"),
+            amount: ValueDef::Constant(2),
+        },
+    )
+}
+
+/// The Servo the same two artificers buy when they attack. The payment is
+/// optional because energy has other buyers: spending it here is a choice
+/// made attack by attack.
+const fn servo_for_two_energy_on_attack() -> AbilityDef {
+    AbilityDef::triggered(
+        "Whenever this creature attacks, you may pay {E}{E}. If you do, create a 1/1 colorless Servo artifact creature token.",
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef {
+                payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+                cost: EffectPaymentCostDef::Energy(2),
+            },
+            &const { EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1) },
+        )),
+    )
+}
+
 // AER 51 — Aether Poisoner
 pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9b217f1-1621-40d1-8a98-24c1f7cba800"),
     "Aether Poisoner",
     CardArt::new("c9b217f1-1621-40d1-8a98-24c1f7cba800", "Yongjae Choi"),
     CardSet::AetherRevolt,
-    // Deathtouch is what makes the attack safe, and the two energy it brings
-    // pay for exactly one Servo before the board has to supply more.
+    // Deathtouch is what makes the attack safe: a 1/1 the defender cannot
+    // profitably block keeps making Servos.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 1, 1).with_abilities(&[
         abilities::deathtouch(),
-        abilities::enters_trigger(
-            "When this creature enters, you get {E}{E} (two energy counters).",
-            EffectDef::AddPlayerCounters {
-                recipient: EffectRecipientDef::Controller,
-                kind: CounterKind::named("energy"),
-                amount: ValueDef::Constant(2),
-            },
-        ),
-        AbilityDef::triggered(
-            "Whenever this creature attacks, you may pay {E}{E}. If you do, create a 1/1 colorless Servo artifact creature token.",
-            TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: EffectPaymentCostDef::Energy(2),
-                },
-                &const { EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1) },
-            )),
-        ),
+        two_energy_on_enters(),
+        servo_for_two_energy_on_attack(),
     ]),
 );
 
@@ -90,13 +104,19 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
 );
 
 // AER 76 — Aether Chaser
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("290cde84-d97a-4737-aff2-c443a4e43f7d"),
     "Aether Chaser",
-    crate::card::CardArt::new("290cde84-d97a-4737-aff2-c443a4e43f7d", "Jason Rainville"),
-    crate::card::CardSet::AetherRevolt,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("290cde84-d97a-4737-aff2-c443a4e43f7d", "Jason Rainville"),
+    CardSet::AetherRevolt,
+    // The red half of the same pair. First strike does for a 2/1 what
+    // deathtouch does for the 1/1: it makes attacking into a bigger board
+    // survivable often enough to keep the energy flowing.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 2, 1).with_abilities(&[
+        abilities::first_strike(),
+        two_energy_on_enters(),
+        servo_for_two_energy_on_attack(),
+    ]),
 );
 
 // AER 87 — Kari Zev, Skyship Raider

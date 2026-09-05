@@ -4,11 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AdditionalCostValueDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -539,13 +539,38 @@ pub(in crate::card::sets) static SCALDING_TARN: CardRecord = CardRecord::new_wit
 );
 
 // ZEN 226 — Teetering Peaks
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEETERING_PEAKS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e56aca36-bb51-45e3-9ef9-9f9f2aa1e088"),
     "Teetering Peaks",
-    crate::card::CardArt::new("e56aca36-bb51-45e3-9ef9-9f9f2aa1e088", "Fred Fields"),
-    crate::card::CardSet::Zendikar,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e56aca36-bb51-45e3-9ef9-9f9f2aa1e088", "Fred Fields"),
+    CardSet::Zendikar,
+    // Coming in tapped is the whole cost, and an aggressive deck pays it
+    // gladly: the land is a burn spell that also casts spells later.
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
+        ),
+        abilities::enters_trigger_with_targets(
+            "When this land enters, target creature gets +2/+0 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
+        ),
+    ]),
 );
 
 // ZEN 229 — Verdant Catacombs

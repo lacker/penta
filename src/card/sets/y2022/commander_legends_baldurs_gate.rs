@@ -6,10 +6,11 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
     CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    ComparisonDef, CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
@@ -168,14 +169,111 @@ pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new
 );
 
 // CLB 99 — Sword Coast Serpent
-// Audit: unsupported — Card rules have not been implemented.
+const fn sword_coast_serpent_rules() -> CardRules {
+    CardRules::new_creature(
+        mana_cost!("{5}{U}{U}"),
+        &const { ["Serpent", "Dragon"] },
+        6,
+        6,
+    )
+    .with_ability(AbilityDef::static_ability(
+        "This creature can't be blocked as long as you've cast a noncreature spell this turn.",
+        EffectDef::IfCondition {
+            // Counted as they are cast rather than read off the stack:
+            // the spell that switched this on has usually resolved.
+            condition: &const {
+                TriggerConditionDef::ValueComparison(
+                    &const {
+                        ValueComparisonDef {
+                            left: ValueDef::CountSpellsCastThisTurn(
+                                &const {
+                                    SpellCastQueryDef {
+                                        player: PlayerRelation::You,
+                                        spell: ObjectPredicateDef::NoncreatureSpell,
+                                    }
+                                },
+                            ),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            right: ValueDef::Constant(1),
+                        }
+                    },
+                )
+            },
+            then: &const {
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                }
+            },
+        },
+    ))
+}
+
+fn sword_coast_serpent_composition() -> CardComposition {
+    let serpent = sword_coast_serpent_rules();
+    let wave = const {
+        CardRules::new_instant(mana_cost!("{1}{U}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell_with_targets(
+                    "Return target creature to its owner's hand.",
+                    &const {
+                        [AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )]
+                    },
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Sword Coast Serpent", serpent),
+            CardPart::new(CardPartId(1), "Capsizing Wave", wave),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Adventure,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Sword Coast Serpent",
+                SpellForm::Part(CardPartId::PRIMARY),
+                serpent
+                    .mana_cost()
+                    .expect("the Serpent has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Capsizing Wave",
+                SpellForm::Part(CardPartId(1)),
+                wave.mana_cost()
+                    .expect("Capsizing Wave has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static SWORD_COAST_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0bbfb7ae-9a32-428d-903c-99d0d8669b8d"),
     "Sword Coast Serpent",
-    crate::card::CardArt::new("0bbfb7ae-9a32-428d-903c-99d0d8669b8d", "Caio Monteiro"),
-    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("0bbfb7ae-9a32-428d-903c-99d0d8669b8d", "Caio Monteiro"),
+    CardSet::CommanderLegendsBattleForBaldursGate,
+    // Seven mana for a body that only connects in a deck already casting
+    // cheap spells -- which is the deck the Adventure half is for.
+    sword_coast_serpent_rules(),
+)
+.with_composition(sword_coast_serpent_composition);
 
 // CLB 106 — Young Blue Dragon
 const fn young_blue_dragon_rules() -> CardRules {

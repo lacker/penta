@@ -1590,13 +1590,31 @@ pub(in crate::card::sets) static DECEPTIVE_LANDSCAPE: CardRecord = CardRecord::n
 );
 
 // MH3 221 — Foreboding Landscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOREBODING_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57fb0fa7-0c5c-4a75-9461-c51403c30282"),
     "Foreboding Landscape",
-    crate::card::CardArt::new("57fb0fa7-0c5c-4a75-9461-c51403c30282", "Erikas Perl"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("57fb0fa7-0c5c-4a75-9461-c51403c30282", "Erikas Perl"),
+    CardSet::ModernHorizons3,
+    // The black-green-blue Landscape; only the three types and the cycling
+    // cost below are its own.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        abilities::landscape_fetch(
+            "{T}, Sacrifice this land: Search your library for a basic Swamp, Forest, or Island card, put it onto the battlefield tapped, then shuffle.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ObjectPredicateDef::HasAnyBasicLandType(&[
+                    BasicLandType::Swamp,
+                    BasicLandType::Forest,
+                    BasicLandType::Island,
+                ]),
+            ]),
+        ),
+        abilities::cycling(
+            "Cycling {B}{G}{U} ({B}{G}{U}, Discard this card: Draw a card.)",
+            mana_cost!("{B}{G}{U}"),
+        ),
+    ]),
 );
 
 // MH3 223 — Perilous Landscape

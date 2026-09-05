@@ -11,13 +11,22 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // M15 40 — Triplicate Spirits
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d6498d3-bf1f-4bf1-a602-7c21fb44c106"),
     "Triplicate Spirits",
-    crate::card::CardArt::new("3d6498d3-bf1f-4bf1-a602-7c21fb44c106", "Izzy"),
-    crate::card::CardSet::Magic2015,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3d6498d3-bf1f-4bf1-a602-7c21fb44c106", "Izzy"),
+    CardSet::Magic2015,
+    // Six mana printed, but the tokens it already made are what pay for the
+    // next copy, so the real cost falls every time a token deck casts it.
+    CardRules::new_sorcery(mana_cost!("{4}{W}{W}")).with_abilities(&[
+        abilities::convoke(),
+        AbilityDef::spell(
+            "Create three 1/1 white Spirit creature tokens with flying.",
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_amount(3),
+        ),
+    ]),
 );
 
 // M15 142 — Frenzied Goblin

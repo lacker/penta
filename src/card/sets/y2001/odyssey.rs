@@ -2952,13 +2952,37 @@ pub(in crate::card::sets) static STONE_TONGUE_BASILISK: CardRecord = CardRecord:
 );
 
 // ODY 277 — Sylvan Might
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SYLVAN_MIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("576e3ccd-40a3-4ea9-8e76-5e70b2ef9123"),
     "Sylvan Might",
-    crate::card::CardArt::new("576e3ccd-40a3-4ea9-8e76-5e70b2ef9123", "Arnie Swekel"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("576e3ccd-40a3-4ea9-8e76-5e70b2ef9123", "Arnie Swekel"),
+    CardSet::Odyssey,
+    // The trample is what makes the flashback worth four mana: a second
+    // combat trick out of the graveyard that the blocker cannot absorb.
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gets +2/+2 and gains trample until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{2}{G}{G}")),
+    ]),
 );
 
 // ODY 278 — Terravore

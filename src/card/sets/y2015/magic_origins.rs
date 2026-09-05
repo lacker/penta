@@ -164,13 +164,37 @@ pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
 );
 
 // ORI 171 — Conclave Naturalists
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONCLAVE_NATURALISTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3759fc28-9adb-41ed-851c-566a3a424e09"),
     "Conclave Naturalists",
-    crate::card::CardArt::new("3759fc28-9adb-41ed-851c-566a3a424e09", "Howard Lyon"),
-    crate::card::CardSet::MagicOrigins,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3759fc28-9adb-41ed-851c-566a3a424e09", "Howard Lyon"),
+    CardSet::MagicOrigins,
+    // A 4/4 body that carries its own answer, so the trigger is optional
+    // rather than a liability when the opponent has nothing worth breaking.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Dryad"], 4, 4).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may destroy target artifact or enchantment.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            },
+        ),
+    ),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =

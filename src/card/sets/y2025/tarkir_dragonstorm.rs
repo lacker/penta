@@ -187,13 +187,36 @@ pub(in crate::card::sets) static RILING_DAWNBREAKER: CardRecord = CardRecord::ne
 );
 
 // TDM 23 — Salt Road Packbeast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SALT_ROAD_PACKBEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98d548c9-42bc-4155-8211-0aea801c3724"),
     "Salt Road Packbeast",
-    crate::card::CardArt::new("98d548c9-42bc-4155-8211-0aea801c3724", "Ben Wootten"),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("98d548c9-42bc-4155-8211-0aea801c3724", "Ben Wootten"),
+    CardSet::TarkirDragonstorm,
+    // Six mana printed, but a board that has already gone wide pays a
+    // fraction of it, and the card it draws makes the turn no worse.
+    CardRules::new_creature(mana_cost!("{5}{W}"), &["Beast"], 4, 3).with_abilities(&[
+        AbilityDef::static_ability(
+            "Affinity for creatures (This spell costs {1} less to cast for each creature you \
+             control.)",
+            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+                &ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            )),
+        )
+        // Read while the card is in hand: this prices the spell, so it has
+        // to apply from the zone the spell is cast out of.
+        .with_source_zones(&[ZoneKind::Hand]),
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // TDM 33 — Voice of Victory

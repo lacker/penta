@@ -3,11 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseOneOfEachDef, EffectDef, EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, RandomizeObjectOrderDef, RevealObjectsDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseOneOfEachDef, EffectDef, EffectRecipientDef,
+    MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, RandomizeObjectOrderDef,
+    RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, mana_cost};
 
@@ -34,21 +34,7 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
                     )]
                 },
             ),
-            AbilityDef::static_ability(
-                "Enchanted permanent can't attack or block, and its activated abilities can't be \
-                 activated.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    // One printed sentence, so all three halves share a
-                    // duration: the Aura leaving gives back attacking,
-                    // blocking, and activations together.
-                    effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-                        AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
-                    ]),
-                },
-            ),
+            abilities::enchanted_permanent_subdued(),
         ]),
 );
 

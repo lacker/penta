@@ -66,13 +66,29 @@ pub(in crate::card::sets) static MINER_S_GUIDEWING: CardRecord = CardRecord::new
 );
 
 // LCI 30 — Petrify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PETRIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbc5f28f-6361-455f-ac82-260a70e59316"),
     "Petrify",
-    crate::card::CardArt::new("bbc5f28f-6361-455f-ac82-260a70e59316", "Samuel Araya"),
-    crate::card::CardSet::LostCavernsOfIxalan,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bbc5f28f-6361-455f-ac82-260a70e59316", "Samuel Araya"),
+    CardSet::LostCavernsOfIxalan,
+    // Two mana that answers a creature or a mana rock, and unlike Pacifism
+    // it also turns off the activated ability the creature was played for.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant artifact or creature",
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                    )]
+                },
+            ),
+            abilities::enchanted_permanent_subdued(),
+        ]),
 );
 
 // LCI 63 — Malcolm, Alluring Scoundrel

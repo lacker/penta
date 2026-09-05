@@ -4,9 +4,9 @@
 //! intrinsic rule, or grant site assigns identity when it attaches the clause.
 
 use super::model::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
+    AbilityCostDef, AbilityCostList, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
+    AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AggregateOperationDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
     BattlefieldEntryModificationDef, BindObjectsDef, CardChoiceSourceDef, CardType, CardTypeSet,
     ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseObjectOrderDef,
     CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef, CopyExceptionsDef,

@@ -5,6 +5,32 @@
 // readable; these are ordinary members of `abilities`. Included textually, so
 // the imports here are the parent module's.
 
+/// The three halves of the Pacifism-style Aura clause. They live in one
+/// composite because they are one printed sentence: the Aura leaving has to
+/// return attacking, blocking, and activations together rather than in
+/// whatever order three separate abilities happened to be applied.
+static ENCHANTED_PERMANENT_SUBDUED: [AppliedEffectDef; 3] = [
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+    AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
+];
+
+/// "Enchanted permanent can't attack or block, and its activated abilities
+/// can't be activated." Printed verbatim on more than one Aura, which is why
+/// it is written once here; the wording differs only in what each card is
+/// allowed to enchant.
+#[must_use]
+pub const fn enchanted_permanent_subdued() -> AbilityDef {
+    AbilityDef::static_ability(
+        "Enchanted permanent can't attack or block, and its activated abilities can't be \
+         activated.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::AttachedPermanent,
+            effect: AppliedEffectDef::Composite(&ENCHANTED_PERMANENT_SUBDUED),
+        },
+    )
+}
+
 /// The target an "Enchant creature" Aura spell chooses.
 pub static ENCHANT_CREATURE_TARGET: [AbilityTargetDef; 1] =
     [AbilityTargetDef::exactly_one_permanent(

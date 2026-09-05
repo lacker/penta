@@ -3,9 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    TokenCountersDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardType, CounterKind,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, TokenCountersDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -104,13 +105,35 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
 );
 
 // DSC 88 — Growth Spiral
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("288ed3e9-4485-44ad-8561-efa09ed96f34"),
     "Growth Spiral",
-    crate::card::CardArt::new("1e10e2b4-9639-41ae-8b8e-253224d3d513", "Nicholas Gregory"),
-    crate::card::CardSet::DuskmournHouseOfHorrorCommander,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1e10e2b4-9639-41ae-8b8e-253224d3d513", "Nicholas Gregory"),
+    CardSet::DuskmournHouseOfHorrorCommander,
+    // Ramping at instant speed is the point: the land drop it hands out is
+    // extra, so this is a cantrip on a turn where the land would rot in hand.
+    CardRules::new_instant(mana_cost!("{G}{U}")).with_ability(AbilityDef::spell(
+        "Draw a card. You may put a land card from your hand onto the battlefield.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+            // "You may put": the card drawn can itself be the land, and
+            // declining matters when the only land in hand is one you would
+            // rather keep for a real land drop.
+            EffectDef::ChooseCards {
+                player: EffectRecipientDef::Controller,
+                sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                minimum: 0,
+                maximum: 1,
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
+        ]),
+    )),
 );
 
 // DSC 270 — Dimir Aqueduct

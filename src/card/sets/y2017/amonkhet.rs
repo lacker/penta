@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    CardArt, CardRules, CardSet, CardType, ConditionalValueDef, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -47,13 +47,31 @@ pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardReco
 );
 
 // AKH 81 — Bone Picker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdc6a825-43f7-40a4-95f0-335dc538b6cd"),
     "Bone Picker",
-    crate::card::CardArt::new("bdc6a825-43f7-40a4-95f0-335dc538b6cd", "Yeong-Hao Han"),
-    crate::card::CardSet::Amonkhet,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bdc6a825-43f7-40a4-95f0-335dc538b6cd", "Yeong-Hao Han"),
+    CardSet::Amonkhet,
+    // A one-mana flying deathtouch blocker after any trade, which is why the
+    // full four mana is a price the card almost never pays.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Bird"], 3, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "This spell costs {3} less to cast if a creature died this turn.",
+            EffectDef::ReduceGenericCostBy(ValueDef::IfCreatureDiedThisTurn(
+                &const {
+                    ConditionalValueDef {
+                        then: ValueDef::Constant(3),
+                        otherwise: ValueDef::Constant(0),
+                    }
+                },
+            )),
+        )
+        // Read while the card is in hand: this prices the spell, so it has
+        // to apply from the zone the spell is cast out of.
+        .with_source_zones(&[ZoneKind::Hand]),
+        abilities::flying(),
+        abilities::deathtouch(),
+    ]),
 );
 
 // AKH 134 — Glorybringer

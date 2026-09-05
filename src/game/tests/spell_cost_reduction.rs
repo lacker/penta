@@ -147,3 +147,33 @@ fn a_discount_cannot_reach_the_coloured_cost() {
         .any(|action| matches!(action, Action::CastSpell { card: cast, .. } if cast == card));
     assert!(!castable, "and five colourless does not");
 }
+
+/// Morbid pricing: Bone Picker discounts itself from hand, and the condition
+/// is a turn-scoped fact rather than anything on the battlefield. Before the
+/// planner learned to read it the reduction silently came back as zero, so
+/// both branches are worth pinning.
+#[test]
+fn bone_picker_costs_full_price_until_a_creature_dies() {
+    let (game, card) = cost_of(cards::BONE_PICKER, &[]);
+    assert_eq!(
+        reduction(&game, cards::BONE_PICKER, card),
+        0,
+        "nothing has died yet"
+    );
+}
+
+#[test]
+fn bone_picker_discounts_three_once_a_creature_has_died() {
+    let (mut game, card) = cost_of(cards::BONE_PICKER, &[]);
+    let victim = creature(9_500, cards::SAVANNAH_LIONS, PlayerId::One);
+    let victim_id = victim.card.id;
+    game.battlefield.push(victim);
+    game.destroy_permanent(victim_id);
+    game.check_state_based_actions();
+
+    assert_eq!(
+        reduction(&game, cards::BONE_PICKER, card),
+        3,
+        "morbid is live for the rest of the turn"
+    );
+}

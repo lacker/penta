@@ -117,6 +117,10 @@ fn shared_source_cost_reduction_value(value: ValueDef) -> bool {
                 && shared_source_cost_reduction_value(condition.then)
                 && shared_source_cost_reduction_value(condition.otherwise)
         }
+        ValueDef::IfCreatureDiedThisTurn(branches) => {
+            shared_source_cost_reduction_value(branches.then)
+                && shared_source_cost_reduction_value(branches.otherwise)
+        }
         ValueDef::BasicLandTypesControlled(relation) => shared_cost_modifier_caster(relation, true),
         ValueDef::Sum(sum) => {
             shared_source_cost_reduction_value(sum.left)

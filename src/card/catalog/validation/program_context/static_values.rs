@@ -141,6 +141,13 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
             static_cost_reduction_value_supported(sum.left)
                 && static_cost_reduction_value_supported(sum.right)
         }
+        // Morbid. The turn-scoped flag behind it is maintained for
+        // resolution-time clauses already, so pricing a spell from hand asks
+        // the same question at a different moment.
+        ValueDef::IfCreatureDiedThisTurn(branches) => {
+            static_cost_reduction_value_supported(branches.then)
+                && static_cost_reduction_value_supported(branches.otherwise)
+        }
         ValueDef::CreaturesDiedThisTurn
         | ValueDef::AggregatePlayerObjectCounts(_)
         | ValueDef::CountMatchingPlayerAttachments(_)
@@ -168,7 +175,6 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::Scaled(_)
         | ValueDef::Halved(_)
         | ValueDef::Quotient(_)
-        | ValueDef::IfCreatureDiedThisTurn(_)
         | ValueDef::IfControllerLifeAtMost(_)
         | ValueDef::IfCondition(_)
         | ValueDef::IfSourceMatches(_)

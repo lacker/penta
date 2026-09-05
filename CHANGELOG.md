@@ -25,6 +25,14 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Morbid can price a spell, not just resolve one.**
+  `ValueDef::IfCreatureDiedThisTurn` is now read when a card discounts itself
+  from hand, so "this spell costs {3} less to cast if a creature died this
+  turn" charges what it should. The turn-scoped flag behind it was already
+  maintained for resolution-time clauses; only the cost planner and the two
+  validation boundaries were missing it, and a card using it in this position
+  silently took no discount. Bone Picker uses it.
+
 - **A watching permanent can name what an attacker is attacking.**
   `EffectRecipientDef::DefenderOfTriggeringObject` resolves the player or
   planeswalker the triggering attacker was declared against, so a permanent

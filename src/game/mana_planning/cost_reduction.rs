@@ -629,6 +629,17 @@ impl Game {
                 };
                 self.cost_reduction_value(chosen, player, source)
             }
+            // Morbid, read while the spell is being paid for. The turn-scoped
+            // flag is already maintained for resolution-time clauses, so
+            // pricing asks the same question at a different moment.
+            ValueDef::IfCreatureDiedThisTurn(branches) => {
+                let chosen = if self.creature_died_this_turn {
+                    branches.then
+                } else {
+                    branches.otherwise
+                };
+                self.cost_reduction_value(chosen, player, source)
+            }
             ValueDef::Sum(sum) => self
                 .cost_reduction_value(sum.left, player, source)
                 .saturating_add(self.cost_reduction_value(sum.right, player, source)),

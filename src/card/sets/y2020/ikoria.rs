@@ -38,7 +38,7 @@ pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::
 );
 
 // IKO 170 — Ram Through
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs excess-damage routing on a one-sided damage effect. DealDamageFrom carries no excess option and FightExcessDef attaches only to Fight, so "if the creature you control has trample, excess damage is dealt to that creature's controller instead" cannot be said without dropping the trample clause.
 pub(in crate::card::sets) static RAM_THROUGH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ac0b24e7-14e7-45ee-b5d8-bdb8674b669c"),
     "Ram Through",

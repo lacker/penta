@@ -2,6 +2,7 @@
 //! Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, BlockRestrictionDef,
@@ -9,8 +10,8 @@ use crate::card::{
     ComparisonDef, ConditionDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef,
     EffectRecipientDef, ManaColor, ManaRestrictionDef, ManaSpendEffectDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::mana_cost;
 use crate::{ParentBinding, TargetIndex};
@@ -321,13 +322,35 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
 );
 
 // LTR 137 — Improvised Club
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPROVISED_CLUB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8397d13-eeaf-4b4e-b3cd-9a9ac231873a"),
     "Improvised Club",
-    crate::card::CardArt::new("b8397d13-eeaf-4b4e-b3cd-9a9ac231873a", "Pablo Mendoza"),
-    crate::card::CardSet::LordOfTheRings,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b8397d13-eeaf-4b4e-b3cd-9a9ac231873a", "Pablo Mendoza"),
+    CardSet::LordOfTheRings,
+    // Four damage for two mana, paid for with something the board was going
+    // to lose anyway -- a Food or a spent token makes this nearly free.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice an artifact or creature. \
+             Improvised Club deals 4 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            // Either type pays it, so an artifact deck and a creature deck
+            // both cast this without giving up a body they wanted.
+            SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ),
 );
 
 // LTR 139 — Oliphaunt

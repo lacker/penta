@@ -1506,7 +1506,7 @@ pub(in crate::card::sets) static SPRINGHEART_NANTUKO: CardRecord = CardRecord::n
 );
 
 // MH3 172 — Temperamental Oozewagg
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a "modified" object predicate. A creature is modified if it has a counter on it, is equipped, or is enchanted by an Aura its controller controls; ObjectPredicateDef can say the counter half but has no predicate for the whole, and covering only counters would silently miss the Equipment and Aura halves this set's payoffs are built around.
 pub(in crate::card::sets) static TEMPERAMENTAL_OOZEWAGG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6625df2e-7046-411a-ae86-c46ac0953a0b"),
     "Temperamental Oozewagg",
@@ -1668,13 +1668,37 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
 );
 
 // MH3 204 — Snapping Voidcraw
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAPPING_VOIDCRAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ab3a5a5-9cb1-4ee5-b7b2-d870c9a56097"),
     "Snapping Voidcraw",
-    crate::card::CardArt::new("9185371c-2dde-48ad-ab27-08be04b3c522", "Camille Alquier"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9185371c-2dde-48ad-ab27-08be04b3c522", "Camille Alquier"),
+    CardSet::ModernHorizons3,
+    // A blocker that ramps two and then turns the spare colourless into
+    // cards, which is what an Eldrazi deck wants from three mana.
+    CardRules::new_creature(mana_cost!("{1}{G}{U}"), &["Eldrazi", "Turtle"], 1, 3).with_abilities(
+        &[
+            abilities::devoid(),
+            AbilityDef::activated_mana(
+                "{T}: Add {C}{C}.",
+                &[AbilityCostDef::TapSource],
+                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
+            ),
+            AbilityDef::activated(
+                "{3}{C}, {T}: Draw a card.",
+                // The {C} has to be colourless specifically, which is what
+                // makes this pair with the mana ability above rather than
+                // with any three lands.
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{3}{C}")),
+                    AbilityCostDef::TapSource,
+                ],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ],
+    ),
 );
 
 // MH3 208 — Writhing Chrysalis

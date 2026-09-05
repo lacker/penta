@@ -49,13 +49,33 @@ pub(in crate::card::sets) static MULTIVERSAL_PASSAGE: CardRecord = CardRecord::n
 );
 
 // OM1 182 — Ominous Asylum
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OMINOUS_ASYLUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("371b03a1-7707-4a8a-8c0e-0272418c801f"),
     "Ominous Asylum",
-    crate::card::CardArt::new("371b03a1-7707-4a8a-8c0e-0272418c801f", "Daniel Ljunggren"),
-    crate::card::CardSet::ThroughTheOmenpaths,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("371b03a1-7707-4a8a-8c0e-0272418c801f", "Daniel Ljunggren"),
+    CardSet::ThroughTheOmenpaths,
+    // Entering tapped is the price of the two colours, and the surveil is
+    // what a flooded late game does with the land instead of drawing it.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {R}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+        AbilityDef::activated(
+            "{4}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
+             your graveyard.)",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{4}")),
+                AbilityCostDef::TapSource,
+            ],
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // OM1 183 — Savage Mansion

@@ -514,16 +514,39 @@ pub(in crate::card::sets) static THALAKOS_SCOUT: CardRecord = CardRecord::new(
 );
 
 // EXO 49 — Theft of Dreams
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THEFT_OF_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29019e28-4ef8-4732-9972-0a47305fe303"),
     "Theft of Dreams",
-    crate::card::CardArt::new(
+    CardArt::new(
         "099da8aa-16b1-4395-8467-1636feb14a8a",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardSet::Exodus,
+    // Cards for their tapped creatures, so it rewards you for having
+    // survived the attack rather than for anything you built.
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Draw a card for each tapped creature target opponent controls.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            // Counted as the spell resolves, and only that opponent's tapped
+            // creatures, which is why it is cast after they attack.
+            amount: ValueDef::CountMatchingObjects(
+                &const {
+                    ObjectQueryDef::controlled_by(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Tapped,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    )
+                },
+            ),
+        },
+    )),
 );
 
 // EXO 50 — Treasure Trove

@@ -746,13 +746,26 @@ pub(in crate::card::sets) static BROOD_OF_COCKROACHES: CardRecord = CardRecord::
 );
 
 // VIS 54 — Coercion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COERCION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f3b07d33-f5f5-45cc-b2ac-360eaf2d4146"),
     "Coercion",
-    crate::card::CardArt::new("f3b07d33-f5f5-45cc-b2ac-360eaf2d4146", "DiTerlizzi"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f3b07d33-f5f5-45cc-b2ac-360eaf2d4146", "DiTerlizzi"),
+    CardSet::Visions,
+    // Three mana to take the best card in their hand, with no life cost and
+    // no restriction on what you may take.
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target opponent reveals their hand. You choose a card from it. That player discards \
+         that card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        // Any card, not only a nonland one: unlike the later printings of
+        // this effect, a land is a legal choice.
+        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ObjectPredicateDef::Any,
+        )),
+    )),
 );
 
 // VIS 55 — Crypt Rats

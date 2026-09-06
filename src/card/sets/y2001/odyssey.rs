@@ -2810,13 +2810,33 @@ pub(in crate::card::sets) static MUSCLE_BURST: CardRecord = CardRecord::new(
 );
 
 // ODY 253 — Nantuko Disciple
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_DISCIPLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f5db5e0-bd95-4c82-a12d-7288dbbbe3ba"),
     "Nantuko Disciple",
-    crate::card::CardArt::new("3f5db5e0-bd95-4c82-a12d-7288dbbbe3ba", "Justin Sweet"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f5db5e0-bd95-4c82-a12d-7288dbbbe3ba", "Justin Sweet"),
+    CardSet::Odyssey,
+    // Tapping to pump, so it is a combat trick that cannot also block, and
+    // the mana is trivial next to that.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Insect", "Druid"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}: Target creature gets +2/+2 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 254 — Nantuko Elder

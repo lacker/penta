@@ -7,8 +7,8 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardNameDef,
-    CardRules, CardSet, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
+    CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef,
+    ChooseDef, ComparisonDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
@@ -1572,13 +1572,33 @@ pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new
 );
 
 // JUD 134 — Thriss, Nantuko Primus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRISS_NANTUKO_PRIMUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ad9e647d-903f-4a77-a56c-cd5c0c2f12cf"),
     "Thriss, Nantuko Primus",
-    crate::card::CardArt::new("ad9e647d-903f-4a77-a56c-cd5c0c2f12cf", "John Avon"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ad9e647d-903f-4a77-a56c-cd5c0c2f12cf", "John Avon"),
+    CardSet::Judgment,
+    // The same ability five times larger, on a body that already ends the
+    // game if it is left alone.
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Insect", "Druid"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{G}, {T}: Target creature gets +5/+5 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(5),
+                    ValueDef::Constant(5),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )),
 );
 
 // JUD 135 — Tunneler Wurm

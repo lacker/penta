@@ -4047,13 +4047,30 @@ pub(in crate::card::sets) static GRAFTED_SKULLCAP: CardRecord = CardRecord::new(
 );
 
 // USG 297 — Hopping Automaton
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOPPING_AUTOMATON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4717b6c3-9fba-454f-9d02-e8c2869c4450"),
     "Hopping Automaton",
-    crate::card::CardArt::new("4717b6c3-9fba-454f-9d02-e8c2869c4450", "Val Mayerik"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4717b6c3-9fba-454f-9d02-e8c2869c4450", "Val Mayerik"),
+    CardSet::UrzasSaga,
+    // Free to activate, so it flies every turn at the cost of a point in
+    // each direction -- and it can hop repeatedly to shrink itself.
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{0}: This creature gets -1/-1 and gains flying until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{0}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-1),
+                        ValueDef::Constant(-1),
+                    ),
+                    AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // USG 298 — Karn, Silver Golem

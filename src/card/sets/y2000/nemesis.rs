@@ -1635,13 +1635,30 @@ pub(in crate::card::sets) static FLOWSTONE_ARMOR: CardRecord = CardRecord::new(
 );
 
 // NEM 132 — Flowstone Thopter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_THOPTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5bf016ec-2654-4c3e-8e2e-6c70c4604d28"),
     "Flowstone Thopter",
-    crate::card::CardArt::new("5bf016ec-2654-4c3e-8e2e-6c70c4604d28", "Mike Ploog"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5bf016ec-2654-4c3e-8e2e-6c70c4604d28", "Mike Ploog"),
+    CardSet::Nemesis,
+    // Seven mana for a 4/4 that can trade toughness for evasion and power
+    // one point at a time.
+    CardRules::new_artifact_creature(mana_cost!("{7}"), &["Thopter"], 4, 4).with_ability(
+        AbilityDef::activated(
+            "{1}: This creature gets +1/-1 and gains flying until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(-1),
+                    ),
+                    AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // NEM 133 — Kill Switch

@@ -191,6 +191,7 @@ mod hand_attack_effects;
 mod harvest_pyre;
 mod held_tapped;
 mod holy_nimbus;
+mod hopping_automaton;
 mod howling_mine;
 mod identity_and_mana;
 mod instill_energy;

@@ -5,13 +5,13 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CopyAbilityDef,
+    CopyExceptionsDef, CostDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // M12 1 — Aegis Angel
@@ -2291,13 +2291,40 @@ pub(in crate::card::sets) static PENTAVUS: CardRecord = CardRecord::new(
 );
 
 // M12 214 — Quicksilver Amulet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUICKSILVER_AMULET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ecfdebbe-6432-426f-ac2a-5a9af3047813"),
     "Quicksilver Amulet",
-    crate::card::CardArt::new("04c0357a-e98d-4c49-83ad-d7a8ebe7e2d1", "Brad Rigney"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("04c0357a-e98d-4c49-83ad-d7a8ebe7e2d1", "Brad Rigney"),
+    CardSet::Magic2012,
+    // The colourless version at twice the activation, so any deck can do it
+    // and none does it cheaply.
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated(
+        "{4}, {T}: You may put a creature card from your hand onto the battlefield.",
+        &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
+        // "You may": a minimum of none, so activating it with an empty
+        // hand is legal and does nothing.
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Object(ParentBinding),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Hand],
+                PlayerRelation::You,
+            )),
+            exclude: None,
+            minimum: 0,
+            maximum: 1,
+            visibility: ChoiceVisibilityDef::Public,
+            then: &const {
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                }
+            },
+        }),
+    )),
 );
 
 // M12 215 — Rusted Sentinel

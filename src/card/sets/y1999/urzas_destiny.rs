@@ -7,11 +7,13 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
-    CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DamageEventMatcherDef,
+    DamagePreventionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // UDS 1 — Academy Rector
@@ -1301,13 +1303,42 @@ pub(in crate::card::sets) static ELVISH_LOOKOUT: CardRecord = CardRecord::new(
 );
 
 // UDS 104 — Elvish Piper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_PIPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55e76333-0959-4572-a1ca-d77f76da1279"),
     "Elvish Piper",
-    crate::card::CardArt::new("55e76333-0959-4572-a1ca-d77f76da1279", "Scott M. Fischer"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("55e76333-0959-4572-a1ca-d77f76da1279", "Scott M. Fischer"),
+    CardSet::UrzasDestiny,
+    // Four mana and a turn buys any creature in the deck, which is why the
+    // cards it cheats in were always the point.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Shaman"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{G}, {T}: You may put a creature card from your hand onto the battlefield.",
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
+            // "You may": a minimum of none, so activating it with an empty
+            // hand is legal and does nothing.
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Hand],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &const {
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    }
+                },
+            }),
+        ),
+    ),
 );
 
 // UDS 105 — Emperor Crocodile

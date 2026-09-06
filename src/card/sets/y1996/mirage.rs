@@ -3781,16 +3781,28 @@ pub(in crate::card::sets) static WINDREAPER_FALCON: CardRecord = CardRecord::new
 );
 
 // MIR 290 — Zebra Unicorn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZEBRA_UNICORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a663ee9d-78f1-4c89-af9e-c788e165fa91"),
     "Zebra Unicorn",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a663ee9d-78f1-4c89-af9e-c788e165fa91",
         "Margaret Organ-Kean",
     ),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardSet::Mirage,
+    // Two life a turn for attacking, and more if anything pumps it: the
+    // clause reads the damage rather than the printed power.
+    CardRules::new_creature(mana_cost!("{2}{G}{W}"), &["Unicorn"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature deals damage, you gain that much life.",
+            // Any damage, not only combat damage, and the amount is
+            // read off the event rather than from the creature's power.
+            TriggerEventDef::damage_dealt_by(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+    ),
 );
 
 // MIR 291 — Acidic Dagger

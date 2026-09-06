@@ -91,13 +91,28 @@ pub(in crate::card::sets) static BENALISH_LANCER: CardRecord = CardRecord::new(
 );
 
 // INV 8 — Benalish Trapper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BENALISH_TRAPPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e312653d-c3e1-4c79-90d2-0963419b618c"),
     "Benalish Trapper",
-    crate::card::CardArt::new("e312653d-c3e1-4c79-90d2-0963419b618c", "Ken Meyer, Jr."),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e312653d-c3e1-4c79-90d2-0963419b618c", "Ken Meyer, Jr."),
+    CardSet::Invasion,
+    // Master Decoy again, in a block where the tapper was white's answer to
+    // everything bigger than it.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{W}, {T}: Tap target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // INV 9 — Blinding Light (reprint)
@@ -2706,13 +2721,24 @@ pub(in crate::card::sets) static HANNA_SHIP_S_NAVIGATOR: CardRecord = CardRecord
 // INV 250 — Heroes' Reunion (reprint)
 
 // INV 251 — Horned Cheetah
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORNED_CHEETAH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a28ad983-ce91-40b6-a1ce-fe36ec7fbce8"),
     "Horned Cheetah",
-    crate::card::CardArt::new("a28ad983-ce91-40b6-a1ce-fe36ec7fbce8", "John Matson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a28ad983-ce91-40b6-a1ce-fe36ec7fbce8", "John Matson"),
+    CardSet::Invasion,
+    // The Invasion printing of the same gold creature.
+    CardRules::new_creature(mana_cost!("{2}{G}{W}"), &["Cat"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature deals damage, you gain that much life.",
+            // Any damage, not only combat damage, and the amount is
+            // read off the event rather than from the creature's power.
+            TriggerEventDef::damage_dealt_by(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+    ),
 );
 
 // INV 252 — Hunting Kavu

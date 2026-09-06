@@ -513,13 +513,15 @@ pub(in crate::card::sets) static RISING_WATERS: CardRecord = CardRecord::new(
 );
 
 // NEM 39 — Rootwater Commando
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROOTWATER_COMMANDO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e86f36d-584d-49b2-8c66-19c262408950"),
     "Rootwater Commando",
-    crate::card::CardArt::new("8e86f36d-584d-49b2-8c66-19c262408950", "Mark Tedin"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8e86f36d-584d-49b2-8c66-19c262408950", "Mark Tedin"),
+    CardSet::Nemesis,
+    // The blue mirror-breaker: three mana for two damage a turn that the
+    // other blue deck cannot block.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk"], 2, 2)
+        .with_ability(abilities::landwalk(BasicLandType::Island)),
 );
 
 // NEM 40 — Rootwater Thief

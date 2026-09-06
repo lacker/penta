@@ -338,13 +338,28 @@ pub(in crate::card::sets) static MARBLE_TITAN: CardRecord = CardRecord::new(
 );
 
 // TMP 29 — Master Decoy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MASTER_DECOY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f3e11097-1ace-4ae8-a9e8-d00b9f709e54"),
     "Master Decoy",
-    crate::card::CardArt::new("f3e11097-1ace-4ae8-a9e8-d00b9f709e54", "Phil Foglio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f3e11097-1ace-4ae8-a9e8-d00b9f709e54", "Phil Foglio"),
+    CardSet::Tempest,
+    // Two mana to turn off their best creature every turn, which is more
+    // than the 1/2 body suggests.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{W}, {T}: Tap target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // TMP 30 — Mounted Archers
@@ -566,13 +581,22 @@ pub(in crate::card::sets) static SPIRIT_MIRROR: CardRecord = CardRecord::new(
 );
 
 // TMP 49 — Staunch Defenders
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STAUNCH_DEFENDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("88ed7210-17a4-4750-a003-617ba75bff3e"),
     "Staunch Defenders",
-    crate::card::CardArt::new("88ed7210-17a4-4750-a003-617ba75bff3e", "Mark Poole"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("88ed7210-17a4-4750-a003-617ba75bff3e", "Mark Poole"),
+    CardSet::Tempest,
+    // Five mana for a body and four life, which is what white paid to stop
+    // losing races it had already stabilised.
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Human", "Soldier"], 3, 4).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you gain 4 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ),
 );
 
 // TMP 50 — Talon Sliver
@@ -625,13 +649,15 @@ pub(in crate::card::sets) static WORTHY_CAUSE: CardRecord = CardRecord::new(
 );
 
 // TMP 54 — Benthic Behemoth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BENTHIC_BEHEMOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc9fb7b6-d20c-4c08-9dae-4ccc9138b662"),
     "Benthic Behemoth",
-    crate::card::CardArt::new("cc9fb7b6-d20c-4c08-9dae-4ccc9138b662", "Jim Nelson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cc9fb7b6-d20c-4c08-9dae-4ccc9138b662", "Jim Nelson"),
+    CardSet::Tempest,
+    // Eight mana for seven unblockable damage against any blue deck, and a
+    // 7/6 that gets chumped against everybody else.
+    CardRules::new_creature(mana_cost!("{5}{U}{U}{U}"), &["Serpent"], 7, 6)
+        .with_ability(abilities::landwalk(BasicLandType::Island)),
 );
 
 // TMP 55 — Capsize

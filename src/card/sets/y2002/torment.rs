@@ -197,13 +197,22 @@ pub(in crate::card::sets) static STRENGTH_OF_ISOLATION: CardRecord = CardRecord:
 );
 
 // TOR 18 — Teroh's Faithful
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEROH_S_FAITHFUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bff8cf45-c84f-49d7-ad3d-b5e046286cb3"),
     "Teroh's Faithful",
-    crate::card::CardArt::new("bff8cf45-c84f-49d7-ad3d-b5e046286cb3", "Tim Hildebrandt"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bff8cf45-c84f-49d7-ad3d-b5e046286cb3", "Tim Hildebrandt"),
+    CardSet::Torment,
+    // A 1/4 wall that gains four life on the way in, printed for a set that
+    // wanted white to survive rather than win.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Cleric"], 1, 4).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you gain 4 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ),
 );
 
 // TOR 19 — Teroh's Vanguard

@@ -1502,7 +1502,7 @@ pub(in crate::card::sets) static STRATADON: CardRecord = CardRecord::new(
 );
 
 // PLS 136 — Crosis's Catacombs
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a nonmana payment. EffectPaymentCostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static CROSIS_S_CATACOMBS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7caad74f-c0d0-4eca-94be-b89a2c9a3980"),
     "Crosis's Catacombs",
@@ -1515,7 +1515,7 @@ pub(in crate::card::sets) static CROSIS_S_CATACOMBS: CardRecord = CardRecord::ne
 );
 
 // PLS 137 — Darigaaz's Caldera
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a nonmana payment. EffectPaymentCostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static DARIGAAZ_S_CALDERA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("752f6f0c-af30-4937-b4a7-48f493e007a0"),
     "Darigaaz's Caldera",
@@ -1525,7 +1525,7 @@ pub(in crate::card::sets) static DARIGAAZ_S_CALDERA: CardRecord = CardRecord::ne
 );
 
 // PLS 138 — Dromar's Cavern
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a nonmana payment. EffectPaymentCostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("85f10cee-6a63-438e-a9df-6b902dd025b8"),
     "Dromar's Cavern",
@@ -1613,7 +1613,7 @@ pub(in crate::card::sets) static METEOR_CRATER: CardRecord = CardRecord::new(
 );
 
 // PLS 141 — Rith's Grove
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a nonmana payment. EffectPaymentCostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static RITH_S_GROVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("740fa25d-9c1f-44eb-9eb4-0dd514cb315a"),
     "Rith's Grove",

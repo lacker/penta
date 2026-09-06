@@ -1322,7 +1322,7 @@ pub(in crate::card::sets) static TEFERI_S_CURSE: CardRecord = CardRecord::new(
 );
 
 // MIR 97 — Teferi's Drake
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs phasing as a keyword. EffectDef::PhaseOut is a one-shot that phases a permanent out once; the keyword is a static that phases its permanent in and out before every one of its controller's untap steps.
 pub(in crate::card::sets) static TEFERI_S_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c24823df-5651-4578-a0c8-f9f52f66abe4"),
     "Teferi's Drake",

@@ -355,7 +355,7 @@ pub(in crate::card::sets) static BETRAYAL: CardRecord = CardRecord::new(
 );
 
 // VIS 27 — Breezekeeper
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs phasing as a keyword. EffectDef::PhaseOut is a one-shot that phases a permanent out once; the keyword is a static that phases its permanent in and out before every one of its controller's untap steps.
 pub(in crate::card::sets) static BREEZEKEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("beaefa77-6e4a-4724-a443-fa6b45803db5"),
     "Breezekeeper",

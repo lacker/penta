@@ -6,11 +6,12 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, ConditionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
+    ChooseDef, ComparisonDef, ConditionDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1611,43 +1612,112 @@ pub(in crate::card::sets) static CABAL_COFFERS: CardRecord = CardRecord::new(
 );
 
 // TOR 140 — Tainted Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75b5f0aa-1570-4064-ad20-aac7be8b2c9c"),
     "Tainted Field",
-    crate::card::CardArt::new("75b5f0aa-1570-4064-ad20-aac7be8b2c9c", "Don Hazeltine"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("75b5f0aa-1570-4064-ad20-aac7be8b2c9c", "Don Hazeltine"),
+    CardSet::Torment,
+    // Colourless for free, or two real colours once a Swamp is out. The
+    // black deck's fixing, priced on already being the black deck.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana_if(
+            "{T}: Add {W} or {B}. Activate only if you control a Swamp.",
+            &[AbilityCostDef::TapSource],
+            // A subtype check rather than a card name, so any land that
+            // is a Swamp turns it on -- including this cycle's own
+            // partners in a deck that runs two of them.
+            &TriggerConditionDef::controls_basic_land_type(
+                PlayerRelation::You,
+                BasicLandType::Swamp,
+            ),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // TOR 141 — Tainted Isle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_ISLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b462e121-015c-49c4-838a-ab788f213322"),
     "Tainted Isle",
-    crate::card::CardArt::new("b462e121-015c-49c4-838a-ab788f213322", "Alan Pollack"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b462e121-015c-49c4-838a-ab788f213322", "Alan Pollack"),
+    CardSet::Torment,
+    // The blue member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana_if(
+            "{T}: Add {U} or {B}. Activate only if you control a Swamp.",
+            &[AbilityCostDef::TapSource],
+            // A subtype check rather than a card name, so any land that
+            // is a Swamp turns it on -- including this cycle's own
+            // partners in a deck that runs two of them.
+            &TriggerConditionDef::controls_basic_land_type(
+                PlayerRelation::You,
+                BasicLandType::Swamp,
+            ),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // TOR 142 — Tainted Peak
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_PEAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4dcaaabe-e1d7-4047-9960-79178af3d903"),
     "Tainted Peak",
-    crate::card::CardArt::new("4dcaaabe-e1d7-4047-9960-79178af3d903", "Tony Szczudlo"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4dcaaabe-e1d7-4047-9960-79178af3d903", "Tony Szczudlo"),
+    CardSet::Torment,
+    // The red member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana_if(
+            "{T}: Add {B} or {R}. Activate only if you control a Swamp.",
+            &[AbilityCostDef::TapSource],
+            // A subtype check rather than a card name, so any land that
+            // is a Swamp turns it on -- including this cycle's own
+            // partners in a deck that runs two of them.
+            &TriggerConditionDef::controls_basic_land_type(
+                PlayerRelation::You,
+                BasicLandType::Swamp,
+            ),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // TOR 143 — Tainted Wood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_WOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a20a35cc-69e5-42b8-b28c-ae5147451150"),
     "Tainted Wood",
-    crate::card::CardArt::new("a20a35cc-69e5-42b8-b28c-ae5147451150", "Rob Alexander"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a20a35cc-69e5-42b8-b28c-ae5147451150", "Rob Alexander"),
+    CardSet::Torment,
+    // The green member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana_if(
+            "{T}: Add {B} or {G}. Activate only if you control a Swamp.",
+            &[AbilityCostDef::TapSource],
+            // A subtype check rather than a card name, so any land that
+            // is a Swamp turns it on -- including this cycle's own
+            // partners in a deck that runs two of them.
+            &TriggerConditionDef::controls_basic_land_type(
+                PlayerRelation::You,
+                BasicLandType::Swamp,
+            ),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

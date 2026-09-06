@@ -1250,13 +1250,28 @@ pub(in crate::card::sets) static DEFENDER_OF_CHAOS: CardRecord = CardRecord::new
 );
 
 // ULG 76 — Ghitu Fire-Eater
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHITU_FIRE_EATER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("131dce1c-e9c8-437a-b7aa-36a47049d2d2"),
     "Ghitu Fire-Eater",
-    crate::card::CardArt::new("131dce1c-e9c8-437a-b7aa-36a47049d2d2", "Melissa A. Benson"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("131dce1c-e9c8-437a-b7aa-36a47049d2d2", "Melissa A. Benson"),
+    CardSet::UrzasLegacy,
+    // It trades itself for its own power at any target, which makes it a
+    // burn spell that had to be answered before it grew.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Spellshaper"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: It deals damage equal to its power to any target.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::SourcePower,
+            },
+        ),
+    ),
 );
 
 // ULG 77 — Ghitu Slinger
@@ -1294,13 +1309,28 @@ pub(in crate::card::sets) static GHITU_WAR_CRY: CardRecord = CardRecord::new(
 );
 
 // ULG 79 — Goblin Medics
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_MEDICS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72cc08b6-f31a-46b3-b233-f6bb2c6b1106"),
     "Goblin Medics",
-    crate::card::CardArt::new("72cc08b6-f31a-46b3-b233-f6bb2c6b1106", "Jeff Laubenstein"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("72cc08b6-f31a-46b3-b233-f6bb2c6b1106", "Jeff Laubenstein"),
+    CardSet::UrzasLegacy,
+    // It pings whenever anything taps it, so an opponent's tap effect works
+    // for you as readily as your own.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature becomes tapped, it deals 1 damage to any target.",
+            TriggerEventDef::tapped(ObjectPredicateDef::Source),
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // ULG 80 — Goblin Welder
@@ -1413,13 +1443,34 @@ pub(in crate::card::sets) static PARCH: CardRecord = CardRecord::new(
 );
 
 // ULG 87 — Pygmy Pyrosaur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PYGMY_PYROSAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("96136626-4777-4e58-865b-c4d3f6ceb59d"),
     "Pygmy Pyrosaur",
-    crate::card::CardArt::new("96136626-4777-4e58-865b-c4d3f6ceb59d", "Dan Frazier"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("96136626-4777-4e58-865b-c4d3f6ceb59d", "Dan Frazier"),
+    CardSet::UrzasLegacy,
+    // A one-drop that only attacks, with a mana sink that makes every spare
+    // red mana a point of damage.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Lizard"], 1, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ULG 88 — Pyromancy
@@ -1577,13 +1628,20 @@ pub(in crate::card::sets) static VIASHINO_SANDSCOUT: CardRecord = CardRecord::ne
 );
 
 // ULG 97 — Bloated Toad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOATED_TOAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9686f1a8-035e-415e-9a06-933d6ce1cd5c"),
     "Bloated Toad",
-    crate::card::CardArt::new("9686f1a8-035e-415e-9a06-933d6ce1cd5c", "Una Fricker"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9686f1a8-035e-415e-9a06-933d6ce1cd5c", "Una Fricker"),
+    CardSet::UrzasLegacy,
+    // A blocker aimed at one colour, which cycling lets you maindeck without
+    // ever drawing it against the others.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Frog"], 2, 2).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Blue),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // ULG 98 — Crop Rotation
@@ -1623,13 +1681,20 @@ pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_wit
 );
 
 // ULG 99 — Darkwatch Elves
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARKWATCH_ELVES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("212a807f-d5d0-4787-b390-3351783a1ae4"),
     "Darkwatch Elves",
-    crate::card::CardArt::new("212a807f-d5d0-4787-b390-3351783a1ae4", "Don Hazeltine"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("212a807f-d5d0-4787-b390-3351783a1ae4", "Don Hazeltine"),
+    CardSet::UrzasLegacy,
+    // The black half of the same deal, and the one a green deck actually
+    // wanted in this format.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf"], 2, 2).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Black),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // ULG 100 — Defense of the Heart
@@ -1897,13 +1962,20 @@ pub(in crate::card::sets) static SILK_NET: CardRecord = CardRecord::new(
 );
 
 // ULG 113 — Simian Grunts
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIMIAN_GRUNTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0aaea3e-a67a-4d9c-9059-e6beb05f97b1"),
     "Simian Grunts",
-    crate::card::CardArt::new("a0aaea3e-a67a-4d9c-9059-e6beb05f97b1", "Pete Venters"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a0aaea3e-a67a-4d9c-9059-e6beb05f97b1", "Pete Venters"),
+    CardSet::UrzasLegacy,
+    // Flash on a 3/4 is a combat trick that stays; the echo is what stops it
+    // being simply better than every other three-drop.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Ape"], 3, 4).with_abilities(&[
+        abilities::flash(),
+        abilities::echo(
+        "Echo {2}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+        mana_cost!("{2}{G}"),
+    ),
+    ]),
 );
 
 // ULG 114 — Treefolk Mystic
@@ -2304,16 +2376,31 @@ pub(in crate::card::sets) static THRAN_WEAPONRY: CardRecord = CardRecord::new(
 );
 
 // ULG 136 — Ticking Gnomes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TICKING_GNOMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6241755c-ff3d-44db-a99d-960bea54633e"),
     "Ticking Gnomes",
-    crate::card::CardArt::new(
+    CardArt::new(
         "6241755c-ff3d-44db-a99d-960bea54633e",
         "Henry Van Der Linde",
     ),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasLegacy,
+    // Three mana for a 3/3 and a ping, rented for three more -- and the ping
+    // is there whether or not the rent is paid.
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 3, 3).with_abilities(&[
+        abilities::echo(
+        "Echo {3} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+        mana_cost!("{3}"),
+    ),
+        AbilityDef::activated_with_targets(
+        "Sacrifice this creature: It deals 1 damage to any target.",
+        &[CostDef::SacrificeSource],
+        &const { [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)] },
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(1),
+        },
+    ),
+    ]),
 );
 
 // ULG 137 — Urza's Blueprints

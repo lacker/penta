@@ -7,9 +7,9 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, ComparisonDef, CostDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
@@ -302,13 +302,30 @@ pub(in crate::card::sets) static SOLTARI_VISIONARY: CardRecord = CardRecord::new
 );
 
 // EXO 21 — Soul Warden
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOUL_WARDEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d5ee24ee-4d28-4634-bd43-90eff15c16dd"),
     "Soul Warden",
-    crate::card::CardArt::new("d5ee24ee-4d28-4634-bd43-90eff15c16dd", "Randy Gallegos"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d5ee24ee-4d28-4634-bd43-90eff15c16dd", "Randy Gallegos"),
+    CardSet::Exodus,
+    // Every creature anybody plays is a point of life, which turns a one-drop
+    // into the reason a race is unwinnable.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever another creature enters, you gain 1 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // EXO 22 — Standing Troops
@@ -829,23 +846,64 @@ pub(in crate::card::sets) static CURSED_FLESH: CardRecord = CardRecord::new(
 );
 
 // EXO 57 — Dauthi Cutthroat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUTHI_CUTTHROAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("127b8994-fff8-4500-8ab4-244eeb3ed110"),
     "Dauthi Cutthroat",
-    crate::card::CardArt::new("127b8994-fff8-4500-8ab4-244eeb3ed110", "Dermot Power"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("127b8994-fff8-4500-8ab4-244eeb3ed110", "Dermot Power"),
+    CardSet::Exodus,
+    // It answers the only creatures that can block it, which in a shadow
+    // mirror is the whole match.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Dauthi", "Minion"], 1, 1).with_abilities(&[
+        abilities::shadow(),
+        AbilityDef::activated_with_targets(
+            "{1}{B}, {T}: Destroy target creature with shadow.",
+            &[CostDef::Mana(mana_cost!("{1}{B}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Shadow),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // EXO 58 — Dauthi Jackal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUTHI_JACKAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("419871bc-f036-4244-8b6c-3857ebe993f3"),
     "Dauthi Jackal",
-    crate::card::CardArt::new("419871bc-f036-4244-8b6c-3857ebe993f3", "Adam Rex"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("419871bc-f036-4244-8b6c-3857ebe993f3", "Adam Rex"),
+    CardSet::Exodus,
+    // Unblockable itself, and it kills whatever blocked something else --
+    // which is a trade only the shadow deck gets to make.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Dauthi", "Minion"], 2, 1).with_abilities(&[
+        abilities::shadow(),
+        AbilityDef::activated_with_targets(
+            "{B}{B}, Sacrifice this creature: Destroy target blocking creature.",
+            &[
+                CostDef::Mana(mana_cost!("{B}{B}")),
+                CostDef::SacrificeSource,
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Blocking,
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // EXO 59 — Dauthi Warlord

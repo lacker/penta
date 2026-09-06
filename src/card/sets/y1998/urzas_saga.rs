@@ -849,13 +849,35 @@ pub(in crate::card::sets) static BACK_TO_BASICS: CardRecord = CardRecord::new(
 );
 
 // USG 63 — Barrin, Master Wizard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARRIN_MASTER_WIZARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec79e35f-9e78-462d-8b71-4f044e2eff90"),
     "Barrin, Master Wizard",
-    crate::card::CardArt::new("ec79e35f-9e78-462d-8b71-4f044e2eff90", "Michael Sutfin"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ec79e35f-9e78-462d-8b71-4f044e2eff90", "Michael Sutfin"),
+    CardSet::UrzasSaga,
+    // A free sacrifice outlet and a repeatable Unsummon in one body, which
+    // is two decks' worth of engine on three mana.
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Human", "Wizard"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{2}, Sacrifice a permanent: Return target creature to its owner's hand.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::Any,
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        )),
 );
 
 // USG 64 — Catalog
@@ -2709,13 +2731,33 @@ pub(in crate::card::sets) static FIERY_MANTLE: CardRecord = CardRecord::new(
 );
 
 // USG 187 — Fire Ants
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIRE_ANTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae2e38af-a2e5-4d52-870e-1b6e0cb33cef"),
     "Fire Ants",
-    crate::card::CardArt::new("ae2e38af-a2e5-4d52-870e-1b6e0cb33cef", "Tom Fleming"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ae2e38af-a2e5-4d52-870e-1b6e0cb33cef", "Tom Fleming"),
+    CardSet::UrzasSaga,
+    // A sweeper on a body, pointed at exactly the tokens and one-drops a
+    // red deck cannot otherwise answer.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Insect"], 2, 1).with_ability(
+        AbilityDef::activated(
+            "{T}: This creature deals 1 damage to each other creature without flying.",
+            &[CostDef::TapSource],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // USG 187s — Fire Ants (alternate printing)
@@ -4238,16 +4280,22 @@ pub(in crate::card::sets) static BARRIN_S_CODEX: CardRecord = CardRecord::new(
 );
 
 // USG 287 — Cathodion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CATHODION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("28def495-1806-40ec-b170-ca727c914f30"),
     "Cathodion",
-    crate::card::CardArt::new(
+    CardArt::new(
         "28def495-1806-40ec-b170-ca727c914f30",
         "Henry G. Higginbotham",
     ),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasSaga,
+    // Three mana back when it dies, which makes it a ritual that blocked
+    // once on the way through.
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 3, 3).with_ability(
+        abilities::dies_trigger(
+            "When this creature dies, add {C}{C}{C}.",
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(3)),
+        ),
+    ),
 );
 
 // USG 288 — Chimeric Staff

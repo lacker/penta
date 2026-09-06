@@ -698,13 +698,36 @@ pub(in crate::card::sets) static YARE: CardRecord = CardRecord::new(
 );
 
 // MIR 49 — Zhalfirin Commander
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZHALFIRIN_COMMANDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb0e63cb-6da5-4f65-a976-e79d201e9fc7"),
     "Zhalfirin Commander",
-    crate::card::CardArt::new("cb0e63cb-6da5-4f65-a976-e79d201e9fc7", "Stuart Griffin"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cb0e63cb-6da5-4f65-a976-e79d201e9fc7", "Stuart Griffin"),
+    CardSet::Mirage,
+    // Flanking already wins the fight; the pump is for the turn the whole
+    // Knight board attacks at once.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::flanking(),
+        AbilityDef::activated_with_targets(
+            "{1}{W}{W}: Target Knight creature gets +1/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{W}{W}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Knight"),
+                    ]),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MIR 50 — Zhalfirin Knight
@@ -1645,13 +1668,20 @@ pub(in crate::card::sets) static BREATHSTEALER: CardRecord = CardRecord::new(
 );
 
 // MIR 110 — Cadaverous Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CADAVEROUS_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06e954b2-c8ce-4b6c-a118-4a14ffa72063"),
     "Cadaverous Knight",
-    crate::card::CardArt::new("06e954b2-c8ce-4b6c-a118-4a14ffa72063", "Dermot Power"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("06e954b2-c8ce-4b6c-a118-4a14ffa72063", "Dermot Power"),
+    CardSet::Mirage,
+    // Flanking and regeneration together mean it wins every combat it is in
+    // and survives the one it loses.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Knight"], 2, 2).with_abilities(&[
+        abilities::flanking(),
+        abilities::regenerate_self(
+            "{1}{B}{B}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{1}{B}{B}"))],
+        ),
+    ]),
 );
 
 // MIR 111 — Carrion
@@ -3045,16 +3075,31 @@ pub(in crate::card::sets) static VIASHINO_WARRIOR: CardRecord = CardRecord::new(
 // MIR 202 — Volcanic Geyser (reprint)
 
 // MIR 203 — Wildfire Emissary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WILDFIRE_EMISSARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d99204c-b42d-48bc-9a93-fae5660665c7"),
     "Wildfire Emissary",
-    crate::card::CardArt::new(
+    CardArt::new(
         "6d99204c-b42d-48bc-9a93-fae5660665c7",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardSet::Mirage,
+    // Protection from white on a four-drop is a wall the white deck cannot
+    // get past, and the pump is how it gets through theirs.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Efreet"], 2, 4).with_abilities(&[
+        abilities::protection_from_color(ManaColor::White),
+        AbilityDef::activated(
+            "{1}{R}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MIR 204 — Zirilan of the Claw
@@ -3303,13 +3348,15 @@ pub(in crate::card::sets) static HALL_OF_GEMSTONE: CardRecord = CardRecord::new(
 );
 
 // MIR 222 — Jolrael's Centaur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JOLRAEL_S_CENTAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31588ea3-31d2-4118-9b9f-4ce820c16a15"),
     "Jolrael's Centaur",
-    crate::card::CardArt::new("31588ea3-31d2-4118-9b9f-4ce820c16a15", "Junior Tomlin"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("31588ea3-31d2-4118-9b9f-4ce820c16a15", "Junior Tomlin"),
+    CardSet::Mirage,
+    // Shroud means removal cannot answer it and flanking means blocking is
+    // no better, which is a lot for three mana.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Centaur", "Archer"], 2, 2)
+        .with_abilities(&[abilities::shroud(), abilities::flanking()]),
 );
 
 // MIR 223 — Jungle Patrol
@@ -3679,13 +3726,30 @@ pub(in crate::card::sets) static UKTABI_WILDCATS: CardRecord = CardRecord::new(
 );
 
 // MIR 249 — Unseen Walker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNSEEN_WALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0861a73d-8810-42f7-b20a-a6dd53586220"),
     "Unseen Walker",
-    crate::card::CardArt::new("0861a73d-8810-42f7-b20a-a6dd53586220", "Alan Rabinowitz"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0861a73d-8810-42f7-b20a-a6dd53586220", "Alan Rabinowitz"),
+    CardSet::Mirage,
+    // Forestwalk for the whole team one creature at a time, which against
+    // the green deck is the difference between the boards.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf"], 1, 1).with_abilities(&[
+        abilities::forestwalk(),
+        AbilityDef::activated_with_targets(
+            "{1}{G}{G}: Target creature gains forestwalk until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{G}{G}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MIR 250 — Unyaro Bee Sting
@@ -3941,13 +4005,23 @@ pub(in crate::card::sets) static HAZERIDER_DRAKE: CardRecord = CardRecord::new(
 );
 
 // MIR 269 — Jungle Troll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JUNGLE_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59fb9591-399a-4196-a52d-f2954d287a10"),
     "Jungle Troll",
-    crate::card::CardArt::new("59fb9591-399a-4196-a52d-f2954d287a10", "John Bolton"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("59fb9591-399a-4196-a52d-f2954d287a10", "John Bolton"),
+    CardSet::Mirage,
+    // Either colour regenerates it, which is the point of a gold card in a
+    // format where one of your colours is always short.
+    CardRules::new_creature(mana_cost!("{1}{R}{G}"), &["Troll"], 2, 1).with_abilities(&[
+        abilities::regenerate_self(
+            "{R}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+        ),
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+        ),
+    ]),
 );
 
 // MIR 270 — Kaervek's Purge

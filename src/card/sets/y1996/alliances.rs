@@ -2576,13 +2576,27 @@ pub(in crate::card::sets) static SCARAB_OF_THE_UNSEEN: CardRecord = CardRecord::
 );
 
 // ALL 129 — Shield Sphere
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIELD_SPHERE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1730d219-a28f-4930-8088-4cfcb627f157"),
     "Shield Sphere",
-    crate::card::CardArt::new("1730d219-a28f-4930-8088-4cfcb627f157", "Alan Rabinowitz"),
-    crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1730d219-a28f-4930-8088-4cfcb627f157", "Alan Rabinowitz"),
+    CardSet::Alliances,
+    // A free blocker that wears out, which is exactly the deal a deck with
+    // no early plays wants to make.
+    CardRules::new_artifact_creature(mana_cost!("{0}"), &["Wall"], 0, 6).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::triggered(
+            "Whenever this creature blocks, put a -0/-1 counter on it.",
+            TriggerEventDef::Blocks {
+                blocked: ObjectPredicateDef::Any,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::power_toughness(0, -1),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ALL 130 — Sol Grail

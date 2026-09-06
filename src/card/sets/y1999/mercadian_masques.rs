@@ -3704,23 +3704,86 @@ pub(in crate::card::sets) static MERCADIAN_BAZAAR: CardRecord = CardRecord::new(
 );
 
 // MMQ 322 — Peat Bog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PEAT_BOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bcc9d1e0-c8f4-4bac-90d4-8167f7a1515a"),
     "Peat Bog",
-    crate::card::CardArt::new("bcc9d1e0-c8f4-4bac-90d4-8167f7a1515a", "Val Mayerik"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bcc9d1e0-c8f4-4bac-90d4-8167f7a1515a", "Val Mayerik"),
+    CardSet::MercadianMasques,
+    // Four black mana out of one land across two turns, then nothing. The
+    // black half of the Masques depletion cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {B}{B}. If there are no depletion counters \
+             on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Black)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 323 — Remote Farm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REMOTE_FARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("115cab84-60d7-4bf2-9beb-b4ed7b5ceaf4"),
     "Remote Farm",
-    crate::card::CardArt::new("115cab84-60d7-4bf2-9beb-b4ed7b5ceaf4", "Rob Alexander"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("115cab84-60d7-4bf2-9beb-b4ed7b5ceaf4", "Rob Alexander"),
+    CardSet::MercadianMasques,
+    // The white member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {W}{W}. If there are no depletion counters \
+             on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::White)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 324 — Rishadan Port
@@ -3758,13 +3821,44 @@ pub(in crate::card::sets) static RUSHWOOD_GROVE: CardRecord = CardRecord::new(
 );
 
 // MMQ 326 — Sandstone Needle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDSTONE_NEEDLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("82bc7c6b-2e3d-42d1-b2bb-b37b6f34d33b"),
     "Sandstone Needle",
-    crate::card::CardArt::new("82bc7c6b-2e3d-42d1-b2bb-b37b6f34d33b", "Alan Rabinowitz"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("82bc7c6b-2e3d-42d1-b2bb-b37b6f34d33b", "Alan Rabinowitz"),
+    CardSet::MercadianMasques,
+    // The red member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {R}{R}. If there are no depletion counters \
+             on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Red)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 327 — Saprazzan Cove
@@ -3778,13 +3872,44 @@ pub(in crate::card::sets) static SAPRAZZAN_COVE: CardRecord = CardRecord::new(
 );
 
 // MMQ 328 — Saprazzan Skerry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_SKERRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("006871fd-2641-42cb-a2ac-a33d05fc5a35"),
     "Saprazzan Skerry",
-    crate::card::CardArt::new("006871fd-2641-42cb-a2ac-a33d05fc5a35", "Pat Lewis"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("006871fd-2641-42cb-a2ac-a33d05fc5a35", "Pat Lewis"),
+    CardSet::MercadianMasques,
+    // The blue member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {U}{U}. If there are no depletion counters \
+             on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Blue)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 329 — Subterranean Hangar

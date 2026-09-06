@@ -4054,13 +4054,27 @@ pub(in crate::card::sets) static WAR_DANCE: CardRecord = CardRecord::new(
 );
 
 // USG 283 — Whirlwind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIRLWIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8101bab4-ef93-451a-a24f-e1456c82837c"),
     "Whirlwind",
-    crate::card::CardArt::new("8101bab4-ef93-451a-a24f-e1456c82837c", "John Matson"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8101bab4-ef93-451a-a24f-e1456c82837c", "John Matson"),
+    CardSet::UrzasSaga,
+    // A sweeper that only a green deck needs, and only against the one deck
+    // it answers.
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::spell(
+        "Destroy all creatures with flying.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            then: None,
+        },
+    )),
 );
 
 // USG 284 — Wild Dogs

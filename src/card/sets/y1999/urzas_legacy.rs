@@ -207,13 +207,29 @@ pub(in crate::card::sets) static OPAL_CHAMPION: CardRecord = CardRecord::new(
 );
 
 // ULG 17 — Peace and Quiet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PEACE_AND_QUIET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d73accc-8f19-44d4-8216-c1acdbef3856"),
     "Peace and Quiet",
-    crate::card::CardArt::new("5d73accc-8f19-44d4-8216-c1acdbef3856", "Don Hazeltine"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5d73accc-8f19-44d4-8216-c1acdbef3856", "Don Hazeltine"),
+    CardSet::UrzasLegacy,
+    // The white version, two mana cheaper because enchantments were rarer
+    // than artifacts in the format.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy two target enchantments.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // ULG 18 — Planar Collapse
@@ -227,13 +243,27 @@ pub(in crate::card::sets) static PLANAR_COLLAPSE: CardRecord = CardRecord::new(
 );
 
 // ULG 19 — Purify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PURIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5341da18-df05-4135-b948-7aa3e3d7a492"),
     "Purify",
-    crate::card::CardArt::new("5341da18-df05-4135-b948-7aa3e3d7a492", "John Avon"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5341da18-df05-4135-b948-7aa3e3d7a492", "John Avon"),
+    CardSet::UrzasLegacy,
+    // Five mana to answer every artifact and enchantment at once, which was
+    // a sideboard card in a block full of both.
+    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_ability(AbilityDef::spell(
+        "Destroy all artifacts and enchantments.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            then: None,
+        },
+    )),
 );
 
 // ULG 20 — Radiant, Archangel
@@ -1264,13 +1294,29 @@ pub(in crate::card::sets) static PYROMANCY: CardRecord = CardRecord::new(
 );
 
 // ULG 89 — Rack and Ruin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RACK_AND_RUIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a46e8f6a-3a1a-4c30-9348-4b31882267eb"),
     "Rack and Ruin",
-    crate::card::CardArt::new("a46e8f6a-3a1a-4c30-9348-4b31882267eb", "Donato Giancola"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a46e8f6a-3a1a-4c30-9348-4b31882267eb", "Donato Giancola"),
+    CardSet::UrzasLegacy,
+    // Two artifacts for three mana at instant speed, which in its block was
+    // closer to a two-for-one than a sweeper.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy two target artifacts.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // ULG 90 — Rivalry

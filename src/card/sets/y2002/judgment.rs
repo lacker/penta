@@ -446,13 +446,32 @@ pub(in crate::card::sets) static DEFY_GRAVITY: CardRecord = CardRecord::new(
 );
 
 // JUD 39 — Envelop
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENVELOP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7ed250e-12d0-4ebc-9410-5711e71c6d1f"),
     "Envelop",
-    crate::card::CardArt::new("e7ed250e-12d0-4ebc-9410-5711e71c6d1f", "Don Hazeltine"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e7ed250e-12d0-4ebc-9410-5711e71c6d1f", "Don Hazeltine"),
+    CardSet::Judgment,
+    // One mana against sorceries only, which is narrow enough to be free in
+    // the matchups it is for.
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target sorcery spell.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Counter {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Graveyard,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // JUD 40 — Flash of Insight

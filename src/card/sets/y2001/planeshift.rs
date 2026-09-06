@@ -264,13 +264,32 @@ pub(in crate::card::sets) static ESCAPE_ROUTES: CardRecord = CardRecord::new(
 );
 
 // PLS 26 — Gainsay
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GAINSAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a70a2092-5048-49c0-9351-a3f882c2f56e"),
     "Gainsay",
-    crate::card::CardArt::new("a70a2092-5048-49c0-9351-a3f882c2f56e", "Roger Raupp"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a70a2092-5048-49c0-9351-a3f882c2f56e", "Roger Raupp"),
+    CardSet::Planeshift,
+    // A sideboard counter that costs two and answers one colour, which is
+    // the trade every set makes.
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target blue spell.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Counter {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Graveyard,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // PLS 27 — Hunting Drake
@@ -1482,13 +1501,26 @@ pub(in crate::card::sets) static STEEL_LEAF_PALADIN: CardRecord = CardRecord::ne
 );
 
 // PLS 128 — Terminate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERMINATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("190ca502-672d-4cc0-b6e0-b9de517058d0"),
     "Terminate",
-    crate::card::CardArt::new("190ca502-672d-4cc0-b6e0-b9de517058d0", "DiTerlizzi"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("190ca502-672d-4cc0-b6e0-b9de517058d0", "DiTerlizzi"),
+    CardSet::Planeshift,
+    // Two mana, any creature, no regeneration -- which is as clean as
+    // removal has ever been printed.
+    CardRules::new_instant(mana_cost!("{B}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target creature. It can't be regenerated.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        },
+    )),
 );
 
 // PLS 129 — Treva's Charm

@@ -1373,13 +1373,28 @@ pub(in crate::card::sets) static IVY_SEER: CardRecord = CardRecord::new(
 );
 
 // UDS 111 — Magnify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGNIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7b9bb2c6-f1a6-42c3-a7cb-3a1a46854c9b"),
     "Magnify",
-    crate::card::CardArt::new("7b9bb2c6-f1a6-42c3-a7cb-3a1a46854c9b", "Michael Sutfin"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7b9bb2c6-f1a6-42c3-a7cb-3a1a46854c9b", "Michael Sutfin"),
+    CardSet::UrzasDestiny,
+    // One mana that grows both boards, so it only wins a combat the caster
+    // chose to be in.
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell(
+        "All creatures get +1/+1 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // UDS 112 — Marker Beetles

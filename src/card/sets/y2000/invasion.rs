@@ -3489,16 +3489,38 @@ pub(in crate::card::sets) static TSABO_TAVOC: CardRecord = CardRecord::new(
 );
 
 // INV 282 — Undermine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERMINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2334bc71-5f85-47ff-b393-601a1e746a4e"),
     "Undermine",
-    crate::card::CardArt::new(
+    CardArt::new(
         "2334bc71-5f85-47ff-b393-601a1e746a4e",
         "Massimiliano Frezzato",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Three life on top of a counter, which is what makes it a clock rather
+    // than just an answer.
+    CardRules::new_instant(mana_cost!("{U}{U}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell. Its controller loses 3 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        ]),
+    )),
 );
 
 // INV 283 — Urborg Drake

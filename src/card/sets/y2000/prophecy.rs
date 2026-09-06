@@ -878,13 +878,27 @@ pub(in crate::card::sets) static PLAGUE_FIEND: CardRecord = CardRecord::new(
 );
 
 // PCY 74 — Plague Wind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLAGUE_WIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b0d4bd20-7422-45ed-aa76-3ef055c556e7"),
     "Plague Wind",
-    crate::card::CardArt::new("b0d4bd20-7422-45ed-aa76-3ef055c556e7", "Alan Pollack"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b0d4bd20-7422-45ed-aa76-3ef055c556e7", "Alan Pollack"),
+    CardSet::Prophecy,
+    // Nine mana for a one-sided sweeper, which is what black paid before it
+    // could do it for six.
+    CardRules::new_sorcery(mana_cost!("{7}{B}{B}")).with_ability(AbilityDef::spell(
+        "Destroy all creatures you don't control. They can't be regenerated.",
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::NotYou,
+                ),
+                then: None,
+            },
+        },
+    )),
 );
 
 // PCY 75 — Rebel Informer

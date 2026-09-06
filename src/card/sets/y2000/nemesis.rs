@@ -133,13 +133,32 @@ pub(in crate::card::sets) static LAWBRINGER: CardRecord = CardRecord::new(
 );
 
 // NEM 11 — Lightbringer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTBRINGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19451993-7a53-4a50-bfca-ddc9cdfbe168"),
     "Lightbringer",
-    crate::card::CardArt::new("19451993-7a53-4a50-bfca-ddc9cdfbe168", "Paolo Parente"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("19451993-7a53-4a50-bfca-ddc9cdfbe168", "Paolo Parente"),
+    CardSet::Nemesis,
+    // A sideboard card on a body, aimed at the one colour whose creatures
+    // come back from the graveyard.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: Exile target black creature.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                    ]),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // NEM 12 — Lin Sivvi, Defiant Hero
@@ -153,13 +172,33 @@ pub(in crate::card::sets) static LIN_SIVVI_DEFIANT_HERO: CardRecord = CardRecord
 );
 
 // NEM 13 — Netter en-Dal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NETTER_EN_DAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2190649d-f898-4693-8ccf-80e6709d8496"),
     "Netter en-Dal",
-    crate::card::CardArt::new("2190649d-f898-4693-8ccf-80e6709d8496", "Matt Cavotta"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2190649d-f898-4693-8ccf-80e6709d8496", "Matt Cavotta"),
+    CardSet::Nemesis,
+    // A card to stop one attacker, which is a rate only a deck already
+    // holding cards it cannot cast is happy with.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{W}, {T}, Discard a card: Target creature can't attack this turn.",
+            &[
+                CostDef::Mana(mana_cost!("{W}")),
+                CostDef::TapSource,
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::target_objects(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // NEM 14 — Noble Stand
@@ -399,13 +438,17 @@ pub(in crate::card::sets) static TOPPLE: CardRecord = CardRecord::new(
 );
 
 // NEM 25 — Voice of Truth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOICE_OF_TRUTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40377e3d-77d9-4d86-ac8c-4e27803e48d8"),
     "Voice of Truth",
-    crate::card::CardArt::new("40377e3d-77d9-4d86-ac8c-4e27803e48d8", "rk post"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("40377e3d-77d9-4d86-ac8c-4e27803e48d8", "rk post"),
+    CardSet::Nemesis,
+    // Protection from its own colour is a mirror-match card, which is what
+    // the whole Nemesis cycle was for.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Angel"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::White),
+    ]),
 );
 
 // NEM 26 — Accumulated Knowledge
@@ -682,23 +725,76 @@ pub(in crate::card::sets) static SNEAKY_HOMUNCULUS: CardRecord = CardRecord::new
 );
 
 // NEM 45 — Stronghold Biologist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRONGHOLD_BIOLOGIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6215a5d9-d6d2-4f9f-8a0c-a65d1afd956a"),
     "Stronghold Biologist",
-    crate::card::CardArt::new("6215a5d9-d6d2-4f9f-8a0c-a65d1afd956a", "Terese Nielsen"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6215a5d9-d6d2-4f9f-8a0c-a65d1afd956a", "Terese Nielsen"),
+    CardSet::Nemesis,
+    // A counterspell that costs a card and a turn, which a deck with no
+    // counterspells at all is glad to have on a body.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{U}{U}, {T}, Discard a card: Counter target creature spell.",
+            &[
+                CostDef::Mana(mana_cost!("{U}{U}")),
+                CostDef::TapSource,
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // NEM 46 — Stronghold Machinist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRONGHOLD_MACHINIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3567b4e-6e31-40b0-83ea-4a2a58bd637c"),
     "Stronghold Machinist",
-    crate::card::CardArt::new("d3567b4e-6e31-40b0-83ea-4a2a58bd637c", "Terese Nielsen"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d3567b4e-6e31-40b0-83ea-4a2a58bd637c", "Terese Nielsen"),
+    CardSet::Nemesis,
+    // The other half of the pair, and between them a deck answers whichever
+    // spell it was actually afraid of.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{U}{U}, {T}, Discard a card: Counter target noncreature spell.",
+            &[
+                CostDef::Mana(mana_cost!("{U}{U}")),
+                CostDef::TapSource,
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::NoncreatureSpell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // NEM 47 — Stronghold Zeppelin
@@ -980,13 +1076,36 @@ pub(in crate::card::sets) static PHYREXIAN_PROWLER: CardRecord = CardRecord::new
 );
 
 // NEM 66 — Plague Witch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLAGUE_WITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ca3614c2-39b4-4f67-adab-373dcb9e4553"),
     "Plague Witch",
-    crate::card::CardArt::new("ca3614c2-39b4-4f67-adab-373dcb9e4553", "Nelson DeCastro"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ca3614c2-39b4-4f67-adab-373dcb9e4553", "Nelson DeCastro"),
+    CardSet::Nemesis,
+    // A card and a tap for one point of shrink, which only matters against
+    // a board of one-toughness creatures -- and then matters a lot.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{B}, {T}, Discard a card: Target creature gets -1/-1 until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{B}")),
+                CostDef::TapSource,
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // NEM 67 — Rathi Assassin
@@ -1172,13 +1291,33 @@ pub(in crate::card::sets) static ARC_MAGE: CardRecord = CardRecord::new(
 );
 
 // NEM 78 — Bola Warrior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOLA_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dc6e1de6-e7e0-4037-896a-f80c54b8ef5c"),
     "Bola Warrior",
-    crate::card::CardArt::new("dc6e1de6-e7e0-4037-896a-f80c54b8ef5c", "Adam Rex"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dc6e1de6-e7e0-4037-896a-f80c54b8ef5c", "Adam Rex"),
+    CardSet::Nemesis,
+    // Removing a blocker for a card is the same trade an unblockable spell
+    // makes, on a body that can do it again.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}, {T}, Discard a card: Target creature can't block this turn.",
+            &[
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::TapSource,
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // NEM 79 — Downhill Charge
@@ -1236,13 +1375,32 @@ pub(in crate::card::sets) static FLOWSTONE_CRUSHER: CardRecord = CardRecord::new
 );
 
 // NEM 82 — Flowstone Overseer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_OVERSEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e644ab8-3cc3-413d-a918-44fc636087ae"),
     "Flowstone Overseer",
-    crate::card::CardArt::new("3e644ab8-3cc3-413d-a918-44fc636087ae", "Andrew Goldhawk"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3e644ab8-3cc3-413d-a918-44fc636087ae", "Andrew Goldhawk"),
+    CardSet::Nemesis,
+    // It shrinks whatever it points at and grows nothing, so every two mana
+    // is a blocker removed rather than a fight won.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Beast"], 4, 4).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}{R}: Target creature gets +1/-1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}{R}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // NEM 83 — Flowstone Slide

@@ -263,16 +263,34 @@ pub(in crate::card::sets) static MERCENARY_INFORMER: CardRecord = CardRecord::ne
 );
 
 // PCY 16 — Mine Bearer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINE_BEARER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8151510-2445-4244-b851-ab332b908170"),
     "Mine Bearer",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a8151510-2445-4244-b851-ab332b908170",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardSet::Prophecy,
+    // A blocker that answers the attack it cannot survive, which is what a
+    // 1/1 for three has to offer.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Rebel"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: Destroy target attacking creature.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // PCY 17 — Mirror Strike
@@ -359,13 +377,35 @@ pub(in crate::card::sets) static SOUL_CHARMER: CardRecord = CardRecord::new(
 );
 
 // PCY 25 — Sword Dancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SWORD_DANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a06f00e8-3e58-4ba7-9542-ce6b17fd4005"),
     "Sword Dancer",
-    crate::card::CardArt::new("a06f00e8-3e58-4ba7-9542-ce6b17fd4005", "Roger Raupp"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a06f00e8-3e58-4ba7-9542-ce6b17fd4005", "Roger Raupp"),
+    CardSet::Prophecy,
+    // A point off an attacker for every two mana, which turns a blocker into
+    // a wall the whole team has to get past.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{W}{W}: Target attacking creature gets -1/-0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{W}{W}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PCY 26 — Trenching Steed
@@ -799,13 +839,38 @@ pub(in crate::card::sets) static WITHDRAW: CardRecord = CardRecord::new(
 );
 
 // PCY 55 — Agent of Shauku
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AGENT_OF_SHAUKU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d8316804-6f8b-423e-a2c3-fa476c095544"),
     "Agent of Shauku",
-    crate::card::CardArt::new("d8316804-6f8b-423e-a2c3-fa476c095544", "Donato Giancola"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d8316804-6f8b-423e-a2c3-fa476c095544", "Donato Giancola"),
+    CardSet::Prophecy,
+    // Turning spare lands into power is what a deck flooding out wants, and
+    // the rate is bad enough that only that deck plays it.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Minion"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{B}, Sacrifice a land: Target creature gets +2/+0 until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{B}")),
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PCY 56 — Avatar of Woe
@@ -1404,13 +1469,35 @@ pub(in crate::card::sets) static INFLAME: CardRecord = CardRecord::new(
 );
 
 // PCY 92 — Keldon Arsonist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KELDON_ARSONIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("113f58b1-d8d7-4544-8363-e2b96e9d2623"),
     "Keldon Arsonist",
-    crate::card::CardArt::new("113f58b1-d8d7-4544-8363-e2b96e9d2623", "Paolo Parente"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("113f58b1-d8d7-4544-8363-e2b96e9d2623", "Paolo Parente"),
+    CardSet::Prophecy,
+    // Two of your lands for one of theirs is a losing trade unless you are
+    // the deck that wanted no lands at all.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}, Sacrifice two lands: Destroy target land.",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::SacrificePermanents {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    controller: PlayerRelation::You,
+                    count: 2,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // PCY 93 — Keldon Berserker

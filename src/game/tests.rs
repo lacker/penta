@@ -102,6 +102,7 @@ mod tap_for_chosen_colour;
 mod token_fixtures;
 mod tribal_conditionals;
 mod tribal_lords;
+mod tribal_tap_costs;
 mod two_target_spells;
 mod untap_out_of_combat;
 mod upkeep_or_sacrifice;

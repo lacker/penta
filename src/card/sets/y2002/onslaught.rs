@@ -75,13 +75,30 @@ pub(in crate::card::sets) static AKROMAS_VENGEANCE: CardRecord = CardRecord::new
 );
 
 // ONS 3 — Ancestor's Prophet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTOR_S_PROPHET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cdee956e-76b1-4ba7-a387-2fbfb853507d"),
     "Ancestor's Prophet",
-    crate::card::CardArt::new("cdee956e-76b1-4ba7-a387-2fbfb853507d", "Kev Walker"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cdee956e-76b1-4ba7-a387-2fbfb853507d", "Kev Walker"),
+    CardSet::Onslaught,
+    // Ten life a turn is a real clock in reverse, and five Clerics is what a
+    // Cleric deck has anyway.
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Cleric"], 1, 5).with_ability(
+        AbilityDef::activated(
+            "Tap five untapped Clerics you control: You gain 10 life.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Cleric"),
+                ]),
+                controller: PlayerRelation::You,
+                count: 5,
+            }],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(10),
+            },
+        ),
+    ),
 );
 
 // ONS 4 — Astral Slide
@@ -205,13 +222,36 @@ pub(in crate::card::sets) static BATTLEFIELD_MEDIC: CardRecord = CardRecord::new
 );
 
 // ONS 10 — Catapult Master
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CATAPULT_MASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a74d7aa2-c6ff-432d-b671-cef58c6736c6"),
     "Catapult Master",
-    crate::card::CardArt::new("a74d7aa2-c6ff-432d-b671-cef58c6736c6", "Terese Nielsen"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a74d7aa2-c6ff-432d-b671-cef58c6736c6", "Terese Nielsen"),
+    CardSet::Onslaught,
+    // Five Soldiers is a whole board, and what it buys is removal that no
+    // colour of protection answers.
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Human", "Soldier"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap five untapped Soldiers you control: Exile target creature.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Soldier"),
+                ]),
+                controller: PlayerRelation::You,
+                count: 5,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // ONS 11 — Catapult Squad
@@ -544,13 +584,38 @@ pub(in crate::card::sets) static GLORY_SEEKER: CardRecord = CardRecord::new(
 );
 
 // ONS 32 — Grassland Crusader
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRASSLAND_CRUSADER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c129f361-8769-4f9a-9745-eb5d0c085b88"),
     "Grassland Crusader",
-    crate::card::CardArt::new("c129f361-8769-4f9a-9745-eb5d0c085b88", "Mark Tedin"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c129f361-8769-4f9a-9745-eb5d0c085b88", "Mark Tedin"),
+    CardSet::Onslaught,
+    // Two power a turn for free, so long as the board is the tribe it names
+    // -- which at six mana it had better be.
+    CardRules::new_creature(mana_cost!("{5}{W}"), &["Human", "Soldier"], 2, 4).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target Elf or Soldier creature gets +2/+2 until end of turn.",
+            &[CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Subtype("Elf"),
+                            ObjectPredicateDef::Subtype("Soldier"),
+                        ]),
+                    ]),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ONS 33 — Gravel Slinger
@@ -782,13 +847,31 @@ pub(in crate::card::sets) static MOBILIZATION: CardRecord = CardRecord::new(
 );
 
 // ONS 45 — Nova Cleric
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOVA_CLERIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2048d84-b5e6-405c-9091-1997a0c4e1a5"),
     "Nova Cleric",
-    crate::card::CardArt::new("b2048d84-b5e6-405c-9091-1997a0c4e1a5", "Alan Pollack"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b2048d84-b5e6-405c-9091-1997a0c4e1a5", "Alan Pollack"),
+    CardSet::Onslaught,
+    // A one-drop that is also the sideboard card, which is the only way a
+    // white deck maindecks enchantment removal.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 2).with_ability(
+        AbilityDef::activated(
+            "{2}{W}, {T}, Sacrifice this creature: Destroy all enchantments.",
+            &[
+                CostDef::Mana(mana_cost!("{2}{W}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // ONS 46 — Oblation
@@ -1059,23 +1142,65 @@ pub(in crate::card::sets) static APHETTO_ALCHEMIST: CardRecord = CardRecord::new
 );
 
 // ONS 65 — Aphetto Grifter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static APHETTO_GRIFTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a7a7bf3-1b0c-415d-9c57-73ac55b1f915"),
     "Aphetto Grifter",
-    crate::card::CardArt::new("3a7a7bf3-1b0c-415d-9c57-73ac55b1f915", "Greg Staples"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3a7a7bf3-1b0c-415d-9c57-73ac55b1f915", "Greg Staples"),
+    CardSet::Onslaught,
+    // Two Wizards tap anything, which in a deck of Wizards is a lock rather
+    // than a trick.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap two untapped Wizards you control: Tap target permanent.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Wizard"),
+                ]),
+                controller: PlayerRelation::You,
+                count: 2,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )]
+            },
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // ONS 66 — Arcanis the Omnipotent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCANIS_THE_OMNIPOTENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("90865f52-c062-4505-a204-b4d7d4b3fc4c"),
     "Arcanis the Omnipotent",
-    crate::card::CardArt::new("90865f52-c062-4505-a204-b4d7d4b3fc4c", "Justin Sweet"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("90865f52-c062-4505-a204-b4d7d4b3fc4c", "Justin Sweet"),
+    CardSet::Onslaught,
+    // Three cards a turn, and it picks itself up rather than dying to the
+    // removal that would answer it.
+    CardRules::new_creature(mana_cost!("{3}{U}{U}{U}"), &["Human", "Wizard"], 3, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "{T}: Draw three cards.",
+                &[CostDef::TapSource],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}{U}{U}: Return Arcanis the Omnipotent to its owner's hand.",
+                &[CostDef::Mana(mana_cost!("{2}{U}{U}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // ONS 67 — Artificial Evolution

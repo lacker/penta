@@ -1356,13 +1356,32 @@ pub(in crate::card::sets) static INFECTIOUS_RAGE: CardRecord = CardRecord::new(
 );
 
 // JUD 93 — Jeska, Warrior Adept
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JESKA_WARRIOR_ADEPT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1cf96a59-8b7d-4a5b-adfd-17eeedd95db5"),
     "Jeska, Warrior Adept",
-    crate::card::CardArt::new("1cf96a59-8b7d-4a5b-adfd-17eeedd95db5", "rk post"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1cf96a59-8b7d-4a5b-adfd-17eeedd95db5", "rk post"),
+    CardSet::Judgment,
+    // Three hasty power with first strike, and a ping every turn it does not
+    // attack -- which is what four mana buys in a burn deck.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Human", "Warrior"], 3, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::haste(),
+            AbilityDef::activated_with_targets(
+                "{T}: Jeska, Warrior Adept deals 1 damage to any target.",
+                &[CostDef::TapSource],
+                &const {
+                    [AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::AnyTarget,
+                    )]
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // JUD 94 — Lava Dart

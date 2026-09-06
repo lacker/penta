@@ -4,14 +4,14 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::AdditionalCostIndex;
 use crate::card::PlayOptionDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AbilityDef, AbilityOperationDef, AbilityTargetDef, AbilityTargetPredicate,
     AdditionalCostValueDef, AlternateSpellKind, AppliedEffectDef, AppliedRuleDef,
     BlockRestrictionDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, CharacteristicOperationDef, CostModificationDef,
-    CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, OptionalAdditionalCostAbilityDef,
-    OptionalAdditionalCostKindDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
+    CardStructure, CardSupertype, CardType, CharacteristicOperationDef, CostDef,
+    CostModificationDef, CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
@@ -59,7 +59,7 @@ pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
                 mana_cost: None,
                 // "Or token": a creature token qualifies on the last clause
                 // even though it is neither an artifact nor an enchantment.
-                additional_cost: Some(SpellAdditionalCostDef::Sacrifice {
+                additional_cost: Some(CostDef::Sacrifice {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Enchantment),
@@ -309,7 +309,7 @@ pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord:
             AbilityDef::activated_with_targets(
                 "{T}: Exile target card from a graveyard. When a creature card is exiled this way, put a \
                  +1/+1 counter on target creature you control.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 // "Target card from a graveyard" reaches every graveyard, not only its
                 // controller's.
                 &[
@@ -381,9 +381,9 @@ pub(in crate::card::sets) static CANDY_TRAIL: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{2}, {T}, Sacrifice this artifact: You gain 3 life and draw a card.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}")),
-                    AbilityCostDef::TapSource,
-                    AbilityCostDef::SacrificeSource,
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::TapSource,
+                    CostDef::SacrificeSource,
                 ],
                 EffectDef::Sequence(&[
                     EffectDef::GainLife {

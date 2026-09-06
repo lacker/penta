@@ -64,6 +64,9 @@ fn collect_ability_grants(
         EffectDef::CreateAttachedToken { token, .. } => {
             tokens.push(token);
         }
+        EffectDef::CumulativeUpkeep(
+            crate::card::CostDef::CreateTokens { token, .. },
+        ) => tokens.push(*token),
         EffectDef::CreateEmblem { emblem } => emblems.push(emblem),
         EffectDef::BecomeCopyOf { exceptions, .. } => grants.extend(
             exceptions

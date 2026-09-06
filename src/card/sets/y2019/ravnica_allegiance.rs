@@ -4,10 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, CardArt,
-    CardRules, CardSet, CardType, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PayOrDef, PlayerRelation,
-    PlayerSetDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, abilities,
+    CardRules, CardSet, CardType, CostDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    InstalledTriggerDef, ObjectPredicateDef, PayOrDef, PlayerRelation, PlayerSetDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -96,9 +95,9 @@ pub(in crate::card::sets) static FINAL_PAYMENT: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            SpellAdditionalCostDef::choice(&[
-                SpellAdditionalCostDef::pay_life(CostQuantityDef::Fixed(5)),
-                SpellAdditionalCostDef::sacrifice(
+            CostDef::choice(&[
+                CostDef::pay_life(CostQuantityDef::Fixed(5)),
+                CostDef::sacrifice(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::HasType(CardType::Enchantment),
@@ -130,9 +129,9 @@ pub(in crate::card::sets) static FIREBLADE_ARTIST: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: EffectPaymentCostDef::SacrificePermanentMatching(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    ),
+                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
                 },
                 &EffectDef::None,
             )),

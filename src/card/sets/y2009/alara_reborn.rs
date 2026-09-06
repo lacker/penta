@@ -2,10 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ResolvedEffectDurationDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -71,7 +70,7 @@ pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{B}{G}"), &["Zombie", "Leech"], 2, 2).with_ability(
         AbilityDef::activated(
             "Pay 2 life: This creature gets +2/+2 until end of turn. Activate only once each turn.",
-            &[AbilityCostDef::PayLife(2)],
+            &[CostDef::PayLife(2)],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -98,8 +97,8 @@ pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
         "{1}, Sacrifice a nontoken artifact: Create a 1/1 blue Thopter artifact creature token \
          with flying. You gain 1 life.",
         &[
-            AbilityCostDef::Mana(mana_cost!("{1}")),
-            AbilityCostDef::SacrificePermanent {
+            CostDef::Mana(mana_cost!("{1}")),
+            CostDef::SacrificePermanent {
                 // "A nontoken artifact": the Thopters it makes are artifacts too, so
                 // without that word the Foundry would eat its own output forever.
                 object: ObjectPredicateDef::All(&[

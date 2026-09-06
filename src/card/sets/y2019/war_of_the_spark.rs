@@ -2,14 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, CardTypeSet, CastTimingPermissionDef, ComparisonDef,
-    CopyExceptionsDef, CountConditionDef, CounterKind, CreatureTypeSetDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, CastTimingPermissionDef, ComparisonDef, CopyExceptionsDef, CostDef,
+    CountConditionDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TopOfLibraryCostDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -26,7 +25,7 @@ pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord =
                 abilities::empty_library_draw_wins(),
                 AbilityDef::activated_with_targets(
                     "+1: Target player mills two cards. Draw a card.",
-                    &[AbilityCostDef::Loyalty(1)],
+                    &[CostDef::Loyalty(1)],
                     &[AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::Player(PlayerRelation::Any),
                     )],
@@ -43,7 +42,7 @@ pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord =
                 ),
                 AbilityDef::activated(
                     "−8: Draw seven cards. Then if your library has no cards in it, you win the game.",
-                    &[AbilityCostDef::Loyalty(-8)],
+                    &[CostDef::Loyalty(-8)],
                     EffectDef::Sequence(&[
                         EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
@@ -92,7 +91,7 @@ pub(in crate::card::sets) static NARSET_PARTER_OF_VEILS: CardRecord = CardRecord
                 "\u{2212}2: Look at the top four cards of your library. You may reveal a noncreature, \
                  nonland card from among them and put it into your hand. Put the rest on the bottom of \
                  your library in a random order.",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
                     ValueDef::Constant(4),
                     // "You may reveal": taking nothing is a legal answer, and what is left
@@ -143,8 +142,8 @@ pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new_wi
             AbilityDef::activated(
                 "{T}, Sacrifice ten nonland permanents: Each opponent loses 10 life.",
                 &[
-                    AbilityCostDef::TapSource,
-                    AbilityCostDef::SacrificePermanents {
+                    CostDef::TapSource,
+                    CostDef::SacrificePermanents {
                         object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                         controller: PlayerRelation::You,
                         count: 10,
@@ -290,7 +289,7 @@ pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
                 ),
                 AbilityDef::activated_with_targets(
                     "+1: Put three +1/+1 counters on up to one target noncreature land you control. Untap it. It becomes a 0/0 Elemental creature with vigilance and haste that's still a land.",
-                    &[AbilityCostDef::Loyalty(1)],
+                    &[CostDef::Loyalty(1)],
                     &[AbilityTargetDef::up_to(
                         AbilityTargetPredicate::Object {
                             object: ObjectPredicateDef::All(&[
@@ -331,7 +330,7 @@ pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
                 ),
                 AbilityDef::activated(
                     "−8: You get an emblem with \"Lands you control have indestructible.\" Search your library for any number of Forest cards, put them onto the battlefield tapped, then shuffle.",
-                    &[AbilityCostDef::Loyalty(-8)],
+                    &[CostDef::Loyalty(-8)],
                     EffectDef::Sequence(&[
                         EffectDef::create_emblem(
                             "Nissa, Who Shakes the World emblem",
@@ -400,7 +399,7 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                 ),
                 AbilityDef::activated(
                     "+1: Choose a nonland card name, then reveal the top four cards of your library. Put all cards with the chosen name from among them into your hand and the rest into your graveyard.",
-                    &[AbilityCostDef::Loyalty(1)],
+                    &[CostDef::Loyalty(1)],
                     EffectDef::Sequence(&[
                         EffectDef::BindOutput {
                             binding: Binding!("tamiyo_name"),
@@ -421,7 +420,7 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                 ),
                 AbilityDef::activated_with_targets(
                     "\u{2212}3: Return target card from your graveyard to your hand.",
-                    &[AbilityCostDef::Loyalty(-3)],
+                    &[CostDef::Loyalty(-3)],
                     &[AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::Object {
                             object: ObjectPredicateDef::Any,
@@ -472,7 +471,7 @@ pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::n
             ),
             AbilityDef::activated(
                 "+1: Until your next turn, you may cast sorcery spells as though they had flash.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Controller,
                     // This is a permission rather than a granted keyword, so
@@ -488,7 +487,7 @@ pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::n
             AbilityDef::activated_with_targets(
                 "\u{2212}3: Return up to one target artifact, creature, or enchantment to its \
                  owner's hand. Draw a card.",
-                &[AbilityCostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(-3)],
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::AnyOf(&[
@@ -580,7 +579,7 @@ pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
                 AbilityDef::activated_with_targets(
                     "−2: Target artifact you control becomes a copy of another target artifact or creature \
                      you control until end of turn, except it's an artifact in addition to its other types.",
-                    &[AbilityCostDef::Loyalty(-2)],
+                    &[CostDef::Loyalty(-2)],
                     // "Another target artifact or creature you control": the second slot is a
                     // separate target, so the two cannot be the same permanent.
                     &[

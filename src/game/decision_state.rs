@@ -44,7 +44,48 @@ pub(super) struct SacrificeDeclined {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum ResolvedEffectPayment {
     Mana(ManaCost),
+    CumulativeMana {
+        source: GameObjectId,
+        cost: ManaCost,
+    },
+    SnowMana {
+        source: GameObjectId,
+        amount: u16,
+    },
     Life(u16),
+    /// Draws made as a cost. A short library does not make this unpayable,
+    /// and replacement effects still replace the individual draws normally.
+    DrawCards(u16),
+    DiscardCards(u16),
+    /// Counters put on the exact source permanent as a cost.
+    PutCounters {
+        object: GameObjectId,
+        kind: CounterKind,
+        /// Counters placed by one copy of the printed cost.
+        amount: u16,
+        /// How many age counters repeat that cost.
+        times: u16,
+    },
+    SacrificePermanents {
+        object: ObjectPredicateDef,
+        amount: u16,
+    },
+    ExileTopCards(u16),
+    AddMana {
+        color: crate::card::ManaColor,
+        amount: u16,
+    },
+    OpponentGainsLife(u16),
+    OpponentCreatesTokens {
+        token: crate::card::TokenCharacteristics,
+        amount: u16,
+    },
+    GainControlPermanents {
+        source: GameObjectId,
+        object: ObjectPredicateDef,
+        amount: u16,
+    },
+    FlipCoins(u16),
     /// Energy, spent in full or not at all.
     Energy(u16),
     Mill(u16),
@@ -73,6 +114,21 @@ pub(super) enum ResolvedEffectPayment {
     /// Creatures sacrificed one at a time until their power reaches this
     /// total.
     SacrificeCreaturesWithTotalPower(u16),
+}
+
+#[derive(Clone, Debug)]
+pub(super) struct SettledEffectPayment {
+    pub(super) paid_amount: u16,
+    pub(super) mana_spent: Vec<Mana>,
+}
+
+impl SettledEffectPayment {
+    pub(super) const fn without_mana(paid_amount: u16) -> Self {
+        Self {
+            paid_amount,
+            mana_spent: Vec::new(),
+        }
+    }
 }
 
 /// What runs once a discard finishes, and what it counts among the cards
@@ -550,6 +606,10 @@ pub(super) enum DecisionContinuation {
     PayOr {
         player: PlayerId,
         payment: ResolvedEffectPayment,
+        /// The age-counter count whose cumulative-upkeep payment this is.
+        /// Present only for the shared keyword procedure, so declining can
+        /// publish its own rules event before the source is sacrificed.
+        cumulative_upkeep_age: Option<u16>,
         definition: ScopedEffect,
         object: Box<StackObject>,
         context: EffectResolutionContext,

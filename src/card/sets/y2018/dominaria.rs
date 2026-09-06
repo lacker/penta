@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CopyExceptionsDef, CounterKind,
+    AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseDef, CopyExceptionsDef, CostDef, CounterKind,
     CreatedTokensDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
     MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
@@ -41,7 +41,7 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
             AbilityDef::activated(
                 "+1: Reveal the top two cards of your library. An opponent chooses one of them. Put that \
                  card into your hand and exile the other with a silver counter on it.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(2),
@@ -93,7 +93,7 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
             ),
             AbilityDef::activated(
                 "\u{2212}1: Put a card you own with a silver counter on it from exile into your hand.",
-                &[AbilityCostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(-1)],
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Object(ParentBinding),
                     unchosen: None,
@@ -120,7 +120,7 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
             AbilityDef::activated(
                 "\u{2212}2: Create a 0/0 colorless Construct artifact creature token with \"This token \
                  gets +1/+1 for each artifact you control.\"",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 EffectDef::create_token(TokenCharacteristics::artifact_creature(&["Construct"], &[], 0, 0)
                         .with_abilities(&[AbilityDef::static_ability(
                             "This token gets +1/+1 for each artifact you control.",
@@ -150,7 +150,7 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
         .with_abilities(&[
             AbilityDef::activated(
                 "+1: Draw a card. At the beginning of the next end step, untap up to two lands.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 EffectDef::Sequence(&[
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
@@ -190,7 +190,7 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
             ),
             AbilityDef::activated_with_targets(
                 "\u{2212}3: Put target nonland permanent into its owner's library third from the top.",
-                &[AbilityCostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(-3)],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                 )],
@@ -206,7 +206,7 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
             AbilityDef::activated(
                 "\u{2212}8: You get an emblem with \"Whenever you draw a card, exile target permanent an \
                  opponent controls.\"",
-                &[AbilityCostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(-8)],
                 // One trigger per card drawn, which is what makes the emblem and the plus
                 // the same card: every draw for the rest of the game eats a permanent.
                 EffectDef::create_emblem("Teferi, Hero of Dominaria emblem", &[AbilityDef::triggered_with_targets(
@@ -267,7 +267,7 @@ pub(in crate::card::sets) static HELM_OF_THE_HOST: CardRecord = CardRecord::new(
                     },
                 }),
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
         ]),
 );
 

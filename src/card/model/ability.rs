@@ -1,14 +1,14 @@
 use crate::ids::TargetIndex;
 
 use super::{
-    AbilityCostDef, AbilityCostList, AbilityEffectDef, AbilityProcedureDef, AbilityTargetDef,
-    ActivatedAbilityDef, ActivationTimingDef, AlternativeCastAbilityDef, AlternativeCastKindDef,
-    AlternativeCastManaCostDef, ConditionDef, DeckConstructionDef, DeclarativeAbilityDef,
+    AbilityCostList, AbilityEffectDef, AbilityProcedureDef, AbilityTargetDef, ActivatedAbilityDef,
+    ActivationTimingDef, AlternativeCastAbilityDef, AlternativeCastKindDef,
+    AlternativeCastManaCostDef, ConditionDef, CostDef, DeckConstructionDef, DeclarativeAbilityDef,
     EffectDef, KeywordAbility, ManaCost, ModalSpellDef, OptionalAdditionalCostAbilityDef,
     PregameAbilityDef, PregameConditionDef, PregameTimingDef, ReplacementAbilityDef,
     ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, SpecialActionDef,
-    SpellAbilityDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, StaticAbilityDef,
-    TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, ValueDef, ZoneKind,
+    SpellAbilityDef, SpellResolutionDestinationDef, StaticAbilityDef, TriggerConditionDef,
+    TriggerEventDef, TriggeredAbilityDef, ValueDef, ZoneKind,
 };
 
 mod rules_text;
@@ -50,7 +50,7 @@ impl AbilityDef {
     pub const fn spell_with_additional_cost(
         text: &'static str,
         targets: &'static [AbilityTargetDef],
-        cost: SpellAdditionalCostDef,
+        cost: CostDef,
         effect: EffectDef,
     ) -> Self {
         Self::defined(
@@ -159,7 +159,7 @@ impl AbilityDef {
     #[must_use]
     pub const fn modal_escalate_spell(
         escalate_text: &'static str,
-        escalate_cost: SpellAdditionalCostDef,
+        escalate_cost: CostDef,
         modes: &'static [AbilityDef],
     ) -> Self {
         Self::defined(
@@ -198,10 +198,7 @@ impl AbilityDef {
     ///
     /// Panics for any ability that is not a spell.
     #[must_use]
-    pub const fn with_spell_additional_cost(
-        mut self,
-        cost: &'static SpellAdditionalCostDef,
-    ) -> Self {
+    pub const fn with_spell_additional_cost(mut self, cost: &'static CostDef) -> Self {
         let DeclarativeAbilityDef::Spell(spell) = self.definition else {
             panic!("only a spell has an additional cost to pay");
         };
@@ -247,7 +244,7 @@ impl AbilityDef {
     #[must_use]
     pub const fn activated_mana(
         text: &'static str,
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(
@@ -263,7 +260,7 @@ impl AbilityDef {
     #[must_use]
     pub const fn activated_mana_if(
         text: &'static str,
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         condition: &'static TriggerConditionDef,
         effect: EffectDef,
     ) -> Self {
@@ -292,7 +289,7 @@ impl AbilityDef {
     #[must_use]
     pub const fn activated(
         text: &'static str,
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         effect: EffectDef,
     ) -> Self {
         Self::activated_with_targets(text, costs, &[], effect)
@@ -301,7 +298,7 @@ impl AbilityDef {
     #[must_use]
     pub const fn activated_with_targets(
         text: &'static str,
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         targets: &'static [AbilityTargetDef],
         effect: EffectDef,
     ) -> Self {
@@ -351,7 +348,7 @@ impl AbilityDef {
     #[must_use]
     pub const fn modal_activated(
         text: &'static str,
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         modes: &'static [AbilityDef],
         minimum: u8,
         maximum: u8,
@@ -588,7 +585,7 @@ impl AbilityDef {
     pub const fn special_action(
         text: &'static str,
         source_zones: &'static [ZoneKind],
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(

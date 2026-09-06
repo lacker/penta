@@ -2,23 +2,23 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AlternativeCastManaCostDef,
-    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType, BattlefieldArrivalDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AggregateOperationDef, AlternativeCastKindDef, AlternativeCastManaCostDef, AppliedEffectDef,
+    AppliedRuleDef, AttackEventMatcherDef, BasicLandType, BattlefieldArrivalDef,
     BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
     CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
     ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
-    CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef,
-    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
+    CopyExceptionsDef, CostDef, CostQuantityDef, CounterKind, CreatureTypeSetDef,
+    DrawEventMatcherDef, EffectDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
     ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
     ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef, PerPlayerSelectionDef,
     PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef, ScaledValueDef,
-    SetOperationDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TokenCountersDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePickDef, ZonePlacement, abilities, tokens,
+    SetOperationDef, SumValueDef, TargetConditionDef, TokenCountersDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
+    ZonePlacement, abilities, tokens,
 };
 use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
@@ -98,8 +98,7 @@ pub(in crate::card::sets) static DEVOURER_OF_DESTINY: CardRecord = CardRecord::n
     ]),
 );
 
-static LANDSCAPE_FETCH_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
+static LANDSCAPE_FETCH_COST: [CostDef; 2] = [CostDef::TapSource, CostDef::SacrificeSource];
 
 /// The Landscape cycle: a land that taps for nothing useful, sacrifices
 /// itself for one of three tapped basics, and is a cycling card when the
@@ -209,10 +208,7 @@ pub(in crate::card::sets) static MANDIBULAR_KITE: CardRecord = CardRecord::new(
                     ]),
                 },
             ),
-            abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{3}{W}"))],
-                "Equip {3}{W}",
-            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}{W}"))], "Equip {3}{W}"),
         ]),
 );
 
@@ -419,7 +415,7 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new_wit
             EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: EffectPaymentCostDef::Energy(1),
+                    cost: CostDef::Energy(1),
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -630,7 +626,7 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
             AbilityDef::activated(
                 "{1}{B}: Adapt 2. (If this creature has no +1/+1 counters on it, put two +1/+1 counters \
                  on it.)",
-                &[AbilityCostDef::Mana(mana_cost!("{1}{B}"))],
+                &[CostDef::Mana(mana_cost!("{1}{B}"))],
                 // Adapt is a conditional rather than a cost: the ability always resolves,
                 // and finding a counter already there is what makes it do nothing.
                 EffectDef::IfCondition {
@@ -747,7 +743,7 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
                 // The escape cost counts card types rather than cards: one Artifact
                 // Creature Land pays three quarters of it by itself, which is why the deck
                 // playing this is the one with a graveyard full of odd things.
-                SpellAdditionalCostDef::exile(
+                CostDef::exile(
                     ObjectPredicateDef::Any,
                     ZoneKind::Graveyard,
                     CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
@@ -772,7 +768,7 @@ pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardReco
         AbilityDef::activated(
             "{3}{B}: Return this card from your graveyard to the battlefield tapped with two \
              +1/+1 counters on it.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}{B}"))],
+            &[CostDef::Mana(mana_cost!("{3}{B}"))],
             EffectDef::WithBattlefieldArrival {
                 effect: &const {
                     EffectDef::MoveToZone {
@@ -856,8 +852,8 @@ pub(in crate::card::sets) static WITHER_AND_BLOOM: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{B}, Exile this card from your graveyard: Put a +1/+1 counter on target creature you control. Activate only as a sorcery.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}{B}")),
-                AbilityCostDef::ExileSource,
+                CostDef::Mana(mana_cost!("{1}{B}")),
+                CostDef::ExileSource,
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -946,7 +942,7 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
         )
         // Collect evidence 6 (CR 701.58a): cards out of your own graveyard whose
         // mana values add up to six, however many that takes.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+        .with_alternative_additional_cost(&CostDef::exile(
             ObjectPredicateDef::Any,
             ZoneKind::Graveyard,
             CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
@@ -1011,7 +1007,7 @@ pub(in crate::card::sets) static GALVANIC_DISCHARGE: CardRecord = CardRecord::ne
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: EffectPaymentCostDef::ChosenEnergy,
+                    cost: CostDef::ChosenEnergy,
                 },
                 // "That much damage": the amount the payment settled, which is what makes
                 // the three energy it hands out into three damage the turn it is cast and
@@ -1044,7 +1040,7 @@ static ELDRAZI_SPAWN_TOKEN: EffectDef =
     EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1).with_abilities(&[
         AbilityDef::activated_mana(
             "Sacrifice this token: Add {C}.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
     ]);
@@ -1061,7 +1057,7 @@ pub(in crate::card::sets) static BASKING_BROODSCALE: CardRecord = CardRecord::ne
         AbilityDef::activated(
             "{1}{G}: Adapt 1. (If this creature has no +1/+1 counters on it, put a +1/+1 counter \
              on it.)",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
             // Adapt is a conditional rather than a cost: the ability always
             // resolves, and finding a counter already there is what makes it
             // do nothing.
@@ -1103,7 +1099,7 @@ pub(in crate::card::sets) static COLLECTIVE_RESISTANCE: CardRecord = CardRecord:
     CardSet::ModernHorizons3,
     CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {G} (Pay this cost for each mode chosen beyond the first.)",
-        SpellAdditionalCostDef::pay_mana(mana_cost!("{G}")),
+        CostDef::pay_mana(mana_cost!("{G}")),
         &[
             AbilityDef::destroy_target(
                 "Destroy target artifact.",
@@ -1158,10 +1154,7 @@ pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::ne
                     ]),
                 },
             ),
-            abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{3}{G}{G}"))],
-                "Equip {3}{G}{G}",
-            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}{G}{G}"))], "Equip {3}{G}{G}"),
         ]),
 );
 
@@ -1207,7 +1200,7 @@ pub(in crate::card::sets) static EVOLUTION_WITNESS: CardRecord = CardRecord::new
             AbilityDef::activated(
                 "{1}{G}: Adapt 2. (If this creature has no +1/+1 counters on it, put two +1/+1 \
                  counters on it.)",
-                &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+                &[CostDef::Mana(mana_cost!("{1}{G}"))],
                 // Adapt is a conditional rather than a cost: the ability
                 // always resolves, and finding a counter already there is
                 // what makes it do nothing.
@@ -1258,7 +1251,7 @@ pub(in crate::card::sets) static EVOLUTION_WITNESS: CardRecord = CardRecord::new
         ]),
 );
 
-static FANATIC_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
+static FANATIC_TAP: [CostDef; 1] = [CostDef::TapSource];
 
 // MH3 152 — Fanatic of Rhonas
 pub(in crate::card::sets) static FANATIC_OF_RHONAS: CardRecord = CardRecord::new(
@@ -1543,7 +1536,7 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                                 EffectDef::None,
                             )
                             // Retrace's own cost: the card's mana cost, plus a land out of your hand.
-                            .with_alternative_additional_cost(&SpellAdditionalCostDef::discard(
+                            .with_alternative_additional_cost(&CostDef::discard(
                                 ObjectPredicateDef::HasType(CardType::Land),
                                 CostQuantityDef::Fixed(1),
                             )),
@@ -1736,7 +1729,7 @@ pub(in crate::card::sets) static CONDUIT_GOBLIN: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: EffectPaymentCostDef::Energy(1),
+                    cost: CostDef::Energy(1),
                 },
                 &const {
                     EffectDef::Apply {
@@ -1876,7 +1869,7 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
         // allows and flies as often as the graveyard does.
         AbilityDef::activated(
             "Discard a card: Put a +1/+1 counter on this creature.",
-            &[AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,
@@ -1885,14 +1878,12 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
         ),
         abilities::gain_ability_until_end_of_turn(
             "Exile three cards from your graveyard: This creature gains flying until end of turn.",
-            &[AbilityCostDef::MoveToZone(
-                crate::card::MoveToZoneCostDef::new(
-                    ObjectPredicateDef::Any,
-                    ZoneKind::Graveyard,
-                    ZoneKind::Exile,
-                    3,
-                ),
-            )],
+            &[CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                ZoneKind::Exile,
+                3,
+            ))],
             &abilities::flying(),
         ),
     ]),
@@ -1911,7 +1902,7 @@ pub(in crate::card::sets) static SNAPPING_VOIDCRAW: CardRecord = CardRecord::new
             abilities::devoid(),
             AbilityDef::activated_mana(
                 "{T}: Add {C}{C}.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
             ),
             AbilityDef::activated(
@@ -1919,10 +1910,7 @@ pub(in crate::card::sets) static SNAPPING_VOIDCRAW: CardRecord = CardRecord::new
                 // The {C} has to be colourless specifically, which is what
                 // makes this pair with the mana ability above rather than
                 // with any three lands.
-                &[
-                    AbilityCostDef::Mana(mana_cost!("{3}{C}")),
-                    AbilityCostDef::TapSource,
-                ],
+                &[CostDef::Mana(mana_cost!("{3}{C}")), CostDef::TapSource],
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -2260,7 +2248,7 @@ pub(in crate::card::sets) static SHIFTING_WOODLAND: CardRecord = CardRecord::new
         ),
         AbilityDef::activated_mana(
             "{T}: Add {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
         ),
         // No "except it has this ability" clause, unlike Thespian's Stage: the
@@ -2270,7 +2258,7 @@ pub(in crate::card::sets) static SHIFTING_WOODLAND: CardRecord = CardRecord::new
             "Delirium — {2}{G}{G}: This land becomes a copy of target permanent card in your \
              graveyard until end of turn. Activate only if there are four or more card types among \
              cards in your graveyard.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}{G}{G}"))],
+            &[CostDef::Mana(mana_cost!("{2}{G}{G}"))],
             // "Target permanent card in your graveyard": the five permanent types, in
             // your own graveyard rather than either.
             &[AbilityTargetDef::exactly_one(
@@ -2432,7 +2420,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
                     .with_abilities(&const { [
                         AbilityDef::activated(
                             "+2: Put a +1/+1 counter on each Cat you control.",
-                            &const { [AbilityCostDef::Loyalty(2)] },
+                            &const { [CostDef::Loyalty(2)] },
                             EffectDef::AddCounters {
                                 object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                                     ObjectPredicateDef::Subtype("Cat"),
@@ -2445,7 +2433,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
                         ),
                         AbilityDef::activated_with_targets(
                             "0: Create a 2/1 white Cat Warrior creature token. When you do, if you control a red permanent other than Ajani, he deals damage equal to the number of creatures you control to any target.",
-                            &const { [AbilityCostDef::Loyalty(0)] },
+                            &const { [CostDef::Loyalty(0)] },
                             &const { [AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::AnyTarget,
                             )] },
@@ -2487,7 +2475,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
                         ),
                         AbilityDef::activated(
                             "−4: Each opponent chooses an artifact, a creature, an enchantment, and a planeswalker from among the nonland permanents they control, then sacrifices the rest.",
-                            &const { [AbilityCostDef::Loyalty(-4)] },
+                            &const { [CostDef::Loyalty(-4)] },
                             EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                                 player: EffectRecipientDef::Opponent,
                                 candidates: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
@@ -2560,7 +2548,7 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
                 ),
                 AbilityDef::activated_mana(
                     "{T}: Add {W}.",
-                    &const { [AbilityCostDef::TapSource] },
+                    &const { [CostDef::TapSource] },
                     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
                 ),
             ] })
@@ -2623,7 +2611,7 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
                 ),
                 AbilityDef::activated_mana(
                     "{T}: Add {U}.",
-                    &const { [AbilityCostDef::TapSource] },
+                    &const { [CostDef::TapSource] },
                     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
                 ),
             ] })
@@ -2658,7 +2646,7 @@ pub(in crate::card::sets) static PRIEST_OF_TITANIA: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 1, 1).with_ability(
         AbilityDef::activated_mana(
             "{T}: Add {G} for each Elf on the battlefield.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Green,
                 amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
@@ -2685,7 +2673,7 @@ pub(in crate::card::sets) static ARENA_OF_GLORY: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
         ),
         AbilityDef::activated_mana(
@@ -2694,9 +2682,9 @@ pub(in crate::card::sets) static ARENA_OF_GLORY: CardRecord = CardRecord::new(
             // {R} in, {R}{R} out, and one untap step owed: the land pays for the haste
             // out of next turn rather than out of this one.
             &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::ExertSource,
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::TapSource,
+                CostDef::ExertSource,
             ],
             EffectDef::AddMana(
                 AddManaEffectDef::one(ManaColor::Red)
@@ -2865,7 +2853,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                     AbilityDef::activated(
                         "+2: Until your next turn, whenever a creature attacks you or a planeswalker you \
                          control, it gets -1/-0 until end of turn.",
-                        &const { [AbilityCostDef::Loyalty(2)] },
+                        &const { [CostDef::Loyalty(2)] },
                         EffectDef::InstallTrigger(InstalledTriggerDef {
                             // The attackers her plus ability shrinks. It is installed on resolution and
                             // watches until her controller's next turn, so it catches the attack it was
@@ -2892,7 +2880,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                     AbilityDef::activated_with_targets(
                         "−3: Return target instant or sorcery card from your graveyard to your hand. If it's a \
                          green card, add one mana of any color.",
-                        &const { [AbilityCostDef::Loyalty(-3)] },
+                        &const { [CostDef::Loyalty(-3)] },
                         &const { [AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::Object {
                                     object: ObjectPredicateDef::AnyOf(&const { [
@@ -2927,7 +2915,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                     AbilityDef::activated(
                         "−7: Draw cards equal to half the number of cards in your library, rounded up. You get \
                          an emblem with \"You have no maximum hand size.\"",
-                        &const { [AbilityCostDef::Loyalty(-7)] },
+                        &const { [CostDef::Loyalty(-7)] },
                         EffectDef::Sequence(&const { [
                             EffectDef::DrawCards {
                                 recipient: EffectRecipientDef::Controller,
@@ -3020,7 +3008,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                     abilities::extort(),
                     AbilityDef::activated(
                         "+2: Create a Food token.",
-                        &const { [AbilityCostDef::Loyalty(2)] },
+                        &const { [CostDef::Loyalty(2)] },
                         EffectDef::create_token(tokens::food()),
                     ),
                     // The same tally the front face reads to turn over, spent here as
@@ -3028,7 +3016,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                     AbilityDef::activated_with_targets(
                         "\u{2212}1: Sorin deals damage equal to the amount of life you gained this turn to any \
                          target.",
-                        &const { [AbilityCostDef::Loyalty(-1)] },
+                        &const { [CostDef::Loyalty(-1)] },
                         &const { [AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
                         )] },
@@ -3041,7 +3029,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                         "\u{2212}6: Gain control of target creature. It becomes a Vampire in addition to its \
                          other types. Put a lifelink counter on it if you control a white permanent other than \
                          that creature or Sorin.",
-                        &const { [AbilityCostDef::Loyalty(-6)] },
+                        &const { [CostDef::Loyalty(-6)] },
                         &const { [AbilityTargetDef::exactly_one_permanent(
                             ObjectPredicateDef::HasType(CardType::Creature),
                         )] },
@@ -3151,7 +3139,7 @@ pub(in crate::card::sets) static GUIDE_OF_SOULS: CardRecord = CardRecord::new(
                 EffectDef::PayOr(PayOrDef::optional(
                     EffectPaymentDef {
                         payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: EffectPaymentCostDef::Energy(3),
+                        cost: CostDef::Energy(3),
                     },
                     // All three stick: the counters and the type are permanent, so the
                     // creature is still a flying Angel next turn.
@@ -3190,7 +3178,7 @@ pub(in crate::card::sets) static CRABOMINATION: CardRecord = CardRecord::new(
             None,
             // The reduction the keyword applies is generic only, so a big
             // enough artifact still leaves both black pips owed.
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 CostQuantityDef::Fixed(1),
             ),
@@ -3254,8 +3242,8 @@ pub(in crate::card::sets) static WIGHT_OF_THE_RELIQUARY: CardRecord = CardRecord
             "{T}, Sacrifice another creature: Search your library for a land card, put it onto the \
                  battlefield tapped, then shuffle.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),

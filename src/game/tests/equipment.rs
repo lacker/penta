@@ -11,9 +11,9 @@ const MANA_AND_TAP_ELF_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10
 const COUNTER_MANA_ELF_ID: CardDefinitionId = CardDefinitionId::new(10_091);
 const COUNT_ONE_SOURCE_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_092);
 
-static MANA_AND_TAP_ELF_EQUIP_COSTS: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{G}")),
-    AbilityCostDef::TapPermanents {
+static MANA_AND_TAP_ELF_EQUIP_COSTS: [CostDef; 2] = [
+    CostDef::Mana(mana_cost!("{G}")),
+    CostDef::TapPermanents {
         object: ObjectPredicateDef::Subtype("Elf"),
         controller: PlayerRelation::You,
         count: 1,
@@ -25,7 +25,7 @@ static MANA_AND_TAP_ELF_EQUIP_ABILITIES: [AbilityDef; 1] = [abilities::equip(
     "{G}, Tap an untapped Elf you control: Attach this Equipment to target creature you control. Equip only as a sorcery.",
 )];
 
-static COUNTER_MANA_ELF_COSTS: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
+static COUNTER_MANA_ELF_COSTS: [CostDef; 1] = [CostDef::RemoveCountersFromSource {
     kind: CounterKind::named("charge"),
     amount: 1,
 }];
@@ -36,9 +36,9 @@ static COUNTER_MANA_ELF_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana
     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
 )];
 
-static COUNT_ONE_SOURCE_EQUIP_COSTS: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{G}")),
-    AbilityCostDef::TapPermanents {
+static COUNT_ONE_SOURCE_EQUIP_COSTS: [CostDef; 2] = [
+    CostDef::Mana(mana_cost!("{G}")),
+    CostDef::TapPermanents {
         object: ObjectPredicateDef::HasType(CardType::Artifact),
         controller: PlayerRelation::You,
         count: 1,

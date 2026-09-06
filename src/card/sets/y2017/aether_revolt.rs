@@ -2,13 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ControlDurationDef, CounterKind, CreatedTokensDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
-    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ControlDurationDef, CostDef, CounterKind, CreatedTokensDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -37,7 +37,7 @@ const fn servo_for_two_energy_on_attack() -> AbilityDef {
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef {
                 payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                cost: EffectPaymentCostDef::Energy(2),
+                cost: CostDef::Energy(2),
             },
             &const { EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1) },
         )),
@@ -237,7 +237,7 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_
         ),
         AbilityDef::activated(
             "{4}: Put a +1/+1 counter on this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+            &[CostDef::Mana(mana_cost!("{4}"))],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,
@@ -248,7 +248,7 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_
         // Ballista is a 0/0 that state-based actions clear away.
         AbilityDef::activated_with_targets(
             "Remove a +1/+1 counter from this creature: It deals 1 damage to any target.",
-            &[AbilityCostDef::RemoveCountersFromSource {
+            &[CostDef::RemoveCountersFromSource {
                 kind: CounterKind::PlusOnePlusOne,
                 amount: 1,
             }],

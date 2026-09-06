@@ -3,14 +3,14 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AlternativeCastManaCostDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
     CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
+    ChooseDef, ComparisonDef, CostDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
     MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, RandomizeObjectOrderDef, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -26,7 +26,7 @@ pub(in crate::card::sets) const fn escape(
         mana_cost,
         AlternativeCastKindDef::Escape,
         None,
-        SpellAdditionalCostDef::exile(
+        CostDef::exile(
             ObjectPredicateDef::Any,
             ZoneKind::Graveyard,
             CostQuantityDef::Fixed(cards),
@@ -265,9 +265,9 @@ pub(in crate::card::sets) static BLOOD_ASPIRANT: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{R}, {T}, Sacrifice a creature or enchantment: This creature deals 1 damage to target creature. That creature can't block this turn.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{1}{R}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::HasType(CardType::Enchantment),
@@ -467,7 +467,7 @@ pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::ne
             "{T}, Sacrifice this artifact: Exile each opponent's graveyard.",
             // The two sacrifice abilities differ only in what they buy, so the shared
             // half of the cost is written once.
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
@@ -481,9 +481,9 @@ pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::ne
         AbilityDef::activated(
             "{1}, {T}, Sacrifice this artifact: Draw a card.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

@@ -6,8 +6,8 @@
 //! the handful of token rules standardized by the game itself.
 
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
     ResolvedEffectDurationDef, TokenCharacteristics, TokenPart, ValueDef, ZoneKind,
 };
 use crate::mana_cost;
@@ -45,8 +45,7 @@ pub const fn artifact(
     TokenCharacteristics::artifact(subtypes, colors)
 }
 
-static TREASURE_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
+static TREASURE_COST: [CostDef; 2] = [CostDef::TapSource, CostDef::SacrificeSource];
 static TREASURE_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
     "{T}, Sacrifice this artifact: Add one mana of any color.",
     &TREASURE_COST,
@@ -62,9 +61,9 @@ pub const fn treasure() -> TokenCharacteristics {
 static FOOD_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
     "{2}, {T}, Sacrifice this token: You gain 3 life.",
     &[
-        AbilityCostDef::Mana(mana_cost!("{2}")),
-        AbilityCostDef::TapSource,
-        AbilityCostDef::SacrificeSource,
+        CostDef::Mana(mana_cost!("{2}")),
+        CostDef::TapSource,
+        CostDef::SacrificeSource,
     ],
     EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
@@ -102,10 +101,7 @@ pub const fn pest() -> TokenCharacteristics {
 
 static CLUE_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
     "{2}, Sacrifice this token: Draw a card.",
-    &[
-        AbilityCostDef::Mana(mana_cost!("{2}")),
-        AbilityCostDef::SacrificeSource,
-    ],
+    &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,
         amount: ValueDef::Constant(1),
@@ -121,10 +117,10 @@ pub const fn clue() -> TokenCharacteristics {
 static BLOOD_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
     "{1}, {T}, Discard a card, Sacrifice this token: Draw a card.",
     &[
-        AbilityCostDef::Mana(mana_cost!("{1}")),
-        AbilityCostDef::TapSource,
-        AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
-        AbilityCostDef::SacrificeSource,
+        CostDef::Mana(mana_cost!("{1}")),
+        CostDef::TapSource,
+        CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+        CostDef::SacrificeSource,
     ],
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,
@@ -146,10 +142,10 @@ static MAP_CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
         owner: None,
     },
 )];
-static MAP_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificeSource,
+static MAP_COST: [CostDef; 3] = [
+    CostDef::Mana(mana_cost!("{1}")),
+    CostDef::TapSource,
+    CostDef::SacrificeSource,
 ];
 static MAP_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_with_targets(
     "{1}, {T}, Sacrifice this token: Target creature you control explores.",
@@ -167,7 +163,7 @@ pub const fn map() -> TokenCharacteristics {
     TokenCharacteristics::artifact(&["Map"], &[]).with_abilities(&MAP_ABILITIES)
 }
 
-static INCUBATOR_TRANSFORM_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{2}"))];
+static INCUBATOR_TRANSFORM_COST: [CostDef; 1] = [CostDef::Mana(mana_cost!("{2}"))];
 static INCUBATOR_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
     "{2}: Transform this token.",
     &INCUBATOR_TRANSFORM_COST,
@@ -195,7 +191,7 @@ pub const fn incubator() -> TokenCharacteristics {
 pub const fn dragon_pump() -> AbilityDef {
     AbilityDef::activated(
         "{R}: This creature gets +1/+0 until end of turn.",
-        &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+        &[CostDef::Mana(mana_cost!("{R}"))],
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
             effect: AppliedEffectDef::modify_power_toughness(

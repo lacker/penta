@@ -12,6 +12,8 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         TriggerEventDef::While { event, .. } => trigger_event_object_zone(*event),
         TriggerEventDef::ZoneChanged(matcher) => matcher.to,
         TriggerEventDef::Tapped(_)
+        | TriggerEventDef::CumulativeUpkeepPaid { .. }
+        | TriggerEventDef::CumulativeUpkeepNotPaid
         | TriggerEventDef::Attacks(_)
         | TriggerEventDef::Exerted(_)
         | TriggerEventDef::OptionalEffectTaken(_)
@@ -43,6 +45,8 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         // on the stack, but nothing reads it as an object, so it names no
         // zone at all.
         TriggerEventDef::CommittedCrime(_)
+        | TriggerEventDef::CoinFlipWon(_)
+        | TriggerEventDef::CoinFlipLost(_)
         | TriggerEventDef::BecomesLevel(_)
         | TriggerEventDef::Cycled
         | TriggerEventDef::DoorUnlocked

@@ -42,6 +42,10 @@ pub(super) enum ManaPaymentPurpose {
         /// not legal ways to pay this cost.
         leaves_source: bool,
     },
+    CumulativeUpkeep {
+        source: GameObjectId,
+        snow: bool,
+    },
     Other,
 }
 

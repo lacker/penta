@@ -26,7 +26,7 @@ use crate::ids::{AdditionalCostObjectIndex, Binding, TargetIndex};
 
 use super::{
     AbilityDef, AddManaEffectDef, AlternativeCastKindDef, BasicLandType, CardNameSetDef,
-    CardSupertype, CardSupertypeSet, CardTypeSet, ColorSet, ComparisonDef, CounterKind,
+    CardSupertype, CardSupertypeSet, CardTypeSet, ColorSet, ComparisonDef, CostDef, CounterKind,
     DeclarativeAbilityDef, KeywordAbility, ManaColor, ManaCost, ManaTypeDef, ObjectPredicateDef,
     PlayActionKind, PlayerRelation, TokenCharacteristics, TriggerConditionDef, ZoneKind,
     ZonePlacement,

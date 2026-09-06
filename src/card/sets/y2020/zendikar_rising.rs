@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, BattlefieldEntryModificationDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, ComparisonDef, ControlDurationDef, CounterKind, EffectDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, ComparisonDef, ControlDurationDef, CostDef, CounterKind, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
@@ -405,8 +405,8 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{2}, {T}: Copy target activated or triggered ability you control. You may choose new targets for the copy.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::TapSource,
                 ],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
@@ -421,8 +421,8 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{3}, {T}: Copy target instant or sorcery spell you control. You may choose new targets for the copy.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{3}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{3}")),
+                    CostDef::TapSource,
                 ],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
@@ -443,8 +443,8 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{4}, {T}: Copy target permanent spell you control. (The copy becomes a token.)",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{4}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{4}")),
+                    CostDef::TapSource,
                 ],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {

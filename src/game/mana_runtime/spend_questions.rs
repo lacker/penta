@@ -54,6 +54,11 @@ impl Game {
                     )
                     .map(|object| (object, false))
                 }),
+            ManaPaymentPurpose::CumulativeUpkeep { source, .. } => self
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == *source)
+                .map(|permanent| (self.trigger_event_object(permanent), false)),
             ManaPaymentPurpose::Other => None,
         }
     }
@@ -113,8 +118,31 @@ impl Game {
                         !is_spell
                             && self.trigger_object_matches(*predicate, &object, object.id, false)
                     }),
+                ManaRestrictionDef::CumulativeUpkeep => {
+                    matches!(purpose, ManaPaymentPurpose::CumulativeUpkeep { .. })
+                }
                 ManaRestrictionDef::Special(_) => false,
             })
+            && match purpose {
+                ManaPaymentPurpose::CumulativeUpkeep { snow: true, .. } => mana
+                    .source
+                    .and_then(|source| {
+                        self.battlefield
+                            .iter()
+                            .find(|permanent| permanent.card.id == source.object)
+                            .or_else(|| match self.retired_objects.get(&source.object) {
+                                Some(RetiredObject::Permanent { permanent, .. }) => {
+                                    Some(permanent)
+                                }
+                                Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => {
+                                    None
+                                }
+                            })
+                    })
+                    .and_then(|permanent| self.permanent_supertypes(permanent))
+                    .is_some_and(|types| types.contains(crate::card::CardSupertype::Snow)),
+                _ => true,
+            }
     }
 
     pub(super) fn mana_has_spend_effect_for(mana: Mana, purpose: &ManaPaymentPurpose) -> bool {

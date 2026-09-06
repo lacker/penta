@@ -135,6 +135,7 @@ mod counted_statics;
 mod counter_conditions;
 mod countering_and_mana;
 mod creature_bond;
+mod cumulative_upkeep;
 mod cyclone;
 mod damage_dealers;
 mod damage_dealt_by;

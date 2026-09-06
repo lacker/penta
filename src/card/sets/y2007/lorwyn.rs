@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef,
-    EffectRecipientDef, FreePlayDef, FreePlayDurationDef, ManaColor, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, EffectDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, TriggerConditionDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -265,16 +265,13 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
         ),
         AbilityDef::activated(
             "{U}, {T}: You may play the exiled card without paying its mana cost if a library \
              has twenty or fewer cards in it.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{U}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
             // "You may play the exiled card": the offer stands while this
             // ability resolves and no longer, so a player who declines has
             // to pay the {U} and the tap again to be asked twice.

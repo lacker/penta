@@ -5,12 +5,12 @@ use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, DiscardFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    ExilePlayDurationDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostDef, CounterKind, DiscardFollowUpDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef,
+    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -202,9 +202,9 @@ pub(in crate::card::sets) static BITTER_TRIUMPH: CardRecord = CardRecord::new(
             )],
             // One cost with two ways to pay it. The life is the way a deck with an
             // empty hand still casts this, which is what keeps it playable late.
-            SpellAdditionalCostDef::choice(&[
-                SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
-                SpellAdditionalCostDef::pay_life(CostQuantityDef::Fixed(3)),
+            CostDef::choice(&[
+                CostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
+                CostDef::pay_life(CostQuantityDef::Fixed(3)),
             ]),
             EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
@@ -325,7 +325,7 @@ pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRec
                 EffectDef::PayOr(PayOrDef::optional(
                     EffectPaymentDef {
                         payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: EffectPaymentCostDef::Discard(1),
+                        cost: CostDef::DiscardCards(1),
                     },
                     // "It gains trample until end of turn" -- the creature that took the
                     // counter, which is the one the trigger targeted.

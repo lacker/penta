@@ -1,9 +1,9 @@
 //! Paying and stacking activated abilities whose source is not a permanent.
 
 use super::{
-    AbilityCostDef, AbilityOrigin, AbilityProcedureDef, AnnouncedActivationCost,
-    CharacteristicContext, DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameObjectId,
-    ObjectCharacteristics, PlayerId, Target, TargetSelection, ZoneKind, remove_card,
+    AbilityOrigin, AbilityProcedureDef, AnnouncedActivationCost, CharacteristicContext, CostDef,
+    DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameObjectId, ObjectCharacteristics,
+    PlayerId, Target, TargetSelection, ZoneKind, remove_card,
 };
 use crate::ModeId;
 use crate::card::MoveToZoneCostDef;
@@ -29,14 +29,14 @@ impl Game {
         if definition
             .costs
             .iter()
-            .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count: 1, .. }))
+            .any(|cost| matches!(cost, CostDef::TapPermanents { count: 1, .. }))
             && let Some(chosen) = cost_objects.first()
         {
             let _ = self.tap_permanent(*chosen);
         }
         for cost in definition.costs.as_slice() {
             match cost {
-                AbilityCostDef::Mana(printed) => {
+                CostDef::Mana(printed) => {
                     let cost = priced_mana_cost.unwrap_or(*printed);
                     let cost = self.announced_activation_cost(player, cost, mana_payment);
                     self.activate_mana_for_cost_avoiding_for(
@@ -49,9 +49,9 @@ impl Game {
                     let _ = self.pay_player_cost_for(player, cost, x, payment_purpose);
                 }
                 // Paid above, before anything else could tap it.
-                AbilityCostDef::TapPermanents { count: 1, .. } => {}
-                AbilityCostDef::ExileSource => self.exile_graveyard_source(player, source),
-                AbilityCostDef::MillCards(amount) => {
+                CostDef::TapPermanents { count: 1, .. } => {}
+                CostDef::ExileSource => self.exile_graveyard_source(player, source),
+                CostDef::MillCards(amount) => {
                     let milled = self.take_top_of_library(player, usize::from(*amount));
                     assert_eq!(
                         milled.len(),

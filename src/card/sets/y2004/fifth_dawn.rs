@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardType, CounterKind, EffectDef, EffectRecipientDef, GraveyardPlayPermissionDef, ManaColor,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType,
+    CostDef, CounterKind, EffectDef, EffectRecipientDef, GraveyardPlayPermissionDef, ManaColor,
     ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation,
     ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -204,8 +204,8 @@ pub(in crate::card::sets) static ENGINEERED_EXPLOSIVES: CardRecord = CardRecord:
             AbilityDef::activated(
                 "{2}, Sacrifice this artifact: Destroy each nonland permanent with mana value equal to the number of charge counters on this artifact.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}")),
-                    AbilityCostDef::SacrificeSource,
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::SacrificeSource,
                 ],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::matching_objects(
@@ -246,7 +246,7 @@ pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_mana(
                 "Remove a charge counter from this artifact: Add one mana of any color.",
-                &[AbilityCostDef::RemoveCountersFromSource {
+                &[CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("charge"),
                     amount: 1,
                 }],

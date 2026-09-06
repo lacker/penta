@@ -3,10 +3,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, abilities,
+    AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
+    CardType, CostDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerEventDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -60,7 +60,7 @@ pub(in crate::card::sets) static RELIC_OF_SAURON: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add two mana in any combination of {U}, {B}, and/or {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // "In any combination", which is what separates it from a rock that makes
             // two of one colour: one activation can pay two different pips.
             EffectDef::AddMana(AddManaEffectDef::combination(
@@ -70,10 +70,7 @@ pub(in crate::card::sets) static RELIC_OF_SAURON: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "{3}, {T}: Draw two cards, then discard a card.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
             // Two cards for one, which is the half the deck is really paying four mana
             // for -- and the tap is shared, so a Relic that made mana this turn cannot
             // also draw.

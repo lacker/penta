@@ -435,9 +435,9 @@ impl Game {
         ) || !activation.costs.iter().any(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::SacrificeSource
-                    | AbilityCostDef::ExileSource
-                    | AbilityCostDef::ReturnSourceToHand
+                CostDef::SacrificeSource
+                    | CostDef::ExileSource
+                    | CostDef::ReturnSourceToHand
             )
         });
         // An activation that itself costs mana is left to the player. The
@@ -446,7 +446,7 @@ impl Game {
         let costs_mana = activation
             .costs
             .iter()
-            .any(|cost| matches!(cost, AbilityCostDef::Mana(_)));
+            .any(|cost| matches!(cost, CostDef::Mana(_)));
         let consumes_reserved = Self::activation_consumes_reserved(activation, request.reserved);
         let consumes_spell = matches!(
             request.purpose,
@@ -478,9 +478,9 @@ impl Game {
                 && activation.costs.iter().any(|cost| {
                     matches!(
                         cost,
-                        AbilityCostDef::SacrificeSource
-                            | AbilityCostDef::ExileSource
-                            | AbilityCostDef::ReturnSourceToHand
+                        CostDef::SacrificeSource
+                            | CostDef::ExileSource
+                            | CostDef::ReturnSourceToHand
                     )
                 }))
             // A multi-object sacrifice has no concrete object IDs in the mana
@@ -490,7 +490,7 @@ impl Game {
                 && activation
                     .costs
                     .iter()
-                    .any(|cost| matches!(cost, AbilityCostDef::SacrificePermanents { .. })))
+                    .any(|cost| matches!(cost, CostDef::SacrificePermanents { .. })))
     }
 }
 

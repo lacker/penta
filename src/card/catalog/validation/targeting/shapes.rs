@@ -582,7 +582,7 @@ fn validate_payment_shape(
         validate_target_shape(target, targets, RecipientExpectation::Any, true)?;
         validate_target_projection(target, targets, RecipientExpectation::Player)?;
     }
-    if let EffectPaymentCostDef::GenericMana(amount) = payment.cost {
+    if let CostDef::GenericMana(amount) = payment.cost {
         validate_value_shape(amount, targets)?;
     }
     Ok(())
@@ -929,7 +929,7 @@ fn validate_applied_effect_shapes(
             validate_block_restriction_shape(recipient, restriction, targets)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(matcher)) => {
-            validate_recipient_shape(recipient, targets, RecipientExpectation::Object)?;
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
             validate_damage_matcher_shape(matcher, targets)
         }
         // A limit protects a player, so unlike prevention its recipient is

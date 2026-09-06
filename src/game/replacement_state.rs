@@ -1,6 +1,5 @@
 use crate::card::{
-    ManaCost, ReplacementAbilityDef, ReplacementEffectDef, SpellAdditionalCostDef, ZoneKind,
-    ZonePlacement,
+    CostDef, ManaCost, ReplacementAbilityDef, ReplacementEffectDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{Binding, CardDefinitionId, GameObjectId, PlayerId};
 
@@ -143,7 +142,7 @@ pub(super) enum BattlefieldExitCompletion {
     CompleteSpellCast {
         object: Box<StackObject>,
         targets: Vec<Target>,
-        remaining_sacrifices: Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        remaining_sacrifices: Vec<(GameObjectId, CostDef)>,
     },
     CompleteActivatedAbility {
         source: GameObjectId,
@@ -162,7 +161,7 @@ pub(super) enum BattlefieldExitCompletion {
     ContinueSpellManaPayment {
         object: Box<StackObject>,
         targets: Vec<Target>,
-        object_payments: Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        object_payments: Vec<(GameObjectId, CostDef)>,
         cost: ManaCost,
         x: u16,
         purpose: ManaPaymentPurpose,

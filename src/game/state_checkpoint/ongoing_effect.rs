@@ -1,4 +1,4 @@
-use crate::card::{AbilityCostDef, AbilityProcedureDef, DeclarativeAbilityDef, ZoneKind};
+use crate::card::{AbilityProcedureDef, CostDef, DeclarativeAbilityDef, ZoneKind};
 
 use super::model::ResolvedOngoingEffectSnapshot;
 use super::semantics::{ability_locator_for_origin, catalog_ability};
@@ -55,9 +55,9 @@ pub(super) fn parse_ongoing_effect(
         || definition.condition.is_some()
         || definition.costs.as_slice().iter().any(|cost| {
             if mana {
-                !matches!(cost, AbilityCostDef::PayLife(_))
+                !matches!(cost, CostDef::PayLife(_))
             } else {
-                !matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x)
+                !matches!(cost, CostDef::Mana(cost) if !cost.variable_x)
             }
         })
     {

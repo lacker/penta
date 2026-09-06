@@ -7,15 +7,14 @@ use crate::card::{
 };
 
 use super::{
-    AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef,
-    AppliedEffectDef, CardDefinitionId, CardInstance, CardType, CharacteristicContext,
-    CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair, KeywordAbility,
-    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost,
-    ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
-    ObjectRefDef, PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind,
-    PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection,
-    TargetSlotId, TriggerContext, ValueDef, ZoneKind,
+    AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef, AppliedEffectDef,
+    CardDefinitionId, CardInstance, CardType, CharacteristicContext, CharacteristicOperationDef,
+    CostConfiguration, CostDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
+    FlexibleManaSource, Game, GameObjectId, HybridPair, KeywordAbility, ManaAbilityActivation,
+    ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost, ManaPaymentPurpose,
+    ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs, ObjectRefDef, PaymentCapacity,
+    Permanent, PlannedManaActivation, PlannedPaymentKind, PlayActionKind, PlayOptionDef, PlayerId,
+    SetOperationDef, Target, TargetSelection, TargetSlotId, TriggerContext, ValueDef, ZoneKind,
 };
 
 #[derive(Clone, Copy)]
@@ -196,19 +195,17 @@ impl Game {
         cost_objects: &[GameObjectId],
         animates_source: bool,
     ) -> (ManaPlanOptions, ManaPaymentPurpose) {
-        let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+        let taps_source = definition.costs.contains(&CostDef::TapSource);
         let leaves_source = definition.costs.iter().any(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::SacrificeSource
-                    | AbilityCostDef::ExileSource
-                    | AbilityCostDef::ReturnSourceToHand
+                CostDef::SacrificeSource | CostDef::ExileSource | CostDef::ReturnSourceToHand
             )
         });
         let tap_cost_payer = if definition
             .costs
             .iter()
-            .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count: 1, .. }))
+            .any(|cost| matches!(cost, CostDef::TapPermanents { count: 1, .. }))
         {
             cost_objects.first().copied()
         } else {
@@ -382,7 +379,9 @@ impl Game {
                 reserved_life_payment,
                 ..
             } => *reserved_life_payment,
-            ManaPaymentPurpose::Ability { .. } | ManaPaymentPurpose::Other => 0,
+            ManaPaymentPurpose::Ability { .. }
+            | ManaPaymentPurpose::CumulativeUpkeep { .. }
+            | ManaPaymentPurpose::Other => 0,
         };
         let reserved = i16::try_from(reserved).unwrap_or(i16::MAX);
         u16::try_from(self.players[player.index()].life.saturating_sub(reserved)).unwrap_or(0)
@@ -467,7 +466,7 @@ impl Game {
                         .costs
                         .iter()
                         .filter_map(|cost| match cost {
-                            AbilityCostDef::PayLife(amount) => Some(*amount),
+                            CostDef::PayLife(amount) => Some(*amount),
                             _ => None,
                         })
                         .fold(0, u16::saturating_add),

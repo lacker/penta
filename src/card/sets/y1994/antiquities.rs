@@ -1,15 +1,15 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardType, CardTypeSet, ChoiceVisibilityDef, ConditionDef, CounterKind,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardType, CardTypeSet, ChoiceVisibilityDef, ConditionDef, CostDef, CounterKind,
     CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef, DamageSourceGroupDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
-    SumValueDef, TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SumValueDef,
+    TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -51,10 +51,7 @@ pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord =
         CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Artificer"], 1, 1)
             .with_abilities(&[AbilityDef::activated_with_targets(
                 "{W}{W}, {T}: Return target artifact card from your graveyard to your hand.",
-                &[
-                    AbilityCostDef::Mana(mana_cost!("{W}{W}")),
-                    AbilityCostDef::TapSource,
-                ],
+                &[CostDef::Mana(mana_cost!("{W}{W}")), CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Artifact),
@@ -80,7 +77,7 @@ pub(in crate::card::sets) static ARGIVIAN_BLACKSMITH: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Artificer"], 2, 2)
         .with_ability(AbilityDef::activated_with_targets(
         "{T}: Prevent the next 2 damage that would be dealt to target artifact creature this turn.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
@@ -116,7 +113,7 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_ARTIFACTS: CardRecord = Ca
     CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(
         abilities::circle_of_protection(
             "{2}: The next time an artifact source of your choice would deal damage to you this turn, prevent that damage.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::HasType(CardType::Artifact),
         ),
     ),
@@ -303,8 +300,8 @@ pub(in crate::card::sets) static SAGE_OF_LAT_NAM: CardRecord = CardRecord::new_w
         AbilityDef::activated(
             "{T}, Sacrifice an artifact: Draw a card.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
                     controller: PlayerRelation::You,
                 },
@@ -347,7 +344,7 @@ pub(in crate::card::sets) static GATE_TO_PHYREXIA: CardRecord = CardRecord::new_
         AbilityDef::activated_with_targets(
             "Sacrifice a creature: Destroy target artifact. Activate only during your upkeep and \
              only once each turn.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
             }],
@@ -392,7 +389,7 @@ pub(in crate::card::sets) static PHYREXIAN_GREMLINS: CardRecord = CardRecord::ne
             AbilityDef::activated_with_targets(
                 "{T}: Tap target artifact. It doesn't untap during its controller's untap step \
                  for as long as this creature remains tapped.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
@@ -431,7 +428,7 @@ pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new
         AbilityDef::activated_with_targets(
             "{T}: Until your next upkeep, target noncreature artifact becomes an artifact \
              creature with power and toughness each equal to its mana value.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -495,7 +492,7 @@ pub(in crate::card::sets) static ATOG: CardRecord = CardRecord::new_with_legacy_
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Atog"], 1, 2).with_abilities(&[
         AbilityDef::activated(
             "Sacrifice an artifact: This creature gets +2/+2 until end of turn.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
                 controller: PlayerRelation::You,
             }],
@@ -563,8 +560,8 @@ pub(in crate::card::sets) static DWARVEN_WEAPONSMITH: CardRecord = CardRecord::n
             "{T}, Sacrifice an artifact: Put a +1/+1 counter on target creature. Activate only \
              during your upkeep.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
                     controller: PlayerRelation::You,
                 },
@@ -602,8 +599,8 @@ pub(in crate::card::sets) static ORCISH_MECHANICS: CardRecord = CardRecord::new_
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice an artifact: This creature deals 2 damage to any target.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
                     controller: PlayerRelation::You,
                 },
@@ -810,10 +807,7 @@ pub(in crate::card::sets) static AMULET_OF_KROOG: CardRecord = CardRecord::new_w
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{2}, {T}: Prevent the next 1 damage that would be dealt to any target this turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -864,7 +858,7 @@ pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new_
         AbilityDef::activated(
             "{4}: Remove a doom counter from this artifact. Any player may activate this \
              ability but only during any upkeep step.",
-            &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+            &[CostDef::Mana(mana_cost!("{4}"))],
             EffectDef::RemoveCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("doom"),
@@ -903,10 +897,7 @@ pub(in crate::card::sets) static ASHNODS_BATTLE_GEAR: CardRecord = CardRecord::n
         AbilityDef::activated_with_targets(
             "{2}, {T}: Target creature you control gets +2/-2 for as long as this artifact \
              remains tapped.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -931,7 +922,7 @@ pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
         "{T}, Sacrifice this artifact: Put a +1/+1 counter on target nonartifact creature. \
          That creature becomes an artifact in addition to its other types.",
-        &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+        &[CostDef::TapSource, CostDef::SacrificeSource],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -1006,10 +997,7 @@ pub(in crate::card::sets) static CANDELABRA_OF_TAWNOS: CardRecord = CardRecord::
     // what makes the card an answer as well as an engine.
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
         "{X}, {T}: Untap X target lands.",
-        &[
-            AbilityCostDef::Mana(mana_cost!("{X}")),
-            AbilityCostDef::TapSource,
-        ],
+        &[CostDef::Mana(mana_cost!("{X}")), CostDef::TapSource],
         // "X target lands": the count is the X that was paid, not a range chosen
         // afterwards, so an X larger than the number of lands on the battlefield
         // offers no declaration at all.
@@ -1036,7 +1024,7 @@ pub(in crate::card::sets) static CLAY_STATUE: CardRecord = CardRecord::new_with_
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 3, 1).with_abilities(&[
         abilities::regenerate_self(
             "{2}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1071,7 +1059,7 @@ pub(in crate::card::sets) static COLOSSUS_OF_SARDIA: CardRecord = CardRecord::ne
         ),
         AbilityDef::activated(
             "{9}: Untap this creature. Activate only during your upkeep.",
-            &[AbilityCostDef::Mana(mana_cost!("{9}"))],
+            &[CostDef::Mana(mana_cost!("{9}"))],
             EffectDef::Untap {
                 object: EffectRecipientDef::Source,
             },
@@ -1089,8 +1077,8 @@ pub(in crate::card::sets) static CORAL_HELM: CardRecord = CardRecord::new_with_l
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_with_targets(
         "{3}, Discard a card at random: Target creature gets +2/+2 until end of turn.",
         &[
-            AbilityCostDef::Mana(mana_cost!("{3}")),
-            AbilityCostDef::DiscardCardsAtRandom(1),
+            CostDef::Mana(mana_cost!("{3}")),
+            CostDef::DiscardCardsAtRandom(1),
         ],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
@@ -1125,7 +1113,7 @@ pub(in crate::card::sets) static DRAGON_ENGINE: CardRecord = CardRecord::new_wit
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 1, 3).with_abilities(&[
         AbilityDef::activated(
             "{2}: This creature gets +1/+0 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1146,7 +1134,7 @@ pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new_with
     CardSet::Antiquities,
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
         "{T}, Exile this artifact: Shuffle your graveyard into your library.",
-        &[AbilityCostDef::TapSource, AbilityCostDef::ExileSource],
+        &[CostDef::TapSource, CostDef::ExileSource],
         // The documented composition: move the then shuffle the library they
         // arrived in.
         EffectDef::Sequence(
@@ -1179,8 +1167,8 @@ pub(in crate::card::sets) static GOLGOTHIAN_SYLEX: CardRecord = CardRecord::new_
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[AbilityDef::activated(
         "{1}, {T}: Each nontoken permanent with a name originally printed in the Antiquities expansion is sacrificed by its controller.",
         &[
-            AbilityCostDef::Mana(mana_cost!("{1}")),
-            AbilityCostDef::TapSource,
+            CostDef::Mana(mana_cost!("{1}")),
+            CostDef::TapSource,
         ],
         EffectDef::Sacrifice {
             object: EffectRecipientDef::matching_objects(
@@ -1204,7 +1192,7 @@ pub(in crate::card::sets) static GRAPESHOT_CATAPULT: CardRecord = CardRecord::ne
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 2, 3).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}: This creature deals 1 damage to target creature with flying.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -1256,10 +1244,7 @@ pub(in crate::card::sets) static JALUM_TOME: CardRecord = CardRecord::new_with_l
         .with_subtypes(&["Book"])
         .with_abilities(&[AbilityDef::activated(
             "{2}, {T}: Draw a card, then discard a card.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             EffectDef::Sequence(&[
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -1309,10 +1294,7 @@ pub(in crate::card::sets) static MILLSTONE: CardRecord = CardRecord::new_with_le
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{2}, {T}: Target player mills two cards.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
@@ -1372,10 +1354,7 @@ pub(in crate::card::sets) static OBELISK_OF_UNDOING: CardRecord = CardRecord::ne
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{6}, {T}: Return target permanent you both own and control to your hand.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{6}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{6}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::Any,
@@ -1439,7 +1418,7 @@ pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new_with_leg
     CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated_with_targets(
         "{2}: Prevent the next 1 damage that would be dealt to any target this turn. Return \
          this artifact to its owner's hand at the beginning of the next end step.",
-        &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+        &[CostDef::Mana(mana_cost!("{2}"))],
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
@@ -1500,10 +1479,7 @@ pub(in crate::card::sets) static STAFF_OF_ZEGON: CardRecord = CardRecord::new_wi
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{3}, {T}: Target creature gets -2/-0 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1577,10 +1553,7 @@ pub(in crate::card::sets) static TAWNOSS_WAND: CardRecord = CardRecord::new_with
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{2}, {T}: Target creature with power 2 or less can't be blocked this turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -1615,10 +1588,7 @@ pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new_
         AbilityDef::activated_with_targets(
             "{2}, {T}: Target creature gets +1/+1 for as long as this artifact remains \
              tapped.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1679,8 +1649,8 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_leg
             EffectDef::PayOr(PayOrDef {
                 payment: EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: EffectPaymentCostDef::RemoveAnyNumberOfCounters {
-                        object: EffectRecipientDef::Source,
+                    cost: CostDef::RemoveAnyNumberOfCounters {
+                        object: &EffectRecipientDef::Source,
                         kind: CounterKind::PlusOnePlusOne,
                     },
                 },
@@ -1751,7 +1721,7 @@ pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new_with_l
         ),
         AbilityDef::activated_with_targets(
             "Remove a +1/+1 counter from this creature: It deals 1 damage to any target.",
-            &[AbilityCostDef::RemoveCountersFromSource {
+            &[CostDef::RemoveCountersFromSource {
                 kind: CounterKind::PlusOnePlusOne,
                 amount: 1,
             }],
@@ -1866,7 +1836,7 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated(
             "{1}: This land becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 // Animating keeps the land: the creature and artifact types are added on
@@ -1883,7 +1853,7 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_
         ),
         AbilityDef::activated_with_targets(
             "{T}: Target Assembly-Worker creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // The pump reaches any Assembly-Worker, including a Factory that has already
             // animated itself and a second Factory across the table.
             &[AbilityTargetDef::exactly_one(
@@ -1920,7 +1890,7 @@ pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new
     CardSet::Antiquities,
     CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_mana(
         "{T}: Add {C}{C}{C}. Spend this mana only to cast artifact spells.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless)
                 .with_amount(3)
@@ -1941,7 +1911,7 @@ pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new_with_l
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this land: Destroy target land.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Land),
@@ -1973,7 +1943,7 @@ pub(in crate::card::sets) static URZA_S_MINE: CardRecord = CardRecord::new_with_
     CardRules::new_land(&["Urza's", "Mine"]).with_ability(AbilityDef::activated_mana(
         "{T}: Add {C}. If you control an Urza's Power Plant and an Urza's Tower, add {C}{C} \
          instead.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
                 ConditionDef::All(&[
@@ -2000,7 +1970,7 @@ pub(in crate::card::sets) static URZA_S_POWER_PLANT: CardRecord = CardRecord::ne
     CardSet::Antiquities,
     CardRules::new_land(&["Urza's", "Power-Plant"]).with_ability(AbilityDef::activated_mana(
         "{T}: Add {C}. If you control an Urza's Mine and an Urza's Tower, add {C}{C} instead.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
                 ConditionDef::All(&[
@@ -2028,7 +1998,7 @@ pub(in crate::card::sets) static URZA_S_TOWER: CardRecord = CardRecord::new_with
     CardRules::new_land(&["Urza's", "Tower"]).with_ability(AbilityDef::activated_mana(
         "{T}: Add {C}. If you control an Urza's Mine and an Urza's Power Plant, add {C}{C}{C} \
          instead.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
                 ConditionDef::All(&[

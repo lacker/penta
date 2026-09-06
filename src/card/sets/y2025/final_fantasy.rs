@@ -3,15 +3,15 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::TargetIndex;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, ActivationTimingDef, AddManaEffectDef,
-    AdditionalTriggerDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef, ConditionDef,
-    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DrawEventMatcherDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SetOperationDef, TopOfLibraryCostDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AdditionalTriggerDef,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CharacteristicOperationDef, ConditionDef, CostDef, CounterKind,
+    CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectRefDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, SetOperationDef,
+    TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -218,7 +218,7 @@ pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_wit
         .with_abilities(&[
             AbilityDef::activated_mana(
                 "{0}: Add X mana in any combination of {U} and/or {R}, where X is this creature's power. Activate only during your turn and only once each turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{0}"))],
+                &[CostDef::Mana(mana_cost!("{0}"))],
                 // "Add X mana in any combination of {U} and/or {R}" divides one amount
                 // across two types, so the runtime offers the ability once per division.
                 // Vivi enters with no power at all, so the first activation worth making
@@ -276,7 +276,7 @@ pub(in crate::card::sets) static STARTING_TOWN: CardRecord = CardRecord::new(
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana(
             "{T}, Pay 1 life: Add one mana of any color.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)],
+            &[CostDef::TapSource, CostDef::PayLife(1)],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
@@ -400,7 +400,7 @@ pub(in crate::card::sets) static ASTROLOGIAN_S_PLANISPHERE: CardRecord = CardRec
             ),
             // The flavour name in front of the cost is the whole of what "Diana —"
             // adds: it is an ordinary equip ability underneath.
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Diana — Equip {2}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Diana — Equip {2}"),
         ]),
 );
 

@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardType, CostDef, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -16,7 +16,7 @@ static ELDRAZI_SCION_TOKEN: EffectDef =
     EffectDef::create_creature_token(&["Eldrazi", "Scion"], &[], 1, 1).with_abilities(&[
         AbilityDef::activated_mana(
             "Sacrifice this creature: Add {C}.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
     ]);

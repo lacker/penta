@@ -8,14 +8,14 @@ use crate::action::{
 #[cfg(test)]
 use crate::card::AbilityPredicateDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityTargetDef,
-    AbilityTargetPredicate, ActivatedAbilityDef, ActivationTimingDef, AddManaEffectDef,
-    AlternativeCastAbilityDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    BandingQuality, BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES, CardCatalog,
-    CardChoiceSourceDef, CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardSupertypeSet, CardType, CardTypeSet, CharacteristicContext,
-    CharacteristicOperationDef, ColorChoiceOperationDef, ColorSet, ComparisonDef, ConditionDef,
-    ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
+    AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivatedAbilityDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastAbilityDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
+    BattlefieldEntryModificationDef, CREATURE_TYPES, CardCatalog, CardChoiceSourceDef,
+    CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
+    CardSupertypeSet, CardType, CardTypeSet, CharacteristicContext, CharacteristicOperationDef,
+    ColorChoiceOperationDef, ColorSet, ComparisonDef, ConditionDef, ControlDurationDef, CostDef,
+    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
     DiscardSelectionDef, DividedTotal, DoubleFacedKind, EffectDef, EffectPaymentDef,
     EffectRecipientDef, EffectRecipientSetDef, FaceDownCharacteristics, HybridPair, KeywordAbility,
@@ -193,7 +193,8 @@ use continuous_state::{
 use decision_state::{
     ApplicableBeginTurnReplacement, CounteredSpellZone, DecisionContinuation,
     DeferredBeginTurnEffect, DiscardFollowUp, PendingDecision, Pregame, PregameAbilityAction,
-    ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup, SearchFollowUp, ZoneMoveCause,
+    ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup, SearchFollowUp,
+    SettledEffectPayment, ZoneMoveCause,
 };
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{

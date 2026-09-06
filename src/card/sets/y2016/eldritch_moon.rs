@@ -3,12 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostQuantityDef, CounterKind,
+    CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CostQuantityDef, CounterKind,
     DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -21,7 +20,7 @@ pub(in crate::card::sets) static BLESSED_ALLIANCE: CardRecord = CardRecord::new(
     CardSet::EldritchMoon,
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {2} (Pay this cost for each mode chosen beyond the first.)",
-        SpellAdditionalCostDef::pay_mana(mana_cost!("{2}")),
+        CostDef::pay_mana(mana_cost!("{2}")),
         &[
             AbilityDef::spell_with_targets(
                 "Target player gains 4 life.",
@@ -78,7 +77,7 @@ pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
     CardSet::EldritchMoon,
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {1}{W} (Pay this cost for each mode chosen beyond the first.)",
-        SpellAdditionalCostDef::pay_mana(mana_cost!("{1}{W}")),
+        CostDef::pay_mana(mana_cost!("{1}{W}")),
         &[
             AbilityDef::spell(
                 "Creatures you control get +2/+0 until end of turn.",
@@ -123,7 +122,7 @@ pub(in crate::card::sets) static COLLECTIVE_EFFORT: CardRecord = CardRecord::new
     CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(
         AbilityDef::modal_escalate_spell(
             "Escalate—Tap an untapped creature you control. (Pay this cost for each mode chosen beyond the first.)",
-            SpellAdditionalCostDef::tap(
+            CostDef::tap(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
             ),
@@ -239,7 +238,7 @@ pub(in crate::card::sets) static BORROWED_MALEVOLENCE: CardRecord = CardRecord::
     CardSet::EldritchMoon,
     CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {2} (Pay this cost for each mode chosen beyond the first.)",
-        SpellAdditionalCostDef::pay_mana(mana_cost!("{2}")),
+        CostDef::pay_mana(mana_cost!("{2}")),
         &[
             AbilityDef::spell_with_targets(
                 "Target creature gets +1/+1 until end of turn.",
@@ -290,7 +289,7 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
             "Escalate—Discard a card. (Pay this cost for each mode chosen beyond the \
              first.)",
             // One mode is free; taking all three costs two discarded cards.
-            SpellAdditionalCostDef::discard(
+            CostDef::discard(
                 ObjectPredicateDef::Any,
                 CostQuantityDef::Fixed(1),
             ),
@@ -350,7 +349,7 @@ pub(in crate::card::sets) static BORROWED_HOSTILITY: CardRecord = CardRecord::ne
     CardSet::EldritchMoon,
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {3} (Pay this cost for each mode chosen beyond the first.)",
-        SpellAdditionalCostDef::pay_mana(mana_cost!("{3}")),
+        CostDef::pay_mana(mana_cost!("{3}")),
         &[
             AbilityDef::spell_with_targets(
                 "Target creature gets +3/+0 until end of turn.",
@@ -389,7 +388,7 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
     CardSet::EldritchMoon,
     CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {1} (Pay this cost for each mode chosen beyond the first.)",
-        SpellAdditionalCostDef::pay_mana(mana_cost!("{1}")),
+        CostDef::pay_mana(mana_cost!("{1}")),
         &[
             AbilityDef::spell_with_targets(
                 "Target player discards all the cards in their hand, then draws that many cards.",
@@ -442,7 +441,7 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
     CardSet::EldritchMoon,
     CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {1} (Pay this cost for each mode chosen beyond the first.)",
-        SpellAdditionalCostDef::pay_mana(mana_cost!("{1}")),
+        CostDef::pay_mana(mana_cost!("{1}")),
         &[
             AbilityDef::spell_with_targets(
                 "Creatures target player controls gain trample until end of turn.",

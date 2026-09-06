@@ -1,12 +1,12 @@
 use super::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AlternativeCastKindDef, AlternativeCastManaCostDef, AlternativeCostDef,
-    CardComposition, CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId,
-    CardRules, CardSet, CardType, CardTypeSet, CostQuantityDef, CreatureStats,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, FlexibleManaSymbol, ImplementationStatus,
+    AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AlternativeCastKindDef, AlternativeCastManaCostDef, AlternativeCostDef, CardComposition,
+    CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet,
+    CardType, CardTypeSet, CostDef, CostQuantityDef, CreatureStats, DeclarativeAbilityDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, FlexibleManaSymbol, ImplementationStatus,
     LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
     ManaSelectionDef, ManaTypeSetDef, ModalModeListDef, ObjectPredicateDef, PlayOptionDef,
-    PlayerRelation, PrintedManaCost, SpellAbilityDef, SpellAdditionalCostDef, SpellForm,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost, SpellAbilityDef, SpellForm,
     TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
@@ -14,6 +14,38 @@ use crate::{
 };
 
 mod composition;
+
+#[test]
+fn one_cost_definition_embeds_in_activation_casting_and_resolving_payments() {
+    const COST: CostDef = CostDef::PayLife(2);
+    static COSTS: [CostDef; 1] = [COST];
+
+    let activated = AbilityDef::activated("Pay 2 life: Do nothing.", &COSTS, EffectDef::None);
+    let DeclarativeAbilityDef::Activated(activated) = activated.definition else {
+        panic!("expected an activated ability");
+    };
+    assert_eq!(activated.costs.as_slice(), [COST]);
+
+    let spell = AbilityDef::spell_with_additional_cost(
+        "As an additional cost, pay 2 life.",
+        &[],
+        COST,
+        EffectDef::None,
+    );
+    let DeclarativeAbilityDef::Spell(SpellAbilityDef::Nonmodal {
+        additional_cost, ..
+    }) = spell.definition
+    else {
+        panic!("expected a spell ability");
+    };
+    assert_eq!(additional_cost, Some(COST));
+
+    let payment = EffectPaymentDef {
+        payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+        cost: COST,
+    };
+    assert_eq!(payment.cost, COST);
+}
 
 #[test]
 fn likelihood_def_preserves_a_valid_floating_point_value() {
@@ -69,10 +101,7 @@ fn ability_cost_list_equality_and_hash_ignore_storage_representation() {
     use std::collections::{HashSet, hash_map::DefaultHasher};
     use std::hash::{Hash, Hasher};
 
-    static COSTS: [AbilityCostDef; 2] = [
-        AbilityCostDef::Mana(ManaCost::new(2, 0)),
-        AbilityCostDef::DiscardSource,
-    ];
+    static COSTS: [CostDef; 2] = [CostDef::Mana(ManaCost::new(2, 0)), CostDef::DiscardSource];
     let borrowed = AbilityCostList::borrowed(&COSTS);
     let inline = AbilityCostList::two(COSTS[0], COSTS[1]);
 
@@ -219,8 +248,7 @@ fn spree_modes_derive_costs_and_complete_rules_text() {
 
 #[test]
 fn modal_escalate_spell_derives_its_mode_range_and_attaches_its_cost() {
-    const COST: SpellAdditionalCostDef =
-        SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1));
+    const COST: CostDef = CostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1));
     const MODES: [AbilityDef; 3] = [
         AbilityDef::spell("First mode.", EffectDef::None),
         AbilityDef::spell("Second mode.", EffectDef::None),
@@ -519,7 +547,7 @@ fn alternative_cast_clauses_render_and_project_escape_costs() {
             AlternativeCastManaCostDef::Fixed(mana_cost!("{G}{G}{U}{U}")),
             AlternativeCastKindDef::Escape,
             None,
-            SpellAdditionalCostDef::exile(
+            CostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::Fixed(5),
@@ -770,7 +798,7 @@ fn noncreatures_cannot_declare_creature_stats() {
 
 #[test]
 fn ability_category_is_explicit_and_not_inferred_from_effect() {
-    const COSTS: &[AbilityCostDef] = &[AbilityCostDef::TapSource];
+    const COSTS: &[CostDef] = &[CostDef::TapSource];
     const ADD_MANA: EffectDef = EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green));
     const MANA_ABILITY: AbilityDef = AbilityDef::activated_mana("Add green.", COSTS, ADD_MANA);
     const ORDINARY_TRIGGER: AbilityDef = AbilityDef::triggered(
@@ -785,7 +813,7 @@ fn ability_category_is_explicit_and_not_inferred_from_effect() {
     const TURN_FACE_UP: AbilityDef = AbilityDef::special_action(
         "Turn this face up.",
         &[super::ZoneKind::Battlefield],
-        &[AbilityCostDef::Mana(ManaCost::new(3, 0))],
+        &[CostDef::Mana(ManaCost::new(3, 0))],
         EffectDef::Special("turn face up"),
     );
     static ABILITIES: [AbilityDef; 3] = [MANA_ABILITY, ORDINARY_TRIGGER, TURN_FACE_UP];

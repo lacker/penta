@@ -13,7 +13,7 @@ use super::super::{
     configured_base_mana_cost,
 };
 use crate::ModeId;
-use crate::card::SpellAdditionalCostDef;
+use crate::card::CostDef;
 use crate::game::ManaPaymentPurpose;
 
 include!("cost_configurations/object_combinations.rs");
@@ -61,7 +61,7 @@ pub(in crate::game) struct SpellAdditionalCostRequest<'a> {
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub(in crate::game) struct SpellAdditionalCostPayment {
-    pub(in crate::game) objects: Vec<(GameObjectId, SpellAdditionalCostDef)>,
+    pub(in crate::game) objects: Vec<(GameObjectId, CostDef)>,
     pub(in crate::game) mana: ManaCost,
     pub(in crate::game) life: u16,
 }
@@ -108,12 +108,12 @@ struct PrintedAlternativeRequest<'a> {
 
 #[derive(Clone, Copy)]
 struct SelectedSpellAdditionalCost {
-    cost: SpellAdditionalCostDef,
+    cost: CostDef,
     repetitions: u16,
 }
 
 impl SelectedSpellAdditionalCost {
-    const fn once(cost: SpellAdditionalCostDef) -> Self {
+    const fn once(cost: CostDef) -> Self {
         Self {
             cost,
             repetitions: 1,
@@ -186,7 +186,7 @@ impl Game {
             required.extend(selected_modes.iter().filter_map(|mode| {
                 modal
                     .mode_additional_mana_cost(*mode)
-                    .map(SpellAdditionalCostDef::pay_mana)
+                    .map(CostDef::pay_mana)
                     .map(SelectedSpellAdditionalCost::once)
             }));
         }
@@ -224,53 +224,46 @@ impl Game {
 
     fn maximum_x_for_spell_additional_cost(
         &self,
-        cost: SpellAdditionalCostDef,
+        cost: CostDef,
         card: &CardInstance,
         player: PlayerId,
     ) -> Option<u16> {
         match cost {
-            SpellAdditionalCostDef::PayLife(crate::card::CostQuantityDef::ChosenX) => {
+            CostDef::PayLifeTimes(crate::card::CostQuantityDef::ChosenX) => {
                 Some(self.maximum_x_for_life(player))
             }
-            SpellAdditionalCostDef::Sacrifice {
+            CostDef::Sacrifice {
                 quantity: crate::card::CostQuantityDef::ChosenX,
                 ..
             }
-            | SpellAdditionalCostDef::Discard {
+            | CostDef::Discard {
                 quantity: crate::card::CostQuantityDef::ChosenX,
                 ..
             }
-            | SpellAdditionalCostDef::Exile {
+            | CostDef::Exile {
                 quantity: crate::card::CostQuantityDef::ChosenX,
                 ..
             }
-            | SpellAdditionalCostDef::ReturnToHand {
+            | CostDef::ReturnToHand {
                 quantity: crate::card::CostQuantityDef::ChosenX,
                 ..
             }
-            | SpellAdditionalCostDef::Tap {
+            | CostDef::Tap {
                 quantity: crate::card::CostQuantityDef::ChosenX,
                 ..
             } => Some(
                 u16::try_from(self.additional_cost_candidates(cost, card, player).len())
                     .unwrap_or(u16::MAX),
             ),
-            SpellAdditionalCostDef::All(costs) => costs
+            CostDef::All(costs) => costs
                 .iter()
                 .filter_map(|cost| self.maximum_x_for_spell_additional_cost(*cost, card, player))
                 .min(),
-            SpellAdditionalCostDef::Choice(costs) => costs
+            CostDef::Choice(costs) => costs
                 .iter()
                 .filter_map(|cost| self.maximum_x_for_spell_additional_cost(*cost, card, player))
                 .max(),
-            SpellAdditionalCostDef::PayMana { .. }
-            | SpellAdditionalCostDef::PayLife(_)
-            | SpellAdditionalCostDef::Sacrifice { .. }
-            | SpellAdditionalCostDef::Discard { .. }
-            | SpellAdditionalCostDef::Exile { .. }
-            | SpellAdditionalCostDef::ReturnToHand { .. }
-            | SpellAdditionalCostDef::Tap { .. }
-            | SpellAdditionalCostDef::Forage => None,
+            _ => None,
         }
     }
 
@@ -338,7 +331,7 @@ impl Game {
 
     fn spell_object_additional_cost_payments(
         &self,
-        cost: SpellAdditionalCostDef,
+        cost: CostDef,
         quantity: crate::card::CostQuantityDef,
         card: &CardInstance,
         player: PlayerId,
@@ -370,7 +363,7 @@ impl Game {
 
     fn spell_object_additional_cost_payments_for_count(
         &self,
-        cost: SpellAdditionalCostDef,
+        cost: CostDef,
         required: usize,
         card: &CardInstance,
         player: PlayerId,
@@ -388,23 +381,18 @@ impl Game {
 
     fn additional_cost_candidates(
         &self,
-        cost: SpellAdditionalCostDef,
+        cost: CostDef,
         card: &CardInstance,
         player: PlayerId,
     ) -> Vec<GameObjectId> {
         let (object, from) = match cost {
-            SpellAdditionalCostDef::Sacrifice { object, .. }
-            | SpellAdditionalCostDef::ReturnToHand { object, .. } => {
+            CostDef::Sacrifice { object, .. } | CostDef::ReturnToHand { object, .. } => {
                 (object, ZoneKind::Battlefield)
             }
-            SpellAdditionalCostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
-            SpellAdditionalCostDef::Discard { object, .. } => (object, ZoneKind::Hand),
-            SpellAdditionalCostDef::Exile { object, from, .. } => (object, from),
-            SpellAdditionalCostDef::PayMana { .. }
-            | SpellAdditionalCostDef::PayLife(_)
-            | SpellAdditionalCostDef::Forage
-            | SpellAdditionalCostDef::All(_)
-            | SpellAdditionalCostDef::Choice(_) => return Vec::new(),
+            CostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
+            CostDef::Discard { object, .. } => (object, ZoneKind::Hand),
+            CostDef::Exile { object, from, .. } => (object, from),
+            _ => return Vec::new(),
         };
         match from {
             ZoneKind::Battlefield => self
@@ -412,8 +400,7 @@ impl Game {
                 .iter()
                 .filter(|permanent| {
                     permanent.controller == player
-                        && (!matches!(cost, SpellAdditionalCostDef::Tap { .. })
-                            || !permanent.tapped)
+                        && (!matches!(cost, CostDef::Tap { .. }) || !permanent.tapped)
                         && self.trigger_object_matches(
                             object,
                             &self.trigger_event_object(permanent),

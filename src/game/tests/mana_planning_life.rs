@@ -76,8 +76,7 @@ fn generic_allocation_avoids_a_source_before_choosing_its_color() {
 
 #[test]
 fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
-    static PAIN_COSTS: [AbilityCostDef; 2] =
-        [AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)];
+    static PAIN_COSTS: [CostDef; 2] = [CostDef::TapSource, CostDef::PayLife(1)];
     static PAIN_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
         "{T}, Pay 1 life: Add {W}.",
         &PAIN_COSTS,
@@ -144,8 +143,7 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
 
 #[test]
 fn exact_mana_plan_preserves_cross_color_source_correlation() {
-    static PAIN_COSTS: [AbilityCostDef; 2] =
-        [AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)];
+    static PAIN_COSTS: [CostDef; 2] = [CostDef::TapSource, CostDef::PayLife(1)];
     static WHITE_ABILITY: [AbilityDef; 1] = [AbilityDef::activated_mana(
         "{T}, Pay 1 life: Add {W}.",
         &PAIN_COSTS,

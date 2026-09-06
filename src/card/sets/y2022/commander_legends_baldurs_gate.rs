@@ -3,15 +3,15 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
-    CardEffectStatus, CardNameDef, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
-    CardType, ComparisonDef, CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef,
-    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternateSpellKind,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition, CardEffectStatus, CardNameDef,
+    CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType, ComparisonDef, CostDef,
+    CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef,
+    SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
@@ -197,7 +197,7 @@ pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new
                 ]),
             ),
             abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+                &[CostDef::Mana(mana_cost!("{W}"))],
                 "Equip {W} ({W}: Attach to target creature you control. Equip only as a \
                  sorcery.)",
             ),
@@ -610,7 +610,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
             ),
             AbilityDef::activated_with_targets(
                 "+1: Put three +1/+1 counters on up to one target creature with trample or haste.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::All(&[
@@ -634,7 +634,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
             ),
             AbilityDef::activated(
                 "\u{2212}2: Sacrifice a creature.",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 EffectDef::SacrificeOfChoice {
                     player: EffectRecipientDef::Controller,
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -800,7 +800,7 @@ pub(in crate::card::sets) static IZZET_BOILERWORKS: CardRecord = CardRecord::new
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {U}{R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Blue,
                 ManaColor::Red,

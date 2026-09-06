@@ -14,9 +14,9 @@ use super::{
     InstalledTriggerLifetime, KeywordAbility, Mana, ManaSelectionDef, ManaSource,
     ObjectCharacteristics, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PendingTrigger,
     Permanent, PlayerId, PlayerRefDef, PlayerRelation, PlayerSetDef, RetiredObject, ScopedEffect,
-    StackAbilityResolver, StackObjectEventDef, StackObjectKind, StackTargetAggregationDef,
-    StackTargetFilterDef, TapPurposeDef, Target, TriggerCapture, TriggerContext, TriggerEventDef,
-    TriggerEventObject, ZoneKind,
+    StackAbilityResolver, StackObject, StackObjectEventDef, StackObjectKind,
+    StackTargetAggregationDef, StackTargetFilterDef, TapPurposeDef, Target, TriggerCapture,
+    TriggerContext, TriggerEventDef, TriggerEventObject, ZoneKind,
 };
 
 mod exile;
@@ -24,6 +24,62 @@ mod graveyard;
 include!("trigger_capture/drawing.rs");
 
 impl Game {
+    pub(super) fn capture_cumulative_upkeep_paid(
+        &mut self,
+        ability: &StackObject,
+        player: PlayerId,
+        age_counters: u16,
+        mana_spent: &[Mana],
+    ) {
+        let Some(source) = ability.source else {
+            return;
+        };
+        let Some(object) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)
+            .map(|permanent| self.trigger_event_object(permanent))
+        else {
+            return;
+        };
+        self.capture_battlefield_triggers(&CommittedTriggerEvent::CumulativeUpkeepPaid {
+            object,
+            player,
+            age_counters,
+            mana_spent: mana_spent.iter().map(|mana| mana.color).collect(),
+        });
+    }
+
+    pub(super) fn flip_coin(&mut self, player: PlayerId) -> bool {
+        let won = self.rng.sample_probability(0.5);
+        self.capture_battlefield_triggers(&CommittedTriggerEvent::CoinFlipped { player, won });
+        won
+    }
+
+    pub(super) fn capture_cumulative_upkeep_not_paid(
+        &mut self,
+        ability: &StackObject,
+        player: PlayerId,
+        age_counters: u16,
+    ) {
+        let Some(source) = ability.source else {
+            return;
+        };
+        let Some(object) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)
+            .map(|permanent| self.trigger_event_object(permanent))
+        else {
+            return;
+        };
+        self.capture_battlefield_triggers(&CommittedTriggerEvent::CumulativeUpkeepNotPaid {
+            object,
+            player,
+            age_counters,
+        });
+    }
+
     /// Publish every distinct recipient that became a target as one atomic
     /// targeting batch. Object-local clauses still see one event per
     /// recipient, while clauses worded "you and/or at least one permanent"
@@ -479,6 +535,20 @@ impl Game {
         matched_targeting_batches: &mut Vec<(AbilitySourceRef, Option<u32>, GameObjectId)>,
     ) -> Option<TriggerContext> {
         let mut context = event.context();
+        if let (
+            TriggerEventDef::CumulativeUpkeepPaid { mana_colors },
+            CommittedTriggerEvent::CumulativeUpkeepPaid { mana_spent, .. },
+        ) = (listener.event, event)
+        {
+            context.amount = Some(
+                mana_spent
+                    .iter()
+                    .filter(|color| mana_colors.contains(**color))
+                    .count()
+                    .try_into()
+                    .unwrap_or(i32::MAX),
+            );
+        }
         if self.groups_targeting_batch(listener, event)
             && matches!(
                 event,

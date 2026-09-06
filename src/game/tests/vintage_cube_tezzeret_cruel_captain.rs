@@ -80,7 +80,7 @@ fn loyalty_cost(game: &Game, tezzeret: GameObjectId, ability: AbilityOrigin) -> 
         .and_then(|effective| match effective.ability.definition {
             DeclarativeAbilityDef::Activated(definition) => {
                 definition.costs.iter().find_map(|cost| match cost {
-                    AbilityCostDef::Loyalty(change) => Some(*change),
+                    CostDef::Loyalty(change) => Some(*change),
                     _ => None,
                 })
             }

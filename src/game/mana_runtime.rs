@@ -1,12 +1,12 @@
 use super::{
-    AbilityCostDef, AbilityDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef,
-    AddManaEffectDef, AppliedStackEffect, CardType, CharacteristicContext, CommittedTriggerEvent,
-    ConditionDef, DeclarativeAbilityDef, EffectDef, Game, GameObjectId, Mana,
-    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose,
-    ManaPool, ManaRestrictionDef, ManaSelectionDef, ManaSource, ManaSpendEffectDef, ManaTypeDef,
-    ManaTypeFilterDef, ManaTypeSetDef, ManaTypeSourceDef, ObjectCountConditionDef, ObjectRefDef,
-    ObjectSetDef, Permanent, PlayerId, RetiredObject, StackObject, TriggerContext,
-    TriggerEventObject, ZoneKind, pay_cost_with_generic_strategy,
+    AbilityDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef, AddManaEffectDef,
+    AppliedStackEffect, CardType, CharacteristicContext, CommittedTriggerEvent, ConditionDef,
+    CostDef, DeclarativeAbilityDef, EffectDef, Game, GameObjectId, Mana, ManaAbilityActivation,
+    ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose, ManaPool, ManaRestrictionDef,
+    ManaSelectionDef, ManaSource, ManaSpendEffectDef, ManaTypeDef, ManaTypeFilterDef,
+    ManaTypeSetDef, ManaTypeSourceDef, ObjectCountConditionDef, ObjectRefDef, ObjectSetDef,
+    Permanent, PlayerId, RetiredObject, StackObject, TriggerContext, TriggerEventObject, ZoneKind,
+    pay_cost_with_generic_strategy,
 };
 use crate::ManaPaymentChoice;
 use crate::card::{AbilityCostList, ManaSplit};
@@ -196,13 +196,13 @@ impl Game {
         let Some(cost) = definition.costs.iter().find(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::SacrificePermanent { .. } | AbilityCostDef::ExileCardFromHand(_)
+                CostDef::SacrificePermanent { .. } | CostDef::ExileCardFromHand(_)
             )
         }) else {
             return vec![None];
         };
         match cost {
-            AbilityCostDef::SacrificePermanent { object, controller } => self
+            CostDef::SacrificePermanent { object, controller } => self
                 .battlefield
                 .iter()
                 .filter(|candidate| {
@@ -220,7 +220,7 @@ impl Game {
                 })
                 .map(|candidate| Some(candidate.card.id))
                 .collect(),
-            AbilityCostDef::ExileCardFromHand(object) => self.players[permanent.controller.index()]
+            CostDef::ExileCardFromHand(object) => self.players[permanent.controller.index()]
                 .hand
                 .iter()
                 .filter(|card| {
@@ -256,8 +256,8 @@ impl Game {
                 Some(kind) => (1..=permanent.counters(kind))
                     .map(|removed| {
                         let costs = AbilityCostList::two(
-                            AbilityCostDef::TapSource,
-                            AbilityCostDef::RemoveCountersFromSource {
+                            CostDef::TapSource,
+                            CostDef::RemoveCountersFromSource {
                                 kind,
                                 amount: removed,
                             },
@@ -272,14 +272,18 @@ impl Game {
             // above, each candidate becomes its own activation.
             let sacrifices = self.mana_ability_cost_candidates(permanent, definition);
             let mut add_activation =
-                |color, costs, amount, counters_removed, cost_object, combination| {
+                |color, costs, amount, counters_removed, cost_object, combination, also| {
                     activations.push(ManaAbilityActivation {
                         source: permanent.card.id,
                         ability: origin,
                         color,
                         costs,
                         only_as_instant: definition.only_as_instant,
-                        effect: AddManaEffectDef { amount, ..effect },
+                        effect: AddManaEffectDef {
+                            amount,
+                            also,
+                            ..effect
+                        },
                         counters_removed,
                         cost_object,
                         combination,
@@ -301,6 +305,7 @@ impl Game {
                                 counters_removed,
                                 *cost_object,
                                 None,
+                                effect.also,
                             );
                         }
                         ManaSelectionDef::Choice(types) => {
@@ -312,6 +317,23 @@ impl Game {
                                     amount,
                                     counters_removed,
                                     *cost_object,
+                                    None,
+                                    effect.also,
+                                );
+                            }
+                        }
+                        ManaSelectionDef::ChoiceOfBundles(bundles) => {
+                            for bundle in bundles {
+                                let Some((color, _)) = bundle.iter().next() else {
+                                    continue;
+                                };
+                                add_activation(
+                                    color,
+                                    costs,
+                                    bundle.total(),
+                                    counters_removed,
+                                    *cost_object,
+                                    Some(*bundle),
                                     None,
                                 );
                             }
@@ -329,6 +351,7 @@ impl Game {
                                     counters_removed,
                                     *cost_object,
                                     None,
+                                    effect.also,
                                 );
                             }
                         }
@@ -351,6 +374,7 @@ impl Game {
                                     counters_removed,
                                     *cost_object,
                                     Some(combination),
+                                    effect.also,
                                 );
                             }
                         }
@@ -450,6 +474,13 @@ impl Game {
                         visiting.push(permanent.card.id);
                         colors.extend(self.mana_types_for_set(permanent, types, visiting));
                         visiting.pop();
+                    }
+                    ManaSelectionDef::ChoiceOfBundles(bundles) => {
+                        colors.extend(
+                            bundles
+                                .iter()
+                                .flat_map(|bundle| bundle.iter().map(|(color, _)| color)),
+                        );
                     }
                     ManaSelectionDef::ColorsOfLinkedExiles => {
                         colors.extend(self.linked_exile_colors(permanent.card.id));

@@ -294,6 +294,9 @@ pub(super) fn parse_mana(
                 }
                 crate::card::ManaSelectionDef::One(crate::card::ManaTypeDef::ChosenColor)
                 | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => false,
+                crate::card::ManaSelectionDef::ChoiceOfBundles(bundles) => {
+                    !bundles.iter().any(|bundle| bundle.get(color) > 0)
+                }
                 crate::card::ManaSelectionDef::Choice(types)
                 | crate::card::ManaSelectionDef::Combination(types) => match types.source {
                     crate::card::ManaTypeSourceDef::Fixed(colors) => !colors.contains(&color),

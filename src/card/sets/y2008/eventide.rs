@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CostQuantityDef, CreatureTypeSetDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardType, CostDef, CostQuantityDef, CreatureTypeSetDef,
     DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, abilities,
+    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -69,7 +69,7 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
         // else has to be said about how the land is spent.
         .with_alternative_additional_cost(
             &const {
-                SpellAdditionalCostDef::discard(
+                CostDef::discard(
                     ObjectPredicateDef::HasType(CardType::Land),
                     CostQuantityDef::Fixed(1),
                 )
@@ -100,7 +100,7 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
         .with_abilities(&[
             AbilityDef::activated(
                 "{R/W}: This creature becomes a Kithkin Spirit with base power and toughness 2/2.",
-                &[AbilityCostDef::Mana(mana_cost!("{R/W}"))],
+                &[CostDef::Mana(mana_cost!("{R/W}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     // Each step repaints the whole creature-type line rather than adding to it,
@@ -117,7 +117,7 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
             AbilityDef::activated(
                 "{R/W}{R/W}{R/W}: If this creature is a Spirit, it becomes a Kithkin Spirit Warrior with \
                  base power and toughness 4/4.",
-                &[AbilityCostDef::Mana(mana_cost!("{R/W}{R/W}{R/W}"))],
+                &[CostDef::Mana(mana_cost!("{R/W}{R/W}{R/W}"))],
                 EffectDef::IfCondition {
                     // "If this creature is a Spirit" is read as the ability resolves, so a
                     // Figure that was answered in response is a 1/1 again and the second
@@ -140,7 +140,7 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
             AbilityDef::activated(
                 "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}: If this creature is a Warrior, it becomes a Kithkin \
                  Spirit Warrior Avatar with base power and toughness 8/8, flying, and first strike.",
-                &[AbilityCostDef::Mana(mana_cost!(
+                &[CostDef::Mana(mana_cost!(
                     "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}"
                 ))],
                 EffectDef::IfCondition {

@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardType, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEffectDef, TriggerEventDef, ValueDef, tokens,
+    AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, CostDef,
+    CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    ReplacementEffectDef, TriggerEventDef, ValueDef, tokens,
 };
 use crate::mana_cost;
 
@@ -61,8 +61,8 @@ pub(in crate::card::sets) static BALOTH_PRIME: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{4}, Sacrifice a land: You gain 2 life.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{4}")),
-                    AbilityCostDef::SacrificePermanent {
+                    CostDef::Mana(mana_cost!("{4}")),
+                    CostDef::SacrificePermanent {
                         object: ObjectPredicateDef::HasType(CardType::Land),
                         controller: PlayerRelation::You,
                     },

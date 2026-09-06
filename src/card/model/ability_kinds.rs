@@ -1,10 +1,10 @@
 use crate::ids::{Binding, ModeId, TargetIndex};
 
 use super::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardSupertype,
-    CardType, ConditionDef, CostQuantityDef, CounterKind, EffectDef, ManaCost, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetCountConditionDef, PlayerRelation, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
+    AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardSupertype, CardType,
+    ConditionDef, CostDef, CounterKind, EffectDef, ManaCost, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetCountConditionDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
+    ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
 };
 
 mod alternative_casts;
@@ -22,7 +22,7 @@ pub enum SpellAbilityDef {
         /// A semantic cost paid as the spell is cast, in addition to its
         /// ordinary mana cost. Any objects it names are payment choices, not
         /// targets, and are spent before the spell can resolve.
-        additional_cost: Option<SpellAdditionalCostDef>,
+        additional_cost: Option<CostDef>,
         /// Where the card goes after a successful resolution. This is part of
         /// a spell's shared stack procedure rather than an instruction that
         /// can move the resolving object while it is off the stack.
@@ -61,119 +61,6 @@ pub enum SpellResolutionDestinationDef {
     LibraryShuffled,
 }
 
-/// A semantic action or composition of actions paid while casting a spell.
-///
-/// Named game actions remain explicit here even when they share lower-level
-/// zone-change machinery. Sacrificing and discarding are not interchangeable
-/// with an arbitrary move to a graveyard: rules and triggers can care which
-/// action paid the cost.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum SpellAdditionalCostDef {
-    /// Pay this mana cost the computed number of times.
-    PayMana {
-        cost: ManaCost,
-        quantity: CostQuantityDef,
-    },
-    PayLife(CostQuantityDef),
-    Sacrifice {
-        object: ObjectPredicateDef,
-        quantity: CostQuantityDef,
-    },
-    Discard {
-        object: ObjectPredicateDef,
-        quantity: CostQuantityDef,
-    },
-    Exile {
-        object: ObjectPredicateDef,
-        from: ZoneKind,
-        quantity: CostQuantityDef,
-    },
-    ReturnToHand {
-        object: ObjectPredicateDef,
-        quantity: CostQuantityDef,
-    },
-    /// Tap untapped permanents you control. Unlike an activated ability's
-    /// tap-symbol cost, this does not care how long a creature has been under
-    /// your control.
-    Tap {
-        object: ObjectPredicateDef,
-        quantity: CostQuantityDef,
-    },
-    /// Forage (CR 701.59): exile three cards from your graveyard or sacrifice
-    /// a Food. Card definitions name the keyword while payment expands it
-    /// into its semantic exile and sacrifice actions.
-    Forage,
-    /// Pay every child cost.
-    All(&'static [SpellAdditionalCostDef]),
-    /// Choose exactly one child cost to pay.
-    Choice(&'static [SpellAdditionalCostDef]),
-}
-
-impl SpellAdditionalCostDef {
-    #[must_use]
-    pub const fn pay_mana(cost: ManaCost) -> Self {
-        Self::pay_mana_times(cost, CostQuantityDef::Fixed(1))
-    }
-
-    #[must_use]
-    pub const fn pay_mana_times(cost: ManaCost, quantity: CostQuantityDef) -> Self {
-        Self::PayMana { cost, quantity }
-    }
-
-    #[must_use]
-    pub const fn pay_life(quantity: CostQuantityDef) -> Self {
-        Self::PayLife(quantity)
-    }
-
-    #[must_use]
-    pub const fn sacrifice(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
-        Self::Sacrifice { object, quantity }
-    }
-
-    #[must_use]
-    pub const fn discard(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
-        Self::Discard { object, quantity }
-    }
-
-    #[must_use]
-    pub const fn exile(
-        object: ObjectPredicateDef,
-        from: ZoneKind,
-        quantity: CostQuantityDef,
-    ) -> Self {
-        Self::Exile {
-            object,
-            from,
-            quantity,
-        }
-    }
-
-    #[must_use]
-    pub const fn return_to_hand(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
-        Self::ReturnToHand { object, quantity }
-    }
-
-    #[must_use]
-    pub const fn tap(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
-        Self::Tap { object, quantity }
-    }
-
-    #[must_use]
-    pub const fn forage() -> Self {
-        Self::Forage
-    }
-
-    #[must_use]
-    pub const fn all(costs: &'static [Self]) -> Self {
-        Self::All(costs)
-    }
-
-    #[must_use]
-    pub const fn choice(costs: &'static [Self]) -> Self {
-        Self::Choice(costs)
-    }
-}
-
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ModalSpellDef {
     /// Each mode is an ordinary spell ability. Its positional index supplies
@@ -186,7 +73,7 @@ pub struct ModalSpellDef {
     /// The single additional cost Escalate charges for each mode chosen
     /// beyond the first. The cast planner derives the number of payments from
     /// the selected modes, just as Spree derives costs from its modal shape.
-    pub escalate_cost: Option<SpellAdditionalCostDef>,
+    pub escalate_cost: Option<CostDef>,
     /// A printed "if <condition> as you cast this spell, you may choose two
     /// instead". The larger maximum applies when the condition holds where
     /// the spell is offered; it never lowers the printed one, and the
@@ -350,7 +237,7 @@ impl ModalSpellDef {
     ///
     /// Panics when no modes are supplied or the mode count does not fit the
     /// runtime mode-count field.
-    pub const fn escalate(cost: SpellAdditionalCostDef, modes: &'static [AbilityDef]) -> Self {
+    pub const fn escalate(cost: CostDef, modes: &'static [AbilityDef]) -> Self {
         assert!(!modes.is_empty());
         assert!(modes.len() <= u8::MAX as usize);
         Self {
@@ -402,7 +289,7 @@ impl SpellAbilityDef {
     ///
     /// Panics for a modal wrapper, which has no single cost to attach.
     #[must_use]
-    pub const fn with_additional_cost(self, cost: SpellAdditionalCostDef) -> Self {
+    pub const fn with_additional_cost(self, cost: CostDef) -> Self {
         match self {
             Self::Nonmodal {
                 targets,
@@ -418,7 +305,7 @@ impl SpellAbilityDef {
     }
 
     #[must_use]
-    pub const fn additional_cost(self) -> Option<SpellAdditionalCostDef> {
+    pub const fn additional_cost(self) -> Option<CostDef> {
         match self {
             Self::Nonmodal {
                 additional_cost, ..
@@ -645,7 +532,7 @@ impl ActivatedAbilityDef {
     }
 
     #[must_use]
-    pub const fn new(costs: &'static [AbilityCostDef]) -> Self {
+    pub const fn new(costs: &'static [CostDef]) -> Self {
         Self::with_costs(AbilityCostList::borrowed(costs))
     }
 
@@ -871,12 +758,12 @@ impl Default for ReplacementAbilityDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct SpecialActionDef {
     pub source_zones: &'static [ZoneKind],
-    pub costs: &'static [AbilityCostDef],
+    pub costs: &'static [CostDef],
 }
 
 impl SpecialActionDef {
     #[must_use]
-    pub const fn new(source_zones: &'static [ZoneKind], costs: &'static [AbilityCostDef]) -> Self {
+    pub const fn new(source_zones: &'static [ZoneKind], costs: &'static [CostDef]) -> Self {
         Self {
             source_zones,
             costs,

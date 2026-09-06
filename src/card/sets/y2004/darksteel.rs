@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::ManaColor;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardNameDef, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardNameDef,
+    CardRules, CardSet, CardType, CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PlayerRelation,
     ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -113,14 +113,14 @@ pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new_w
         abilities::indestructible(),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
 );
 
 // DST 127 — Leonin Bola
-// Audit: unsupported — Needs unattaching the Equipment as an activation cost. EffectDef::Unattach exists but only as an effect, and AbilityCostDef has no unattach variant; Special is a marker the runtime rejects rather than a general escape hatch. Paying only the tap would make the ability repeatable, which is the opposite of what the card does.
+// Audit: unsupported — Needs unattaching the Equipment as an activation cost. EffectDef::Unattach exists but only as an effect, and CostDef has no unattach variant; Special is a marker the runtime rejects rather than a general escape hatch. Paying only the tap would make the ability repeatable, which is the opposite of what the card does.
 pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7eab112-20a6-414f-84c9-678580485420"),
     "Leonin Bola",
@@ -141,7 +141,7 @@ pub(in crate::card::sets) static SERUM_POWDER: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::mulligan_action(
@@ -209,7 +209,7 @@ pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new_with_l
                     amount: ValueDef::Constant(2),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -234,7 +234,7 @@ pub(in crate::card::sets) static VULSHOK_MORNINGSTAR: CardRecord = CardRecord::n
                     ),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 

@@ -439,6 +439,9 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
             effect_removes_binding(*on_success, binding)
                 || effect_removes_binding(*on_failure, binding)
         }
+        EffectDef::FlipCoin { on_win, on_loss } => {
+            effect_removes_binding(*on_win, binding) || effect_removes_binding(*on_loss, binding)
+        }
         EffectDef::Choose(definition) => effect_removes_binding(*definition.then, binding),
         EffectDef::ChooseForEachPlayer(definition) => {
             effect_removes_binding(*definition.then, binding)

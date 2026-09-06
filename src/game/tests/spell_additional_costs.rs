@@ -1,9 +1,9 @@
 //! Semantic spell additional costs and their composed alternatives.
 
 use super::*;
-use crate::card::{CostQuantityDef, SpellAbilityDef, SpellAdditionalCostDef};
+use crate::card::{CostDef, CostQuantityDef, SpellAbilityDef};
 
-fn spell_cost(definition: CardDefinitionId) -> SpellAdditionalCostDef {
+fn spell_cost(definition: CardDefinitionId) -> CostDef {
     let catalog = poc::catalog().expect("catalog builds");
     catalog
         .get(definition)
@@ -18,7 +18,7 @@ fn spell_cost(definition: CardDefinitionId) -> SpellAdditionalCostDef {
         .expect("the spell declares its additional cost")
 }
 
-fn escalate_cost(definition: CardDefinitionId) -> SpellAdditionalCostDef {
+fn escalate_cost(definition: CardDefinitionId) -> CostDef {
     let catalog = poc::catalog().expect("catalog builds");
     catalog
         .get(definition)
@@ -64,43 +64,34 @@ fn targeted_removal_game(
 fn card_definitions_name_the_game_actions_their_costs_use() {
     assert!(matches!(
         spell_cost(cards::ANNIHILATING_GLARE),
-        SpellAdditionalCostDef::Choice([
-            SpellAdditionalCostDef::PayMana { .. },
-            SpellAdditionalCostDef::Sacrifice { .. }
-        ])
+        CostDef::Choice([CostDef::Mana(_), CostDef::Sacrifice { .. }])
     ));
     assert!(matches!(
         spell_cost(cards::FINAL_PAYMENT),
-        SpellAdditionalCostDef::Choice([
-            SpellAdditionalCostDef::PayLife(CostQuantityDef::Fixed(5)),
-            SpellAdditionalCostDef::Sacrifice { .. }
-        ])
+        CostDef::Choice([CostDef::PayLife(5), CostDef::Sacrifice { .. }])
     ));
     assert!(matches!(
         spell_cost(cards::FEED_THE_CYCLE),
-        SpellAdditionalCostDef::Choice([
-            SpellAdditionalCostDef::Forage,
-            SpellAdditionalCostDef::PayMana { .. }
-        ])
+        CostDef::Choice([CostDef::Forage, CostDef::Mana(_)])
     ));
     assert!(matches!(
         spell_cost(cards::VICIOUS_RIVALRY),
-        SpellAdditionalCostDef::PayLife(CostQuantityDef::ChosenX)
+        CostDef::PayLifeTimes(CostQuantityDef::ChosenX)
     ));
     assert_eq!(
         spell_cost(cards::TOXIC_DELUGE),
-        SpellAdditionalCostDef::PayLife(CostQuantityDef::ChosenX)
+        CostDef::PayLifeTimes(CostQuantityDef::ChosenX)
     );
     assert!(matches!(
         escalate_cost(cards::COLLECTIVE_BRUTALITY),
-        SpellAdditionalCostDef::Discard {
+        CostDef::Discard {
             quantity: CostQuantityDef::Fixed(1),
             ..
         }
     ));
     assert!(matches!(
         escalate_cost(cards::COLLECTIVE_EFFORT),
-        SpellAdditionalCostDef::Tap {
+        CostDef::Tap {
             quantity: CostQuantityDef::Fixed(1),
             ..
         }

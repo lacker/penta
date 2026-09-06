@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, BattlefieldArrivalDef, BattlefieldEntryModificationDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, CharacteristicOperationDef, CounterKind, CreatureTypeSetDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AppliedEffectDef,
+    BattlefieldArrivalDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CharacteristicOperationDef, CostDef, CounterKind, CreatureTypeSetDef,
     EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor, ObjectPredicateDef,
     PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef,
     TokenCountersDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
@@ -70,7 +70,7 @@ pub(in crate::card::sets) static TREETOP_SNARESPINNER: CardRecord = CardRecord::
         AbilityDef::activated_with_targets(
             "{2}{G}: Put a +1/+1 counter on target creature you control. Activate only as a \
              sorcery.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}{G}"))],
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -116,7 +116,7 @@ pub(in crate::card::sets) static LEYLINE_AXE: CardRecord = CardRecord::new(
                     ]),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
         ]),
 );
 
@@ -132,7 +132,7 @@ pub(in crate::card::sets) static FANATICAL_FIREBRAND: CardRecord = CardRecord::n
         abilities::haste(),
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: It deals 1 damage to any target.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -194,7 +194,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                 "{1}{R}: If Kellan is a Scout, it becomes a Human Faerie Detective and gains \"Whenever \
                  Kellan deals combat damage to a player, exile the top card of your library. You may play \
                  that card this turn.\"",
-                &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+                &[CostDef::Mana(mana_cost!("{1}{R}"))],
                 EffectDef::IfCondition {
                     // Each activation asks what Kellan is now, so the two have to be paid in
                     // order and neither does anything twice.
@@ -236,7 +236,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
             AbilityDef::activated(
                 "{2}{R}: If Kellan is a Detective, it becomes a 3/2 Human Faerie Rogue and gains double \
                  strike.",
-                &[AbilityCostDef::Mana(mana_cost!("{2}{R}"))],
+                &[CostDef::Mana(mana_cost!("{2}{R}"))],
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceMatches {
                         object: ObjectPredicateDef::Subtype("Detective"),

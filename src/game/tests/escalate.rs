@@ -1,7 +1,7 @@
 //! Escalate's shared modal shape and card-specific sequencing.
 
 use super::*;
-use crate::card::{SpellAbilityDef, SpellAdditionalCostDef};
+use crate::card::{CostDef, SpellAbilityDef};
 
 fn modal(definition: CardDefinitionId) -> crate::card::ModalSpellDef {
     let catalog = poc::catalog().expect("catalog builds");
@@ -44,9 +44,9 @@ fn every_printed_escalate_card_uses_the_first_class_modal_shape() {
         assert_eq!(usize::from(modal.maximum), modal.modes.len());
         assert!(!modal.may_repeat);
         match modal.escalate_cost.expect("checked above") {
-            SpellAdditionalCostDef::PayMana { .. } => mana += 1,
-            SpellAdditionalCostDef::Discard { .. } => discard += 1,
-            SpellAdditionalCostDef::Tap { .. } => tap += 1,
+            CostDef::Mana(_) => mana += 1,
+            CostDef::Discard { .. } => discard += 1,
+            CostDef::Tap { .. } => tap += 1,
             other => panic!("unexpected printed Escalate cost: {other:?}"),
         }
     }

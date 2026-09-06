@@ -7,7 +7,7 @@ impl Game {
     ) {
         for cost in activation.costs.as_slice() {
             match cost {
-                AbilityCostDef::TapSource => {
+                CostDef::TapSource => {
                     // The tap transition carries its purpose, so ordinary
                     // tap triggers and mana-tap triggers scan one event.
                     let _ =
@@ -15,7 +15,7 @@ impl Game {
                 }
                 // Paid now, like the tap: what it spends is the source's
                 // next untap step, and the ability is over long before that.
-                AbilityCostDef::ExertSource => {
+                CostDef::ExertSource => {
                     if let Some(permanent) = self
                         .battlefield
                         .iter_mut()
@@ -30,26 +30,26 @@ impl Game {
                 // before the activation was built. The two sacrifices and the
                 // exile are deferred to the batch below, so that a Goblin
                 // sacrificing itself leaves the battlefield once.
-                AbilityCostDef::SacrificeSource
-                | AbilityCostDef::ReturnSourceToHand
-                | AbilityCostDef::ExileSource
-                | AbilityCostDef::SacrificePermanent { .. }
-                | AbilityCostDef::ExileCardFromHand(_)
-                | AbilityCostDef::SacrificePermanents { .. }
-                | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_) => {}
-                AbilityCostDef::RemoveCountersFromSource { kind, amount } => {
+                CostDef::SacrificeSource
+                | CostDef::ReturnSourceToHand
+                | CostDef::ExileSource
+                | CostDef::SacrificePermanent { .. }
+                | CostDef::ExileCardFromHand(_)
+                | CostDef::SacrificePermanents { .. }
+                | CostDef::RemoveAnyNumberOfCountersFromSource(_) => {}
+                CostDef::RemoveCountersFromSource { kind, amount } => {
                     self.battlefield
                         .iter_mut()
                         .find(|permanent| permanent.card.id == source)
                         .expect("a legal mana activation has its source")
                         .remove_counters(*kind, *amount);
                 }
-                AbilityCostDef::PayLife(amount) => {
+                CostDef::PayLife(amount) => {
                     self.lose_life(player, *amount);
                 }
                 // Paid now, before the mana arrives: what is discarded is the
                 // hand as it stood when the ability was activated.
-                AbilityCostDef::DiscardHand => {
+                CostDef::DiscardHand => {
                     let hand = self.players[player.index()]
                         .hand
                         .iter()
@@ -57,32 +57,34 @@ impl Game {
                         .collect::<Vec<_>>();
                     self.discard_cards(player, &hand);
                 }
-                AbilityCostDef::Mana(cost) => {
+                CostDef::Mana(cost) => {
                     // Out of the pool, never by planning: the mana this
                     // ability is about to make is not available to pay for
                     // making it.
                     let _ = self.pay_player_cost(player, *cost, 0);
                 }
-                AbilityCostDef::Loyalty(change) => {
+                CostDef::Loyalty(change) => {
                     self.pay_loyalty_cost(source, *change);
                 }
-                AbilityCostDef::DiscardSource
-                | AbilityCostDef::ManaCostOf(_)
-                | AbilityCostDef::ManaValueOfTarget { .. }
-                | AbilityCostDef::UntapSource
-                | AbilityCostDef::SacrificeObject(_)
-                | AbilityCostDef::MoveToZone(_)
-                | AbilityCostDef::DiscardCards(_)
-                | AbilityCostDef::DiscardCardMatching(_)
-                | AbilityCostDef::RevealCardFromHand(_)
-                | AbilityCostDef::DiscardCardsAtRandom(_)
-                | AbilityCostDef::MillCards(_)
-                | AbilityCostDef::ReturnUnblockedAttackerToHand
-                | AbilityCostDef::TapPermanents { .. }
-                | AbilityCostDef::TapCreaturesWithTotalPower { .. }
-                | AbilityCostDef::Special(_) => {
+                CostDef::DiscardSource
+                | CostDef::ManaCostOf(_)
+                | CostDef::ManaValueOfTarget { .. }
+                | CostDef::UntapSource
+                | CostDef::SacrificeObject(_)
+                | CostDef::MoveToZone(_)
+                | CostDef::DiscardCards(_)
+                | CostDef::DiscardCardMatching(_)
+                | CostDef::RevealCardFromHand(_)
+                | CostDef::DiscardCardsAtRandom(_)
+                | CostDef::MillCards(_)
+                | CostDef::ExileTopCards(_)
+                | CostDef::ReturnUnblockedAttackerToHand
+                | CostDef::TapPermanents { .. }
+                | CostDef::TapCreaturesWithTotalPower { .. }
+                | CostDef::Special(_) => {
                     unreachable!("unsupported mana-ability costs are not enumerated")
                 }
+                _ => unreachable!("cost is not supported for a mana ability"),
             }
         }
     }
@@ -100,7 +102,7 @@ impl Game {
         if activation
             .costs
             .iter()
-            .any(|cost| matches!(cost, AbilityCostDef::ExileCardFromHand(_)))
+            .any(|cost| matches!(cost, CostDef::ExileCardFromHand(_)))
         {
             let chosen = activation
                 .cost_object
@@ -111,7 +113,7 @@ impl Game {
             self.players[player.index()].exile.push(card.clone());
             self.capture_cards_exiled(std::slice::from_ref(&card), ZoneKind::Hand);
         }
-        if activation.costs.contains(&AbilityCostDef::ExileSource) {
+        if activation.costs.contains(&CostDef::ExileSource) {
             if self
                 .battlefield
                 .iter()
@@ -134,14 +136,14 @@ impl Game {
             // exit, so they go in one batch. Skirk Prospector sacrificing
             // itself names its own id here, and the batch holds it once.
             let mut sacrificed = Vec::new();
-            if activation.costs.contains(&AbilityCostDef::SacrificeSource) {
+            if activation.costs.contains(&CostDef::SacrificeSource) {
                 sacrificed.push(source);
             }
             if let Some(chosen) = activation.cost_object
                 && activation
                     .costs
                     .iter()
-                    .any(|cost| matches!(cost, AbilityCostDef::SacrificePermanent { .. }))
+                    .any(|cost| matches!(cost, CostDef::SacrificePermanent { .. }))
                 && !sacrificed.contains(&chosen)
             {
                 sacrificed.push(chosen);

@@ -23,6 +23,10 @@ impl Game {
                 Self::effect_animates_source(Some(*on_success))
                     || Self::effect_animates_source(Some(*on_failure))
             }
+            Some(EffectDef::FlipCoin { on_win, on_loss }) => {
+                Self::effect_animates_source(Some(*on_win))
+                    || Self::effect_animates_source(Some(*on_loss))
+            }
             Some(EffectDef::Choose(choice)) => Self::effect_animates_source(Some(*choice.then)),
             Some(EffectDef::PayOr(payment)) => payment
                 .if_paid
@@ -52,7 +56,7 @@ impl Game {
         let mut cost = ManaCost::default();
         let mut has_mana_cost = false;
         for ability_cost in definition.costs.as_slice() {
-            if let AbilityCostDef::Mana(mana) = ability_cost {
+            if let CostDef::Mana(mana) = ability_cost {
                 cost = add_mana_cost(cost, *mana);
                 has_mana_cost = true;
             }
@@ -74,13 +78,13 @@ impl Game {
         let mut has_mana_cost = false;
         for ability_cost in definition.costs.as_slice() {
             match ability_cost {
-                AbilityCostDef::Mana(mana) => {
+                CostDef::Mana(mana) => {
                     cost = add_mana_cost(cost, *mana);
                     has_mana_cost = true;
                 }
-                AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(binding)) => {
+                CostDef::ManaCostOf(ObjectRefDef::Binding(binding)) => {
                     let _movement = definition.costs.iter().find_map(|cost| {
-                        let AbilityCostDef::MoveToZone(movement) = cost else {
+                        let CostDef::MoveToZone(movement) = cost else {
                             return None;
                         };
                         (movement.binding == Some(*binding)).then_some(movement)
@@ -91,8 +95,8 @@ impl Game {
                     cost = add_mana_cost(cost, mana);
                     has_mana_cost = true;
                 }
-                AbilityCostDef::ManaCostOf(_) => return None,
-                AbilityCostDef::ManaValueOfTarget { target, multiplier } => {
+                CostDef::ManaCostOf(_) => return None,
+                CostDef::ManaValueOfTarget { target, multiplier } => {
                     let slot = TargetSlotId::from_index(target.index())?;
                     let selected = targets
                         .iter()

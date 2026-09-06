@@ -3,20 +3,20 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
-    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef,
-    GraveyardTypeConditionDef, ManaColor, MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef,
-    SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
+    CostDef, CostModificationDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
+    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef,
+    FreePlayDef, FreePlayDurationDef, GraveyardTypeConditionDef, ManaColor, MillLoopDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities, tokens,
 };
 use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
@@ -98,7 +98,7 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
                 Some("Evoke—Exile a white card from your hand."),
                 EffectDef::None,
             )
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::White),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
@@ -267,7 +267,7 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
                 Some("Evoke—Exile a blue card from your hand."),
                 EffectDef::None,
             )
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Blue),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
@@ -369,12 +369,12 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
             // The second half of "sacrifice a creature or discard a card". Which half
             // is paid is settled as the spell is cast: both spend a card the caster
             // already had, and the enumeration offers every one of them.
-            SpellAdditionalCostDef::choice(&[
-                SpellAdditionalCostDef::sacrifice(
+            CostDef::choice(&[
+                CostDef::sacrifice(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     CostQuantityDef::Fixed(1),
                 ),
-                SpellAdditionalCostDef::discard(
+                CostDef::discard(
                     ObjectPredicateDef::Any,
                     CostQuantityDef::Fixed(1),
                 ),
@@ -460,7 +460,7 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
                 Some("Evoke—Exile a black card from your hand."),
                 EffectDef::None,
             )
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Black),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
@@ -512,8 +512,8 @@ pub(in crate::card::sets) static VERMIN_GORGER: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{T}, Sacrifice another creature: Each opponent loses 2 life and you gain 2 life.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
@@ -639,7 +639,7 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
                 Some("Evoke—Exile a red card from your hand."),
                 EffectDef::None,
             )
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Red),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
@@ -672,7 +672,7 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
         )
         // A Mountain, not a red source: what the cost names is the land type, so a
         // Sacred Foundry pays it and a Mountain that has stopped being one does not.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+        .with_alternative_additional_cost(&CostDef::sacrifice(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
             CostQuantityDef::Fixed(1),
         ))
@@ -845,10 +845,7 @@ pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::ne
         AbilityDef::activated_with_cost_list_and_targets(
             "Reinforce 2—{1}{G} ({1}{G}, Discard this card: Put two +1/+1 counters on target \
              creature.)",
-            AbilityCostList::two(
-                AbilityCostDef::Mana(mana_cost!("{1}{G}")),
-                AbilityCostDef::DiscardSource,
-            ),
+            AbilityCostList::two(CostDef::Mana(mana_cost!("{1}{G}")), CostDef::DiscardSource),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -863,10 +860,7 @@ pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::ne
             "Scavenge {5}{G}{G} ({5}{G}{G}, Exile this card from your graveyard: Put a number of \
              +1/+1 counters equal to this card's power on target creature. Scavenge only as a \
              sorcery.)",
-            AbilityCostList::two(
-                AbilityCostDef::Mana(mana_cost!("{5}{G}{G}")),
-                AbilityCostDef::ExileSource,
-            ),
+            AbilityCostList::two(CostDef::Mana(mana_cost!("{5}{G}{G}")), CostDef::ExileSource),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -920,7 +914,7 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
                 Some("Evoke—Exile a green card from your hand."),
                 EffectDef::None,
             )
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Green),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
@@ -1039,7 +1033,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
             AbilityDef::activated(
                 "+1: Create a 1/1 black and green Insect creature token, then mill a card. If an Insect \
                  card was milled this way, put a loyalty counter on Grist and repeat this process.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 // The library is what bounds this in practice; the limit is only there so
                 // a process with nothing to stop it still stops.
                 EffectDef::MillWhileMatching(&MillLoopDef {
@@ -1058,11 +1052,11 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
             ),
             AbilityDef::activated(
                 "\u{2212}2: You may sacrifice a creature.",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 EffectDef::PayOr(PayOrDef::optional(
                     EffectPaymentDef {
                         payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                        cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
                                 CardType::Creature,
                             )),
                     },
@@ -1083,7 +1077,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
             AbilityDef::activated(
                 "\u{2212}5: Each opponent loses life equal to the number of creature cards in your \
                  graveyard.",
-                &[AbilityCostDef::Loyalty(-5)],
+                &[CostDef::Loyalty(-5)],
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Opponent,
                     amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -1211,7 +1205,7 @@ pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
                     ]),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{7}"))], "Equip {7}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{7}"))], "Equip {7}"),
         ]),
 );
 
@@ -1246,7 +1240,7 @@ pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new_with_l
                     ),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 
@@ -1285,7 +1279,7 @@ pub(in crate::card::sets) static IGNOBLE_HIERARCH: CardRecord = CardRecord::new(
         abilities::exalted(),
         AbilityDef::activated_mana(
             "{T}: Add {B}, {R}, or {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Black,
                 ManaColor::Red,
@@ -1326,7 +1320,7 @@ pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
                     // until it sacrifices itself after the third.
                     effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
                         "{T}: Add {C}.",
-                        &[AbilityCostDef::TapSource],
+                        &[CostDef::TapSource],
                         EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
                     )),
                     duration: ResolvedEffectDurationDef::Permanent,
@@ -1342,8 +1336,8 @@ pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
                         "{2}, {T}: Create a 0/0 colorless Construct artifact creature token with \"This token gets \
                          +1/+1 for each artifact you control.\"",
                         &[
-                            AbilityCostDef::Mana(mana_cost!("{2}")),
-                            AbilityCostDef::TapSource,
+                            CostDef::Mana(mana_cost!("{2}")),
+                            CostDef::TapSource,
                         ],
                         EffectDef::create_artifact_creature_token(&["Construct"], &[], 0, 0)
                             // The token's own clause, printed on the token rather than on the Saga:
@@ -1457,7 +1451,7 @@ pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new
             AbilityDef::activated(
                 "{T}, Sacrifice this creature: Choose an exiled card an opponent owns with a void counter \
                  on it. You may play it this turn without paying its mana cost.",
-                &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+                &[CostDef::TapSource, CostDef::SacrificeSource],
                 // One card, chosen as the ability resolves and cast then or not at all.
                 // What it costs is nothing at all, which is why the creature has to die to
                 // ask.

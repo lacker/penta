@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef,
-    BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
-    CardType, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, PlayerRelation,
-    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ValueDef, abilities,
+    AbilityDef, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryModificationDef,
+    BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType, CostDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, ManaColor, PlayerRelation, PlayerSetDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -64,16 +64,13 @@ const fn surveilling_dual_land(mana_text: &'static str, colors: &'static [ManaCo
         .with_ability(abilities::enters_tapped(CardType::Land))
         .with_ability(AbilityDef::activated_mana(
             mana_text,
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(colors)),
         ))
         .with_ability(AbilityDef::activated(
             "{4}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
              your graveyard.)",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{4}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
             abilities::surveil(ValueDef::Constant(1)),
         ))
 }
@@ -132,7 +129,7 @@ pub(in crate::card::sets) static UNIVERSITY_CAMPUS: CardRecord = CardRecord::new
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::White,
                 ManaColor::Blue,
@@ -140,10 +137,7 @@ pub(in crate::card::sets) static UNIVERSITY_CAMPUS: CardRecord = CardRecord::new
         ),
         AbilityDef::activated(
             "{4}, {T}: Surveil 1.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{4}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
             abilities::surveil(ValueDef::Constant(1)),
         ),
     ]),

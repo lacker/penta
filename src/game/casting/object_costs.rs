@@ -8,7 +8,7 @@ impl Game {
         &mut self,
         stack_object: StackObject,
         targets: Vec<Target>,
-        remaining_sacrifices: Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        remaining_sacrifices: Vec<(GameObjectId, CostDef)>,
     ) {
         let Some((stack_object, targets)) =
             self.pay_spell_object_costs(stack_object, targets, remaining_sacrifices)
@@ -22,7 +22,7 @@ impl Game {
         &mut self,
         mut stack_object: StackObject,
         targets: Vec<Target>,
-        mut remaining_sacrifices: Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        mut remaining_sacrifices: Vec<(GameObjectId, CostDef)>,
     ) -> Option<(StackObject, Vec<Target>)> {
         // The action carries object choices in the same order as their
         // additional-cost clauses. Process one at a time so a mandatory
@@ -34,7 +34,7 @@ impl Game {
                 stack_object.chosen_permanents.push(spent);
             }
             match cost {
-                SpellAdditionalCostDef::Sacrifice { .. } => {
+                CostDef::Sacrifice { .. } => {
                     self.capture_sacrifices(&[spent]);
                     self.move_permanents_to_graveyard_then(
                         &[spent],
@@ -46,7 +46,7 @@ impl Game {
                     );
                     return None;
                 }
-                SpellAdditionalCostDef::ReturnToHand { .. } => {
+                CostDef::ReturnToHand { .. } => {
                     self.move_target_to_zone(
                         Target::Permanent(spent),
                         ZoneKind::Hand,
@@ -58,7 +58,7 @@ impl Game {
                     );
                     continue;
                 }
-                SpellAdditionalCostDef::Tap { .. } => {
+                CostDef::Tap { .. } => {
                     if !self
                         .battlefield
                         .iter()
@@ -69,7 +69,7 @@ impl Game {
                     self.tap_permanent(spent)?;
                     continue;
                 }
-                SpellAdditionalCostDef::Exile {
+                CostDef::Exile {
                     from: ZoneKind::Battlefield,
                     ..
                 } => {
@@ -84,15 +84,18 @@ impl Game {
                     );
                     continue;
                 }
-                SpellAdditionalCostDef::Discard { .. }
-                | SpellAdditionalCostDef::Exile { .. } => {}
-                SpellAdditionalCostDef::PayMana { .. }
-                | SpellAdditionalCostDef::PayLife(_)
-                | SpellAdditionalCostDef::Forage
-                | SpellAdditionalCostDef::All(_)
-                | SpellAdditionalCostDef::Choice(_) => {
+                CostDef::Discard { .. }
+                | CostDef::Exile { .. } => {}
+                CostDef::ManaTimes { .. }
+                | CostDef::Mana(_)
+                | CostDef::PayLife(_)
+                | CostDef::PayLifeTimes(_)
+                | CostDef::Forage
+                | CostDef::All(_)
+                | CostDef::Choice(_) => {
                     unreachable!("scalar and composite costs do not name individual objects")
                 }
+                _ => unreachable!("unsupported spell costs are not advertised"),
             }
 
             let exiled_payment_cards = self.pay_nonbattlefield_spell_object_cost(
@@ -117,8 +120,8 @@ impl Game {
         &mut self,
         controller: PlayerId,
         spent: GameObjectId,
-        cost: SpellAdditionalCostDef,
-        remaining_payments: &mut Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        cost: CostDef,
+        remaining_payments: &mut Vec<(GameObjectId, CostDef)>,
         paid_objects: &mut Vec<GameObjectId>,
     ) -> Vec<GameObjectId> {
         let Some((from, card)) = self
@@ -128,8 +131,8 @@ impl Game {
             return Vec::new();
         };
         let destination = match cost {
-            SpellAdditionalCostDef::Discard { .. } => ZoneKind::Graveyard,
-            SpellAdditionalCostDef::Exile { .. } => ZoneKind::Exile,
+            CostDef::Discard { .. } => ZoneKind::Graveyard,
+            CostDef::Exile { .. } => ZoneKind::Exile,
             _ => unreachable!("battlefield costs were handled above"),
         };
         let owner = card.owner;
@@ -138,7 +141,7 @@ impl Game {
         // not part of this batch.
         if matches!(
             cost,
-            SpellAdditionalCostDef::Exile {
+            CostDef::Exile {
                 from: ZoneKind::Graveyard,
                 ..
             }
@@ -150,7 +153,7 @@ impl Game {
                 paid_objects,
             );
         }
-        let discarded = if matches!(cost, SpellAdditionalCostDef::Discard { .. }) {
+        let discarded = if matches!(cost, CostDef::Discard { .. }) {
             self.printed_trigger_event_object(
                 card.id,
                 card.definition,
@@ -189,7 +192,7 @@ impl Game {
         &mut self,
         owner: PlayerId,
         spent: GameObjectId,
-        remaining_sacrifices: &mut Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        remaining_sacrifices: &mut Vec<(GameObjectId, CostDef)>,
         paid_objects: &mut Vec<GameObjectId>,
     ) -> Vec<GameObjectId> {
         let mut exiled = Vec::new();
@@ -213,7 +216,7 @@ impl Game {
                         (candidate_zone == ZoneKind::Graveyard
                             && matches!(
                                 candidate_cost,
-                                SpellAdditionalCostDef::Exile {
+                                CostDef::Exile {
                                     from: ZoneKind::Graveyard,
                                     ..
                                 }

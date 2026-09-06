@@ -13,6 +13,10 @@ fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidati
             on_success: then,
             on_failure: otherwise,
             ..
+        }
+        | EffectDef::FlipCoin {
+            on_win: then,
+            on_loss: otherwise,
         } => Ok(has_bindable_output(*then)? || has_bindable_output(*otherwise)?),
         EffectDef::None => Ok(false),
         _ => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {

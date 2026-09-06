@@ -14,7 +14,7 @@ static TAMIYOS_NOTEBOOK_ABILITIES: &[AbilityDef] = &[
     ),
     AbilityDef::activated(
         "{T}: Draw a card.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::DrawCards {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(1),
@@ -641,8 +641,7 @@ fn life_paid_tamiyo_cast(game: &Game, tamiyo: GameObjectId) -> Option<Action> {
 }
 
 fn blue_pain_source_definition() -> (CardDefinitionId, CardDefinition) {
-    static BLUE_PAIN_COSTS: [AbilityCostDef; 2] =
-        [AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)];
+    static BLUE_PAIN_COSTS: [CostDef; 2] = [CostDef::TapSource, CostDef::PayLife(1)];
     static BLUE_PAIN_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
         "{T}, Pay 1 life: Add {U}.",
         &BLUE_PAIN_COSTS,

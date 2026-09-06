@@ -428,11 +428,11 @@ fn validate_target_index(
 }
 
 pub(super) fn validate_ability_cost_target_references(
-    costs: &[AbilityCostDef],
+    costs: &[CostDef],
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     for cost in costs {
-        if let AbilityCostDef::ManaValueOfTarget { target, .. } = cost {
+        if let CostDef::ManaValueOfTarget { target, .. } = cost {
             validate_target_shape(*target, targets, RecipientExpectation::Object, true)?;
         }
     }
@@ -488,7 +488,7 @@ fn validate_payment_references(
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_single_payment_payer(payment.payer)?;
     validate_player_set(payment.payer, target_count, scope)?;
-    if let EffectPaymentCostDef::GenericMana(amount) = payment.cost {
+    if let CostDef::GenericMana(amount) = payment.cost {
         validate_value_target_references(amount, target_count, scope)?;
     }
     Ok(())

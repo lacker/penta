@@ -5,93 +5,9 @@
 //! each answer.
 
 use super::{
-    ChoiceVisibilityDef, EffectDef, EffectRecipientDef, ManaColor, ManaCost, ObjectPredicateDef,
-    PlayerRefDef, PlayerSetDef, TriggerConditionDef, ValueDef, ZoneKind,
+    ChoiceVisibilityDef, CostDef, EffectDef, ManaCost, PlayerRefDef, PlayerSetDef,
+    TriggerConditionDef, ValueDef,
 };
-
-/// The supported cost of an optional effect payment.
-///
-/// This is deliberately narrower than casting and activation costs: those
-/// procedures can plan compound costs atomically, while a resolving effect
-/// currently offers exactly one mana or life payment.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum EffectPaymentCostDef {
-    Mana(ManaCost),
-    /// A generic mana payment whose amount is evaluated at resolution.
-    GenericMana(ValueDef),
-    /// The same, in one colour: "pay {G} for each wind counter on it". The
-    /// colour is fixed and the count is not, which is why this is an amount
-    /// rather than a printed cost.
-    ColoredMana {
-        color: ManaColor,
-        amount: ValueDef,
-    },
-    /// "Its mana cost reduced by {2}": the printed cost of an object named
-    /// earlier in the same resolution, less that much generic. Not a generic
-    /// amount, which is the whole point -- the coloured pips still have to
-    /// be paid in their own colours.
-    ObjectManaCostReducedBy {
-        object: EffectRecipientDef,
-        generic: u16,
-    },
-    Life(u16),
-    /// "Unless you pay {E}." Energy is spent all at once or not at all: a
-    /// player short of the amount cannot pay part of it.
-    Energy(u16),
-    /// Mill this many cards. Never impossible: a library shorter than the
-    /// amount mills what it has (CR 701.13b), so this branch of an "unless"
-    /// is always open and the choice is a real one even at one card left.
-    Mill(u16),
-    /// Discard this many cards, chosen by the payer. Unlike a mill, a hand
-    /// too small cannot pay at all: there is nothing to choose. Which cards
-    /// go is a separate decision queued behind the payment, because by then
-    /// the branch has already been settled.
-    Discard(u16),
-    /// Generic mana in an amount the payer chooses, which the paid branch
-    /// then reads back with [`ValueDef::PaidAmount`]. This is "you may pay
-    /// {X}" during a resolution, where X is settled by the payment rather
-    /// than by the cast that produced it.
-    ChosenGenericMana,
-    /// Energy in an amount the payer chooses, read back the same way. "You
-    /// may pay any amount of {E}" is this: unlike the fixed amount above,
-    /// what is spent is settled by the payer rather than by the card, and
-    /// paying nothing is a legal answer.
-    ChosenEnergy,
-    /// Remove any positive number of counters of one kind from the named
-    /// object while an effect resolves. The payer chooses the amount and the
-    /// paid branch reads it with [`ValueDef::PaidAmount`]. Declining is the
-    /// zero-counter answer.
-    RemoveAnyNumberOfCounters {
-        object: EffectRecipientDef,
-        kind: super::CounterKind,
-    },
-    /// Sacrifice one matching permanent the payer controls, named as part of
-    /// the payment. Chain of Vapor asks for a land of their choice.
-    SacrificePermanentMatching(ObjectPredicateDef),
-    /// Sacrifice creatures until their power adds up to at least this much.
-    /// The creatures are named one at a time, and the payer may stop as soon
-    /// as the total is reached -- or keep going, which is worth doing for a
-    /// deck that wants creature cards in its graveyard.
-    ///
-    /// Offered only when the payer's creatures could reach the total at all,
-    /// so a board that cannot pay takes the other branch without being asked.
-    SacrificeCreaturesWithTotalPower(u16),
-    /// Move one matching permanent its payer controls to a named zone as the
-    /// payment. The choice and move are one atomic cost rather than a
-    /// `MoveToZone` effect after the paid branch has already been selected.
-    MovePermanentMatching {
-        object: ObjectPredicateDef,
-        zone: ZoneKind,
-    },
-    /// Discard one card the predicate matches. Mox Diamond's "you may discard
-    /// a land card instead" is a real restriction, so a hand with nothing
-    /// matching cannot pay at all even though it holds plenty of cards.
-    ///
-    /// Which card goes is part of this decision rather than a second one
-    /// behind it: each candidate is its own option, the way a mana ability
-    /// that sacrifices a permanent offers one activation per candidate.
-    DiscardMatching(ObjectPredicateDef),
-}
 
 /// A payment offered while an effect or replacement procedure resolves.
 ///
@@ -102,7 +18,7 @@ pub enum EffectPaymentCostDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct EffectPaymentDef {
     pub payer: PlayerSetDef,
-    pub cost: EffectPaymentCostDef,
+    pub cost: CostDef,
 }
 
 impl EffectPaymentDef {
@@ -110,7 +26,7 @@ impl EffectPaymentDef {
     pub const fn mana(payer: PlayerSetDef, cost: ManaCost) -> Self {
         Self {
             payer,
-            cost: EffectPaymentCostDef::Mana(cost),
+            cost: CostDef::Mana(cost),
         }
     }
 
@@ -118,7 +34,7 @@ impl EffectPaymentDef {
     pub const fn generic_mana(payer: PlayerSetDef, amount: ValueDef) -> Self {
         Self {
             payer,
-            cost: EffectPaymentCostDef::GenericMana(amount),
+            cost: CostDef::GenericMana(amount),
         }
     }
 
@@ -126,7 +42,7 @@ impl EffectPaymentDef {
     pub const fn life(payer: PlayerSetDef, amount: u16) -> Self {
         Self {
             payer,
-            cost: EffectPaymentCostDef::Life(amount),
+            cost: CostDef::PayLife(amount),
         }
     }
 
@@ -134,7 +50,7 @@ impl EffectPaymentDef {
     pub const fn mill(payer: PlayerSetDef, amount: u16) -> Self {
         Self {
             payer,
-            cost: EffectPaymentCostDef::Mill(amount),
+            cost: CostDef::MillCards(amount),
         }
     }
 
@@ -142,7 +58,7 @@ impl EffectPaymentDef {
     pub const fn discard(payer: PlayerSetDef, amount: u16) -> Self {
         Self {
             payer,
-            cost: EffectPaymentCostDef::Discard(amount),
+            cost: CostDef::DiscardCards(amount),
         }
     }
 }

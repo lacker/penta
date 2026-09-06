@@ -2,10 +2,7 @@
 
 use super::*;
 
-static UNTAP_COSTS: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(ManaCost::new(2, 0)),
-    AbilityCostDef::UntapSource,
-];
+static UNTAP_COSTS: [CostDef; 2] = [CostDef::Mana(ManaCost::new(2, 0)), CostDef::UntapSource];
 static UNTAP_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
     "{2}, {Q}: Put a +1/+1 counter on this creature.",
     &UNTAP_COSTS,

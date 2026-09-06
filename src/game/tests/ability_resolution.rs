@@ -68,7 +68,7 @@ static MULTI_SLOT_ACTIVATION_EFFECTS: [EffectDef; 2] = [
 ];
 static MULTI_SLOT_ACTIVATION_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_with_targets(
     "Sacrifice this artifact: It deals 1 damage to target opponent and 1 damage to target creature that player controls.",
-    &[AbilityCostDef::SacrificeSource],
+    &[CostDef::SacrificeSource],
     &MULTI_SLOT_ACTIVATION_TARGETS,
     EffectDef::Sequence(&MULTI_SLOT_ACTIVATION_EFFECTS),
 )];
@@ -262,7 +262,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
     )];
     static GRANTED_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
         "{T}: Tap target permanent.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         &TARGETS,
         EffectDef::Tap {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -411,7 +411,7 @@ fn activated_clauses_keep_their_own_origins() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -419,7 +419,7 @@ fn activated_clauses_keep_their_own_origins() {
         ),
         AbilityDef::activated(
             "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -498,7 +498,7 @@ fn a_second_activation_after_another_clause_keeps_its_own_origin() {
         ),
         AbilityDef::activated(
             "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

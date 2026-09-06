@@ -333,7 +333,7 @@ fn overlapping_hybrid_pairs_share_each_colors_capacity() {
 fn declarative_mana_production_drives_generic_mana_sources() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
         "{T}: Add {U} or {R}.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
     )];
     let definition_id = CardDefinitionId::new(10_000);

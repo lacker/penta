@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CopyExceptionsDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CopyExceptionsDef, CostDef,
     CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -45,7 +45,7 @@ pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_additional_cost(
         "As an additional cost to cast this spell, sacrifice a creature.\nDraw two cards.",
         &[],
-        SpellAdditionalCostDef::sacrifice(
+        CostDef::sacrifice(
             ObjectPredicateDef::HasType(CardType::Creature),
             CostQuantityDef::Fixed(1),
         ),
@@ -99,7 +99,7 @@ pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
                     // The granted ability sits beside the Treasure's own rather than replacing
                     // it, so a Treasure under him may still be cashed for one mana of any
                     // colour -- there is simply no reason to.
-                    &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+                    &[CostDef::TapSource, CostDef::SacrificeSource],
                     EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(2)),
                 )),
             },
@@ -153,7 +153,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
             AbilityDef::activated(
                 "Sacrifice five Treasures: Search your library for an artifact or Dragon card, put that \
                  card onto the battlefield, then shuffle.",
-                &[AbilityCostDef::SacrificePermanents {
+                &[CostDef::SacrificePermanents {
                     object: ObjectPredicateDef::Subtype("Treasure"),
                     controller: PlayerRelation::You,
                     count: 5,
@@ -196,7 +196,7 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
         abilities::boast(AbilityDef::activated(
             "Boast — {1}: Exile the top card of your library. You may play that card this turn. \
              (Activate only if this creature attacked this turn and only once each turn.)",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::ExileTopOfLibraryToPlay {
                 player: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

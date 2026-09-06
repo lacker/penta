@@ -104,6 +104,11 @@ impl Game {
                 };
                 self.resolve_effect_output(scoped.with_effect(*effect), object, context)
             }
+            EffectDef::FlipCoin { on_win, on_loss } => {
+                let won = self.flip_coin(object.controller);
+                let effect = if won { on_win } else { on_loss };
+                self.resolve_effect_output(scoped.with_effect(*effect), object, context)
+            }
             EffectDef::None => (context, None),
             _ => unreachable!("catalog validation accepted an effect without a bindable output"),
         }

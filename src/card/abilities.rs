@@ -4,27 +4,27 @@
 //! intrinsic rule, or grant site assigns identity when it attaches the clause.
 
 use super::model::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
-    AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AggregateOperationDef,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
+    AbilityCostList, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef,
+    AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
     BattlefieldEntryModificationDef, BindObjectsDef, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardChoiceSourceDef, CardNameDef, CardType, CardTypeSet,
     ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseObjectOrderDef,
     CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef, CopyExceptionsDef,
-    CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostModificationDef, CounterKind,
-    CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    FreePlayDef, FreePlayDurationDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectCollectionSourceDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef,
-    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef, ReplacementAbilityDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef, ScaledValueDef,
-    SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
-    SpellResolutionDestinationDef, SuspendAbilityDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
+    CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef, CostModificationDef,
+    CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
+    InstalledTriggerLifetimeDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost,
+    MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCountConditionDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef,
+    ObjectValueDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef,
+    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef,
+    ScaledValueDef, SpellCostConditionDef, SpellCostModificationDef, SpellResolutionDestinationDef,
+    SuspendAbilityDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 
@@ -606,10 +606,7 @@ pub const fn bloodrush(
 ) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::two(
-            AbilityCostDef::Mana(mana_cost),
-            AbilityCostDef::DiscardSource,
-        ),
+        AbilityCostList::two(CostDef::Mana(mana_cost), CostDef::DiscardSource),
         targets,
         effect,
     )
@@ -668,7 +665,7 @@ static CONNIVE_COUNTERS: DiscardFollowUpDef = DiscardFollowUpDef {
 pub const fn scavenge(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::two(AbilityCostDef::Mana(mana_cost), AbilityCostDef::ExileSource),
+        AbilityCostList::two(CostDef::Mana(mana_cost), CostDef::ExileSource),
         SCAVENGE_TARGET,
         EffectDef::AddCounters {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -710,7 +707,7 @@ pub const fn tap_for(mana: ManaColor) -> AbilityDef {
     };
     AbilityDef::activated_mana(
         text,
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::one(mana)),
     )
 }
@@ -749,7 +746,7 @@ pub const fn enters_tapped(printed_subject: CardType) -> AbilityDef {
 pub const fn cycling(text: &'static str, cost: ManaCost) -> AbilityDef {
     AbilityDef::cycling_ability(
         text,
-        AbilityCostList::two(AbilityCostDef::Mana(cost), AbilityCostDef::DiscardSource),
+        AbilityCostList::two(CostDef::Mana(cost), CostDef::DiscardSource),
         EffectDef::DrawCards {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(1),
@@ -769,7 +766,7 @@ pub const fn typecycling(
 ) -> AbilityDef {
     AbilityDef::cycling_ability(
         text,
-        AbilityCostList::two(AbilityCostDef::Mana(cost), AbilityCostDef::DiscardSource),
+        AbilityCostList::two(CostDef::Mana(cost), CostDef::DiscardSource),
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -794,7 +791,7 @@ pub const fn typecycling(
 /// Cards that regenerate something else, or pay something other than mana,
 /// build the clause themselves around [`EffectDef::Regenerate`].
 #[must_use]
-pub const fn regenerate_self(text: &'static str, costs: &'static [AbilityCostDef]) -> AbilityDef {
+pub const fn regenerate_self(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::activated(
         text,
         costs,
@@ -810,7 +807,7 @@ pub const fn regenerate_self(text: &'static str, costs: &'static [AbilityCostDef
 #[must_use]
 pub const fn gain_ability_until_end_of_turn(
     text: &'static str,
-    costs: &'static [AbilityCostDef],
+    costs: &'static [CostDef],
     ability: &'static AbilityDef,
 ) -> AbilityDef {
     AbilityDef::activated(text, costs, gain_ability_until_end_of_turn_effect(ability))
@@ -827,7 +824,7 @@ pub const fn gain_ability_until_end_of_turn_for_mana(
 ) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::one(AbilityCostDef::Mana(cost)),
+        AbilityCostList::one(CostDef::Mana(cost)),
         &[],
         gain_ability_until_end_of_turn_effect(ability),
     )
@@ -848,7 +845,7 @@ const fn gain_ability_until_end_of_turn_effect(ability: &'static AbilityDef) -> 
 #[must_use]
 pub const fn circle_of_protection(
     text: &'static str,
-    costs: &'static [AbilityCostDef],
+    costs: &'static [CostDef],
     source: ObjectPredicateDef,
 ) -> AbilityDef {
     AbilityDef::activated(
@@ -989,4 +986,5 @@ include!("abilities/convoke_buyback.rs");
 include!("abilities/attachment.rs");
 include!("abilities/named_cards.rs");
 include!("abilities/suspend.rs");
+include!("abilities/cumulative_upkeep.rs");
 include!("abilities/tests.rs");

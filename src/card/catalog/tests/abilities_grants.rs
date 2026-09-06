@@ -811,7 +811,7 @@ fn granted_ability_validation_checks_zones_mana_targets_and_target_slots() {
     static TARGETED_MANA: AbilityDef = AbilityDef::defined(
         "A targeted mana ability.",
         DeclarativeAbilityDef::ActivatedMana(
-            ActivatedAbilityDef::new(&[AbilityCostDef::TapSource]).with_targets(&MANA_TARGETS),
+            ActivatedAbilityDef::new(&[CostDef::TapSource]).with_targets(&MANA_TARGETS),
         ),
         EffectDef::None,
     );

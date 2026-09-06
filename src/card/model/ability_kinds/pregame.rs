@@ -1,4 +1,4 @@
-use super::AbilityCostDef;
+use super::CostDef;
 
 /// A card action available before the first turn begins. Opening-hand actions
 /// happen after every player has kept; mulligan actions happen while that card
@@ -7,7 +7,7 @@ use super::AbilityCostDef;
 pub struct PregameAbilityDef {
     pub timing: PregameTimingDef,
     pub condition: PregameConditionDef,
-    pub costs: &'static [AbilityCostDef],
+    pub costs: &'static [CostDef],
     pub reveals_source: bool,
 }
 
@@ -29,7 +29,7 @@ impl PregameAbilityDef {
     }
 
     #[must_use]
-    pub const fn with_costs(mut self, costs: &'static [AbilityCostDef]) -> Self {
+    pub const fn with_costs(mut self, costs: &'static [CostDef]) -> Self {
         self.costs = costs;
         self
     }

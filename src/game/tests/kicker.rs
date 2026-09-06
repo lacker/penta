@@ -2,7 +2,7 @@
 //! resolution: ordinary kicker, multikicker, and two repeatable surcharges.
 
 use super::*;
-use crate::card::{CostQuantityDef, SpellAdditionalCostDef};
+use crate::card::{CostDef, CostQuantityDef};
 
 fn settle(game: &mut Game) {
     for _ in 0..32 {
@@ -94,7 +94,7 @@ fn escape_context_and_kicker_payment_coexist_through_entry() {
             AlternativeCastManaCostDef::Fixed(mana_cost!("{B}")),
             AlternativeCastKindDef::Escape,
             None,
-            SpellAdditionalCostDef::exile(
+            CostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::Fixed(1),

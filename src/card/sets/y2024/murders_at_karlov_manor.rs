@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ColorSet, ComparisonDef, CostModificationDef, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ColorSet,
+    ComparisonDef, CostDef, CostModificationDef, CounterKind, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -131,10 +131,7 @@ pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::n
         AbilityDef::activated_with_targets(
             "{G}, Exile this card from your graveyard: Put a +1/+1 counter on target creature. \
              Activate only as a sorcery.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::ExileSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::ExileSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -257,7 +254,7 @@ pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated(
             "{T}, Sacrifice this land: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -280,7 +277,7 @@ pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this land: Target creature with power 2 or less can't be blocked this turn.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),

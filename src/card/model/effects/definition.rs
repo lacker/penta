@@ -1,6 +1,7 @@
 /// Declarative effect primitives interpreted by the rules engine.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum EffectDef {
+    CumulativeUpkeep(CostDef),
     AddCounters {
         object: EffectRecipientDef,
         kind: CounterKind,
@@ -727,6 +728,11 @@ pub enum EffectDef {
         likelihood: LikelihoodDef,
         on_success: &'static EffectDef,
         on_failure: &'static EffectDef,
+    },
+    /// Flip a fair coin, publish the result, then resolve its branch.
+    FlipCoin {
+        on_win: &'static EffectDef,
+        on_loss: &'static EffectDef,
     },
     /// This card costs that much less generic mana to cast. A static ability
     /// that works from the hand, where casting reads it.

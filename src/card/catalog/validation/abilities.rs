@@ -10,12 +10,13 @@ use crate::card::catalog::{
     MismatchedAlternativeCost,
 };
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef,
-    AppliedEffectDef, BattlefieldEntryChoiceDestinationDef, BattlefieldEntryModificationDef,
+    AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AppliedEffectDef,
+    BattlefieldEntryChoiceDestinationDef, BattlefieldEntryModificationDef,
     BattlefieldEntryScalarChoiceDef, CardDefinition, CharacteristicOperationDef, CopyAbilityDef,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EmblemCharacteristics, ObjectSetDef,
-    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ScalarChoiceListDef,
-    SpellForm, TargetChooserDef, TokenCharacteristics, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    CostDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
+    ObjectSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
+    ScalarChoiceListDef, SpellForm, TargetChooserDef, TokenCharacteristics, ValueDef, ZoneKind,
+    ZoneMoveCauseDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId, TargetIndex,
@@ -594,7 +595,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
     let chosen_cost_card_binding = match ability.definition {
         DeclarativeAbilityDef::Activated(definition) => {
             definition.costs.iter().find_map(|cost| match cost {
-                AbilityCostDef::MoveToZone(movement) => movement.binding,
+                CostDef::MoveToZone(movement) => movement.binding,
                 _ => None,
             })
         }

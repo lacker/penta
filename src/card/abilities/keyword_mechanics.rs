@@ -455,7 +455,7 @@ pub const fn cascade() -> AbilityDef {
 pub const fn saddle(minimum: u8, text: &'static str) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::one(AbilityCostDef::TapCreaturesWithTotalPower { minimum }),
+        AbilityCostList::one(CostDef::TapCreaturesWithTotalPower { minimum }),
         &[],
         EffectDef::Saddle {
             object: EffectRecipientDef::Source,
@@ -548,7 +548,7 @@ pub const fn rebound() -> AbilityDef {
 pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::two(AbilityCostDef::Mana(cost), AbilityCostDef::ExileSource),
+        AbilityCostList::two(CostDef::Mana(cost), CostDef::ExileSource),
         &[],
         EffectDef::create_token_from_copy(&ETERNALIZE_COPY),
     )
@@ -629,8 +629,8 @@ pub const fn ninjutsu(text: &'static str, cost: ManaCost) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
         AbilityCostList::two(
-            AbilityCostDef::Mana(cost),
-            AbilityCostDef::ReturnUnblockedAttackerToHand,
+            CostDef::Mana(cost),
+            CostDef::ReturnUnblockedAttackerToHand,
         ),
         &[],
         EffectDef::PutSourceOntoBattlefieldAttacking,
@@ -680,7 +680,7 @@ pub const fn crew(text: &'static str, minimum: u8) -> AbilityDef {
 
 /// Crew's cost, kept beside it because a const slice cannot be built from a
 /// parameter inline: the table is indexed by the printed number.
-const fn crew_cost(minimum: u8) -> &'static [AbilityCostDef] {
+const fn crew_cost(minimum: u8) -> &'static [CostDef] {
     let index = minimum as usize;
     assert!(
         index < CREW_COSTS.len(),
@@ -692,7 +692,7 @@ const fn crew_cost(minimum: u8) -> &'static [AbilityCostDef] {
 /// One cost per crew number, from zero up. Zero is unreachable from any
 /// printed card and sits here only so the table is indexed by the number
 /// itself rather than by an offset.
-static CREW_COSTS: [[AbilityCostDef; 1]; 10] = [
+static CREW_COSTS: [[CostDef; 1]; 10] = [
     crew_tap(0),
     crew_tap(1),
     crew_tap(2),
@@ -705,8 +705,8 @@ static CREW_COSTS: [[AbilityCostDef; 1]; 10] = [
     crew_tap(9),
 ];
 
-const fn crew_tap(minimum: u8) -> [AbilityCostDef; 1] {
-    [AbilityCostDef::TapCreaturesWithTotalPower { minimum }]
+const fn crew_tap(minimum: u8) -> [CostDef; 1] {
+    [CostDef::TapCreaturesWithTotalPower { minimum }]
 }
 
 /// "Battle cry (Whenever this creature attacks, each other attacking creature

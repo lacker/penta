@@ -210,6 +210,8 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     PayOr {
         player: usize,
         payment: ResolvedEffectPaymentSnapshot,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        cumulative_upkeep_age: Option<u16>,
         object: DetachedStackSnapshot,
         ability: AbilityLocator,
         context: EffectResolutionContextSnapshot,

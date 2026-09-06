@@ -5,9 +5,9 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, ConditionDef, EffectDef, EffectRecipientDef, ManaColor,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    ComparisonDef, ConditionDef, CostDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
@@ -291,7 +291,7 @@ pub(in crate::card::sets) static BALSHAN_COLLABORATOR: CardRecord = CardRecord::
         abilities::flying(),
         AbilityDef::activated(
             "{B}: This creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -919,7 +919,7 @@ pub(in crate::card::sets) static NANTUKO_SHADE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{B}{B}"), &["Insect", "Shade"], 2, 1).with_ability(
         AbilityDef::activated(
             "{B}: This creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1189,9 +1189,9 @@ pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_w
         AbilityDef::activated_with_targets(
             "{R}, {T}, Exile two cards from your graveyard: This creature deals 2 damage to any target.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::TapSource,
+                CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
                     ObjectPredicateDef::Any,
                     ZoneKind::Graveyard,
                     ZoneKind::Exile,
@@ -1623,7 +1623,7 @@ pub(in crate::card::sets) static TAINTED_FIELD: CardRecord = CardRecord::new(
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana_if(
             "{T}: Add {W} or {B}. Activate only if you control a Swamp.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // A subtype check rather than a card name, so any land that
             // is a Swamp turns it on -- including this cycle's own
             // partners in a deck that runs two of them.
@@ -1650,7 +1650,7 @@ pub(in crate::card::sets) static TAINTED_ISLE: CardRecord = CardRecord::new(
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana_if(
             "{T}: Add {U} or {B}. Activate only if you control a Swamp.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // A subtype check rather than a card name, so any land that
             // is a Swamp turns it on -- including this cycle's own
             // partners in a deck that runs two of them.
@@ -1677,7 +1677,7 @@ pub(in crate::card::sets) static TAINTED_PEAK: CardRecord = CardRecord::new(
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana_if(
             "{T}: Add {B} or {R}. Activate only if you control a Swamp.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // A subtype check rather than a card name, so any land that
             // is a Swamp turns it on -- including this cycle's own
             // partners in a deck that runs two of them.
@@ -1704,7 +1704,7 @@ pub(in crate::card::sets) static TAINTED_WOOD: CardRecord = CardRecord::new(
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana_if(
             "{T}: Add {B} or {G}. Activate only if you control a Swamp.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // A subtype check rather than a card name, so any land that
             // is a Swamp turns it on -- including this cycle's own
             // partners in a deck that runs two of them.

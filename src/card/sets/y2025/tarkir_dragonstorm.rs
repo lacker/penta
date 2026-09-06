@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatedTokensDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
+    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostDef, CounterKind, CreatedTokensDef,
     EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef,
     FreePlayDurationDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayOptionDef,
@@ -69,7 +69,7 @@ pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord
             ),
             AbilityDef::activated(
                 "+2: You gain 3 life and draw a card.",
-                &[AbilityCostDef::Loyalty(2)],
+                &[CostDef::Loyalty(2)],
                 EffectDef::Sequence(&[
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
@@ -86,14 +86,14 @@ pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord
             // this turn.
             AbilityDef::activated_mana(
                 "0: Add {C}{C}{C}.",
-                &[AbilityCostDef::Loyalty(0)],
+                &[CostDef::Loyalty(0)],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(3)),
             ),
             AbilityDef::activated(
                 "\u{2212}11: Search your library for any number of colorless nonland cards, exile them, \
                  then shuffle. Until end of turn, you may cast those cards without paying their mana \
                  costs.",
-                &[AbilityCostDef::Loyalty(-11)],
+                &[CostDef::Loyalty(-11)],
                 // "Any number": the bound is the library, so the search offers everything
                 // that matches and takes as many as its controller wants.
                 EffectDef::SearchZone {
@@ -582,8 +582,8 @@ pub(in crate::card::sets) static CHAMPION_OF_DUSAN: CardRecord = CardRecord::new
         AbilityDef::activated_with_targets(
             "Renew — {1}{G}, Exile this card from your graveyard: Put a +1/+1 counter and a trample counter on target creature. Activate only as a sorcery.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}{G}")),
-                AbilityCostDef::ExileSource,
+                CostDef::Mana(mana_cost!("{1}{G}")),
+                CostDef::ExileSource,
             ],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -765,10 +765,7 @@ pub(in crate::card::sets) static CORI_STEEL_CUTTER: CardRecord = CardRecord::new
                         },
                     }),
             ),
-            abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
-                "Equip {1}{R}",
-            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}{R}"))], "Equip {1}{R}"),
         ]),
 );
 
@@ -803,13 +800,13 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
             ),
             AbilityDef::activated(
                 "+1: Create a 1/1 white Soldier creature token.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
             ),
             AbilityDef::activated(
                 "0: Put a +1/+1 counter on each creature you control. Those creatures gain flying until \
                  your next turn.",
-                &[AbilityCostDef::Loyalty(0)],
+                &[CostDef::Loyalty(0)],
                 // "Those creatures" is the set the counters went on. Nothing can join or
                 // leave the battlefield between the two halves of one resolution, so
                 // naming the same query twice names the same creatures -- and unlike a
@@ -829,7 +826,7 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
             ),
             AbilityDef::activated_with_targets(
                 "−3: Destroy target creature an opponent controls with mana value 3 or greater.",
-                &[AbilityCostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(-3)],
                 // "Mana value 3 or greater", which for a whole number is everything that is
                 // not two or less.
                 &[AbilityTargetDef::exactly_one(

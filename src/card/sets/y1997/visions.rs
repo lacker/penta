@@ -7,15 +7,14 @@ use crate::card::sets::y2012::avacyn_restored as catalog_avr;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
-    AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
+    BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
+    CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -178,10 +177,7 @@ pub(in crate::card::sets) static JAMURAAN_LION: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Cat"], 3, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{W}, {T}: Target creature can't block this turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1179,7 +1175,7 @@ pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_le
         // Two Mountains off the battlefield, which is why the card is a finisher
         // rather than a burn spell: it is cast from an empty board on the turn the
         // lands stop mattering.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+        .with_alternative_additional_cost(&CostDef::sacrifice(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
             CostQuantityDef::Fixed(2),
         )),
@@ -1382,7 +1378,7 @@ pub(in crate::card::sets) static SPITTING_DRAKE: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn. Activate only once each turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1524,32 +1520,7 @@ pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
     CardArt::new("f4c1f5a7-0d28-43ab-9b66-937e963f42cd", "Tony Roberts"),
     CardSet::Visions,
     CardRules::new_enchantment(mana_cost!("{G}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::You,
-            },
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::SourceOnBattlefield,
-                then: &EffectDef::Sequence(&[
-                    EffectDef::AddCounters {
-                        object: EffectRecipientDef::Source,
-                        kind: CounterKind::named("age"),
-                        amount: ValueDef::Constant(1),
-                    },
-                    EffectDef::PayOr(PayOrDef::unless(
-                        EffectPaymentDef::generic_mana(
-                            PlayerSetDef::One(PlayerRefDef::EffectController),
-                            ValueDef::CountersOnSource(CounterKind::named("age")),
-                        ),
-                        &EffectDef::Sacrifice {
-                            object: EffectRecipientDef::Source,
-                        },
-                    )),
-                ]),
-            },
-        ),
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
         AbilityDef::static_ability(
             "Black creatures can't attack you.",
             EffectDef::StaticApply {
@@ -1705,7 +1676,7 @@ pub(in crate::card::sets) static NATURAL_ORDER: CardRecord = CardRecord::new(
             &[],
             // Paid as the spell is cast, so a board with nothing green on it cannot
             // cast this at all.
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Color(ManaColor::Green),
@@ -1777,7 +1748,7 @@ pub(in crate::card::sets) static RIVER_BOA: CardRecord = CardRecord::new(
         abilities::landwalk(BasicLandType::Island),
         abilities::regenerate_self(
             "{G}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+            &[CostDef::Mana(mana_cost!("{G}"))],
         ),
     ]),
 );
@@ -1913,13 +1884,17 @@ pub(in crate::card::sets) static FEMEREF_ENCHANTRESS: CardRecord = CardRecord::n
 );
 
 // VIS 130 — Firestorm Hellkite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIRESTORM_HELLKITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("def23574-4a41-4323-84d9-49f58b2ca322"),
     "Firestorm Hellkite",
     crate::card::CardArt::new("def23574-4a41-4323-84d9-49f58b2ca322", "Pete Venters"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{R}"), &["Dragon"], 6, 6).with_abilities(&[
+        abilities::flying(),
+        abilities::trample(),
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{U}{R}")))
+            .override_text("Cumulative upkeep {U}{R}"),
+    ]),
 );
 
 // VIS 131 — Guiding Spirit

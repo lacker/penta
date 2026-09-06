@@ -55,7 +55,7 @@ impl Game {
                     source, controller, effect, context, choices,
                 );
             }
-            EffectDef::None | EffectDef::ContinueReplacedDraw | EffectDef::Randomized { .. } | EffectDef::Choose(_) | EffectDef::ChooseExact(_) |
+            EffectDef::None | EffectDef::ContinueReplacedDraw | EffectDef::Randomized { .. } | EffectDef::FlipCoin { .. } | EffectDef::Choose(_) | EffectDef::ChooseExact(_) |
 EffectDef::ChooseCardsFromCollection(_) |
 EffectDef::LookAtObjects(_) | EffectDef::ChooseObjectOrder(_) |
 EffectDef::ClassifyObjects(_) | EffectDef::RevealAndClassifyCards(_) |
@@ -68,7 +68,7 @@ EffectDef::RevealObjects(_) | EffectDef::MoveObjects(_) |
 EffectDef::PutObjectsOntoBattlefieldFaceDown(_) |
 EffectDef::ChooseForEachPlayer(_) | EffectDef::ChooseCardName { .. } |
 EffectDef::SelectAtRandomFromZone { .. } |
-EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) |
+EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) | EffectDef::CumulativeUpkeep(_) |
 EffectDef::PreventDamage { .. } |
 EffectDef::DealDamage { .. } | EffectDef::DealDamageSimultaneously(_) |
 EffectDef::DealDamageFrom { .. } | EffectDef::DealDamageAndApply { .. } |
@@ -194,7 +194,8 @@ EffectDef::Special(_) => {
                 };
                 split
             }
-            ManaSelectionDef::ColorsOfLinkedExiles => return,
+            ManaSelectionDef::ColorsOfLinkedExiles
+            | ManaSelectionDef::ChoiceOfBundles(_) => return,
         };
         if let Some(color) = also {
             split.add(color, 1);

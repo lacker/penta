@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
     PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, PlayerSetDef, SumValueDef,
     TopOfLibraryCostDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
@@ -107,8 +107,8 @@ pub(in crate::card::sets) static HEROES_PODIUM: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{X}, {T}: Look at the top X cards of your library. You may reveal a legendary creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{X}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{X}")),
+                    CostDef::TapSource,
                 ],
                 abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
                     ValueDef::ChosenX,

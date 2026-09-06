@@ -47,6 +47,10 @@ fn validate_effect_target_shapes(
             validate_effect_target_shapes(*on_success, targets, triggering_object_zone)?;
             validate_effect_target_shapes(*on_failure, targets, triggering_object_zone)
         }
+        EffectDef::FlipCoin { on_win, on_loss } => {
+            validate_effect_target_shapes(*on_win, targets, triggering_object_zone)?;
+            validate_effect_target_shapes(*on_loss, targets, triggering_object_zone)
+        }
         EffectDef::ExileOneFromEachZone(pile) => {
             validate_recipient_shape(pile.player, targets, RecipientExpectation::Player)
         }
@@ -662,14 +666,29 @@ fn validate_effect_target_shapes(
                 crate::card::ManaTypeSourceDef::Fixed(_) => Ok(()),
             },
             crate::card::ManaSelectionDef::One(_)
-            | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => Ok(()),
+            | crate::card::ManaSelectionDef::ColorsOfLinkedExiles
+            | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
         },
         // The ballot is a predicate, not a target: nothing is pointed at.
+        EffectDef::CumulativeUpkeep(
+            crate::card::CostDef::SacrificePermanents { object, .. }
+            | crate::card::CostDef::GainControlPermanents { object, .. },
+        ) => validate_object_predicate_shape(object, targets),
+        EffectDef::CumulativeUpkeep(
+            crate::card::CostDef::CreateTokens { token, .. },
+        ) => match token.variable_stats {
+            Some(stats) => {
+                validate_value_shape(stats.power, targets)?;
+                validate_value_shape(stats.toughness, targets)
+            }
+            None => Ok(()),
+        },
         EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::ModifyCost(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
+        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MayPlayWithoutPaying { .. }

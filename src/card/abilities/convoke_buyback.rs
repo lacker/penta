@@ -172,7 +172,7 @@ pub const fn repeatable_additional_mana_cost(
 #[must_use]
 pub const fn buyback_with_additional_cost(
     text: &'static str,
-    cost: &'static SpellAdditionalCostDef,
+    cost: &'static CostDef,
 ) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         text,

@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, ComparisonDef, CostDef, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
     ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
@@ -24,7 +24,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                 .with_abilities(&const { [AbilityDef::activated(
                     "{T}: Draw a card, then discard a card. If there are five or more cards in your graveyard, \
                      exile Jace, then return him to the battlefield transformed under his owner's control.",
-                    &const { [AbilityCostDef::TapSource] },
+                    &const { [CostDef::TapSource] },
                     EffectDef::Sequence(&const { [
                         EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                 .with_abilities(&const { [
                     AbilityDef::activated_with_targets(
                         "+1: Up to one target creature gets -2/-0 until your next turn.",
-                        &const { [AbilityCostDef::Loyalty(1)] },
+                        &const { [CostDef::Loyalty(1)] },
                         // "Up to one", so a Jace with nothing worth shrinking still ticks up.
                         &const { [AbilityTargetDef::up_to(
                             AbilityTargetPredicate::Object {
@@ -111,7 +111,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                     AbilityDef::activated_with_targets(
                         "\u{2212}3: You may cast target instant or sorcery card from your graveyard this turn. \
                          If that spell would be put into your graveyard, exile it instead.",
-                        &const { [AbilityCostDef::Loyalty(-3)] },
+                        &const { [CostDef::Loyalty(-3)] },
                         &const { [AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::Object {
                                     object: ObjectPredicateDef::AnyOf(&const { [
@@ -134,7 +134,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                     AbilityDef::activated(
                         "\u{2212}9: You get an emblem with \"Whenever you cast a spell, target opponent mills \
                          five cards.\"",
-                        &const { [AbilityCostDef::Loyalty(-9)] },
+                        &const { [CostDef::Loyalty(-9)] },
                         EffectDef::create_emblem("Jace, Telepath Unbound emblem", &const { [AbilityDef::triggered_with_targets(
                             "Whenever you cast a spell, target opponent mills five cards.",
                             TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),

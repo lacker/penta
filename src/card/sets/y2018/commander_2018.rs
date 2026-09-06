@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardNameSetDef, CardRules, CardSet,
-    CardType, ComparisonDef, ControlDurationDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    AbilityDef, AddManaEffectDef, CardArt, CardNameSetDef, CardRules, CardSet, CardType,
+    ComparisonDef, ControlDurationDef, CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
     ValueDef, ZoneKind, abilities,
@@ -28,7 +28,7 @@ pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add three mana of any one color.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
         ),
         AbilityDef::triggered(
@@ -75,8 +75,8 @@ pub(in crate::card::sets) static ENDLESS_ATLAS: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{2}, {T}: Draw a card. Activate only if you control three or more lands with the same name.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -125,7 +125,7 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
         // usable more than once a turn -- and usable on their turn.
         AbilityDef::activated(
             "{3}: Untap this artifact.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}"))],
+            &[CostDef::Mana(mana_cost!("{3}"))],
             EffectDef::Untap {
                 object: EffectRecipientDef::Source,
             },
@@ -135,19 +135,16 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
             // The line the card is played for: with four mana up on their turn it
             // untaps and makes a Servo, and the Servo becomes a Thopter and the Thopter
             // a 4/4, one tap at a time.
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1),
         ),
         AbilityDef::activated(
             "{1}, {T}, Sacrifice a Servo: Create a 1/1 colorless Thopter artifact creature token \
              with flying.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::Subtype("Servo"),
                     controller: PlayerRelation::You,
                 },
@@ -158,8 +155,8 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
         AbilityDef::activated(
             "{T}, Sacrifice a Thopter: Create a 4/4 colorless Construct artifact creature token.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::Subtype("Thopter"),
                     controller: PlayerRelation::You,
                 },

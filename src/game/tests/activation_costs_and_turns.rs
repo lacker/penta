@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn exact_count_tap_cost_can_include_its_untapped_source() {
-    static COSTS: [AbilityCostDef; 1] = [AbilityCostDef::TapPermanents {
+    static COSTS: [CostDef; 1] = [CostDef::TapPermanents {
         object: ObjectPredicateDef::HasType(CardType::Creature),
         controller: PlayerRelation::You,
         count: 2,
@@ -79,12 +79,12 @@ fn exact_count_tap_cost_can_include_its_untapped_source() {
 
 #[test]
 fn duplicate_source_counter_costs_are_aggregated_before_an_activation_is_offered() {
-    static COSTS: [AbilityCostDef; 2] = [
-        AbilityCostDef::RemoveCountersFromSource {
+    static COSTS: [CostDef; 2] = [
+        CostDef::RemoveCountersFromSource {
             kind: CounterKind::named("charge"),
             amount: 1,
         },
-        AbilityCostDef::RemoveCountersFromSource {
+        CostDef::RemoveCountersFromSource {
             kind: CounterKind::named("charge"),
             amount: 1,
         },
@@ -147,7 +147,7 @@ fn duplicate_source_counter_costs_are_aggregated_before_an_activation_is_offered
 
 #[test]
 fn a_counter_only_mana_ability_is_offered_and_pays_its_counter_cost() {
-    static COSTS: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
+    static COSTS: [CostDef; 1] = [CostDef::RemoveCountersFromSource {
         kind: CounterKind::named("charge"),
         amount: 1,
     }];
@@ -203,9 +203,9 @@ fn a_counter_only_mana_ability_is_offered_and_pays_its_counter_cost() {
 
 #[test]
 fn source_counters_are_removed_before_a_source_sacrifice_cost_regardless_of_printed_order() {
-    static COSTS: [AbilityCostDef; 2] = [
-        AbilityCostDef::SacrificeSource,
-        AbilityCostDef::RemoveCountersFromSource {
+    static COSTS: [CostDef; 2] = [
+        CostDef::SacrificeSource,
+        CostDef::RemoveCountersFromSource {
             kind: CounterKind::named("charge"),
             amount: 1,
         },
@@ -271,13 +271,13 @@ fn source_counters_are_removed_before_a_source_sacrifice_cost_regardless_of_prin
 
 #[test]
 fn a_generic_source_sacrifice_waits_for_its_tap_and_counter_costs() {
-    static COSTS: [AbilityCostDef; 3] = [
-        AbilityCostDef::SacrificePermanent {
+    static COSTS: [CostDef; 3] = [
+        CostDef::SacrificePermanent {
             object: ObjectPredicateDef::Source,
             controller: PlayerRelation::You,
         },
-        AbilityCostDef::TapSource,
-        AbilityCostDef::RemoveCountersFromSource {
+        CostDef::TapSource,
+        CostDef::RemoveCountersFromSource {
             kind: CounterKind::named("charge"),
             amount: 1,
         },
@@ -342,9 +342,9 @@ fn a_generic_source_sacrifice_waits_for_its_tap_and_counter_costs() {
 
 #[test]
 fn separate_source_sacrifice_costs_require_separate_permanents() {
-    static COSTS: [AbilityCostDef; 2] = [
-        AbilityCostDef::SacrificeSource,
-        AbilityCostDef::SacrificePermanent {
+    static COSTS: [CostDef; 2] = [
+        CostDef::SacrificeSource,
+        CostDef::SacrificePermanent {
             object: ObjectPredicateDef::HasType(CardType::Artifact),
             controller: PlayerRelation::You,
         },
@@ -418,10 +418,7 @@ fn separate_source_sacrifice_costs_require_separate_permanents() {
 
 #[test]
 fn duplicate_source_sacrifice_costs_are_never_offered() {
-    static COSTS: [AbilityCostDef; 2] = [
-        AbilityCostDef::SacrificeSource,
-        AbilityCostDef::SacrificeSource,
-    ];
+    static COSTS: [CostDef; 2] = [CostDef::SacrificeSource, CostDef::SacrificeSource];
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "Sacrifice this artifact twice: You gain 1 life.",

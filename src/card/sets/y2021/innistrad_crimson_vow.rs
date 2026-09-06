@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor, ObjectChoiceBindingDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostDef, EffectDef,
+    EffectRecipientDef, ExilePlayDurationDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind,
     ZonePlacement, abilities, tokens,
@@ -53,9 +53,9 @@ pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
             "{3}{B}, {T}, Sacrifice this artifact: Return up to two target creature cards from \
              your graveyard to your hand.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{3}{B}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{3}{B}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             // One slot holding up to two, so a graveyard with a single
             // creature in it still activates.
@@ -94,7 +94,7 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
                                 abilities::defender(),
                                 AbilityDef::activated(
                                     "{2}{B}: Transform this creature. Activate only as a sorcery.",
-                                    &const { [AbilityCostDef::Mana(mana_cost!("{2}{B}"))] },
+                                    &const { [CostDef::Mana(mana_cost!("{2}{B}"))] },
                                     EffectDef::Transform {
                                         object: EffectRecipientDef::Source,
                                     },
@@ -241,10 +241,7 @@ pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "{2}{G}, Exile this card from your graveyard: You gain 5 life.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}{G}")),
-                AbilityCostDef::ExileSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}{G}")), CostDef::ExileSource],
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(5),
@@ -272,7 +269,7 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_
                                 abilities::haste(),
                                 AbilityDef::activated(
                                     "{5}{G}{G}: Transform this creature.",
-                                    &const { [AbilityCostDef::Mana(mana_cost!("{5}{G}{G}"))] },
+                                    &const { [CostDef::Mana(mana_cost!("{5}{G}{G}"))] },
                                     EffectDef::Transform {
                                         object: EffectRecipientDef::Source,
                                     },
@@ -354,7 +351,7 @@ pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::
             AbilityDef::activated_with_targets(
                 "{T}, Sacrifice this creature: Target creature gets -X/-X until end of turn, where X is \
                  twice the number of Blood tokens you control. Activate only as a sorcery.",
-                &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+                &[CostDef::TapSource, CostDef::SacrificeSource],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],

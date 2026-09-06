@@ -3,17 +3,17 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::PlayOptionDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AlternateSpellKind, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, BlockRestrictionDef,
-    BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardComposition,
-    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    CardTypeSet, ColorSet, ComparisonDef, ConditionDef, ControlDurationDef, CounterKind,
-    CreatureTypeSetDef, EffectDef, EffectRecipientDef, ExilePlayConditionDef, ExilePlayDurationDef,
-    KeywordAbility, ManaColor, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SpellForm, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AlternateSpellKind, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
+    BlockRestrictionSubjectDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules,
+    CardSet, CardStructure, CardSupertype, CardType, CardTypeSet, ColorSet, ComparisonDef,
+    ConditionDef, ControlDurationDef, CostDef, CounterKind, CreatureTypeSetDef, EffectDef,
+    EffectRecipientDef, ExilePlayConditionDef, ExilePlayDurationDef, KeywordAbility, ManaColor,
+    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, SpellForm,
+    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
@@ -305,9 +305,9 @@ pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{1}, {T}, Remove a wish counter from this artifact: Search your library for a card, put it into your hand, then shuffle. An opponent gains control of this artifact. Activate only during your turn.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("wish"),
                     amount: 1,
                 },
@@ -697,7 +697,7 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
         .with_abilities(&[
             AbilityDef::activated(
                 "+2: Create a Food token.",
-                &[AbilityCostDef::Loyalty(2)],
+                &[CostDef::Loyalty(2)],
                 EffectDef::create_token(tokens::food()).with_art(CardArt::new(
                     "4a029bdc-92e3-4d85-8af5-e33429a5f017",
                     "L J Koh",
@@ -706,7 +706,7 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
             AbilityDef::activated_with_targets(
                 "+1: Target artifact or creature loses all abilities and becomes a green Elk creature \
                  with base power and toughness 3/3.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::AnyOf(&[
@@ -741,7 +741,7 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
             AbilityDef::activated_with_targets(
                 "−5: Exchange control of target artifact or creature you control and target creature an \
                  opponent controls with power 3 or less.",
-                &[AbilityCostDef::Loyalty(-5)],
+                &[CostDef::Loyalty(-5)],
                 // The exchange names one of each: something of yours, and something small
                 // of theirs. An Elk the +1 just made is exactly the kind of thing the
                 // first slot is for.
@@ -790,7 +790,7 @@ pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
             abilities::haste(),
             AbilityDef::activated(
                 "{1}: This creature can't be blocked this turn except by creatures with haste.",
-                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     // A pairing restriction on the attacker: every prospective
@@ -810,9 +810,9 @@ pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{2}, {T}, Sacrifice this creature: You gain 3 life.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}")),
-                    AbilityCostDef::TapSource,
-                    AbilityCostDef::SacrificeSource,
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::TapSource,
+                    CostDef::SacrificeSource,
                 ],
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
@@ -1024,7 +1024,7 @@ pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecor
             AbilityDef::activated_with_targets(
                 "{T}: Choose target artifact card in your graveyard. You may cast that card this turn. \
                  (You still pay its costs. Timing rules still apply.)",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Artifact),
@@ -1114,7 +1114,7 @@ pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
         "{T}, Sacrifice this land: Search your library for a basic land card, put it onto the \
          battlefield tapped, then shuffle. Then if you control four or more lands, untap that \
          land.",
-        &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+        &[CostDef::TapSource, CostDef::SacrificeSource],
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,

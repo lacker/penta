@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CharacteristicOperationDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectPaymentCostDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CharacteristicOperationDef, CostDef, CounterKind, CreatureTypeSetDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef,
     PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
     SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -43,7 +43,7 @@ pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecor
             ),
             AbilityDef::activated_with_targets(
                 "{T}: You and target opponent each draw a card.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
                 )],
@@ -92,7 +92,7 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
                 EffectDef::PayOr(PayOrDef::optional(
                     EffectPaymentDef {
                         payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                        cost: EffectPaymentCostDef::GenericMana(ValueDef::Constant(3)),
+                        cost: CostDef::GenericMana(ValueDef::Constant(3)),
                     },
                     &const {
                         EffectDef::Tap {
@@ -170,10 +170,7 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{G}, Sacrifice this creature: Exile target noncreature artifact or noncreature \
              enchantment.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::SacrificeSource],
             // "Noncreature artifact or noncreature enchantment." The two types are
             // alternatives and the exclusion applies to both, so it sits outside the
             // choice rather than inside it -- which is what leaves a creature that
@@ -272,7 +269,7 @@ pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = Card
             ),
             AbilityDef::activated_mana(
                 "{T}: Add {C}{C}. This mana can't be spent to cast nonartifact spells.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 EffectDef::AddMana(
                     AddManaEffectDef::one(ManaColor::Colorless)
                         .with_amount(2)
@@ -371,10 +368,7 @@ pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::ne
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated(
             "{3}, {T}: Surveil 1.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
             abilities::surveil(ValueDef::Constant(1)),
         ),
     ]),

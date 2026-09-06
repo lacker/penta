@@ -279,10 +279,15 @@ pub(super) fn shared_mana_effect(effect: EffectDef, choices_are_supported: bool)
         ManaSelectionDef::One(ManaTypeDef::Fixed(_)) => true,
         ManaSelectionDef::One(ManaTypeDef::ChosenColor)
         | ManaSelectionDef::ColorsOfLinkedExiles => choices_are_supported,
-        // Both selections offer a choice of type; a combination divides the
-        // amount across those types instead of picking one, and the runtime
-        // enumerates every division for the same reason it enumerates every
-        // colour.
+        ManaSelectionDef::ChoiceOfBundles(bundles) => {
+            choices_are_supported
+                && !bundles.is_empty()
+                && bundles.iter().all(|bundle| bundle.total() > 0)
+                && mana.also.is_none()
+                && mana.variable_amount.is_none()
+                && mana.amount_override.is_none()
+        }
+        // A combination enumerates every division across the available types.
         ManaSelectionDef::Choice(types) | ManaSelectionDef::Combination(types) => {
             choices_are_supported
                 && match types.source {
@@ -301,7 +306,8 @@ pub(super) fn shared_mana_effect(effect: EffectDef, choices_are_supported: bool)
     // permanent as the ability is offered, exactly as the counted forms above
     // are, so a printed amount of zero is the whole amount only when no value
     // replaces it.
-    let amount_is_known = mana.amount > 0
+    let amount_is_known = matches!(mana.mana, ManaSelectionDef::ChoiceOfBundles(_))
+        || mana.amount > 0
         || matches!(
             mana.variable_amount,
             Some(
@@ -319,7 +325,8 @@ pub(super) fn shared_mana_effect(effect: EffectDef, choices_are_supported: bool)
             .all(|restriction| match restriction {
                 ManaRestrictionDef::CastSpell(object)
                 | ManaRestrictionDef::CannotCastSpell(object) => shared_object_predicate(object),
-                ManaRestrictionDef::CastCreatureSpellOfChosenType => true,
+                ManaRestrictionDef::CastCreatureSpellOfChosenType
+                | ManaRestrictionDef::CumulativeUpkeep => true,
                 ManaRestrictionDef::ActivateAbility(_) | ManaRestrictionDef::Special(_) => false,
             })
         && mana
@@ -558,23 +565,23 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     || definition.costs.iter().any(|cost| {
                         matches!(
                             cost,
-                            AbilityCostDef::TapSource
-                                | AbilityCostDef::ExertSource
-                                | AbilityCostDef::DiscardHand
-                                | AbilityCostDef::SacrificeSource
-                                | AbilityCostDef::ExileSource
+                            CostDef::TapSource
+                                | CostDef::ExertSource
+                                | CostDef::DiscardHand
+                                | CostDef::SacrificeSource
+                                | CostDef::ExileSource
                                 // Sacrificing another permanent bounds the
                                 // ability the same way spending the source
                                 // does.
-                                | AbilityCostDef::SacrificePermanent { .. }
-                                | AbilityCostDef::ExileCardFromHand(_)
+                                | CostDef::SacrificePermanent { .. }
+                                | CostDef::ExileCardFromHand(_)
                         )
                     })
             }
 
             let battlefield = battlefield_only(definition.source_zones);
             let hand = definition.source_zones == [ZoneKind::Hand]
-                && definition.costs.as_slice() == [AbilityCostDef::ExileSource]
+                && definition.costs.as_slice() == [CostDef::ExileSource]
                 && definition.activation_limit.is_none()
                 && definition.condition.is_none();
             let command = definition.source_zones == [ZoneKind::Command]
@@ -582,7 +589,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 && definition
                     .costs
                     .iter()
-                    .all(|cost| matches!(cost, AbilityCostDef::PayLife(_)))
+                    .all(|cost| matches!(cost, CostDef::PayLife(_)))
                 && definition.activation_limit.is_none()
                 && definition.condition.is_none();
 
@@ -595,39 +602,39 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     }
                     matches!(
                         cost,
-                        AbilityCostDef::TapSource
+                        CostDef::TapSource
                             // Exerting spends the source's next untap step,
                             // which the mana path pays where it pays the tap.
-                            | AbilityCostDef::ExertSource
+                            | CostDef::ExertSource
                             // Discarding a hand takes every card and asks
                             // nothing, which is what a mana ability needs of
                             // a cost: no window in which to choose.
-                            | AbilityCostDef::DiscardHand
-                            | AbilityCostDef::SacrificeSource
-                            | AbilityCostDef::ExileSource
-                            | AbilityCostDef::RemoveCountersFromSource { .. }
+                            | CostDef::DiscardHand
+                            | CostDef::SacrificeSource
+                            | CostDef::ExileSource
+                            | CostDef::RemoveCountersFromSource { .. }
                             // The mana path is the one place that enumerates
                             // an open-ended removal into one activation per
                             // size, so this is where it belongs.
-                            | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
+                            | CostDef::RemoveAnyNumberOfCountersFromSource(_)
                             // And the one place that enumerates a "sacrifice
                             // a <thing>" cost into one activation per
                             // candidate, for the same reason.
-                            | AbilityCostDef::SacrificePermanent { .. }
-                            | AbilityCostDef::ExileCardFromHand(_)
+                            | CostDef::SacrificePermanent { .. }
+                            | CostDef::ExileCardFromHand(_)
                             // A loyalty cost bounds the ability by the rule
                             // rather than by the board: one loyalty ability
                             // per planeswalker per turn, and the mana path
                             // asks that question where it pays.
-                            | AbilityCostDef::Loyalty(_)
-                            | AbilityCostDef::PayLife(_)
+                            | CostDef::Loyalty(_)
+                            | CostDef::PayLife(_)
                     ) || matches!(
                         cost,
                         // Mana is paid out of the pool, so the ability also
                         // has to be bounded some other way; flexible mana
                         // symbols and {X} would need a choice the activation
                         // cannot carry.
-                        AbilityCostDef::Mana(mana)
+                        CostDef::Mana(mana)
                             if !mana.variable_x
                                 && mana.hybrid_total() == 0
                                 && is_bounded(&definition)
@@ -639,7 +646,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     .filter(|cost| {
                         matches!(
                             cost,
-                            AbilityCostDef::SacrificeSource | AbilityCostDef::ExileSource
+                            CostDef::SacrificeSource | CostDef::ExileSource
                         )
                     })
                     .count()
@@ -666,7 +673,11 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                                 PlayerRefDef::EffectController
                                     | PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)
                             )
-                            && !matches!(mana.mana, ManaSelectionDef::ColorsOfLinkedExiles)
+                            && !matches!(
+                                mana.mana,
+                                ManaSelectionDef::ColorsOfLinkedExiles
+                                    | ManaSelectionDef::ChoiceOfBundles(_)
+                            )
                     }
                     // A triggered mana ability resolves without an offer to
                     // read an amount off, so this one stays outside.
@@ -675,6 +686,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ContinueReplacedDraw
                     | EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }
+                    | EffectDef::FlipCoin { .. }
                     | EffectDef::Choose(_)
                     | EffectDef::ChooseExact(_)
                     | EffectDef::ChooseCardsFromCollection(_)
@@ -695,6 +707,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::SelectAtRandomFromZone { .. }
                     | EffectDef::ForEachInBinding { .. }
                     | EffectDef::PayOr(_)
+                    | EffectDef::CumulativeUpkeep(_)
                     | EffectDef::PreventDamage { .. }
                     | EffectDef::May { .. }
                     | EffectDef::None
@@ -837,7 +850,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     && (!definition.costs.iter().any(|cost| {
                         matches!(
                             cost,
-                            AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
+                            CostDef::RemoveAnyNumberOfCountersFromSource(_)
                         )
                     }) || matches!(effect, EffectDef::AddMana(_)))
                     // Conservative rather than forced: activations now
@@ -916,7 +929,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             definition
                 .costs
                 .iter()
-                .all(|cost| matches!(cost, AbilityCostDef::ExileCardFromHand(_)))
+                .all(|cost| matches!(cost, CostDef::ExileCardFromHand(_)))
                 && definition.costs.len() <= 1
                 && shared_stack_effect(effect)
         }

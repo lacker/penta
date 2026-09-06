@@ -531,6 +531,7 @@ impl Game {
             EffectDef::None
                 | EffectDef::ContinueReplacedDraw
                 | EffectDef::Randomized { .. }
+                | EffectDef::FlipCoin { .. }
                 | EffectDef::Choose(_)
                 | EffectDef::ChooseCardsFromCollection(_)
                 | EffectDef::LookAtObjects(_)

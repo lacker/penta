@@ -21,10 +21,10 @@ mod tests {
         tap_for, trample, ward_aura_protection, EQUIP_TARGET, equip,
     };
     use crate::card::{
-        AbilityCostDef, AbilityCostList, AbilityDef, AbilityKindDef, AbilityPredicateDef,
+        CostDef, AbilityCostList, AbilityDef, AbilityKindDef, AbilityPredicateDef,
         AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
         AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
-        CollectionInspectionDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
+        CollectionInspectionDef, DeclarativeAbilityDef, EffectDef,
         EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectCollectionSourceDef,
         ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
         ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
@@ -34,7 +34,7 @@ mod tests {
     use crate::{ParentBinding, TargetIndex};
 
     static TEST_FIRST_STRIKE: AbilityDef = first_strike();
-    static TEST_SACRIFICE_SOURCE: [AbilityCostDef; 1] = [AbilityCostDef::SacrificeSource];
+    static TEST_SACRIFICE_SOURCE: [CostDef; 1] = [CostDef::SacrificeSource];
 
     #[test]
     fn reusable_ability_text_can_be_overridden_without_changing_semantics() {
@@ -64,7 +64,7 @@ mod tests {
             mana,
             AbilityDef::activated(
                 mana.text,
-                &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+                &[CostDef::Mana(mana_cost!("{R}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: crate::card::AppliedEffectDef::add_ability(&TEST_FIRST_STRIKE),
@@ -612,7 +612,7 @@ mod tests {
             assert!(matches!(
                 ability.definition,
                 DeclarativeAbilityDef::ActivatedMana(definition)
-                    if definition.costs.as_slice() == [AbilityCostDef::TapSource]
+                    if definition.costs.as_slice() == [CostDef::TapSource]
             ));
             assert_eq!(
                 ability.declarative_effect(),
@@ -653,7 +653,7 @@ mod tests {
                 if_declined: [_],
                 ..
             }) if payment.payer == PlayerSetDef::Related(PlayerRelation::You)
-                && payment.cost == EffectPaymentCostDef::Life(2)
+                && payment.cost == CostDef::PayLife(2)
         ));
 
         let check = check_land_enters(
@@ -801,16 +801,16 @@ mod tests {
         assert_eq!(
             definition.costs,
             AbilityCostList::borrowed(&[
-                AbilityCostDef::Mana(mana_cost!("{R}{G}")),
-                AbilityCostDef::DiscardSource,
+                CostDef::Mana(mana_cost!("{R}{G}")),
+                CostDef::DiscardSource,
             ]),
             "inline and borrowed cost storage should compare by their costs",
         );
         assert_eq!(
             definition.costs.as_slice(),
             [
-                AbilityCostDef::Mana(mana_cost!("{R}{G}")),
-                AbilityCostDef::DiscardSource,
+                CostDef::Mana(mana_cost!("{R}{G}")),
+                CostDef::DiscardSource,
             ],
         );
         assert_eq!(ability.declarative_effect(), Some(effect));
@@ -818,10 +818,10 @@ mod tests {
 
     #[test]
     fn equip_preserves_a_mixed_ordered_cost_list_and_shared_procedure() {
-        static COSTS: [AbilityCostDef; 3] = [
-            AbilityCostDef::Mana(mana_cost!("{2}")),
-            AbilityCostDef::TapSource,
-            AbilityCostDef::PayLife(1),
+        static COSTS: [CostDef; 3] = [
+            CostDef::Mana(mana_cost!("{2}")),
+            CostDef::TapSource,
+            CostDef::PayLife(1),
         ];
         let ability = equip(&COSTS, "{2}, {T}, Pay 1 life: Equip test creature.");
         let DeclarativeAbilityDef::Activated(definition) = ability.definition else {

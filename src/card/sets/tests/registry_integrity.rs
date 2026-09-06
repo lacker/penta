@@ -314,9 +314,9 @@ fn tutors_and_fetch_lands_use_declarative_zone_searches() {
         assert_eq!(
             activated.costs.as_slice(),
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::PayLife(1),
-                AbilityCostDef::SacrificeSource,
+                CostDef::TapSource,
+                CostDef::PayLife(1),
+                CostDef::SacrificeSource,
             ],
             "{} has the wrong activation cost",
             fetch.name
@@ -450,9 +450,9 @@ fn ring_uses_declarative_format_and_draw_replacement_constructs() {
     assert_eq!(
         activated.costs.as_slice(),
         &[
-            AbilityCostDef::Mana(crate::mana_cost!("{5}")),
-            AbilityCostDef::TapSource,
-            AbilityCostDef::ExileSource,
+            CostDef::Mana(crate::mana_cost!("{5}")),
+            CostDef::TapSource,
+            CostDef::ExileSource,
         ]
     );
     let Some(EffectDef::ReplaceNextDrawThisTurn { player, effect }) = ability.declarative_effect()

@@ -2,23 +2,20 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    CopyStackObjectDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CopyStackObjectDef,
+    CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, SpellResolutionDestinationDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
 /// Conspire is one optional creature-tapping cast cost plus the cast trigger
 /// that copies the spell when that cost was paid. Each card supplies the
 /// creature predicate that shares one of its colors.
-const fn conspire(
-    spell: &'static AbilityDef,
-    additional_cost: SpellAdditionalCostDef,
-) -> [AbilityDef; 3] {
+const fn conspire(spell: &'static AbilityDef, additional_cost: CostDef) -> [AbilityDef; 3] {
     [
         *spell,
         AbilityDef::optional_additional_cost(
@@ -151,7 +148,7 @@ pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
                 amount: ValueDef::Constant(3),
             },
         ),
-        SpellAdditionalCostDef::Tap {
+        CostDef::Tap {
             object: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::Color(ManaColor::Red),
@@ -173,7 +170,7 @@ pub(in crate::card::sets) static MOSSBRIDGE_TROLL: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "Tap any number of untapped creatures you control other than this creature with total power 10 or greater: This creature gets +20/+20 until end of turn.",
-            &[AbilityCostDef::TapCreaturesWithTotalPower { minimum: 10 }],
+            &[CostDef::TapCreaturesWithTotalPower { minimum: 10 }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -265,7 +262,7 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        SpellAdditionalCostDef::Tap {
+        CostDef::Tap {
             object: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::AnyOf(&[

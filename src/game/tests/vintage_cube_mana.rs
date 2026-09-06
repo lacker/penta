@@ -326,7 +326,7 @@ fn mana_confluence_life_costs_are_aggregated_for_ordinary_autopayment() {
 
 #[test]
 fn ordinary_autopayment_cannot_sacrifice_one_shared_cost_object_twice() {
-    static SACRIFICE_A_CREATURE: [AbilityCostDef; 1] = [AbilityCostDef::SacrificePermanent {
+    static SACRIFICE_A_CREATURE: [CostDef; 1] = [CostDef::SacrificePermanent {
         object: ObjectPredicateDef::HasType(CardType::Creature),
         controller: PlayerRelation::You,
     }];

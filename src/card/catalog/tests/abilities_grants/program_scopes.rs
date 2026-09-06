@@ -867,7 +867,7 @@ fn executable_legacy_procedures_are_rejected() {
 
 #[test]
 fn explicitly_tagged_mana_abilities_cannot_declare_targets() {
-    static COSTS: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
+    static COSTS: [CostDef; 1] = [CostDef::TapSource];
     static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
         AbilityTargetPredicate::Player(PlayerRelation::Any),
     )];

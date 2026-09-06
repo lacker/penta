@@ -5,9 +5,9 @@ use crate::card::sets::y2011::mirrodin_besieged as catalog_mbs;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardType, DamageEventMatcherDef, DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, CostDef,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef,
     DividedTotal, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
     ScaledValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
@@ -27,7 +27,7 @@ pub(in crate::card::sets) static ANGELFIRE_CRUSADER: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier", "Knight"], 2, 3)
         .with_ability(AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -61,10 +61,7 @@ pub(in crate::card::sets) static DEGA_DISCIPLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Wizard"], 1, 1).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{B}, {T}: Target creature gets -2/-0 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{B}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{B}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -79,10 +76,7 @@ pub(in crate::card::sets) static DEGA_DISCIPLE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_with_targets(
             "{R}, {T}: Target creature gets +2/+0 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -129,7 +123,7 @@ pub(in crate::card::sets) static DIVERSIONARY_TACTICS: CardRecord = CardRecord::
     CardRules::new_enchantment(mana_cost!("{3}{W}")).with_ability(
         AbilityDef::activated_with_targets(
             "Tap two untapped creatures you control: Tap target creature.",
-            &[AbilityCostDef::TapPermanents {
+            &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
                 count: 2,
@@ -219,10 +213,7 @@ pub(in crate::card::sets) static HELIONAUT: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated_mana(
             "{1}, {T}: Add one mana of any color.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
@@ -249,7 +240,7 @@ pub(in crate::card::sets) static MANACLES_OF_DECAY: CardRecord = CardRecord::new
             ),
             AbilityDef::activated(
                 "{B}: Enchanted creature gets -1/-1 until end of turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+                &[CostDef::Mana(mana_cost!("{B}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -261,7 +252,7 @@ pub(in crate::card::sets) static MANACLES_OF_DECAY: CardRecord = CardRecord::new
             ),
             AbilityDef::activated(
                 "{R}: Enchanted creature can't block this turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+                &[CostDef::Mana(mana_cost!("{R}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
@@ -325,7 +316,7 @@ pub(in crate::card::sets) static SPECTRAL_LYNX: CardRecord = CardRecord::new(
         abilities::protection_from_color(ManaColor::Green),
         abilities::regenerate_self(
             "{B}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
         ),
     ]),
 );
@@ -351,10 +342,7 @@ pub(in crate::card::sets) static CETA_DISCIPLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{U}"), &["Merfolk", "Wizard"], 1, 1).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{R}, {T}: Target creature gets +2/+0 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -369,10 +357,7 @@ pub(in crate::card::sets) static CETA_DISCIPLE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{G}, {T}: Add one mana of any color.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
@@ -410,10 +395,7 @@ pub(in crate::card::sets) static COASTAL_DRAKE: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated_with_targets(
             "{1}{U}, {T}: Return target Kavu to its owner's hand.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}{U}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Subtype("Kavu"),
             )],
@@ -494,7 +476,7 @@ pub(in crate::card::sets) static LIVING_AIRSHIP: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::regenerate_self(
             "{2}{G}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}{G}"))],
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
         ),
     ]),
 );
@@ -627,7 +609,7 @@ pub(in crate::card::sets) static GRAVE_DEFILER: CardRecord = CardRecord::new(
         ),
         abilities::regenerate_self(
             "{1}{B}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{B}"))],
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
         ),
     ]),
 );
@@ -683,10 +665,7 @@ pub(in crate::card::sets) static MOURNFUL_ZOMBIE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 2, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{W}, {T}: Target player gains 1 life.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
@@ -709,18 +688,12 @@ pub(in crate::card::sets) static NECRA_DISCIPLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{B}"), &["Human", "Wizard"], 1, 1).with_abilities(&[
         AbilityDef::activated_mana(
             "{G}, {T}: Add one mana of any color.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
         AbilityDef::activated_with_targets(
             "{W}, {T}: Prevent the next 1 damage that would be dealt to any target this turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -829,9 +802,9 @@ pub(in crate::card::sets) static QUAGMIRE_DRUID: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{G}, {T}, Sacrifice a creature: Destroy target enchantment.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{G}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     controller: PlayerRelation::You,
                 },
@@ -914,10 +887,7 @@ pub(in crate::card::sets) static BLOODFIRE_COLOSSUS: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{6}{R}{R}"), &["Giant"], 6, 6).with_ability(
         AbilityDef::activated(
             "{R}, Sacrifice this creature: It deals 6 damage to each creature and each player.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}")), CostDef::SacrificeSource],
             EffectDef::Sequence(&[
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::matching_objects(
@@ -947,10 +917,7 @@ pub(in crate::card::sets) static BLOODFIRE_DWARF: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{R}"), &["Dwarf"], 1, 1).with_ability(
         AbilityDef::activated(
             "{R}, Sacrifice this creature: It deals 1 damage to each creature without flying.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}")), CostDef::SacrificeSource],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
@@ -989,10 +956,7 @@ pub(in crate::card::sets) static BLOODFIRE_KAVU: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Kavu"], 2, 2).with_ability(
         AbilityDef::activated(
             "{R}, Sacrifice this creature: It deals 2 damage to each creature.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}")), CostDef::SacrificeSource],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -1099,7 +1063,7 @@ pub(in crate::card::sets) static KAVU_GLIDER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Kavu"], 2, 1).with_abilities(&[
         AbilityDef::activated(
             "{W}: This creature gets +0/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            &[CostDef::Mana(mana_cost!("{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1181,10 +1145,7 @@ pub(in crate::card::sets) static RAKA_DISCIPLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{R}"), &["Minotaur", "Wizard"], 1, 1).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{W}, {T}: Prevent the next 1 damage that would be dealt to any target this turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -1198,10 +1159,7 @@ pub(in crate::card::sets) static RAKA_DISCIPLE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_with_targets(
             "{U}, {T}: Target creature gains flying until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{U}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1301,10 +1259,7 @@ pub(in crate::card::sets) static ANA_DISCIPLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{G}"), &["Human", "Wizard"], 1, 1).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{U}, {T}: Target creature gains flying until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{U}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1316,10 +1271,7 @@ pub(in crate::card::sets) static ANA_DISCIPLE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_with_targets(
             "{B}, {T}: Target creature gets -2/-0 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{B}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{B}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1402,7 +1354,7 @@ pub(in crate::card::sets) static ANAVOLVER: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::add_ability(&abilities::regenerate_self(
                         "Pay 3 life: Regenerate this creature.",
-                        &[AbilityCostDef::PayLife(3)],
+                        &[CostDef::PayLife(3)],
                     )),
                 },
             },
@@ -1939,7 +1891,7 @@ pub(in crate::card::sets) static RAZORFIN_HUNTER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{U}{R}"), &["Merfolk", "Goblin"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: This creature deals 1 damage to any target.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],

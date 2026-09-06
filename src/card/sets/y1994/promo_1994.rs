@@ -4,11 +4,10 @@
 
 use crate::TargetIndex;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardType, ComparisonDef, CostDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ObjectPredicateDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -23,8 +22,8 @@ pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_ability(AbilityDef::activated_with_targets(
         "{3}, {T}: Tap target creature you control and target creature of an opponent's choice they control. Those creatures fight each other.",
         &[
-            AbilityCostDef::Mana(mana_cost!("{3}")),
-            AbilityCostDef::TapSource,
+            CostDef::Mana(mana_cost!("{3}")),
+            CostDef::TapSource,
         ],
         &[
             AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
@@ -78,7 +77,7 @@ pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new_w
         abilities::banding(),
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             // The pump is the whole ability: the fourth activation in a turn installs the
             // delayed sacrifice, the way Dragon Whelp's does.
             EffectDef::Sequence(&[

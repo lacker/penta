@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
-    CopyExceptionsDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CopyExceptionsDef, CostDef,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef,
+    PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -46,10 +46,7 @@ pub(in crate::card::sets) static HARVESTER_OF_MISERY: CardRecord = CardRecord::n
         ),
         AbilityDef::activated_with_targets(
             "{1}{B}, Discard this card: Target creature gets -2/-2 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}{B}")),
-                AbilityCostDef::DiscardSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}{B}")), CostDef::DiscardSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -90,9 +87,9 @@ pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new_w
             "{2}, {T}, Sacrifice another artifact: Create a 3/3 colorless Golem artifact creature \
              token.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     // Another one: the Extruder is an artifact itself and may not eat itself,
                     // which is what stops a two-mana artifact from being a Golem on its own.
                     object: ObjectPredicateDef::All(&[
@@ -128,8 +125,8 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
                 "Exhaust — {G}, {T}: Add three mana of any one color. (Activate each exhaust ability \
                  only once.)",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{G}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{G}")),
+                    CostDef::TapSource,
                 ],
                 EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
             )
@@ -137,8 +134,8 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
             AbilityDef::activated(
                 "Exhaust — {U}, {T}: Draw three cards.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{U}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{U}")),
+                    CostDef::TapSource,
                 ],
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -149,8 +146,8 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
             AbilityDef::activated_with_targets(
                 "Exhaust — {R}, {T}: This creature deals 3 damage to any target.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{R}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{R}")),
+                    CostDef::TapSource,
                 ],
                 &ANY_TARGET,
                 EffectDef::DealDamage {

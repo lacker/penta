@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
-    CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
-    ColorSet, ComparisonDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
+    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet,
+    ComparisonDef, CostDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
     ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellCastQueryDef, TokenCharacteristics,
     TriggerConditionDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -41,8 +41,8 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
             AbilityDef::activated(
                 "{1}{W}, {T}: You may put an Equipment card from your hand onto the battlefield.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{1}{W}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{1}{W}")),
+                    CostDef::TapSource,
                 ],
                 // The second half of the card, and the reason the first half is worth
                 // finding: a minimum of zero is the printed "you may", and with no
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
                 AbilityDef::activated_with_targets(
                     "+2: Look at the top card of target player's library. You may put that card on the \
                      bottom of that player's library.",
-                    &[AbilityCostDef::Loyalty(2)],
+                    &[CostDef::Loyalty(2)],
                     &A_PLAYER,
                     abilities::fateseal(
                         PlayerRefDef::Target(TargetIndex::PRIMARY),
@@ -93,12 +93,12 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
                 AbilityDef::activated(
                     "0: Draw three cards, then put two cards from your hand on top of your library in any \
                      order.",
-                    &[AbilityCostDef::Loyalty(0)],
+                    &[CostDef::Loyalty(0)],
                     abilities::brainstorm(),
                 ),
                 AbilityDef::activated_with_targets(
                     "−1: Return target creature to its owner's hand.",
-                    &[AbilityCostDef::Loyalty(-1)],
+                    &[CostDef::Loyalty(-1)],
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::HasType(CardType::Creature),
                     )],
@@ -111,7 +111,7 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
                 AbilityDef::activated_with_targets(
                     "−12: Exile all cards from target player's library, then that player shuffles their hand \
                      into their library.",
-                    &[AbilityCostDef::Loyalty(-12)],
+                    &[CostDef::Loyalty(-12)],
                     &A_PLAYER,
                     EffectDef::Sequence(&[
                         EffectDef::MoveToZone {
@@ -249,7 +249,7 @@ pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::n
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C} for each charge counter on this artifact.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(
                 AddManaEffectDef::one(ManaColor::Colorless)
                     .with_variable_amount(ValueDef::CountersOnSource(CounterKind::named("charge"))),
@@ -270,7 +270,7 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::White,
                 ManaColor::Blue,
@@ -279,7 +279,7 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
         AbilityDef::activated(
             "{3}{W}{U}: Until end of turn, this land becomes a 4/4 white and blue Elemental \
              creature with flying and vigilance. It's still a land.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}{W}{U}"))],
+            &[CostDef::Mana(mana_cost!("{3}{W}{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 // "It's still a land" is the type being added rather than set: everything
@@ -314,12 +314,12 @@ pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Black])),
         ),
         AbilityDef::activated(
             "{1}{U}{B}: Until end of turn, this land becomes a 3/2 blue and black Elemental creature. It's still a land. It can't be blocked this turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{U}{B}"))],
+            &[CostDef::Mana(mana_cost!("{1}{U}{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&[
@@ -346,12 +346,12 @@ pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this land: Target attacking creature without flying gets -1/-2 until end of turn.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),

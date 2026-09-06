@@ -3,13 +3,13 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, ComparisonDef, CounterKind, DamageEventMatcherDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DamageEventMatcherDef,
     DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -97,7 +97,7 @@ pub(in crate::card::sets) static FANATICAL_DEVOTION: CardRecord = CardRecord::ne
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice a creature: Regenerate target creature.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
             }],
@@ -243,7 +243,7 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_wit
         ),
         AbilityDef::activated_with_targets(
             "Remove a fade counter from this enchantment: Exile target creature.",
-            &[AbilityCostDef::RemoveCountersFromSource {
+            &[CostDef::RemoveCountersFromSource {
                 kind: CounterKind::named("fade"),
                 amount: 1,
             }],
@@ -288,7 +288,7 @@ pub(in crate::card::sets) static SEAL_OF_CLEANSING: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice this enchantment: Destroy target artifact or enchantment.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -457,7 +457,7 @@ pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_
         )
         // One Island back to hand, which is what makes the card free on turn one and
         // a real cost on turn six.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::return_to_hand(
+        .with_alternative_additional_cost(&CostDef::return_to_hand(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
             CostQuantityDef::Fixed(1),
         )),
@@ -1038,7 +1038,7 @@ pub(in crate::card::sets) static FLOWSTONE_CRUSHER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Beast"], 4, 4).with_ability(
         AbilityDef::activated(
             "{R}: This creature gets +1/-1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1262,7 +1262,7 @@ pub(in crate::card::sets) static SEAL_OF_FIRE: CardRecord = CardRecord::new_with
     CardSet::Nemesis,
     CardRules::new_enchantment(mana_cost!("{R}")).with_ability(AbilityDef::activated_with_targets(
         "Sacrifice this enchantment: It deals 2 damage to any target.",
-        &[AbilityCostDef::SacrificeSource],
+        &[CostDef::SacrificeSource],
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
@@ -1486,7 +1486,7 @@ pub(in crate::card::sets) static SEAL_OF_STRENGTH: CardRecord = CardRecord::new(
     // and the pump costs nothing on the turn it matters.
     CardRules::new_enchantment(mana_cost!("{G}")).with_ability(AbilityDef::activated_with_targets(
         "Sacrifice this enchantment: Target creature gets +3/+3 until end of turn.",
-        &[AbilityCostDef::SacrificeSource],
+        &[CostDef::SacrificeSource],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
@@ -1675,7 +1675,7 @@ pub(in crate::card::sets) static FLOWSTONE_THOPTER: CardRecord = CardRecord::new
     CardRules::new_artifact_creature(mana_cost!("{7}"), &["Thopter"], 4, 4).with_ability(
         AbilityDef::activated(
             "{1}: This creature gets +1/-1 and gains flying until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&[
@@ -1787,8 +1787,8 @@ pub(in crate::card::sets) static KOR_HAVEN: CardRecord = CardRecord::new_with_le
             AbilityDef::activated_with_targets(
                 "{1}{W}, {T}: Prevent all combat damage that would be dealt by target attacking creature this turn.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{1}{W}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{1}{W}")),
+                    CostDef::TapSource,
                 ],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[

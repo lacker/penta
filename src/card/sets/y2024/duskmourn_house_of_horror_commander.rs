@@ -2,11 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardType, CounterKind,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    ResolvedEffectDurationDef, TokenCountersDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    CardArt, CardChoiceSourceDef, CardRules, CardSet, CardType, CostDef, CounterKind, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
+    TokenCountersDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -148,7 +147,7 @@ pub(in crate::card::sets) static DIMIR_AQUEDUCT: CardRecord = CardRecord::new(
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {U}{B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Blue,
                 ManaColor::Black,
@@ -169,7 +168,7 @@ pub(in crate::card::sets) static GOLGARI_ROT_FARM: CardRecord = CardRecord::new(
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {B}{G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Black,
                 ManaColor::Green,

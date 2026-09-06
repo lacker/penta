@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, BasicLandType, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor,
+    ManaTypeSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -64,7 +64,7 @@ pub(in crate::card::sets) static NOBLE_HIERARCH: CardRecord = CardRecord::new(
         abilities::exalted(),
         AbilityDef::activated_mana(
             "{T}: Add {G}, {W}, or {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Green,
                 ManaColor::White,
@@ -107,8 +107,8 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecor
                 "{T}, Sacrifice a Forest or Plains: Search your library for a land card, put it onto the \
                  battlefield, then shuffle.",
                 &[
-                    AbilityCostDef::TapSource,
-                    AbilityCostDef::SacrificePermanent {
+                    CostDef::TapSource,
+                    CostDef::SacrificePermanent {
                         // A Forest or a Plains by basic land type rather than by name, so a dual
                         // with either type pays for her too.
                         object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest, BasicLandType::Plains]),
@@ -144,7 +144,7 @@ pub(in crate::card::sets) static EXOTIC_ORCHARD: CardRecord = CardRecord::new(
     CardSet::Conflux,
     CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
         "{T}: Add one mana of any color that a land an opponent controls could produce.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice_from(
             ManaTypeSetDef::could_be_produced_by(ObjectSetDef::Query(ObjectQueryDef::matching(
                 ObjectPredicateDef::HasType(CardType::Land),

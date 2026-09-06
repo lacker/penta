@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AggregateOperationDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChangeStackTargetsDef, CopyStackObjectDef, CounterKind, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ChangeStackTargetsDef,
+    CopyStackObjectDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, StackTargetChangeDef,
     TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
@@ -334,7 +334,7 @@ pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
                 // gains one apiece and a single large one gains everything it has.
                 AbilityDef::activated(
                     "{3}{G}{G}: Double the number of +1/+1 counters on each creature you control.",
-                    &[AbilityCostDef::Mana(mana_cost!("{3}{G}{G}"))],
+                    &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
                     EffectDef::DoubleCounters {
                         object: EffectRecipientDef::matching_objects(
                             ObjectPredicateDef::HasType(CardType::Creature),
@@ -418,10 +418,7 @@ pub(in crate::card::sets) static VORACIOUS_VARMINT: CardRecord = CardRecord::new
         abilities::vigilance(),
         AbilityDef::activated_with_targets(
             "{1}, Sacrifice this creature: Destroy target artifact or enchantment.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -507,7 +504,7 @@ pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_wi
                     ]),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -523,7 +520,7 @@ pub(in crate::card::sets) static ABRADED_BLUFFS: CardRecord = CardRecord::new(
         abilities::desert_entry_ping(),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Red,
                 ManaColor::White,
@@ -545,7 +542,7 @@ pub(in crate::card::sets) static BRISTLING_BACKWOODS: CardRecord = CardRecord::n
         abilities::desert_entry_ping(),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Red,
                 ManaColor::Green,
@@ -570,15 +567,12 @@ pub(in crate::card::sets) static CONDUIT_PYLONS: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::activated_mana(
             "{1}, {T}: Add one mana of any color.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
@@ -596,7 +590,7 @@ pub(in crate::card::sets) static ERODED_CANYON: CardRecord = CardRecord::new(
         abilities::desert_entry_ping(),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
         ),
     ]),

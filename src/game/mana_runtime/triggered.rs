@@ -24,7 +24,9 @@ impl Game {
                     ManaSelectionDef::Choice(types) | ManaSelectionDef::Combination(types) => {
                         types
                     }
-                    ManaSelectionDef::One(_) | ManaSelectionDef::ColorsOfLinkedExiles => return,
+                    ManaSelectionDef::One(_)
+                    | ManaSelectionDef::ColorsOfLinkedExiles
+                    | ManaSelectionDef::ChoiceOfBundles(_) => return,
                 };
                 let domain = match types.source {
                     ManaTypeSourceDef::Fixed(colors) => colors,
@@ -74,7 +76,7 @@ impl Game {
     ) -> Vec<ManaAbilityActivation> {
         if !activations
             .iter()
-            .any(|activation| activation.costs.contains(&AbilityCostDef::TapSource))
+            .any(|activation| activation.costs.contains(&CostDef::TapSource))
         {
             return activations;
         }
@@ -112,7 +114,7 @@ impl Game {
         activations
             .into_iter()
             .flat_map(|activation| {
-                if !activation.costs.contains(&AbilityCostDef::TapSource) {
+                if !activation.costs.contains(&CostDef::TapSource) {
                     return vec![activation];
                 }
                 let mut produced = Self::mana_for_activation(&activation)

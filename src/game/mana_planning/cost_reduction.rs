@@ -497,7 +497,7 @@ impl Game {
             .as_slice()
             .iter()
             .find_map(|cost| match cost {
-                AbilityCostDef::Mana(cost) => Some(*cost),
+                CostDef::Mana(cost) => Some(*cost),
                 _ => None,
             })
             .map(|cost| self.activation_mana_cost(definition, source, cost))

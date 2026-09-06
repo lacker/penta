@@ -5,15 +5,14 @@ use crate::card::sets::y1993::arabian_nights as catalog_arn;
 use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardNameDef,
-    CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
+    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardNameDef, CardRules, CardSet,
+    CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
+    ComparisonDef, CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -62,7 +61,7 @@ pub(in crate::card::sets) static BATTLE_SCREECH: CardRecord = CardRecord::new(
         )
         // Untapped and yours are what tapping as a cost already asks for, so
         // the predicate only has to add the colour.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::tap(
+        .with_alternative_additional_cost(&CostDef::tap(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::Color(ManaColor::White),
@@ -449,7 +448,7 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
         // X blue cards from your own graveyard, exiled to pay. The count is the same
         // X the spell is cast for, which is what makes the flashback expensive
         // exactly when it is worth casting big.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+        .with_alternative_additional_cost(&CostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Graveyard,
             CostQuantityDef::ChosenX,
@@ -711,7 +710,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
             Some("Flashback—Sacrifice a creature."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+        .with_alternative_additional_cost(&CostDef::sacrifice(
             ObjectPredicateDef::HasType(CardType::Creature),
             CostQuantityDef::Fixed(1),
         )),
@@ -1552,7 +1551,7 @@ pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{G}"), &["Human", "Wizard"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice a land: Target creature you control gains shroud until end of turn.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Land),
                 controller: PlayerRelation::You,
             }],
@@ -1583,10 +1582,7 @@ pub(in crate::card::sets) static THRISS_NANTUKO_PRIMUS: CardRecord = CardRecord:
         .with_supertype(CardSupertype::Legendary)
         .with_ability(AbilityDef::activated_with_targets(
             "{G}, {T}: Target creature gets +5/+5 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1612,7 +1608,7 @@ pub(in crate::card::sets) static TUNNELER_WURM: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Wurm"], 6, 6).with_ability(
         abilities::regenerate_self(
             "Discard a card: Regenerate this creature.",
-            &[AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
         ),
     ),
 );
@@ -1705,7 +1701,7 @@ pub(in crate::card::sets) static RIFTSTONE_PORTAL: CardRecord = CardRecord::new(
                 ),
                 effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
                     "{T}: Add {G} or {W}.",
-                    &[AbilityCostDef::TapSource],
+                    &[CostDef::TapSource],
                     EffectDef::AddMana(AddManaEffectDef::choice(&[
                         ManaColor::Green,
                         ManaColor::White,

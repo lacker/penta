@@ -3,13 +3,18 @@
 impl Game {
     fn spell_additional_cost_payment_options(
         &self,
-        cost: SpellAdditionalCostDef,
+        cost: CostDef,
         card: &CardInstance,
         player: PlayerId,
         scale: CastScale,
     ) -> Vec<SpellAdditionalCostPayment> {
         match cost {
-            SpellAdditionalCostDef::PayMana { cost, quantity } => {
+            CostDef::Mana(cost) => vec![SpellAdditionalCostPayment {
+                objects: Vec::new(),
+                mana: cost,
+                life: 0,
+            }],
+            CostDef::ManaTimes { cost, quantity } => {
                 let repetitions = scale
                     .quantity(quantity)
                     .expect("object thresholds cannot quantify a mana payment");
@@ -21,7 +26,17 @@ impl Game {
                     life: 0,
                 }]
             }
-            SpellAdditionalCostDef::PayLife(quantity) => {
+            CostDef::PayLife(amount) => {
+                (i64::from(amount) <= i64::from(self.players[player.index()].life))
+                    .then_some(SpellAdditionalCostPayment {
+                        objects: Vec::new(),
+                        mana: ManaCost::default(),
+                        life: amount,
+                    })
+                    .into_iter()
+                    .collect()
+            }
+            CostDef::PayLifeTimes(quantity) => {
                 let amount = scale
                     .quantity(quantity)
                     .expect("object thresholds cannot quantify a life payment");
@@ -34,14 +49,14 @@ impl Game {
                     .into_iter()
                     .collect()
             }
-            SpellAdditionalCostDef::Forage => {
+            CostDef::Forage => {
                 let forage = [
-                    SpellAdditionalCostDef::exile(
+                    CostDef::exile(
                         crate::card::ObjectPredicateDef::Any,
                         ZoneKind::Graveyard,
                         crate::card::CostQuantityDef::Fixed(3),
                     ),
-                    SpellAdditionalCostDef::sacrifice(
+                    CostDef::sacrifice(
                         crate::card::ObjectPredicateDef::Subtype("Food"),
                         crate::card::CostQuantityDef::Fixed(1),
                     ),
@@ -53,13 +68,13 @@ impl Game {
                     })
                     .collect()
             }
-            SpellAdditionalCostDef::Choice(costs) => costs
+            CostDef::Choice(costs) => costs
                 .iter()
                 .flat_map(|cost| {
                     self.spell_additional_cost_payment_options(*cost, card, player, scale)
                 })
                 .collect(),
-            SpellAdditionalCostDef::All(costs) => {
+            CostDef::All(costs) => {
                 let mut combined = vec![SpellAdditionalCostPayment::free()];
                 for cost in costs {
                     let ways =
@@ -78,19 +93,20 @@ impl Game {
                 }
                 combined
             }
-            SpellAdditionalCostDef::Sacrifice { quantity, .. }
-            | SpellAdditionalCostDef::Discard { quantity, .. }
-            | SpellAdditionalCostDef::Exile { quantity, .. }
-            | SpellAdditionalCostDef::ReturnToHand { quantity, .. }
-            | SpellAdditionalCostDef::Tap { quantity, .. } => {
+            CostDef::Sacrifice { quantity, .. }
+            | CostDef::Discard { quantity, .. }
+            | CostDef::Exile { quantity, .. }
+            | CostDef::ReturnToHand { quantity, .. }
+            | CostDef::Tap { quantity, .. } => {
                 self.spell_object_additional_cost_payments(cost, quantity, card, player, scale)
             }
+            _ => Vec::new(),
         }
     }
 
     fn repeated_spell_additional_cost_payment_options(
         &self,
-        cost: SpellAdditionalCostDef,
+        cost: CostDef,
         repetitions: u16,
         card: &CardInstance,
         player: PlayerId,
@@ -99,7 +115,7 @@ impl Game {
         if repetitions == 0 {
             return vec![SpellAdditionalCostPayment::free()];
         }
-        if let SpellAdditionalCostDef::PayMana { cost, quantity } = cost {
+        if let CostDef::ManaTimes { cost, quantity } = cost {
             let total_repetitions = scale
                 .quantity(quantity)
                 .expect("object thresholds cannot quantify a mana payment")
@@ -112,7 +128,16 @@ impl Game {
                 life: 0,
             }];
         }
-        if let SpellAdditionalCostDef::PayLife(quantity) = cost {
+        if let CostDef::Mana(cost) = cost {
+            let repeated = (0..repetitions)
+                .fold(ManaCost::default(), |total, _| add_mana_cost(total, cost));
+            return vec![SpellAdditionalCostPayment {
+                objects: Vec::new(),
+                mana: repeated,
+                life: 0,
+            }];
+        }
+        if let CostDef::PayLifeTimes(quantity) = cost {
             let amount = scale
                 .quantity(quantity)
                 .expect("object thresholds cannot quantify a life payment")
@@ -126,12 +151,23 @@ impl Game {
                 .into_iter()
                 .collect();
         }
+        if let CostDef::PayLife(amount) = cost {
+            let amount = amount.saturating_mul(repetitions);
+            return (i64::from(amount) <= i64::from(self.players[player.index()].life))
+                .then_some(SpellAdditionalCostPayment {
+                    objects: Vec::new(),
+                    mana: ManaCost::default(),
+                    life: amount,
+                })
+                .into_iter()
+                .collect();
+        }
         let scalar_quantity = match cost {
-            SpellAdditionalCostDef::Sacrifice { quantity, .. }
-            | SpellAdditionalCostDef::Discard { quantity, .. }
-            | SpellAdditionalCostDef::Exile { quantity, .. }
-            | SpellAdditionalCostDef::ReturnToHand { quantity, .. }
-            | SpellAdditionalCostDef::Tap { quantity, .. } => scale.quantity(quantity),
+            CostDef::Sacrifice { quantity, .. }
+            | CostDef::Discard { quantity, .. }
+            | CostDef::Exile { quantity, .. }
+            | CostDef::ReturnToHand { quantity, .. }
+            | CostDef::Tap { quantity, .. } => scale.quantity(quantity),
             _ => None,
         };
         if let Some(quantity) = scalar_quantity {

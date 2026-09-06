@@ -1,13 +1,13 @@
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AppliedEffectDef,
-    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BlockRestrictionDef,
-    BlockRestrictionMatchDef, CardNameDef, CardNameSetDef, CardType, CharacteristicOperationDef,
-    CostAdjustmentDef, CostAmountDef, CostModificationDef, DamageEventMatcherDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
-    SetOperationDef, SpellCostConditionDef, TriggerConditionDef, ValueDef, ZoneKind,
+    AbilityDef, AbilityOperationDef, AbilityProcedureDef, AppliedEffectDef, AppliedRuleDef,
+    AttackDefenderScopeDef, AttackRestrictionDef, BlockRestrictionDef, BlockRestrictionMatchDef,
+    CardNameDef, CardNameSetDef, CardType, CharacteristicOperationDef, CostAdjustmentDef,
+    CostAmountDef, CostDef, CostModificationDef, DamageEventMatcherDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
+    EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef, SetOperationDef,
+    SpellCostConditionDef, TriggerConditionDef, ValueDef, ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -374,6 +374,13 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
         AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(permission)) => {
             static_object_predicate_supported(permission.object)
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(matcher)) => {
+            static_damage_matcher_supported(matcher)
+                && matches!(
+                    matcher.recipient,
+                    DamageRecipientMatcherDef::Any | DamageRecipientMatcherDef::AffectedObject
+                )
+        }
         // Both predicates are read against an object the trigger walk
         // already has in hand: what arrived, and what carries the ability.
         AppliedEffectDef::Rule(AppliedRuleDef::TriggersAnAdditionalTime(doubling)) => {
@@ -694,9 +701,9 @@ fn validate_resolving_effect(
                 || definition.condition.is_some()
                 || definition.costs.as_slice().iter().any(|cost| {
                     if mana {
-                        !matches!(cost, AbilityCostDef::PayLife(_))
+                        !matches!(cost, CostDef::PayLife(_))
                     } else {
-                        !matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x)
+                        !matches!(cost, CostDef::Mana(cost) if !cost.variable_x)
                     }
                 })
                 || ongoing.duration == crate::card::ResolvedEffectDurationDef::WhileSourceTapped

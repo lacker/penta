@@ -106,6 +106,21 @@ impl ManaSplit {
         Self([0; ManaColor::ALL.len()])
     }
 
+    /// A fixed bundle of one or more mana types. This is the authored form
+    /// for choices such as "{U} or {C}{U}", where each alternative is a
+    /// complete output rather than an independently chosen colour.
+    #[must_use]
+    pub const fn from_amounts<const N: usize>(amounts: [(ManaColor, u16); N]) -> Self {
+        let mut split = Self::empty();
+        let mut index = 0;
+        while index < N {
+            let (color, amount) = amounts[index];
+            split.add(color, amount);
+            index += 1;
+        }
+        split
+    }
+
     #[must_use]
     pub const fn get(self, color: ManaColor) -> u16 {
         self.0[color.index()]

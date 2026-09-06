@@ -144,6 +144,24 @@ impl Game {
         controller: Option<PlayerId>,
     ) -> bool {
         match (definition, event) {
+            (
+                TriggerEventDef::CumulativeUpkeepPaid { .. },
+                CommittedTriggerEvent::CumulativeUpkeepPaid { object, .. },
+            )
+            | (
+                TriggerEventDef::CumulativeUpkeepNotPaid,
+                CommittedTriggerEvent::CumulativeUpkeepNotPaid { object, .. },
+            ) => object.id == source,
+            (
+                TriggerEventDef::CoinFlipWon(relation),
+                CommittedTriggerEvent::CoinFlipped { player, won: true },
+            )
+            | (
+                TriggerEventDef::CoinFlipLost(relation),
+                CommittedTriggerEvent::CoinFlipped { player, won: false },
+            ) => controller.is_some_and(|controller| {
+                self.player_relation_matches(*player, relation, controller, event.context())
+            }),
             // One printed ability, several ways into the same matching path.
             (TriggerEventDef::AnyOf(events), _) => events.iter().any(|alternative| {
                 self.trigger_event_matches_for_controller(*alternative, event, source, controller)

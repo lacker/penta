@@ -1,6 +1,6 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, CardInstance, CardPart,
-    CardStructure, CharacteristicContext, ControlFlow, DeclarativeAbilityDef, DoubleFacedKind,
+    AbilityOrigin, AbilityProcedureDef, Action, CardInstance, CardPart, CardStructure,
+    CharacteristicContext, ControlFlow, CostDef, DeclarativeAbilityDef, DoubleFacedKind,
     EffectiveAbility, FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost,
     ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics, ObjectInstance, ObjectRefDef,
     Permanent, PlayerId, RetiredObject, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
@@ -70,7 +70,7 @@ impl Game {
                 return None;
             };
             definition.costs.iter().find_map(|cost| {
-                let AbilityCostDef::MoveToZone(movement) = cost else {
+                let CostDef::MoveToZone(movement) = cost else {
                     return None;
                 };
                 Some((movement.binding?, *chosen_permanents.last()?))
@@ -277,7 +277,7 @@ impl Game {
                 }
                 let mut fixed_sacrifices = Vec::new();
                 for cost in definition.costs.as_slice() {
-                    let AbilityCostDef::SacrificeObject(reference) = cost else {
+                    let CostDef::SacrificeObject(reference) = cost else {
                         continue;
                     };
                     let Some(sacrificed) = Self::activation_object_reference(
@@ -295,14 +295,14 @@ impl Game {
                     }
                     fixed_sacrifices.push(sacrificed);
                 }
-                let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
-                let untaps_source = definition.costs.contains(&AbilityCostDef::UntapSource);
+                let taps_source = definition.costs.contains(&CostDef::TapSource);
+                let untaps_source = definition.costs.contains(&CostDef::UntapSource);
                 let leaves_source = definition.costs.iter().any(|cost| {
                     matches!(
                         cost,
-                        AbilityCostDef::SacrificeSource
-                            | AbilityCostDef::ExileSource
-                            | AbilityCostDef::ReturnSourceToHand
+                        CostDef::SacrificeSource
+                            | CostDef::ExileSource
+                            | CostDef::ReturnSourceToHand
                     )
                 }) || fixed_sacrifices.contains(&permanent.card.id);
                 // The same purpose the payment will use, so an ability that
@@ -326,7 +326,7 @@ impl Game {
                         // so what makes the cost payable is that one of them
                         // is -- paying 2 life for a Phyrexian symbol counts
                         // even with no mana of that colour anywhere.
-                        AbilityCostDef::Mana(cost) => self
+                        CostDef::Mana(cost) => self
                             .affordable_activation_payments(
                                 player,
                                 self.activation_mana_cost(&definition, permanent.card.id, *cost),
@@ -334,22 +334,23 @@ impl Game {
                                 &payment_purpose,
                             )
                             .is_empty(),
-                        AbilityCostDef::PayLife(amount) => {
+                        CostDef::PayLife(amount) => {
                             !self.can_pay_life(player, *amount)
                         }
                         // Nobody chooses, so the only question is whether the
                         // hand is big enough to pay.
-                        AbilityCostDef::DiscardCardsAtRandom(amount) => {
+                        CostDef::DiscardCardsAtRandom(amount) => {
                             self.players[player.index()].hand.len() < usize::from(*amount)
                         }
-                        AbilityCostDef::MillCards(amount) => {
+                        CostDef::MillCards(amount)
+                        | CostDef::ExileTopCards(amount) => {
                             self.players[player.index()].library.len() < usize::from(*amount)
                         }
                         // Crew and saddle: what makes it payable is whether
                         // the other untapped creatures add up.
-                        AbilityCostDef::TapCreaturesWithTotalPower { minimum } => !self
+                        CostDef::TapCreaturesWithTotalPower { minimum } => !self
                             .can_pay_total_power_tap(player, permanent.card.id, *minimum),
-                        AbilityCostDef::TapPermanents {
+                        CostDef::TapPermanents {
                             object,
                             controller,
                             count,
@@ -363,40 +364,38 @@ impl Game {
                         ),
                         // A loyalty ability is sorcery speed, once per turn,
                         // and only removes counters the permanent has.
-                        AbilityCostDef::Loyalty(change) => {
+                        CostDef::Loyalty(change) => {
                             !self.can_activate_loyalty(permanent, player, *change)
                         }
                         // Never reaches payability: enumeration has
                         // already replaced it with a sized removal.
-                        AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
-                        | AbilityCostDef::RemoveCountersFromSource { .. }
+                        CostDef::RemoveAnyNumberOfCountersFromSource(_)
+                        | CostDef::RemoveCountersFromSource { .. }
                         // Always payable: a hand of nothing discards nothing,
                         // which is a legal way to pay it.
-                        | AbilityCostDef::DiscardHand
-                        | AbilityCostDef::ManaCostOf(_)
-                        | AbilityCostDef::ManaValueOfTarget { .. }
-                        | AbilityCostDef::TapSource
+                        | CostDef::DiscardHand
+                        | CostDef::ManaCostOf(_)
+                        | CostDef::ManaValueOfTarget { .. }
+                        | CostDef::TapSource
                         // Always payable: what it spends is a future untap
                         // step, and the permanent has one whatever state it
                         // is in now.
-                        | AbilityCostDef::ExertSource
-                        | AbilityCostDef::UntapSource
-                        | AbilityCostDef::SacrificeSource
-                        | AbilityCostDef::SacrificeObject(_)
-                        | AbilityCostDef::ReturnSourceToHand
-                        | AbilityCostDef::ExileSource
-                        | AbilityCostDef::SacrificePermanent { .. }
-                        | AbilityCostDef::SacrificePermanents { .. }
-                        | AbilityCostDef::ReturnUnblockedAttackerToHand
+                        | CostDef::ExertSource
+                        | CostDef::UntapSource
+                        | CostDef::SacrificeSource
+                        | CostDef::SacrificeObject(_)
+                        | CostDef::ReturnSourceToHand
+                        | CostDef::ExileSource
+                        | CostDef::SacrificePermanent { .. }
+                        | CostDef::SacrificePermanents { .. }
+                        | CostDef::ReturnUnblockedAttackerToHand
                         // Payability is decided by whether any card qualifies,
                         // which the choice list below answers.
-                        | AbilityCostDef::MoveToZone(_)
-                        | AbilityCostDef::DiscardCardMatching(_)
-                        | AbilityCostDef::RevealCardFromHand(_)
-                        | AbilityCostDef::ExileCardFromHand(_) => false,
-                        AbilityCostDef::DiscardSource
-                        | AbilityCostDef::DiscardCards(_)
-                        | AbilityCostDef::Special(_) => true,
+                        | CostDef::MoveToZone(_)
+                        | CostDef::DiscardCardMatching(_)
+                        | CostDef::RevealCardFromHand(_)
+                        | CostDef::ExileCardFromHand(_) => false,
+                        _ => true,
                     })
                 {
                     return;
@@ -407,9 +406,9 @@ impl Game {
                     .filter(|cost| {
                         matches!(
                             cost,
-                            AbilityCostDef::SacrificeSource
-                                | AbilityCostDef::ExileSource
-                                | AbilityCostDef::ReturnSourceToHand
+                            CostDef::SacrificeSource
+                                | CostDef::ExileSource
+                                | CostDef::ReturnSourceToHand
                         )
                     })
                     .count()
@@ -422,26 +421,24 @@ impl Game {
                 let mut object_costs = definition.costs.iter().filter(|cost| {
                     matches!(
                         cost,
-                        AbilityCostDef::SacrificePermanent { .. }
-                            | AbilityCostDef::SacrificePermanents { .. }
-                            | AbilityCostDef::ReturnUnblockedAttackerToHand
-                            | AbilityCostDef::TapPermanents { .. }
-                            | AbilityCostDef::MoveToZone(_)
-                            | AbilityCostDef::DiscardCardMatching(_)
-                            | AbilityCostDef::RevealCardFromHand(_)
-                            | AbilityCostDef::ExileCardFromHand(_)
+                        CostDef::SacrificePermanent { .. }
+                            | CostDef::SacrificePermanents { .. }
+                            | CostDef::ReturnUnblockedAttackerToHand
+                            | CostDef::TapPermanents { .. }
+                            | CostDef::MoveToZone(_)
+                            | CostDef::DiscardCardMatching(_)
+                            | CostDef::RevealCardFromHand(_)
+                            | CostDef::ExileCardFromHand(_)
                     )
                 });
                 let object_cost = object_costs.next();
                 if object_costs.next().is_some() {
                     return;
                 }
-                let taps_chosen_permanent = matches!(
-                    object_cost,
-                    Some(AbilityCostDef::TapPermanents { count: 1, .. })
-                );
+                let taps_chosen_permanent =
+                    matches!(object_cost, Some(CostDef::TapPermanents { count: 1, .. }));
                 let cost_object_choices = match object_cost {
-                    Some(AbilityCostDef::SacrificePermanent { object, controller }) => self
+                    Some(CostDef::SacrificePermanent { object, controller }) => self
                         .battlefield
                         .iter()
                         .filter(|candidate| {
@@ -465,7 +462,7 @@ impl Game {
                     // One payer travels with the activation so mana planning
                     // can reserve it. The source may pay unless another cost
                     // has already committed it to tap or leave play.
-                    Some(AbilityCostDef::TapPermanents {
+                    Some(CostDef::TapPermanents {
                         object,
                         controller,
                         count: 1,
@@ -483,10 +480,10 @@ impl Game {
                         .collect(),
                     // Larger exact-count tap costs make their choices through
                     // a bounded decision after the activation is selected.
-                    None | Some(AbilityCostDef::TapPermanents { .. }) => vec![Vec::new()],
+                    None | Some(CostDef::TapPermanents { .. }) => vec![Vec::new()],
                     // The one cost that can name more than one card, so every
                     // combination of that many is its own activation.
-                    Some(AbilityCostDef::MoveToZone(movement)) => {
+                    Some(CostDef::MoveToZone(movement)) => {
                         let candidates = match movement.from {
                             ZoneKind::Hand => &self.players[player.index()].hand,
                             ZoneKind::Graveyard => &self.players[player.index()].graveyard,
@@ -509,25 +506,33 @@ impl Game {
                         };
                         Self::object_combinations(&candidates, usize::from(count))
                     }
-                    Some(AbilityCostDef::DiscardCardMatching(object)) => self.players
-                        [player.index()]
-                    .hand
-                    .iter()
-                    .filter(|card| {
-                        self.card_object_matches(*object, card, ZoneKind::Hand, permanent.card.id)
-                    })
-                    .map(|card| vec![card.id])
-                    .collect(),
-                    Some(AbilityCostDef::RevealCardFromHand(object)) => self.players
-                        [player.index()]
-                    .hand
-                    .iter()
-                    .filter(|card| {
-                        self.card_object_matches(*object, card, ZoneKind::Hand, permanent.card.id)
-                    })
-                    .map(|card| vec![card.id])
-                    .collect(),
-                    Some(AbilityCostDef::ExileCardFromHand(object)) => self.players[player.index()]
+                    Some(CostDef::DiscardCardMatching(object)) => self.players[player.index()]
+                        .hand
+                        .iter()
+                        .filter(|card| {
+                            self.card_object_matches(
+                                *object,
+                                card,
+                                ZoneKind::Hand,
+                                permanent.card.id,
+                            )
+                        })
+                        .map(|card| vec![card.id])
+                        .collect(),
+                    Some(CostDef::RevealCardFromHand(object)) => self.players[player.index()]
+                        .hand
+                        .iter()
+                        .filter(|card| {
+                            self.card_object_matches(
+                                *object,
+                                card,
+                                ZoneKind::Hand,
+                                permanent.card.id,
+                            )
+                        })
+                        .map(|card| vec![card.id])
+                        .collect(),
+                    Some(CostDef::ExileCardFromHand(object)) => self.players[player.index()]
                         .hand
                         .iter()
                         .filter(|card| {
@@ -543,7 +548,7 @@ impl Game {
                     // Paid by a decision rather than by enumeration, so the
                     // activation names none of them: one offer stands for
                     // however many ways there are to pay it.
-                    Some(AbilityCostDef::SacrificePermanents {
+                    Some(CostDef::SacrificePermanents {
                         object,
                         controller,
                         count,
@@ -585,7 +590,7 @@ impl Game {
                     .costs
                     .iter()
                     .find_map(|cost| match cost {
-                        AbilityCostDef::Mana(cost) if cost.variable_x => Some(self.maximum_x_for(
+                        CostDef::Mana(cost) if cost.variable_x => Some(self.maximum_x_for(
                             player,
                             self.activation_mana_cost(&definition, permanent.card.id, *cost),
                             &payment_purpose,
@@ -641,8 +646,7 @@ impl Game {
                                 if definition.costs.iter().any(|cost| {
                                     matches!(
                                         cost,
-                                        AbilityCostDef::ManaCostOf(_)
-                                            | AbilityCostDef::ManaValueOfTarget { .. }
+                                        CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. }
                                     )
                                 }) && payable_mana_cost.is_none()
                                 {

@@ -71,6 +71,26 @@ distinguishes snapshots of the covered source and build inputs.
   planeswalker it's attacking" as the defending player. Raid Bombardment uses
   it; nothing about the existing `DefenderOfSource` changes.
 
+- **Cumulative upkeep is one shared declarative procedure.**
+  `abilities::cumulative_upkeep(cost)` now puts the age counter on a live
+  source, repeats the complete typed cost once per age counter, and sacrifices
+  the permanent when its controller declines or cannot pay. Besides mana,
+  life, draws, and counters, the shared cost model now supports atomic discard
+  and sacrifice selections, snow mana, library exile, mana production,
+  opponent life gain and token creation, coin flips, and temporary control of
+  permanents. Paid payments publish the colors of mana spent for clauses such
+  as Balduvian Fallen; an unpaid payment publishes
+  `TriggerEventDef::CumulativeUpkeepNotPaid` before the sacrifice, allowing
+  Heart of Bogardan to retain the paying player and age count. Existing
+  Weatherlight and Visions implementations use the helper. The requested
+  sample now has twenty fully declarative cards across Ice Age, Alliances,
+  Visions, Weatherlight, and Coldsnap, including Adarkar Unicorn's restricted
+  two-output mana ability and Thought Lash's top-card exile cost. Cover of
+  Winter remains wholly unsupported pending a player-selected, per-source
+  combat-damage prevention budget. The optional `cumulativeUpkeepAge`
+  continuation field and new resolved-payment tags are additive in checkpoint
+  format 11; replay format and the bot-wire protocol are unchanged.
+
 - **Blocking restrictions share one declaration model.** Pairwise blocker
   eligibility and costs remain `BlockRestrictionDef::Pair`, while "can't be
   blocked except by N or more creatures" is now the declaration-wide

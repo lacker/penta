@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, TriggerConditionDef, ValueDef, abilities,
+    AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CostDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, TriggerConditionDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -38,7 +38,7 @@ pub(in crate::card::sets) static CHAMPIONS_HELM: CardRecord = CardRecord::new(
                     },
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 

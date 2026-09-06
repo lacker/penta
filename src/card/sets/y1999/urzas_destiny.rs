@@ -5,9 +5,9 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
-    CharacteristicOperationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
+    CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -57,7 +57,7 @@ pub(in crate::card::sets) static CAPASHEN_TEMPLAR: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_ability(
         AbilityDef::activated(
             "{W}: This creature gets +0/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            &[CostDef::Mana(mana_cost!("{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -141,7 +141,7 @@ pub(in crate::card::sets) static MASTER_HEALER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Cleric"], 1, 4).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Prevent the next 4 damage that would be dealt to any target this turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -802,7 +802,7 @@ pub(in crate::card::sets) static PHYREXIAN_MONITOR: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Skeleton"], 2, 2).with_ability(
         abilities::regenerate_self(
             "{B}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
         ),
     ),
 );
@@ -1183,7 +1183,7 @@ pub(in crate::card::sets) static ANCIENT_SILVERBACK: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Ape"], 6, 5).with_ability(
         abilities::regenerate_self(
             "{G}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+            &[CostDef::Mana(mana_cost!("{G}"))],
         ),
     ),
 );
@@ -1459,8 +1459,8 @@ pub(in crate::card::sets) static YAVIMAYA_ELDER: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{2}, Sacrifice this creature: Draw a card.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::SacrificeSource,
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -1609,7 +1609,7 @@ pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new_with_l
         ),
         AbilityDef::activated(
             "{T}, Sacrifice this artifact: Destroy each artifact and creature with mana value equal to the number of fuse counters on this artifact.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             EffectDef::Destroy {
                 object: EffectRecipientDef::matching_objects(
                     // Everything the fuse counters name. A Keg with no counters on it destroys

@@ -3,10 +3,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -38,10 +37,7 @@ pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ),
-            abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{1}{W}"))],
-                "Equip {1}{W}",
-            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}{W}"))], "Equip {1}{W}"),
         ]),
 );
 
@@ -87,8 +83,8 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
                 "{2}{R}{W}, Tap an untapped Rebel you control: Return this card from your graveyard to \
                  the battlefield tapped.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}{R}{W}")),
-                    AbilityCostDef::TapPermanents {
+                    CostDef::Mana(mana_cost!("{2}{R}{W}")),
+                    CostDef::TapPermanents {
                         object: ObjectPredicateDef::Subtype("Rebel"),
                         controller: PlayerRelation::You,
                         count: 1,
@@ -144,9 +140,9 @@ pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardReco
         AbilityDef::activated(
             "{W}, {T}, Remove a story counter from this artifact: Draw a card.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::Mana(mana_cost!("{W}")),
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("story"),
                     amount: 1,
                 },

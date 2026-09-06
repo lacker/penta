@@ -77,44 +77,44 @@ fn shared_trigger_event_audit_rejects_live_only_stack_predicates() {
 
 #[test]
 fn activated_cost_boundary_is_specific_to_the_source_zone() {
-    let mana = AbilityCostDef::Mana(ManaCost::colored(0, 0, 0, 0, 1, 1));
+    let mana = CostDef::Mana(ManaCost::colored(0, 0, 0, 0, 1, 1));
     assert!(shared_activated_costs(
         &[ZoneKind::Hand],
-        &[mana, AbilityCostDef::DiscardSource],
-    ));
-    assert!(!shared_activated_costs(
-        &[ZoneKind::Hand],
-        &[AbilityCostDef::PayLife(1)],
-    ));
-    assert!(shared_activated_costs(
-        &[ZoneKind::Battlefield],
-        &[mana, AbilityCostDef::TapSource],
-    ));
-    assert!(shared_activated_costs(
-        &[ZoneKind::Battlefield],
-        &[mana, AbilityCostDef::UntapSource],
+        &[mana, CostDef::DiscardSource],
     ));
     assert!(!shared_activated_costs(
         &[ZoneKind::Hand],
-        &[AbilityCostDef::UntapSource],
-    ));
-    assert!(!shared_activated_costs(
-        &[ZoneKind::Battlefield],
-        &[AbilityCostDef::DiscardSource],
+        &[CostDef::PayLife(1)],
     ));
     assert!(shared_activated_costs(
         &[ZoneKind::Battlefield],
-        &[AbilityCostDef::ExileSource],
+        &[mana, CostDef::TapSource],
+    ));
+    assert!(shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[mana, CostDef::UntapSource],
     ));
     assert!(!shared_activated_costs(
         &[ZoneKind::Hand],
-        &[AbilityCostDef::ExileSource],
+        &[CostDef::UntapSource],
     ));
     assert!(!shared_activated_costs(
         &[ZoneKind::Battlefield],
-        &[AbilityCostDef::SacrificeSource, AbilityCostDef::ExileSource,],
+        &[CostDef::DiscardSource],
     ));
-    let exact_taps = AbilityCostDef::TapPermanents {
+    assert!(shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[CostDef::ExileSource],
+    ));
+    assert!(!shared_activated_costs(
+        &[ZoneKind::Hand],
+        &[CostDef::ExileSource],
+    ));
+    assert!(!shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[CostDef::SacrificeSource, CostDef::ExileSource,],
+    ));
+    let exact_taps = CostDef::TapPermanents {
         object: ObjectPredicateDef::HasType(CardType::Creature),
         controller: PlayerRelation::You,
         count: 2,
@@ -127,7 +127,7 @@ fn activated_cost_boundary_is_specific_to_the_source_zone() {
         &[ZoneKind::Battlefield],
         &[mana, exact_taps],
     ));
-    let one_tap = AbilityCostDef::TapPermanents {
+    let one_tap = CostDef::TapPermanents {
         object: ObjectPredicateDef::HasType(CardType::Creature),
         controller: PlayerRelation::You,
         count: 1,

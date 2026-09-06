@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, CounterKind,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     PlayerRelation, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     TriggerEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities,
 };
@@ -22,10 +22,7 @@ pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Outlast {1}{W} ({1}{W}, {T}: Put a +1/+1 counter on this creature. Outlast only as \
              a sorcery.)",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}{W}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}{W}")), CostDef::TapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,
@@ -216,7 +213,7 @@ pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::White,
                 ManaColor::Black,
@@ -244,7 +241,7 @@ pub(in crate::card::sets) static TRANQUIL_COVE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::White,
                 ManaColor::Blue,

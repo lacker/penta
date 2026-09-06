@@ -900,6 +900,7 @@ impl Game {
 }
 
 include!("effect_support/conditions.rs");
+include!("effect_support/cumulative_upkeep.rs");
 include!("effect_support/references.rs");
 
 /// One comparison, so a condition reads the same however it is counted.

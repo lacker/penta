@@ -7,7 +7,7 @@
 use crate::ids::{AbilityId, AdditionalCostId};
 
 use super::super::{AdditionalCostDef, ManaCost};
-use super::{SpellAdditionalCostDef, SpellResolutionDestinationDef};
+use super::{CostDef, SpellResolutionDestinationDef};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum OptionalAdditionalCostKindDef {
@@ -79,7 +79,7 @@ pub struct OptionalAdditionalCostAbilityDef {
     /// same general kind.
     pub label: &'static str,
     pub mana_cost: Option<ManaCost>,
-    pub additional_cost: Option<SpellAdditionalCostDef>,
+    pub additional_cost: Option<CostDef>,
     pub resolution_destination: SpellResolutionDestinationDef,
 }
 

@@ -2,13 +2,196 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, ComparisonDef,
-    CounterKind, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, PlayerRefDef,
-    PlayerRelation, ReplacementEffectDef, TokenCharacteristics, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ColorSet, ComparisonDef, CostDef, CounterKind, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
+
+const AGE_COUNTERS: ValueDef = ValueDef::CountersOnSource(CounterKind::named("age"));
+
+// CSP 3 — Cover of Winter
+// Audit: unsupported — Needs one per-source combat-damage prevention budget
+// that can be divided across damage assigned to you and your creatures.
+pub(in crate::card::sets) static COVER_OF_WINTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("91d9bb89-d8f8-4dff-8b94-3f7b8aa8f299"),
+    "Cover of Winter",
+    CardArt::new("91d9bb89-d8f8-4dff-8b94-3f7b8aa8f299", "Wayne Reynolds"),
+    CardSet::Coldsnap,
+    CardRules::unsupported(),
+);
+
+// CSP 23 — Wall of Shards
+pub(in crate::card::sets) static WALL_OF_SHARDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("884ee8d8-4c0d-4e44-8321-bccd18195693"),
+    "Wall of Shards",
+    CardArt::new(
+        "884ee8d8-4c0d-4e44-8321-bccd18195693",
+        "Alex Horley-Orlandelli",
+    ),
+    CardSet::Coldsnap,
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Wall"], 1, 8)
+        .with_supertype(CardSupertype::Snow)
+        .with_abilities(&[
+            abilities::defender(),
+            abilities::flying(),
+            abilities::cumulative_upkeep(CostDef::gain_life(PlayerRelation::Opponent, 1))
+                .override_text("Cumulative upkeep—An opponent gains 1 life."),
+        ]),
+);
+
+// CSP 50 — Vexing Sphinx
+pub(in crate::card::sets) static VEXING_SPHINX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("81cc1248-85c8-428f-ba08-96d188167eaa"),
+    "Vexing Sphinx",
+    CardArt::new("81cc1248-85c8-428f-ba08-96d188167eaa", "Lars Grant-West"),
+    CardSet::Coldsnap,
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Sphinx"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::cumulative_upkeep(CostDef::discard_cards(1)),
+        abilities::dies_trigger(
+            "When this creature dies, draw a card for each age counter on it.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: AGE_COUNTERS,
+            },
+        ),
+    ]),
+);
+
+// CSP 51 — Balduvian Fallen
+pub(in crate::card::sets) static BALDUVIAN_FALLEN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6a52b952-6e3b-403b-b355-2af47a282ab6"),
+    "Balduvian Fallen",
+    CardArt::new("6a52b952-6e3b-403b-b355-2af47a282ab6", "Dave Kendall"),
+    CardSet::Coldsnap,
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 3, 5).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        AbilityDef::triggered(
+            "Whenever this creature's cumulative upkeep is paid, it gets +1/+0 until end of turn for each {B} or {R} spent this way.",
+            TriggerEventDef::CumulativeUpkeepPaid {
+                mana_colors: ColorSet::from_colors(&[ManaColor::Black, ManaColor::Red]),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::TriggerEventAmount,
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
+);
+
+// CSP 62 — Herald of Leshrac
+const LANDS_YOU_CONTROL_BUT_DONT_OWN: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef {
+    object: ObjectPredicateDef::HasType(CardType::Land),
+    zones: &[crate::card::ZoneKind::Battlefield],
+    related_player: None,
+    controller: Some(PlayerSetDef::Related(PlayerRelation::You)),
+    owner: Some(PlayerSetDef::Related(PlayerRelation::NotYou)),
+    relative_position: None,
+    excluding_target: None,
+});
+
+pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("ad6080b1-b032-4172-8594-4d894a60a80d"),
+    "Herald of Leshrac",
+    CardArt::new(
+        "ad6080b1-b032-4172-8594-4d894a60a80d",
+        "Alex Horley-Orlandelli",
+    ),
+    CardSet::Coldsnap,
+    CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::cumulative_upkeep(CostDef::gain_control_permanents(
+            ObjectPredicateDef::HasType(CardType::Land),
+            1,
+        ))
+        .override_text("Cumulative upkeep—Gain control of a land you don't control."),
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 for each land you control but don't own.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    LANDS_YOU_CONTROL_BUT_DONT_OWN,
+                    LANDS_YOU_CONTROL_BUT_DONT_OWN,
+                ),
+            },
+        ),
+    ]),
+);
+
+// CSP 78 — Braid of Fire
+pub(in crate::card::sets) static BRAID_OF_FIRE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("41bab8de-6e0f-4ccd-a303-01e9c8c82d3f"),
+    "Braid of Fire",
+    CardArt::new(
+        "41bab8de-6e0f-4ccd-a303-01e9c8c82d3f",
+        "Cyril Van Der Haegen",
+    ),
+    CardSet::Coldsnap,
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
+        abilities::cumulative_upkeep(CostDef::add_mana(&AddManaEffectDef::one(ManaColor::Red)))
+            .override_text("Cumulative upkeep—Add {R}."),
+    ),
+);
+
+// CSP 86 — Karplusan Minotaur
+pub(in crate::card::sets) static KARPLUSAN_MINOTAUR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("963f45d7-ce84-47af-ae1c-727172a31f0f"),
+    "Karplusan Minotaur",
+    CardArt::new("963f45d7-ce84-47af-ae1c-727172a31f0f", "Wayne England"),
+    CardSet::Coldsnap,
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
+        .with_abilities(&[
+            abilities::cumulative_upkeep(CostDef::flip_coins(1))
+                .override_text("Cumulative upkeep—Flip a coin."),
+            AbilityDef::triggered_with_targets(
+                "Whenever you win a coin flip, this creature deals 1 damage to any target.",
+                TriggerEventDef::CoinFlipWon(PlayerRelation::You),
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever you lose a coin flip, this creature deals 1 damage to any target of an opponent's choice.",
+                TriggerEventDef::CoinFlipLost(PlayerRelation::You),
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)
+                    .chosen_by_opponent()],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
+);
+
+// CSP 102 — Arctic Nishoba
+pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8da62ada-b7cd-4110-a213-281f00fca3e7"),
+    "Arctic Nishoba",
+    CardArt::new("8da62ada-b7cd-4110-a213-281f00fca3e7", "Dave Kendall"),
+    CardSet::Coldsnap,
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Cat", "Warrior"], 6, 6).with_abilities(&[
+        abilities::trample(),
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{G/W}")))
+            .override_text("Cumulative upkeep {G} or {W}"),
+        abilities::dies_trigger(
+            "When this creature dies, you gain 2 life for each age counter on it.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Scaled(&ScaledValueDef::new(AGE_COUNTERS, 2)),
+            },
+        ),
+    ]),
+);
 
 // CSP 138 — Mishra's Bauble
 pub(in crate::card::sets) static MISHRA_S_BAUBLE: CardRecord = CardRecord::new(
@@ -22,7 +205,7 @@ pub(in crate::card::sets) static MISHRA_S_BAUBLE: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{0}")).with_ability(AbilityDef::activated_with_targets(
         "{T}, Sacrifice this artifact: Look at the top card of target player's library. Draw a \
          card at the beginning of the next turn's upkeep.",
-        &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+        &[CostDef::TapSource, CostDef::SacrificeSource],
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
@@ -44,6 +227,24 @@ pub(in crate::card::sets) static MISHRA_S_BAUBLE: CardRecord = CardRecord::new(
             ))),
         ]),
     )),
+);
+
+// CSP 141 — Phyrexian Soulgorger
+pub(in crate::card::sets) static PHYREXIAN_SOULGORGER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9d4325ea-2e84-4871-a8d6-a42b1d3d6765"),
+    "Phyrexian Soulgorger",
+    CardArt::new("9d4325ea-2e84-4871-a8d6-a42b1d3d6765", "Brian Snõddy"),
+    CardSet::Coldsnap,
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Phyrexian", "Construct"], 8, 8)
+        .with_supertype(CardSupertype::Snow)
+        .with_ability(
+            abilities::cumulative_upkeep(CostDef::sacrifice_permanents(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                PlayerRelation::You,
+                1,
+            ))
+            .override_text("Cumulative upkeep—Sacrifice a creature."),
+        ),
 );
 
 // CSP 145 — Dark Depths
@@ -69,7 +270,7 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "{3}: Remove an ice counter from Dark Depths.",
-                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 EffectDef::RemoveCounters {
                     object: EffectRecipientDef::Source,
                     kind: CounterKind::named("ice"),
@@ -110,6 +311,18 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MISHRA_S_BAUBLE, &DARK_DEPTHS];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &COVER_OF_WINTER,
+    &WALL_OF_SHARDS,
+    &VEXING_SPHINX,
+    &BALDUVIAN_FALLEN,
+    &HERALD_OF_LESHRAC,
+    &BRAID_OF_FIRE,
+    &KARPLUSAN_MINOTAUR,
+    &ARCTIC_NISHOBA,
+    &MISHRA_S_BAUBLE,
+    &PHYREXIAN_SOULGORGER,
+    &DARK_DEPTHS,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

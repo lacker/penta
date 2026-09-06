@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType,
-    ComparisonDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRelation, TriggerConditionDef, ZoneKind, abilities,
+    AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
+    CardType, ComparisonDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -1073,13 +1073,27 @@ pub(in crate::card::sets) static RHYSTIC_LIGHTNING: CardRecord = CardRecord::new
 );
 
 // PCY 100 — Ridgeline Rager
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIDGELINE_RAGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5f663a4a-592a-4a3b-bbaf-e9c5c3049021"),
     "Ridgeline Rager",
-    crate::card::CardArt::new("5f663a4a-592a-4a3b-bbaf-e9c5c3049021", "Chippy"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5f663a4a-592a-4a3b-bbaf-e9c5c3049021", "Chippy"),
+    CardSet::Prophecy,
+    // Firebreathing on a 1/2: the body is a place to put mana rather than a
+    // threat on its own.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Beast"], 1, 2).with_ability(
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PCY 101 — Scoria Cat

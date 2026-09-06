@@ -19,8 +19,8 @@ use crate::card::{
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef,
     ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef,
-    PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -1206,13 +1206,27 @@ pub(in crate::card::sets) static EXOTIC_CURSE: CardRecord = CardRecord::new(
 );
 
 // INV 106 — Firescreamer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIRESCREAMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("155a2213-bf6e-4a54-924b-e450b7d06f26"),
     "Firescreamer",
-    crate::card::CardArt::new("155a2213-bf6e-4a54-924b-e450b7d06f26", "Alan Pollack"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("155a2213-bf6e-4a54-924b-e450b7d06f26", "Alan Pollack"),
+    CardSet::Invasion,
+    // A black creature that pumps with red mana, which is the block's whole
+    // idea: the card is gold in play without being gold in the deck.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Kavu"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 107 — Goham Djinn
@@ -2122,16 +2136,30 @@ pub(in crate::card::sets) static LLANOWAR_ELITE: CardRecord = CardRecord::new(
 );
 
 // INV 197 — Llanowar Vanguard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_VANGUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72e6ed79-bdfd-49f9-bfa4-be4196880487"),
     "Llanowar Vanguard",
-    crate::card::CardArt::new(
+    CardArt::new(
         "72e6ed79-bdfd-49f9-bfa4-be4196880487",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Tapping for four toughness means it can block one thing enormously
+    // well, and only if it has not already attacked.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Dryad"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{T}: This creature gets +0/+4 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 198 — Might Weaver

@@ -6,11 +6,11 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
-    ConditionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    ComparisonDef, ConditionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
     ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -884,13 +884,27 @@ pub(in crate::card::sets) static MORTIPHOBIA: CardRecord = CardRecord::new(
 // TOR 73 — Mutilate (reprint)
 
 // TOR 74 — Nantuko Shade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_SHADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2ed9dc9c-b92b-4305-8c54-1a63f750f8d1"),
     "Nantuko Shade",
-    crate::card::CardArt::new("2ed9dc9c-b92b-4305-8c54-1a63f750f8d1", "Brian Snõddy"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2ed9dc9c-b92b-4305-8c54-1a63f750f8d1", "Brian Snõddy"),
+    CardSet::Torment,
+    // Two mana for a 2/1 that grows without limit. In a mono-black deck
+    // every untapped Swamp is another point of damage.
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Insect", "Shade"], 2, 1).with_ability(
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TOR 75 — Organ Grinder

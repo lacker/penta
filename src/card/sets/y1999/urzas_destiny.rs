@@ -8,7 +8,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, CardTypeSet, CharacteristicOperationDef, CounterKind, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, PowerToughnessOperationDef,
-    SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -45,13 +46,27 @@ pub(in crate::card::sets) static CAPASHEN_STANDARD: CardRecord = CardRecord::new
 );
 
 // UDS 5 — Capashen Templar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAPASHEN_TEMPLAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0976a193-463a-4bcb-a951-ca73347a5572"),
     "Capashen Templar",
-    crate::card::CardArt::new("0976a193-463a-4bcb-a951-ca73347a5572", "Todd Lockwood"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0976a193-463a-4bcb-a951-ca73347a5572", "Todd Lockwood"),
+    CardSet::UrzasDestiny,
+    // Toughness only, which makes it a blocker that wins fights rather than
+    // a threat: every white mana is another point of survival.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{W}: This creature gets +0/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // UDS 6 — False Prophet

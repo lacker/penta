@@ -1663,13 +1663,27 @@ pub(in crate::card::sets) static PRETENDER_S_CLAIM: CardRecord = CardRecord::new
 );
 
 // MMQ 152 — Primeval Shambler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIMEVAL_SHAMBLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d6ed1fb-2f7d-4a21-bbf3-660cad631975"),
     "Primeval Shambler",
-    crate::card::CardArt::new("5d6ed1fb-2f7d-4a21-bbf3-660cad631975", "Chippy"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5d6ed1fb-2f7d-4a21-bbf3-660cad631975", "Chippy"),
+    CardSet::MercadianMasques,
+    // A mana sink that turns a stalled board into a clock, which is what a
+    // five-mana 3/3 has to do to be worth the slot.
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Horror", "Mercenary"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 153 — Putrefaction
@@ -2435,13 +2449,27 @@ pub(in crate::card::sets) static BIFURCATE: CardRecord = CardRecord::new(
 );
 
 // MMQ 231 — Boa Constrictor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOA_CONSTRICTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7369cbf-6986-4a39-b07c-a283b40aee40"),
     "Boa Constrictor",
-    crate::card::CardArt::new("f7369cbf-6986-4a39-b07c-a283b40aee40", "Carl Critchlow"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f7369cbf-6986-4a39-b07c-a283b40aee40", "Carl Critchlow"),
+    CardSet::MercadianMasques,
+    // Tapping is the cost, so the pump happens on defence or not at all: it
+    // blocks as a 6/6 and attacks as a 3/3.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Snake"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{T}: This creature gets +3/+3 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 232 — Briar Patch

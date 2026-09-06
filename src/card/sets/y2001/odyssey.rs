@@ -4362,16 +4362,25 @@ pub(in crate::card::sets) static SUNGRASS_EGG: CardRecord = CardRecord::new(
 );
 
 // ODY 312 — Abandoned Outpost
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ABANDONED_OUTPOST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4945031e-1158-474c-9e50-1ec817acc767"),
     "Abandoned Outpost",
-    crate::card::CardArt::new(
+    CardArt::new(
         "4945031e-1158-474c-9e50-1ec817acc767",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // A land that enters tapped and can still be cashed in for the one
+    // colour the draw is missing.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::White),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add one mana of any color.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // ODY 313 — Barbarian Ring
@@ -4408,13 +4417,22 @@ pub(in crate::card::sets) static BARBARIAN_RING: CardRecord = CardRecord::new_wi
 );
 
 // ODY 314 — Bog Wreckage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOG_WRECKAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("189b4925-b34b-43bd-869e-1b1db99450e6"),
     "Bog Wreckage",
-    crate::card::CardArt::new("189b4925-b34b-43bd-869e-1b1db99450e6", "Brian Snõddy"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("189b4925-b34b-43bd-869e-1b1db99450e6", "Brian Snõddy"),
+    CardSet::Odyssey,
+    // Black every turn, or one of any colour on the turn it matters more
+    // than the land does.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Black),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add one mana of any color.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // ODY 315 — Cabal Pit
@@ -4502,13 +4520,28 @@ pub(in crate::card::sets) static DARKWATER_CATACOMBS: CardRecord = CardRecord::n
 );
 
 // ODY 320 — Deserted Temple
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DESERTED_TEMPLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1fa74b2-f9bd-4617-8b65-878781f3a2fd"),
     "Deserted Temple",
-    crate::card::CardArt::new("d1fa74b2-f9bd-4617-8b65-878781f3a2fd", "Rob Alexander"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d1fa74b2-f9bd-4617-8b65-878781f3a2fd", "Rob Alexander"),
+    CardSet::Odyssey,
+    // Untapping a land is only worth a card when the land in question makes
+    // more than one mana, which is the deck it was printed for.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Untap target land.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )]
+            },
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // ODY 321 — Mossfire Valley
@@ -4542,25 +4575,41 @@ pub(in crate::card::sets) static PETRIFIED_FIELD: CardRecord = CardRecord::new(
 );
 
 // ODY 324 — Ravaged Highlands
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAVAGED_HIGHLANDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb60ffc9-4919-40f2-bdd6-07eee6abf37c"),
     "Ravaged Highlands",
-    crate::card::CardArt::new("bb60ffc9-4919-40f2-bdd6-07eee6abf37c", "David Martin"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bb60ffc9-4919-40f2-bdd6-07eee6abf37c", "David Martin"),
+    CardSet::Odyssey,
+    // The red member of a cycle that trades a turn for a splash.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Red),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add one mana of any color.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // ODY 325 — Seafloor Debris (alternate printing)
 
 // ODY 325† — Seafloor Debris
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEAFLOOR_DEBRIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6fb5977c-5009-4d97-82c8-c150a0d41bc3"),
     "Seafloor Debris",
-    crate::card::CardArt::new("6fb5977c-5009-4d97-82c8-c150a0d41bc3", "Larry Elmore"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6fb5977c-5009-4d97-82c8-c150a0d41bc3", "Larry Elmore"),
+    CardSet::Odyssey,
+    // Blue every turn, and a single wild mana as its parting gift.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Blue),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add one mana of any color.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // ODY 326 — Shadowblood Ridge
@@ -4613,13 +4662,22 @@ pub(in crate::card::sets) static TARNISHED_CITADEL: CardRecord = CardRecord::new
 );
 
 // ODY 330 — Timberland Ruins
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIMBERLAND_RUINS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd2e8770-c72b-439c-8f79-3aa24646cdd5"),
     "Timberland Ruins",
-    crate::card::CardArt::new("dd2e8770-c72b-439c-8f79-3aa24646cdd5", "Alan Pollack"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dd2e8770-c72b-439c-8f79-3aa24646cdd5", "Alan Pollack"),
+    CardSet::Odyssey,
+    // Green now, any colour once -- which is what a deck with one off-colour
+    // card in it actually needs.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Green),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add one mana of any color.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // ODY 331 — Plains (reprint)

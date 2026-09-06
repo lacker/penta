@@ -4406,23 +4406,43 @@ pub(in crate::card::sets) static URZA_S_FILTER: CardRecord = CardRecord::new(
 );
 
 // INV 319 — Ancient Spring
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCIENT_SPRING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("004eefa4-947b-45fc-b45c-5263bfd763bc"),
     "Ancient Spring",
-    crate::card::CardArt::new("004eefa4-947b-45fc-b45c-5263bfd763bc", "Don Hazeltine"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("004eefa4-947b-45fc-b45c-5263bfd763bc", "Don Hazeltine"),
+    CardSet::Invasion,
+    // A tapped land that is really a one-shot dual, which is what a
+    // five-colour deck paid a turn for.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Blue),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add {W}{B}.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::White,
+                ManaColor::Black,
+            )),
+        ),
+    ]),
 );
 
 // INV 320 — Archaeological Dig
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCHAEOLOGICAL_DIG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35f55af0-5a46-4900-b3d0-ca796b710e07"),
     "Archaeological Dig",
-    crate::card::CardArt::new("35f55af0-5a46-4900-b3d0-ca796b710e07", "Don Hazeltine"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("35f55af0-5a46-4900-b3d0-ca796b710e07", "Don Hazeltine"),
+    CardSet::Invasion,
+    // It costs no turn to play and only colourless while it lives, so the
+    // splash is paid for entirely at the end.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add one mana of any color.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // INV 321 — Coastal Tower
@@ -4466,23 +4486,46 @@ pub(in crate::card::sets) static ELFHAME_PALACE: CardRecord = CardRecord::new(
 );
 
 // INV 323 — Geothermal Crevice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GEOTHERMAL_CREVICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e744b593-13fe-4967-b492-ac02f5815e57"),
     "Geothermal Crevice",
-    crate::card::CardArt::new("e744b593-13fe-4967-b492-ac02f5815e57", "John Avon"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e744b593-13fe-4967-b492-ac02f5815e57", "John Avon"),
+    CardSet::Invasion,
+    // The same deal in the other wedge: a turn now for two colours later.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Red),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add {B}{G}.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Black,
+                ManaColor::Green,
+            )),
+        ),
+    ]),
 );
 
 // INV 324 — Irrigation Ditch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRRIGATION_DITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("977f1b44-166c-4faf-8a7b-d431707e90ce"),
     "Irrigation Ditch",
-    crate::card::CardArt::new("977f1b44-166c-4faf-8a7b-d431707e90ce", "Rob Alexander"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("977f1b44-166c-4faf-8a7b-d431707e90ce", "Rob Alexander"),
+    CardSet::Invasion,
+    // One colour every turn or two colours once, which is the choice the
+    // whole cycle asks.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::White),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add {G}{U}.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Green,
+                ManaColor::Blue,
+            )),
+        ),
+    ]),
 );
 
 // INV 325 — Keldon Necropolis
@@ -4536,26 +4579,48 @@ pub(in crate::card::sets) static SHIVAN_OASIS: CardRecord = CardRecord::new(
 );
 
 // INV 328 — Sulfur Vent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SULFUR_VENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22c66ed6-55fb-4c65-aac4-26d9cc3053b8"),
     "Sulfur Vent",
-    crate::card::CardArt::new(
+    CardArt::new(
         "22c66ed6-55fb-4c65-aac4-26d9cc3053b8",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Black up front, and the two colours it does not make when it goes.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Black),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add {U}{R}.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Blue,
+                ManaColor::Red,
+            )),
+        ),
+    ]),
 );
 
 // INV 329 — Tinder Farm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TINDER_FARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("989b5901-aeb0-4a48-8c53-3b0ec0e0deba"),
     "Tinder Farm",
-    crate::card::CardArt::new("989b5901-aeb0-4a48-8c53-3b0ec0e0deba", "Rob Alexander"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("989b5901-aeb0-4a48-8c53-3b0ec0e0deba", "Rob Alexander"),
+    CardSet::Invasion,
+    // Green now, or the two colours a green deck splashes for.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Green),
+        AbilityDef::activated_mana(
+            "{T}, Sacrifice this land: Add {R}{W}.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Red,
+                ManaColor::White,
+            )),
+        ),
+    ]),
 );
 
 // INV 330 — Urborg Volcano

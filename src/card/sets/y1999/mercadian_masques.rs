@@ -4335,13 +4335,30 @@ pub(in crate::card::sets) static HICKORY_WOODLOT: CardRecord = CardRecord::new(
 );
 
 // MMQ 320 — High Market
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIGH_MARKET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f4c58683-65a6-4df9-8952-458e397b1374"),
     "High Market",
-    crate::card::CardArt::new("f4c58683-65a6-4df9-8952-458e397b1374", "Carl Critchlow"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f4c58683-65a6-4df9-8952-458e397b1374", "Carl Critchlow"),
+    CardSet::MercadianMasques,
+    // The life is incidental; a free sacrifice outlet on a land is what
+    // answers the removal that would otherwise exile a creature.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{T}, Sacrifice a creature: You gain 1 life.",
+            &[
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MMQ 321 — Mercadian Bazaar

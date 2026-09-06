@@ -1945,13 +1945,28 @@ pub(in crate::card::sets) static URZA_S_INCUBATOR: CardRecord = CardRecord::new(
 );
 
 // UDS 143 — Yavimaya Hollow
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YAVIMAYA_HOLLOW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47dd5c4b-5972-43e1-ae2a-ebf275006458"),
     "Yavimaya Hollow",
-    crate::card::CardArt::new("47dd5c4b-5972-43e1-ae2a-ebf275006458", "Douglas Shuler"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("47dd5c4b-5972-43e1-ae2a-ebf275006458", "Douglas Shuler"),
+    CardSet::UrzasDestiny,
+    // Repeatable protection from a land, which asks the opponent to have
+    // two removal spells for every creature.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{G}, {T}: Regenerate target creature.",
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

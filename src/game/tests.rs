@@ -80,6 +80,7 @@ mod put_from_hand;
 mod raid_bombardment;
 mod reckless_impulse;
 mod sacrifice_for_mana;
+mod sacrifice_lands;
 mod sacrifice_to_tax;
 mod self_bounce_and_untap;
 mod skewer_the_critics;

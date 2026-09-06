@@ -4092,13 +4092,36 @@ pub(in crate::card::sets) static CONTESTED_CLIFFS: CardRecord = CardRecord::new(
 );
 
 // ONS 315 — Daru Encampment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARU_ENCAMPMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5869f08-fac8-44b6-8142-7d7ecccab414"),
     "Daru Encampment",
-    crate::card::CardArt::new("c5869f08-fac8-44b6-8142-7d7ecccab414", "Tony Szczudlo"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c5869f08-fac8-44b6-8142-7d7ecccab414", "Tony Szczudlo"),
+    CardSet::Onslaught,
+    // A pump the opponent cannot answer and the deck pays nothing to run,
+    // which is what a tribal land is for.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{W}, {T}: Target Soldier creature gets +1/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Soldier"),
+                    ]),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ONS 316 — Flooded Strand
@@ -4124,13 +4147,36 @@ pub(in crate::card::sets) static FORGOTTEN_CAVE: CardRecord = CardRecord::new(
 );
 
 // ONS 318 — Goblin Burrows
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_BURROWS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5064cd2-8762-4e08-8c3c-be6f31e9ab61"),
     "Goblin Burrows",
-    crate::card::CardArt::new("a5064cd2-8762-4e08-8c3c-be6f31e9ab61", "David Martin"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a5064cd2-8762-4e08-8c3c-be6f31e9ab61", "David Martin"),
+    CardSet::Onslaught,
+    // Two power for two mana out of a land, which turns a board of one-drops
+    // into a real attack.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{1}{R}, {T}: Target Goblin creature gets +2/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{R}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Goblin"),
+                    ]),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ONS 319 — Grand Coliseum
@@ -4259,13 +4305,28 @@ pub(in crate::card::sets) static WINDSWEPT_HEATH: CardRecord = CardRecord::new_w
 );
 
 // ONS 329 — Wirewood Lodge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WIREWOOD_LODGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d251490-41bb-4ad3-bfd0-a5e66ee42598"),
     "Wirewood Lodge",
-    crate::card::CardArt::new("3d251490-41bb-4ad3-bfd0-a5e66ee42598", "Anthony S. Waters"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3d251490-41bb-4ad3-bfd0-a5e66ee42598", "Anthony S. Waters"),
+    CardSet::Onslaught,
+    // Untapping an Elf is untapping a mana source, which is why this land
+    // reads as a combo piece rather than a tribal trick.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{G}, {T}: Untap target Elf.",
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype("Elf"),
+                )]
+            },
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // ONS 330 — Wooded Foothills

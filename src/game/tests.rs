@@ -36,6 +36,7 @@ mod conditional_statics;
 mod counted_rituals;
 mod destroy_and_escape;
 mod dies_shrink_trigger;
+mod dies_sweeper;
 mod discard_a_land_cost;
 mod discard_to_regenerate;
 mod enters_sweepers;

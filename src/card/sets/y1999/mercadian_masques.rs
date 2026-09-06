@@ -4109,16 +4109,24 @@ pub(in crate::card::sets) static FOUNTAIN_OF_CHO: CardRecord = CardRecord::new(
 );
 
 // MMQ 318 — Henge of Ramos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HENGE_OF_RAMOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0582b42f-5ae5-4be2-ba2d-ed62b3cb20c5"),
     "Henge of Ramos",
-    crate::card::CardArt::new(
+    CardArt::new(
         "0582b42f-5ae5-4be2-ba2d-ed62b3cb20c5",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardSet::MercadianMasques,
+    // Three mana for one of any colour, which is what fixing cost before
+    // lands were allowed to be good.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{2}, {T}: Add one mana of any color.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // MMQ 319 — Hickory Woodlot

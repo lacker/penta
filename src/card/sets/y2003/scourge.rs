@@ -808,13 +808,31 @@ pub(in crate::card::sets) static CONSUMPTIVE_GOO: CardRecord = CardRecord::new(
 );
 
 // SCG 63 — Death's-Head Buzzard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATH_S_HEAD_BUZZARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a8d4fd9-1f9e-41f0-9114-d1a698506ad9"),
     "Death's-Head Buzzard",
-    crate::card::CardArt::new("8a8d4fd9-1f9e-41f0-9114-d1a698506ad9", "Marcelo Vignali"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8a8d4fd9-1f9e-41f0-9114-d1a698506ad9", "Marcelo Vignali"),
+    CardSet::Scourge,
+    // The small version: a 2/1 flier that takes the X/1s with it, which in
+    // a token format is most of a board.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Bird"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger(
+            "When this creature dies, all creatures get -1/-1 until end of turn.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // SCG 64 — Decree of Pain

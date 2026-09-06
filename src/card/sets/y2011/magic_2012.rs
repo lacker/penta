@@ -1082,13 +1082,15 @@ pub(in crate::card::sets) static DRIFTING_SHADE: CardRecord = CardRecord::new(
 );
 
 // M12 97 — Duskhunter Bat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DUSKHUNTER_BAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4560ee1a-1076-4ec5-a177-55ffe12e2165"),
     "Duskhunter Bat",
-    crate::card::CardArt::new("4560ee1a-1076-4ec5-a177-55ffe12e2165", "Jesper Ejsing"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4560ee1a-1076-4ec5-a177-55ffe12e2165", "Jesper Ejsing"),
+    CardSet::Magic2012,
+    // A two-mana flier that is a 2/2 whenever the deck did its job, which
+    // is what the mechanic is for.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Bat"], 1, 1)
+        .with_abilities(&[abilities::bloodthirst(1), abilities::flying()]),
 );
 
 // M12 98 — Grave Titan
@@ -1515,13 +1517,15 @@ pub(in crate::card::sets) static FLAMEBLAST_DRAGON: CardRecord = CardRecord::new
 // M12 134 — Fling (reprint)
 
 // M12 135 — Furyborn Hellkite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FURYBORN_HELLKITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5b735e5-da9d-4740-acff-aac9dd24334c"),
     "Furyborn Hellkite",
-    crate::card::CardArt::new("b5b735e5-da9d-4740-acff-aac9dd24334c", "Brad Rigney"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b5b735e5-da9d-4740-acff-aac9dd24334c", "Brad Rigney"),
+    CardSet::Magic2012,
+    // Twelve power for seven mana, on a condition a deck fast enough to
+    // meet it has already won without.
+    CardRules::new_creature(mana_cost!("{4}{R}{R}{R}"), &["Dragon"], 6, 6)
+        .with_abilities(&[abilities::bloodthirst(6), abilities::flying()]),
 );
 
 // M12 136 — Goblin Arsonist (reprint)

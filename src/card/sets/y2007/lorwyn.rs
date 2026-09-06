@@ -300,13 +300,21 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
 );
 
 // LRW 273 — Shimmering Grotto
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMMERING_GROTTO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5e85acc-ed12-4036-8193-739721c3e178"),
     "Shimmering Grotto",
-    crate::card::CardArt::new("b5e85acc-ed12-4036-8193-739721c3e178", "Alan Pollack"),
-    crate::card::CardSet::Lorwyn,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b5e85acc-ed12-4036-8193-739721c3e178", "Alan Pollack"),
+    CardSet::Lorwyn,
+    // The same land a mana cheaper, printed into a block where five-colour
+    // decks were the point.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

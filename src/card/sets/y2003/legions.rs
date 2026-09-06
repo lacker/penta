@@ -821,13 +821,31 @@ pub(in crate::card::sets) static GRAVEBORN_MUSE: CardRecord = CardRecord::new(
 );
 
 // LGN 74 — Havoc Demon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAVOC_DEMON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6477802a-349d-41e1-b050-58da0d806abf"),
     "Havoc Demon",
-    crate::card::CardArt::new("6477802a-349d-41e1-b050-58da0d806abf", "Thomas M. Baxa"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6477802a-349d-41e1-b050-58da0d806abf", "Thomas M. Baxa"),
+    CardSet::Legions,
+    // Seven mana for a flier that sweeps the board when answered, so the
+    // opponent loses either way.
+    CardRules::new_creature(mana_cost!("{5}{B}{B}"), &["Demon"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger(
+            "When this creature dies, all creatures get -5/-5 until end of turn.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-5),
+                    ValueDef::Constant(-5),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // LGN 75 — Hollow Specter

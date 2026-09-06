@@ -1697,16 +1697,52 @@ pub(in crate::card::sets) static HYALOPTEROUS_LEMURE: CardRecord = CardRecord::n
 );
 
 // ICE 134 — Icequake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ICEQUAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14b4dd4d-c617-4603-8a87-761ec6fc6883"),
     "Icequake",
-    crate::card::CardArt::new(
+    CardArt::new(
         "14b4dd4d-c617-4603-8a87-761ec6fc6883",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardSet::IceAge,
+    // Three mana to kill a land, with a point of damage against the decks
+    // this block was printed to punish.
+    CardRules::new_sorcery(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land. If that land was a snow land, Icequake deals 1 damage to \
+             that land's controller.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // "Was a snow land" is read after the destruction, so the slot is
+            // asked about a land that has already left.
+            EffectDef::IfCondition {
+                condition: &const {
+                    TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::Supertype(CardSupertype::Snow),
+                    }
+                },
+                then: &const {
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        )),
+                        amount: ValueDef::Constant(1),
+                    }
+                },
+            },
+        ]),
+    )),
 );
 
 // ICE 135 — Infernal Darkness
@@ -3575,13 +3611,46 @@ pub(in crate::card::sets) static TARPAN: CardRecord = CardRecord::new(
 );
 
 // ICE 268 — Thermokarst
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THERMOKARST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("00ae906b-2c4d-48e9-9f2d-217777e22292"),
     "Thermokarst",
-    crate::card::CardArt::new("00ae906b-2c4d-48e9-9f2d-217777e22292", "Ken Meyer, Jr."),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("00ae906b-2c4d-48e9-9f2d-217777e22292", "Ken Meyer, Jr."),
+    CardSet::IceAge,
+    // The green printing: the same land destruction, with a life rebate
+    // instead of the damage.
+    CardRules::new_sorcery(mana_cost!("{1}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land. If that land was a snow land, you gain 1 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // "Was a snow land" is read after the destruction, so the slot is
+            // asked about a land that has already left.
+            EffectDef::IfCondition {
+                condition: &const {
+                    TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::Supertype(CardSupertype::Snow),
+                    }
+                },
+                then: &const {
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    }
+                },
+            },
+        ]),
+    )),
 );
 
 // ICE 269 — Thoughtleech

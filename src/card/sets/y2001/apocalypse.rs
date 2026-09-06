@@ -1601,13 +1601,27 @@ pub(in crate::card::sets) static DEATH_MUTATION: CardRecord = CardRecord::new(
 );
 
 // APC 97 — Ebony Treefolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EBONY_TREEFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2b85dadb-351f-4975-a2c3-febf5e80bc85"),
     "Ebony Treefolk",
-    crate::card::CardArt::new("2b85dadb-351f-4975-a2c3-febf5e80bc85", "Matt Cavotta"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2b85dadb-351f-4975-a2c3-febf5e80bc85", "Matt Cavotta"),
+    CardSet::Apocalypse,
+    // Two colours for one point, which is a mana sink only a deck already
+    // in both colours can use.
+    CardRules::new_creature(mana_cost!("{1}{B}{G}"), &["Treefolk"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{B}{G}: This creature gets +1/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{B}{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // APC 98 — Fervent Charge

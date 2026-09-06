@@ -505,13 +505,15 @@ pub(in crate::card::sets) static JOLTING_MERFOLK: CardRecord = CardRecord::new(
 );
 
 // NEM 35 — Oraxid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORAXID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c05609a-f32d-4454-af24-a24452997dcb"),
     "Oraxid",
-    crate::card::CardArt::new("6c05609a-f32d-4454-af24-a24452997dcb", "Dave Dorman"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6c05609a-f32d-4454-af24-a24452997dcb", "Dave Dorman"),
+    CardSet::Nemesis,
+    // A blue blocker that red cannot burn or get past, printed into a
+    // format where that was the whole question.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Crab", "Beast"], 2, 3)
+        .with_ability(abilities::protection_from_color(ManaColor::Red)),
 );
 
 // NEM 36 — Pale Moon

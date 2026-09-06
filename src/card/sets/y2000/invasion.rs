@@ -859,13 +859,19 @@ pub(in crate::card::sets) static SAPPHIRE_LEECH: CardRecord = CardRecord::new(
 // INV 72 — Shimmering Wings (reprint)
 
 // INV 73 — Shoreline Raider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHORELINE_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d895b3b8-2acc-4c9f-8341-f651c1255b7c"),
     "Shoreline Raider",
-    crate::card::CardArt::new("d895b3b8-2acc-4c9f-8341-f651c1255b7c", "Nelson DeCastro"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d895b3b8-2acc-4c9f-8341-f651c1255b7c", "Nelson DeCastro"),
+    CardSet::Invasion,
+    // Protection from a creature type that only exists in this block, which
+    // is as narrow as the keyword gets.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk"], 2, 2).with_ability(
+        AbilityDef::keyword(
+            "Protection from Kavu",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Kavu")),
+        ),
+    ),
 );
 
 // INV 74 — Sky Weaver
@@ -2858,13 +2864,15 @@ pub(in crate::card::sets) static FIRES_OF_YAVIMAYA: CardRecord = CardRecord::new
 // INV 247 — Frenzied Tilling (reprint)
 
 // INV 248 — Galina's Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GALINA_S_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11b492d6-5e28-4f4b-942c-080d03cb0e92"),
     "Galina's Knight",
-    crate::card::CardArt::new("11b492d6-5e28-4f4b-942c-080d03cb0e92", "David Martin"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("11b492d6-5e28-4f4b-942c-080d03cb0e92", "David Martin"),
+    CardSet::Invasion,
+    // A gold two-drop that walks past a whole colour, which is what the
+    // cycle was for.
+    CardRules::new_creature(mana_cost!("{W}{U}"), &["Merfolk", "Knight"], 2, 2)
+        .with_ability(abilities::protection_from_color(ManaColor::Red)),
 );
 
 // INV 249 — Hanna, Ship's Navigator
@@ -3124,13 +3132,19 @@ pub(in crate::card::sets) static SEER_S_VISION: CardRecord = CardRecord::new(
 );
 
 // INV 271 — Shivan Zombie
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_ZOMBIE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f4c99269-f730-4d33-bbce-9e855e9ad0fc"),
     "Shivan Zombie",
-    crate::card::CardArt::new("f4c99269-f730-4d33-bbce-9e855e9ad0fc", "Tony Szczudlo"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f4c99269-f730-4d33-bbce-9e855e9ad0fc", "Tony Szczudlo"),
+    CardSet::Invasion,
+    // The black-red member of the same cycle.
+    CardRules::new_creature(
+        mana_cost!("{B}{R}"),
+        &["Phyrexian", "Barbarian", "Zombie"],
+        2,
+        2,
+    )
+    .with_ability(abilities::protection_from_color(ManaColor::White)),
 );
 
 // INV 272 — Simoon (reprint)
@@ -3285,16 +3299,17 @@ pub(in crate::card::sets) static VILE_CONSUMPTION: CardRecord = CardRecord::new(
 );
 
 // INV 286 — Vodalian Zombie
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VODALIAN_ZOMBIE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f30a5a06-32ce-4d71-b71f-e3e1d8d4511a"),
     "Vodalian Zombie",
-    crate::card::CardArt::new(
+    CardArt::new(
         "f30a5a06-32ce-4d71-b71f-e3e1d8d4511a",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // The blue-black member.
+    CardRules::new_creature(mana_cost!("{U}{B}"), &["Merfolk", "Zombie"], 2, 2)
+        .with_ability(abilities::protection_from_color(ManaColor::Green)),
 );
 
 // INV 287 — Void
@@ -3328,13 +3343,14 @@ pub(in crate::card::sets) static WINGS_OF_HOPE: CardRecord = CardRecord::new(
 );
 
 // INV 290 — Yavimaya Barbarian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YAVIMAYA_BARBARIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e17377d-4dad-4144-b0ce-c849636096a2"),
     "Yavimaya Barbarian",
-    crate::card::CardArt::new("8e17377d-4dad-4144-b0ce-c849636096a2", "Don Hazeltine"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8e17377d-4dad-4144-b0ce-c849636096a2", "Don Hazeltine"),
+    CardSet::Invasion,
+    // The red-green member.
+    CardRules::new_creature(mana_cost!("{R}{G}"), &["Elf", "Barbarian"], 2, 2)
+        .with_ability(abilities::protection_from_color(ManaColor::Blue)),
 );
 
 // INV 291 — Yavimaya Kavu

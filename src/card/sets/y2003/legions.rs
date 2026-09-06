@@ -1487,13 +1487,19 @@ pub(in crate::card::sets) static GLOWERING_ROGON: CardRecord = CardRecord::new(
 );
 
 // LGN 129 — Hundroog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HUNDROOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f525c356-88ca-4e2e-8f06-663be101e34f"),
     "Hundroog",
-    crate::card::CardArt::new("f525c356-88ca-4e2e-8f06-663be101e34f", "Wayne England"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f525c356-88ca-4e2e-8f06-663be101e34f", "Wayne England"),
+    CardSet::Legions,
+    // Seven mana is unaffordable and three to cycle is not, so it is
+    // really a cantrip with an emergency body attached.
+    CardRules::new_creature(mana_cost!("{6}{G}"), &["Beast"], 4, 7).with_ability(
+        abilities::cycling(
+            "Cycling {3} ({3}, Discard this card: Draw a card.)",
+            mana_cost!("{3}"),
+        ),
+    ),
 );
 
 // LGN 130 — Krosan Cloudscraper
@@ -1595,13 +1601,27 @@ pub(in crate::card::sets) static SEEDBORN_MUSE: CardRecord = CardRecord::new(
 );
 
 // LGN 139 — Stonewood Invoker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STONEWOOD_INVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94d0235d-7176-44a2-8e95-eb231f4af441"),
     "Stonewood Invoker",
-    crate::card::CardArt::new("94d0235d-7176-44a2-8e95-eb231f4af441", "Eric Peterson"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("94d0235d-7176-44a2-8e95-eb231f4af441", "Eric Peterson"),
+    CardSet::Legions,
+    // A two-drop with a late-game button: eight mana turns it into a 7/7,
+    // which is what an Invoker is for.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Mutant"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{7}{G}: This creature gets +5/+5 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{7}{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(5),
+                    ValueDef::Constant(5),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // LGN 140 — Timberwatch Elf

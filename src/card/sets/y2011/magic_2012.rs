@@ -934,13 +934,15 @@ pub(in crate::card::sets) static BLOODLORD_OF_VAASGOTH: CardRecord = CardRecord:
 );
 
 // M12 83 — Bloodrage Vampire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODRAGE_VAMPIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a078e438-fcf9-4648-95dc-3d4037f9b561"),
     "Bloodrage Vampire",
-    crate::card::CardArt::new("a078e438-fcf9-4648-95dc-3d4037f9b561", "Steve Prescott"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a078e438-fcf9-4648-95dc-3d4037f9b561", "Steve Prescott"),
+    CardSet::Magic2012,
+    // Three power for three mana on the turn after any damage, which an
+    // aggressive deck has usually already dealt.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire"], 3, 1)
+        .with_ability(abilities::bloodthirst(1)),
 );
 
 // M12 84 — Brink of Disaster
@@ -1598,13 +1600,15 @@ pub(in crate::card::sets) static GOBLIN_WAR_PAINT: CardRecord = CardRecord::new(
 );
 
 // M12 144 — Gorehorn Minotaurs
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOREHORN_MINOTAURS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1087e015-a3c4-4207-8285-5bda6bb50e52"),
     "Gorehorn Minotaurs",
-    crate::card::CardArt::new("1087e015-a3c4-4207-8285-5bda6bb50e52", "Wayne Reynolds"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1087e015-a3c4-4207-8285-5bda6bb50e52", "Wayne Reynolds"),
+    CardSet::Magic2012,
+    // Two counters instead of one, at a cost high enough that the
+    // condition has usually stopped being free.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
+        .with_ability(abilities::bloodthirst(2)),
 );
 
 // M12 145 — Grim Lavamancer (reprint)

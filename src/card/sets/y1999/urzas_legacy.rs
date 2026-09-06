@@ -1592,13 +1592,19 @@ pub(in crate::card::sets) static YAVIMAYA_GRANGER: CardRecord = CardRecord::new(
 );
 
 // ULG 119 — Yavimaya Scion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YAVIMAYA_SCION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a2f80036-1058-4513-8549-0557df9b5d61"),
     "Yavimaya Scion",
-    crate::card::CardArt::new("a2f80036-1058-4513-8549-0557df9b5d61", "DiTerlizzi"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a2f80036-1058-4513-8549-0557df9b5d61", "DiTerlizzi"),
+    CardSet::UrzasLegacy,
+    // Protection aimed at a whole card type, which in an artifact block is
+    // closer to an answer than a keyword.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Treefolk"], 4, 4).with_ability(
+        AbilityDef::keyword(
+            "Protection from artifacts",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(CardType::Artifact)),
+        ),
+    ),
 );
 
 // ULG 120 — Yavimaya Wurm

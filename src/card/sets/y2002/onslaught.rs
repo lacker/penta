@@ -2891,13 +2891,19 @@ pub(in crate::card::sets) static ANIMAL_MAGNETISM: CardRecord = CardRecord::new(
 );
 
 // ONS 246 — Barkhide Mauler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARKHIDE_MAULER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9196ce7-3ff4-4dda-a628-559ada11c9ba"),
     "Barkhide Mauler",
-    crate::card::CardArt::new("b9196ce7-3ff4-4dda-a628-559ada11c9ba", "Iain McCaig"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b9196ce7-3ff4-4dda-a628-559ada11c9ba", "Iain McCaig"),
+    CardSet::Onslaught,
+    // A fat body that is also never a dead draw, which is what cycling
+    // bought every common of the era.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 4, 4).with_ability(
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ),
 );
 
 // ONS 247 — Biorhythm

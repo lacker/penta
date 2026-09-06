@@ -445,16 +445,28 @@ pub(in crate::card::sets) static TEFERI_S_CARE: CardRecord = CardRecord::new(
 );
 
 // INV 44 — Wayfaring Giant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WAYFARING_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57e45de5-0e8b-41d3-979b-ec5a29cac682"),
     "Wayfaring Giant",
-    crate::card::CardArt::new(
+    CardArt::new(
         "57e45de5-0e8b-41d3-979b-ec5a29cac682",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Six mana for a 1/3 that is only worth casting in the deck that can
+    // already cast anything.
+    CardRules::new_creature(mana_cost!("{5}{W}"), &["Giant"], 1, 3).with_ability(
+        AbilityDef::static_ability(
+            "Domain — This creature gets +1/+1 for each basic land type among lands you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+                    ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+                ),
+            },
+        ),
+    ),
 );
 
 // INV 45 — Winnow
@@ -1718,13 +1730,25 @@ pub(in crate::card::sets) static KAVU_RUNNER: CardRecord = CardRecord::new(
 );
 
 // INV 151 — Kavu Scout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAVU_SCOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cbc2670d-a3f4-47c2-b424-01fd379ff186"),
     "Kavu Scout",
-    crate::card::CardArt::new("cbc2670d-a3f4-47c2-b424-01fd379ff186", "DiTerlizzi"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cbc2670d-a3f4-47c2-b424-01fd379ff186", "DiTerlizzi"),
+    CardSet::Invasion,
+    // All the domain goes into power, so it hits like a five-drop and
+    // blocks like a 0/2 whatever the board looks like.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Kavu", "Scout"], 0, 2).with_ability(
+        AbilityDef::static_ability(
+            "Domain — This creature gets +1/+0 for each basic land type among lands you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+                    ValueDef::Constant(0),
+                ),
+            },
+        ),
+    ),
 );
 
 // INV 152 — Lightning Dart
@@ -3529,13 +3553,18 @@ pub(in crate::card::sets) static PHYREXIAN_ALTAR: CardRecord = CardRecord::new(
 );
 
 // INV 307 — Phyrexian Lens
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_LENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6ec9a91d-7af0-44a8-839f-fb9960be0ddd"),
     "Phyrexian Lens",
-    crate::card::CardArt::new("6ec9a91d-7af0-44a8-839f-fb9960be0ddd", "Matt Cavotta"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6ec9a91d-7af0-44a8-839f-fb9960be0ddd", "Matt Cavotta"),
+    CardSet::Invasion,
+    // Life is the filter, so a deck with no other fixing pays for its
+    // colours a point at a time.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
+        "{T}, Pay 1 life: Add one mana of any color.",
+        &[CostDef::TapSource, CostDef::PayLife(1)],
+        EffectDef::AddMana(AddManaEffectDef::any_color()),
+    )),
 );
 
 // INV 308 — Planar Portal

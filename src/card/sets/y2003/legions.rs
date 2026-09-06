@@ -650,12 +650,12 @@ pub(in crate::card::sets) static BANE_OF_THE_LIVING: CardRecord = CardRecord::ne
 );
 
 // LGN 61 — Blood Celebrant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static BLOOD_CELEBRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("805de325-6f14-4a52-bb85-f9a9545d82a4"),
     "Blood Celebrant",
-    crate::card::CardArt::new("805de325-6f14-4a52-bb85-f9a9545d82a4", "Ben Thompson"),
-    crate::card::CardSet::Legions,
+    CardArt::new("805de325-6f14-4a52-bb85-f9a9545d82a4", "Ben Thompson"),
+    CardSet::Legions,
     crate::card::CardRules::unsupported(),
 );
 

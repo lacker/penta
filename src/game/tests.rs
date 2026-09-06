@@ -21,11 +21,13 @@ use crate::{
     TargetSlotDef, TargetSlotId, ZonePlacement,
 };
 
+mod any_color_for_life;
 mod attack_and_stay_tapped;
 mod attacks_alone;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod blocker_punishment;
+mod conditional_statics;
 mod dies_shrink_trigger;
 mod discard_a_land_cost;
 mod discard_to_regenerate;

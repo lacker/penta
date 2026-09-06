@@ -6,7 +6,7 @@ use crate::card::{
     BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -1131,13 +1131,39 @@ pub(in crate::card::sets) static RIDGELINE_RAGER: CardRecord = CardRecord::new(
 );
 
 // PCY 101 — Scoria Cat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCORIA_CAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7274f791-c9f1-49a1-9002-10e94caee96e"),
     "Scoria Cat",
-    crate::card::CardArt::new("7274f791-c9f1-49a1-9002-10e94caee96e", "Andrew Goldhawk"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7274f791-c9f1-49a1-9002-10e94caee96e", "Andrew Goldhawk"),
+    CardSet::Prophecy,
+    // A 6/6 for exactly as long as the mana is all spent, which is the
+    // turn the attack happens and no other.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Cat"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature gets +3/+3 as long as you control no untapped lands.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::Equal,
+                    right: ValueDef::Constant(0),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // PCY 102 — Search for Survivors
@@ -1171,13 +1197,39 @@ pub(in crate::card::sets) static SEARING_WIND: CardRecord = CardRecord::new(
 );
 
 // PCY 104 — Spur Grappler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPUR_GRAPPLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("50bf91a7-4d04-437c-a290-6adb52f25312"),
     "Spur Grappler",
-    crate::card::CardArt::new("50bf91a7-4d04-437c-a290-6adb52f25312", "Randy Gallegos"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("50bf91a7-4d04-437c-a290-6adb52f25312", "Randy Gallegos"),
+    CardSet::Prophecy,
+    // The cheap version of the same deal: tapping out is the cost of the
+    // bonus, and holding up a trick turns it off.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Beast"], 2, 1).with_ability(
+        AbilityDef::static_ability(
+            "This creature gets +2/+1 as long as you control no untapped lands.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::Equal,
+                    right: ValueDef::Constant(0),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // PCY 105 — Task Mage Assembly

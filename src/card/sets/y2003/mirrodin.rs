@@ -109,7 +109,6 @@ pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
 );
 
 // MRD 152 — Chrome Mox
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a058e68-70af-4a64-859c-c881e5578368"),
     "Chrome Mox",

@@ -300,7 +300,6 @@ pub(in crate::card::sets) static FEMEREF_HEALER: CardRecord = CardRecord::new(
 );
 
 // MIR 18 — Femeref Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FEMEREF_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("915a2e07-b449-4d94-93e3-e756e891c542"),
     "Femeref Knight",
@@ -410,13 +409,15 @@ pub(in crate::card::sets) static MTENDA_GRIFFIN: CardRecord = CardRecord::new(
 );
 
 // MIR 29 — Mtenda Herder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MTENDA_HERDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("51f30a3d-1421-4706-b17f-39a9ec7a0d8b"),
     "Mtenda Herder",
-    crate::card::CardArt::new("51f30a3d-1421-4706-b17f-39a9ec7a0d8b", "Zina Saunders"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("51f30a3d-1421-4706-b17f-39a9ec7a0d8b", "Zina Saunders"),
+    CardSet::Mirage,
+    // One mana for a creature that kills the 1/1 blocking it, which is what
+    // flanking does on a body this small.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Scout"], 1, 1)
+        .with_ability(abilities::flanking()),
 );
 
 // MIR 30 — Noble Elephant
@@ -1567,13 +1568,24 @@ pub(in crate::card::sets) static DIRTWATER_WRAITH: CardRecord = CardRecord::new(
 // MIR 118 — Drain Life (reprint)
 
 // MIR 119 — Dread Specter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DREAD_SPECTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("00c48e08-9a77-4ba2-8041-90998f7e3812"),
     "Dread Specter",
-    crate::card::CardArt::new("00c48e08-9a77-4ba2-8041-90998f7e3812", "Kathryn Rathke"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("00c48e08-9a77-4ba2-8041-90998f7e3812", "Kathryn Rathke"),
+    CardSet::Mirage,
+    // A 2/2 that trades with anything not black. Attacking into it or
+    // blocking it are both losing propositions.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Specter"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature blocks or becomes blocked by a nonblack creature, \
+             destroy that creature at end of combat.",
+            TriggerEventDef::BlocksOrBecomesBlockedBy {
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+            },
+            abilities::destroy_triggering_object_at_end_of_combat(),
+        ),
+    ),
 );
 
 // MIR 120 — Ebony Charm (alternate printing)
@@ -2197,7 +2209,6 @@ pub(in crate::card::sets) static BURNING_PALM_EFREET: CardRecord = CardRecord::n
 );
 
 // MIR 162 — Burning Shield Askari
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BURNING_SHIELD_ASKARI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("486547cd-d2e7-4c46-9f7b-81c4267d65cc"),
     "Burning Shield Askari",

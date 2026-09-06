@@ -22,8 +22,8 @@ use crate::card::{
     CardSupertype, CardType, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
 
@@ -1622,13 +1622,24 @@ pub(in crate::card::sets) static CORRUPT_OFFICIAL: CardRecord = CardRecord::new(
 // MMQ 129 — Dark Ritual (reprint)
 
 // MMQ 130 — Deathgazer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATHGAZER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d0fff328-704e-462d-9613-82d05371f544"),
     "Deathgazer",
-    crate::card::CardArt::new("d0fff328-704e-462d-9613-82d05371f544", "Donato Giancola"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d0fff328-704e-462d-9613-82d05371f544", "Donato Giancola"),
+    CardSet::MercadianMasques,
+    // The same deal Dread Specter offers, reprinted for a block where the
+    // mirror match was the one that mattered.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Lizard"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature blocks or becomes blocked by a nonblack creature, \
+             destroy that creature at end of combat.",
+            TriggerEventDef::BlocksOrBecomesBlockedBy {
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+            },
+            abilities::destroy_triggering_object_at_end_of_combat(),
+        ),
+    ),
 );
 
 // MMQ 131 — Deepwood Ghoul

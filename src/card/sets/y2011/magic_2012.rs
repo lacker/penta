@@ -898,7 +898,6 @@ pub(in crate::card::sets) static BLOOD_SEEKER: CardRecord = CardRecord::new(
 );
 
 // M12 82 — Bloodlord of Vaasgoth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODLORD_OF_VAASGOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("972fafa6-a001-4597-962b-1aed8e40adad"),
     "Bloodlord of Vaasgoth",
@@ -1675,7 +1674,6 @@ pub(in crate::card::sets) static SLAUGHTER_CRY: CardRecord = CardRecord::new(
 );
 
 // M12 156 — Stormblood Berserker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STORMBLOOD_BERSERKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc9a50af-ca3e-461a-9dcb-444f56284165"),
     "Stormblood Berserker",
@@ -1764,7 +1762,6 @@ pub(in crate::card::sets) static AUTUMN_S_VEIL: CardRecord = CardRecord::new(
 // M12 167 — Brindle Boar (reprint)
 
 // M12 168 — Carnage Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARNAGE_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c086eb41-3524-4815-97c9-761ba86a30b2"),
     "Carnage Wurm",

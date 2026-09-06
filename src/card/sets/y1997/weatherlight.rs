@@ -1515,13 +1515,15 @@ pub(in crate::card::sets) static RAZORTOOTH_RATS: CardRecord = CardRecord::new(
 );
 
 // WTH 79 — Shadow Rider
-// Audit: unsupported — Flanking and its per-blocker trigger are not represented by the shared keyword/runtime vocabulary.
 pub(in crate::card::sets) static SHADOW_RIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5bfdec24-e689-4cca-a546-a8f5d0929f8d"),
     "Shadow Rider",
-    crate::card::CardArt::new("5bfdec24-e689-4cca-a546-a8f5d0929f8d", "Pete Venters"),
-    crate::card::CardSet::Weatherlight,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5bfdec24-e689-4cca-a546-a8f5d0929f8d", "Pete Venters"),
+    CardSet::Weatherlight,
+    // Flanking on a 3/3 means a single blocker dies and the Rider lives, so
+    // it attacks profitably into almost anything.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Knight"], 3, 3)
+        .with_ability(abilities::flanking()),
 );
 
 // WTH 80 — Shattered Crypt
@@ -3108,7 +3110,6 @@ pub(in crate::card::sets) static DINGUS_STAFF: CardRecord = CardRecord::new(
 );
 
 // WTH 150 — Jabari's Banner
-// Audit: unsupported — Flanking is not represented by the shared keyword/runtime vocabulary.
 pub(in crate::card::sets) static JABARI_S_BANNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d51a496-1ca6-4286-bdbe-990d43196a25"),
     "Jabari's Banner",

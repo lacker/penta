@@ -227,13 +227,29 @@ pub(in crate::card::sets) static MAGETA_THE_LION: CardRecord = CardRecord::new(
 );
 
 // PCY 14 — Mageta's Boon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGETA_S_BOON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22db8a3b-413d-4f4d-b103-f50fc0415e9b"),
     "Mageta's Boon",
-    crate::card::CardArt::new("22db8a3b-413d-4f4d-b103-f50fc0415e9b", "Bradley Williams"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("22db8a3b-413d-4f4d-b103-f50fc0415e9b", "Bradley Williams"),
+    CardSet::Prophecy,
+    // Flash makes an Aura a combat trick, which is the only way an Aura wins
+    // a fight the opponent chose.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // PCY 15 — Mercenary Informer
@@ -403,13 +419,26 @@ pub(in crate::card::sets) static ALEXI_ZEPHYR_MAGE: CardRecord = CardRecord::new
 );
 
 // PCY 29 — Alexi's Cloak
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALEXI_S_CLOAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("457a5613-d1d4-4112-8484-f40120079b7b"),
     "Alexi's Cloak",
-    crate::card::CardArt::new("457a5613-d1d4-4112-8484-f40120079b7b", "Alan Rabinowitz"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("457a5613-d1d4-4112-8484-f40120079b7b", "Alan Rabinowitz"),
+    CardSet::Prophecy,
+    // Two mana at instant speed to blank a removal spell, at the cost of
+    // never being able to target the creature again yourself.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has shroud.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                },
+            ),
+        ]),
 );
 
 // PCY 30 — Avatar of Will
@@ -971,13 +1000,29 @@ pub(in crate::card::sets) static GREEL_MIND_RAKER: CardRecord = CardRecord::new(
 );
 
 // PCY 67 — Greel's Caress
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREEL_S_CARESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5b25ce3f-fab3-40f8-8a16-fe580f3d97a5"),
     "Greel's Caress",
-    crate::card::CardArt::new("5b25ce3f-fab3-40f8-8a16-fe580f3d97a5", "Chippy"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5b25ce3f-fab3-40f8-8a16-fe580f3d97a5", "Chippy"),
+    CardSet::Prophecy,
+    // It does not kill anything; it just makes the attack stop being worth
+    // making, which is what two mana at instant speed buys.
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -3/-0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-3),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // PCY 68 — Infernal Genesis
@@ -1704,13 +1749,26 @@ pub(in crate::card::sets) static JOLRAEL_EMPRESS_OF_BEASTS: CardRecord = CardRec
 );
 
 // PCY 116 — Jolrael's Favor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JOLRAEL_S_FAVOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8275ecd7-f119-4cca-bef1-626a3272dd2c"),
     "Jolrael's Favor",
-    crate::card::CardArt::new("8275ecd7-f119-4cca-bef1-626a3272dd2c", "Daren Bader"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8275ecd7-f119-4cca-bef1-626a3272dd2c", "Daren Bader"),
+    CardSet::Prophecy,
+    // A regeneration shield that can be flashed in after blockers, which is
+    // two combat tricks in one card.
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "{1}{G}: Regenerate enchanted creature.",
+                &[CostDef::Mana(mana_cost!("{1}{G}"))],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // PCY 117 — Living Terrain

@@ -1530,13 +1530,37 @@ pub(in crate::card::sets) static MARAUDING_KNIGHT: CardRecord = CardRecord::new(
 );
 
 // INV 111 — Mourning
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOURNING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4649d881-709f-4ed0-91de-744d232a82f5"),
     "Mourning",
-    crate::card::CardArt::new("4649d881-709f-4ed0-91de-744d232a82f5", "Terese Nielsen"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4649d881-709f-4ed0-91de-744d232a82f5", "Terese Nielsen"),
+    CardSet::Invasion,
+    // Two power off an attacker, taken back and reused every turn there is a
+    // black mana spare.
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -2/-0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-2),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{B}: Return this Aura to its owner's hand.",
+                &[CostDef::Mana(mana_cost!("{B}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // INV 112 — Nightscape Apprentice
@@ -1650,13 +1674,35 @@ pub(in crate::card::sets) static RECOVER: CardRecord = CardRecord::new(
 );
 
 // INV 123 — Scavenged Weaponry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCAVENGED_WEAPONRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4e8072a9-2699-4c6c-9556-67d91bd67a4b"),
     "Scavenged Weaponry",
-    crate::card::CardArt::new("4e8072a9-2699-4c6c-9556-67d91bd67a4b", "Alan Pollack"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4e8072a9-2699-4c6c-9556-67d91bd67a4b", "Alan Pollack"),
+    CardSet::Invasion,
+    // The card it draws is most of the cost back, which is what makes a +1/+1
+    // Aura playable at all.
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            abilities::enters_trigger(
+                "When this Aura enters, draw a card.",
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // INV 124 — Soul Burn (reprint)
@@ -3130,13 +3176,34 @@ pub(in crate::card::sets) static WANDERING_STREAM: CardRecord = CardRecord::new(
 );
 
 // INV 225 — Whip Silk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIP_SILK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10566804-fd15-4ef0-ad7d-cc979f4cc8c5"),
     "Whip Silk",
-    crate::card::CardArt::new("10566804-fd15-4ef0-ad7d-cc979f4cc8c5", "Dave Dorman"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("10566804-fd15-4ef0-ad7d-cc979f4cc8c5", "Dave Dorman"),
+    CardSet::Invasion,
+    // Reach matters only against fliers, so being able to pick it back up is
+    // what keeps the card from being dead.
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has reach.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::reach() }),
+                },
+            ),
+            AbilityDef::activated(
+                "{G}: Return this Aura to its owner's hand.",
+                &[CostDef::Mana(mana_cost!("{G}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // INV 226 — Absorb

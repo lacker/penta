@@ -319,13 +319,31 @@ pub(in crate::card::sets) static IGNOBLE_SOLDIER: CardRecord = CardRecord::new(
 );
 
 // MMQ 23 — Inviolability
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INVIOLABILITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ece8504-389a-43e3-b178-7067722c4b75"),
     "Inviolability",
-    crate::card::CardArt::new("9ece8504-389a-43e3-b178-7067722c4b75", "DiTerlizzi"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9ece8504-389a-43e3-b178-7067722c4b75", "DiTerlizzi"),
+    CardSet::MercadianMasques,
+    // A creature that cannot be damaged blocks anything forever, which is
+    // what makes two mana on a wall a real card.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Prevent all damage that would be dealt to enchanted creature.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(
+                        DamageEventMatcherDef {
+                            kind: DamageKindDef::Any,
+                            source: DamageSourceMatcherDef::Any,
+                            recipient: DamageRecipientMatcherDef::AffectedObject,
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // MMQ 24 — Ivory Mask
@@ -432,13 +450,31 @@ pub(in crate::card::sets) static MOONLIT_WAKE: CardRecord = CardRecord::new(
 );
 
 // MMQ 30 — Muzzle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MUZZLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b3048ec-bcbf-4a69-b56f-83bbe82b68e5"),
     "Muzzle",
-    crate::card::CardArt::new("8b3048ec-bcbf-4a69-b56f-83bbe82b68e5", "Matt Cavotta"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8b3048ec-bcbf-4a69-b56f-83bbe82b68e5", "Matt Cavotta"),
+    CardSet::MercadianMasques,
+    // It leaves the creature on the board doing nothing, which against a
+    // deck of one big threat is the same as killing it.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Prevent all damage that would be dealt by enchanted creature.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(
+                        DamageEventMatcherDef {
+                            kind: DamageKindDef::Any,
+                            source: DamageSourceMatcherDef::AffectedObject,
+                            recipient: DamageRecipientMatcherDef::Any,
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // MMQ 31 — Nightwind Glider
@@ -882,13 +918,26 @@ pub(in crate::card::sets) static BRIBERY: CardRecord = CardRecord::new(
 );
 
 // MMQ 63 — Buoyancy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BUOYANCY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b208dad2-a412-45fd-b19a-d370426ef5b8"),
     "Buoyancy",
-    crate::card::CardArt::new("b208dad2-a412-45fd-b19a-d370426ef5b8", "Jeff Miracola"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b208dad2-a412-45fd-b19a-d370426ef5b8", "Jeff Miracola"),
+    CardSet::MercadianMasques,
+    // Evasion at instant speed, which turns a board stall into lethal on the
+    // turn the opponent has already declared blockers.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                },
+            ),
+        ]),
 );
 
 // MMQ 64 — Chambered Nautilus
@@ -1035,13 +1084,25 @@ pub(in crate::card::sets) static DIPLOMATIC_ESCORT: CardRecord = CardRecord::new
 );
 
 // MMQ 75 — Diplomatic Immunity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIPLOMATIC_IMMUNITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb1e610e-a4a2-460b-8e4c-13674badbce3"),
     "Diplomatic Immunity",
-    crate::card::CardArt::new("fb1e610e-a4a2-460b-8e4c-13674badbce3", "Terese Nielsen"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fb1e610e-a4a2-460b-8e4c-13674badbce3", "Terese Nielsen"),
+    CardSet::MercadianMasques,
+    // Shroud on the Aura as well as on the creature, so the pair cannot be
+    // separated by anything that targets.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has shroud.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                },
+            ),
+        ]),
 );
 
 // MMQ 76 — Drake Hatchling
@@ -2083,13 +2144,29 @@ pub(in crate::card::sets) static LIABILITY: CardRecord = CardRecord::new(
 );
 
 // MMQ 145 — Maggot Therapy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGGOT_THERAPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6ab963aa-2304-4ee6-a8c7-c485c5133b40"),
     "Maggot Therapy",
-    crate::card::CardArt::new("6ab963aa-2304-4ee6-a8c7-c485c5133b40", "Jeff Easley"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6ab963aa-2304-4ee6-a8c7-c485c5133b40", "Jeff Easley"),
+    CardSet::MercadianMasques,
+    // Removal for a small creature or a pump for a large one, decided by
+    // whose creature it lands on.
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/-2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(-2),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // MMQ 146 — Midnight Ritual
@@ -2374,13 +2451,25 @@ pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_le
 );
 
 // MMQ 163 — Soul Channeling
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOUL_CHANNELING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55cd09ef-1655-4a62-b6c5-6eda33d2607a"),
     "Soul Channeling",
-    crate::card::CardArt::new("55cd09ef-1655-4a62-b6c5-6eda33d2607a", "DiTerlizzi"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("55cd09ef-1655-4a62-b6c5-6eda33d2607a", "DiTerlizzi"),
+    CardSet::MercadianMasques,
+    // Regeneration paid in life rather than mana, which a deck holding its
+    // mana for something else is glad to do.
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "Pay 2 life: Regenerate enchanted creature.",
+                &[CostDef::PayLife(2)],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // MMQ 164 — Specter's Wail
@@ -2578,13 +2667,31 @@ pub(in crate::card::sets) static BRAWL: CardRecord = CardRecord::new(
 );
 
 // MMQ 179 — Cave Sense
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAVE_SENSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2d718421-c742-489c-a243-3adb19f6716a"),
     "Cave Sense",
-    crate::card::CardArt::new("2d718421-c742-489c-a243-3adb19f6716a", "Mark Romanoski"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2d718421-c742-489c-a243-3adb19f6716a", "Mark Romanoski"),
+    CardSet::MercadianMasques,
+    // Against the red deck it is unblockable and against everything else it
+    // is a bear, which is what a landwalk Aura always was.
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and has mountainwalk.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::mountainwalk() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MMQ 180 — Cave-In
@@ -2680,13 +2787,32 @@ pub(in crate::card::sets) static FLAILING_SOLDIER: CardRecord = CardRecord::new(
 );
 
 // MMQ 190 — Flaming Sword
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAMING_SWORD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17ecd9ff-8c30-4e17-8cff-dd40d653c4af"),
     "Flaming Sword",
-    crate::card::CardArt::new("17ecd9ff-8c30-4e17-8cff-dd40d653c4af", "Randy Gallegos"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("17ecd9ff-8c30-4e17-8cff-dd40d653c4af", "Randy Gallegos"),
+    CardSet::MercadianMasques,
+    // First strike at instant speed wins the combat outright rather than
+    // trading, which is worth more than the point of power.
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+0 and has first strike.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MMQ 191 — Furious Assault
@@ -3842,13 +3968,31 @@ pub(in crate::card::sets) static SUSTENANCE: CardRecord = CardRecord::new(
 );
 
 // MMQ 279 — Tiger Claws
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIGER_CLAWS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0146a689-4817-4849-a90d-4cc64566960d"),
     "Tiger Claws",
-    crate::card::CardArt::new("0146a689-4817-4849-a90d-4cc64566960d", "Adam Rex"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0146a689-4817-4849-a90d-4cc64566960d", "Adam Rex"),
+    CardSet::MercadianMasques,
+    // The trample is the point: it turns a chump block into damage anyway.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and has trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MMQ 280 — Tranquility (reprint)

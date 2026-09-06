@@ -694,13 +694,32 @@ pub(in crate::card::sets) static HARSH_MERCY: CardRecord = CardRecord::new(
 );
 
 // ONS 40 — Improvised Armor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPROVISED_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d7d5d79-73d8-4f1a-9dda-4de5f41539d9"),
     "Improvised Armor",
-    crate::card::CardArt::new("8d7d5d79-73d8-4f1a-9dda-4de5f41539d9", "Alan Pollack"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d7d5d79-73d8-4f1a-9dda-4de5f41539d9", "Alan Pollack"),
+    CardSet::Onslaught,
+    // Seven points of stats for four mana is a rate no Aura gets to keep,
+    // which is why the cycling matters more than the numbers.
+    CardRules::new_enchantment(mana_cost!("{3}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+5.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(5),
+                    ),
+                },
+            ),
+            abilities::cycling(
+                "Cycling {3} ({3}, Discard this card: Draw a card.)",
+                mana_cost!("{3}"),
+            ),
+        ]),
 );
 
 // ONS 41 — Inspirit

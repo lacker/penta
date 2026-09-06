@@ -28,6 +28,7 @@ mod attack_and_stay_tapped;
 mod attacker_pump;
 mod attacks_alone;
 mod aura_grants;
+mod aura_prevention;
 mod aura_restrictions;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;

@@ -1303,13 +1303,34 @@ pub(in crate::card::sets) static SHADOW_RIFT: CardRecord = CardRecord::new(
 );
 
 // TMP 87 — Shimmering Wings
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMMERING_WINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6a8dc46-04c7-479a-90c1-b55e6c67e0e3"),
     "Shimmering Wings",
-    crate::card::CardArt::new("a6a8dc46-04c7-479a-90c1-b55e6c67e0e3", "Steve Luke"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a6a8dc46-04c7-479a-90c1-b55e6c67e0e3", "Steve Luke"),
+    CardSet::Tempest,
+    // One mana for evasion that can be picked up and replayed, which makes
+    // it a repeatable trick rather than a card spent.
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                },
+            ),
+            AbilityDef::activated(
+                "{U}: Return this Aura to its owner's hand.",
+                &[CostDef::Mana(mana_cost!("{U}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // TMP 88 — Skyshroud Condor
@@ -3333,13 +3354,32 @@ pub(in crate::card::sets) static FLAILING_DRAKE: CardRecord = CardRecord::new(
 );
 
 // TMP 228 — Frog Tongue
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FROG_TONGUE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3941e799-a254-423e-90bb-091dbe56ca6a"),
     "Frog Tongue",
-    crate::card::CardArt::new("3941e799-a254-423e-90bb-091dbe56ca6a", "Phil Foglio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3941e799-a254-423e-90bb-091dbe56ca6a", "Phil Foglio"),
+    CardSet::Tempest,
+    // It replaces itself, so the reach is free -- which is the only way a
+    // one-mana Aura is worth a card.
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has reach.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::reach() }),
+                },
+            ),
+            abilities::enters_trigger(
+                "When this Aura enters, draw a card.",
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // TMP 229 — Fugitive Druid

@@ -1545,13 +1545,43 @@ pub(in crate::card::sets) static CAPTAIN_S_MANEUVER: CardRecord = CardRecord::ne
 );
 
 // APC 93 — Consume Strength
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONSUME_STRENGTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f005fc90-7e81-4bd4-a479-438337110979"),
     "Consume Strength",
-    crate::card::CardArt::new("f005fc90-7e81-4bd4-a479-438337110979", "Adam Rex"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f005fc90-7e81-4bd4-a479-438337110979", "Adam Rex"),
+    CardSet::Apocalypse,
+    // Twice the swing for a second colour, which is what the gold cards in
+    // the set were for.
+    CardRules::new_instant(mana_cost!("{1}{B}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +2/+2 until end of turn. Another target creature gets -2/-2 until end of turn.",
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            ))
+            .another(),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // APC 94 — Cromat

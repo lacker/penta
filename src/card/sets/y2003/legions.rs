@@ -450,13 +450,20 @@ pub(in crate::card::sets) static GLINTWING_INVOKER: CardRecord = CardRecord::new
 );
 
 // LGN 41 — Keeneye Aven
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KEENEYE_AVEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a355c58-cd28-4d2d-9df1-91b4196b01ef"),
     "Keeneye Aven",
-    crate::card::CardArt::new("1a355c58-cd28-4d2d-9df1-91b4196b01ef", "Greg Hildebrandt"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1a355c58-cd28-4d2d-9df1-91b4196b01ef", "Greg Hildebrandt"),
+    CardSet::Legions,
+    // A flier that is never a dead draw, which is what every common in
+    // the block was built to be.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Bird", "Soldier"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // LGN 42 — Keeper of the Nine Gales
@@ -530,13 +537,20 @@ pub(in crate::card::sets) static MISTFORM_WAKECASTER: CardRecord = CardRecord::n
 );
 
 // LGN 49 — Primoc Escapee
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIMOC_ESCAPEE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6cb3e72-bb64-4b1e-a54b-1fe4fb4ad4c9"),
     "Primoc Escapee",
-    crate::card::CardArt::new("e6cb3e72-bb64-4b1e-a54b-1fe4fb4ad4c9", "Tony Szczudlo"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e6cb3e72-bb64-4b1e-a54b-1fe4fb4ad4c9", "Tony Szczudlo"),
+    CardSet::Legions,
+    // Seven mana is unaffordable and two to cycle is not, so this is a
+    // cantrip that occasionally wins a game.
+    CardRules::new_creature(mana_cost!("{6}{U}"), &["Bird", "Beast"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // LGN 50 — Riptide Director

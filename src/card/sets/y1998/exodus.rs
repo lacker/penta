@@ -1609,13 +1609,27 @@ pub(in crate::card::sets) static PYGMY_TROLL: CardRecord = CardRecord::new(
 );
 
 // EXO 119 — Rabid Wolverines
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RABID_WOLVERINES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("99121a2b-c735-47be-b01e-cdf59809e7f3"),
     "Rabid Wolverines",
-    crate::card::CardArt::new("99121a2b-c735-47be-b01e-cdf59809e7f3", "Daren Bader"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("99121a2b-c735-47be-b01e-cdf59809e7f3", "Daren Bader"),
+    CardSet::Exodus,
+    // A 4/4 that grows for each creature that blocks it, so ganging up on
+    // it is worse than it looks.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Wolverine"], 4, 4).with_ability(AbilityDef::triggered(
+        "Whenever this creature becomes blocked by a creature, this creature gets +1/+1 until end of turn.",
+        TriggerEventDef::BecomesBlockedBy {
+            blocker: ObjectPredicateDef::HasType(CardType::Creature),
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // EXO 120 — Reclaim (reprint)

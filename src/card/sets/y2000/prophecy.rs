@@ -879,16 +879,46 @@ pub(in crate::card::sets) static SOUL_STRINGS: CardRecord = CardRecord::new(
 );
 
 // PCY 79 — Steal Strength
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEAL_STRENGTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5470b3bb-5061-4beb-9f44-b56c3b2fd816"),
     "Steal Strength",
-    crate::card::CardArt::new(
+    CardArt::new(
         "5470b3bb-5061-4beb-9f44-b56c3b2fd816",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardSet::Prophecy,
+    // It moves a point from one creature to another, so it wins a combat
+    // and a race in the same card.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +1/+1 until end of turn. Another target creature gets -1/-1 until end of turn.",
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            ))
+            .another(),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // PCY 80 — Wall of Vipers

@@ -438,13 +438,31 @@ pub(in crate::card::sets) static GRAVEL_SLINGER: CardRecord = CardRecord::new(
 );
 
 // ONS 34 — Gustcloak Harrier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUSTCLOAK_HARRIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5ff5c7d-7823-4d1e-8abb-77e2d8126996"),
     "Gustcloak Harrier",
-    crate::card::CardArt::new("b5ff5c7d-7823-4d1e-8abb-77e2d8126996", "Dan Frazier"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b5ff5c7d-7823-4d1e-8abb-77e2d8126996", "Dan Frazier"),
+    CardSet::Onslaught,
+    // Flying and an escape, so blocking it needs a flier and stops nothing
+    // even then.
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Bird", "Soldier"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may untap it and remove it from combat.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::Untap {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::RemoveFromCombat {
+                        object: EffectRecipientDef::Source,
+                    },
+                ]),
+            },
+        ),
+    ]),
 );
 
 // ONS 35 — Gustcloak Runner
@@ -512,13 +530,31 @@ pub(in crate::card::sets) static GUSTCLOAK_SENTINEL: CardRecord = CardRecord::ne
 );
 
 // ONS 38 — Gustcloak Skirmisher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUSTCLOAK_SKIRMISHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cbbff06c-5f92-4320-8b70-df3c8344f600"),
     "Gustcloak Skirmisher",
-    crate::card::CardArt::new("cbbff06c-5f92-4320-8b70-df3c8344f600", "Dan Frazier"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cbbff06c-5f92-4320-8b70-df3c8344f600", "Dan Frazier"),
+    CardSet::Onslaught,
+    // The same escape a size up, where the extra toughness makes blocking
+    // it pointless twice over.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Soldier"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may untap it and remove it from combat.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::Untap {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::RemoveFromCombat {
+                        object: EffectRecipientDef::Source,
+                    },
+                ]),
+            },
+        ),
+    ]),
 );
 
 // ONS 39 — Harsh Mercy

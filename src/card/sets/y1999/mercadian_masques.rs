@@ -2654,13 +2654,34 @@ pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
 );
 
 // MMQ 203 — Lunge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LUNGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9e43349-429c-43f7-b808-c4bf37370a9f"),
     "Lunge",
-    crate::card::CardArt::new("e9e43349-429c-43f7-b808-c4bf37370a9f", "Dan Frazier"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e9e43349-429c-43f7-b808-c4bf37370a9f", "Dan Frazier"),
+    CardSet::MercadianMasques,
+    // The same split at twice the size, which kills an X/2 and still pushes
+    // damage through.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Lunge deals 2 damage to target creature and 2 damage to target player or planeswalker.",
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(
+                PlayerRelation::Any,
+            )),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )),
 );
 
 // MMQ 204 — Magistrate's Veto

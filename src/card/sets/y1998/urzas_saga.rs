@@ -3018,16 +3018,37 @@ pub(in crate::card::sets) static SHIV_S_EMBRACE: CardRecord = CardRecord::new(
 );
 
 // USG 217 — Shower of Sparks
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHOWER_OF_SPARKS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("54428999-a83d-40a5-9753-dfefdf705a9e"),
     "Shower of Sparks",
-    crate::card::CardArt::new(
+    CardArt::new(
         "54428999-a83d-40a5-9753-dfefdf705a9e",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasSaga,
+    // One mana that splits one damage two ways, which needs both halves
+    // to matter to be worth a card.
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Shower of Sparks deals 1 damage to target creature and 1 damage to target player or planeswalker.",
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(
+                PlayerRelation::Any,
+            )),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // USG 218 — Sneak Attack
@@ -3390,13 +3411,27 @@ pub(in crate::card::sets) static CARPET_OF_FLOWERS: CardRecord = CardRecord::new
 );
 
 // USG 241 — Cave Tiger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAVE_TIGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c782eb28-0cdd-4c3d-9d89-8b23c29cddd4"),
     "Cave Tiger",
-    crate::card::CardArt::new("c782eb28-0cdd-4c3d-9d89-8b23c29cddd4", "Hannibal King"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c782eb28-0cdd-4c3d-9d89-8b23c29cddd4", "Hannibal King"),
+    CardSet::UrzasSaga,
+    // The small version, which wins the block against anything its own
+    // size and dies to nothing else.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Cat"], 2, 2).with_ability(AbilityDef::triggered(
+        "Whenever this creature becomes blocked by a creature, this creature gets +1/+1 until end of turn.",
+        TriggerEventDef::BecomesBlockedBy {
+            blocker: ObjectPredicateDef::HasType(CardType::Creature),
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // USG 242 — Child of Gaea

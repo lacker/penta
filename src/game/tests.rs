@@ -24,6 +24,7 @@ use crate::{
 mod attack_and_stay_tapped;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
+mod discard_a_land_cost;
 mod enumerated_apply;
 mod fear;
 mod fixtures;

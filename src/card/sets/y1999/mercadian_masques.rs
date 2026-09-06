@@ -2513,13 +2513,30 @@ pub(in crate::card::sets) static HIRED_GIANT: CardRecord = CardRecord::new(
 );
 
 // MMQ 195 — Kris Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRIS_MAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4389fbcd-182a-4cac-b14f-aa971948cf8e"),
     "Kris Mage",
-    crate::card::CardArt::new("4389fbcd-182a-4cac-b14f-aa971948cf8e", "Matthew D. Wilson"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4389fbcd-182a-4cac-b14f-aa971948cf8e", "Matthew D. Wilson"),
+    CardSet::MercadianMasques,
+    // A one-drop that turns spare cards into damage, which is the whole
+    // Spellshaper idea in its cheapest form.
+    CardRules::new_creature(mana_cost!("{R}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}, {T}, Discard a card: This creature deals 1 damage to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{R}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // MMQ 196 — Kyren Glider
@@ -2682,13 +2699,26 @@ pub(in crate::card::sets) static SEISMIC_MAGE: CardRecord = CardRecord::new(
 );
 
 // MMQ 212 — Shock Troops
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHOCK_TROOPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7a918ca-3e60-46de-9f29-56bdc6430a77"),
     "Shock Troops",
-    crate::card::CardArt::new("e7a918ca-3e60-46de-9f29-56bdc6430a77", "Jeff Miracola"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e7a918ca-3e60-46de-9f29-56bdc6430a77", "Jeff Miracola"),
+    CardSet::MercadianMasques,
+    // Mogg Fanatic for four mana and twice the damage, and the sacrifice
+    // is the cost, so the body is gone before the damage resolves.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Soldier"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: It deals 2 damage to any target.",
+            &[AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // MMQ 213 — Sizzle

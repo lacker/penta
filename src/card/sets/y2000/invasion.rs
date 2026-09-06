@@ -2923,13 +2923,29 @@ pub(in crate::card::sets) static LLANOWAR_KNIGHT: CardRecord = CardRecord::new(
 // INV 255 — Lobotomy (reprint)
 
 // INV 256 — Meteor Storm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METEOR_STORM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36489b24-f8a8-46b6-b879-0a5ce400a6dc"),
     "Meteor Storm",
-    crate::card::CardArt::new("36489b24-f8a8-46b6-b879-0a5ce400a6dc", "John Avon"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("36489b24-f8a8-46b6-b879-0a5ce400a6dc", "John Avon"),
+    CardSet::Invasion,
+    // Four damage for two cards and four mana, which is a rate that only
+    // makes sense when the hand is already dead weight.
+    CardRules::new_enchantment(mana_cost!("{R}{G}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{R}{G}, Discard two cards at random: This enchantment deals 4 damage to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{R}{G}")),
+                AbilityCostDef::DiscardCardsAtRandom(2),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ),
 );
 
 // INV 257 — Noble Panther
@@ -3004,13 +3020,29 @@ pub(in crate::card::sets) static RAGING_KAVU: CardRecord = CardRecord::new(
 );
 
 // INV 263 — Reckless Assault
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ff0f568e-4d3a-40a5-b72a-63040ec5402d"),
     "Reckless Assault",
-    crate::card::CardArt::new("ff0f568e-4d3a-40a5-b72a-63040ec5402d", "Jeff Easley"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ff0f568e-4d3a-40a5-b72a-63040ec5402d", "Jeff Easley"),
+    CardSet::Invasion,
+    // Life is the resource being burned, so the enchantment is only as
+    // big as the controller's remaining margin.
+    CardRules::new_enchantment(mana_cost!("{2}{B}{R}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}, Pay 2 life: This enchantment deals 1 damage to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::PayLife(2),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // INV 264 — Recoil

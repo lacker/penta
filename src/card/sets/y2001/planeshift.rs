@@ -2,14 +2,15 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
+    ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
-use crate::ids::ParentBinding;
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // PLS 1 — Aura Blast
@@ -596,13 +597,32 @@ pub(in crate::card::sets) static CALDERA_KAVU: CardRecord = CardRecord::new(
 );
 
 // PLS 59 — Deadapult
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEADAPULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdc93b3d-bde4-422f-9edc-e337719be7b4"),
     "Deadapult",
-    crate::card::CardArt::new("bdc93b3d-bde4-422f-9edc-e337719be7b4", "Mark Brill"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bdc93b3d-bde4-422f-9edc-e337719be7b4", "Mark Brill"),
+    CardSet::Planeshift,
+    // A Zombie deck's mana sink: the tokens that could not profitably
+    // attack become two damage each instead.
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}, Sacrifice a Zombie: This enchantment deals 2 damage to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{R}")),
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::Subtype("Zombie"),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // PLS 60 — Flametongue Kavu

@@ -1057,13 +1057,29 @@ pub(in crate::card::sets) static KEEPER_OF_THE_FLAME: CardRecord = CardRecord::n
 );
 
 // EXO 86 — Mage il-Vec
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGE_IL_VEC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04e3e38b-2191-4b92-ae5d-bb9397d24a27"),
     "Mage il-Vec",
-    crate::card::CardArt::new("04e3e38b-2191-4b92-ae5d-bb9397d24a27", "John Matson"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("04e3e38b-2191-4b92-ae5d-bb9397d24a27", "John Matson"),
+    CardSet::Exodus,
+    // Repeatable pings that cost a card each, so the ceiling is however
+    // many cards the hand can spare.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Wizard"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Discard a card at random: This creature deals 1 damage to any target.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardsAtRandom(1),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // EXO 87 — Maniacal Rage
@@ -1107,13 +1123,29 @@ pub(in crate::card::sets) static OATH_OF_MAGES: CardRecord = CardRecord::new(
 );
 
 // EXO 91 — Ogre Shaman
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OGRE_SHAMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb3224ac-9b60-48cf-9734-86768fd370ac"),
     "Ogre Shaman",
-    crate::card::CardArt::new("cb3224ac-9b60-48cf-9734-86768fd370ac", "Paolo Parente"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cb3224ac-9b60-48cf-9734-86768fd370ac", "Paolo Parente"),
+    CardSet::Exodus,
+    // The same trade without the tap, so it can fire twice in a turn if
+    // the mana and the cards are both there.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Ogre", "Shaman"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}, Discard a card at random: This creature deals 2 damage to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::DiscardCardsAtRandom(1),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // EXO 92 — Onslaught
@@ -1229,13 +1261,28 @@ pub(in crate::card::sets) static SCALDING_SALAMANDER: CardRecord = CardRecord::n
 );
 
 // EXO 101 — Seismic Assault
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEISMIC_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc494af5-4da4-43f5-a193-426ef84d80a7"),
     "Seismic Assault",
-    crate::card::CardArt::new("cc494af5-4da4-43f5-a193-426ef84d80a7", "Dermot Power"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cc494af5-4da4-43f5-a193-426ef84d80a7", "Dermot Power"),
+    CardSet::Exodus,
+    // Three red mana turns every land left in hand into two damage, which
+    // is why it was built alongside a land that draws cards.
+    CardRules::new_enchantment(mana_cost!("{R}{R}{R}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "Discard a land card: This enchantment deals 2 damage to any target.",
+            &[AbilityCostDef::DiscardCardMatching(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // EXO 102 — Shattering Pulse

@@ -58,7 +58,8 @@ fn validate_resolving_applied_effect(
                 BlockRestrictionDef::Pair { cost, .. } => {
                     cost.is_some_and(|cost| cost.variable_x || cost.x_multiplier != 0)
                 }
-                BlockRestrictionDef::MinimumBlockers(_) => false,
+                BlockRestrictionDef::MinimumBlockers(_)
+                | BlockRestrictionDef::MaximumBlockers(_) => false,
             };
             if variable_cost || !object_recipient
             {

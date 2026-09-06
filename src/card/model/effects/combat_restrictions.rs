@@ -107,6 +107,14 @@ pub enum BlockRestrictionDef {
     /// "This creature can't be blocked except by N or more creatures."
     /// Menace is the same finished-declaration restriction with a two on it.
     MinimumBlockers(u8),
+    /// "This creature can't be blocked by more than N creatures."
+    ///
+    /// The mirror of [`Self::MinimumBlockers`] in wording only. A minimum
+    /// constrains the finished declaration, because the first blocker is
+    /// legal and only the last one can leave it short. A maximum constrains
+    /// each block as it is offered: once N creatures block, the next one is
+    /// already illegal, so nothing about it can become legal later.
+    MaximumBlockers(u8),
 }
 
 impl BlockRestrictionDef {

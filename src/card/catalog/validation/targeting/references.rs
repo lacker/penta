@@ -934,7 +934,8 @@ fn validate_applied_effect_target_references(
                         validate_object_predicate_references(predicate, target_count, scope)
                     }
                 },
-                BlockRestrictionDef::MinimumBlockers(_) => Ok(()),
+                BlockRestrictionDef::MinimumBlockers(_)
+                | BlockRestrictionDef::MaximumBlockers(_) => Ok(()),
             }
         }
         AppliedEffectDef::Rule(AppliedRuleDef::RedirectDamageFromTo {

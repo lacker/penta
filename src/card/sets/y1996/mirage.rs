@@ -12,13 +12,13 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldArrivalDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ColorSet, CreatedTokensDef, DamageEventMatcherDef,
-    DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
-    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    BattlefieldArrivalDef, BlockRestrictionDef, CardArt, CardNameSetDef, CardRules, CardSet,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet, CreatedTokensDef,
+    DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef,
+    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -3478,13 +3478,24 @@ pub(in crate::card::sets) static SERENE_HEART: CardRecord = CardRecord::new(
 );
 
 // MIR 243 — Stalking Tiger
-// Audit: unsupported — Needs a maximum-blockers restriction. BlockRestrictionDef offers MinimumBlockers, which menace uses, but nothing caps how many creatures may block.
 pub(in crate::card::sets) static STALKING_TIGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f12cc4e9-010a-4ff7-a026-dcb6113a36fb"),
     "Stalking Tiger",
-    crate::card::CardArt::new("f12cc4e9-010a-4ff7-a026-dcb6113a36fb", "Terese Nielsen"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f12cc4e9-010a-4ff7-a026-dcb6113a36fb", "Terese Nielsen"),
+    CardSet::Mirage,
+    // Not evasion but a ceiling on the exchange: it is always a fair
+    // fight, which a 3/3 usually wins.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Cat"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked by more than one creature.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::MaximumBlockers(1),
+                )),
+            },
+        ),
+    ),
 );
 
 // MIR 244 — Superior Numbers

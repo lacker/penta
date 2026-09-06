@@ -25,6 +25,14 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **A block restriction can cap how many creatures block.**
+  `BlockRestrictionDef::MaximumBlockers` is the mirror of `MinimumBlockers`
+  in wording only. A minimum constrains the finished declaration, because
+  the first blocker is legal and only the last can leave it short; a maximum
+  constrains each block as it is offered, so the creature that would exceed
+  it is never listed as a legal blocker. Stalking Tiger and Charging Rhino
+  are the first users.
+
 - **Fear is available as a shared evasion clause.** `abilities::fear()` is the
   pairing restriction the keyword abbreviates -- blockers outside "artifact
   creature or black creature" are barred -- rather than a new keyword flag.

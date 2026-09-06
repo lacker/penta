@@ -625,6 +625,9 @@ fn static_block_restriction_supported(restriction: BlockRestrictionDef) -> bool 
         // "Except by one or more creatures" is what every creature already
         // is, so a printed clause saying it would say nothing.
         BlockRestrictionDef::MinimumBlockers(required) => required > 1,
+        // "By no more than zero creatures" is a prohibition written the
+        // long way round, and nothing prints it.
+        BlockRestrictionDef::MaximumBlockers(allowed) => allowed > 0,
     }
 }
 

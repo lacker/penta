@@ -36,6 +36,7 @@ mod flying_blockers_only;
 mod free_sacrifice_outlet;
 mod guildsworn_prowler;
 mod mass_shrink;
+mod maximum_blockers;
 mod miners_guidewing;
 mod moon_circuit_hacker;
 mod nyxborn_hydra;

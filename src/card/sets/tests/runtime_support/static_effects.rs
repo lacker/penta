@@ -683,6 +683,7 @@ fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDe
                             && cost.is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)
                     }
                     BlockRestrictionDef::MinimumBlockers(required) => required > 1,
+                    BlockRestrictionDef::MaximumBlockers(allowed) => allowed > 0,
                 }
         }
         // A requirement is read off the attacker on the same walk as the

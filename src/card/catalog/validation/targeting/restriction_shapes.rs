@@ -35,6 +35,8 @@ fn validate_block_restriction_shape(
                 validate_object_predicate_shape(predicate, targets)
             }
         },
-        BlockRestrictionDef::MinimumBlockers(_) => Ok(()),
+        BlockRestrictionDef::MinimumBlockers(_) | BlockRestrictionDef::MaximumBlockers(_) => {
+            Ok(())
+        }
     }
 }

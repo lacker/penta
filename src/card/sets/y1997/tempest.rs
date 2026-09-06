@@ -14,11 +14,11 @@ use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, DividedTotal,
-    DrawEventMatcherDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeSetDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    BattlefieldEntryModificationDef, BlockRestrictionDef, CardArt, CardNameDef, CardNameSetDef,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
+    CostModificationDef, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef,
+    DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, TargetChooserDef, TriggerConditionDef,
@@ -2812,13 +2812,24 @@ pub(in crate::card::sets) static CANOPY_SPIDER: CardRecord = CardRecord::new(
 );
 
 // TMP 218 — Charging Rhino
-// Audit: unsupported — Needs a maximum-blockers restriction. BlockRestrictionDef offers MinimumBlockers, which menace uses, but nothing caps how many creatures may block.
 pub(in crate::card::sets) static CHARGING_RHINO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49e47248-051c-4ee6-aad2-352ebd1f38ca"),
     "Charging Rhino",
-    crate::card::CardArt::new("651f89e5-9ce2-4713-aca9-6581005f6ca2", "Daren Bader"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("651f89e5-9ce2-4713-aca9-6581005f6ca2", "Daren Bader"),
+    CardSet::Tempest,
+    // The same clause on a body big enough that no single blocker is a
+    // fair fight.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Rhino"], 4, 4).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked by more than one creature.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::MaximumBlockers(1),
+                )),
+            },
+        ),
+    ),
 );
 
 // TMP 219 — Choke

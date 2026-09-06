@@ -337,6 +337,40 @@ impl Game {
         minimum
     }
 
+    /// How many creatures may block this one at most, when something caps
+    /// it. Several caps at once take the smallest, which is the only reading
+    /// under which each remains true.
+    fn maximum_blockers(&self, attacker: &Permanent) -> Option<usize> {
+        let mut maximum: Option<usize> = None;
+        let _ = self.visit_applied_rules(attacker, |applied| {
+            if let AppliedRuleDef::BlockRestriction(BlockRestrictionDef::MaximumBlockers(allowed)) =
+                applied.rule
+            {
+                let allowed = usize::from(allowed);
+                maximum = Some(maximum.map_or(allowed, |current: usize| current.min(allowed)));
+            }
+            ControlFlow::Continue(())
+        });
+        maximum
+    }
+
+    /// Whether this attacker has already taken every block it is allowed.
+    /// Unlike a minimum this is asked as each block is offered: the cap is
+    /// reached by creatures that are already blocking, so the next
+    /// declaration is illegal on its own rather than by leaving the finished
+    /// declaration wrong.
+    fn blocker_quota_is_full(&self, attacker: &Permanent) -> bool {
+        let Some(maximum) = self.maximum_blockers(attacker) else {
+            return false;
+        };
+        let blockers = self
+            .battlefield
+            .iter()
+            .filter(|candidate| candidate.is_blocking(attacker.card.id))
+            .count();
+        blockers >= maximum
+    }
+
     /// Whether some attacker that takes more than one blocker is blocked by
     /// too few.
     ///
@@ -376,6 +410,9 @@ impl Game {
         if blocker_permanent.is_blocking(attacker) {
             // A second declaration against the same attacker would spend one
             // of the blocker's allowance on a block it already has.
+            return false;
+        }
+        if self.blocker_quota_is_full(attacker_permanent) {
             return false;
         }
         if self.landwalk_beats(attacker_permanent, attacker_permanent.controller.opponent())

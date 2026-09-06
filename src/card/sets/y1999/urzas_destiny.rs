@@ -550,13 +550,29 @@ pub(in crate::card::sets) static RAYNE_ACADEMY_CHANCELLOR: CardRecord = CardReco
 );
 
 // UDS 44 — Rescue
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESCUE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63fc979e-7758-4310-9259-659e9ced2c7f"),
     "Rescue",
-    crate::card::CardArt::new("63fc979e-7758-4310-9259-659e9ced2c7f", "Greg Staples"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("63fc979e-7758-4310-9259-659e9ced2c7f", "Greg Staples"),
+    CardSet::UrzasDestiny,
+    // One mana to save a creature from removal or reset an enters trigger,
+    // which is what blue sold instead of protection.
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target permanent you control to its owner's hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // UDS 45 — Scent of Brine

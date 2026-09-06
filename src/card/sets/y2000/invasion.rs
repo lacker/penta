@@ -2592,13 +2592,32 @@ pub(in crate::card::sets) static ARMORED_GUARDIAN: CardRecord = CardRecord::new(
 );
 
 // INV 231 — Artifact Mutation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARTIFACT_MUTATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d5eef49c-a80f-4622-ba77-999f9151c841"),
     "Artifact Mutation",
-    crate::card::CardArt::new("d5eef49c-a80f-4622-ba77-999f9151c841", "Greg Staples"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d5eef49c-a80f-4622-ba77-999f9151c841", "Greg Staples"),
+    CardSet::Invasion,
+    // Aura Mutation's red-green half: the same trade, aimed at artifacts.
+    CardRules::new_instant(mana_cost!("{R}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target artifact. It can't be regenerated. Create X 1/1 green Saproling creature \
+         tokens, where X is that artifact's mana value.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1)
+                .with_count(ValueDef::TargetManaValue(TargetIndex::PRIMARY)),
+        ]),
+    )),
 );
 
 // INV 232 — Aura Mutation

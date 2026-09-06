@@ -2011,13 +2011,40 @@ pub(in crate::card::sets) static SCANDALMONGER: CardRecord = CardRecord::new(
 );
 
 // MMQ 159 — Sever Soul
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEVER_SOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2d84fec-18f1-4231-a293-0dc1ff868a40"),
     "Sever Soul",
-    crate::card::CardArt::new("c2d84fec-18f1-4231-a293-0dc1ff868a40", "Jeff Easley"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c2d84fec-18f1-4231-a293-0dc1ff868a40", "Jeff Easley"),
+    CardSet::MercadianMasques,
+    // Five mana for removal and a life swing, which is the rate black paid
+    // when it also wanted to survive the race.
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target nonblack creature. It can't be regenerated. You gain life equal to its \
+         toughness.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // The life is its own sentence, so it is gained whether or not
+            // the creature actually died, from last-known toughness.
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TargetToughness(TargetIndex::PRIMARY),
+            },
+        ]),
+    )),
 );
 
 // MMQ 160 — Silent Assassin

@@ -792,13 +792,28 @@ pub(in crate::card::sets) static MIND_MAGGOTS: CardRecord = CardRecord::new(
 );
 
 // EXO 67 — Nausea
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NAUSEA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a10531d8-fc99-4a2b-94b0-97a25521d725"),
     "Nausea",
-    crate::card::CardArt::new("a10531d8-fc99-4a2b-94b0-97a25521d725", "Jeff Miracola"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a10531d8-fc99-4a2b-94b0-97a25521d725", "Jeff Miracola"),
+    CardSet::Exodus,
+    // One point off everything, which reads as a sweeper only against a
+    // board of X/1s.
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell(
+        "All creatures get -1/-1 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-1),
+                ValueDef::Constant(-1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // EXO 68 — Necrologia
@@ -1145,13 +1160,15 @@ pub(in crate::card::sets) static PRICE_OF_PROGRESS: CardRecord = CardRecord::new
 );
 
 // EXO 96 — Raging Goblin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAGING_GOBLIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c0fa444-5534-4476-8bfa-78b2364f2dd3"),
     "Raging Goblin",
-    crate::card::CardArt::new("1f0a166c-f7c0-45b4-aa90-053ce545cfb2", "Brian Snõddy"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1f0a166c-f7c0-45b4-aa90-053ce545cfb2", "Brian Snõddy"),
+    CardSet::Exodus,
+    // The whole card is haste, and the whole point is that one damage
+    // arrives a turn earlier than it should.
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Berserker"], 1, 1)
+        .with_ability(abilities::haste()),
 );
 
 // EXO 97 — Ravenous Baboons

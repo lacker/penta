@@ -30,6 +30,7 @@ mod fixtures;
 pub(super) use fixtures::*;
 
 mod guildsworn_prowler;
+mod mass_shrink;
 mod miners_guidewing;
 mod moon_circuit_hacker;
 mod nyxborn_hydra;

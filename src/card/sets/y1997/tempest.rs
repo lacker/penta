@@ -17,7 +17,7 @@ use crate::card::{
     BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef,
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, DividedTotal,
-    DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeSetDef,
+    DrawEventMatcherDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeSetDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
@@ -2424,13 +2424,23 @@ pub(in crate::card::sets) static KINDLE: CardRecord = CardRecord::new(
 );
 
 // TMP 185 — Lightning Blast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_BLAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63fec3f9-d399-48e6-84b6-c8410c24c382"),
     "Lightning Blast",
-    crate::card::CardArt::new("63fec3f9-d399-48e6-84b6-c8410c24c382", "Richard Thomas"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("63fec3f9-d399-48e6-84b6-c8410c24c382", "Richard Thomas"),
+    CardSet::Tempest,
+    // Four damage at instant speed for four mana: the unexciting rate that
+    // every red set reprints in some form.
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Lightning Blast deals 4 damage to any target.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(4),
+        },
+    )]),
 );
 
 // TMP 186 — Lightning Elemental (reprint)
@@ -3075,13 +3085,27 @@ pub(in crate::card::sets) static NATURE_S_REVOLT: CardRecord = CardRecord::new(
 );
 
 // TMP 241 — Needle Storm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEEDLE_STORM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29a44e44-94b1-4bd2-8e00-6bd2ec07ee4c"),
     "Needle Storm",
-    crate::card::CardArt::new("be80dd2d-f595-4d80-84ae-66d3d18e7399", "Val Mayerik"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("be80dd2d-f595-4d80-84ae-66d3d18e7399", "Val Mayerik"),
+    CardSet::Tempest,
+    // Green's answer to fliers, indiscriminate enough to catch its own
+    // controller's.
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell(
+        "Needle Storm deals 4 damage to each creature with flying.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            amount: ValueDef::Constant(4),
+        },
+    )]),
 );
 
 // TMP 242 — Nurturing Licid

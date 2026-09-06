@@ -35,7 +35,7 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2012::magic_2013;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
-use crate::card::{CardArt, CardRules, CardSet};
+use crate::card::{CardArt, CardRules, CardSet, abilities};
 use crate::mana_cost;
 
 // 7ED 1 — Angelic Page (reprint)
@@ -859,13 +859,14 @@ pub(in crate::card::sets) static DAKMOR_LANCER: CardRecord = CardRecord::new(
 // 7ED 185 — Goblin Chariot (alternate printing)
 
 // 7ED 185★ — Goblin Chariot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_CHARIOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ca11a7e-17f8-419f-9ba8-1bcaa3860f8b"),
     "Goblin Chariot",
-    crate::card::CardArt::new("1db520e2-9926-45d2-a140-37b119b88106", "John Howe"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1db520e2-9926-45d2-a140-37b119b88106", "John Howe"),
+    CardSet::SeventhEdition,
+    // A vanilla 2/2 that gets to attack immediately.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 2, 2)
+        .with_ability(abilities::haste()),
 );
 
 // 7ED 186 — Goblin Digging Team (reprint)

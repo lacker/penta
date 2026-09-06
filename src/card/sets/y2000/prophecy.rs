@@ -1136,13 +1136,23 @@ pub(in crate::card::sets) static SEARCH_FOR_SURVIVORS: CardRecord = CardRecord::
 );
 
 // PCY 103 — Searing Wind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEARING_WIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7b761f97-3690-497a-b6ab-c71f61b8e841"),
     "Searing Wind",
-    crate::card::CardArt::new("7b761f97-3690-497a-b6ab-c71f61b8e841", "John Matson"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7b761f97-3690-497a-b6ab-c71f61b8e841", "John Matson"),
+    CardSet::Prophecy,
+    // Nine mana to end the game from ten life, which is the whole reason
+    // the card exists.
+    CardRules::new_instant(mana_cost!("{8}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Searing Wind deals 10 damage to any target.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(10),
+        },
+    )]),
 );
 
 // PCY 104 — Spur Grappler

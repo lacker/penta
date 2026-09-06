@@ -1774,13 +1774,28 @@ pub(in crate::card::sets) static HEADHUNTER: CardRecord = CardRecord::new(
 );
 
 // ONS 157 — Infest
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INFEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b7890ba2-aa42-4c8d-bbc1-94fb1d4150fc"),
     "Infest",
-    crate::card::CardArt::new("b7890ba2-aa42-4c8d-bbc1-94fb1d4150fc", "Ben Thompson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b7890ba2-aa42-4c8d-bbc1-94fb1d4150fc", "Ben Thompson"),
+    CardSet::Onslaught,
+    // Two points off everything, small enough to leave the opposing bombs
+    // alive and large enough to clear the tokens under them.
+    CardRules::new_sorcery(mana_cost!("{1}{B}{B}")).with_abilities(&[AbilityDef::spell(
+        "All creatures get -2/-2 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-2),
+                ValueDef::Constant(-2),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // ONS 158 — Misery Charm

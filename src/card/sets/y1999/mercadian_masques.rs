@@ -3333,13 +3333,26 @@ pub(in crate::card::sets) static SPONTANEOUS_GENERATION: CardRecord = CardRecord
 );
 
 // MMQ 275 — Squall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63c1b2f6-e47f-4f18-a94a-1d08eb009ef3"),
     "Squall",
-    crate::card::CardArt::new("e5409b54-66ed-4add-bf43-cfeb074b1c50", "Val Mayerik"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e5409b54-66ed-4add-bf43-cfeb074b1c50", "Val Mayerik"),
+    CardSet::MercadianMasques,
+    // Half a Needle Storm at the same cost, which is what a common gets.
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell(
+        "Squall deals 2 damage to each creature with flying.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            amount: ValueDef::Constant(2),
+        },
+    )]),
 );
 
 // MMQ 276 — Squallmonger

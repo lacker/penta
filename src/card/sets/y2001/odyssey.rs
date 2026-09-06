@@ -5159,13 +5159,37 @@ pub(in crate::card::sets) static OTARIAN_JUGGERNAUT: CardRecord = CardRecord::ne
 // ODY 306 — Patchwork Gnomes (reprint)
 
 // ODY 307 — Sandstone Deadfall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDSTONE_DEADFALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("241ebc17-b8ae-4ca4-8413-f53501d86244"),
     "Sandstone Deadfall",
-    crate::card::CardArt::new("241ebc17-b8ae-4ca4-8413-f53501d86244", "Jim Nelson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("241ebc17-b8ae-4ca4-8413-f53501d86244", "Jim Nelson"),
+    CardSet::Odyssey,
+    // Three permanents for one attacker is a terrible rate, and the only one
+    // available to a deck with no removal at all.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_with_targets(
+        "{T}, Sacrifice two lands and this artifact: Destroy target attacking creature.",
+        &[
+            CostDef::TapSource,
+            CostDef::SacrificePermanents {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                controller: PlayerRelation::You,
+                count: 2,
+            },
+            CostDef::SacrificeSource,
+        ],
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+            )]
+        },
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // ODY 308 — Shadowblood Egg

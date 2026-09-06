@@ -4028,12 +4028,12 @@ pub(in crate::card::sets) static WOOD_SAGE: CardRecord = CardRecord::new(
 );
 
 // TMP 276 — Altar of Dementia
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the power of a permanent sacrificed as an activation cost. ValueDef reads a cost sacrifice's mana value but not its power, and SacrificeOfChoice's Power follow-up is a resolving effect rather than a cost.
 pub(in crate::card::sets) static ALTAR_OF_DEMENTIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f2da99f-3c53-4980-97d6-2158c765aac0"),
     "Altar of Dementia",
-    crate::card::CardArt::new("4f2da99f-3c53-4980-97d6-2158c765aac0", "Brom"),
-    crate::card::CardSet::Tempest,
+    CardArt::new("4f2da99f-3c53-4980-97d6-2158c765aac0", "Brom"),
+    CardSet::Tempest,
     crate::card::CardRules::unsupported(),
 );
 

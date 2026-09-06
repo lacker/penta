@@ -10,11 +10,11 @@ use crate::card::{
     BlockRestrictionSubjectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CostDef, CounterKind,
     DamageEventMatcherDef, DamagePreventionDef, DividedTotal, EffectChoiceDef, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ManaRestrictionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, StaticApplyDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities,
+    EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StaticApplyDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -4683,13 +4683,33 @@ pub(in crate::card::sets) static GOBLIN_LYRE: CardRecord = CardRecord::new(
 );
 
 // ICE 320 — Hematite Talisman
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEMATITE_TALISMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("83585337-56a9-44d2-9ed1-8a959bcfb010"),
     "Hematite Talisman",
-    crate::card::CardArt::new("83585337-56a9-44d2-9ed1-8a959bcfb010", "Allen Williams"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("83585337-56a9-44d2-9ed1-8a959bcfb010", "Allen Williams"),
+    CardSet::IceAge,
+    // Three mana to untap anything, offered every time the opponent casts a
+    // red spell -- which in a red deck is every turn.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
+        "Whenever a player casts a red spell, you may pay {3}. If you do, untap target permanent.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Red)),
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )]
+        },
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::EffectController),
+                mana_cost!("{3}"),
+            ),
+            &const {
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                }
+            },
+        )),
+    )),
 );
 
 // ICE 321 — Ice Cauldron
@@ -4745,33 +4765,85 @@ pub(in crate::card::sets) static JEWELED_AMULET: CardRecord = CardRecord::new(
 );
 
 // ICE 327 — Lapis Lazuli Talisman
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LAPIS_LAZULI_TALISMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce00bb19-983e-427d-be54-ae6daf0ccdde"),
     "Lapis Lazuli Talisman",
-    crate::card::CardArt::new("ce00bb19-983e-427d-be54-ae6daf0ccdde", "Amy Weber"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ce00bb19-983e-427d-be54-ae6daf0ccdde", "Amy Weber"),
+    CardSet::IceAge,
+    // The blue member of the cycle, and the one whose trigger a control deck
+    // hands you over and over.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
+        "Whenever a player casts a blue spell, you may pay {3}. If you do, untap target permanent.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Blue)),
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )]
+        },
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::EffectController),
+                mana_cost!("{3}"),
+            ),
+            &const {
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                }
+            },
+        )),
+    )),
 );
 
 // ICE 328 — Malachite Talisman
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MALACHITE_TALISMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63fb8a24-ce53-4a69-be2a-55c6dbba5ee7"),
     "Malachite Talisman",
-    crate::card::CardArt::new("63fb8a24-ce53-4a69-be2a-55c6dbba5ee7", "Christopher Rush"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("63fb8a24-ce53-4a69-be2a-55c6dbba5ee7", "Christopher Rush"),
+    CardSet::IceAge,
+    // Green's copy: untapping a land is what it usually buys, which is the
+    // mana back and then some.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
+        "Whenever a player casts a green spell, you may pay {3}. If you do, untap target permanent.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Green)),
+        &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::EffectController),
+                mana_cost!("{3}"),
+            ),
+            &const {
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                }
+            },
+        )),
+    )),
 );
 
 // ICE 329 — Nacre Talisman
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NACRE_TALISMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06912236-8225-4eb0-8086-c6a163c69892"),
     "Nacre Talisman",
-    crate::card::CardArt::new("06912236-8225-4eb0-8086-c6a163c69892", "Mark Tedin"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("06912236-8225-4eb0-8086-c6a163c69892", "Mark Tedin"),
+    CardSet::IceAge,
+    // White's copy, which untaps a blocker on the turn the white deck was
+    // counting on it being tapped.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
+        "Whenever a player casts a white spell, you may pay {3}. If you do, untap target permanent.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::White)),
+        &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::EffectController),
+                mana_cost!("{3}"),
+            ),
+            &const {
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                }
+            },
+        )),
+    )),
 );
 
 // ICE 330 — Naked Singularity
@@ -4785,13 +4857,29 @@ pub(in crate::card::sets) static NAKED_SINGULARITY: CardRecord = CardRecord::new
 );
 
 // ICE 331 — Onyx Talisman
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ONYX_TALISMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a89b2368-1180-4821-bcb8-8161c18e5538"),
     "Onyx Talisman",
-    crate::card::CardArt::new("a89b2368-1180-4821-bcb8-8161c18e5538", "Sandra Everingham"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a89b2368-1180-4821-bcb8-8161c18e5538", "Sandra Everingham"),
+    CardSet::IceAge,
+    // Black's copy, and the only one whose trigger a black deck can be
+    // relied on to give you.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
+        "Whenever a player casts a black spell, you may pay {3}. If you do, untap target permanent.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Black)),
+        &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::EffectController),
+                mana_cost!("{3}"),
+            ),
+            &const {
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                }
+            },
+        )),
+    )),
 );
 
 // ICE 332 — Pentagram of the Ages

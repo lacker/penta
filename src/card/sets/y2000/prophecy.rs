@@ -2241,23 +2241,73 @@ pub(in crate::card::sets) static KELDON_BATTLEWAGON: CardRecord = CardRecord::ne
 );
 
 // PCY 140 — Well of Discovery
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WELL_OF_DISCOVERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("82331a8a-c0f1-4d89-87f8-1b1d0fccabb8"),
     "Well of Discovery",
-    crate::card::CardArt::new("82331a8a-c0f1-4d89-87f8-1b1d0fccabb8", "Alan Rabinowitz"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("82331a8a-c0f1-4d89-87f8-1b1d0fccabb8", "Alan Rabinowitz"),
+    CardSet::Prophecy,
+    // Six mana for a card a turn, on the condition that the six mana was
+    // never held up for anything else.
+    CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::triggered_if(
+        "At the beginning of your end step, if you control no untapped lands, draw a card.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+        },
+        &const {
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            }
+        },
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // PCY 141 — Well of Life
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WELL_OF_LIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf3f4fc3-3819-470d-92d9-98cb390f89b9"),
     "Well of Life",
-    crate::card::CardArt::new("bf3f4fc3-3819-470d-92d9-98cb390f89b9", "Tom Wänerstrand"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bf3f4fc3-3819-470d-92d9-98cb390f89b9", "Tom Wänerstrand"),
+    CardSet::Prophecy,
+    // It pays a deck for spending all its mana, which is the deck that was
+    // going to spend it anyway.
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::triggered_if(
+        "At the beginning of your end step, if you control no untapped lands, you gain 2 life.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::You,
+        },
+        &const {
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            }
+        },
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(2),
+        },
+    )),
 );
 
 // PCY 142 — Rhystic Cave

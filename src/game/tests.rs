@@ -55,6 +55,7 @@ mod discard_a_land_cost;
 mod discard_to_regenerate;
 mod each_upkeep;
 mod enchantment_engines;
+mod end_step_conditions;
 mod enters_answers;
 mod enters_sweepers;
 mod entry_counters;

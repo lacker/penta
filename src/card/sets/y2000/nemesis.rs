@@ -2168,13 +2168,47 @@ pub(in crate::card::sets) static PARALLAX_INHIBITOR: CardRecord = CardRecord::ne
 );
 
 // NEM 135 — Predator, Flagship
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PREDATOR_FLAGSHIP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("28927927-3974-48c3-81c2-518089a10003"),
     "Predator, Flagship",
-    crate::card::CardArt::new("28927927-3974-48c3-81c2-518089a10003", "Mark Tedin"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("28927927-3974-48c3-81c2-518089a10003", "Mark Tedin"),
+    CardSet::Nemesis,
+    // It hands a creature flying and then kills the fliers, which is one
+    // card answering anything the opponent puts on the board.
+    CardRules::new_artifact(mana_cost!("{5}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "{2}: Target creature gains flying until end of turn.",
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )]
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{5}, {T}: Destroy target creature with flying.",
+                &[CostDef::Mana(mana_cost!("{5}")), CostDef::TapSource],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                    )]
+                },
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // NEM 136 — Rackling

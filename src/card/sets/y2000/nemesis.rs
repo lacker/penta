@@ -6,13 +6,13 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, BlockRestrictionDef,
     BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, ControlDurationDef,
-    CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
+    ControlDurationDef, CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1769,13 +1769,32 @@ pub(in crate::card::sets) static STRONGHOLD_GAMBIT: CardRecord = CardRecord::new
 );
 
 // NEM 101 — Animate Land
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANIMATE_LAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20ff4e7d-fa50-48d2-8ab6-6b86e3a05e86"),
     "Animate Land",
-    crate::card::CardArt::new("20ff4e7d-fa50-48d2-8ab6-6b86e3a05e86", "Rebecca Guay"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("20ff4e7d-fa50-48d2-8ab6-6b86e3a05e86", "Rebecca Guay"),
+    CardSet::Nemesis,
+    // One mana turns a land into a blocker after attackers are declared,
+    // which is a combat trick nobody plays around.
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Until end of turn, target land becomes a 3/3 creature that's still a land.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )]
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                AppliedEffectDef::set_base_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // NEM 102 — Blastoderm

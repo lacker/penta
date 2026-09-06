@@ -15,10 +15,11 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
     BlockRestrictionDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CostDef, CostModificationDef,
-    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, DividedTotal,
-    DrawEventMatcherDef, EffectChoiceDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CostDef,
+    CostModificationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectChoiceDef,
+    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TargetChooserDef,
@@ -3621,13 +3622,30 @@ pub(in crate::card::sets) static NATURAL_SPRING: CardRecord = CardRecord::new(
 );
 
 // TMP 240 — Nature's Revolt
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NATURE_S_REVOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a70386c5-053a-46c4-b26d-c6f92f536bed"),
     "Nature's Revolt",
-    crate::card::CardArt::new("a70386c5-053a-46c4-b26d-c6f92f536bed", "Donato Giancola"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a70386c5-053a-46c4-b26d-c6f92f536bed", "Donato Giancola"),
+    CardSet::Tempest,
+    // It animates both mana bases at once, so it belongs in the deck that
+    // can kill creatures and does not need its own lands.
+    CardRules::new_enchantment(mana_cost!("{3}{G}{G}")).with_ability(AbilityDef::static_ability(
+        "All lands are 2/2 creatures that are still lands.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                AppliedEffectDef::set_base_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+            ]),
+        },
+    )),
 );
 
 // TMP 241 — Needle Storm
@@ -4862,13 +4880,34 @@ pub(in crate::card::sets) static SKYSHROUD_FOREST: CardRecord = CardRecord::new(
 );
 
 // TMP 327 — Stalking Stones
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STALKING_STONES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4d3d349-5c23-43a9-b25e-0e1a35b84673"),
     "Stalking Stones",
-    crate::card::CardArt::new("b4d3d349-5c23-43a9-b25e-0e1a35b84673", "Stephen Daniele"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b4d3d349-5c23-43a9-b25e-0e1a35b84673", "Stephen Daniele"),
+    CardSet::Tempest,
+    // Six mana to turn a colourless land into a threat, which is a card only
+    // a deck with nothing else to spend on ever activates.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{6}: This land becomes a 3/3 Elemental artifact creature that's still a land.",
+            &[CostDef::Mana(mana_cost!("{6}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Creature).with(CardType::Artifact),
+                    ),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                ]),
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        ),
+    ]),
 );
 
 // TMP 328 — Thalakos Lowlands

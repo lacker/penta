@@ -14,15 +14,15 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardNameDef,
-    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, ControlDurationDef,
-    CostDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ComparisonDef,
+    ControlDurationDef, CostDef, CostQuantityDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -922,13 +922,27 @@ pub(in crate::card::sets) static TATTOO_WARD: CardRecord = CardRecord::new(
 );
 
 // ODY 55 — Testament of Faith
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TESTAMENT_OF_FAITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f399b371-fed0-42b8-8f95-5d76fdbe193d"),
     "Testament of Faith",
-    crate::card::CardArt::new("f399b371-fed0-42b8-8f95-5d76fdbe193d", "Roger Raupp"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f399b371-fed0-42b8-8f95-5d76fdbe193d", "Roger Raupp"),
+    CardSet::Odyssey,
+    // A blocker the size of whatever mana is left over, which is what a
+    // one-mana enchantment offers a deck holding its mana up anyway.
+    CardRules::new_enchantment(mana_cost!("{W}")).with_ability(AbilityDef::activated(
+        "{X}: This enchantment becomes an X/X Wall creature with defender in addition to its other types until end of turn.",
+        &[CostDef::Mana(mana_cost!("{X}"))],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Wall"])),
+                AppliedEffectDef::set_base_power_toughness(ValueDef::ChosenX, ValueDef::ChosenX),
+                AppliedEffectDef::add_ability(&const { abilities::defender() }),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ODY 56 — Tireless Tribe
@@ -4795,13 +4809,26 @@ pub(in crate::card::sets) static SQUIRREL_NEST: CardRecord = CardRecord::new(
 );
 
 // ODY 275 — Still Life
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STILL_LIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12be33d7-f25e-4dbf-9706-74403103b127"),
     "Still Life",
-    crate::card::CardArt::new("12be33d7-f25e-4dbf-9706-74403103b127", "Matt Cavotta"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("12be33d7-f25e-4dbf-9706-74403103b127", "Matt Cavotta"),
+    CardSet::Odyssey,
+    // Three mana for a 4/3 that dodges every sorcery-speed answer by simply
+    // not being a creature when they are cast.
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(AbilityDef::activated(
+        "{G}{G}: This enchantment becomes a 4/3 Centaur creature in addition to its other types until end of turn.",
+        &[CostDef::Mana(mana_cost!("{G}{G}"))],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Centaur"])),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(3)),
+                ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ODY 276 — Stone-Tongue Basilisk
@@ -4904,13 +4931,44 @@ pub(in crate::card::sets) static VERDANT_SUCCESSION: CardRecord = CardRecord::ne
 );
 
 // ODY 281 — Vivify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIVIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f8b5e7ed-a0ab-48f6-8f69-56a8bd115007"),
     "Vivify",
-    crate::card::CardArt::new("f8b5e7ed-a0ab-48f6-8f69-56a8bd115007", "Greg Staples"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f8b5e7ed-a0ab-48f6-8f69-56a8bd115007", "Greg Staples"),
+    CardSet::Odyssey,
+    // The same trick with a card attached, which is what makes a four-mana
+    // combat trick worth the slot.
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target land becomes a 3/3 creature until end of turn. It's still a land.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::add_card_types(CardTypeSet::single(
+                                CardType::Creature,
+                            )),
+                            AppliedEffectDef::set_base_power_toughness(
+                                ValueDef::Constant(3),
+                                ValueDef::Constant(3),
+                            ),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 282 — Werebear (reprint)

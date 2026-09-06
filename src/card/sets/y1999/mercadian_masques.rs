@@ -20,12 +20,12 @@ use crate::card::{
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerRuleDef,
-    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
+    CardSupertype, CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
@@ -4012,13 +4012,31 @@ pub(in crate::card::sets) static MEGATHERIUM: CardRecord = CardRecord::new(
 );
 
 // MMQ 260 — Natural Affinity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NATURAL_AFFINITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("69c6f647-f71b-4f61-9b16-774884ed52e2"),
     "Natural Affinity",
-    crate::card::CardArt::new("69c6f647-f71b-4f61-9b16-774884ed52e2", "Pete Venters"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("69c6f647-f71b-4f61-9b16-774884ed52e2", "Pete Venters"),
+    CardSet::MercadianMasques,
+    // Every land on the table becomes a creature, which is either a lethal
+    // attack or a board wipe depending on what you cast next.
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "All lands become 2/2 creatures until end of turn. They're still lands.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                AppliedEffectDef::set_base_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // MMQ 261 — Pangosaur

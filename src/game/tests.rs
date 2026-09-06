@@ -30,6 +30,7 @@ mod additional_costs;
 mod alternative_costs;
 mod alternative_mana;
 mod animate_artifact;
+mod animated_lands;
 mod any_color_for_life;
 mod arabian_lands;
 mod armageddon_clock;

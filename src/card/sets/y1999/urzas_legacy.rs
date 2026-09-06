@@ -10,12 +10,12 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, CostDef, CostModificationDef,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ColorSet, CostDef,
+    CostModificationDef, CounterKind, CreatureTypeSetDef, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2427,33 +2427,95 @@ pub(in crate::card::sets) static WHEEL_OF_TORTURE: CardRecord = CardRecord::new(
 );
 
 // ULG 139 — Faerie Conclave
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAERIE_CONCLAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae3ede87-b026-4781-81ab-8652664f8e41"),
     "Faerie Conclave",
-    crate::card::CardArt::new("ae3ede87-b026-4781-81ab-8652664f8e41", "Val Mayerik"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ae3ede87-b026-4781-81ab-8652664f8e41", "Val Mayerik"),
+    CardSet::UrzasLegacy,
+    // A land that attacks for two in the air when the game stalls, at the
+    // cost of coming down tapped on turn one.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Blue),
+        AbilityDef::activated(
+            "{1}{U}: This land becomes a 2/1 blue Faerie creature with flying until end of turn. It's still a land.",
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Animating keeps the land: the creature type is added on top
+                // of what is printed rather than replacing it.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue])),
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Faerie"])),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
+                    AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ULG 140 — Forbidding Watchtower
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORBIDDING_WATCHTOWER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("96503ed7-aa68-439f-95b0-6ac2c48e3935"),
     "Forbidding Watchtower",
-    crate::card::CardArt::new("96503ed7-aa68-439f-95b0-6ac2c48e3935", "Mark Brill"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("96503ed7-aa68-439f-95b0-6ac2c48e3935", "Mark Brill"),
+    CardSet::UrzasLegacy,
+    // The defensive member of the cycle: a land that blocks anything on the
+    // ground and survives.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::White),
+        AbilityDef::activated(
+            "{1}{W}: This land becomes a 1/5 white Soldier creature until end of turn. It's still a land.",
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Animating keeps the land: the creature type is added on top
+                // of what is printed rather than replacing it.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::White])),
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Soldier"])),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(5)),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ULG 141 — Ghitu Encampment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHITU_ENCAMPMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf09ecef-1e30-4206-9648-8fe5c8a71c71"),
     "Ghitu Encampment",
-    crate::card::CardArt::new("bf09ecef-1e30-4206-9648-8fe5c8a71c71", "Don Hazeltine"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bf09ecef-1e30-4206-9648-8fe5c8a71c71", "Don Hazeltine"),
+    CardSet::UrzasLegacy,
+    // First strike makes it win the fight a 2/1 should lose, which is what a
+    // land has to do to be worth attacking with.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Red),
+        AbilityDef::activated(
+            "{1}{R}: This land becomes a 2/1 red Warrior creature with first strike until end of turn. It's still a land.",
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Animating keeps the land: the creature type is added on top
+                // of what is printed rather than replacing it.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Warrior"])),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
+                    AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ULG 142 — Spawning Pool
@@ -2467,13 +2529,34 @@ pub(in crate::card::sets) static SPAWNING_POOL: CardRecord = CardRecord::new(
 );
 
 // ULG 143 — Treetop Village
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREETOP_VILLAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("02212bd8-0c0f-4e8e-99f1-a8477476c03a"),
     "Treetop Village",
-    crate::card::CardArt::new("02212bd8-0c0f-4e8e-99f1-a8477476c03a", "Anthony S. Waters"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("02212bd8-0c0f-4e8e-99f1-a8477476c03a", "Anthony S. Waters"),
+    CardSet::UrzasLegacy,
+    // The best of the cycle: three trampling power out of a land the deck was
+    // playing anyway.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Green),
+        AbilityDef::activated(
+            "{1}{G}: This land becomes a 3/3 green Ape creature with trample until end of turn. It's still a land.",
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Animating keeps the land: the creature type is added on top
+                // of what is printed rather than replacing it.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Ape"])),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                    AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

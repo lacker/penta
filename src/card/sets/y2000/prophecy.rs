@@ -3,12 +3,13 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CounterKind,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    BasicLandType, CardArt, CardRules, CardSet, CardType, CardTypeSet, ColorSet, ComparisonDef,
+    CostDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -2038,13 +2039,35 @@ pub(in crate::card::sets) static JOLRAEL_S_FAVOR: CardRecord = CardRecord::new(
 );
 
 // PCY 117 — Living Terrain
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIVING_TERRAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64558128-7990-470c-88c9-d47d622e44db"),
     "Living Terrain",
-    crate::card::CardArt::new("64558128-7990-470c-88c9-d47d622e44db", "Andrew Goldhawk"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("64558128-7990-470c-88c9-d47d622e44db", "Andrew Goldhawk"),
+    CardSet::Prophecy,
+    // Four mana for a 5/6 that is also still a land, which is a threat the
+    // opponent's creature removal was not built to answer.
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land is a 5/6 green Treefolk creature that's still a land.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                            "Treefolk",
+                        ])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(5),
+                            ValueDef::Constant(6),
+                        ),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // PCY 118 — Marsh Boa

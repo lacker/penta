@@ -8,8 +8,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardRules,
     CardSet, CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    ComparisonDef, CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
@@ -162,13 +162,22 @@ pub(in crate::card::sets) static CHASTISE: CardRecord = CardRecord::new(
 );
 
 // JUD 9 — Commander Eesha
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COMMANDER_EESHA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3607f6a9-b8d2-4119-9f70-95dcedc0662d"),
     "Commander Eesha",
-    crate::card::CardArt::new("3607f6a9-b8d2-4119-9f70-95dcedc0662d", "Rebecca Guay"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3607f6a9-b8d2-4119-9f70-95dcedc0662d", "Rebecca Guay"),
+    CardSet::Judgment,
+    // Protection from creatures means it never blocks and is never blocked,
+    // which is a two-power clock nothing on the board answers.
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Bird", "Soldier"], 2, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::keyword(
+                "Protection from creatures",
+                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(CardType::Creature)),
+            ),
+        ]),
 );
 
 // JUD 10 — Funeral Pyre

@@ -1650,13 +1650,14 @@ pub(in crate::card::sets) static KATABATIC_WINDS: CardRecord = CardRecord::new(
 );
 
 // VIS 110 — King Cheetah
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KING_CHEETAH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0c607ba1-e133-47f3-a79a-5f0dc8c4b9ac"),
     "King Cheetah",
-    crate::card::CardArt::new("38149d49-8661-427c-9338-93c11a2a8093", "Terese Nielsen"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("38149d49-8661-427c-9338-93c11a2a8093", "Terese Nielsen"),
+    CardSet::Visions,
+    // A 3/2 that arrives at the end of a turn, which is worth a mana over
+    // a bear that has to be cast on the caster's own.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Cat"], 3, 2).with_ability(abilities::flash()),
 );
 
 // VIS 111 — Kyscu Drake

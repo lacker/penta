@@ -21,13 +21,20 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // ULG 1 — Angelic Curator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGELIC_CURATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c63ba2da-6dea-44ac-8439-527222da565b"),
     "Angelic Curator",
-    crate::card::CardArt::new("c63ba2da-6dea-44ac-8439-527222da565b", "Greg Staples"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c63ba2da-6dea-44ac-8439-527222da565b", "Greg Staples"),
+    CardSet::UrzasLegacy,
+    // A flier that no artifact can block or kill, in a block where nearly
+    // everything was an artifact.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Angel", "Spirit"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::keyword(
+            "Protection from artifacts",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(CardType::Artifact)),
+        ),
+    ]),
 );
 
 // ULG 2 — Blessed Reversal

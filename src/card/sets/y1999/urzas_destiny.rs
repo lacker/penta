@@ -360,13 +360,17 @@ pub(in crate::card::sets) static VOICE_OF_DUTY: CardRecord = CardRecord::new(
 );
 
 // UDS 24 — Voice of Reason
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOICE_OF_REASON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed3d5a10-6d4b-4383-b400-7323f2b4670e"),
     "Voice of Reason",
-    crate::card::CardArt::new("ed3d5a10-6d4b-4383-b400-7323f2b4670e", "Ray Lago"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ed3d5a10-6d4b-4383-b400-7323f2b4670e", "Ray Lago"),
+    CardSet::UrzasDestiny,
+    // The blue version, which walks past counterspells only in the sense
+    // that it cannot be targeted after resolving.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Angel"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Blue),
+    ]),
 );
 
 // UDS 25 — Wall of Glare

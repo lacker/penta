@@ -2574,13 +2574,15 @@ pub(in crate::card::sets) static GOBLIN_SHARPSHOOTER: CardRecord = CardRecord::n
 );
 
 // ONS 208 — Goblin Sky Raider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_SKY_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("738cbf9b-e3d3-4568-93ce-7915b248e5b3"),
     "Goblin Sky Raider",
-    crate::card::CardArt::new("738cbf9b-e3d3-4568-93ce-7915b248e5b3", "Daren Bader"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("738cbf9b-e3d3-4568-93ce-7915b248e5b3", "Daren Bader"),
+    CardSet::Onslaught,
+    // A red flier at common, which the colour only gets when the format
+    // needs a way to block one.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 1, 2)
+        .with_ability(abilities::flying()),
 );
 
 // ONS 209 — Goblin Sledder

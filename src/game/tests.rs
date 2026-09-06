@@ -64,6 +64,7 @@ mod phantom_interference;
 mod player_shroud;
 mod poison_on_unblocked;
 mod protection_from_subtype;
+mod protection_scopes;
 mod put_from_hand;
 mod raid_bombardment;
 mod reckless_impulse;

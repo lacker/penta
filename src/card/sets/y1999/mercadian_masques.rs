@@ -420,13 +420,17 @@ pub(in crate::card::sets) static MUZZLE: CardRecord = CardRecord::new(
 );
 
 // MMQ 31 — Nightwind Glider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NIGHTWIND_GLIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0968401d-522f-4def-92a1-d504471ac54e"),
     "Nightwind Glider",
-    crate::card::CardArt::new("0968401d-522f-4def-92a1-d504471ac54e", "Randy Gallegos"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0968401d-522f-4def-92a1-d504471ac54e", "Randy Gallegos"),
+    CardSet::MercadianMasques,
+    // Evasion and immunity to one colour's removal, which together make it
+    // a clock that colour cannot answer.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Rebel"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Black),
+    ]),
 );
 
 // MMQ 32 — Noble Purpose

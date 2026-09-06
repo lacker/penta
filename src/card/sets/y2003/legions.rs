@@ -1312,13 +1312,15 @@ pub(in crate::card::sets) static MAGMA_SLIVER: CardRecord = CardRecord::new(
 );
 
 // LGN 108 — Ridgetop Raptor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIDGETOP_RAPTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1013cbc4-09f4-484f-b328-9f7403225149"),
     "Ridgetop Raptor",
-    crate::card::CardArt::new("1013cbc4-09f4-484f-b328-9f7403225149", "Daren Bader"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1013cbc4-09f4-484f-b328-9f7403225149", "Daren Bader"),
+    CardSet::Legions,
+    // Double strike on a 2/1, which trades up against anything without
+    // first strike and dies to everything.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Dinosaur", "Beast"], 2, 1)
+        .with_ability(abilities::double_strike()),
 );
 
 // LGN 109 — Rockshard Elemental

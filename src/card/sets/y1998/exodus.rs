@@ -189,13 +189,18 @@ pub(in crate::card::sets) static OATH_OF_LIEGES: CardRecord = CardRecord::new(
 );
 
 // EXO 12 — Paladin en-Vec
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PALADIN_EN_VEC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf1ea89d-4b9d-455f-a7f4-a26026e0c272"),
     "Paladin en-Vec",
-    crate::card::CardArt::new("bf1ea89d-4b9d-455f-a7f4-a26026e0c272", "Randy Elliott"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bf1ea89d-4b9d-455f-a7f4-a26026e0c272", "Randy Elliott"),
+    CardSet::Exodus,
+    // Two colours of protection on a first striker, aimed squarely at the
+    // two decks that could not answer it.
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::first_strike(),
+        abilities::protection_from_color(ManaColor::Black),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // EXO 13 — Peace of Mind
@@ -592,13 +597,24 @@ pub(in crate::card::sets) static SCRIVENER: CardRecord = CardRecord::new(
 );
 
 // EXO 47 — Thalakos Drifters
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THALAKOS_DRIFTERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("468e13d2-6bd7-403c-8e2e-e00917b39597"),
     "Thalakos Drifters",
-    crate::card::CardArt::new("468e13d2-6bd7-403c-8e2e-e00917b39597", "Andrew Robinson"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("468e13d2-6bd7-403c-8e2e-e00917b39597", "Andrew Robinson"),
+    CardSet::Exodus,
+    // Cards for unblockability, so the hand is a clock the deck spends
+    // one card at a time.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Thalakos"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "Discard a card: This creature gains shadow until end of turn.",
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::shadow() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 48 — Thalakos Scout
@@ -1602,13 +1618,20 @@ pub(in crate::card::sets) static MANABOND: CardRecord = CardRecord::new(
 );
 
 // EXO 114 — Mirri, Cat Warrior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRRI_CAT_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d1682dd-5a99-4bee-a2c2-c8735047e1a9"),
     "Mirri, Cat Warrior",
-    crate::card::CardArt::new("6d1682dd-5a99-4bee-a2c2-c8735047e1a9", "Daren Bader"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6d1682dd-5a99-4bee-a2c2-c8735047e1a9", "Daren Bader"),
+    CardSet::Exodus,
+    // Three keywords on a three-drop, which is a rate that only a legend
+    // was allowed to have.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Cat", "Warrior"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::forestwalk(),
+            abilities::vigilance(),
+        ]),
 );
 
 // EXO 115 — Oath of Druids

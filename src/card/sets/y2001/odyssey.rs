@@ -478,13 +478,24 @@ pub(in crate::card::sets) static NOMAD_DECOY: CardRecord = CardRecord::new(
 );
 
 // ODY 38 — Patrol Hound
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PATROL_HOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e216a539-152b-4a83-98ef-1996182a5714"),
     "Patrol Hound",
-    crate::card::CardArt::new("e216a539-152b-4a83-98ef-1996182a5714", "Daren Bader"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e216a539-152b-4a83-98ef-1996182a5714", "Daren Bader"),
+    CardSet::Odyssey,
+    // A one-card first strike, which is what a limited deck pays for a
+    // block it needs to win.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Dog"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "Discard a card: This creature gains first strike until end of turn.",
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 39 — Pianna, Nomad Captain
@@ -685,13 +696,27 @@ pub(in crate::card::sets) static TESTAMENT_OF_FAITH: CardRecord = CardRecord::ne
 );
 
 // ODY 56 — Tireless Tribe
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIRELESS_TRIBE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d23e47a-21d5-4d7e-8aa0-3b3064da5967"),
     "Tireless Tribe",
-    crate::card::CardArt::new("1d23e47a-21d5-4d7e-8aa0-3b3064da5967", "Carl Critchlow"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1d23e47a-21d5-4d7e-8aa0-3b3064da5967", "Carl Critchlow"),
+    CardSet::Odyssey,
+    // Four toughness a card, as often as the hand allows, which is a wall
+    // that survives anything the deck can afford.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Nomad"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "Discard a card: This creature gets +0/+4 until end of turn.",
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 57 — Wayward Angel

@@ -183,13 +183,20 @@ pub(in crate::card::sets) static DRAGON_SCALES: CardRecord = CardRecord::new(
 );
 
 // SCG 11 — Dragonstalker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAGONSTALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58017ff1-74d2-4be2-976a-8dff53e16150"),
     "Dragonstalker",
-    crate::card::CardArt::new("58017ff1-74d2-4be2-976a-8dff53e16150", "Ron Spencer"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("58017ff1-74d2-4be2-976a-8dff53e16150", "Ron Spencer"),
+    CardSet::Scourge,
+    // Protection aimed at exactly one tribe, which is what a set about
+    // Dragons made worth printing.
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Bird", "Soldier"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::keyword(
+            "Protection from Dragons",
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Dragon")),
+        ),
+    ]),
 );
 
 // SCG 12 — Eternal Dragon
@@ -324,13 +331,17 @@ pub(in crate::card::sets) static REWARD_THE_FAITHFUL: CardRecord = CardRecord::n
 );
 
 // SCG 23 — Silver Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVER_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93f559da-08ad-402d-8c6b-3050bce5867b"),
     "Silver Knight",
-    crate::card::CardArt::new("93f559da-08ad-402d-8c6b-3050bce5867b", "Eric Peterson"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("93f559da-08ad-402d-8c6b-3050bce5867b", "Eric Peterson"),
+    CardSet::Scourge,
+    // The one-colour version at two mana, which is why every white deck of
+    // the era ran it against red.
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::first_strike(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // SCG 24 — Trap Digger

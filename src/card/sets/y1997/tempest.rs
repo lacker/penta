@@ -20,8 +20,9 @@ use crate::card::{
     EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -647,13 +648,32 @@ pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new_with_legac
 );
 
 // TMP 52 — Winds of Rath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WINDS_OF_RATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6d731b2-0113-4fd5-8b78-1aa1064bb4f5"),
     "Winds of Rath",
-    crate::card::CardArt::new("a6d731b2-0113-4fd5-8b78-1aa1064bb4f5", "Drew Tucker"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a6d731b2-0113-4fd5-8b78-1aa1064bb4f5", "Drew Tucker"),
+    CardSet::Tempest,
+    // A wrath that spares whatever is wearing an Aura, which in the block
+    // that printed it meant your own board survived.
+    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_ability(AbilityDef::spell(
+        "Destroy all creatures that aren't enchanted. They can't be regenerated.",
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &const {
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Enchanted),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                }
+            },
+        },
+    )),
 );
 
 // TMP 53 — Worthy Cause
@@ -1499,13 +1519,30 @@ pub(in crate::card::sets) static DEATH_PITS_OF_RATH: CardRecord = CardRecord::ne
 );
 
 // TMP 128 — Diabolic Edict
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIABOLIC_EDICT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a2ecf2ee-1e2d-4ab2-8b2c-717c794b09b2"),
     "Diabolic Edict",
-    crate::card::CardArt::new("a2ecf2ee-1e2d-4ab2-8b2c-717c794b09b2", "Ron Spencer"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a2ecf2ee-1e2d-4ab2-8b2c-717c794b09b2", "Ron Spencer"),
+    CardSet::Tempest,
+    // Two mana at instant speed that answers a creature nothing else can
+    // touch, at the price of letting them pick which.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player sacrifices a creature of their choice.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        // They choose, so it goes around hexproof and shroud and takes their
+        // worst creature rather than their best.
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            count: ValueDef::Constant(1),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // TMP 129 — Disturbed Burial

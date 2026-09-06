@@ -3265,16 +3265,26 @@ pub(in crate::card::sets) static SEEDS_OF_INNOCENCE: CardRecord = CardRecord::ne
 );
 
 // MIR 242 — Serene Heart
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERENE_HEART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aff19d9d-8069-4f8d-a81b-e2fcd94c13b3"),
     "Serene Heart",
-    crate::card::CardArt::new(
+    CardArt::new(
         "aff19d9d-8069-4f8d-a81b-e2fcd94c13b3",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardSet::Mirage,
+    // Two mana that sweeps every Aura on the table, including your own.
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
+        "Destroy all Auras.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::Subtype("Aura"),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            then: None,
+        },
+    )),
 );
 
 // MIR 243 — Stalking Tiger

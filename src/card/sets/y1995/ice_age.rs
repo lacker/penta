@@ -2573,13 +2573,33 @@ pub(in crate::card::sets) static INCINERATE: CardRecord = CardRecord::new_with_l
 );
 
 // ICE 195 — Jokulhaups
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JOKULHAUPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3bf0d325-5928-4593-8faa-64ffa414cb48"),
     "Jokulhaups",
-    crate::card::CardArt::new("3bf0d325-5928-4593-8faa-64ffa414cb48", "Richard Thomas"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3bf0d325-5928-4593-8faa-64ffa414cb48", "Richard Thomas"),
+    CardSet::IceAge,
+    // Six mana to end the game as a board state. Everything but the
+    // enchantments and the players goes.
+    CardRules::new_sorcery(mana_cost!("{4}{R}{R}")).with_ability(AbilityDef::spell(
+        "Destroy all artifacts, creatures, and lands. They can't be regenerated.",
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &const {
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                }
+            },
+        },
+    )),
 );
 
 // ICE 196 — Karplusan Giant

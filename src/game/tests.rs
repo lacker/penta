@@ -61,6 +61,7 @@ pub(super) use fixtures::*;
 
 mod filtered_counters;
 mod filtered_sweeps;
+mod flashback_casts;
 mod flying_blockers_only;
 mod free_sacrifice_outlet;
 mod granted_fear;

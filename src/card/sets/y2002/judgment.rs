@@ -544,13 +544,29 @@ pub(in crate::card::sets) static CUNNING_WISH: CardRecord = CardRecord::new(
 );
 
 // JUD 38 — Defy Gravity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEFY_GRAVITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("461413fe-0392-41c1-b50f-05e87ea1c338"),
     "Defy Gravity",
-    crate::card::CardArt::new("461413fe-0392-41c1-b50f-05e87ea1c338", "Ben Thompson"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("461413fe-0392-41c1-b50f-05e87ea1c338", "Ben Thompson"),
+    CardSet::Judgment,
+    // One mana for evasion, twice, which is two turns of damage a board
+    // stall was never going to give up.
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gains flying until end of turn.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::flashback(mana_cost!("{U}")),
+    ]),
 );
 
 // JUD 39 — Envelop
@@ -1600,16 +1616,24 @@ pub(in crate::card::sets) static CENTAUR_ROOTCASTER: CardRecord = CardRecord::ne
 );
 
 // JUD 110 — Crush of Wurms
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRUSH_OF_WURMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("32a924b3-3bd6-43ad-acbd-1303dd670db4"),
     "Crush of Wurms",
-    crate::card::CardArt::new(
+    CardArt::new(
         "32a924b3-3bd6-43ad-acbd-1303dd670db4",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardSet::Judgment,
+    // Nine mana for eighteen power, and twelve for another eighteen, which
+    // is a card only a deck that ramps ever casts.
+    CardRules::new_sorcery(mana_cost!("{6}{G}{G}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create three 6/6 green Wurm creature tokens.",
+            EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 6, 6)
+                .with_count(ValueDef::Constant(3)),
+        ),
+        abilities::flashback(mana_cost!("{9}{G}{G}{G}")),
+    ]),
 );
 
 // JUD 111 — Elephant Guide
@@ -1648,13 +1672,31 @@ pub(in crate::card::sets) static EXOSKELETAL_ARMOR: CardRecord = CardRecord::new
 );
 
 // JUD 115 — Folk Medicine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOLK_MEDICINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("751bd716-5352-41d7-89fb-d5f100f6646b"),
     "Folk Medicine",
-    crate::card::CardArt::new("751bd716-5352-41d7-89fb-d5f100f6646b", "Matt Cavotta"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("751bd716-5352-41d7-89fb-d5f100f6646b", "Matt Cavotta"),
+    CardSet::Judgment,
+    // The flashback cost is white, so the card is only half castable in the
+    // deck that wants the first half.
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "You gain 1 life for each creature you control.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountMatchingObjects(
+                    &const {
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )
+                    },
+                ),
+            },
+        ),
+        abilities::flashback(mana_cost!("{1}{W}")),
+    ]),
 );
 
 // JUD 116 — Forcemage Advocate

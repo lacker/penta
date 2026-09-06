@@ -10,8 +10,8 @@ use crate::card::{
     ChooseDef, ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef, DamagePreventionDef,
     EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectCountConditionDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -729,13 +729,33 @@ pub(in crate::card::sets) static CHAINER_DEMENTIA_MASTER: CardRecord = CardRecor
 );
 
 // TOR 57 — Chainer's Edict
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHAINER_S_EDICT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("014af391-3b4a-4aab-a3e9-f60e61016985"),
     "Chainer's Edict",
-    crate::card::CardArt::new("014af391-3b4a-4aab-a3e9-f60e61016985", "Ben Thompson"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("014af391-3b4a-4aab-a3e9-f60e61016985", "Ben Thompson"),
+    CardSet::Torment,
+    // Removal that does not target the creature, twice, which is how a
+    // control deck answers something with shroud.
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target player sacrifices a creature of their choice.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        ),
+        abilities::flashback(mana_cost!("{5}{B}{B}")),
+    ]),
 );
 
 // TOR 58 — Crippling Fatigue

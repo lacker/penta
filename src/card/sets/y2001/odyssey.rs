@@ -51,16 +51,41 @@ pub(in crate::card::sets) static AEGIS_OF_HONOR: CardRecord = CardRecord::new(
 );
 
 // ODY 2 — Ancestral Tribute
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTRAL_TRIBUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f28b2af-7891-49eb-a07f-5552b5fe3d15"),
     "Ancestral Tribute",
-    crate::card::CardArt::new(
+    CardArt::new(
         "3f28b2af-7891-49eb-a07f-5552b5fe3d15",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Its own flashback cost fills the graveyard it counts, which is the
+    // joke -- and still not enough to win a game with.
+    CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
+        AbilityDef::spell(
+            "You gain 2 life for each card in your graveyard.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Scaled(
+                    &const {
+                        ScaledValueDef::new(
+                            ValueDef::CountMatchingObjects(
+                                &const {
+                                    ObjectQueryDef::matching(
+                                        ObjectPredicateDef::Any,
+                                        &[ZoneKind::Graveyard],
+                                        PlayerRelation::You,
+                                    )
+                                },
+                            ),
+                            2,
+                        )
+                    },
+                ),
+            },
+        ),
+        abilities::flashback(mana_cost!("{9}{W}{W}{W}")),
+    ]),
 );
 
 // ODY 3 — Angelic Wall (reprint)
@@ -601,13 +626,31 @@ pub(in crate::card::sets) static PILGRIM_OF_VIRTUE: CardRecord = CardRecord::new
 );
 
 // ODY 42 — Ray of Distortion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAY_OF_DISTORTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9940f593-021f-44cd-9725-0779a2808b6c"),
     "Ray of Distortion",
-    crate::card::CardArt::new("9940f593-021f-44cd-9725-0779a2808b6c", "Carl Critchlow"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9940f593-021f-44cd-9725-0779a2808b6c", "Carl Critchlow"),
+    CardSet::Odyssey,
+    // Four mana is a bad rate and six is worse, but the card answers two
+    // problems across two turns for one slot.
+    CardRules::new_instant(mana_cost!("{3}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target artifact or enchantment.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        abilities::flashback(mana_cost!("{4}{W}{W}")),
+    ]),
 );
 
 // ODY 43 — Resilient Wanderer
@@ -1208,13 +1251,29 @@ pub(in crate::card::sets) static DELUGE: CardRecord = CardRecord::new(
 );
 
 // ODY 81 — Dematerialize
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEMATERIALIZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04217c17-7c29-4b02-b9b6-bfa1df50d4bc"),
     "Dematerialize",
-    crate::card::CardArt::new("04217c17-7c29-4b02-b9b6-bfa1df50d4bc", "Mike Ploog"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("04217c17-7c29-4b02-b9b6-bfa1df50d4bc", "Mike Ploog"),
+    CardSet::Odyssey,
+    // Bouncing a permanent buys a turn; doing it twice out of one card buys
+    // two, which is how a control deck spends its late game.
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return target permanent to its owner's hand.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::flashback(mana_cost!("{5}{U}{U}")),
+    ]),
 );
 
 // ODY 82 — Divert
@@ -1292,13 +1351,34 @@ pub(in crate::card::sets) static EXTRACT: CardRecord = CardRecord::new(
 );
 
 // ODY 86 — Fervent Denial
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FERVENT_DENIAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed13fdb4-f28a-43c9-a69f-bab227806c39"),
     "Fervent Denial",
-    crate::card::CardArt::new("ed13fdb4-f28a-43c9-a69f-bab227806c39", "Scott M. Fischer"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ed13fdb4-f28a-43c9-a69f-bab227806c39", "Scott M. Fischer"),
+    CardSet::Odyssey,
+    // Five mana for a counterspell is unplayable; seven more for a second
+    // one is what makes it a card at all.
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Counter target spell.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::flashback(mana_cost!("{5}{U}{U}")),
+    ]),
 );
 
 // ODY 87 — Immobilizing Ink
@@ -1862,13 +1942,34 @@ pub(in crate::card::sets) static CHILDHOOD_HORROR: CardRecord = CardRecord::new(
 );
 
 // ODY 124 — Coffin Purge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COFFIN_PURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("541e06cb-5616-40b4-9d36-89471a795ac8"),
     "Coffin Purge",
-    crate::card::CardArt::new("541e06cb-5616-40b4-9d36-89471a795ac8", "Pete Venters"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("541e06cb-5616-40b4-9d36-89471a795ac8", "Pete Venters"),
+    CardSet::Odyssey,
+    // One mana twice against the deck that lives in its graveyard, which in
+    // this block was most of them.
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Exile target card from a graveyard.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::flashback(mana_cost!("{B}")),
+    ]),
 );
 
 // ODY 125 — Crypt Creeper (reprint)
@@ -2251,23 +2352,69 @@ pub(in crate::card::sets) static MINDSLICER: CardRecord = CardRecord::new(
 );
 
 // ODY 150 — Morbid Hunger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORBID_HUNGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47a4e7d0-ff09-4e19-8456-f4845f56dc8b"),
     "Morbid Hunger",
-    crate::card::CardArt::new("47a4e7d0-ff09-4e19-8456-f4845f56dc8b", "Eric Peterson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("47a4e7d0-ff09-4e19-8456-f4845f56dc8b", "Eric Peterson"),
+    CardSet::Odyssey,
+    // A six-point swing twice over, at a mana cost only a game going very
+    // long ever pays.
+    CardRules::new_sorcery(mana_cost!("{4}{B}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Morbid Hunger deals 3 damage to any target. You gain 3 life.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(3),
+                        },
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(3),
+                        },
+                    ]
+                },
+            ),
+        ),
+        abilities::flashback(mana_cost!("{7}{B}{B}")),
+    ]),
 );
 
 // ODY 151 — Morgue Theft
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORGUE_THEFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("937465ca-4cf7-4412-86eb-264efb0fdddd"),
     "Morgue Theft",
-    crate::card::CardArt::new("937465ca-4cf7-4412-86eb-264efb0fdddd", "Justin Sweet"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("937465ca-4cf7-4412-86eb-264efb0fdddd", "Justin Sweet"),
+    CardSet::Odyssey,
+    // Two creatures back out of one card, which is what a deck that keeps
+    // losing its threats is really buying.
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return target creature card from your graveyard to your hand.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::flashback(mana_cost!("{4}{B}")),
+    ]),
 );
 
 // ODY 152 — Mortivore
@@ -2394,13 +2541,30 @@ pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new_
 );
 
 // ODY 162 — Skull Fracture
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKULL_FRACTURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93e3c013-319f-4a77-a55e-11323468b8ea"),
     "Skull Fracture",
-    crate::card::CardArt::new("93e3c013-319f-4a77-a55e-11323468b8ea", "Paolo Parente"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("93e3c013-319f-4a77-a55e-11323468b8ea", "Paolo Parente"),
+    CardSet::Odyssey,
+    // One mana for a card now and four for another later, which beats the
+    // opponent by attrition rather than by tempo.
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target player discards a card.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+        abilities::flashback(mana_cost!("{3}{B}")),
+    ]),
 );
 
 // ODY 163 — Stalking Bloodsucker
@@ -2579,13 +2743,28 @@ pub(in crate::card::sets) static BARBARIAN_LUNATIC: CardRecord = CardRecord::new
 );
 
 // ODY 176 — Bash to Bits
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASH_TO_BITS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("694b24de-d7f8-49c6-8ab3-d5fab13b6a8f"),
     "Bash to Bits",
-    crate::card::CardArt::new("694b24de-d7f8-49c6-8ab3-d5fab13b6a8f", "Matt Cavotta"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("694b24de-d7f8-49c6-8ab3-d5fab13b6a8f", "Matt Cavotta"),
+    CardSet::Odyssey,
+    // Artifact removal that is never a dead sideboard card, because the
+    // second copy comes out of the graveyard.
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target artifact.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        abilities::flashback(mana_cost!("{4}{R}{R}")),
+    ]),
 );
 
 // ODY 177 — Battle Strain
@@ -2709,13 +2888,28 @@ pub(in crate::card::sets) static DWARVEN_STRIKE_FORCE: CardRecord = CardRecord::
 );
 
 // ODY 189 — Earth Rift
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EARTH_RIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2e10742-77c9-4f91-81b2-37b2ac910f09"),
     "Earth Rift",
-    crate::card::CardArt::new("e2e10742-77c9-4f91-81b2-37b2ac910f09", "Wayne England"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e2e10742-77c9-4f91-81b2-37b2ac910f09", "Wayne England"),
+    CardSet::Odyssey,
+    // Two land drops taken out of one card, which is the only rate at which
+    // land destruction ever pays for itself.
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target land.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        abilities::flashback(mana_cost!("{5}{R}{R}")),
+    ]),
 );
 
 // ODY 190 — Ember Beast
@@ -3143,13 +3337,28 @@ pub(in crate::card::sets) static SAVAGE_FIRECAT: CardRecord = CardRecord::new(
 );
 
 // ODY 219 — Scorching Missile
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCORCHING_MISSILE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0672960b-4cb5-4ed6-ba3c-6b97290e0330"),
     "Scorching Missile",
-    crate::card::CardArt::new("0672960b-4cb5-4ed6-ba3c-6b97290e0330", "Don Hazeltine"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0672960b-4cb5-4ed6-ba3c-6b97290e0330", "Don Hazeltine"),
+    CardSet::Odyssey,
+    // Eight damage split across two turns out of one card, aimed only at
+    // the player -- which is exactly what a burn deck wants.
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Scorching Missile deals 4 damage to target player or planeswalker.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        ),
+        abilities::flashback(mana_cost!("{9}{R}")),
+    ]),
 );
 
 // ODY 220 — Seize the Day
@@ -3247,13 +3456,42 @@ pub(in crate::card::sets) static TREMBLE: CardRecord = CardRecord::new(
 );
 
 // ODY 226 — Volcanic Spray
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOLCANIC_SPRAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97daab4b-d934-4a3f-a043-f7c9c1dd32bf"),
     "Volcanic Spray",
-    crate::card::CardArt::new("97daab4b-d934-4a3f-a043-f7c9c1dd32bf", "Matt Cavotta"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("97daab4b-d934-4a3f-a043-f7c9c1dd32bf", "Matt Cavotta"),
+    CardSet::Odyssey,
+    // Two sweeps of one damage is four one-toughness creatures, which
+    // against a token deck is the whole board.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Volcanic Spray deals 1 damage to each creature without flying and each player.",
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                        KeywordAbility::Flying,
+                                    )),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            ),
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::EachPlayer,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]
+                },
+            ),
+        ),
+        abilities::flashback(mana_cost!("{1}{R}")),
+    ]),
 );
 
 // ODY 227 — Volley of Boulders
@@ -3287,35 +3525,56 @@ pub(in crate::card::sets) static BEARSCAPE: CardRecord = CardRecord::new(
 );
 
 // ODY 230 — Beast Attack
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEAST_ATTACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a5ebe27-2083-400e-8943-b506be470e3f"),
     "Beast Attack",
-    crate::card::CardArt::new("6a5ebe27-2083-400e-8943-b506be470e3f", "Ciruelo"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6a5ebe27-2083-400e-8943-b506be470e3f", "Ciruelo"),
+    CardSet::Odyssey,
+    // A 4/4 at instant speed twice, which is what a green deck plays instead
+    // of a counterspell.
+    CardRules::new_instant(mana_cost!("{2}{G}{G}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a 4/4 green Beast creature token.",
+            EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 4, 4),
+        ),
+        abilities::flashback(mana_cost!("{2}{G}{G}{G}")),
+    ]),
 );
 
 // ODY 231 — Call of the Herd
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CALL_OF_THE_HERD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("429a88cc-53db-4c5e-a061-f0f49a38c675"),
     "Call of the Herd",
-    crate::card::CardArt::new("429a88cc-53db-4c5e-a061-f0f49a38c675", "Carl Critchlow"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("429a88cc-53db-4c5e-a061-f0f49a38c675", "Carl Critchlow"),
+    CardSet::Odyssey,
+    // Two 3/3s out of one card is a rate that beat every three-drop
+    // creature in the format.
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a 3/3 green Elephant creature token.",
+            EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+        ),
+        abilities::flashback(mana_cost!("{3}{G}")),
+    ]),
 );
 
 // ODY 232 — Cartographer (reprint)
 
 // ODY 233 — Chatter of the Squirrel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHATTER_OF_THE_SQUIRREL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("84273844-7fab-4ff7-afb3-c82153132daf"),
     "Chatter of the Squirrel",
-    crate::card::CardArt::new("84273844-7fab-4ff7-afb3-c82153132daf", "Jim Nelson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("84273844-7fab-4ff7-afb3-c82153132daf", "Jim Nelson"),
+    CardSet::Odyssey,
+    // Two bodies for two cards' worth of mana out of one card, which is
+    // exactly what a threshold deck wants to be doing anyway.
+    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a 1/1 green Squirrel creature token.",
+            EffectDef::create_creature_token(&["Squirrel"], &[ManaColor::Green], 1, 1),
+        ),
+        abilities::flashback(mana_cost!("{1}{G}")),
+    ]),
 );
 
 // ODY 234 — Chlorophant
@@ -3399,13 +3658,20 @@ pub(in crate::card::sets) static DRUID_S_CALL: CardRecord = CardRecord::new(
 );
 
 // ODY 240 — Elephant Ambush
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELEPHANT_AMBUSH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4abdf1c-a0a9-4e1d-b448-58742830f767"),
     "Elephant Ambush",
-    crate::card::CardArt::new("b4abdf1c-a0a9-4e1d-b448-58742830f767", "Anthony S. Waters"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b4abdf1c-a0a9-4e1d-b448-58742830f767", "Anthony S. Waters"),
+    CardSet::Odyssey,
+    // The same Elephants at instant speed, which turns a combat trick into a
+    // creature that stays.
+    CardRules::new_instant(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a 3/3 green Elephant creature token.",
+            EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+        ),
+        abilities::flashback(mana_cost!("{6}{G}{G}")),
+    ]),
 );
 
 // ODY 241 — Gorilla Titan
@@ -3442,13 +3708,40 @@ pub(in crate::card::sets) static HOLISTIC_WISDOM: CardRecord = CardRecord::new(
 );
 
 // ODY 244 — Howling Gale
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOWLING_GALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9917cf32-0236-4463-9b1d-e8193754ff97"),
     "Howling Gale",
-    crate::card::CardArt::new("9917cf32-0236-4463-9b1d-e8193754ff97", "Greg Staples"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9917cf32-0236-4463-9b1d-e8193754ff97", "Greg Staples"),
+    CardSet::Odyssey,
+    // Green's answer to a sky full of one-toughness fliers, twice, at
+    // instant speed.
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Howling Gale deals 1 damage to each creature with flying and each player.",
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            ),
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::EachPlayer,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]
+                },
+            ),
+        ),
+        abilities::flashback(mana_cost!("{1}{G}")),
+    ]),
 );
 
 // ODY 245 — Ivy Elemental
@@ -3803,13 +4096,20 @@ pub(in crate::card::sets) static RITES_OF_SPRING: CardRecord = CardRecord::new(
 );
 
 // ODY 266 — Roar of the Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROAR_OF_THE_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ddf54317-4c08-4a66-9fd2-9983384e2374"),
     "Roar of the Wurm",
-    crate::card::CardArt::new("ddf54317-4c08-4a66-9fd2-9983384e2374", "Kev Walker"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ddf54317-4c08-4a66-9fd2-9983384e2374", "Kev Walker"),
+    CardSet::Odyssey,
+    // Seven mana for a 6/6, or four for the second one out of the graveyard
+    // -- which is the only price anybody ever paid.
+    CardRules::new_sorcery(mana_cost!("{6}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create a 6/6 green Wurm creature token.",
+            EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 6, 6),
+        ),
+        abilities::flashback(mana_cost!("{3}{G}")),
+    ]),
 );
 
 // ODY 267 — Seton, Krosan Protector

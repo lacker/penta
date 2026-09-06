@@ -13,13 +13,13 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, ColorSet, DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
-    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, RoundingDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChooseDef, ColorSet, DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    HalvedValueDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -2097,13 +2097,35 @@ pub(in crate::card::sets) static SPIRIT_OF_THE_NIGHT: CardRecord = CardRecord::n
 );
 
 // MIR 147 — Stupor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STUPOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fed2498-20ce-48ad-a56e-2c7e297c0c66"),
     "Stupor",
-    crate::card::CardArt::new("0fed2498-20ce-48ad-a56e-2c7e297c0c66", "Mike Kimble"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0fed2498-20ce-48ad-a56e-2c7e297c0c66", "Mike Kimble"),
+    CardSet::Mirage,
+    // Two cards for three mana, and the random one first: they cannot
+    // protect the card they care about by pitching something else.
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target opponent discards a card at random, then discards a card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::Sequence(&[
+            // The random one first, so the card they would have chosen to
+            // keep can be the one that goes.
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::Random,
+                then: None,
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // MIR 148 — Tainted Specter
@@ -3874,13 +3896,27 @@ pub(in crate::card::sets) static UNFULFILLED_DESIRES: CardRecord = CardRecord::n
 );
 
 // MIR 286 — Vitalizing Cascade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VITALIZING_CASCADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5fe8a5b8-1a87-46f5-920f-fbbb05bfd563"),
     "Vitalizing Cascade",
-    crate::card::CardArt::new("5fe8a5b8-1a87-46f5-920f-fbbb05bfd563", "Rebecca Guay"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5fe8a5b8-1a87-46f5-920f-fbbb05bfd563", "Rebecca Guay"),
+    CardSet::Mirage,
+    // Life at instant speed scaled by whatever mana is left over, which is
+    // a fine rate and almost never what a deck wants.
+    CardRules::new_instant(mana_cost!("{X}{G}{W}")).with_ability(AbilityDef::spell(
+        "You gain X plus 3 life.",
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Sum(
+                &const {
+                    SumValueDef {
+                        left: ValueDef::ChosenX,
+                        right: ValueDef::Constant(3),
+                    }
+                },
+            ),
+        },
+    )),
 );
 
 // MIR 287 — Warping Wurm

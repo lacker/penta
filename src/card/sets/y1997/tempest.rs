@@ -442,13 +442,26 @@ pub(in crate::card::sets) static QUICKENING_LICID: CardRecord = CardRecord::new(
 );
 
 // TMP 37 — Repentance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REPENTANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e28ac76-c671-4be1-bcfc-17f2d7bbe08f"),
     "Repentance",
-    crate::card::CardArt::new("3e28ac76-c671-4be1-bcfc-17f2d7bbe08f", "Ron Spencer"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3e28ac76-c671-4be1-bcfc-17f2d7bbe08f", "Ron Spencer"),
+    CardSet::Tempest,
+    // The bigger the creature, the more surely it kills itself, which is
+    // white's answer to something it cannot block.
+    CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature deals damage to itself equal to its power.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        // The creature is the source as well as the recipient, so lifelink or
+        // a damage trigger on it sees its own damage.
+        EffectDef::DealDamageFrom {
+            source: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+        },
+    )),
 );
 
 // TMP 38 — Sacred Guide
@@ -2069,16 +2082,29 @@ pub(in crate::card::sets) static BLOOD_FRENZY: CardRecord = CardRecord::new(
 );
 
 // TMP 165 — Boil
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2fa1c529-44e5-41b6-9704-ae2319f31f13"),
     "Boil",
-    crate::card::CardArt::new(
+    CardArt::new(
         "2fa1c529-44e5-41b6-9704-ae2319f31f13",
         "Jason Alexander Behnke",
     ),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardSet::Tempest,
+    // Four mana at instant speed that answers a blue deck's whole mana
+    // base, which is what a sideboard card was allowed to do.
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_ability(AbilityDef::spell(
+        "Destroy all Islands.",
+        // A subtype check, so any land that is an Island goes -- including a
+        // dual land that is an Island among other types.
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            then: None,
+        },
+    )),
 );
 
 // TMP 166 — Canyon Drake

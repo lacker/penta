@@ -424,16 +424,35 @@ pub(in crate::card::sets) static PLANAR_BIRTH: CardRecord = CardRecord::new(
 // USG 32 — Presence of the Master (reprint)
 
 // USG 33 — Redeem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REDEEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("05a7756d-df25-4969-96ad-b006df09788b"),
     "Redeem",
-    crate::card::CardArt::new(
+    CardArt::new(
         "05a7756d-df25-4969-96ad-b006df09788b",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasSaga,
+    // Two mana to blank a combat or a burn spell aimed at two creatures,
+    // for the rest of the turn rather than one instance.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Prevent all damage that would be dealt this turn to up to two target creatures.",
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            2,
+        )],
+        // All damage, not only combat damage, and for the whole turn.
+        EffectDef::PreventDamage {
+            prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::to(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            )),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // USG 34 — Remembrance
@@ -803,13 +822,29 @@ pub(in crate::card::sets) static BARRIN_MASTER_WIZARD: CardRecord = CardRecord::
 );
 
 // USG 64 — Catalog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CATALOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31bdef28-0e27-4c8d-a04c-5413519dcb4e"),
     "Catalog",
-    crate::card::CardArt::new("31bdef28-0e27-4c8d-a04c-5413519dcb4e", "Berry"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("31bdef28-0e27-4c8d-a04c-5413519dcb4e", "Berry"),
+    CardSet::UrzasSaga,
+    // Two cards for three mana and a card back, which is what blue paid for
+    // selection before it got cheaper.
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Draw two cards, then discard a card.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+            // Drawn first, so the discard can be one of the cards just seen.
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // USG 65 — Cloak of Mists
@@ -960,13 +995,25 @@ pub(in crate::card::sets) static HERMETIC_STUDY: CardRecord = CardRecord::new(
 );
 
 // USG 79 — Hibernation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIBERNATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("68b7444c-fabb-4437-8db9-a1008ea09415"),
     "Hibernation",
-    crate::card::CardArt::new("68b7444c-fabb-4437-8db9-a1008ea09415", "Scott Kirschner"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("68b7444c-fabb-4437-8db9-a1008ea09415", "Scott Kirschner"),
+    CardSet::UrzasSaga,
+    // Three mana at instant speed that answers a whole green board without
+    // killing anything -- they get it all back, a turn later.
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Return all green permanents to their owners' hands.",
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::Color(ManaColor::Green),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // USG 80 — Horseshoe Crab
@@ -1317,13 +1364,25 @@ pub(in crate::card::sets) static STROKE_OF_GENIUS: CardRecord = CardRecord::new(
 );
 
 // USG 101 — Sunder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd9dd7c6-36b6-4fe2-b3d3-f62a6e10a428"),
     "Sunder",
-    crate::card::CardArt::new("cd9dd7c6-36b6-4fe2-b3d3-f62a6e10a428", "Stephen Daniele"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cd9dd7c6-36b6-4fe2-b3d3-f62a6e10a428", "Stephen Daniele"),
+    CardSet::UrzasSaga,
+    // Five mana to put every land back in hand, which resets the game to
+    // turn one for whoever has the cheaper deck.
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::spell(
+        "Return all lands to their owners' hands.",
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // USG 102 — Telepathy

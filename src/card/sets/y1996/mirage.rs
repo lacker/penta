@@ -14,10 +14,11 @@ use crate::card::{
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameSetDef, CardRules,
     CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
     DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, HalvedValueDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1712,13 +1713,35 @@ pub(in crate::card::sets) static HARBINGER_OF_NIGHT: CardRecord = CardRecord::ne
 );
 
 // MIR 129 — Infernal Contract
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INFERNAL_CONTRACT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e62c43bd-59fe-46e3-83f8-c4b37cbc4931"),
     "Infernal Contract",
-    crate::card::CardArt::new("e62c43bd-59fe-46e3-83f8-c4b37cbc4931", "Roger Raupp"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e62c43bd-59fe-46e3-83f8-c4b37cbc4931", "Roger Raupp"),
+    CardSet::Mirage,
+    // Four cards for three mana and half your life. It is a fine deal at
+    // twenty and a losing one the second time.
+    CardRules::new_sorcery(mana_cost!("{B}{B}{B}")).with_ability(AbilityDef::spell(
+        "Draw four cards. You lose half your life, rounded up.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+            // The half is read after the draw, but life is untouched by
+            // drawing, so the order costs nothing here.
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Halved(
+                    &const {
+                        HalvedValueDef {
+                            value: ValueDef::LifeTotal(PlayerRelation::You),
+                            rounding: RoundingDef::Up,
+                        }
+                    },
+                ),
+            },
+        ]),
+    )),
 );
 
 // MIR 130 — Kaervek's Hex

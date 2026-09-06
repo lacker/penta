@@ -471,13 +471,31 @@ pub(in crate::card::sets) static SAFEGUARD: CardRecord = CardRecord::new(
 );
 
 // TMP 40 — Serene Offering
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERENE_OFFERING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c0b3795-7f30-4c61-b5d8-f238055d6be1"),
     "Serene Offering",
-    crate::card::CardArt::new("6c0b3795-7f30-4c61-b5d8-f238055d6be1", "Paolo Parente"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6c0b3795-7f30-4c61-b5d8-f238055d6be1", "Paolo Parente"),
+    CardSet::Tempest,
+    // Two mana to answer an enchantment, and the life is a rebate scaled to
+    // how expensive the thing you answered was.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target enchantment. You gain life equal to its mana value.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // Read after the destruction, so the value comes from
+            // last-known information about a permanent already gone.
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            },
+        ]),
+    )),
 );
 
 // TMP 41 — Soltari Crusader

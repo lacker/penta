@@ -462,13 +462,36 @@ pub(in crate::card::sets) static SPIRIT_OF_RESISTANCE: CardRecord = CardRecord::
 );
 
 // INV 39 — Spirit Weaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIRIT_WEAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("90b0ef47-cb22-4146-a17e-e49a6031a7e6"),
     "Spirit Weaver",
-    crate::card::CardArt::new("90b0ef47-cb22-4146-a17e-e49a6031a7e6", "Matthew D. Wilson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("90b0ef47-cb22-4146-a17e-e49a6031a7e6", "Matthew D. Wilson"),
+    CardSet::Invasion,
+    // Toughness for green and blue, which turns every trade into a block
+    // that survives.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Wizard"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Target green or blue creature gets +0/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::Green),
+                        ObjectPredicateDef::Color(ManaColor::Blue),
+                    ]),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 40 — Strength of Unity
@@ -987,16 +1010,36 @@ pub(in crate::card::sets) static SHORELINE_RAIDER: CardRecord = CardRecord::new(
 );
 
 // INV 74 — Sky Weaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKY_WEAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04974146-42a8-4f10-b443-67bfeaa54d5d"),
     "Sky Weaver",
-    crate::card::CardArt::new(
+    CardArt::new(
         "04974146-42a8-4f10-b443-67bfeaa54d5d",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Evasion for white and black, which is the version that actually ends
+    // games.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Metathran", "Wizard"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Target white or black creature gains flying until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::White),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                    ]),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 75 — Stormscape Apprentice
@@ -1388,13 +1431,36 @@ pub(in crate::card::sets) static GOHAM_DJINN: CardRecord = CardRecord::new(
 );
 
 // INV 108 — Hate Weaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HATE_WEAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8328e131-b44d-4dd0-9ce4-454c6afe6fa6"),
     "Hate Weaver",
-    crate::card::CardArt::new("8328e131-b44d-4dd0-9ce4-454c6afe6fa6", "Roger Raupp"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8328e131-b44d-4dd0-9ce4-454c6afe6fa6", "Roger Raupp"),
+    CardSet::Invasion,
+    // The same shape aimed at blue and red, where a point of power is worth
+    // more than it looks on an evasive body.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie", "Wizard"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Target blue or red creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::Blue),
+                        ObjectPredicateDef::Color(ManaColor::Red),
+                    ]),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 109 — Hypnotic Cloud
@@ -1979,13 +2045,33 @@ pub(in crate::card::sets) static POUNCING_KAVU: CardRecord = CardRecord::new(
 );
 
 // INV 159 — Rage Weaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAGE_WEAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a654295d-b63c-4025-bf36-899023a8ba1d"),
     "Rage Weaver",
-    crate::card::CardArt::new("a654295d-b63c-4025-bf36-899023a8ba1d", "John Matson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a654295d-b63c-4025-bf36-899023a8ba1d", "John Matson"),
+    CardSet::Invasion,
+    // Haste handed to the two colours that had the bodies worth hasting,
+    // which is what the cycle was built around.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Wizard"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Target black or green creature gains haste until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                        ObjectPredicateDef::Color(ManaColor::Green),
+                    ]),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 160 — Rogue Kavu
@@ -2467,13 +2553,33 @@ pub(in crate::card::sets) static LLANOWAR_VANGUARD: CardRecord = CardRecord::new
 );
 
 // INV 198 — Might Weaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIGHT_WEAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("032a4ec7-82ce-4ea0-b0dd-ebc40823a014"),
     "Might Weaver",
-    crate::card::CardArt::new("032a4ec7-82ce-4ea0-b0dd-ebc40823a014", "Larry Elmore"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("032a4ec7-82ce-4ea0-b0dd-ebc40823a014", "Larry Elmore"),
+    CardSet::Invasion,
+    // Trample for red and white, so a wide board stops being answered by
+    // one chump blocker.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Wizard"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Target red or white creature gains trample until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::Red),
+                        ObjectPredicateDef::Color(ManaColor::White),
+                    ]),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 199 — Molimo, Maro-Sorcerer

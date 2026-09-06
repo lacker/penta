@@ -15,10 +15,10 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
     BlockRestrictionDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CostModificationDef, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectChoiceDef,
-    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeSetDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CostModificationDef, CounterKind,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, DividedTotal,
+    DrawEventMatcherDef, EffectChoiceDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TargetChooserDef,
@@ -3992,13 +3992,24 @@ pub(in crate::card::sets) static EMMESSI_TOME: CardRecord = CardRecord::new(
 );
 
 // TMP 285 — Energizer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENERGIZER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("914f204c-7f3d-41f2-a771-0b6227d539eb"),
     "Energizer",
-    crate::card::CardArt::new("914f204c-7f3d-41f2-a771-0b6227d539eb", "Val Mayerik"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("914f204c-7f3d-41f2-a771-0b6227d539eb", "Val Mayerik"),
+    CardSet::Tempest,
+    // Four mana for a 2/2 that grows a point a turn, which is a rate only a
+    // game with nothing else to do can pay.
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Juggernaut"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{2}, {T}: Put a +1/+1 counter on this creature.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // TMP 286 — Essence Bottle

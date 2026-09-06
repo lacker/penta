@@ -11,9 +11,9 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, CostDef, CostModificationDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
@@ -877,13 +877,30 @@ pub(in crate::card::sets) static OSTRACIZE: CardRecord = CardRecord::new(
 );
 
 // ULG 58 — Phyrexian Broodlings
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_BROODLINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2313481c-baf9-4dc7-80c7-1ebc6502dce7"),
     "Phyrexian Broodlings",
-    crate::card::CardArt::new("2313481c-baf9-4dc7-80c7-1ebc6502dce7", "Daren Bader"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2313481c-baf9-4dc7-80c7-1ebc6502dce7", "Daren Bader"),
+    CardSet::UrzasLegacy,
+    // A sacrifice outlet that keeps the value, so every creature about to
+    // die is a permanent counter instead.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Phyrexian", "Minion"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{1}, Sacrifice a creature: Put a +1/+1 counter on this creature.",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // ULG 59 — Phyrexian Debaser
@@ -1951,13 +1968,28 @@ pub(in crate::card::sets) static IRON_MAIDEN: CardRecord = CardRecord::new(
 );
 
 // ULG 128 — Jhoira's Toolbox
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JHOIRA_S_TOOLBOX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("edb38309-c02c-496c-894f-786a2f6e3d1c"),
     "Jhoira's Toolbox",
-    crate::card::CardArt::new("edb38309-c02c-496c-894f-786a2f6e3d1c", "Mike Raabe"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("edb38309-c02c-496c-894f-786a2f6e3d1c", "Mike Raabe"),
+    CardSet::UrzasLegacy,
+    // Regeneration for the whole artifact half of the board, in a block
+    // where that was most of it.
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Insect"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Regenerate target artifact creature.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+            )],
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // ULG 129 — Memory Jar

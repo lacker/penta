@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, DamageEventMatcherDef,
+    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -1054,13 +1055,32 @@ pub(in crate::card::sets) static VILE_DEACON: CardRecord = CardRecord::new(
 );
 
 // LGN 86 — Withered Wretch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WITHERED_WRETCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("691135e8-1c41-41c4-9426-48bffe23bfd8"),
     "Withered Wretch",
-    crate::card::CardArt::new("b8a82948-503f-4ad4-9e3c-c080c16afd63", "Tim Hildebrandt"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b8a82948-503f-4ad4-9e3c-c080c16afd63", "Tim Hildebrandt"),
+    CardSet::Legions,
+    // A one-mana graveyard answer as often as the mana lasts, which is why
+    // it beat every one-shot printed alongside it.
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Zombie", "Cleric"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}: Exile target card from a graveyard.",
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // LGN 87 — Zombie Brute

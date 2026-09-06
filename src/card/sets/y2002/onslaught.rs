@@ -3176,13 +3176,30 @@ pub(in crate::card::sets) static ELVISH_GUIDANCE: CardRecord = CardRecord::new(
 );
 
 // ONS 256 — Elvish Pathcutter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_PATHCUTTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c7d810b8-1a15-46cc-9d9d-871ac43b7036"),
     "Elvish Pathcutter",
-    crate::card::CardArt::new("c7d810b8-1a15-46cc-9d9d-871ac43b7036", "Todd Lockwood"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c7d810b8-1a15-46cc-9d9d-871ac43b7036", "Todd Lockwood"),
+    CardSet::Onslaught,
+    // Evasion for the tribe one member at a time, which is slow enough that
+    // the deck had to be wide first.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Scout"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{G}: Target Elf creature gains forestwalk until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Elf"),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ONS 257 — Elvish Pioneer

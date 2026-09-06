@@ -1745,13 +1745,23 @@ pub(in crate::card::sets) static BRAIDWOOD_SEXTANT: CardRecord = CardRecord::new
 );
 
 // UDS 128 — Brass Secretary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRASS_SECRETARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5685cff-b607-4a81-aa47-6676ab1a5782"),
     "Brass Secretary",
-    crate::card::CardArt::new("c5685cff-b607-4a81-aa47-6676ab1a5782", "DiTerlizzi"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c5685cff-b607-4a81-aa47-6676ab1a5782", "DiTerlizzi"),
+    CardSet::UrzasDestiny,
+    // A body that turns into a card once it has stopped being useful, which
+    // is most of what a three-mana 2/1 can offer.
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 2, 1).with_ability(
+        AbilityDef::activated(
+            "{2}, Sacrifice this creature: Draw a card.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // UDS 129 — Caltrops

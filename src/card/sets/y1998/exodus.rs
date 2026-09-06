@@ -427,13 +427,32 @@ pub(in crate::card::sets) static EQUILIBRIUM: CardRecord = CardRecord::new(
 );
 
 // EXO 33 — Ertai, Wizard Adept
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ERTAI_WIZARD_ADEPT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91971e19-61ce-45ac-b700-9ffca5091a27"),
     "Ertai, Wizard Adept",
-    crate::card::CardArt::new("91971e19-61ce-45ac-b700-9ffca5091a27", "Terese Nielsen"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("91971e19-61ce-45ac-b700-9ffca5091a27", "Terese Nielsen"),
+    CardSet::Exodus,
+    // A counterspell that never runs out, which is worth four mana a turn
+    // in a deck with nothing better to do with it.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{2}{U}{U}, {T}: Counter target spell.",
+            &[CostDef::Mana(mana_cost!("{2}{U}{U}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        )),
 );
 
 // EXO 34 — Fade Away

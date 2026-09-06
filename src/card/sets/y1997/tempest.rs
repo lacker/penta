@@ -2300,13 +2300,24 @@ pub(in crate::card::sets) static SKYSHROUD_VAMPIRE: CardRecord = CardRecord::new
 );
 
 // TMP 158 — Souldrinker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOULDRINKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("07d2d0ff-e44e-427a-9d68-3ed2d51b1b86"),
     "Souldrinker",
-    crate::card::CardArt::new("07d2d0ff-e44e-427a-9d68-3ed2d51b1b86", "Dermot Power"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("07d2d0ff-e44e-427a-9d68-3ed2d51b1b86", "Dermot Power"),
+    CardSet::Tempest,
+    // Life into permanent size, which a deck already ahead on life can keep
+    // paying until the creature is unanswerable.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "Pay 3 life: Put a +1/+1 counter on this creature.",
+            &[CostDef::PayLife(3)],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // TMP 159 — Spinal Graft
@@ -3164,13 +3175,17 @@ pub(in crate::card::sets) static APES_OF_RATH: CardRecord = CardRecord::new(
 );
 
 // TMP 215 — Bayou Dragonfly
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BAYOU_DRAGONFLY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93cfcca5-070b-4946-b17b-0c94b1e47fcd"),
     "Bayou Dragonfly",
-    crate::card::CardArt::new("93cfcca5-070b-4946-b17b-0c94b1e47fcd", "DiTerlizzi"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("93cfcca5-070b-4946-b17b-0c94b1e47fcd", "DiTerlizzi"),
+    CardSet::Tempest,
+    // Two kinds of evasion on a one-power body, which only matters against
+    // the deck that has both Swamps and no fliers.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::landwalk(BasicLandType::Swamp),
+    ]),
 );
 
 // TMP 216 — Broken Fall
@@ -3723,13 +3738,27 @@ pub(in crate::card::sets) static SCRAGNOTH: CardRecord = CardRecord::new(
 );
 
 // TMP 254 — Seeker of Skybreak
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEEKER_OF_SKYBREAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4bb98ba-d599-4597-911c-2b472fa8817c"),
     "Seeker of Skybreak",
-    crate::card::CardArt::new("b4bb98ba-d599-4597-911c-2b472fa8817c", "Daren Bader"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b4bb98ba-d599-4597-911c-2b472fa8817c", "Daren Bader"),
+    CardSet::Tempest,
+    // Untapping a mana creature is mana, and untapping a blocker is a second
+    // block -- the same two mana either way.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Untap target creature.",
+            &[CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // TMP 255 — Skyshroud Elf

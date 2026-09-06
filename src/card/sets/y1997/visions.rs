@@ -21,13 +21,32 @@ use crate::{ParentBinding, TargetIndex, mana_cost};
 // VIS 1 — Archangel (reprint)
 
 // VIS 2 — Daraja Griffin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARAJA_GRIFFIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f7afcaa-9df8-4dd6-89ad-bc2e15f1ec4b"),
     "Daraja Griffin",
-    crate::card::CardArt::new("2f7afcaa-9df8-4dd6-89ad-bc2e15f1ec4b", "Stuart Griffin"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2f7afcaa-9df8-4dd6-89ad-bc2e15f1ec4b", "Stuart Griffin"),
+    CardSet::Visions,
+    // A flier that is also a sideboard card, which against the wrong deck is
+    // simply a flier.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Griffin"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Destroy target black creature.",
+            &[CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // VIS 3 — Equipoise
@@ -1242,13 +1261,26 @@ pub(in crate::card::sets) static VAMPIRISM: CardRecord = CardRecord::new(
 );
 
 // VIS 74 — Wake of Vultures
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WAKE_OF_VULTURES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52420b80-7f34-4426-ac97-a6e15167c7a9"),
     "Wake of Vultures",
-    crate::card::CardArt::new("52420b80-7f34-4426-ac97-a6e15167c7a9", "Jeff Miracola"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("52420b80-7f34-4426-ac97-a6e15167c7a9", "Jeff Miracola"),
+    CardSet::Visions,
+    // A flier that eats the rest of the board to stay alive, which is the
+    // deal a deck making tokens is happy to take.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Bird", "Skeleton"], 3, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::regenerate_self(
+            "{1}{B}, Sacrifice a creature: Regenerate this creature.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{B}")),
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+        ),
+    ]),
 );
 
 // VIS 75 — Wicked Reward
@@ -1390,13 +1422,26 @@ pub(in crate::card::sets) static HULKING_CYCLOPS: CardRecord = CardRecord::new(
 );
 
 // VIS 85 — Keeper of Kookus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KEEPER_OF_KOOKUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d11b6df4-449f-44ea-a4fa-f079bcd26a54"),
     "Keeper of Kookus",
-    crate::card::CardArt::new("d11b6df4-449f-44ea-a4fa-f079bcd26a54", "Scott Hampton"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d11b6df4-449f-44ea-a4fa-f079bcd26a54", "Scott Hampton"),
+    CardSet::Visions,
+    // A one-drop that walks past every red blocker and dodges every red burn
+    // spell, for one mana at a time.
+    CardRules::new_creature(mana_cost!("{R}"), &["Human", "Nomad"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{R}: This creature gains protection from red until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(
+                    &const { abilities::protection_from_color(ManaColor::Red) },
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // VIS 86 — Kookus
@@ -1538,13 +1583,15 @@ pub(in crate::card::sets) static SPITTING_DRAKE: CardRecord = CardRecord::new(
 );
 
 // VIS 96 — Suq'Ata Lancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUQ_ATA_LANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2884d8df-7fd5-4247-9da5-38c31333ff5d"),
     "Suq'Ata Lancer",
-    crate::card::CardArt::new("2884d8df-7fd5-4247-9da5-38c31333ff5d", "Jeff Miracola"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2884d8df-7fd5-4247-9da5-38c31333ff5d", "Jeff Miracola"),
+    CardSet::Visions,
+    // Haste and flanking together mean the turn it lands is the turn it wins
+    // a fight it should have lost.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Knight"], 2, 2)
+        .with_abilities(&[abilities::haste(), abilities::flanking()]),
 );
 
 // VIS 97 — Talruum Champion

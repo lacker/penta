@@ -22,6 +22,7 @@ use crate::{
 };
 
 mod ability_resolution;
+mod activated_x_values;
 mod activation_costs_and_turns;
 mod activation_prohibitions;
 mod activation_timing;

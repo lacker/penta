@@ -3,10 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, abilities,
+    BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -706,13 +707,29 @@ pub(in crate::card::sets) static BOG_GLIDER: CardRecord = CardRecord::new(
 );
 
 // PCY 59 — Chilling Apparition
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHILLING_APPARITION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c20edb71-aa1d-437b-bcfb-953efbe45150"),
     "Chilling Apparition",
-    crate::card::CardArt::new("c20edb71-aa1d-437b-bcfb-953efbe45150", "Ron Spears"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c20edb71-aa1d-437b-bcfb-953efbe45150", "Ron Spears"),
+    CardSet::Prophecy,
+    // It regenerates, so the discard keeps happening for as long as the
+    // opponent has no answer that exiles.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Spirit"], 1, 1).with_abilities(&[
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, that player discards a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // PCY 60 — Coffin Puppets

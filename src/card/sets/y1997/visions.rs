@@ -1012,13 +1012,27 @@ pub(in crate::card::sets) static PYTHON: CardRecord = CardRecord::new(
 );
 
 // VIS 69 — Suq'Ata Assassin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUQ_ATA_ASSASSIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b7178c6-f989-437d-83e3-04b9817f2c54"),
     "Suq'Ata Assassin",
-    crate::card::CardArt::new("1b7178c6-f989-437d-83e3-04b9817f2c54", "Gary Gianni"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1b7178c6-f989-437d-83e3-04b9817f2c54", "Gary Gianni"),
+    CardSet::Visions,
+    // Fear on the poison body, so the ten attacks are much easier to get
+    // through than the Cobra's.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Human", "Assassin"], 1, 1).with_abilities(&[
+        abilities::fear(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks and isn't blocked, defending player gets a poison counter.",
+            TriggerEventDef::AttacksAndIsNotBlocked {
+                attacker: ObjectPredicateDef::Source,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::DefenderOfSource,
+                kind: CounterKind::Poison,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // VIS 70 — Tar Pit Warrior

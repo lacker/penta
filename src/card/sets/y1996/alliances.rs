@@ -5,7 +5,7 @@ use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryScalarChoiceDef, BlockRestrictionDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ControlDurationDef, CostDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, ControlDurationDef, CostDef, CounterKind,
     CreatedTokensDef, DamageAssignmentDef, DamageEventMatcherDef, DamagePreventionDef,
     DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
     ManaTypeDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
@@ -1312,13 +1312,27 @@ pub(in crate::card::sets) static STROMGALD_SPY: CardRecord = CardRecord::new(
 );
 
 // ALL 63a — Swamp Mosquito
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SWAMP_MOSQUITO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21961b79-637a-4aa5-89b5-4e6e9f60d4d1"),
     "Swamp Mosquito",
-    crate::card::CardArt::new("21961b79-637a-4aa5-89b5-4e6e9f60d4d1", "Nicola Leonard"),
-    crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("21961b79-637a-4aa5-89b5-4e6e9f60d4d1", "Nicola Leonard"),
+    CardSet::Alliances,
+    // No power at all, which does not matter: the counter comes from being
+    // unblocked rather than from damage.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Insect"], 0, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks and isn't blocked, defending player gets a poison counter.",
+            TriggerEventDef::AttacksAndIsNotBlocked {
+                attacker: ObjectPredicateDef::Source,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::DefenderOfSource,
+                kind: CounterKind::Poison,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ALL 63b — Swamp Mosquito (alternate printing)

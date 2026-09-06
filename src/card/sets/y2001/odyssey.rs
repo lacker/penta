@@ -3672,13 +3672,27 @@ pub(in crate::card::sets) static SARCATOG: CardRecord = CardRecord::new(
 );
 
 // ODY 294 — Shadowmage Infiltrator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHADOWMAGE_INFILTRATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("932ce702-565f-4d8c-b9fc-2d7c939ef7d7"),
     "Shadowmage Infiltrator",
-    crate::card::CardArt::new("932ce702-565f-4d8c-b9fc-2d7c939ef7d7", "Rick Farrell"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("932ce702-565f-4d8c-b9fc-2d7c939ef7d7", "Rick Farrell"),
+    CardSet::Odyssey,
+    // Fear makes the trigger nearly unconditional, which is what turns a
+    // 1/3 into a card-advantage engine.
+    CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Human", "Wizard"], 1, 3).with_abilities(&[
+        abilities::fear(),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you may draw a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
 );
 
 // ODY 295 — Thaumatog

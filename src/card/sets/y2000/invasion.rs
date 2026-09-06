@@ -2943,13 +2943,27 @@ pub(in crate::card::sets) static BARRIN_S_SPITE: CardRecord = CardRecord::new(
 );
 
 // INV 236 — Blazing Specter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLAZING_SPECTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3bd397be-0e61-4f41-b0cf-f0c9d2440da7"),
     "Blazing Specter",
-    crate::card::CardArt::new("3bd397be-0e61-4f41-b0cf-f0c9d2440da7", "Marc Fishman"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3bd397be-0e61-4f41-b0cf-f0c9d2440da7", "Marc Fishman"),
+    CardSet::Invasion,
+    // Evasion, haste, and a card off the top of the hand, which is three
+    // things a two-colour aggressive deck wants at once.
+    CardRules::new_creature(mana_cost!("{2}{B}{R}"), &["Specter"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, that player discards a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // INV 237 — Captain Sisay

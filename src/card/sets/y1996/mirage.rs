@@ -13,10 +13,10 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldArrivalDef,
     BlockRestrictionDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ColorSet, CostDef, CreatedTokensDef, DamageEventMatcherDef,
-    DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ChoiceVisibilityDef, ChooseDef, ColorSet, CostDef, CounterKind, CreatedTokensDef,
+    DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
     ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
@@ -1718,13 +1718,24 @@ pub(in crate::card::sets) static CHOKING_SANDS: CardRecord = CardRecord::new(
 );
 
 // MIR 114 — Crypt Cobra
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYPT_COBRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f7bcd36-13e2-4ac7-a449-246cecb3fc0f"),
     "Crypt Cobra",
-    crate::card::CardArt::new("4f7bcd36-13e2-4ac7-a449-246cecb3fc0f", "Ron Spencer"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4f7bcd36-13e2-4ac7-a449-246cecb3fc0f", "Ron Spencer"),
+    CardSet::Mirage,
+    // Ten unblocked attacks win the game, which in its format was a real
+    // plan and not a joke.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Snake"], 3, 3).with_ability(AbilityDef::triggered(
+            "Whenever this creature attacks and isn't blocked, defending player gets a poison counter.",
+            TriggerEventDef::AttacksAndIsNotBlocked {
+                attacker: ObjectPredicateDef::Source,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::DefenderOfSource,
+                kind: CounterKind::Poison,
+                amount: ValueDef::Constant(1),
+            },
+        )),
 );
 
 // MIR 115 — Dark Banishing (reprint)

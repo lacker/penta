@@ -55,6 +55,7 @@ mod moon_circuit_hacker;
 mod nyxborn_hydra;
 mod phantom_interference;
 mod player_shroud;
+mod poison_on_unblocked;
 mod protection_from_subtype;
 mod raid_bombardment;
 mod reckless_impulse;

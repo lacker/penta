@@ -275,13 +275,28 @@ pub(in crate::card::sets) static SERRA_ADVOCATE: CardRecord = CardRecord::new(
 );
 
 // UDS 20 — Solidarity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLIDARITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5e1589a-ec4f-47a4-b758-ada7f49ffb8f"),
     "Solidarity",
-    crate::card::CardArt::new("c5e1589a-ec4f-47a4-b758-ada7f49ffb8f", "John Zeleznik"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c5e1589a-ec4f-47a4-b758-ada7f49ffb8f", "John Zeleznik"),
+    CardSet::UrzasDestiny,
+    // Toughness only: it wins every combat it is cast in and threatens
+    // nothing on its own.
+    CardRules::new_instant(mana_cost!("{3}{W}")).with_ability(AbilityDef::spell(
+        "Creatures you control get +0/+5 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(0),
+                ValueDef::Constant(5),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // UDS 21 — Tethered Griffin

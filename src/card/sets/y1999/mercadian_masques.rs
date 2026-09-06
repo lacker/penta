@@ -602,13 +602,17 @@ pub(in crate::card::sets) static TASK_FORCE: CardRecord = CardRecord::new(
 );
 
 // MMQ 53 — Thermal Glider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THERMAL_GLIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd909c26-930d-4af0-b19a-c899847338b4"),
     "Thermal Glider",
-    crate::card::CardArt::new("fd909c26-930d-4af0-b19a-c899847338b4", "Mark Zug"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fd909c26-930d-4af0-b19a-c899847338b4", "Mark Zug"),
+    CardSet::MercadianMasques,
+    // The Rebel chain's answer to red: a fetchable body that red removal
+    // cannot touch.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Rebel"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // MMQ 54 — Tonic Peddler

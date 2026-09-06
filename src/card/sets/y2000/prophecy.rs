@@ -1427,13 +1427,28 @@ pub(in crate::card::sets) static VINTARA_SNAPPER: CardRecord = CardRecord::new(
 );
 
 // PCY 133 — Vitalizing Wind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VITALIZING_WIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fbd7c20-d527-4d97-9630-896d5e7bf1de"),
     "Vitalizing Wind",
-    crate::card::CardArt::new("0fbd7c20-d527-4d97-9630-896d5e7bf1de", "Jeff Easley"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0fbd7c20-d527-4d97-9630-896d5e7bf1de", "Jeff Easley"),
+    CardSet::Prophecy,
+    // Nine mana. If it resolves with any creatures out the game is over,
+    // which is the only argument for the cost.
+    CardRules::new_instant(mana_cost!("{8}{G}")).with_ability(AbilityDef::spell(
+        "Creatures you control get +7/+7 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(7),
+                ValueDef::Constant(7),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // PCY 134 — Wild Might

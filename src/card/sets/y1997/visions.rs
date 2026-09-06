@@ -8,15 +8,13 @@ use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    ArrivalAttachmentDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
+    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
+    AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
+    CardSupertype, CardType, CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::card::{
-    AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CounterKind,
-    EffectPaymentDef, PayOrDef, PlayerSetDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -115,13 +113,17 @@ pub(in crate::card::sets) static EYE_OF_SINGULARITY: CardRecord = CardRecord::ne
 );
 
 // VIS 5 — Freewind Falcon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FREEWIND_FALCON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33dc0244-319c-4e15-9083-8d21ad0364d8"),
     "Freewind Falcon",
-    crate::card::CardArt::new("33dc0244-319c-4e15-9083-8d21ad0364d8", "Una Fricker"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("33dc0244-319c-4e15-9083-8d21ad0364d8", "Una Fricker"),
+    CardSet::Visions,
+    // A two-mana flier red cannot burn or block, which in a red format is
+    // the difference between a 1/1 and a real clock.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Bird"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // VIS 6 — Gossamer Chains
@@ -305,16 +307,31 @@ pub(in crate::card::sets) static TITHE: CardRecord = CardRecord::new(
 );
 
 // VIS 24 — Warrior's Honor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARRIOR_S_HONOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7babd273-3e20-4cf9-bf21-c602eb729fc5"),
     "Warrior's Honor",
-    crate::card::CardArt::new(
+    CardArt::new(
         "7babd273-3e20-4cf9-bf21-c602eb729fc5",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardSet::Visions,
+    // Three mana to win one combat step, which is what a go-wide deck is
+    // actually buying.
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
+        "Creatures you control get +1/+1 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // VIS 25 — Zhalfirin Crusader

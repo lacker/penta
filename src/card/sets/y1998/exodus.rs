@@ -5,10 +5,11 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef, ObjectSetPredicateDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, TurnStepDef, ZoneKind,
-    ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef,
+    ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -777,13 +778,28 @@ pub(in crate::card::sets) static RECURRING_NIGHTMARE: CardRecord = CardRecord::n
 );
 
 // EXO 73 — Scare Tactics
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCARE_TACTICS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a9d4e11-ce2e-445a-9536-756a6687d6d7"),
     "Scare Tactics",
-    crate::card::CardArt::new("6a9d4e11-ce2e-445a-9536-756a6687d6d7", "DiTerlizzi"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6a9d4e11-ce2e-445a-9536-756a6687d6d7", "DiTerlizzi"),
+    CardSet::Exodus,
+    // One mana for a whole team's worth of damage, which only a deck with a
+    // team wants.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell(
+        "Creatures you control get +1/+0 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(0),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // EXO 74 — Slaughter

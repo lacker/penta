@@ -608,13 +608,17 @@ pub(in crate::card::sets) static WALKING_SPONGE: CardRecord = CardRecord::new(
 );
 
 // ULG 48 — Weatherseed Faeries
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEATHERSEED_FAERIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8c7ebec7-7375-4362-9489-437ff9305f19"),
     "Weatherseed Faeries",
-    crate::card::CardArt::new("8c7ebec7-7375-4362-9489-437ff9305f19", "Don Hazeltine"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8c7ebec7-7375-4362-9489-437ff9305f19", "Don Hazeltine"),
+    CardSet::UrzasLegacy,
+    // Blue's version of the same hoser, which matters because blue's other
+    // two-drops all die to the same burn spell.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Faerie"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // ULG 49 — Bone Shredder

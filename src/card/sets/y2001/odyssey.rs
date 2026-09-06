@@ -719,13 +719,17 @@ pub(in crate::card::sets) static AVEN_FISHER: CardRecord = CardRecord::new(
 );
 
 // ODY 64 — Aven Smokeweaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_SMOKEWEAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57f5d024-f137-4ea8-be02-7de46dee95fd"),
     "Aven Smokeweaver",
-    crate::card::CardArt::new("57f5d024-f137-4ea8-be02-7de46dee95fd", "Kev Walker"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("57f5d024-f137-4ea8-be02-7de46dee95fd", "Kev Walker"),
+    CardSet::Odyssey,
+    // A 2/3 flier that red cannot answer at all: it blocks their fliers and
+    // survives their removal.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Bird", "Soldier"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // ODY 65 — Aven Windreader

@@ -1379,7 +1379,7 @@ pub(in crate::card::sets) static SHATTERING_PULSE: CardRecord = CardRecord::new(
 );
 
 // EXO 103 — Sonic Burst
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a random discard as a spell additional cost. The shared runtime allows CostDef::DiscardCardsAtRandom on an activated ability but not on a cast; the spell-side allowlist offers only Discard, which lets the caster choose.
 pub(in crate::card::sets) static SONIC_BURST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("05530d5a-dcb6-403e-9e35-224c7b5cf615"),
     "Sonic Burst",

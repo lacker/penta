@@ -1398,7 +1398,7 @@ pub(in crate::card::sets) static SKULLSCORCH: CardRecord = CardRecord::new(
 );
 
 // TOR 115 — Sonic Seizure
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a random discard as a spell additional cost. The shared runtime allows CostDef::DiscardCardsAtRandom on an activated ability but not on a cast; the spell-side allowlist offers only Discard, which lets the caster choose.
 pub(in crate::card::sets) static SONIC_SEIZURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98eb9371-aa20-4790-baf8-a1ad95de39de"),
     "Sonic Seizure",

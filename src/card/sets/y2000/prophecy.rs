@@ -564,23 +564,55 @@ pub(in crate::card::sets) static SHROUDED_SERPENT: CardRecord = CardRecord::new(
 );
 
 // PCY 48 — Spiketail Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKETAIL_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4db398ca-6b0b-4225-baaa-c4b1c243b2bd"),
     "Spiketail Drake",
-    crate::card::CardArt::new("4db398ca-6b0b-4225-baaa-c4b1c243b2bd", "Michael Sutfin"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4db398ca-6b0b-4225-baaa-c4b1c243b2bd", "Michael Sutfin"),
+    CardSet::Prophecy,
+    // Five mana held up as a body that also counters, so the tax is paid
+    // only if the opponent blinks first.
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Drake"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Counter target spell unless its controller pays {3}.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(ValueDef::Constant(3)),
+        ),
+    ]),
 );
 
 // PCY 49 — Spiketail Hatchling
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKETAIL_HATCHLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9988f0fe-a7d4-44f9-b37c-fa30014ea215"),
     "Spiketail Hatchling",
-    crate::card::CardArt::new("9988f0fe-a7d4-44f9-b37c-fa30014ea215", "Greg Staples"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9988f0fe-a7d4-44f9-b37c-fa30014ea215", "Greg Staples"),
+    CardSet::Prophecy,
+    // The cheap one, where a single mana of tax is enough to make an
+    // opponent play around it for the whole game.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Drake"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Counter target spell unless its controller pays {1}.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // PCY 50 — Stormwatch Eagle

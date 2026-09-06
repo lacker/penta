@@ -16,13 +16,13 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
     BlockRestrictionDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CostModificationDef, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    DamagePreventionDef, DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectChoiceDef,
+    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -3972,13 +3972,40 @@ pub(in crate::card::sets) static PHYREXIAN_SPLICER: CardRecord = CardRecord::new
 );
 
 // TMP 304 — Puppet Strings
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PUPPET_STRINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("92b55586-9ea3-403e-96ec-2604f91c79cc"),
     "Puppet Strings",
-    crate::card::CardArt::new("92b55586-9ea3-403e-96ec-2604f91c79cc", "Scott Kirschner"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("92b55586-9ea3-403e-96ec-2604f91c79cc", "Scott Kirschner"),
+    CardSet::Tempest,
+    // Both halves matter: it stops an attacker on their turn and untaps a
+    // blocker on yours.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_with_targets(
+        "{2}, {T}: You may tap or untap target creature.",
+        &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::ChooseEffect {
+                player: EffectRecipientDef::Controller,
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Tap the target creature",
+                        effect: EffectDef::Tap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    },
+                    EffectChoiceDef {
+                        label: "Untap the target creature",
+                        effect: EffectDef::Untap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    },
+                ],
+            },
+        },
+    )),
 );
 
 // TMP 305 — Ruby Medallion

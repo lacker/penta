@@ -16,11 +16,11 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CostQuantityDef,
     DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    ScaledValueDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1202,13 +1202,42 @@ pub(in crate::card::sets) static PULSATING_ILLUSION: CardRecord = CardRecord::ne
 );
 
 // ODY 97 — Puppeteer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PUPPETEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("819d5bd2-02bf-4a22-a656-764425711c29"),
     "Puppeteer",
-    crate::card::CardArt::new("819d5bd2-02bf-4a22-a656-764425711c29", "Scott M. Fischer"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("819d5bd2-02bf-4a22-a656-764425711c29", "Scott M. Fischer"),
+    CardSet::Odyssey,
+    // The same two jobs on a body, at a mana cheap enough to do it every
+    // turn.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{U}, {T}: You may tap or untap target creature.",
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Tap the target creature",
+                            effect: EffectDef::Tap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        },
+                        EffectChoiceDef {
+                            label: "Untap the target creature",
+                            effect: EffectDef::Untap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        },
+                    ],
+                },
+            },
+        ),
+    ),
 );
 
 // ODY 98 — Repel

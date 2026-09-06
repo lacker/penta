@@ -1591,13 +1591,15 @@ pub(in crate::card::sets) static UKTABI_ORANGUTAN: CardRecord = CardRecord::new(
 );
 
 // VIS 124 — Warthog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARTHOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd2510b8-52d6-4d2e-89a5-31b27b732dd8"),
     "Warthog",
-    crate::card::CardArt::new("dd2510b8-52d6-4d2e-89a5-31b27b732dd8", "Steve White"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dd2510b8-52d6-4d2e-89a5-31b27b732dd8", "Steve White"),
+    CardSet::Visions,
+    // A green creature with swampwalk, which is Visions asking green to
+    // attack the colour it is worst against.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Boar"], 3, 2)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // VIS 125 — Wind Shear

@@ -13,14 +13,15 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
-    CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef,
-    EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef, DividedTotal,
+    DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2299,13 +2300,15 @@ pub(in crate::card::sets) static BROKEN_FALL: CardRecord = CardRecord::new(
 );
 
 // TMP 217 — Canopy Spider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANOPY_SPIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afc114b0-2e95-4143-a4b6-6537813946e7"),
     "Canopy Spider",
-    crate::card::CardArt::new("afc114b0-2e95-4143-a4b6-6537813946e7", "Christopher Rush"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("afc114b0-2e95-4143-a4b6-6537813946e7", "Christopher Rush"),
+    CardSet::Tempest,
+    // The cheapest way green answers a two-mana flier, and the reason every
+    // limited deck wanted one.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Spider"], 1, 3)
+        .with_ability(abilities::reach()),
 );
 
 // TMP 218 — Charging Rhino
@@ -2462,13 +2465,15 @@ pub(in crate::card::sets) static HEARTWOOD_GIANT: CardRecord = CardRecord::new(
 );
 
 // TMP 233 — Heartwood Treefolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEARTWOOD_TREEFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("de263f02-8e3e-4785-9c06-9adc168994f3"),
     "Heartwood Treefolk",
-    crate::card::CardArt::new("de263f02-8e3e-4785-9c06-9adc168994f3", "Daren Bader"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("de263f02-8e3e-4785-9c06-9adc168994f3", "Daren Bader"),
+    CardSet::Tempest,
+    // A 3/4 that green cannot block, which in a format of mirror matches is
+    // most of what it does.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Treefolk"], 3, 4)
+        .with_ability(abilities::landwalk(BasicLandType::Forest)),
 );
 
 // TMP 234 — Horned Sliver

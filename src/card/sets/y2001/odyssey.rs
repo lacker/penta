@@ -13,12 +13,12 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, CostQuantityDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
+    CardSupertype, CardType, ComparisonDef, CostQuantityDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2689,16 +2689,17 @@ pub(in crate::card::sets) static KROSAN_BEAST: CardRecord = CardRecord::new(
 );
 
 // ODY 249 — Leaf Dancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEAF_DANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aebab65c-7d5f-4086-8eb1-7dc445e801e9"),
     "Leaf Dancer",
-    crate::card::CardArt::new(
+    CardArt::new(
         "aebab65c-7d5f-4086-8eb1-7dc445e801e9",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // A 2/2 for three that the green mirror cannot block.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Centaur"], 2, 2)
+        .with_ability(abilities::landwalk(BasicLandType::Forest)),
 );
 
 // ODY 250 — Metamorphic Wurm

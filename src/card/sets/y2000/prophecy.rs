@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardType, ComparisonDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
+    AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt,
+    CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, ValueDef,
+    ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -1267,13 +1268,15 @@ pub(in crate::card::sets) static LIVING_TERRAIN: CardRecord = CardRecord::new(
 );
 
 // PCY 118 — Marsh Boa
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARSH_BOA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("87c99bb6-a483-4beb-b98c-eb641fe3d50a"),
     "Marsh Boa",
-    crate::card::CardArt::new("87c99bb6-a483-4beb-b98c-eb641fe3d50a", "Heather Hudson"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("87c99bb6-a483-4beb-b98c-eb641fe3d50a", "Heather Hudson"),
+    CardSet::Prophecy,
+    // One green mana for a creature black cannot block, which is the whole
+    // of Prophecy's off-colour hosing.
+    CardRules::new_creature(mana_cost!("{G}"), &["Snake"], 1, 1)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // PCY 119 — Mungha Wurm
@@ -1299,13 +1302,15 @@ pub(in crate::card::sets) static PYGMY_RAZORBACK: CardRecord = CardRecord::new(
 );
 
 // PCY 121 — Rib Cage Spider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIB_CAGE_SPIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d71bebea-1634-4d9a-b3ad-2e01ecacad7e"),
     "Rib Cage Spider",
-    crate::card::CardArt::new("d71bebea-1634-4d9a-b3ad-2e01ecacad7e", "Dana Knutson"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d71bebea-1634-4d9a-b3ad-2e01ecacad7e", "Dana Knutson"),
+    CardSet::Prophecy,
+    // A 1/4 reach body: it stops fliers all game and never threatens
+    // anything itself.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Spider"], 1, 4)
+        .with_ability(abilities::reach()),
 );
 
 // PCY 122 — Root Cage

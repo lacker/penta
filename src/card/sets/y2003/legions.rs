@@ -1441,16 +1441,18 @@ pub(in crate::card::sets) static NANTUKO_VIGILANTE: CardRecord = CardRecord::new
 );
 
 // LGN 133 — Needleshot Gourna
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEEDLESHOT_GOURNA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9b1628d-aacd-4e19-9ebb-bcd9b2842c91"),
     "Needleshot Gourna",
-    crate::card::CardArt::new(
+    CardArt::new(
         "f9b1628d-aacd-4e19-9ebb-bcd9b2842c91",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardSet::Legions,
+    // A 3/6 reach wall that happens to be a Beast, which is what Legions
+    // cared about.
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Beast"], 3, 6)
+        .with_ability(abilities::reach()),
 );
 
 // LGN 134 — Patron of the Wild

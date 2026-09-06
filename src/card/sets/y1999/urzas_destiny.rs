@@ -1258,13 +1258,15 @@ pub(in crate::card::sets) static PATTERN_OF_REBIRTH: CardRecord = CardRecord::ne
 );
 
 // UDS 116 — Plated Spider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLATED_SPIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3529f49b-7e5e-4fa8-a03d-a94877761525"),
     "Plated Spider",
-    crate::card::CardArt::new("3529f49b-7e5e-4fa8-a03d-a94877761525", "Ron Spencer"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3529f49b-7e5e-4fa8-a03d-a94877761525", "Ron Spencer"),
+    CardSet::UrzasDestiny,
+    // Five mana for a 4/4 that also blocks fliers, which is a fair rate for
+    // a body that answers two things at once.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Spider"], 4, 4)
+        .with_ability(abilities::reach()),
 );
 
 // UDS 117 — Plow Under

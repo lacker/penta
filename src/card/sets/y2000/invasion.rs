@@ -2908,13 +2908,15 @@ pub(in crate::card::sets) static SLEEPER_S_ROBE: CardRecord = CardRecord::new(
 );
 
 // INV 274 — Slinking Serpent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLINKING_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("070a7004-5a28-4ccb-8640-ad6b07b51ece"),
     "Slinking Serpent",
-    crate::card::CardArt::new("070a7004-5a28-4ccb-8640-ad6b07b51ece", "Wayne England"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("070a7004-5a28-4ccb-8640-ad6b07b51ece", "Wayne England"),
+    CardSet::Invasion,
+    // A blue-black creature with forestwalk: gold in cost and hosing a
+    // third colour, which is Invasion's whole idea.
+    CardRules::new_creature(mana_cost!("{2}{U}{B}"), &["Serpent"], 2, 3)
+        .with_ability(abilities::landwalk(BasicLandType::Forest)),
 );
 
 // INV 275 — Smoldering Tar

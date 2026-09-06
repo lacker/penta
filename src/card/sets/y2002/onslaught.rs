@@ -1378,13 +1378,15 @@ pub(in crate::card::sets) static ACCURSED_CENTAUR: CardRecord = CardRecord::new(
 );
 
 // ONS 124 — Anurid Murkdiver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANURID_MURKDIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e43d62c-488a-4c8d-b193-bacbf8037761"),
     "Anurid Murkdiver",
-    crate::card::CardArt::new("9e43d62c-488a-4c8d-b193-bacbf8037761", "Dany Orizio"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9e43d62c-488a-4c8d-b193-bacbf8037761", "Dany Orizio"),
+    CardSet::Onslaught,
+    // Six mana for four evasive damage a turn, but only against the deck
+    // that also has Swamps.
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Zombie", "Frog", "Beast"], 4, 3)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // ONS 125 — Aphetto Dredging

@@ -1304,13 +1304,15 @@ pub(in crate::card::sets) static BLACK_MARKET: CardRecord = CardRecord::new(
 );
 
 // MMQ 117 — Bog Smugglers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOG_SMUGGLERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2103a44-87e5-40cd-a0de-cd19456a8366"),
     "Bog Smugglers",
-    crate::card::CardArt::new("c2103a44-87e5-40cd-a0de-cd19456a8366", "Mike Ploog"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c2103a44-87e5-40cd-a0de-cd19456a8366", "Mike Ploog"),
+    CardSet::MercadianMasques,
+    // Unblockable against the mirror, which is what swampwalk on a black
+    // creature actually means.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Human", "Mercenary"], 2, 2)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // MMQ 118 — Bog Witch
@@ -2788,13 +2790,15 @@ pub(in crate::card::sets) static PANGOSAUR: CardRecord = CardRecord::new(
 // MMQ 262 — Revive (reprint)
 
 // MMQ 263 — Rushwood Dryad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSHWOOD_DRYAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55367a94-b343-4a04-bfa9-47722e32cc45"),
     "Rushwood Dryad",
-    crate::card::CardArt::new("55367a94-b343-4a04-bfa9-47722e32cc45", "Todd Lockwood"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("55367a94-b343-4a04-bfa9-47722e32cc45", "Todd Lockwood"),
+    CardSet::MercadianMasques,
+    // Two mana for two damage a turn against any green deck, and a plain
+    // 2/1 against everybody else.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad"], 2, 1)
+        .with_ability(abilities::landwalk(BasicLandType::Forest)),
 );
 
 // MMQ 264 — Rushwood Elemental

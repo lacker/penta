@@ -8,7 +8,7 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryChoiceDestinationDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
     ChooseDef, ColorChoiceOperationDef, CostModificationDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
@@ -800,13 +800,15 @@ pub(in crate::card::sets) static PHYREXIAN_RECLAMATION: CardRecord = CardRecord:
 );
 
 // ULG 64 — Plague Beetle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLAGUE_BEETLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c07f4e55-57f9-49f6-a1a2-1c94dcbe7d71"),
     "Plague Beetle",
-    crate::card::CardArt::new("c07f4e55-57f9-49f6-a1a2-1c94dcbe7d71", "Tom Fleming"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c07f4e55-57f9-49f6-a1a2-1c94dcbe7d71", "Tom Fleming"),
+    CardSet::UrzasLegacy,
+    // A 1/1 for one that the mirror cannot block. It is a clock only in the
+    // matchup that was already going to be long.
+    CardRules::new_creature(mana_cost!("{B}"), &["Insect"], 1, 1)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // ULG 65 — Rank and File

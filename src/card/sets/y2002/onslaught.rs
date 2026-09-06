@@ -2672,13 +2672,35 @@ pub(in crate::card::sets) static PINPOINT_AVALANCHE: CardRecord = CardRecord::ne
 );
 
 // ONS 222 — Reckless One
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_ONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37775f40-10de-4f5d-abb2-c49e682039de"),
     "Reckless One",
-    crate::card::CardArt::new("37775f40-10de-4f5d-abb2-c49e682039de", "Ron Spencer"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("37775f40-10de-4f5d-abb2-c49e682039de", "Ron Spencer"),
+    CardSet::Onslaught,
+    // Haste on a body the size of the Goblin deck that cast it, which is
+    // the whole tribal payoff in one card.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Avatar"], 0, 0)
+        .with_abilities(&[
+            abilities::haste(),
+            AbilityDef::static_ability(
+                "Reckless One's power and toughness are each equal to the number of Goblins on the battlefield.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Goblin"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Goblin"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ONS 223 — Risky Move
@@ -3174,13 +3196,35 @@ pub(in crate::card::sets) static GIGAPEDE: CardRecord = CardRecord::new(
 );
 
 // ONS 265 — Heedless One
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEEDLESS_ONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ea338499-26a0-44e5-8999-f264644184d1"),
     "Heedless One",
-    crate::card::CardArt::new("ea338499-26a0-44e5-8999-f264644184d1", "Mark Zug"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ea338499-26a0-44e5-8999-f264644184d1", "Mark Zug"),
+    CardSet::Onslaught,
+    // The Elf version, and trample means the size is never wasted against
+    // a chump block.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Avatar"], 0, 0)
+        .with_abilities(&[
+            abilities::trample(),
+            AbilityDef::static_ability(
+                "Heedless One's power and toughness are each equal to the number of Elves on the battlefield.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Elf"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Elf"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ONS 266 — Hystrodon

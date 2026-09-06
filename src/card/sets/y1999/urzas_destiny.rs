@@ -1535,13 +1535,33 @@ pub(in crate::card::sets) static YAVIMAYA_ELDER: CardRecord = CardRecord::new(
 );
 
 // UDS 125 — Yavimaya Enchantress
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YAVIMAYA_ENCHANTRESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9e3934e-6169-416e-92bb-359e41900c3b"),
     "Yavimaya Enchantress",
-    crate::card::CardArt::new("c9e3934e-6169-416e-92bb-359e41900c3b", "Matthew D. Wilson"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c9e3934e-6169-416e-92bb-359e41900c3b", "Matthew D. Wilson"),
+    CardSet::UrzasDestiny,
+    // It counts every enchantment, including the opponent's, so even a
+    // hostile board makes it bigger.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Druid"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 for each enchantment on the battlefield.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                ),
+            },
+        ),
+    ]),
 );
 
 // UDS 126 — Braidwood Cup

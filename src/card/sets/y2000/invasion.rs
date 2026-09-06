@@ -16,9 +16,9 @@ use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
-    ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
@@ -135,16 +135,37 @@ pub(in crate::card::sets) static CRIMSON_ACOLYTE: CardRecord = CardRecord::new(
 );
 
 // INV 12 — Crusading Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRUSADING_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a4ab4640-1871-41dd-bd21-64741e21ba37"),
     "Crusading Knight",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a4ab4640-1871-41dd-bd21-64741e21ba37",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Protection makes it unblockable against the deck whose lands make it
+    // big, which is the whole design.
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Black),
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 for each Swamp your opponents control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                ),
+            },
+        ),
+    ]),
 );
 
 // INV 13 — Death or Glory
@@ -405,13 +426,28 @@ pub(in crate::card::sets) static SPIRIT_WEAVER: CardRecord = CardRecord::new(
 );
 
 // INV 40 — Strength of Unity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRENGTH_OF_UNITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a9d4ff8-af35-413f-9aa2-f4c6e34fade2"),
     "Strength of Unity",
-    crate::card::CardArt::new("1a9d4ff8-af35-413f-9aa2-f4c6e34fade2", "Andrew Goldhawk"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1a9d4ff8-af35-413f-9aa2-f4c6e34fade2", "Andrew Goldhawk"),
+    CardSet::Invasion,
+    // Domain on an Aura, so its size is the deck's mana base rather than
+    // anything on the board.
+    CardRules::new_enchantment(mana_cost!("{3}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Domain — Enchanted creature gets +1/+1 for each basic land type among lands you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+                        ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // INV 41 — Sunscape Apprentice
@@ -1308,13 +1344,39 @@ pub(in crate::card::sets) static HYPNOTIC_CLOUD: CardRecord = CardRecord::new(
 );
 
 // INV 110 — Marauding Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARAUDING_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cea2a7de-c67e-4541-be8c-e5ef7b64d94a"),
     "Marauding Knight",
-    crate::card::CardArt::new("cea2a7de-c67e-4541-be8c-e5ef7b64d94a", "Daren Bader"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cea2a7de-c67e-4541-be8c-e5ef7b64d94a", "Daren Bader"),
+    CardSet::Invasion,
+    // The black member of the pair, aimed at white the same way.
+    CardRules::new_creature(
+        mana_cost!("{2}{B}{B}"),
+        &["Phyrexian", "Zombie", "Knight"],
+        2,
+        2,
+    )
+    .with_abilities(&[
+        abilities::protection_from_color(ManaColor::White),
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 for each Plains your opponents control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                ),
+            },
+        ),
+    ]),
 );
 
 // INV 111 — Mourning
@@ -2340,13 +2402,36 @@ pub(in crate::card::sets) static MIGHT_WEAVER: CardRecord = CardRecord::new(
 );
 
 // INV 199 — Molimo, Maro-Sorcerer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOLIMO_MARO_SORCERER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("750d3475-ae72-42c1-ae4d-638f8e7c6d1a"),
     "Molimo, Maro-Sorcerer",
-    crate::card::CardArt::new("750d3475-ae72-42c1-ae4d-638f8e7c6d1a", "Mark Zug"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("750d3475-ae72-42c1-ae4d-638f8e7c6d1a", "Mark Zug"),
+    CardSet::Invasion,
+    // Seven mana for a trampler as big as the mana that cast it, which is
+    // green's idea of a reward.
+    CardRules::new_creature(mana_cost!("{4}{G}{G}{G}"), &["Elemental", "Sorcerer"], 0, 0)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::trample(),
+            AbilityDef::static_ability(
+                "Molimo's power and toughness are each equal to the number of lands you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // INV 200 — Nomadic Elf

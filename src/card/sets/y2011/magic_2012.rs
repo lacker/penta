@@ -4,11 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    PlayerRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -1842,13 +1843,39 @@ pub(in crate::card::sets) static DOUBLING_CHANT: CardRecord = CardRecord::new(
 );
 
 // M12 171 — Dungrove Elder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DUNGROVE_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8b4ebbf-1613-42a0-97ff-2f36dc8d984a"),
     "Dungrove Elder",
-    crate::card::CardArt::new("b8b4ebbf-1613-42a0-97ff-2f36dc8d984a", "Matt Stewart"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b8b4ebbf-1613-42a0-97ff-2f36dc8d984a", "Matt Stewart"),
+    CardSet::Magic2012,
+    // Hexproof and a size no removal can answer, which is why a mono-green
+    // deck could win on this alone.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Treefolk"], 0, 0)
+        .with_abilities(&[
+            abilities::hexproof(),
+            AbilityDef::static_ability(
+                "Dungrove Elder's power and toughness are each equal to the number of Forests you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[
+                            BasicLandType::Forest,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[
+                            BasicLandType::Forest,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // M12 172 — Elvish Archdruid (reprint)

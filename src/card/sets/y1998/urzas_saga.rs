@@ -3328,13 +3328,36 @@ pub(in crate::card::sets) static ARGOTHIAN_WURM: CardRecord = CardRecord::new(
 );
 
 // USG 237 — Blanchwood Armor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLANCHWOOD_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b5f3776-74f4-4626-833b-e1b0921d3cbc"),
     "Blanchwood Armor",
-    crate::card::CardArt::new("9b5f3776-74f4-4626-833b-e1b0921d3cbc", "Paolo Parente"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9b5f3776-74f4-4626-833b-e1b0921d3cbc", "Paolo Parente"),
+    CardSet::UrzasSaga,
+    // A green deck's lands are the payoff, so the Aura is small early and
+    // unanswerable late.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 for each Forest you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // USG 238 — Blanchwood Treefolk

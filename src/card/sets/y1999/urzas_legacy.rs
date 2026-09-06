@@ -1066,13 +1066,32 @@ pub(in crate::card::sets) static GOBLIN_WELDER: CardRecord = CardRecord::new(
 );
 
 // ULG 81 — Granite Grip
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRANITE_GRIP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee9e0e7e-ada8-49f5-9dd9-f62464697675"),
     "Granite Grip",
-    crate::card::CardArt::new("ee9e0e7e-ada8-49f5-9dd9-f62464697675", "Mike Raabe"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee9e0e7e-ada8-49f5-9dd9-f62464697675", "Mike Raabe"),
+    CardSet::UrzasLegacy,
+    // All of it in power, which suits a colour that would rather trade
+    // than survive.
+    CardRules::new_enchantment(mana_cost!("{2}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+0 for each Mountain you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ULG 82 — Impending Disaster
@@ -1654,13 +1673,34 @@ pub(in crate::card::sets) static ANGEL_S_TRUMPET: CardRecord = CardRecord::new(
 );
 
 // ULG 122 — Beast of Burden
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEAST_OF_BURDEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42db4cd3-6351-498e-944a-4b93e32e1494"),
     "Beast of Burden",
-    crate::card::CardArt::new("06578d72-50e9-468d-96d2-c0cbda14961a", "Ron Spears"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("06578d72-50e9-468d-96d2-c0cbda14961a", "Ron Spears"),
+    CardSet::UrzasLegacy,
+    // Six mana for a body the size of the board, which means it is a 0/0
+    // on an empty one and dies immediately.
+    CardRules::new_creature(mana_cost!("{6}"), &["Golem"], 0, 0)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Beast of Burden's power and toughness are each equal to the number of creatures on the battlefield.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ULG 123 — Crawlspace

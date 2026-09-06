@@ -2326,13 +2326,35 @@ pub(in crate::card::sets) static BATTLE_RAMPART: CardRecord = CardRecord::new(
 );
 
 // MMQ 174 — Battle Squadron
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BATTLE_SQUADRON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37d55504-ee04-4a5a-a952-9ec5dc2db413"),
     "Battle Squadron",
-    crate::card::CardArt::new("37d55504-ee04-4a5a-a952-9ec5dc2db413", "Mark Tedin"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("37d55504-ee04-4a5a-a952-9ec5dc2db413", "Mark Tedin"),
+    CardSet::MercadianMasques,
+    // A flier the size of the board, in a colour that fills the board with
+    // small creatures.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Goblin"], 0, 0)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::static_ability(
+                "Battle Squadron's power and toughness are each equal to the number of creatures you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // MMQ 175 — Blaster Mage

@@ -898,13 +898,28 @@ pub(in crate::card::sets) static IMPLODE: CardRecord = CardRecord::new(
 );
 
 // PLS 63 — Insolence
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSOLENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d8009a37-f966-4a71-9a2a-469127758dc6"),
     "Insolence",
-    crate::card::CardArt::new("d8009a37-f966-4a71-9a2a-469127758dc6", "Carl Critchlow"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d8009a37-f966-4a71-9a2a-469127758dc6", "Carl Critchlow"),
+    CardSet::Planeshift,
+    // It punishes the creature for doing anything at all, which against a
+    // deck of tap abilities is a clock the opponent starts themselves.
+    CardRules::new_enchantment(mana_cost!("{2}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered(
+            "Whenever enchanted creature becomes tapped, this Aura deals 2 damage to that creature's controller.",
+            TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::AttachedToSource,
+                )),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+        ]),
 );
 
 // PLS 64 — Kavu Recluse

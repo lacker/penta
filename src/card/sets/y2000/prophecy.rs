@@ -4,10 +4,10 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, abilities,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -174,13 +174,40 @@ pub(in crate::card::sets) static EXCISE: CardRecord = CardRecord::new(
 );
 
 // PCY 9 — Flowering Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWERING_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c241fd76-f52d-48fc-864c-57caffa700f6"),
     "Flowering Field",
-    crate::card::CardArt::new("c241fd76-f52d-48fc-864c-57caffa700f6", "Jeff Miracola"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c241fd76-f52d-48fc-864c-57caffa700f6", "Jeff Miracola"),
+    CardSet::Prophecy,
+    // The white member of the Field cycle, and the one whose land is worth
+    // tapping on the opponent's turn rather than your own.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+            "Enchanted land has \"{T}: Prevent the next 1 damage that would be dealt to any target this turn.\"",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::add_ability(&const { AbilityDef::activated_with_targets(
+                            "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+                            &[CostDef::TapSource],
+                            &const {
+                                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)]
+                            },
+                            EffectDef::PreventDamage {
+                                prevention: DamagePreventionDef::amount(
+                                    DamageEventMatcherDef::to(EffectRecipientDef::Target(
+                                        TargetIndex::PRIMARY,
+                                    )),
+                                    ValueDef::Constant(1),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        ) }),
+            },
+        ),
+        ]),
 );
 
 // PCY 10 — Glittering Lion

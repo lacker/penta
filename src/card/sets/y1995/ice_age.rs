@@ -3398,13 +3398,45 @@ pub(in crate::card::sets) static FOLK_OF_THE_PINES: CardRecord = CardRecord::new
 );
 
 // ICE 236 — Forbidden Lore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORBIDDEN_LORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5fc225cf-4fe2-4a5b-828e-ffcb99e404e8"),
     "Forbidden Lore",
-    crate::card::CardArt::new("5fc225cf-4fe2-4a5b-828e-ffcb99e404e8", "Christopher Rush"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5fc225cf-4fe2-4a5b-828e-ffcb99e404e8", "Christopher Rush"),
+    CardSet::IceAge,
+    // A combat trick every turn out of a land, which costs the deck a card
+    // once rather than every time.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: Target creature gets +2/+1 until end of turn.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated_with_targets(
+                                "{T}: Target creature gets +2/+1 until end of turn.",
+                                &[CostDef::TapSource],
+                                &const {
+                                    [AbilityTargetDef::exactly_one_permanent(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                    )]
+                                },
+                                EffectDef::Apply {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    effect: AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::Constant(2),
+                                        ValueDef::Constant(1),
+                                    ),
+                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                },
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ICE 237 — Forgotten Lore

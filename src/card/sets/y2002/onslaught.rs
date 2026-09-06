@@ -927,13 +927,32 @@ pub(in crate::card::sets) static RIGHTEOUS_CAUSE: CardRecord = CardRecord::new(
 );
 
 // ONS 52 — Sandskin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDSKIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("80b59844-c9d4-4bc1-86e6-4cc596d9165d"),
     "Sandskin",
-    crate::card::CardArt::new("80b59844-c9d4-4bc1-86e6-4cc596d9165d", "Glen Angus"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("80b59844-c9d4-4bc1-86e6-4cc596d9165d", "Glen Angus"),
+    CardSet::Onslaught,
+    // It answers the creature without killing it, which matters against
+    // exactly the creatures that come back when they die.
+    CardRules::new_enchantment(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Prevent all combat damage that would be dealt to and dealt by enchanted creature.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(
+                            DamageEventMatcherDef::COMBAT_TO_AFFECTED,
+                        )),
+                        AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(
+                            DamageEventMatcherDef::COMBAT_FROM_AFFECTED,
+                        )),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // ONS 53 — Shared Triumph

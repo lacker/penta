@@ -92,16 +92,45 @@ pub(in crate::card::sets) static ANCESTRAL_TRIBUTE: CardRecord = CardRecord::new
 // ODY 3 — Angelic Wall (reprint)
 
 // ODY 4 — Animal Boneyard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANIMAL_BONEYARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e3379317-be18-4252-84ad-b7ebb6e557ff"),
     "Animal Boneyard",
-    crate::card::CardArt::new(
+    CardArt::new(
         "e3379317-be18-4252-84ad-b7ebb6e557ff",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Turning a creature about to die into life is a deal a deck losing the
+    // board is glad to keep making.
+    CardRules::new_enchantment(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+            "Enchanted land has \"{T}, Sacrifice a creature: You gain life equal to the sacrificed creature\'s toughness.\"",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::add_ability(&const { AbilityDef::activated(
+                            "{T}, Sacrifice a creature: You gain life equal to the sacrificed creature's toughness.",
+                            &[CostDef::TapSource],
+                            EffectDef::SacrificeOfChoice {
+                                player: EffectRecipientDef::Controller,
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                count: ValueDef::Constant(1),
+                                then: Some(&const {
+                                    EffectDef::GainLife {
+                                        recipient: EffectRecipientDef::Controller,
+                                        amount: ValueDef::TriggerEventAmount,
+                                    }
+                                }),
+                                amount: SacrificedAmountDef::Toughness,
+                                otherwise: None,
+                                optional: false,
+                            },
+                        ) }),
+            },
+        ),
+        ]),
 );
 
 // ODY 5 — Auramancer (reprint)

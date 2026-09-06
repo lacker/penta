@@ -1147,13 +1147,43 @@ pub(in crate::card::sets) static ANGER: CardRecord = CardRecord::new(
 );
 
 // JUD 78 — Arcane Teachings
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCANE_TEACHINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("02c56677-c8e2-4500-9ee0-0b102496f454"),
     "Arcane Teachings",
-    crate::card::CardArt::new("02c56677-c8e2-4500-9ee0-0b102496f454", "Mark Brill"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("02c56677-c8e2-4500-9ee0-0b102496f454", "Mark Brill"),
+    CardSet::Judgment,
+    // It makes the creature bigger and turns it into removal, which is two
+    // cards' worth of work for three mana.
+    CardRules::new_enchantment(mana_cost!("{2}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+            "Enchanted creature gets +2/+2 and has \"{T}: This creature deals 1 damage to any target.\"",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    AppliedEffectDef::add_ability(&const {
+                        AbilityDef::activated_with_targets(
+                            "{T}: This creature deals 1 damage to any target.",
+                            &[CostDef::TapSource],
+                            &const {
+                                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)]
+                            },
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(1),
+                            },
+                        )
+                    }),
+                ]),
+            },
+        ),
+        ]),
 );
 
 // JUD 79 — Barbarian Bully
@@ -1673,13 +1703,33 @@ pub(in crate::card::sets) static CRUSH_OF_WURMS: CardRecord = CardRecord::new(
 );
 
 // JUD 111 — Elephant Guide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELEPHANT_GUIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7d3a7226-f574-430e-9b8f-4e531a21540f"),
     "Elephant Guide",
-    crate::card::CardArt::new("7d3a7226-f574-430e-9b8f-4e531a21540f", "Jim Nelson"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7d3a7226-f574-430e-9b8f-4e531a21540f", "Jim Nelson"),
+    CardSet::Judgment,
+    // Three power now and three power later, so removal aimed at the host
+    // trades down rather than up.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +3/+3.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                },
+            ),
+            abilities::dies_trigger_matching(
+                "When enchanted creature dies, create a 3/3 green Elephant creature token.",
+                ObjectPredicateDef::AttachedToSource,
+                EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+            ),
+        ]),
 );
 
 // JUD 112 — Epic Struggle
@@ -1698,13 +1748,40 @@ pub(in crate::card::sets) static EPIC_STRUGGLE: CardRecord = CardRecord::new(
 // JUD 113 — Erhnam Djinn (reprint)
 
 // JUD 114 — Exoskeletal Armor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXOSKELETAL_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e111fcab-17f7-4a02-b4eb-606ba18812b3"),
     "Exoskeletal Armor",
-    crate::card::CardArt::new("e111fcab-17f7-4a02-b4eb-606ba18812b3", "Wayne England"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e111fcab-17f7-4a02-b4eb-606ba18812b3", "Wayne England"),
+    CardSet::Judgment,
+    // Two mana for a creature the size of both graveyards, which by the late
+    // game is bigger than anything else on the table.
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+            "Enchanted creature gets +X/+X, where X is the number of creature cards in all graveyards.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&const {
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::Any,
+                        )
+                    }),
+                    ValueDef::CountMatchingObjects(&const {
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::Any,
+                        )
+                    }),
+                ),
+            },
+        ),
+        ]),
 );
 
 // JUD 115 — Folk Medicine

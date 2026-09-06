@@ -288,16 +288,29 @@ pub(in crate::card::sets) static GILDED_LIGHT: CardRecord = CardRecord::new(
 );
 
 // SCG 17 — Guilty Conscience
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUILTY_CONSCIENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67b8701c-0f03-4ad0-9097-3caf885abd59"),
     "Guilty Conscience",
-    crate::card::CardArt::new(
+    CardArt::new(
         "67b8701c-0f03-4ad0-9097-3caf885abd59",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardSet::Scourge,
+    // It kills anything that deals damage equal to its own toughness, which
+    // is most of what a big attacker is.
+    CardRules::new_enchantment(mana_cost!("{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered(
+            "Whenever enchanted creature deals damage, this Aura deals that much damage to that creature.",
+            TriggerEventDef::damage_dealt_by(ObjectPredicateDef::AttachedToSource),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+        ]),
 );
 
 // SCG 18 — Karona's Zealot
@@ -1392,13 +1405,31 @@ pub(in crate::card::sets) static ENRAGE: CardRecord = CardRecord::new(
 );
 
 // SCG 92 — Extra Arms
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXTRA_ARMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("28efa11c-6aeb-4c22-bbb3-b41f26d65c65"),
     "Extra Arms",
-    crate::card::CardArt::new("28efa11c-6aeb-4c22-bbb3-b41f26d65c65", "Greg Staples"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("28efa11c-6aeb-4c22-bbb3-b41f26d65c65", "Greg Staples"),
+    CardSet::Scourge,
+    // Two damage every attack, which the opponent has to answer even when
+    // the creature itself is not the problem.
+    CardRules::new_enchantment(mana_cost!("{4}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered_with_targets(
+                "Whenever enchanted creature attacks, it deals 2 damage to any target.",
+                TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
+                &const {
+                    [AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::AnyTarget,
+                    )]
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // SCG 93 — Form of the Dragon

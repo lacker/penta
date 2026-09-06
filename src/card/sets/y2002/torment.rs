@@ -5,14 +5,14 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -502,13 +502,40 @@ pub(in crate::card::sets) static FALSE_MEMORIES: CardRecord = CardRecord::new(
 );
 
 // TOR 38 — Ghostly Wings
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHOSTLY_WINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58fb2705-82e7-49d9-b8cc-f98f652dd6c1"),
     "Ghostly Wings",
-    crate::card::CardArt::new("58fb2705-82e7-49d9-b8cc-f98f652dd6c1", "David Martin"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("58fb2705-82e7-49d9-b8cc-f98f652dd6c1", "David Martin"),
+    CardSet::Torment,
+    // Evasion that can pick the creature back up, which turns a removal
+    // spell aimed at the host into a wasted card.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    ]),
+                },
+            ),
+            AbilityDef::activated(
+                "Discard a card: Return enchanted creature to its owner's hand.",
+                &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // TOR 39 — Hydromorph Guardian
@@ -614,13 +641,32 @@ pub(in crate::card::sets) static SKYWING_AVEN: CardRecord = CardRecord::new(
 );
 
 // TOR 48 — Stupefying Touch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STUPEFYING_TOUCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f817379-9c0b-4e43-a345-492516ccb6e1"),
     "Stupefying Touch",
-    crate::card::CardArt::new("7f817379-9c0b-4e43-a345-492516ccb6e1", "Bradley Williams"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7f817379-9c0b-4e43-a345-492516ccb6e1", "Bradley Williams"),
+    CardSet::Torment,
+    // It replaces itself and switches off the ability the creature was
+    // played for, which is a clean answer to a creature that is a spell.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, draw a card.",
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature's activated abilities can't be activated.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
+                },
+            ),
+        ]),
 );
 
 // TOR 49 — Turbulent Dreams
@@ -1309,13 +1355,41 @@ pub(in crate::card::sets) static BARBARIAN_OUTCAST: CardRecord = CardRecord::new
 );
 
 // TOR 93 — Crackling Club
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRACKLING_CLUB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0810f7e3-03ff-4c46-a88f-2f8144540780"),
     "Crackling Club",
-    crate::card::CardArt::new("0810f7e3-03ff-4c46-a88f-2f8144540780", "Mike Ploog"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0810f7e3-03ff-4c46-a88f-2f8144540780", "Mike Ploog"),
+    CardSet::Torment,
+    // One mana for a point of power that can be cashed in for a point of
+    // damage, which is two half-cards rather than one.
+    CardRules::new_enchantment(mana_cost!("{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "Sacrifice this Aura: It deals 1 damage to target creature.",
+                &[CostDef::SacrificeSource],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )]
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // TOR 94 — Crazed Firecat

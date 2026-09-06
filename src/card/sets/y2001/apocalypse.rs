@@ -2168,13 +2168,37 @@ pub(in crate::card::sets) static SPIRITMONGER: CardRecord = CardRecord::new(
 );
 
 // APC 122 — Squee's Embrace
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUEE_S_EMBRACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e682a705-9341-4d1e-a9c5-d428e50b9a03"),
     "Squee's Embrace",
-    crate::card::CardArt::new("e682a705-9341-4d1e-a9c5-d428e50b9a03", "Rebecca Guay"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e682a705-9341-4d1e-a9c5-d428e50b9a03", "Rebecca Guay"),
+    CardSet::Apocalypse,
+    // The card comes back when the creature dies, so the Aura costs tempo
+    // rather than a card -- which is the whole cycle's promise.
+    CardRules::new_enchantment(mana_cost!("{R}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+            abilities::dies_trigger_matching(
+                "When enchanted creature dies, return that card to its owner's hand.",
+                ObjectPredicateDef::AttachedToSource,
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::TriggeringZoneChangeResult,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // APC 123 — Squee's Revenge

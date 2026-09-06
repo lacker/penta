@@ -2980,13 +2980,42 @@ pub(in crate::card::sets) static WALL_OF_LAVA: CardRecord = CardRecord::new(
 );
 
 // ICE 224 — Word of Blasting
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WORD_OF_BLASTING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("46b383c8-d604-4131-a869-9e9d13e30b94"),
     "Word of Blasting",
-    crate::card::CardArt::new("46b383c8-d604-4131-a869-9e9d13e30b94", "Ken Meyer, Jr."),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("46b383c8-d604-4131-a869-9e9d13e30b94", "Ken Meyer, Jr."),
+    CardSet::IceAge,
+    // Two mana that kills a Wall and burns for what it cost, which in a
+    // format full of defensive four-drops was a real tempo swing.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target Wall. It can't be regenerated. Word of Blasting deals damage equal to \
+         that Wall's mana value to the Wall's controller.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Subtype("Wall"),
+        )],
+        EffectDef::Sequence(&[
+            // Applied before the destruction so a shield already on the Wall
+            // cannot replace it.
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // The damage is its own sentence, so it happens whether or not
+            // the Wall actually died; the mana value is read from last-known
+            // information either way.
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
+                amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            },
+        ]),
+    )),
 );
 
 // ICE 225 — Aurochs
@@ -3953,7 +3982,7 @@ pub(in crate::card::sets) static ELEMENTAL_AUGURY: CardRecord = CardRecord::new(
 );
 
 // ICE 287 — Essence Vortex
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a life payment scaled by the target. EffectPaymentCostDef::Life takes a fixed number, so "pays life equal to its toughness" has no cost to put on the unless.
 pub(in crate::card::sets) static ESSENCE_VORTEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fe07e496-5070-4116-a91a-a3bbe19c12af"),
     "Essence Vortex",

@@ -1010,13 +1010,40 @@ pub(in crate::card::sets) static UNBURDEN: CardRecord = CardRecord::new(
 );
 
 // SCG 78 — Undead Warchief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDEAD_WARCHIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6b3bcfe-be82-458b-ba59-ecb84436d747"),
     "Undead Warchief",
-    crate::card::CardArt::new("e6b3bcfe-be82-458b-ba59-ecb84436d747", "Greg Hildebrandt"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e6b3bcfe-be82-458b-ba59-ecb84436d747", "Greg Hildebrandt"),
+    CardSet::Scourge,
+    // The discount and the anthem compound: every Zombie after this one is
+    // cheaper and bigger than the card says.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Zombie"], 1, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "Zombie spells you cast cost {1} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::Subtype("Zombie"),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Zombie creatures you control get +2/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Zombie"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // SCG 79 — Unspeakable Symbol

@@ -8,12 +8,13 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardRules,
     CardSet, CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, CostDef, CostQuantityDef, CounterKind, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef,
+    ComparisonDef, ConditionalStaticEffectDef, CostDef, CostQuantityDef, CounterKind,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetCountConditionDef,
+    ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, ResolvedEffectDurationDef, StaticApplyDef, TriggerConditionDef,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, TurnStepDef, mana_cost};
@@ -330,13 +331,47 @@ pub(in crate::card::sets) static SHIELDMAGE_ADVOCATE: CardRecord = CardRecord::n
 );
 
 // JUD 23 — Silver Seraph
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVER_SERAPH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1465ca9e-a997-4b8c-9677-6c7961f67eba"),
     "Silver Seraph",
-    crate::card::CardArt::new("1465ca9e-a997-4b8c-9677-6c7961f67eba", "Matthew D. Wilson"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1465ca9e-a997-4b8c-9677-6c7961f67eba", "Matthew D. Wilson"),
+    CardSet::Judgment,
+    // Eight mana for a flier that only becomes a threat once the graveyard
+    // is full, which is a card two different decks half want.
+    CardRules::new_creature(mana_cost!("{5}{W}{W}{W}"), &["Angel"], 6, 6).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Threshold — Other creatures you control get +2/+2 as long as there are seven or more cards in your graveyard.",
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 7,
+                    },
+                },
+                then: StaticApplyDef {
+                    recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            }),
+        ),
+    ]),
 );
 
 // JUD 24 — Solitary Confinement

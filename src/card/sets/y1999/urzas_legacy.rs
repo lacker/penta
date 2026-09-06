@@ -1593,13 +1593,41 @@ pub(in crate::card::sets) static DEFENSE_OF_THE_HEART: CardRecord = CardRecord::
 );
 
 // ULG 101 — Deranged Hermit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DERANGED_HERMIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf0e94c9-61c4-4cc0-b5ce-db62bc2660ee"),
     "Deranged Hermit",
-    crate::card::CardArt::new("bf0e94c9-61c4-4cc0-b5ce-db62bc2660ee", "Kev Walker"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bf0e94c9-61c4-4cc0-b5ce-db62bc2660ee", "Kev Walker"),
+    CardSet::UrzasLegacy,
+    // Five mana for eight power across five bodies, rented one echo payment
+    // at a time -- and the tokens stay when the rent goes unpaid.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elf"], 1, 1).with_abilities(&[
+        abilities::echo(
+            "Echo {3}{G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{3}{G}{G}"),
+        ),
+        abilities::enters_trigger(
+            "When this creature enters, create four 1/1 green Squirrel creature tokens.",
+            EffectDef::create_creature_token(&["Squirrel"], &[ManaColor::Green], 1, 1)
+                .with_count(ValueDef::Constant(4)),
+        ),
+        AbilityDef::static_ability(
+            "Squirrel creatures get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Squirrel"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // ULG 102 — Gang of Elk

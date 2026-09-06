@@ -757,13 +757,58 @@ pub(in crate::card::sets) static WANDERING_EYE: CardRecord = CardRecord::new(
 );
 
 // NEM 51 — Ascendant Evincar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ASCENDANT_EVINCAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e5c87c93-8cf4-4d1a-9bb8-349600da55bc"),
     "Ascendant Evincar",
-    crate::card::CardArt::new("e5c87c93-8cf4-4d1a-9bb8-349600da55bc", "Mark Zug"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e5c87c93-8cf4-4d1a-9bb8-349600da55bc", "Mark Zug"),
+    CardSet::Nemesis,
+    // Two anthems pointing opposite ways, which turns a board that was even
+    // into one that is two points apart on every body.
+    CardRules::new_creature(
+        mana_cost!("{4}{B}{B}"),
+        &["Phyrexian", "Vampire", "Noble"],
+        3,
+        3,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Other black creatures get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Nonblack creatures get -1/-1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // NEM 52 — Battlefield Percher

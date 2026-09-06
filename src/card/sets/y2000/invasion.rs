@@ -1766,13 +1766,33 @@ pub(in crate::card::sets) static URBORG_PHANTOM: CardRecord = CardRecord::new(
 );
 
 // INV 133 — Urborg Shambler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBORG_SHAMBLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eaedd5c8-03c6-4bbb-bf83-632551830bd4"),
     "Urborg Shambler",
-    crate::card::CardArt::new("eaedd5c8-03c6-4bbb-bf83-632551830bd4", "Pete Venters"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eaedd5c8-03c6-4bbb-bf83-632551830bd4", "Pete Venters"),
+    CardSet::Invasion,
+    // It shrinks the opponent's black creatures and its own, so it belongs
+    // in a deck that is not black at all -- except for this card.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Horror"], 4, 3).with_ability(
+        AbilityDef::static_ability(
+            "Other black creatures get -1/-1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+            },
+        ),
+    ),
 );
 
 // INV 134 — Urborg Skeleton (alternate printing)
@@ -2517,16 +2537,39 @@ pub(in crate::card::sets) static ELFHAME_SANCTUARY: CardRecord = CardRecord::new
 );
 
 // INV 186 — Elvish Champion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_CHAMPION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c19bb473-03b0-4e6d-a7da-0ec1e7707a68"),
     "Elvish Champion",
-    crate::card::CardArt::new(
+    CardArt::new(
         "c19bb473-03b0-4e6d-a7da-0ec1e7707a68",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // The forestwalk is the real clause: against the other green deck the
+    // whole team simply cannot be blocked.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elf"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Other Elf creatures get +1/+1 and have forestwalk.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Elf"),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                ]),
+            },
+        ),
+    ),
 );
 
 // INV 187 — Explosive Growth

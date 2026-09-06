@@ -73,6 +73,7 @@ mod miners_guidewing;
 mod moon_circuit_hacker;
 mod multi_target_slots;
 mod nyxborn_hydra;
+mod opposing_anthems;
 mod phantom_interference;
 mod player_shroud;
 mod poison_on_unblocked;

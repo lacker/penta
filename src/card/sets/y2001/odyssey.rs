@@ -201,13 +201,32 @@ pub(in crate::card::sets) static BELOVED_CHAPLAIN: CardRecord = CardRecord::new(
 );
 
 // ODY 12 — Blessed Orator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLESSED_ORATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5654575e-0849-4e7f-98f2-0074ac8e0faa"),
     "Blessed Orator",
-    crate::card::CardArt::new("5654575e-0849-4e7f-98f2-0074ac8e0faa", "Terese Nielsen"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5654575e-0849-4e7f-98f2-0074ac8e0faa", "Terese Nielsen"),
+    CardSet::Odyssey,
+    // A point of toughness on everything else turns a board of one-drops
+    // into blockers nothing profitably attacks into.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Cleric"], 1, 4).with_ability(
+        AbilityDef::static_ability(
+            "Other creatures you control get +0/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ),
 );
 
 // ODY 13 — Cantivore

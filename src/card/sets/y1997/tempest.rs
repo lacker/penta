@@ -311,13 +311,24 @@ pub(in crate::card::sets) static GERRARD_S_BATTLE_CRY: CardRecord = CardRecord::
 );
 
 // TMP 22 — Hanna's Custody
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HANNA_S_CUSTODY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ea44536-ef4e-4dcf-9c1a-c1122dd00cbb"),
     "Hanna's Custody",
-    crate::card::CardArt::new("7ea44536-ef4e-4dcf-9c1a-c1122dd00cbb", "DiTerlizzi"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7ea44536-ef4e-4dcf-9c1a-c1122dd00cbb", "DiTerlizzi"),
+    CardSet::Tempest,
+    // Symmetrical, which in a format where one deck plays the artifacts and
+    // the other plays the answers is not symmetrical at all.
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(AbilityDef::static_ability(
+        "All artifacts have shroud.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+        },
+    )),
 );
 
 // TMP 23 — Hero's Resolve
@@ -3200,13 +3211,47 @@ pub(in crate::card::sets) static ELADAMRI_S_VINEYARD: CardRecord = CardRecord::n
 );
 
 // TMP 224 — Eladamri, Lord of Leaves
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELADAMRI_LORD_OF_LEAVES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b1689f3-9dfa-4525-90b3-7af15f7eb720"),
     "Eladamri, Lord of Leaves",
-    crate::card::CardArt::new("0b1689f3-9dfa-4525-90b3-7af15f7eb720", "Ron Chironna"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0b1689f3-9dfa-4525-90b3-7af15f7eb720", "Ron Chironna"),
+    CardSet::Tempest,
+    // Shroud on the whole tribe is what makes an Elf deck immune to the
+    // removal that would otherwise answer its one important creature.
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Elf", "Warrior"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Other Elf creatures have forestwalk.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Elf"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Other Elves have shroud.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Elf"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                },
+            ),
+        ]),
 );
 
 // TMP 225 — Elven Warhounds

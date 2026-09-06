@@ -6,9 +6,9 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectCountConditionDef,
+    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
+    ChooseDef, ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef, DamagePreventionDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectCountConditionDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
@@ -1178,13 +1178,56 @@ pub(in crate::card::sets) static ACCELERATE: CardRecord = CardRecord::new(
 );
 
 // TOR 91 — Balthor the Stout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e81ecdc5-d2c7-4292-9b59-fd6bf3ba29d5"),
     "Balthor the Stout",
-    crate::card::CardArt::new("e81ecdc5-d2c7-4292-9b59-fd6bf3ba29d5", "Ron Spears"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e81ecdc5-d2c7-4292-9b59-fd6bf3ba29d5", "Ron Spears"),
+    CardSet::Torment,
+    // The anthem is passive and the pump is not, so a board of Barbarians
+    // attacks bigger than it blocks.
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Dwarf", "Barbarian"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Other Barbarian creatures get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Barbarian"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{R}: Another target Barbarian creature gets +1/+0 until end of turn.",
+                &[CostDef::Mana(mana_cost!("{R}"))],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Barbarian"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                    )]
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // TOR 92 — Barbarian Outcast

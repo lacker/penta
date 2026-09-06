@@ -115,13 +115,54 @@ pub(in crate::card::sets) static AURIFICATION: CardRecord = CardRecord::new(
 );
 
 // ONS 7 — Aven Brigadier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_BRIGADIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("da24ef56-8d54-4146-97e9-4abded807545"),
     "Aven Brigadier",
-    crate::card::CardArt::new("da24ef56-8d54-4146-97e9-4abded807545", "Greg Staples"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("da24ef56-8d54-4146-97e9-4abded807545", "Greg Staples"),
+    CardSet::Onslaught,
+    // Six mana and three white pips for two anthems, which only a deck that
+    // is both tribes at once ever gets paid for.
+    CardRules::new_creature(mana_cost!("{3}{W}{W}{W}"), &["Bird", "Soldier"], 3, 5).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::static_ability(
+                "Other Bird creatures get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Bird"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Other Soldier creatures get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Soldier"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+        ],
+    ),
 );
 
 // ONS 8 — Aven Soulgazer

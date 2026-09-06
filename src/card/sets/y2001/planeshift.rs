@@ -489,13 +489,52 @@ pub(in crate::card::sets) static EXOTIC_DISEASE: CardRecord = CardRecord::new(
 );
 
 // PLS 44 — Lord of the Undead
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LORD_OF_THE_UNDEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0a7f50f4-37a0-476e-8655-edba228aafd6"),
     "Lord of the Undead",
-    crate::card::CardArt::new("0a7f50f4-37a0-476e-8655-edba228aafd6", "Brom"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0a7f50f4-37a0-476e-8655-edba228aafd6", "Brom"),
+    CardSet::Planeshift,
+    // The anthem is the smaller half: a Zombie deck that can rebuy its
+    // creatures never runs out of them.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "Other Zombie creatures get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Zombie"),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{B}, {T}: Return target Zombie card from your graveyard to your hand.",
+            &[CostDef::Mana(mana_cost!("{1}{B}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype("Zombie"),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // PLS 45 — Maggot Carrier

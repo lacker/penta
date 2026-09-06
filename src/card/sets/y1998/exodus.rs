@@ -24,13 +24,30 @@ pub(in crate::card::sets) static ALLAY: CardRecord = CardRecord::new(
 );
 
 // EXO 2 — Angelic Blessing
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGELIC_BLESSING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31dda640-2a00-437e-855f-173c487e7395"),
     "Angelic Blessing",
-    crate::card::CardArt::new("ed3c8bae-953f-4bb4-a78d-02e4e354e53c", "Mark Zug"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ed3c8bae-953f-4bb4-a78d-02e4e354e53c", "Mark Zug"),
+    CardSet::Exodus,
+    // Sorcery speed, so it is a finisher rather than a trick: three power
+    // and evasion on whatever was already getting through.
+    CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +3/+3 and gains flying until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                AppliedEffectDef::add_ability(&const { abilities::flying() }),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // EXO 3 — Cataclysm

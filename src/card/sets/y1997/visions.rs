@@ -1367,13 +1367,32 @@ pub(in crate::card::sets) static CITY_OF_SOLITUDE: CardRecord = CardRecord::new(
 );
 
 // VIS 103 — Creeping Mold
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CREEPING_MOLD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36e7691f-c771-4451-ac54-3532ca10d48f"),
     "Creeping Mold",
-    crate::card::CardArt::new("36e7691f-c771-4451-ac54-3532ca10d48f", "David Seeley"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("36e7691f-c771-4451-ac54-3532ca10d48f", "David Seeley"),
+    CardSet::Visions,
+    // Four mana to answer any of three permanent types, which is green's
+    // whole removal suite in one card.
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target artifact, enchantment, or land.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // VIS 104 — Elephant Grass
@@ -1441,13 +1460,31 @@ pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
 );
 
 // VIS 105 — Elven Cache
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVEN_CACHE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("80fa078f-c74a-42b2-af97-7ca2c29dc316"),
     "Elven Cache",
-    crate::card::CardArt::new("80fa078f-c74a-42b2-af97-7ca2c29dc316", "John Matson"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("80fa078f-c74a-42b2-af97-7ca2c29dc316", "John Matson"),
+    CardSet::Visions,
+    // Four mana to buy back anything, which is the rate green pays for
+    // recursion that does not care what it is recurring.
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target card from your graveyard to your hand.",
+        // "Target card", with no type restriction, so it buys back a
+        // land or an artifact just as readily as a creature.
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // VIS 106 — Emerald Charm

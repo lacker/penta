@@ -3056,13 +3056,28 @@ pub(in crate::card::sets) static VERDANT_FORCE: CardRecord = CardRecord::new(
 );
 
 // TMP 264 — Verdigris
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VERDIGRIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0c79664d-3461-44e7-afe6-33ec54e312ad"),
     "Verdigris",
-    crate::card::CardArt::new("0c79664d-3461-44e7-afe6-33ec54e312ad", "Zina Saunders"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0c79664d-3461-44e7-afe6-33ec54e312ad", "Zina Saunders"),
+    CardSet::Tempest,
+    // Three mana at instant speed for an artifact, which is what green paid
+    // before it got cheaper answers.
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target artifact.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // TMP 265 — Winter's Grasp

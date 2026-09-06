@@ -3488,13 +3488,57 @@ pub(in crate::card::sets) static SABERTOOTH_COBRA: CardRecord = CardRecord::new(
 // MIR 239 — Sandstorm (reprint)
 
 // MIR 240 — Seedling Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEEDLING_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e42746e1-f422-4453-a860-3993d5796479"),
     "Seedling Charm",
-    crate::card::CardArt::new("e42746e1-f422-4453-a860-3993d5796479", "Stuart Griffin"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e42746e1-f422-4453-a860-3993d5796479", "Stuart Griffin"),
+    CardSet::Mirage,
+    // Green's answer to a Pacifism, a removal spell, or a chump block, in one
+    // mana and one card.
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Return target Aura attached to a creature to its owner's hand.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype("Aura"),
+                        ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    ]),
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Regenerate target green creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Green),
+                    ]),
+                )],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gains trample until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // MIR 241 — Seeds of Innocence

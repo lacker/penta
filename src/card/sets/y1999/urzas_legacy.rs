@@ -1375,13 +1375,41 @@ pub(in crate::card::sets) static MOLTEN_HYDRA: CardRecord = CardRecord::new(
 );
 
 // ULG 86 — Parch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3ab8065-cecc-4b19-be93-7cf791a93e62"),
     "Parch",
-    crate::card::CardArt::new("d3ab8065-cecc-4b19-be93-7cf791a93e62", "Ron Spencer"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d3ab8065-cecc-4b19-be93-7cf791a93e62", "Ron Spencer"),
+    CardSet::UrzasLegacy,
+    // A maindeck burn spell that doubles against blue, which in a format of
+    // blue creatures is most of a sideboard card for free.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Parch deals 2 damage to any target.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Parch deals 4 damage to target blue creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Blue),
+                    ]),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(4),
+                },
+            ),
+        ],
+    )),
 );
 
 // ULG 87 — Pygmy Pyrosaur

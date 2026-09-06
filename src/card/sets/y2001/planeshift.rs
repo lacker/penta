@@ -1300,23 +1300,110 @@ pub(in crate::card::sets) static CLOUD_COVER: CardRecord = CardRecord::new(
 );
 
 // PLS 99 — Crosis's Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CROSIS_S_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b59a9e75-9988-4040-a718-b1655fc20d11"),
     "Crosis's Charm",
-    crate::card::CardArt::new("b59a9e75-9988-4040-a718-b1655fc20d11", "David Martin"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b59a9e75-9988-4040-a718-b1655fc20d11", "David Martin"),
+    CardSet::Planeshift,
+    // It answers a creature, an artifact, or anything at all -- the last mode
+    // is what makes it a real answer to a card it was not built for.
+    CardRules::new_instant(mana_cost!("{U}{B}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Return target permanent to its owner's hand.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target nonblack creature. It can't be regenerated.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]),
+                )],
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target artifact.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    )),
 );
 
 // PLS 100 — Darigaaz's Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARIGAAZ_S_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf4c9d6a-86eb-45be-9405-473eb263b94c"),
     "Darigaaz's Charm",
-    crate::card::CardArt::new("cf4c9d6a-86eb-45be-9405-473eb263b94c", "David Martin"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cf4c9d6a-86eb-45be-9405-473eb263b94c", "David Martin"),
+    CardSet::Planeshift,
+    // Removal, a combat trick, or a card back, decided on the turn it is cast
+    // rather than the turn it is drawn.
+    CardRules::new_instant(mana_cost!("{B}{R}{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Return target creature card from your graveyard to your hand.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Darigaaz's Charm deals 3 damage to any target.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gets +3/+3 until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // PLS 101 — Daring Leap
@@ -1397,13 +1484,55 @@ pub(in crate::card::sets) static DRALNU_S_CRUSADE: CardRecord = CardRecord::new(
 );
 
 // PLS 105 — Dromar's Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DROMAR_S_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c7a1894c-af4e-4530-960f-2225916be8cb"),
     "Dromar's Charm",
-    crate::card::CardArt::new("c7a1894c-af4e-4530-960f-2225916be8cb", "David Martin"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c7a1894c-af4e-4530-960f-2225916be8cb", "David Martin"),
+    CardSet::Planeshift,
+    // Three colours for a counterspell that is also removal that is also five
+    // life, which is what a three-colour deck pays its mana base for.
+    CardRules::new_instant(mana_cost!("{W}{U}{B}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "You gain 5 life.",
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(5),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Counter target spell.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Counter {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gets -2/-2 until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-2),
+                        ValueDef::Constant(-2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // PLS 106 — Eladamri's Call

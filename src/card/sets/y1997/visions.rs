@@ -10,8 +10,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
     AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef,
+    CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -147,13 +147,49 @@ pub(in crate::card::sets) static HONORABLE_PASSAGE: CardRecord = CardRecord::new
 );
 
 // VIS 8 — Hope Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOPE_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a1a8980f-07ab-49b7-b83d-f394952ced57"),
     "Hope Charm",
-    crate::card::CardArt::new("a1a8980f-07ab-49b7-b83d-f394952ced57", "Greg Spalenka"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a1a8980f-07ab-49b7-b83d-f394952ced57", "Greg Spalenka"),
+    CardSet::Visions,
+    // One mana that is never wrong to draw, because one of the three modes is
+    // always the one the board needs.
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Target creature gains first strike until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target player gains 2 life.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target Aura.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype("Aura"),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    )),
 );
 
 // VIS 9 — Infantry Veteran
@@ -893,13 +929,57 @@ pub(in crate::card::sets) static FORBIDDEN_RITUAL: CardRecord = CardRecord::new(
 );
 
 // VIS 61 — Funeral Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FUNERAL_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e79d7240-2014-4838-bace-80666192a73e"),
     "Funeral Charm",
-    crate::card::CardArt::new("e79d7240-2014-4838-bace-80666192a73e", "Greg Spalenka"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e79d7240-2014-4838-bace-80666192a73e", "Greg Spalenka"),
+    CardSet::Visions,
+    // Instant-speed discard is the mode that matters; the other two are why it
+    // is never a dead card against the wrong deck.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Target player discards a card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gets +2/-1 until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(-1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gains swampwalk until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(
+                        &const { abilities::landwalk(BasicLandType::Swamp) },
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // VIS 62 — Infernal Harvest

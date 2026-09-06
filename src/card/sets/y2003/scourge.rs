@@ -10,10 +10,11 @@ use crate::card::{
     AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
     BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef,
     CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CostModificationDef,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation,
-    PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
+    ObjectRefDef, PayOrDef, PlayerRelation, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -325,13 +326,38 @@ pub(in crate::card::sets) static NOBLE_TEMPLAR: CardRecord = CardRecord::new(
 // SCG 20 — Rain of Blades (reprint)
 
 // SCG 21 — Recuperate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECUPERATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5945397-0906-48dd-80d1-c65bfa2b31a6"),
     "Recuperate",
-    crate::card::CardArt::new("a5945397-0906-48dd-80d1-c65bfa2b31a6", "Tim Hildebrandt"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a5945397-0906-48dd-80d1-c65bfa2b31a6", "Tim Hildebrandt"),
+    CardSet::Scourge,
+    // Six is a lot of either, and four mana at instant speed is what it costs
+    // to decide which after the opponent has committed.
+    CardRules::new_instant(mana_cost!("{3}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "You gain 6 life.",
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(6),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Prevent the next 6 damage that would be dealt to target creature this turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::amount(
+                        DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                        ValueDef::Constant(6),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // SCG 22 — Reward the Faithful

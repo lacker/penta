@@ -36,6 +36,7 @@ mod blocked_by_matching;
 mod blocker_punishment;
 mod board_counted_sizes;
 mod cannot_act_alone;
+mod charm_modes;
 mod colour_pair_targets;
 mod combat_damage_riders;
 mod conditional_bodies;

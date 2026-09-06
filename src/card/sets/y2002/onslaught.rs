@@ -2352,13 +2352,54 @@ pub(in crate::card::sets) static INFEST: CardRecord = CardRecord::new(
 );
 
 // ONS 158 — Misery Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MISERY_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2be66eaf-222b-4c40-a9fa-aad56b9218e0"),
     "Misery Charm",
-    crate::card::CardArt::new("2be66eaf-222b-4c40-a9fa-aad56b9218e0", "David Martin"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2be66eaf-222b-4c40-a9fa-aad56b9218e0", "David Martin"),
+    CardSet::Onslaught,
+    // Two of its three modes only matter in a Cleric mirror, and the third is
+    // why it is playable anyway.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Destroy target Cleric.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype("Cleric"),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Return target Cleric card from your graveyard to your hand.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype("Cleric"),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target player loses 2 life.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ],
+    )),
 );
 
 // ONS 159 — Nantuko Husk
@@ -2928,13 +2969,56 @@ pub(in crate::card::sets) static ERRATIC_EXPLOSION: CardRecord = CardRecord::new
 );
 
 // ONS 202 — Fever Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FEVER_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("830d1980-f460-4be2-9379-c3f74c8318f3"),
     "Fever Charm",
-    crate::card::CardArt::new("830d1980-f460-4be2-9379-c3f74c8318f3", "David Martin"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("830d1980-f460-4be2-9379-c3f74c8318f3", "David Martin"),
+    CardSet::Onslaught,
+    // Haste on a creature that just arrived is the mode nobody plays around,
+    // which is what makes a one-mana charm lethal.
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Target creature gains haste until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gets +2/+0 until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Fever Charm deals 3 damage to target Wizard creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Wizard"),
+                    ]),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+        ],
+    )),
 );
 
 // ONS 203 — Flamestick Courier
@@ -4404,13 +4488,48 @@ pub(in crate::card::sets) static VENOMSPOUT_BRACKUS: CardRecord = CardRecord::ne
 );
 
 // ONS 296 — Vitality Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VITALITY_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e1abae21-ed8f-4e21-b227-f721b840c11f"),
     "Vitality Charm",
-    crate::card::CardArt::new("e1abae21-ed8f-4e21-b227-f721b840c11f", "David Martin"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e1abae21-ed8f-4e21-b227-f721b840c11f", "David Martin"),
+    CardSet::Onslaught,
+    // A body, a trick, or a shield for one mana, which is exactly the card a
+    // green deck wants to hold up.
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Create a 1/1 green Insect creature token.",
+                EffectDef::create_creature_token(&["Insect"], &[ManaColor::Green], 1, 1),
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gets +1/+1 and gains trample until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Regenerate target Beast.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype("Beast"),
+                )],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ],
+    )),
 );
 
 // ONS 297 — Voice of the Woods

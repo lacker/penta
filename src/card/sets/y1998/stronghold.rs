@@ -2199,13 +2199,36 @@ pub(in crate::card::sets) static WALL_OF_BLOSSOMS: CardRecord = CardRecord::new(
 );
 
 // STH 126 — Acidic Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ACIDIC_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2d92c3f7-a589-4c87-aa17-0d9707605ff4"),
     "Acidic Sliver",
-    crate::card::CardArt::new("2d92c3f7-a589-4c87-aa17-0d9707605ff4", "Jeff Miracola"),
-    crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2d92c3f7-a589-4c87-aa17-0d9707605ff4", "Jeff Miracola"),
+    CardSet::Stronghold,
+    // It turns the whole board into reach, which is why a Sliver deck could
+    // win through a wall of blockers.
+    CardRules::new_creature(mana_cost!("{B}{R}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have \"{2}, Sacrifice this permanent: This permanent deals 2 damage to any target.\"",
+            EffectDef::StaticApply {
+                // "This permanent" inside the granted ability is whichever
+                // Sliver has it, which is that ability's own source.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { AbilityDef::activated_with_targets(
+                    "{2}, Sacrifice this permanent: This permanent deals 2 damage to any target.",
+                    &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                    &const { [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)] },
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                ) }),
+            },
+        ),
+    ),
 );
 
 // STH 127 — Crystalline Sliver
@@ -2238,13 +2261,40 @@ pub(in crate::card::sets) static CRYSTALLINE_SLIVER: CardRecord = CardRecord::ne
 );
 
 // STH 128 — Hibernation Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIBERNATION_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94934d64-6518-4c5e-90d9-a3bf23b8973f"),
     "Hibernation Sliver",
-    crate::card::CardArt::new("94934d64-6518-4c5e-90d9-a3bf23b8973f", "Scott Kirschner"),
-    crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("94934d64-6518-4c5e-90d9-a3bf23b8973f", "Scott Kirschner"),
+    CardSet::Stronghold,
+    // Two life dodges any removal, so the only way through a Sliver board is
+    // to make them run out of life first.
+    CardRules::new_creature(mana_cost!("{U}{B}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have \"Pay 2 life: Return this permanent to its owner\'s hand.\"",
+            EffectDef::StaticApply {
+                // "This permanent" inside the granted ability is whichever
+                // Sliver has it, which is that ability's own source.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::activated(
+                            "Pay 2 life: Return this permanent to its owner's hand.",
+                            &[CostDef::PayLife(2)],
+                            EffectDef::MoveToZone {
+                                object: EffectRecipientDef::Source,
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                            },
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // STH 129 — Sliver Queen
@@ -2273,13 +2323,39 @@ pub(in crate::card::sets) static SPINED_SLIVER: CardRecord = CardRecord::new(
 );
 
 // STH 131 — Victual Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VICTUAL_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5e58908e-7095-4fb9-b7cb-a67d12f33b8a"),
     "Victual Sliver",
-    crate::card::CardArt::new("5e58908e-7095-4fb9-b7cb-a67d12f33b8a", "Terese Nielsen"),
-    crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5e58908e-7095-4fb9-b7cb-a67d12f33b8a", "Terese Nielsen"),
+    CardSet::Stronghold,
+    // Four life a Sliver is a wall of life the aggressive deck has to chew
+    // through twice.
+    CardRules::new_creature(mana_cost!("{G}{W}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have \"{2}, Sacrifice this permanent: You gain 4 life.\"",
+            EffectDef::StaticApply {
+                // "This permanent" inside the granted ability is whichever
+                // Sliver has it, which is that ability's own source.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::activated(
+                            "{2}, Sacrifice this permanent: You gain 4 life.",
+                            &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                            EffectDef::GainLife {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(4),
+                            },
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // STH 132 — Bullwhip

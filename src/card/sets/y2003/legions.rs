@@ -4,12 +4,13 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    ConditionalStaticEffectDef, CostDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, PlayerRelation, ResolvedEffectDurationDef, StaticApplyDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, ComparisonDef, ConditionalStaticEffectDef, CostDef,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, StaticApplyDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -208,13 +209,23 @@ pub(in crate::card::sets) static DEFTBLADE_ELITE: CardRecord = CardRecord::new(
 );
 
 // LGN 13 — Essence Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ESSENCE_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1346fa14-1d9f-4c6a-887d-d3a93de00743"),
     "Essence Sliver",
-    crate::card::CardArt::new("1346fa14-1d9f-4c6a-887d-d3a93de00743", "Glen Angus"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1346fa14-1d9f-4c6a-887d-d3a93de00743", "Glen Angus"),
+    CardSet::Legions,
+    // Every point the tribe deals comes back as life, so a Sliver board
+    // wins races it has no business winning.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Sliver"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever a Sliver deals damage, its controller gains that much life.",
+            TriggerEventDef::damage_dealt_by(ObjectPredicateDef::Subtype("Sliver")),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+    ),
 );
 
 // LGN 14 — Gempalm Avenger
@@ -655,23 +666,56 @@ pub(in crate::card::sets) static RIPTIDE_MANGLER: CardRecord = CardRecord::new(
 );
 
 // LGN 52 — Shifting Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIFTING_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1f68c4c2-91b5-4ffe-9dff-a6834038aa94"),
     "Shifting Sliver",
-    crate::card::CardArt::new("1f68c4c2-91b5-4ffe-9dff-a6834038aa94", "Darrell Riche"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1f68c4c2-91b5-4ffe-9dff-a6834038aa94", "Darrell Riche"),
+    CardSet::Legions,
+    // Only the mirror can block a Sliver board, which against every other
+    // deck is no block at all.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Slivers can't be blocked except by Slivers.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::prohibit(
+                        BlockRestrictionSubjectDef::Attacker,
+                        BlockRestrictionMatchDef::Except(ObjectPredicateDef::Subtype("Sliver")),
+                    ),
+                )),
+            },
+        ),
+    ),
 );
 
 // LGN 53 — Synapse Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SYNAPSE_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8bf966ff-0fd0-404d-be91-5b0c21035d73"),
     "Synapse Sliver",
-    crate::card::CardArt::new("8bf966ff-0fd0-404d-be91-5b0c21035d73", "Thomas M. Baxa"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8bf966ff-0fd0-404d-be91-5b0c21035d73", "Thomas M. Baxa"),
+    CardSet::Legions,
+    // A card for every Sliver that connects, which is what turns a wide
+    // board into a deck that never runs out.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Sliver"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever a Sliver deals combat damage to a player, its controller may draw a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Subtype("Sliver")),
+            EffectDef::May {
+                player: EffectRecipientDef::ControllerOfTriggeringObject,
+                effect: &const {
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                        amount: ValueDef::Constant(1),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // LGN 54 — Voidmage Apprentice
@@ -765,16 +809,46 @@ pub(in crate::card::sets) static CORPSE_HARVESTER: CardRecord = CardRecord::new(
 );
 
 // LGN 63 — Crypt Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYPT_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("507097eb-6b50-47ae-a545-df76b743b2bd"),
     "Crypt Sliver",
-    crate::card::CardArt::new(
+    CardArt::new(
         "507097eb-6b50-47ae-a545-df76b743b2bd",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardSet::Legions,
+    // Each Sliver can shield another, so a board of them survives anything
+    // that kills one creature at a time.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Sliver"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have \"{T}: Regenerate target Sliver.\"",
+            EffectDef::StaticApply {
+                // "This permanent" inside the granted ability is whichever
+                // Sliver has it, which is that ability's own source.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::activated_with_targets(
+                            "{T}: Regenerate target Sliver.",
+                            &[CostDef::TapSource],
+                            &const {
+                                [AbilityTargetDef::exactly_one_permanent(
+                                    ObjectPredicateDef::Subtype("Sliver"),
+                                )]
+                            },
+                            EffectDef::Regenerate {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // LGN 64 — Dark Supplicant
@@ -1087,13 +1161,32 @@ pub(in crate::card::sets) static SPECTRAL_SLIVER: CardRecord = CardRecord::new(
 );
 
 // LGN 84 — Toxin Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOXIN_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c04ab6b6-27ee-4c93-a87c-cbc3743f4faf"),
     "Toxin Sliver",
-    crate::card::CardArt::new("c04ab6b6-27ee-4c93-a87c-cbc3743f4faf", "Lars Grant-West"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c04ab6b6-27ee-4c93-a87c-cbc3743f4faf", "Lars Grant-West"),
+    CardSet::Legions,
+    // Every Sliver becomes deathtouch that also beats regeneration, so the
+    // opponent cannot block profitably at all.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Sliver"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever a Sliver deals combat damage to a creature, destroy that creature. It can't be regenerated.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Combat,
+                source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Subtype("Sliver")),
+                recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+            }),
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::DamagedObject,
+                    then: None,
+                },
+            },
+        ),
+    ),
 );
 
 // LGN 85 — Vile Deacon
@@ -1393,13 +1486,51 @@ pub(in crate::card::sets) static MACETAIL_HYSTRODON: CardRecord = CardRecord::ne
 );
 
 // LGN 107 — Magma Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGMA_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9091d908-456f-4127-857d-b22fdb4f2fd9"),
     "Magma Sliver",
-    crate::card::CardArt::new("9091d908-456f-4127-857d-b22fdb4f2fd9", "Wayne England"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9091d908-456f-4127-857d-b22fdb4f2fd9", "Wayne England"),
+    CardSet::Legions,
+    // Every Sliver can point the whole board's size at one attacker, which
+    // turns a stalled board into lethal in one activation.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Sliver"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have \"{T}: Target Sliver creature gets +X/+0 until end of turn, where X is the number of Slivers on the battlefield.\"",
+            EffectDef::StaticApply {
+                // "This permanent" inside the granted ability is whichever
+                // Sliver has it, which is that ability's own source.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { AbilityDef::activated_with_targets(
+                    "{T}: Target Sliver creature gets +X/+0 until end of turn, where X is the number of Slivers on the battlefield.",
+                    &[CostDef::TapSource],
+                    &const {
+                        [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Sliver"),
+                        ]))]
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::CountMatchingObjects(&const {
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::Subtype("Sliver"),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
+                                )
+                            }),
+                            ValueDef::Constant(0),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ) }),
+            },
+        ),
+    ),
 );
 
 // LGN 108 — Ridgetop Raptor

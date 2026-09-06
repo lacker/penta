@@ -1156,13 +1156,39 @@ pub(in crate::card::sets) static MEDITATE: CardRecord = CardRecord::new(
 );
 
 // TMP 77 — Mnemonic Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MNEMONIC_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2b167347-2f8f-4338-a651-c7543d812597"),
     "Mnemonic Sliver",
-    crate::card::CardArt::new("2b167347-2f8f-4338-a651-c7543d812597", "Randy Gallegos"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2b167347-2f8f-4338-a651-c7543d812597", "Randy Gallegos"),
+    CardSet::Tempest,
+    // It turns a board that has stopped attacking back into cards, one
+    // Sliver at a time.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have \"{2}, Sacrifice this permanent: Draw a card.\"",
+            EffectDef::StaticApply {
+                // "This permanent" inside the granted ability is whichever
+                // Sliver has it, which is that ability's own source.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::activated(
+                            "{2}, Sacrifice this permanent: Draw a card.",
+                            &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                            EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(1),
+                            },
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // TMP 78 — Power Sink (reprint)
@@ -1570,13 +1596,35 @@ pub(in crate::card::sets) static CARRIONETTE: CardRecord = CardRecord::new(
 );
 
 // TMP 112 — Clot Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOT_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fdead1f4-a6e4-4370-80ae-811881a90d01"),
     "Clot Sliver",
-    crate::card::CardArt::new("fdead1f4-a6e4-4370-80ae-811881a90d01", "Jeff Laubenstein"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fdead1f4-a6e4-4370-80ae-811881a90d01", "Jeff Laubenstein"),
+    CardSet::Tempest,
+    // Every Sliver on the board becomes unkillable in combat for two mana,
+    // which is the clause that made the tribe a real deck.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Sliver"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have \"{2}: Regenerate this permanent.\"",
+            EffectDef::StaticApply {
+                // "This permanent" inside the granted ability is whichever
+                // Sliver has it, which is that ability's own source.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Sliver"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        abilities::regenerate_self(
+                            "{2}: Regenerate this permanent.",
+                            &[CostDef::Mana(mana_cost!("{2}"))],
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // TMP 113 — Coercion (reprint)

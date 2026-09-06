@@ -1222,13 +1222,24 @@ pub(in crate::card::sets) static SOMNOPHORE: CardRecord = CardRecord::new(
 );
 
 // USG 98 — Spire Owl
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIRE_OWL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c66b2aa6-e891-4ae5-b6c9-1537b797c3ab"),
     "Spire Owl",
-    crate::card::CardArt::new("c66b2aa6-e891-4ae5-b6c9-1537b797c3ab", "Steve Firchow"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c66b2aa6-e891-4ae5-b6c9-1537b797c3ab", "Steve Firchow"),
+    CardSet::UrzasSaga,
+    // Sage Owl reprinted, in a block where knowing the top four was worth
+    // rather more than usual.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, look at the top four cards of your library, then \
+             put them back in any order.",
+            abilities::look_at_top_cards_and_reorder(
+                PlayerRefDef::EffectController,
+                ValueDef::Constant(4),
+            ),
+        ),
+    ]),
 );
 
 // USG 99 — Stern Proctor
@@ -2054,13 +2065,31 @@ pub(in crate::card::sets) static SLEEPER_AGENT: CardRecord = CardRecord::new(
 );
 
 // USG 160 — Spined Fluke
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPINED_FLUKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a14524b-e690-4f77-b43e-416d5ec3cbb9"),
     "Spined Fluke",
-    crate::card::CardArt::new("8a14524b-e690-4f77-b43e-416d5ec3cbb9", "Mark A. Nelson"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8a14524b-e690-4f77-b43e-416d5ec3cbb9", "Mark A. Nelson"),
+    CardSet::UrzasSaga,
+    // Five power for three mana, paid for with a creature and kept alive by
+    // black mana. The sacrifice is the real cost.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Worm", "Horror"], 5, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, sacrifice a creature.",
+            // Not "another creature", so with nothing else out it eats
+            // itself, which is the drawback the body is priced on.
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            },
+        ),
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ]),
 );
 
 // USG 161 — Tainted Aether

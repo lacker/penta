@@ -1268,13 +1268,24 @@ pub(in crate::card::sets) static RUMMAGING_WIZARD: CardRecord = CardRecord::new(
 );
 
 // ONS 111 — Sage Aven
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAGE_AVEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4c03afc5-7ca3-4ac6-a06e-091e2cce13a0"),
     "Sage Aven",
-    crate::card::CardArt::new("4c03afc5-7ca3-4ac6-a06e-091e2cce13a0", "Randy Gallegos"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4c03afc5-7ca3-4ac6-a06e-091e2cce13a0", "Randy Gallegos"),
+    CardSet::Onslaught,
+    // The same trigger on a body that survives combat, and a Wizard, which
+    // is what Onslaught was counting.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Bird", "Wizard"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, look at the top four cards of your library, then \
+             put them back in any order.",
+            abilities::look_at_top_cards_and_reorder(
+                PlayerRefDef::EffectController,
+                ValueDef::Constant(4),
+            ),
+        ),
+    ]),
 );
 
 // ONS 112 — Screaming Seahawk

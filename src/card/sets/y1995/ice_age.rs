@@ -1730,13 +1730,31 @@ pub(in crate::card::sets) static INFERNAL_DENIZEN: CardRecord = CardRecord::new(
 );
 
 // ICE 137 — Kjeldoran Dead
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KJELDORAN_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3f7b614-6075-4b7c-acc7-ab63185b570b"),
     "Kjeldoran Dead",
-    crate::card::CardArt::new("d3f7b614-6075-4b7c-acc7-ab63185b570b", "Melissa A. Benson"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d3f7b614-6075-4b7c-acc7-ab63185b570b", "Melissa A. Benson"),
+    CardSet::IceAge,
+    // A 3/1 regenerator for one mana. The sacrifice is what makes it a
+    // real cost rather than a free clock.
+    CardRules::new_creature(mana_cost!("{B}"), &["Skeleton"], 3, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, sacrifice a creature.",
+            // Not "another creature", so with nothing else out it eats
+            // itself, which is the drawback the body is priced on.
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            },
+        ),
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ]),
 );
 
 // ICE 138 — Knight of Stromgald

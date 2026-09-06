@@ -1047,13 +1047,24 @@ pub(in crate::card::sets) static RELEARN: CardRecord = CardRecord::new(
 );
 
 // WTH 52 — Sage Owl
-// Audit: unsupported — Needs ordered inspection and reordering of the top four library cards.
 pub(in crate::card::sets) static SAGE_OWL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3ee2d6a1-8b1e-47e5-9720-5683ac458250"),
     "Sage Owl",
-    crate::card::CardArt::new("3ee2d6a1-8b1e-47e5-9720-5683ac458250", "Mark Poole"),
-    crate::card::CardSet::Weatherlight,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3ee2d6a1-8b1e-47e5-9720-5683ac458250", "Mark Poole"),
+    CardSet::Weatherlight,
+    // Two mana to arrange the next four draws, on a body that also blocks a
+    // flier. Small, but it makes every subsequent draw a known quantity.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, look at the top four cards of your library, then \
+             put them back in any order.",
+            abilities::look_at_top_cards_and_reorder(
+                PlayerRefDef::EffectController,
+                ValueDef::Constant(4),
+            ),
+        ),
+    ]),
 );
 
 // WTH 53 — Teferi's Veil

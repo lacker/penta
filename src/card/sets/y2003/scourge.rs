@@ -8,11 +8,12 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
-    AttackRestrictionDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef,
+    AttackRestrictionDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
+    BlockRestrictionSubjectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef,
     CostModificationDef, CounterKind, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -1661,13 +1662,29 @@ pub(in crate::card::sets) static TITANIC_BULVOX: CardRecord = CardRecord::new(
 );
 
 // SCG 130 — Treetop Scout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREETOP_SCOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2fa39646-a609-4b37-b8de-97893ae43c49"),
     "Treetop Scout",
-    crate::card::CardArt::new("2fa39646-a609-4b37-b8de-97893ae43c49", "Alan Pollack"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2fa39646-a609-4b37-b8de-97893ae43c49", "Alan Pollack"),
+    CardSet::Scourge,
+    // The same evasion for one mana on a body too small to use it,
+    // which is why it was printed as a one-drop and not a threat.
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Scout"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked except by creatures with flying.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::prohibit(
+                        BlockRestrictionSubjectDef::Attacker,
+                        BlockRestrictionMatchDef::Except(ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ),
+                )),
+            },
+        ),
+    ),
 );
 
 // SCG 131 — Upwelling

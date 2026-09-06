@@ -1809,13 +1809,30 @@ pub(in crate::card::sets) static MISERY_CHARM: CardRecord = CardRecord::new(
 );
 
 // ONS 159 — Nantuko Husk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_HUSK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1ff31ece-f132-4107-9415-fcf30e251167"),
     "Nantuko Husk",
-    crate::card::CardArt::new("1ff31ece-f132-4107-9415-fcf30e251167", "Carl Critchlow"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1ff31ece-f132-4107-9415-fcf30e251167", "Carl Critchlow"),
+    CardSet::Onslaught,
+    // Phyrexian Ghoul again, and the reason both exist is that the outlet
+    // costs nothing: the board empties at instant speed.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Insect"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ONS 160 — Oversold Cemetery

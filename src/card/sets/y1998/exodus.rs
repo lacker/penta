@@ -231,13 +231,30 @@ pub(in crate::card::sets) static SHACKLES: CardRecord = CardRecord::new(
 );
 
 // EXO 19 — Shield Mate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIELD_MATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b49261bb-66b5-4226-9001-02d045fbcbce"),
     "Shield Mate",
-    crate::card::CardArt::new("b49261bb-66b5-4226-9001-02d045fbcbce", "Randy Elliott"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b49261bb-66b5-4226-9001-02d045fbcbce", "Randy Elliott"),
+    CardSet::Exodus,
+    // A one-drop that trades itself for four toughness, so it answers a
+    // burn spell or wins a block after the fact.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Target creature gets +0/+4 until end of turn.",
+            &[AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 20 — Soltari Visionary

@@ -30,6 +30,8 @@ mod fear;
 mod fixtures;
 pub(super) use fixtures::*;
 
+mod flying_blockers_only;
+mod free_sacrifice_outlet;
 mod guildsworn_prowler;
 mod mass_shrink;
 mod miners_guidewing;

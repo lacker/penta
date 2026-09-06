@@ -765,23 +765,57 @@ pub(in crate::card::sets) static PHYREXIAN_DEBASER: CardRecord = CardRecord::new
 );
 
 // ULG 60 — Phyrexian Defiler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_DEFILER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0d555b5e-9f8a-4b1b-a4a6-dee8e177d9e8"),
     "Phyrexian Defiler",
-    crate::card::CardArt::new("0d555b5e-9f8a-4b1b-a4a6-dee8e177d9e8", "DiTerlizzi"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0d555b5e-9f8a-4b1b-a4a6-dee8e177d9e8", "DiTerlizzi"),
+    CardSet::UrzasLegacy,
+    // Removal stapled to a body, though the tap means it has to survive a
+    // turn before it can trade itself in.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Carrier"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: Target creature gets -3/-3 until end of turn.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-3),
+                    ValueDef::Constant(-3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ULG 61 — Phyrexian Denouncer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_DENOUNCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dcf849a0-9b53-4a8a-87a7-dc38d97311ab"),
     "Phyrexian Denouncer",
-    crate::card::CardArt::new("dcf849a0-9b53-4a8a-87a7-dc38d97311ab", "Brian Snõddy"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dcf849a0-9b53-4a8a-87a7-dc38d97311ab", "Brian Snõddy"),
+    CardSet::UrzasLegacy,
+    // The small version, which kills an X/1 for two mana and a summoning
+    // sickness delay.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Phyrexian", "Carrier"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: Target creature gets -1/-1 until end of turn.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ULG 62 — Phyrexian Plaguelord

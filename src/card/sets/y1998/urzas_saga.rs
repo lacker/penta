@@ -10,13 +10,14 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2024::modern_horizons_3 as catalog_mh3;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardChoiceSourceDef, CardRules,
-    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
+    BlockRestrictionSubjectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    GraveyardPlayPermissionDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    OngoingEffectDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
@@ -2004,13 +2005,30 @@ pub(in crate::card::sets) static PERSECUTE: CardRecord = CardRecord::new(
 // USG 147 — Pestilence (reprint)
 
 // USG 148 — Phyrexian Ghoul
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_GHOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4843ba92-fde2-4b46-8fdb-e0f8aca96959"),
     "Phyrexian Ghoul",
-    crate::card::CardArt::new("4843ba92-fde2-4b46-8fdb-e0f8aca96959", "Pete Venters"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4843ba92-fde2-4b46-8fdb-e0f8aca96959", "Pete Venters"),
+    CardSet::UrzasSaga,
+    // A free sacrifice outlet, so it converts a board about to be swept
+    // into damage that has already happened.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Zombie"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // USG 149 — Planar Void
@@ -3834,13 +3852,29 @@ pub(in crate::card::sets) static TREEFOLK_SEEDLINGS: CardRecord = CardRecord::ne
 );
 
 // USG 279 — Treetop Rangers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREETOP_RANGERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33f1a343-250b-4a30-a3b5-296282a70446"),
     "Treetop Rangers",
-    crate::card::CardArt::new("33f1a343-250b-4a30-a3b5-296282a70446", "Daren Bader"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("33f1a343-250b-4a30-a3b5-296282a70446", "Daren Bader"),
+    CardSet::UrzasSaga,
+    // Green evasion that only fliers answer, which in a green deck means
+    // almost nothing on the other side answers it.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Ranger"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked except by creatures with flying.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::prohibit(
+                        BlockRestrictionSubjectDef::Attacker,
+                        BlockRestrictionMatchDef::Except(ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ),
+                )),
+            },
+        ),
+    ),
 );
 
 // USG 280 — Venomous Fangs

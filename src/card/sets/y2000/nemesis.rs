@@ -1459,16 +1459,31 @@ pub(in crate::card::sets) static SAPROLING_CLUSTER: CardRecord = CardRecord::new
 );
 
 // NEM 115 — Seal of Strength
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEAL_OF_STRENGTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57650f78-3bf0-485a-bba8-7e7e14e47508"),
     "Seal of Strength",
-    crate::card::CardArt::new(
+    CardArt::new(
         "57650f78-3bf0-485a-bba8-7e7e14e47508",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardSet::Nemesis,
+    // The trick paid for a turn early: the mana is spent when it is spare,
+    // and the pump costs nothing on the turn it matters.
+    CardRules::new_enchantment(mana_cost!("{G}")).with_ability(AbilityDef::activated_with_targets(
+        "Sacrifice this enchantment: Target creature gets +3/+3 until end of turn.",
+        &[AbilityCostDef::SacrificeSource],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(3),
+                ValueDef::Constant(3),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // NEM 116 — Skyshroud Behemoth

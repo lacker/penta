@@ -3182,13 +3182,15 @@ pub(in crate::card::sets) static MAGNETIC_WEB: CardRecord = CardRecord::new(
 );
 
 // TMP 296 — Manakin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANAKIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d33ce7f-f318-4161-843a-f5bb6d6e3d29"),
     "Manakin",
-    crate::card::CardArt::new("3d33ce7f-f318-4161-843a-f5bb6d6e3d29", "Scott Kirschner"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3d33ce7f-f318-4161-843a-f5bb6d6e3d29", "Scott Kirschner"),
+    CardSet::Tempest,
+    // Two mana for a body that pays one back every turn, which is what a
+    // colourless accelerant has to offer to be worth a card.
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 1, 1)
+        .with_ability(abilities::tap_for(ManaColor::Colorless)),
 );
 
 // TMP 297 — Metallic Sliver

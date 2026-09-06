@@ -3339,13 +3339,15 @@ pub(in crate::card::sets) static WELLWISHER: CardRecord = CardRecord::new(
 );
 
 // ONS 301 — Wirewood Elf
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WIREWOOD_ELF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10a34e31-97f1-40e8-9d91-a8139af7f096"),
     "Wirewood Elf",
-    crate::card::CardArt::new("10a34e31-97f1-40e8-9d91-a8139af7f096", "Jerry Tiritilli"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("10a34e31-97f1-40e8-9d91-a8139af7f096", "Jerry Tiritilli"),
+    CardSet::Onslaught,
+    // A two-mana Llanowar Elves, which is what the Elf deck played once it
+    // had run out of the one-mana ones.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 1, 2)
+        .with_ability(abilities::tap_for(ManaColor::Green)),
 );
 
 // ONS 302 — Wirewood Herald

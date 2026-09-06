@@ -1807,13 +1807,15 @@ pub(in crate::card::sets) static LIGHTNING_ANGEL: CardRecord = CardRecord::new(
 );
 
 // APC 109 — Llanowar Dead
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f271969e-1529-42d1-878b-011f80ab0f05"),
     "Llanowar Dead",
-    crate::card::CardArt::new("f271969e-1529-42d1-878b-011f80ab0f05", "Ben Thompson"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f271969e-1529-42d1-878b-011f80ab0f05", "Ben Thompson"),
+    CardSet::Apocalypse,
+    // A gold two-drop that taps for one of its own colours: the body is real
+    // and the mana is the reason it is played.
+    CardRules::new_creature(mana_cost!("{B}{G}"), &["Zombie", "Elf"], 2, 2)
+        .with_ability(abilities::tap_for(ManaColor::Black)),
 );
 
 // APC 110 — Martyrs' Tomb

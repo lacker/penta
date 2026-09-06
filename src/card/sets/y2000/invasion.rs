@@ -1106,7 +1106,7 @@ pub(in crate::card::sets) static ANNIHILATE: CardRecord = CardRecord::new(
 );
 
 // INV 95 — Bog Initiate
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static BOG_INITIATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8962dc3b-24ca-4c3c-ba1d-933c29cf7b73"),
     "Bog Initiate",
@@ -3156,13 +3156,21 @@ pub(in crate::card::sets) static ALLOY_GOLEM: CardRecord = CardRecord::new(
 );
 
 // INV 298 — Bloodstone Cameo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODSTONE_CAMEO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9db32fa-64b2-4ef6-88f2-28e758d420bb"),
     "Bloodstone Cameo",
-    crate::card::CardArt::new("f9db32fa-64b2-4ef6-88f2-28e758d420bb", "Tony Szczudlo"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f9db32fa-64b2-4ef6-88f2-28e758d420bb", "Tony Szczudlo"),
+    CardSet::Invasion,
+    // Three mana for a rock that fixes two colours, which is the rate
+    // Invasion charged for the gold deck's mana.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
+        "{T}: Add {B} or {R}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::Black,
+            ManaColor::Red,
+        ])),
+    )),
 );
 
 // INV 299 — Chromatic Sphere
@@ -3196,13 +3204,20 @@ pub(in crate::card::sets) static DARIGAAZ_S_ATTENDANT: CardRecord = CardRecord::
 );
 
 // INV 302 — Drake-Skull Cameo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAKE_SKULL_CAMEO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a3ce135-9c2f-45bd-b2db-c0e00c50c964"),
     "Drake-Skull Cameo",
-    crate::card::CardArt::new("4a3ce135-9c2f-45bd-b2db-c0e00c50c964", "Dan Frazier"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4a3ce135-9c2f-45bd-b2db-c0e00c50c964", "Dan Frazier"),
+    CardSet::Invasion,
+    // The blue-black member of the same cycle.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
+        "{T}: Add {U} or {B}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::Blue,
+            ManaColor::Black,
+        ])),
+    )),
 );
 
 // INV 303 — Dromar's Attendant
@@ -3286,13 +3301,20 @@ pub(in crate::card::sets) static RITH_S_ATTENDANT: CardRecord = CardRecord::new(
 );
 
 // INV 311 — Seashell Cameo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEASHELL_CAMEO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9efdbcad-e2e4-4f54-ade5-920b1853109e"),
     "Seashell Cameo",
-    crate::card::CardArt::new("9efdbcad-e2e4-4f54-ade5-920b1853109e", "Tony Szczudlo"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9efdbcad-e2e4-4f54-ade5-920b1853109e", "Tony Szczudlo"),
+    CardSet::Invasion,
+    // The white-blue member of the same cycle.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
+        "{T}: Add {W} or {U}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::White,
+            ManaColor::Blue,
+        ])),
+    )),
 );
 
 // INV 312 — Sparring Golem
@@ -3379,13 +3401,20 @@ pub(in crate::card::sets) static TEK: CardRecord = CardRecord::new(
 );
 
 // INV 314 — Tigereye Cameo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIGEREYE_CAMEO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("25976da8-338d-4f46-b8ea-78a0aa3daa35"),
     "Tigereye Cameo",
-    crate::card::CardArt::new("25976da8-338d-4f46-b8ea-78a0aa3daa35", "Donato Giancola"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("25976da8-338d-4f46-b8ea-78a0aa3daa35", "Donato Giancola"),
+    CardSet::Invasion,
+    // The green-white member of the same cycle.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
+        "{T}: Add {G} or {W}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::Green,
+            ManaColor::White,
+        ])),
+    )),
 );
 
 // INV 315 — Treva's Attendant
@@ -3402,13 +3431,20 @@ pub(in crate::card::sets) static TREVA_S_ATTENDANT: CardRecord = CardRecord::new
 );
 
 // INV 316 — Troll-Horn Cameo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TROLL_HORN_CAMEO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42b1ca6c-6ca0-4b02-885a-58cee3fa2aa8"),
     "Troll-Horn Cameo",
-    crate::card::CardArt::new("42b1ca6c-6ca0-4b02-885a-58cee3fa2aa8", "Donato Giancola"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("42b1ca6c-6ca0-4b02-885a-58cee3fa2aa8", "Donato Giancola"),
+    CardSet::Invasion,
+    // The red-green member of the same cycle.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
+        "{T}: Add {R} or {G}.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice(&[
+            ManaColor::Red,
+            ManaColor::Green,
+        ])),
+    )),
 );
 
 // INV 317 — Tsabo's Web

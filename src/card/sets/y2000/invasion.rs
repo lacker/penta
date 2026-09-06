@@ -18,8 +18,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, EffectDef,
-    EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
+    EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
@@ -2443,13 +2443,30 @@ pub(in crate::card::sets) static VIGOROUS_CHARGE: CardRecord = CardRecord::new(
 );
 
 // INV 223 — Wallop
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WALLOP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("45ce5126-e7b1-41ab-9e56-1e12927c4d27"),
     "Wallop",
-    crate::card::CardArt::new("45ce5126-e7b1-41ab-9e56-1e12927c4d27", "Mike Ploog"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("45ce5126-e7b1-41ab-9e56-1e12927c4d27", "Mike Ploog"),
+    CardSet::Invasion,
+    // Narrower and cheaper: it answers exactly the fliers the two enemy
+    // colours were putting on the board.
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target blue or black creature with flying.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ObjectPredicateDef::Color(ManaColor::Black),
+                ]),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // INV 224 — Wandering Stream
@@ -2473,13 +2490,35 @@ pub(in crate::card::sets) static WHIP_SILK: CardRecord = CardRecord::new(
 );
 
 // INV 226 — Absorb
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ABSORB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d6a0f3e-457f-41f5-be26-5fb249874f1a"),
     "Absorb",
-    crate::card::CardArt::new("5d6a0f3e-457f-41f5-be26-5fb249874f1a", "Andrew Goldhawk"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5d6a0f3e-457f-41f5-be26-5fb249874f1a", "Andrew Goldhawk"),
+    CardSet::Invasion,
+    // Three mana of two colours for a hard counter and three life, which is
+    // what a gold card was allowed to be.
+    CardRules::new_instant(mana_cost!("{W}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell. You gain 3 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ]),
+    )),
 );
 
 // INV 227 — Aether Rift
@@ -2563,13 +2602,30 @@ pub(in crate::card::sets) static ARTIFACT_MUTATION: CardRecord = CardRecord::new
 );
 
 // INV 232 — Aura Mutation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AURA_MUTATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38421179-615e-4aba-91a4-503bfee05403"),
     "Aura Mutation",
-    crate::card::CardArt::new("38421179-615e-4aba-91a4-503bfee05403", "Pete Venters"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("38421179-615e-4aba-91a4-503bfee05403", "Pete Venters"),
+    CardSet::Invasion,
+    // Two mana to answer an enchantment and get paid what it cost in bodies,
+    // which is a rate no single-colour card was offered.
+    CardRules::new_instant(mana_cost!("{G}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target enchantment. Create X 1/1 green Saproling creature tokens, where \
+         X is that enchantment's mana value.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // X is read after the destruction, from last-known
+            // information about the enchantment that just left.
+            EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1)
+                .with_count(ValueDef::TargetManaValue(TargetIndex::PRIMARY)),
+        ]),
+    )),
 );
 
 // INV 233 — Aura Shards

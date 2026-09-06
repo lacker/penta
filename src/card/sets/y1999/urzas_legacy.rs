@@ -11,10 +11,11 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
     ChooseDef, ColorChoiceOperationDef, CostModificationDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SpellAdditionalCostDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
+    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1353,13 +1354,27 @@ pub(in crate::card::sets) static HIDDEN_GIBBONS: CardRecord = CardRecord::new(
 // ULG 105 — Lone Wolf (reprint)
 
 // ULG 106 — Might of Oaks
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIGHT_OF_OAKS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5e48b989-bb64-4c71-9921-0a230fed5b11"),
     "Might of Oaks",
-    crate::card::CardArt::new("5e48b989-bb64-4c71-9921-0a230fed5b11", "Ron Spencer"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5e48b989-bb64-4c71-9921-0a230fed5b11", "Ron Spencer"),
+    CardSet::UrzasLegacy,
+    // Seven power at instant speed on a creature they have already blocked,
+    // which is the whole card: a combat trick that wins any fight.
+    CardRules::new_instant(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +7/+7 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(7),
+                ValueDef::Constant(7),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ULG 107 — Multani, Maro-Sorcerer
@@ -1438,13 +1453,30 @@ pub(in crate::card::sets) static REPOPULATE: CardRecord = CardRecord::new(
 );
 
 // ULG 112 — Silk Net
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILK_NET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9498a97a-0e32-4eb8-9cb4-0698ff3a7ded"),
     "Silk Net",
-    crate::card::CardArt::new("9498a97a-0e32-4eb8-9cb4-0698ff3a7ded", "Rob Alexander"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9498a97a-0e32-4eb8-9cb4-0698ff3a7ded", "Rob Alexander"),
+    CardSet::UrzasLegacy,
+    // One mana to turn any creature into a flier-catcher, which is green's
+    // answer to evasion at its cheapest.
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +1/+1 and gains reach until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                AppliedEffectDef::add_ability(&const { abilities::reach() }),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ULG 113 — Simian Grunts
@@ -1488,16 +1520,29 @@ pub(in crate::card::sets) static WEATHERSEED_TREEFOLK: CardRecord = CardRecord::
 );
 
 // ULG 117 — Wing Snare
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WING_SNARE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19116d5d-8f2d-4e85-849d-1fbaa67e8cfd"),
     "Wing Snare",
-    crate::card::CardArt::new(
+    CardArt::new(
         "19116d5d-8f2d-4e85-849d-1fbaa67e8cfd",
         "Henry Van Der Linde",
     ),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasLegacy,
+    // Three mana at sorcery speed for a flier, which is what green pays for
+    // reaching into the one place it cannot block.
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target creature with flying.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // ULG 118 — Yavimaya Granger

@@ -36,10 +36,10 @@ use crate::card::sets::y2012::magic_2013;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, EffectDef,
-    EffectRecipientDef, abilities,
+    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
+    CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // 7ED 1 — Angelic Page (reprint)
 
@@ -604,13 +604,30 @@ pub(in crate::card::sets) static VIZZERDRIX: CardRecord = CardRecord::new(
 // 7ED 125★ — Crypt Rats (alternate printing)
 
 // 7ED 126 — Dakmor Lancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAKMOR_LANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d012ddf-abe1-4de9-89cb-78d82afb9e7b"),
     "Dakmor Lancer",
-    crate::card::CardArt::new("660cc594-63f5-4819-a556-7a9484145f72", "Luca Zontini"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("660cc594-63f5-4819-a556-7a9484145f72", "Luca Zontini"),
+    CardSet::SeventhEdition,
+    // Six mana for removal and a body, which is what removal on a creature
+    // cost before the Kavu showed it could cost four.
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Human", "Knight"], 3, 3).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target nonblack creature.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // 7ED 126★ — Dakmor Lancer (alternate printing)

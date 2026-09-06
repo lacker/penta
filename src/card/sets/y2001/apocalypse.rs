@@ -1904,13 +1904,34 @@ pub(in crate::card::sets) static MINOTAUR_ILLUSIONIST: CardRecord = CardRecord::
 );
 
 // APC 112 — Mystic Snake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_SNAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f098a28c-5f9b-4a2c-b109-c342365eb948"),
     "Mystic Snake",
-    crate::card::CardArt::new("f098a28c-5f9b-4a2c-b109-c342365eb948", "Daren Bader"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f098a28c-5f9b-4a2c-b109-c342365eb948", "Daren Bader"),
+    CardSet::Apocalypse,
+    // A counterspell that stays on the board afterwards, which is why four
+    // mana and three colours were considered a fair price.
+    CardRules::new_creature(mana_cost!("{1}{G}{U}{U}"), &["Snake"], 2, 2).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, counter target spell.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // APC 113 — Overgrown Estate

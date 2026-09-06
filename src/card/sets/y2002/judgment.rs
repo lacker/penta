@@ -8,24 +8,38 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardRules,
     CardSet, CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, CostDef, CostQuantityDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ComparisonDef, CostDef, CostQuantityDef, CounterKind, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
 // JUD 1 — Ancestor's Chosen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTOR_S_CHOSEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0cf71e1-3c57-47f9-a4ef-e0d0ad1ee329"),
     "Ancestor's Chosen",
-    crate::card::CardArt::new("c0cf71e1-3c57-47f9-a4ef-e0d0ad1ee329", "Pete Venters"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c0cf71e1-3c57-47f9-a4ef-e0d0ad1ee329", "Pete Venters"),
+    CardSet::Judgment,
+    // Seven mana that only pays for itself in a deck that has been filling
+    // its own graveyard all game, which is the whole Odyssey block deal.
+    CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Human", "Cleric"], 4, 4).with_abilities(&[
+        abilities::first_strike(),
+        abilities::enters_trigger(
+            "When this creature enters, you gain 1 life for each card in your graveyard.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                )),
+            },
+        ),
+    ]),
 );
 
 // JUD 2 — Aven Warcraft
@@ -436,16 +450,32 @@ pub(in crate::card::sets) static VIGILANT_SENTRY: CardRecord = CardRecord::new(
 );
 
 // JUD 34 — Aven Fogbringer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_FOGBRINGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0ee9e09-c4b1-4133-90a3-350677f0b72a"),
     "Aven Fogbringer",
-    crate::card::CardArt::new(
+    CardArt::new(
         "c0ee9e09-c4b1-4133-90a3-350677f0b72a",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardSet::Judgment,
+    // A flier that also costs the opponent a land drop, which in a format
+    // of four-mana plays is most of a turn.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Bird", "Wizard"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, return target land to its owner's hand.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // JUD 35 — Cephalid Constable
@@ -869,13 +899,28 @@ pub(in crate::card::sets) static DEATH_WISH: CardRecord = CardRecord::new(
 );
 
 // JUD 65 — Earsplitting Rats
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EARSPLITTING_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5dad63b5-ced3-4150-ad84-1ca05a892840"),
     "Earsplitting Rats",
-    crate::card::CardArt::new("5dad63b5-ced3-4150-ad84-1ca05a892840", "Heather Hudson"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5dad63b5-ced3-4150-ad84-1ca05a892840", "Heather Hudson"),
+    CardSet::Judgment,
+    // The discard is symmetrical, so the card it costs you is the one it
+    // then spends to survive whatever comes next.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Rat"], 2, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, each player discards a card.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+        abilities::regenerate_self(
+            "Discard a card: Regenerate this creature.",
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+        ),
+    ]),
 );
 
 // JUD 66 — Filth
@@ -1287,13 +1332,43 @@ pub(in crate::card::sets) static SOULGORGER_ORGG: CardRecord = CardRecord::new(
 );
 
 // JUD 100 — Spellgorger Barbarian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPELLGORGER_BARBARIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("043fcf80-dd20-4cc2-a0d5-4bb22b8b0789"),
     "Spellgorger Barbarian",
-    crate::card::CardArt::new("043fcf80-dd20-4cc2-a0d5-4bb22b8b0789", "Mark Romanoski"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("043fcf80-dd20-4cc2-a0d5-4bb22b8b0789", "Mark Romanoski"),
+    CardSet::Judgment,
+    // The card comes back whenever the body goes away, so the discard is a
+    // loan rather than a cost -- unless the Barbarian never dies.
+    CardRules::new_creature(
+        mana_cost!("{3}{R}"),
+        &["Human", "Nightmare", "Barbarian"],
+        3,
+        1,
+    )
+    .with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, discard a card at random.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::Random,
+                then: None,
+            },
+        ),
+        // Leaves, not dies: bouncing or exiling it repays the card too.
+        AbilityDef::triggered(
+            "When this creature leaves the battlefield, draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // JUD 101 — Swelter
@@ -1574,13 +1649,28 @@ pub(in crate::card::sets) static HARVESTER_DRUID: CardRecord = CardRecord::new(
 );
 
 // JUD 121 — Ironshell Beetle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRONSHELL_BEETLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be9299cc-6f21-4185-ac63-2fd92e843faa"),
     "Ironshell Beetle",
-    crate::card::CardArt::new("be9299cc-6f21-4185-ac63-2fd92e843faa", "Heather Hudson"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("be9299cc-6f21-4185-ac63-2fd92e843faa", "Heather Hudson"),
+    CardSet::Judgment,
+    // Two mana for two bodies' worth of stats, so long as there is already
+    // something on the board worth growing.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 1, 1).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, put a +1/+1 counter on target creature.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // JUD 122 — Krosan Reclamation
@@ -1667,13 +1757,36 @@ pub(in crate::card::sets) static LIVING_WISH: CardRecord = CardRecord::new(
 );
 
 // JUD 125 — Nantuko Tracer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_TRACER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16b93c93-5944-4289-bc5a-30b6e73b0dfd"),
     "Nantuko Tracer",
-    crate::card::CardArt::new("16b93c93-5944-4289-bc5a-30b6e73b0dfd", "Greg Staples"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("16b93c93-5944-4289-bc5a-30b6e73b0dfd", "Greg Staples"),
+    CardSet::Judgment,
+    // One card of graveyard hate on a body, aimed at the one card in the
+    // yard that actually mattered.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect", "Druid"], 2, 1).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may put target card from a graveyard on the bottom of its owner's library.",
+            &const {
+                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                })]
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Bottom,
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // JUD 126 — Nullmage Advocate

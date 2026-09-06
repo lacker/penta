@@ -476,13 +476,22 @@ pub(in crate::card::sets) static LORD_OF_THE_UNDEAD: CardRecord = CardRecord::ne
 );
 
 // PLS 45 — Maggot Carrier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGGOT_CARRIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ab2c3dc4-bb49-4ec3-a6c8-4256d1939326"),
     "Maggot Carrier",
-    crate::card::CardArt::new("ab2c3dc4-bb49-4ec3-a6c8-4256d1939326", "Ron Spencer"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ab2c3dc4-bb49-4ec3-a6c8-4256d1939326", "Ron Spencer"),
+    CardSet::Planeshift,
+    // Symmetrical on paper, but a deck that plays a one-mana 1/1 for its
+    // trigger is the one already ahead on the race.
+    CardRules::new_creature(mana_cost!("{B}"), &["Zombie"], 1, 1).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, each player loses 1 life.",
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // PLS 46 — Morgue Toad
@@ -666,13 +675,27 @@ pub(in crate::card::sets) static DEADAPULT: CardRecord = CardRecord::new(
 );
 
 // PLS 60 — Flametongue Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAMETONGUE_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e5056bca-bd90-4b50-8630-105558f8ef92"),
     "Flametongue Kavu",
-    crate::card::CardArt::new("e5056bca-bd90-4b50-8630-105558f8ef92", "Pete Venters"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e5056bca-bd90-4b50-8630-105558f8ef92", "Pete Venters"),
+    CardSet::Planeshift,
+    // Four damage and a 4/2 for four mana, which is two cards' worth of
+    // work and the reason the card names a whole archetype.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Kavu"], 4, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, it deals 4 damage to target creature.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ),
 );
 
 // PLS 61 — Goblin Game

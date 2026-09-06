@@ -44,6 +44,7 @@ mod dies_shrink_trigger;
 mod dies_sweeper;
 mod discard_a_land_cost;
 mod discard_to_regenerate;
+mod enters_answers;
 mod enters_sweepers;
 mod enumerated_apply;
 mod fear;

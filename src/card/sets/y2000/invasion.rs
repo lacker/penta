@@ -2648,23 +2648,57 @@ pub(in crate::card::sets) static PULSE_OF_LLANOWAR: CardRecord = CardRecord::new
 // INV 203 — Quirion Elves (reprint)
 
 // INV 204 — Quirion Sentinel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUIRION_SENTINEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2fc639ea-a925-4f1e-879f-b8fcb12bf257"),
     "Quirion Sentinel",
-    crate::card::CardArt::new("2fc639ea-a925-4f1e-879f-b8fcb12bf257", "Heather Hudson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2fc639ea-a925-4f1e-879f-b8fcb12bf257", "Heather Hudson"),
+    CardSet::Invasion,
+    // The mana arrives once and has to be spent that turn, which makes it
+    // a rebate on the next spell rather than a mana creature.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 2, 1).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, add one mana of any color.",
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ),
 );
 
 // INV 205 — Quirion Trailblazer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUIRION_TRAILBLAZER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2b258c1-5fb4-4072-bb32-ad364df1874a"),
     "Quirion Trailblazer",
-    crate::card::CardArt::new("c2b258c1-5fb4-4072-bb32-ad364df1874a", "Rebecca Guay"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c2b258c1-5fb4-4072-bb32-ad364df1874a", "Rebecca Guay"),
+    CardSet::Invasion,
+    // Four mana for a land and a small body, which is the price a
+    // five-colour deck pays for the land being any colour it wants.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Scout"], 1, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: false,
+                        destination: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: true,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // INV 206 — Restock

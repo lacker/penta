@@ -1519,13 +1519,27 @@ pub(in crate::card::sets) static WORDS_OF_WIND: CardRecord = CardRecord::new(
 );
 
 // ONS 123 — Accursed Centaur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ACCURSED_CENTAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("894556d8-6d5c-431b-a45d-26cd37c5f456"),
     "Accursed Centaur",
-    crate::card::CardArt::new("894556d8-6d5c-431b-a45d-26cd37c5f456", "Jerry Tiritilli"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("894556d8-6d5c-431b-a45d-26cd37c5f456", "Jerry Tiritilli"),
+    CardSet::Onslaught,
+    // A 2/2 for one that costs a creature, which is free only on an empty
+    // board and never again.
+    CardRules::new_creature(mana_cost!("{B}"), &["Zombie", "Centaur"], 2, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, sacrifice a creature.",
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Controller,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        ),
+    ),
 );
 
 // ONS 124 — Anurid Murkdiver

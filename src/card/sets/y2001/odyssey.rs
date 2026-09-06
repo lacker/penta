@@ -715,13 +715,28 @@ pub(in crate::card::sets) static AETHER_BURST: CardRecord = CardRecord::new(
 );
 
 // ODY 61 — Amugaba
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AMUGABA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d73d1e7-79be-4b28-a480-b65b4f34f755"),
     "Amugaba",
-    crate::card::CardArt::new("8d73d1e7-79be-4b28-a480-b65b4f34f755", "Heather Hudson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d73d1e7-79be-4b28-a480-b65b4f34f755", "Heather Hudson"),
+    CardSet::Odyssey,
+    // Seven mana for a 6/6 that cannot be answered, only delayed -- and
+    // delaying it costs its controller nothing but cards.
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Illusion"], 6, 6).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{2}{U}, Discard a card: Return this creature to its owner's hand.",
+            &[
+                CostDef::Mana(mana_cost!("{2}{U}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ODY 62 — Aura Graft
@@ -782,13 +797,27 @@ pub(in crate::card::sets) static BALSHAN_BEGUILER: CardRecord = CardRecord::new(
 );
 
 // ODY 67 — Balshan Griffin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALSHAN_GRIFFIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("529c5440-e31f-40be-9e66-699d17049fb4"),
     "Balshan Griffin",
-    crate::card::CardArt::new("529c5440-e31f-40be-9e66-699d17049fb4", "Wayne England"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("529c5440-e31f-40be-9e66-699d17049fb4", "Wayne England"),
+    CardSet::Odyssey,
+    // The same hatch at half the price on half the body.
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Griffin"], 3, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{1}{U}, Discard a card: Return this creature to its owner's hand.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{U}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ODY 68 — Bamboozle
@@ -1896,13 +1925,31 @@ pub(in crate::card::sets) static SKULL_FRACTURE: CardRecord = CardRecord::new(
 );
 
 // ODY 163 — Stalking Bloodsucker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STALKING_BLOODSUCKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16705695-1ba8-4169-974f-d8c683ab2652"),
     "Stalking Bloodsucker",
-    crate::card::CardArt::new("16705695-1ba8-4169-974f-d8c683ab2652", "Greg Staples"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("16705695-1ba8-4169-974f-d8c683ab2652", "Greg Staples"),
+    CardSet::Odyssey,
+    // Cards into damage on an evasive body, which is the whole black half
+    // of the block's discard theme.
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Vampire"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{1}{B}, Discard a card: This creature gets +2/+2 until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{B}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ODY 164 — Tainted Pact

@@ -539,13 +539,27 @@ pub(in crate::card::sets) static SNAP: CardRecord = CardRecord::new(
 );
 
 // ULG 44 — Thornwind Faeries
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THORNWIND_FAERIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cb4b20a-448a-4855-9e60-19625f921a4d"),
     "Thornwind Faeries",
-    crate::card::CardArt::new("9cb4b20a-448a-4855-9e60-19625f921a4d", "Rebecca Guay"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9cb4b20a-448a-4855-9e60-19625f921a4d", "Rebecca Guay"),
+    CardSet::UrzasLegacy,
+    // A 1/1 flier that kills an X/1 every turn, which in its format was
+    // most of the creatures worth killing.
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Faerie"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{T}: This creature deals 1 damage to any target.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ULG 45 — Tinker
@@ -588,13 +602,23 @@ pub(in crate::card::sets) static TINKER: CardRecord = CardRecord::new(
 );
 
 // ULG 46 — Vigilant Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIGILANT_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37940486-2d7f-40d9-9c19-151b9307d374"),
     "Vigilant Drake",
-    crate::card::CardArt::new("37940486-2d7f-40d9-9c19-151b9307d374", "Greg Staples"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("37940486-2d7f-40d9-9c19-151b9307d374", "Greg Staples"),
+    CardSet::UrzasLegacy,
+    // Vigilance bought by the turn rather than printed, which is worth it
+    // exactly when there is spare mana.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Drake"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{2}{U}: Untap this creature.",
+            &[CostDef::Mana(mana_cost!("{2}{U}"))],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ]),
 );
 
 // ULG 47 — Walking Sponge

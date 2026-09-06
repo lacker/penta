@@ -29,13 +29,31 @@ pub(in crate::card::sets) static ANGEL_OF_RETRIBUTION: CardRecord = CardRecord::
 );
 
 // TOR 2 — Aven Trooper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_TROOPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("79c8f774-6d4f-4fd0-85c0-26ef713e6b89"),
     "Aven Trooper",
-    crate::card::CardArt::new("79c8f774-6d4f-4fd0-85c0-26ef713e6b89", "Greg Staples"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("79c8f774-6d4f-4fd0-85c0-26ef713e6b89", "Greg Staples"),
+    CardSet::Torment,
+    // A 1/1 that survives combat by eating cards, which a deck with
+    // madness cards wanted to do anyway.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Soldier"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{2}{W}, Discard a card: This creature gets +1/+2 until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{2}{W}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TOR 3 — Cleansing Meditation
@@ -513,13 +531,25 @@ pub(in crate::card::sets) static RETRACED_IMAGE: CardRecord = CardRecord::new(
 );
 
 // TOR 47 — Skywing Aven
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYWING_AVEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91a20b6b-43e6-4feb-9792-909332e1a846"),
     "Skywing Aven",
-    crate::card::CardArt::new("91a20b6b-43e6-4feb-9792-909332e1a846", "Matt Cavotta"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("91a20b6b-43e6-4feb-9792-909332e1a846", "Matt Cavotta"),
+    CardSet::Torment,
+    // The cheap version, where recasting it is affordable enough that the
+    // escape is a real plan.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Bird", "Soldier"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "Discard a card: Return this creature to its owner's hand.",
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // TOR 48 — Stupefying Touch

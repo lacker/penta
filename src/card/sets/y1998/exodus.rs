@@ -362,13 +362,25 @@ pub(in crate::card::sets) static DOMINATING_LICID: CardRecord = CardRecord::new(
 );
 
 // EXO 31 — Ephemeron
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EPHEMERON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f2cdcd3b-6df5-481a-a244-1fc2545d1356"),
     "Ephemeron",
-    crate::card::CardArt::new("f2cdcd3b-6df5-481a-a244-1fc2545d1356", "Keith Parkinson"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f2cdcd3b-6df5-481a-a244-1fc2545d1356", "Keith Parkinson"),
+    CardSet::Exodus,
+    // A free escape hatch, so removal only ever costs its controller a card
+    // and the mana to recast it.
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Illusion"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "Discard a card: Return this creature to its owner's hand.",
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // EXO 32 — Equilibrium

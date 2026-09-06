@@ -54,6 +54,7 @@ mod protection_from_subtype;
 mod raid_bombardment;
 mod reckless_impulse;
 mod sacrifice_for_mana;
+mod self_bounce_and_untap;
 mod skewer_the_critics;
 mod sliver_granted_pump;
 mod spell_then_draw;

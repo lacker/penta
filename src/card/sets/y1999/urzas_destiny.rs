@@ -369,13 +369,23 @@ pub(in crate::card::sets) static AURA_THIEF: CardRecord = CardRecord::new(
 );
 
 // UDS 27 — Blizzard Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLIZZARD_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5949c5a7-9656-466a-add8-1800973fefee"),
     "Blizzard Elemental",
-    crate::card::CardArt::new("5949c5a7-9656-466a-add8-1800973fefee", "Thomas M. Baxa"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5949c5a7-9656-466a-add8-1800973fefee", "Thomas M. Baxa"),
+    CardSet::UrzasDestiny,
+    // Seven mana for a 5/5 flier that attacks and blocks in the same turn
+    // as often as the mana allows.
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Elemental"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{3}{U}: Untap this creature.",
+            &[CostDef::Mana(mana_cost!("{3}{U}"))],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ]),
 );
 
 // UDS 28 — Brine Seer

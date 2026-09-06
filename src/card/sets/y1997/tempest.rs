@@ -1029,13 +1029,26 @@ pub(in crate::card::sets) static MANTA_RIDERS: CardRecord = CardRecord::new(
 );
 
 // TMP 75 — Mawcor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAWCOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f50971e-2a18-4db7-8b5b-83dd5e85766e"),
     "Mawcor",
-    crate::card::CardArt::new("9f50971e-2a18-4db7-8b5b-83dd5e85766e", "John Matson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9f50971e-2a18-4db7-8b5b-83dd5e85766e", "John Matson"),
+    CardSet::Tempest,
+    // The same ping on a body that survives what it is shooting at.
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Beast"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{T}: This creature deals 1 damage to any target.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // TMP 76 — Meditate

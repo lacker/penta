@@ -35,6 +35,8 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2012::magic_2013;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
+use crate::card::{CardArt, CardRules, CardSet};
+use crate::mana_cost;
 
 // 7ED 1 — Angelic Page (reprint)
 
@@ -89,16 +91,17 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 // 7ED 13★ — Disenchant (alternate printing)
 
 // 7ED 14 — Eager Cadet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EAGER_CADET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1e1ce2f-d8af-4fd0-975e-9d910d12b883"),
     "Eager Cadet",
-    crate::card::CardArt::new(
+    CardArt::new(
         "46b89ce6-8a73-4e27-8696-e65ea0c16925",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardSet::SeventhEdition,
+    // A vanilla 1/1 for one, printed for the starter decks that needed a
+    // creature everybody could read.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1),
 );
 
 // 7ED 14★ — Eager Cadet (alternate printing)
@@ -142,13 +145,13 @@ pub(in crate::card::sets) static EAGER_CADET: CardRecord = CardRecord::new(
 // 7ED 24 — Knight Errant (alternate printing)
 
 // 7ED 24★ — Knight Errant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KNIGHT_ERRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c31b4b4-18fc-4a6e-8d74-fd5340964320"),
     "Knight Errant",
-    crate::card::CardArt::new("413f10fe-0e53-46ca-bd64-0d66dee8882d", "Matthew D. Wilson"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("413f10fe-0e53-46ca-bd64-0d66dee8882d", "Matthew D. Wilson"),
+    CardSet::SeventhEdition,
+    // A vanilla 2/2 for two, and a Knight for the decks that count them.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 2, 2),
 );
 
 // 7ED 25 — Knighthood (reprint)
@@ -384,13 +387,14 @@ pub(in crate::card::sets) static BALEFUL_STARE: CardRecord = CardRecord::new(
 // 7ED 76★ — Force Spike (alternate printing)
 
 // 7ED 77 — Giant Octopus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIANT_OCTOPUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4528edca-cc36-4f63-9615-24ca315d672c"),
     "Giant Octopus",
-    crate::card::CardArt::new("5b707b2d-63e1-4c2c-ba42-9e027f02b1ff", "Heather Hudson"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5b707b2d-63e1-4c2c-ba42-9e027f02b1ff", "Heather Hudson"),
+    CardSet::SeventhEdition,
+    // A vanilla 3/3 for four in the colour that was not supposed to get
+    // one, which is why it costs a mana more than it looks like it should.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Octopus"], 3, 3),
 );
 
 // 7ED 77★ — Giant Octopus (alternate printing)
@@ -526,13 +530,14 @@ pub(in crate::card::sets) static GIANT_OCTOPUS: CardRecord = CardRecord::new(
 // 7ED 110 — Vizzerdrix (alternate printing)
 
 // 7ED 110★ — Vizzerdrix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIZZERDRIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("25711022-7270-4335-a48b-9f2b8275ceeb"),
     "Vizzerdrix",
-    crate::card::CardArt::new("249ecab6-e145-4dfd-9e9e-56492db30b4c", "Dave Dorman"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("249ecab6-e145-4dfd-9e9e-56492db30b4c", "Dave Dorman"),
+    CardSet::SeventhEdition,
+    // Seven mana for a 6/6 with nothing on it. A starter-deck rare, and a
+    // reminder of what blue paid for raw size before it stopped paying.
+    CardRules::new_creature(mana_cost!("{6}{U}"), &["Rabbit", "Beast"], 6, 6),
 );
 
 // 7ED 111 — Wall of Air (reprint)
@@ -1016,16 +1021,16 @@ pub(in crate::card::sets) static GOBLIN_CHARIOT: CardRecord = CardRecord::new(
 // 7ED 223★ — Sudden Impact (alternate printing)
 
 // 7ED 224 — Trained Orgg
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRAINED_ORGG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("425540b0-c826-4814-b0df-032264b1c237"),
     "Trained Orgg",
-    crate::card::CardArt::new(
+    CardArt::new(
         "14a83031-8b57-41d2-b586-bb4dcf16136a",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardSet::SeventhEdition,
+    // Seven mana for a 6/6, red's half of the same starter-deck bargain.
+    CardRules::new_creature(mana_cost!("{6}{R}"), &["Orgg"], 6, 6),
 );
 
 // 7ED 224★ — Trained Orgg (alternate printing)

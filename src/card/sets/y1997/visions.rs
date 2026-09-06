@@ -869,13 +869,14 @@ pub(in crate::card::sets) static PILLAR_TOMBS_OF_AKU: CardRecord = CardRecord::n
 );
 
 // VIS 68 — Python
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PYTHON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7e99969-6c21-4de6-ba57-44ef7f9c8c47"),
     "Python",
-    crate::card::CardArt::new("e7e99969-6c21-4de6-ba57-44ef7f9c8c47", "Steve White"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e7e99969-6c21-4de6-ba57-44ef7f9c8c47", "Steve White"),
+    CardSet::Visions,
+    // A vanilla 3/2 for three, which is the rate black pays when it is not
+    // buying an ability with the same card.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Snake"], 3, 2),
 );
 
 // VIS 69 — Suq'Ata Assassin
@@ -1492,13 +1493,14 @@ pub(in crate::card::sets) static NATURAL_ORDER: CardRecord = CardRecord::new(
 );
 
 // VIS 115 — Panther Warriors
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PANTHER_WARRIORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76c9bc99-28e3-4d64-8383-2b92011104ed"),
     "Panther Warriors",
-    crate::card::CardArt::new("76c9bc99-28e3-4d64-8383-2b92011104ed", "Cecil Fernando"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("76c9bc99-28e3-4d64-8383-2b92011104ed", "Cecil Fernando"),
+    CardSet::Visions,
+    // Five mana for six power and no defence at all: it wins every race and
+    // loses every fight it does not start.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Cat", "Warrior"], 6, 3),
 );
 
 // VIS 116 — Quirion Druid
@@ -1745,13 +1747,15 @@ pub(in crate::card::sets) static SULEIMAN_S_LEGACY: CardRecord = CardRecord::new
 );
 
 // VIS 139 — Tempest Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPEST_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("54aa5262-d0d9-4b4a-8027-00393568b3df"),
     "Tempest Drake",
-    crate::card::CardArt::new("54aa5262-d0d9-4b4a-8027-00393568b3df", "Gerry Grace"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("54aa5262-d0d9-4b4a-8027-00393568b3df", "Gerry Grace"),
+    CardSet::Visions,
+    // Flying and vigilance on a 2/2: it attacks and still holds the air,
+    // which is more than either colour bought alone.
+    CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Drake"], 2, 2)
+        .with_abilities(&[abilities::flying(), abilities::vigilance()]),
 );
 
 // VIS 140 — Viashivan Dragon
@@ -1875,13 +1879,14 @@ pub(in crate::card::sets) static PHYREXIAN_MARAUDER: CardRecord = CardRecord::ne
 );
 
 // VIS 152 — Phyrexian Walker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_WALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f8a3979-2947-4692-8b2f-d4c07c534777"),
     "Phyrexian Walker",
-    crate::card::CardArt::new("9f8a3979-2947-4692-8b2f-d4c07c534777", "Bryan Talbot"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9f8a3979-2947-4692-8b2f-d4c07c534777", "Bryan Talbot"),
+    CardSet::Visions,
+    // A free 0/3. It blocks, it is an artifact, and it is a body -- which is
+    // three things that some deck somewhere wants for nothing.
+    CardRules::new_artifact_creature(mana_cost!("{0}"), &["Phyrexian", "Construct"], 0, 3),
 );
 
 // VIS 153 — Sands of Time

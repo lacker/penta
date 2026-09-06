@@ -128,7 +128,7 @@ pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new
 );
 
 // MID 32 — Search Party Captain
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a count of the creatures that attacked this turn. Only their subtypes are recorded, and counting attackers still on the battlefield would undercount every trade, which is the line the card is cast in.
 pub(in crate::card::sets) static SEARCH_PARTY_CAPTAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964"),
     "Search Party Captain",

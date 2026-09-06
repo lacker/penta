@@ -17,10 +17,11 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardNameDef,
-    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
+    CardSupertype, CardType, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind,
     abilities,
 };
@@ -3330,13 +3331,51 @@ pub(in crate::card::sets) static HENGE_OF_RAMOS: CardRecord = CardRecord::new(
 );
 
 // MMQ 319 — Hickory Woodlot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HICKORY_WOODLOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af7aafb7-6870-4d09-a191-70786766c459"),
     "Hickory Woodlot",
-    crate::card::CardArt::new("af7aafb7-6870-4d09-a191-70786766c459", "Sean McConnell"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("af7aafb7-6870-4d09-a191-70786766c459", "Sean McConnell"),
+    CardSet::MercadianMasques,
+    // Four green mana out of one land, spread over two turns and paid for
+    // with the turn it enters tapped. What it is really buying is a fast
+    // start, and it is gone by the time the game is long.
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            // One clause about the way it arrives, so one replacement with
+            // two parts rather than two abilities.
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                ),
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {G}{G}. If there are no \
+             depletion counters on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            // The sacrifice is checked after the counter is removed, so the
+            // second activation is the last one: the land pays out twice and
+            // then goes away.
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Green)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 320 — High Market

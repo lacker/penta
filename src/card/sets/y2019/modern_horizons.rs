@@ -511,7 +511,7 @@ pub(in crate::card::sets) static CARRION_FEEDER: CardRecord = CardRecord::new(
 );
 
 // MH1 91 — First-Sphere Gargantua
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs unearth. Its last clause exiles the creature if it would leave the battlefield for any zone, and ReplacementEventDef::WouldMove names a single destination.
 pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a59f4e5c-fdc7-485f-aadb-2a71b3701dcc"),
     "First-Sphere Gargantua",

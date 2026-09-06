@@ -14,7 +14,7 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // J25 19 — Scholar of Combustion
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an effect that exiles a targeted card and grants a timed permission to cast it. PermitCastFromGraveyardThisTurn leaves the card in the graveyard and lasts one turn; the exile-to-play effects read the top of a library rather than a target.
 pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23660e44-8546-438d-a2c4-e1cef6e50855"),
     "Scholar of Combustion",

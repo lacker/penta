@@ -1027,7 +1027,7 @@ pub(in crate::card::sets) static GALVANIC_DISCHARGE: CardRecord = CardRecord::ne
 );
 
 // MH3 128 — Molten Gatekeeper
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs unearth; see First-Sphere Gargantua. The entry-damage trigger itself is expressible.
 pub(in crate::card::sets) static MOLTEN_GATEKEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f5ba065-2806-4e99-a330-168cfe76250f"),
     "Molten Gatekeeper",

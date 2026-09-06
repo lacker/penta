@@ -138,7 +138,7 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
 );
 
 // BRO 164 — Scrapwork Mutt
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs unearth; see First-Sphere Gargantua. The optional discard-then-draw entry is expressible.
 pub(in crate::card::sets) static SCRAPWORK_MUTT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4742800a-4872-4c2d-b884-01e0ba16950c"),
     "Scrapwork Mutt",

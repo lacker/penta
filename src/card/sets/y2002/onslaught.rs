@@ -2139,13 +2139,32 @@ pub(in crate::card::sets) static UNDEAD_GLADIATOR: CardRecord = CardRecord::new(
 );
 
 // ONS 179 — Visara the Dreadful
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VISARA_THE_DREADFUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce6adcfe-b0f7-4a96-bab2-f76c84ef5ca6"),
     "Visara the Dreadful",
-    crate::card::CardArt::new("ce6adcfe-b0f7-4a96-bab2-f76c84ef5ca6", "Kev Walker"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ce6adcfe-b0f7-4a96-bab2-f76c84ef5ca6", "Kev Walker"),
+    CardSet::Onslaught,
+    // A 5/5 flier that kills something every turn, and the clause that says
+    // it stays dead is what made it the format's best creature.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{B}"), &["Gorgon"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::activated_with_targets(
+                "{T}: Destroy target creature. It can't be regenerated.",
+                &[CostDef::TapSource],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                },
+            ),
+        ]),
 );
 
 // ONS 180 — Walking Desecration

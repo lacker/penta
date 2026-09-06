@@ -1266,16 +1266,30 @@ pub(in crate::card::sets) static THALAKOS_DREAMSOWER: CardRecord = CardRecord::n
 );
 
 // TMP 93 — Thalakos Mistfolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THALAKOS_MISTFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e7b5b00-9d14-4090-b8c3-28b70375571e"),
     "Thalakos Mistfolk",
-    crate::card::CardArt::new(
+    CardArt::new(
         "9e7b5b00-9d14-4090-b8c3-28b70375571e",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardSet::Tempest,
+    // Unblockable, and it can dodge removal by going back to the top of the
+    // library -- at the price of the next draw.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Thalakos", "Illusion"], 2, 1).with_abilities(
+        &[
+            abilities::shadow(),
+            AbilityDef::activated(
+                "{U}: Put this creature on top of its owner's library.",
+                &[CostDef::Mana(mana_cost!("{U}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Library,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ],
+    ),
 );
 
 // TMP 94 — Thalakos Seer

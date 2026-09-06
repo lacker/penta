@@ -125,13 +125,30 @@ pub(in crate::card::sets) static CAPASHEN_UNICORN: CardRecord = CardRecord::new(
 );
 
 // INV 11 — Crimson Acolyte
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRIMSON_ACOLYTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1718028-3009-4bdd-9f6f-59c17edd1344"),
     "Crimson Acolyte",
-    crate::card::CardArt::new("c1718028-3009-4bdd-9f6f-59c17edd1344", "Dany Orizio"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c1718028-3009-4bdd-9f6f-59c17edd1344", "Dany Orizio"),
+    CardSet::Invasion,
+    // The red version, which turns off a burn spell rather than a removal
+    // spell.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 1).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Red),
+        AbilityDef::activated_with_targets(
+            "{W}: Target creature gains protection from red until end of turn.",
+            &[CostDef::Mana(mana_cost!("{W}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(
+                    &const { abilities::protection_from_color(ManaColor::Red) },
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // INV 12 — Crusading Knight
@@ -209,13 +226,25 @@ pub(in crate::card::sets) static FIGHT_OR_FLIGHT: CardRecord = CardRecord::new(
 );
 
 // INV 17 — Glimmering Angel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLIMMERING_ANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f14f55e4-eded-4a86-87f4-b8fa6f30bc0f"),
     "Glimmering Angel",
-    crate::card::CardArt::new("f14f55e4-eded-4a86-87f4-b8fa6f30bc0f", "Ciruelo"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f14f55e4-eded-4a86-87f4-b8fa6f30bc0f", "Ciruelo"),
+    CardSet::Invasion,
+    // A white flier that blue mana protects, which is the whole point of
+    // the gold-adjacent cycle it belongs to.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Angel"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{U}: This creature gains shroud until end of turn.",
+            &[CostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // INV 18 — Global Ruin
@@ -251,13 +280,30 @@ pub(in crate::card::sets) static LIBERATE: CardRecord = CardRecord::new(
 );
 
 // INV 22 — Obsidian Acolyte
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OBSIDIAN_ACOLYTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("868efcee-bb13-4b6f-b81b-99408685e4c4"),
     "Obsidian Acolyte",
-    crate::card::CardArt::new("868efcee-bb13-4b6f-b81b-99408685e4c4", "Matthew D. Wilson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("868efcee-bb13-4b6f-b81b-99408685e4c4", "Matthew D. Wilson"),
+    CardSet::Invasion,
+    // Protection it can hand out, so a one-drop answers a black removal
+    // spell aimed at anything.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 1).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Black),
+        AbilityDef::activated_with_targets(
+            "{W}: Target creature gains protection from black until end of turn.",
+            &[CostDef::Mana(mana_cost!("{W}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(
+                    &const { abilities::protection_from_color(ManaColor::Black) },
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // INV 23 — Orim's Touch

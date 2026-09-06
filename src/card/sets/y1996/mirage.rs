@@ -15,12 +15,12 @@ use crate::card::{
     BlockRestrictionDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, ColorSet, CostDef, CreatedTokensDef, DamageEventMatcherDef,
     DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef, SumValueDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
+    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -2938,13 +2938,34 @@ pub(in crate::card::sets) static SPITTING_EARTH: CardRecord = CardRecord::new(
 // MIR 194 — Stone Rain (reprint)
 
 // MIR 195 — Subterranean Spirit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUBTERRANEAN_SPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("132e8aac-9698-45fa-8d64-b460fd5deffc"),
     "Subterranean Spirit",
-    crate::card::CardArt::new("132e8aac-9698-45fa-8d64-b460fd5deffc", "John Bolton"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("132e8aac-9698-45fa-8d64-b460fd5deffc", "John Bolton"),
+    CardSet::Mirage,
+    // It sweeps the ground and cannot be burned, so red decks had to answer
+    // it with a creature it also kills.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Elemental", "Spirit"], 3, 3)
+        .with_abilities(&[
+            abilities::protection_from_color(ManaColor::Red),
+            AbilityDef::activated(
+                "{T}: This creature deals 1 damage to each creature without flying.",
+                &[CostDef::TapSource],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                KeywordAbility::Flying,
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // MIR 196 — Talruum Minotaur

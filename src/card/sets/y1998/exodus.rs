@@ -630,16 +630,28 @@ pub(in crate::card::sets) static TREASURE_TROVE: CardRecord = CardRecord::new(
 );
 
 // EXO 51 — Wayward Soul
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WAYWARD_SOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("28f96d5d-1d16-40bb-aaa7-8a7dd465d37b"),
     "Wayward Soul",
-    crate::card::CardArt::new(
+    CardArt::new(
         "28f96d5d-1d16-40bb-aaa7-8a7dd465d37b",
         "M. W. Kaluta & DiTerlizzi",
     ),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardSet::Exodus,
+    // The same escape on a bigger flier, which trades a card's worth of
+    // tempo for never actually dying.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Spirit"], 3, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{U}: Put this creature on top of its owner's library.",
+            &[CostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // EXO 52 — Whiptongue Frog

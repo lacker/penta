@@ -7,9 +7,9 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DamageEventMatcherDef,
     DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, abilities,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1645,13 +1645,25 @@ pub(in crate::card::sets) static EYE_OF_YAWGMOTH: CardRecord = CardRecord::new(
 );
 
 // NEM 130 — Flint Golem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLINT_GOLEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0e62aa7e-d9f9-42d4-9eed-5f51f88047c6"),
     "Flint Golem",
-    crate::card::CardArt::new("0e62aa7e-d9f9-42d4-9eed-5f51f88047c6", "Lou Harrison"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0e62aa7e-d9f9-42d4-9eed-5f51f88047c6", "Lou Harrison"),
+    CardSet::Nemesis,
+    // A colorless body that mills whoever stops it, which only matters in
+    // a deck that wanted the graveyard filled anyway.
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 2, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, defending player mills three cards.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Mill {
+                player: EffectRecipientDef::players(PlayerSetDef::Related(
+                    PlayerRelation::DefendingPlayer,
+                )),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // NEM 131 — Flowstone Armor

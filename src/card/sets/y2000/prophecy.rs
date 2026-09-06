@@ -5,8 +5,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, ValueDef,
-    ZoneKind, abilities,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1417,13 +1417,28 @@ pub(in crate::card::sets) static SQUIRREL_WRANGLER: CardRecord = CardRecord::new
 );
 
 // PCY 128 — Thresher Beast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRESHER_BEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57996732-c9e4-4271-9d5f-2a8c77f8d177"),
     "Thresher Beast",
-    crate::card::CardArt::new("57996732-c9e4-4271-9d5f-2a8c77f8d177", "Jeff Easley"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("57996732-c9e4-4271-9d5f-2a8c77f8d177", "Jeff Easley"),
+    CardSet::Prophecy,
+    // Four mana of land destruction for anyone who blocks it, which is
+    // why the sensible answer is to take four.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Beast"], 4, 4).with_ability(AbilityDef::triggered(
+        "Whenever this creature becomes blocked, defending player sacrifices a land of their choice.",
+        TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::players(PlayerSetDef::Related(
+                PlayerRelation::DefendingPlayer,
+            )),
+            object: ObjectPredicateDef::HasType(CardType::Land),
+            count: ValueDef::Constant(1),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // PCY 129 — Thrive

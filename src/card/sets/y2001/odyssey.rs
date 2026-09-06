@@ -2009,7 +2009,7 @@ pub(in crate::card::sets) static BASH_TO_BITS: CardRecord = CardRecord::new(
 );
 
 // ODY 177 — Battle Strain
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an event for any creature becoming a blocker. TriggerEventDef::Blocks and BecomesBlockedBy both require the source to be the creature in combat, and BlocksOrBecomesBlockedBy fires once per orientation with the other side as the triggering object, so neither can name an arbitrary blocker's controller.
 pub(in crate::card::sets) static BATTLE_STRAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee1be893-1287-40a3-81d6-271df3154b45"),
     "Battle Strain",

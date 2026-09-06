@@ -1540,7 +1540,7 @@ pub(in crate::card::sets) static FURNACE_SPIRIT: CardRecord = CardRecord::new(
 );
 
 // STH 88 — Heat of Battle
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an event for any creature becoming a blocker. TriggerEventDef::Blocks and BecomesBlockedBy both require the source to be the creature in combat, and BlocksOrBecomesBlockedBy fires once per orientation with the other side as the triggering object, so neither can name an arbitrary blocker's controller.
 pub(in crate::card::sets) static HEAT_OF_BATTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8dbb98db-f2ee-446f-9170-dd05b1a7dbd8"),
     "Heat of Battle",

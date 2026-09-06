@@ -19,11 +19,11 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, EffectDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
 
@@ -1527,13 +1527,27 @@ pub(in crate::card::sets) static WATERFRONT_BOUNCER: CardRecord = CardRecord::ne
 );
 
 // MMQ 115 — Alley Grifters
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALLEY_GRIFTERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfb648e3-f5ad-4b33-afa3-d4cda0d369a1"),
     "Alley Grifters",
-    crate::card::CardArt::new("cfb648e3-f5ad-4b33-afa3-d4cda0d369a1", "Paolo Parente"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cfb648e3-f5ad-4b33-afa3-d4cda0d369a1", "Paolo Parente"),
+    CardSet::MercadianMasques,
+    // Blocking it costs a card, so the defender pays either way and the
+    // attack is never simply answered.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Human", "Mercenary"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, defending player discards a card.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                    PlayerRelation::DefendingPlayer,
+                )),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 116 — Black Market

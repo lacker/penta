@@ -755,13 +755,20 @@ pub(in crate::card::sets) static BELBE_S_PERCHER: CardRecord = CardRecord::new(
 );
 
 // NEM 54 — Carrion Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARRION_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61d6fa78-3422-4ace-88ab-e985c558cba7"),
     "Carrion Wall",
-    crate::card::CardArt::new("61d6fa78-3422-4ace-88ab-e985c558cba7", "Tony Szczudlo"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("61d6fa78-3422-4ace-88ab-e985c558cba7", "Tony Szczudlo"),
+    CardSet::Nemesis,
+    // A wall that survives everything the ground can throw at it for two
+    // mana a turn, which is the price of never attacking.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Wall"], 3, 2).with_abilities(&[
+        abilities::defender(),
+        abilities::regenerate_self(
+            "{1}{B}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
+        ),
+    ]),
 );
 
 // NEM 55 — Dark Triumph

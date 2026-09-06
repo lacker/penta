@@ -3489,13 +3489,23 @@ pub(in crate::card::sets) static REVIVING_VAPORS: CardRecord = CardRecord::new(
 );
 
 // INV 266 — Riptide Crab
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIPTIDE_CRAB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e42ae1d-62b4-4b19-aafc-f12bdd6fb8cc"),
     "Riptide Crab",
-    crate::card::CardArt::new("7e42ae1d-62b4-4b19-aafc-f12bdd6fb8cc", "David Martin"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7e42ae1d-62b4-4b19-aafc-f12bdd6fb8cc", "David Martin"),
+    CardSet::Invasion,
+    // A blocker that replaces itself, which is the whole plan of a deck
+    // that wants the game to go long.
+    CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Crab"], 1, 3).with_abilities(&[
+        abilities::vigilance(),
+        abilities::dies_trigger(
+            "When this creature dies, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // INV 267 — Rith, the Awakener

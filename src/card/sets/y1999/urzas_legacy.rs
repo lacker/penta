@@ -1364,13 +1364,24 @@ pub(in crate::card::sets) static RIVALRY: CardRecord = CardRecord::new(
 );
 
 // ULG 91 — Shivan Phoenix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_PHOENIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("112aa0e2-7e4a-4ae8-bedb-d84b4116df5e"),
     "Shivan Phoenix",
-    crate::card::CardArt::new("112aa0e2-7e4a-4ae8-bedb-d84b4116df5e", "Daren Bader"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("112aa0e2-7e4a-4ae8-bedb-d84b4116df5e", "Daren Bader"),
+    CardSet::UrzasLegacy,
+    // Six mana buys a threat that only ever costs the opponent's removal,
+    // never yours -- so long as you can keep paying six.
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Phoenix"], 3, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger(
+            "When this creature dies, return it to its owner's hand.",
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::SourceZoneChangeSuccessor,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ULG 92 — Sluggishness
@@ -1797,13 +1808,24 @@ pub(in crate::card::sets) static WEATHERSEED_ELF: CardRecord = CardRecord::new(
 );
 
 // ULG 116 — Weatherseed Treefolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEATHERSEED_TREEFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f42cce45-3b6a-43e2-8329-68c30135c5c1"),
     "Weatherseed Treefolk",
-    crate::card::CardArt::new("f42cce45-3b6a-43e2-8329-68c30135c5c1", "Heather Hudson"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f42cce45-3b6a-43e2-8329-68c30135c5c1", "Heather Hudson"),
+    CardSet::UrzasLegacy,
+    // Five power of trample that answers removal by asking for five mana
+    // again, which a green deck was always going to have.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Treefolk"], 5, 3).with_abilities(&[
+        abilities::trample(),
+        abilities::dies_trigger(
+            "When this creature dies, return it to its owner's hand.",
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::SourceZoneChangeSuccessor,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ULG 117 — Wing Snare

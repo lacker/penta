@@ -20,24 +20,44 @@ use crate::card::{
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
-    PlayerRelation, PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerRuleDef,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
 
 // MMQ 1 — Afterlife (reprint)
 
 // MMQ 2 — Alabaster Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALABASTER_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cf393a3-831e-4d3a-8404-ee83f60970aa"),
     "Alabaster Wall",
-    crate::card::CardArt::new("9cf393a3-831e-4d3a-8404-ee83f60970aa", "Randy Gallegos"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9cf393a3-831e-4d3a-8404-ee83f60970aa", "Randy Gallegos"),
+    CardSet::MercadianMasques,
+    // A wall that was never going to attack, so tapping it costs nothing
+    // the turn it blocks nothing.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+            &[CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 3 — Armistice

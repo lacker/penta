@@ -15,12 +15,12 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CostQuantityDef,
-    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    CounterKind, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -80,13 +80,38 @@ pub(in crate::card::sets) static ANIMAL_BONEYARD: CardRecord = CardRecord::new(
 // ODY 5 — Auramancer (reprint)
 
 // ODY 6 — Aven Archer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_ARCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4d174892-c192-4667-94fb-9f8dbcc6c5eb"),
     "Aven Archer",
-    crate::card::CardArt::new("4d174892-c192-4667-94fb-9f8dbcc6c5eb", "Mark Zug"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4d174892-c192-4667-94fb-9f8dbcc6c5eb", "Mark Zug"),
+    CardSet::Odyssey,
+    // The ping only fires in combat, so it is a blocker that kills what it
+    // blocks rather than the removal engine the mana cost suggests.
+    CardRules::new_creature(
+        mana_cost!("{3}{W}{W}"),
+        &["Bird", "Soldier", "Archer"],
+        2,
+        2,
+    )
+    .with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{2}{W}, {T}: This creature deals 2 damage to target attacking or blocking creature.",
+            &[CostDef::Mana(mana_cost!("{2}{W}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::AttackingOrBlocking,
+                    ]),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // ODY 7 — Aven Cloudchaser
@@ -588,13 +613,28 @@ pub(in crate::card::sets) static SHELTER: CardRecord = CardRecord::new(
 );
 
 // ODY 47 — Soulcatcher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOULCATCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14d24d2f-699b-46d8-9353-45e6a67f99d2"),
     "Soulcatcher",
-    crate::card::CardArt::new("14d24d2f-699b-46d8-9353-45e6a67f99d2", "Ron Spencer"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("14d24d2f-699b-46d8-9353-45e6a67f99d2", "Ron Spencer"),
+    CardSet::Odyssey,
+    // Every flier that dies feeds it, including the opponent's and
+    // including its own blockers, so a sky stall makes it the biggest bird.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Bird", "Soldier"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger_matching(
+            "Whenever a creature with flying dies, put a +1/+1 counter on this creature.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+            ]),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ODY 48 — Sphere of Duty
@@ -798,16 +838,31 @@ pub(in crate::card::sets) static AURA_GRAFT: CardRecord = CardRecord::new(
 );
 
 // ODY 63 — Aven Fisher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_FISHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5b27130d-2296-4076-9829-15ab63081896"),
     "Aven Fisher",
-    crate::card::CardArt::new(
+    CardArt::new(
         "5b27130d-2296-4076-9829-15ab63081896",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // The same deal as the Kingfisher with the draw made optional, which
+    // matters only to a deck that would rather keep its library.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Bird", "Soldier"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger(
+            "When this creature dies, you may draw a card.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    }
+                },
+            },
+        ),
+    ]),
 );
 
 // ODY 64 — Aven Smokeweaver
@@ -923,13 +978,31 @@ pub(in crate::card::sets) static CEPHALID_RETAINER: CardRecord = CardRecord::new
 );
 
 // ODY 74 — Cephalid Scout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_SCOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6efdf190-970d-4751-b214-cd962f7f2ca8"),
     "Cephalid Scout",
-    crate::card::CardArt::new("6efdf190-970d-4751-b214-cd962f7f2ca8", "Alan Pollack"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6efdf190-970d-4751-b214-cd962f7f2ca8", "Alan Pollack"),
+    CardSet::Odyssey,
+    // Turning spare lands into cards is the late game a land-heavy draw
+    // wants, at a rate slow enough that it never got better than fair.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Octopus", "Wizard", "Scout"], 1, 1)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::activated(
+                "{2}{U}, Sacrifice a land: Draw a card.",
+                &[
+                    CostDef::Mana(mana_cost!("{2}{U}")),
+                    CostDef::SacrificePermanent {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        controller: PlayerRelation::You,
+                    },
+                ],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // ODY 75 — Cephalid Shrine

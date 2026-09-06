@@ -7,11 +7,11 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, ConditionDef, CostDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectCountConditionDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -123,13 +123,33 @@ pub(in crate::card::sets) static MAJOR_TEROH: CardRecord = CardRecord::new(
 );
 
 // TOR 9 — Militant Monk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MILITANT_MONK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("886a3cfd-7f83-480a-bb22-eec67ad35e4f"),
     "Militant Monk",
-    crate::card::CardArt::new("886a3cfd-7f83-480a-bb22-eec67ad35e4f", "Mark Brill"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("886a3cfd-7f83-480a-bb22-eec67ad35e4f", "Mark Brill"),
+    CardSet::Torment,
+    // Vigilance is what makes the shield worth having: it attacks and still
+    // has the tap available on the way back.
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Monk", "Cleric"], 2, 1)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::activated_with_targets(
+                "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+                &[CostDef::TapSource],
+                &const {
+                    [AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::AnyTarget,
+                    )]
+                },
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::amount(
+                        DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // TOR 10 — Morningtide

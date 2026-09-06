@@ -526,16 +526,26 @@ pub(in crate::card::sets) static IRIDESCENT_DRAKE: CardRecord = CardRecord::new(
 );
 
 // UDS 36 — Kingfisher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KINGFISHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("442bc3ba-00b3-4616-a5b2-55524ff8a736"),
     "Kingfisher",
-    crate::card::CardArt::new(
+    CardArt::new(
         "442bc3ba-00b3-4616-a5b2-55524ff8a736",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasDestiny,
+    // Four mana for a flier that costs the opponent nothing to kill and
+    // you nothing to lose, which is what makes it a limited staple.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Bird"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger(
+            "When this creature dies, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // UDS 37 — Mental Discipline

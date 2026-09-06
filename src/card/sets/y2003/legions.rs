@@ -5,10 +5,10 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, DamageEventMatcherDef,
-    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -53,13 +53,32 @@ pub(in crate::card::sets) static AKROMA_S_DEVOTED: CardRecord = CardRecord::new(
 );
 
 // LGN 3 — Aven Redeemer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_REDEEMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a2fa0a3-e40f-49e4-a4fd-427e7e808afd"),
     "Aven Redeemer",
-    crate::card::CardArt::new("8a2fa0a3-e40f-49e4-a4fd-427e7e808afd", "Tim Hildebrandt"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8a2fa0a3-e40f-49e4-a4fd-427e7e808afd", "Tim Hildebrandt"),
+    CardSet::Legions,
+    // Two points of prevention a turn, which in a format of two-power
+    // creatures is a blocker that eats an attacker and walks away.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Cleric"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 2 damage that would be dealt to any target this turn.",
+            &[CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // LGN 4 — Aven Warhawk

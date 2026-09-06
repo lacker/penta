@@ -40,6 +40,7 @@ mod conditional_bodies;
 mod conditional_statics;
 mod counted_rituals;
 mod destroy_and_escape;
+mod dies_returns;
 mod dies_shrink_trigger;
 mod dies_sweeper;
 mod discard_a_land_cost;

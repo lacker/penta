@@ -2175,13 +2175,20 @@ pub(in crate::card::sets) static SARCOMANCY: CardRecord = CardRecord::new(
 );
 
 // TMP 155 — Screeching Harpy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCREECHING_HARPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10c02902-4e3a-445e-9dd9-116806ddc966"),
     "Screeching Harpy",
-    crate::card::CardArt::new("10c02902-4e3a-445e-9dd9-116806ddc966", "Una Fricker"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("10c02902-4e3a-445e-9dd9-116806ddc966", "Una Fricker"),
+    CardSet::Tempest,
+    // Four mana for a 2/2 flier is a bad rate; the regeneration is what it
+    // is really selling, and it needs the mana free to matter.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Harpy", "Beast"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::regenerate_self(
+            "{1}{B}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
+        ),
+    ]),
 );
 
 // TMP 156 — Servant of Volrath

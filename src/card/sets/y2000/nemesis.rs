@@ -176,13 +176,30 @@ pub(in crate::card::sets) static NOBLE_STAND: CardRecord = CardRecord::new(
 );
 
 // NEM 15 — Off Balance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OFF_BALANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("adafe5c4-8de0-4d38-919f-de96bc70c21b"),
     "Off Balance",
-    crate::card::CardArt::new("adafe5c4-8de0-4d38-919f-de96bc70c21b", "Jeff Miracola"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("adafe5c4-8de0-4d38-919f-de96bc70c21b", "Jeff Miracola"),
+    CardSet::Nemesis,
+    // A one-mana answer that only lasts the turn, which is enough when the
+    // turn in question is the one that would have killed you.
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature can't attack or block this turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        // An attack prohibition is validated only against an object
+        // recipient, so the slot's members are named as objects rather than
+        // as the target slot itself.
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::target_objects(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // NEM 16 — Oracle's Attendants
@@ -502,13 +519,24 @@ pub(in crate::card::sets) static ENSNARE: CardRecord = CardRecord::new(
 );
 
 // NEM 33 — Infiltrate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INFILTRATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c549b817-8ad6-44d0-9761-5e4ff9e62c71"),
     "Infiltrate",
-    crate::card::CardArt::new("c549b817-8ad6-44d0-9761-5e4ff9e62c71", "Nelson DeCastro"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c549b817-8ad6-44d0-9761-5e4ff9e62c71", "Nelson DeCastro"),
+    CardSet::Nemesis,
+    // One mana that turns any creature into the whole clock for a turn,
+    // which is what a deck built around one big body wants.
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature can't be blocked this turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // NEM 34 — Jolting Merfolk
@@ -978,16 +1006,32 @@ pub(in crate::card::sets) static STRONGHOLD_DISCIPLINE: CardRecord = CardRecord:
 );
 
 // NEM 74 — Vicious Hunger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VICIOUS_HUNGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ccaff6a0-7831-45db-a50f-881c6cb7ce49"),
     "Vicious Hunger",
-    crate::card::CardArt::new(
+    CardArt::new(
         "ccaff6a0-7831-45db-a50f-881c6cb7ce49",
         "Massimiliano Frezzato",
     ),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardSet::Nemesis,
+    // Two damage and two life is a four-point swing in a race, which is
+    // what a two-mana sorcery buys when it cannot go to the face.
+    CardRules::new_sorcery(mana_cost!("{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Vicious Hunger deals 2 damage to target creature and you gain 2 life.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )),
 );
 
 // NEM 75 — Volrath the Fallen
@@ -1120,13 +1164,30 @@ pub(in crate::card::sets) static FLOWSTONE_SLIDE: CardRecord = CardRecord::new(
 );
 
 // NEM 84 — Flowstone Strike
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_STRIKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a1203053-0829-4f46-a361-62cb9cd17280"),
     "Flowstone Strike",
-    crate::card::CardArt::new("a1203053-0829-4f46-a361-62cb9cd17280", "Mike Ploog"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a1203053-0829-4f46-a361-62cb9cd17280", "Mike Ploog"),
+    CardSet::Nemesis,
+    // The haste is what makes it a trick rather than a pump: it turns a
+    // creature that just arrived into damage this turn.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +1/-1 and gains haste until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                AppliedEffectDef::add_ability(&const { abilities::haste() }),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // NEM 85 — Flowstone Surge

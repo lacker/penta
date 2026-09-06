@@ -37,7 +37,7 @@ use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, abilities,
+    CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -208,13 +208,20 @@ pub(in crate::card::sets) static KNIGHT_ERRANT: CardRecord = CardRecord::new(
 // 7ED 37 — Sacred Nectar (alternate printing)
 
 // 7ED 37★ — Sacred Nectar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SACRED_NECTAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("484d1b31-5363-49ef-9b13-2005568636c1"),
     "Sacred Nectar",
-    crate::card::CardArt::new("8d4b8de0-0bb5-40fb-8b73-d00d38a582d5", "Dana Knutson"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d4b8de0-0bb5-40fb-8b73-d00d38a582d5", "Dana Knutson"),
+    CardSet::SeventhEdition,
+    // Four life for two mana and nothing else, which is the baseline every
+    // other lifegain spell is measured against.
+    CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
+        "You gain 4 life.",
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(4),
+        },
+    )),
 );
 
 // 7ED 38 — Samite Healer (reprint)

@@ -19,8 +19,8 @@ use crate::card::{
     DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -936,13 +936,28 @@ pub(in crate::card::sets) static BAMBOOZLE: CardRecord = CardRecord::new(
 // ODY 69 — Battle of Wits (reprint)
 
 // ODY 70 — Careful Study
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAREFUL_STUDY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dea15b53-2940-40e7-8d48-8ec11341da83"),
     "Careful Study",
-    crate::card::CardArt::new("dea15b53-2940-40e7-8d48-8ec11341da83", "Scott M. Fischer"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dea15b53-2940-40e7-8d48-8ec11341da83", "Scott M. Fischer"),
+    CardSet::Odyssey,
+    // No cards gained at all -- the point is which two end up in the
+    // graveyard, which is the whole Odyssey block in one mana.
+    CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
+        "Draw two cards, then discard two cards.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // ODY 71 — Cephalid Broker
@@ -1058,16 +1073,23 @@ pub(in crate::card::sets) static COGNIVORE: CardRecord = CardRecord::new(
 );
 
 // ODY 78 — Concentrate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONCENTRATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("45f2878e-1c1c-4dd3-9687-7bb216d557c7"),
     "Concentrate",
-    crate::card::CardArt::new(
+    CardArt::new(
         "45f2878e-1c1c-4dd3-9687-7bb216d557c7",
         "Glen Angus & Arnie Swekel",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Three cards for four mana with no strings, which is the plainest
+    // rate a draw spell has ever been printed at.
+    CardRules::new_sorcery(mana_cost!("{2}{U}{U}")).with_ability(AbilityDef::spell(
+        "Draw three cards.",
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(3),
+        },
+    )),
 );
 
 // ODY 79 — Cultural Exchange
@@ -1562,13 +1584,26 @@ pub(in crate::card::sets) static UPHEAVAL: CardRecord = CardRecord::new_with_leg
 );
 
 // ODY 114 — Words of Wisdom
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WORDS_OF_WISDOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0199cfb-5e44-40f0-b9cf-71473155eb94"),
     "Words of Wisdom",
-    crate::card::CardArt::new("c0199cfb-5e44-40f0-b9cf-71473155eb94", "Eric Peterson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c0199cfb-5e44-40f0-b9cf-71473155eb94", "Eric Peterson"),
+    CardSet::Odyssey,
+    // Giving the opponent a card is a real cost; the spell is only good in
+    // a deck that cares which card it drew rather than how many.
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
+        "You draw two cards, then each other player draws a card.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // ODY 115 — Afflict
@@ -1991,13 +2026,25 @@ pub(in crate::card::sets) static INFECTED_VERMIN: CardRecord = CardRecord::new(
 );
 
 // ODY 145 — Innocent Blood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INNOCENT_BLOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d26af8f6-df64-4027-880c-f2fae2d8103f"),
     "Innocent Blood",
-    crate::card::CardArt::new("d26af8f6-df64-4027-880c-f2fae2d8103f", "Carl Critchlow"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d26af8f6-df64-4027-880c-f2fae2d8103f", "Carl Critchlow"),
+    CardSet::Odyssey,
+    // One mana that costs you a creature too, so it belongs in the deck
+    // that has none -- or one it was going to lose anyway.
+    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell(
+        "Each player sacrifices a creature of their choice.",
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::EachPlayer,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            count: ValueDef::Constant(1),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // ODY 146 — Last Rites
@@ -2989,13 +3036,25 @@ pub(in crate::card::sets) static THERMAL_BLAST: CardRecord = CardRecord::new(
 );
 
 // ODY 225 — Tremble
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREMBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e1dc36f-3fdd-42cf-9d3a-695f4bf60c68"),
     "Tremble",
-    crate::card::CardArt::new("7e1dc36f-3fdd-42cf-9d3a-695f4bf60c68", "Ciruelo"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7e1dc36f-3fdd-42cf-9d3a-695f4bf60c68", "Ciruelo"),
+    CardSet::Odyssey,
+    // Symmetrical land destruction, which only reads as an advantage from
+    // the seat with fewer lands and something to do with them.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Each player sacrifices a land of their choice.",
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::EachPlayer,
+            object: ObjectPredicateDef::HasType(CardType::Land),
+            count: ValueDef::Constant(1),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // ODY 226 — Volcanic Spray
@@ -3575,16 +3634,28 @@ pub(in crate::card::sets) static SETON_S_DESIRE: CardRecord = CardRecord::new(
 );
 
 // ODY 269 — Simplify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIMPLIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a43fd3e-1e08-400c-b22b-e22da82bcdee"),
     "Simplify",
-    crate::card::CardArt::new(
+    CardArt::new(
         "7a43fd3e-1e08-400c-b22b-e22da82bcdee",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // The sacrifice is the opponent's choice, so it answers the cheapest
+    // enchantment they control rather than the one that is beating you.
+    CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::spell(
+        "Each player sacrifices an enchantment of their choice.",
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::EachPlayer,
+            object: ObjectPredicateDef::HasType(CardType::Enchantment),
+            count: ValueDef::Constant(1),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // ODY 270 — Skyshooter

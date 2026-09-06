@@ -843,13 +843,24 @@ pub(in crate::card::sets) static WORDS_OF_WORSHIP: CardRecord = CardRecord::new(
 );
 
 // ONS 62 — Airborne Aid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AIRBORNE_AID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0aaa43b0-601f-4b99-a328-541b04d5696d"),
     "Airborne Aid",
-    crate::card::CardArt::new("0aaa43b0-601f-4b99-a328-541b04d5696d", "Bradley Williams"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0aaa43b0-601f-4b99-a328-541b04d5696d", "Bradley Williams"),
+    CardSet::Onslaught,
+    // It counts every Bird on the table, including the opponent's, which
+    // is generous right up until they have none.
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
+        "Draw a card for each Bird on the battlefield.",
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype("Bird"),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            )),
+        },
+    )),
 );
 
 // ONS 63 — Annex
@@ -2121,13 +2132,29 @@ pub(in crate::card::sets) static SILENT_SPECTER: CardRecord = CardRecord::new(
 );
 
 // ONS 170 — Smother
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SMOTHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a8321af-d667-44e7-8c03-3957286604b9"),
     "Smother",
-    crate::card::CardArt::new("9a8321af-d667-44e7-8c03-3957286604b9", "Carl Critchlow"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9a8321af-d667-44e7-8c03-3957286604b9", "Carl Critchlow"),
+    CardSet::Onslaught,
+    // Instant-speed removal that answers everything the aggressive decks
+    // are actually made of, and nothing the control decks win with.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target creature with mana value 3 or less. It can't be regenerated.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ManaValueAtMost(3),
+            ]),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        },
+    )),
 );
 
 // ONS 171 — Soulless One

@@ -81,6 +81,7 @@ mod sacrifice_to_tax;
 mod self_bounce_and_untap;
 mod skewer_the_critics;
 mod sliver_granted_pump;
+mod spell_restrictions;
 mod spell_then_draw;
 mod tap_for_chosen_colour;
 mod token_fixtures;

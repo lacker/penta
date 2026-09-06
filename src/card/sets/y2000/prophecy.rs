@@ -91,13 +91,23 @@ pub(in crate::card::sets) static AVATAR_OF_HOPE: CardRecord = CardRecord::new(
 );
 
 // PCY 4 — Blessed Wind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLESSED_WIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cb624d6-9aec-498c-8df9-6fd025c74487"),
     "Blessed Wind",
-    crate::card::CardArt::new("3cb624d6-9aec-498c-8df9-6fd025c74487", "Anthony S. Waters"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3cb624d6-9aec-498c-8df9-6fd025c74487", "Anthony S. Waters"),
+    CardSet::Prophecy,
+    // Nine mana to undo a whole game of damage, which is a card only a
+    // deck that has already survived that long can cast.
+    CardRules::new_sorcery(mana_cost!("{7}{W}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player's life total becomes 20.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::SetLifeTotal {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            total: ValueDef::Constant(20),
+        },
+    )),
 );
 
 // PCY 5 — Celestial Convergence

@@ -1232,13 +1232,31 @@ pub(in crate::card::sets) static DARIGAAZ_S_CHARM: CardRecord = CardRecord::new(
 );
 
 // PLS 101 — Daring Leap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARING_LEAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37ec6c4b-2de0-4759-a25d-007706cb18cc"),
     "Daring Leap",
-    crate::card::CardArt::new("37ec6c4b-2de0-4759-a25d-007706cb18cc", "Paolo Parente"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("37ec6c4b-2de0-4759-a25d-007706cb18cc", "Paolo Parente"),
+    CardSet::Planeshift,
+    // Two keywords and a point of stats for three mana, which wins a
+    // combat the opponent had every reason to think was safe.
+    CardRules::new_instant(mana_cost!("{1}{W}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +1/+1 and gains flying and first strike until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // PLS 102 — Destructive Flow
@@ -1282,13 +1300,31 @@ pub(in crate::card::sets) static DROMAR_S_CHARM: CardRecord = CardRecord::new(
 );
 
 // PLS 106 — Eladamri's Call
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELADAMRI_S_CALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dcb79f39-5ef3-4ad6-9a43-04beb27d8480"),
     "Eladamri's Call",
-    crate::card::CardArt::new("dcb79f39-5ef3-4ad6-9a43-04beb27d8480", "Kev Walker"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dcb79f39-5ef3-4ad6-9a43-04beb27d8480", "Kev Walker"),
+    CardSet::Planeshift,
+    // Any creature in the deck for two mana at instant speed, which makes
+    // a one-of threat as reliable as a playset.
+    CardRules::new_instant(mana_cost!("{G}{W}")).with_ability(AbilityDef::spell(
+        "Search your library for a creature card, reveal that card, put it into your hand, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // PLS 107 — Ertai, the Corrupted

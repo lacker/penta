@@ -374,13 +374,24 @@ pub(in crate::card::sets) static KEEPER_OF_THE_MIND: CardRecord = CardRecord::ne
 );
 
 // EXO 37 — Killer Whale
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KILLER_WHALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d932f6d3-4918-4a41-836c-4eaa6cfac049"),
     "Killer Whale",
-    crate::card::CardArt::new("d932f6d3-4918-4a41-836c-4eaa6cfac049", "Stephen Daniele"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d932f6d3-4918-4a41-836c-4eaa6cfac049", "Stephen Daniele"),
+    CardSet::Exodus,
+    // A 3/5 that flies whenever it matters, which is what five mana bought
+    // before evasion was free.
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Whale"], 3, 5).with_ability(
+        AbilityDef::activated(
+            "{U}: This creature gains flying until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 38 — Mana Breach
@@ -522,13 +533,24 @@ pub(in crate::card::sets) static WAYWARD_SOUL: CardRecord = CardRecord::new(
 );
 
 // EXO 52 — Whiptongue Frog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIPTONGUE_FROG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6fc17186-e786-46a3-9812-4a6e367e78b9"),
     "Whiptongue Frog",
-    crate::card::CardArt::new("6fc17186-e786-46a3-9812-4a6e367e78b9", "Jeff Miracola"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6fc17186-e786-46a3-9812-4a6e367e78b9", "Jeff Miracola"),
+    CardSet::Exodus,
+    // It blocks fliers by becoming one, which is a use of the ability the
+    // card does not advertise.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Frog"], 1, 3).with_ability(
+        AbilityDef::activated(
+            "{U}: This creature gains flying until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 53 — Carnophage

@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
+    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
     DamageSourceMatcherDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
     abilities,
@@ -205,13 +205,35 @@ pub(in crate::card::sets) static PLANAR_GUIDE: CardRecord = CardRecord::new(
 );
 
 // LGN 19 — Plated Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLATED_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("82846d31-4981-4ef1-85c3-703569146a84"),
     "Plated Sliver",
-    crate::card::CardArt::new("82846d31-4981-4ef1-85c3-703569146a84", "Greg Staples"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("82846d31-4981-4ef1-85c3-703569146a84", "Greg Staples"),
+    CardSet::Legions,
+    // One mana for a body and a toughness anthem, which is what makes the
+    // Sliver deck survive its own curve.
+    CardRules::new_creature(mana_cost!("{W}"), &["Sliver"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures get +0/+1.",
+            EffectDef::StaticApply {
+                // "All Sliver creatures", not "Sliver creatures you
+                // control": the older Slivers pump the opponent's as
+                // well, which is the drawback the cycle was priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ),
 );
 
 // LGN 20 — Starlight Invoker
@@ -946,13 +968,34 @@ pub(in crate::card::sets) static ZOMBIE_BRUTE: CardRecord = CardRecord::new(
 );
 
 // LGN 88 — Blade Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLADE_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8d6f7a6-7b6a-44f4-be04-7c02806b9f09"),
     "Blade Sliver",
-    crate::card::CardArt::new("a8d6f7a6-7b6a-44f4-be04-7c02806b9f09", "David Martin"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a8d6f7a6-7b6a-44f4-be04-7c02806b9f09", "David Martin"),
+    CardSet::Legions,
+    // The aggressive half of the same anthem cycle.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures get +1/+0.",
+            EffectDef::StaticApply {
+                // "All Sliver creatures", not "Sliver creatures you
+                // control": the older Slivers pump the opponent's as
+                // well, which is the drawback the cycle was priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+            },
+        ),
+    ),
 );
 
 // LGN 89 — Bloodstoke Howler

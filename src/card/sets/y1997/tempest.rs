@@ -849,13 +849,24 @@ pub(in crate::card::sets) static MANA_SEVERANCE: CardRecord = CardRecord::new(
 );
 
 // TMP 74 — Manta Riders
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANTA_RIDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cdff306c-1c7e-49ae-b10f-99e1927bbef1"),
     "Manta Riders",
-    crate::card::CardArt::new("cdff306c-1c7e-49ae-b10f-99e1927bbef1", "Kaja Foglio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cdff306c-1c7e-49ae-b10f-99e1927bbef1", "Kaja Foglio"),
+    CardSet::Tempest,
+    // One mana for a creature that is unblockable whenever you have another
+    // blue mana, which is most turns.
+    CardRules::new_creature(mana_cost!("{U}"), &["Merfolk"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{U}: This creature gains flying until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 75 — Mawcor
@@ -2559,16 +2570,38 @@ pub(in crate::card::sets) static MONGREL_PACK: CardRecord = CardRecord::new(
 );
 
 // TMP 238 — Muscle Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MUSCLE_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("602a1e1f-4195-48c0-8290-562e7e0db6d8"),
     "Muscle Sliver",
-    crate::card::CardArt::new(
+    CardArt::new(
         "602a1e1f-4195-48c0-8290-562e7e0db6d8",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardSet::Tempest,
+    // The card that made Slivers a deck: every one you play makes every one
+    // you already played bigger.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Sliver"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures get +1/+1.",
+            EffectDef::StaticApply {
+                // "All Sliver creatures", not "Sliver creatures you
+                // control": the older Slivers pump the opponent's as
+                // well, which is the drawback the cycle was priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ),
 );
 
 // TMP 239 — Natural Spring

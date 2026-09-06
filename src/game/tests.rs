@@ -29,6 +29,7 @@ pub(super) use fixtures::*;
 mod guildsworn_prowler;
 mod miners_guidewing;
 mod moon_circuit_hacker;
+mod phantom_interference;
 mod raid_bombardment;
 mod reckless_impulse;
 mod token_fixtures;

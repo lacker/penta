@@ -102,13 +102,38 @@ pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::n
 );
 
 // OTJ 61 — Phantom Interference
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("00bf4dd1-5468-4594-9c7b-0737610f19d4"),
     "Phantom Interference",
-    crate::card::CardArt::new("00bf4dd1-5468-4594-9c7b-0737610f19d4", "Ruxing Gao"),
-    crate::card::CardSet::OutlawsOfThunderJunction,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("00bf4dd1-5468-4594-9c7b-0737610f19d4", "Ruxing Gao"),
+    CardSet::OutlawsOfThunderJunction,
+    // Two mana to counter, four to do both, and never dead: spree is what
+    // lets one card be a Spirit on the turn nothing needs answering.
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spree(&[
+        (
+            mana_cost!("{3}"),
+            AbilityDef::spell(
+                "Create a 2/2 white Spirit creature token with flying.",
+                EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 2, 2)
+                    .with_abilities(&const { [abilities::flying()] }),
+            ),
+        ),
+        (
+            mana_cost!("{1}"),
+            AbilityDef::spell_with_targets(
+                "Counter target spell unless its controller pays {2}.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+            ),
+        ),
+    ])),
 );
 
 // OTJ 82 — Caustic Bronco

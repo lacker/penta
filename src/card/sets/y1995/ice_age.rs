@@ -2145,13 +2145,25 @@ pub(in crate::card::sets) static SEIZURES: CardRecord = CardRecord::new(
 );
 
 // ICE 160 — Songs of the Damned
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SONGS_OF_THE_DAMNED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6cff3547-8c72-439a-91fe-ebe729dab748"),
     "Songs of the Damned",
-    crate::card::CardArt::new("6cff3547-8c72-439a-91fe-ebe729dab748", "Pete Venters"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6cff3547-8c72-439a-91fe-ebe729dab748", "Pete Venters"),
+    CardSet::IceAge,
+    // A ritual whose size is the graveyard, so it does nothing early and
+    // everything after a sweeper.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell(
+        "Add {B} for each creature card in your graveyard.",
+        EffectDef::AddMana(
+            AddManaEffectDef::one(ManaColor::Black).with_variable_amount(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                )),
+            ),
+        ),
+    )),
 );
 
 // ICE 161 — Soul Burn

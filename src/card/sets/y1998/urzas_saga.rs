@@ -13,7 +13,7 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
     GraveyardPlayPermissionDef, InstalledTriggerDef, KeywordAbility, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OngoingEffectDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
@@ -1488,13 +1488,32 @@ pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_
 );
 
 // USG 104 — Tolarian Winds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOLARIAN_WINDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c29399d-0a59-4dcb-9bd4-f31eea3f39f9"),
     "Tolarian Winds",
-    crate::card::CardArt::new("5c29399d-0a59-4dcb-9bd4-f31eea3f39f9", "Lawrence Snelly"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5c29399d-0a59-4dcb-9bd4-f31eea3f39f9", "Lawrence Snelly"),
+    CardSet::UrzasSaga,
+    // A whole new hand for two mana, which is only a bargain when the old
+    // one was already dead.
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
+        "Discard all the cards in your hand, then draw that many cards.",
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::CardsInHandAbove {
+                player: PlayerRelation::You,
+                threshold: 0,
+            },
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: Some(DiscardFollowUpDef {
+                counted: ObjectPredicateDef::Any,
+                bound: Some(ParentBinding),
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::BoundObjectCount(ParentBinding),
+                },
+            }),
+        },
+    )),
 );
 
 // USG 105 — Turnabout
@@ -1621,13 +1640,32 @@ pub(in crate::card::sets) static ABYSSAL_HORROR: CardRecord = CardRecord::new(
 );
 
 // USG 116 — Befoul
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEFOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f92cb48d-315b-4877-b615-ffdf275c4d61"),
     "Befoul",
-    crate::card::CardArt::new("f92cb48d-315b-4877-b615-ffdf275c4d61", "Pete Venters"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f92cb48d-315b-4877-b615-ffdf275c4d61", "Pete Venters"),
+    CardSet::UrzasSaga,
+    // One removal spell aimed at two card types, which is the sort of
+    // flexibility black paid four mana for.
+    CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land or nonblack creature. It can't be regenerated.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            ]),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        },
+    )),
 );
 
 // USG 117 — Bereavement

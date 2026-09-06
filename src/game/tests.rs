@@ -33,6 +33,7 @@ mod blocker_punishment;
 mod board_counted_sizes;
 mod cannot_act_alone;
 mod conditional_statics;
+mod counted_rituals;
 mod destroy_and_escape;
 mod dies_shrink_trigger;
 mod discard_a_land_cost;

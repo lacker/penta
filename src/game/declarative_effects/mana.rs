@@ -27,9 +27,7 @@ impl Game {
                 spend_effects,
                 damage_to_controller,
                 amount_override,
-                // Read only by the mana runtime, which offers the ability;
-                // a triggered mana effect resolving here has a plain amount.
-                variable_amount: _,
+                variable_amount,
                 // Resolving from the stack, the ability's own controller is
                 // the only recipient any current card names.
                 recipient: _,
@@ -52,6 +50,15 @@ impl Game {
                     restrictions,
                     spend_effects,
                 };
+                // A spell whose size is a count of the board or a graveyard
+                // reads it here: unlike a mana ability, a resolving object
+                // has no enumeration that could have fixed the amount first.
+                let amount = variable_amount.map_or(amount, |value| {
+                    self.effect_value(value, object, context, scoped)
+                        .max(0)
+                        .try_into()
+                        .unwrap_or(u16::MAX)
+                });
                 let amount = amount_override
                     .filter(|override_| {
                         self.static_condition_holds(

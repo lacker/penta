@@ -23,6 +23,16 @@ the bot-wire epoch.
 This release reports engine 0.7.0 and protocol 29. The simulation fingerprint
 distinguishes snapshots of the covered source and build inputs.
 
+### Fixed
+
+- **A resolving spell that adds a variable amount of one colour now adds
+  that amount.** `AddManaEffectDef::variable_amount` was read only on the
+  open-colour path, so a fixed-colour clause resolving from the stack
+  silently added its base amount instead -- one mana rather than a count of
+  the graveyard or the board. The catalog accepts such a clause, so nothing
+  reported it. Songs of the Damned and Brightstone Ritual are the first
+  users.
+
 ### Added
 
 - **Fear is grantable, as the restriction rather than the ability.**

@@ -3563,13 +3563,22 @@ pub(in crate::card::sets) static SPIDERSILK_ARMOR: CardRecord = CardRecord::new(
 );
 
 // MMQ 274 — Spontaneous Generation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPONTANEOUS_GENERATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce5765cb-00cd-4920-9fe8-68791048ec4a"),
     "Spontaneous Generation",
-    crate::card::CardArt::new("ce5765cb-00cd-4920-9fe8-68791048ec4a", "Alan Pollack"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ce5765cb-00cd-4920-9fe8-68791048ec4a", "Alan Pollack"),
+    CardSet::MercadianMasques,
+    // A board out of a full hand, which suits the deck that was holding
+    // cards it could not cast anyway.
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Create a 1/1 green Saproling creature token for each card in your hand.",
+        EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1).with_count(
+            ValueDef::CardsInHandAbove {
+                player: PlayerRelation::You,
+                threshold: 0,
+            },
+        ),
+    )),
 );
 
 // MMQ 275 — Squall

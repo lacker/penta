@@ -2296,13 +2296,23 @@ pub(in crate::card::sets) static BREAK_OPEN: CardRecord = CardRecord::new(
 );
 
 // ONS 191 — Brightstone Ritual
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRIGHTSTONE_RITUAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5b08b0a6-c94e-4407-8a24-c8202497b5f2"),
     "Brightstone Ritual",
-    crate::card::CardArt::new("5b08b0a6-c94e-4407-8a24-c8202497b5f2", "Wayne England"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5b08b0a6-c94e-4407-8a24-c8202497b5f2", "Wayne England"),
+    CardSet::Onslaught,
+    // The same idea counting the board instead, which a Goblin deck has
+    // filled by the time it matters.
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spell(
+        "Add {R} for each Goblin on the battlefield.",
+        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_variable_amount(
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Subtype("Goblin"),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            )),
+        )),
+    )),
 );
 
 // ONS 192 — Butcher Orgg

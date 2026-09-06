@@ -1731,13 +1731,39 @@ pub(in crate::card::sets) static STORMBLOOD_BERSERKER: CardRecord = CardRecord::
 );
 
 // M12 157 — Tectonic Rift
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TECTONIC_RIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9838784-8c6d-4e64-bc34-e21efde99093"),
     "Tectonic Rift",
-    crate::card::CardArt::new("e9838784-8c6d-4e64-bc34-e21efde99093", "John Avon"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e9838784-8c6d-4e64-bc34-e21efde99093", "John Avon"),
+    CardSet::Magic2012,
+    // Land destruction that also ends the turn it is cast, which is the
+    // half that actually wins games.
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land. Creatures without flying can't block this turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // M12 158 — Volcanic Dragon

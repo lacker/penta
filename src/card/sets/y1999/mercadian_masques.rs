@@ -266,13 +266,14 @@ pub(in crate::card::sets) static FOUNTAIN_WATCH: CardRecord = CardRecord::new(
 );
 
 // MMQ 20 — Fresh Volunteers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRESH_VOLUNTEERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e070ea4a-c417-405f-b788-78fb7ca2eaa5"),
     "Fresh Volunteers",
-    crate::card::CardArt::new("e070ea4a-c417-405f-b788-78fb7ca2eaa5", "Jeff Miracola"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e070ea4a-c417-405f-b788-78fb7ca2eaa5", "Jeff Miracola"),
+    CardSet::MercadianMasques,
+    // A vanilla 2/2 for two whose Rebel type is the whole point: it is what
+    // the searchers in this block are looking for.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Rebel"], 2, 2),
 );
 
 // MMQ 21 — Honor the Fallen
@@ -316,23 +317,27 @@ pub(in crate::card::sets) static IVORY_MASK: CardRecord = CardRecord::new(
 );
 
 // MMQ 25 — Jhovall Queen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JHOVALL_QUEEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8eb55cc-ddde-4f15-9262-b9aee28059d3"),
     "Jhovall Queen",
-    crate::card::CardArt::new("b8eb55cc-ddde-4f15-9262-b9aee28059d3", "Michael Sutfin"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b8eb55cc-ddde-4f15-9262-b9aee28059d3", "Michael Sutfin"),
+    CardSet::MercadianMasques,
+    // Six mana for a wall that attacks. Vigilance on a 4/7 means it is doing
+    // both jobs every turn rather than choosing.
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Cat", "Rebel"], 4, 7)
+        .with_abilities(&[abilities::vigilance()]),
 );
 
 // MMQ 26 — Jhovall Rider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JHOVALL_RIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e1f7c51-0011-4ea5-b123-3c26293f5dab"),
     "Jhovall Rider",
-    crate::card::CardArt::new("7e1f7c51-0011-4ea5-b123-3c26293f5dab", "Scott M. Fischer"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7e1f7c51-0011-4ea5-b123-3c26293f5dab", "Scott M. Fischer"),
+    CardSet::MercadianMasques,
+    // Five mana for a 3/3 trampler, which is what a Rebel chain paid for a
+    // body it could fetch rather than draw.
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Rebel"], 3, 3)
+        .with_abilities(&[abilities::trample()]),
 );
 
 // MMQ 27 — Last Breath
@@ -1603,13 +1608,15 @@ pub(in crate::card::sets) static MIDNIGHT_RITUAL: CardRecord = CardRecord::new(
 );
 
 // MMQ 147 — Misshapen Fiend
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MISSHAPEN_FIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a43cf59e-7583-4651-968a-2a7201c69b6b"),
     "Misshapen Fiend",
-    crate::card::CardArt::new("a43cf59e-7583-4651-968a-2a7201c69b6b", "Adam Rex"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a43cf59e-7583-4651-968a-2a7201c69b6b", "Adam Rex"),
+    CardSet::MercadianMasques,
+    // A 1/1 flier that is also a Mercenary, so the chain that fetches it
+    // cares about the type more than the body.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Horror", "Mercenary"], 1, 1)
+        .with_abilities(&[abilities::flying()]),
 );
 
 // MMQ 148 — Molting Harpy
@@ -2059,13 +2066,15 @@ pub(in crate::card::sets) static FURIOUS_ASSAULT: CardRecord = CardRecord::new(
 );
 
 // MMQ 192 — Gerrard's Irregulars
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GERRARD_S_IRREGULARS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a88f507-3d78-4f7f-a91f-8489ad9250f2"),
     "Gerrard's Irregulars",
-    crate::card::CardArt::new("8a88f507-3d78-4f7f-a91f-8489ad9250f2", "Eric Peterson"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8a88f507-3d78-4f7f-a91f-8489ad9250f2", "Eric Peterson"),
+    CardSet::MercadianMasques,
+    // Five mana for four damage the turn it lands, and trample so that a
+    // chump block does not take all of it.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Human", "Soldier"], 4, 2)
+        .with_abilities(&[abilities::trample(), abilities::haste()]),
 );
 
 // MMQ 193 — Hammer Mage
@@ -2149,13 +2158,15 @@ pub(in crate::card::sets) static LAVA_RUNNER: CardRecord = CardRecord::new(
 );
 
 // MMQ 201 — Lightning Hounds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_HOUNDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38c82a1d-5db1-4090-b446-cc5bc6dc811d"),
     "Lightning Hounds",
-    crate::card::CardArt::new("38c82a1d-5db1-4090-b446-cc5bc6dc811d", "Andrew Robinson"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("38c82a1d-5db1-4090-b446-cc5bc6dc811d", "Andrew Robinson"),
+    CardSet::MercadianMasques,
+    // A 3/2 first striker for four, which beats every three-drop it runs
+    // into and dies to the burn spell aimed at it.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Dog"], 3, 2)
+        .with_abilities(&[abilities::first_strike()]),
 );
 
 // MMQ 202 — Lithophage
@@ -2388,13 +2399,14 @@ pub(in crate::card::sets) static WARPATH: CardRecord = CardRecord::new(
 );
 
 // MMQ 227 — Wild Jhovall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WILD_JHOVALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64bcc06a-de86-4387-882d-ead33e9c9e01"),
     "Wild Jhovall",
-    crate::card::CardArt::new("64bcc06a-de86-4387-882d-ead33e9c9e01", "Daren Bader"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("64bcc06a-de86-4387-882d-ead33e9c9e01", "Daren Bader"),
+    CardSet::MercadianMasques,
+    // A vanilla 3/3 for four, printed so the Cat deck had a Cat to play on
+    // turn four.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Cat"], 3, 3),
 );
 
 // MMQ 228 — Word of Blasting (reprint)

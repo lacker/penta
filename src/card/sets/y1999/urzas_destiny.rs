@@ -1382,7 +1382,7 @@ pub(in crate::card::sets) static TAUNTING_ELF: CardRecord = CardRecord::new(
 );
 
 // UDS 123 — Thorn Elemental
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked; see Lone Wolf.
 pub(in crate::card::sets) static THORN_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("971d4b0d-fe3e-46f5-86df-3fbac6b900b0"),
     "Thorn Elemental",

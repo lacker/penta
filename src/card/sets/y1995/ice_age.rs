@@ -439,23 +439,33 @@ pub(in crate::card::sets) static KJELDORAN_ROYAL_GUARD: CardRecord = CardRecord:
 );
 
 // ICE 39 — Kjeldoran Skycaptain
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KJELDORAN_SKYCAPTAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf0115e0-6192-48a9-9e58-f3ef77ef77c2"),
     "Kjeldoran Skycaptain",
-    crate::card::CardArt::new("cf0115e0-6192-48a9-9e58-f3ef77ef77c2", "Mark Poole"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cf0115e0-6192-48a9-9e58-f3ef77ef77c2", "Mark Poole"),
+    CardSet::IceAge,
+    // Flying, first strike, and banding on one body: it wins the air and
+    // hands you the damage assignment when it does not.
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Soldier"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::first_strike(),
+        abilities::banding(),
+    ]),
 );
 
 // ICE 40 — Kjeldoran Skyknight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KJELDORAN_SKYKNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f794665a-8353-482a-b065-2a0777a8acda"),
     "Kjeldoran Skyknight",
-    crate::card::CardArt::new("f794665a-8353-482a-b065-2a0777a8acda", "Mark Poole"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f794665a-8353-482a-b065-2a0777a8acda", "Mark Poole"),
+    CardSet::IceAge,
+    // The cheap version of the same three keywords, on a body too small to
+    // use most of them.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::first_strike(),
+        abilities::banding(),
+    ]),
 );
 
 // ICE 41 — Kjeldoran Warrior

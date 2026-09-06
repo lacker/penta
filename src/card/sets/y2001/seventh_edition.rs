@@ -1182,7 +1182,7 @@ pub(in crate::card::sets) static TRAINED_ORGG: CardRecord = CardRecord::new(
 // 7ED 261 — Pride of Lions (alternate printing)
 
 // 7ED 261★ — Pride of Lions
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked; see Lone Wolf.
 pub(in crate::card::sets) static PRIDE_OF_LIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f5006984-8e3d-4f13-b12e-1fbecd134bb3"),
     "Pride of Lions",

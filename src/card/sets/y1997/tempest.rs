@@ -60,13 +60,48 @@ pub(in crate::card::sets) static ANOINT: CardRecord = CardRecord::new(
 );
 
 // TMP 4 — Armor Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARMOR_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c275aba7-cac6-48e8-b12c-6bd77a5c38fe"),
     "Armor Sliver",
-    crate::card::CardArt::new("c275aba7-cac6-48e8-b12c-6bd77a5c38fe", "Scott Kirschner"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c275aba7-cac6-48e8-b12c-6bd77a5c38fe", "Scott Kirschner"),
+    CardSet::Tempest,
+    // A mana sink every Sliver shares, which turns a board of 1/1s into a
+    // board nothing profitably blocks.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures have \"{2}: This creature gets +0/+1 until end of turn.\"",
+            EffectDef::StaticApply {
+                // "All Sliver creatures", so the opponent's get it too.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                // "This creature" inside the granted ability is
+                // whichever Sliver has it, which is that ability's own
+                // source rather than this one.
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::activated(
+                            "{2}: This creature gets +0/+1 until end of turn.",
+                            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(0),
+                                    ValueDef::Constant(1),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // TMP 5 — Armored Pegasus
@@ -1762,13 +1797,48 @@ pub(in crate::card::sets) static APOCALYPSE: CardRecord = CardRecord::new(
 );
 
 // TMP 163 — Barbed Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARBED_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19bddea7-daa7-4bdb-9b91-f7fcbc0d7a57"),
     "Barbed Sliver",
-    crate::card::CardArt::new("19bddea7-daa7-4bdb-9b91-f7fcbc0d7a57", "Scott Kirschner"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("19bddea7-daa7-4bdb-9b91-f7fcbc0d7a57", "Scott Kirschner"),
+    CardSet::Tempest,
+    // The aggressive half: spare mana becomes damage on every Sliver at
+    // once.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures have \"{2}: This creature gets +1/+0 until end of turn.\"",
+            EffectDef::StaticApply {
+                // "All Sliver creatures", so the opponent's get it too.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                // "This creature" inside the granted ability is
+                // whichever Sliver has it, which is that ability's own
+                // source rather than this one.
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::activated(
+                            "{2}: This creature gets +1/+0 until end of turn.",
+                            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(1),
+                                    ValueDef::Constant(0),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // TMP 164 — Blood Frenzy

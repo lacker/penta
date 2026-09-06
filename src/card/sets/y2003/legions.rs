@@ -3,11 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, DamageEventMatcherDef, DamageKindDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -920,13 +920,48 @@ pub(in crate::card::sets) static SOOTFEATHER_FLOCK: CardRecord = CardRecord::new
 );
 
 // LGN 83 — Spectral Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTRAL_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bec97e3c-7b75-4abb-a50e-86bc8cc3bf06"),
     "Spectral Sliver",
-    crate::card::CardArt::new("bec97e3c-7b75-4abb-a50e-86bc8cc3bf06", "Pete Venters"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bec97e3c-7b75-4abb-a50e-86bc8cc3bf06", "Pete Venters"),
+    CardSet::Legions,
+    // Both halves on one Sliver, which is what Legions charged a black card
+    // for.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Sliver", "Spirit"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures have \"{2}: This creature gets +1/+1 until end of turn.\"",
+            EffectDef::StaticApply {
+                // "All Sliver creatures", so the opponent's get it too.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                // "This creature" inside the granted ability is
+                // whichever Sliver has it, which is that ability's own
+                // source rather than this one.
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::activated(
+                            "{2}: This creature gets +1/+1 until end of turn.",
+                            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(1),
+                                    ValueDef::Constant(1),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        )
+                    },
+                ),
+            },
+        ),
+    ),
 );
 
 // LGN 84 — Toxin Sliver

@@ -2233,13 +2233,17 @@ pub(in crate::card::sets) static MASK_OF_INTOLERANCE: CardRecord = CardRecord::n
 );
 
 // APC 139 — Battlefield Forge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BATTLEFIELD_FORGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9c25e71-0140-48fe-8b9e-33b4b50c5c12"),
     "Battlefield Forge",
-    crate::card::CardArt::new("a9c25e71-0140-48fe-8b9e-33b4b50c5c12", "Darrell Riche"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a9c25e71-0140-48fe-8b9e-33b4b50c5c12", "Darrell Riche"),
+    CardSet::Apocalypse,
+    // The red-white member of the cycle, which is the whole reason a
+    // two-colour aggressive deck could keep its curve.
+    CardRules::new_land(&[]).with_abilities(&abilities::pain_land(
+        "{T}: Add {R} or {W}. This land deals 1 damage to you.",
+        &[ManaColor::Red, ManaColor::White],
+    )),
 );
 
 // APC 140 — Caves of Koilos
@@ -2267,13 +2271,16 @@ pub(in crate::card::sets) static LLANOWAR_WASTES: CardRecord = CardRecord::new_w
 );
 
 // APC 142 — Shivan Reef
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_REEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c3403143-2b4e-4408-b138-c856bbc1e9a5"),
     "Shivan Reef",
-    crate::card::CardArt::new("c3403143-2b4e-4408-b138-c856bbc1e9a5", "Rob Alexander"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c3403143-2b4e-4408-b138-c856bbc1e9a5", "Rob Alexander"),
+    CardSet::Apocalypse,
+    // The blue-red member.
+    CardRules::new_land(&[]).with_abilities(&abilities::pain_land(
+        "{T}: Add {U} or {R}. This land deals 1 damage to you.",
+        &[ManaColor::Blue, ManaColor::Red],
+    )),
 );
 
 // APC 143 — Yavimaya Coast

@@ -3752,13 +3752,22 @@ pub(in crate::card::sets) static GOBLIN_BURROWS: CardRecord = CardRecord::new(
 );
 
 // ONS 319 — Grand Coliseum
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRAND_COLISEUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2dc8061-a855-4a81-9eb7-350b355a9b3f"),
     "Grand Coliseum",
-    crate::card::CardArt::new("c2dc8061-a855-4a81-9eb7-350b355a9b3f", "Carl Critchlow"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c2dc8061-a855-4a81-9eb7-350b355a9b3f", "Carl Critchlow"),
+    CardSet::Onslaught,
+    // Every colour for a life apiece and a turn up front, which only a
+    // five-colour deck can justify.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color. This land deals 1 damage to you.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_damage_to_controller(1)),
+        ),
+    ]),
 );
 
 // ONS 320 — Lonely Sandbar

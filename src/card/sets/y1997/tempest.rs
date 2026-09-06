@@ -4095,13 +4095,22 @@ pub(in crate::card::sets) static ANCIENT_TOMB: CardRecord = CardRecord::new_with
 );
 
 // TMP 316 — Caldera Lake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CALDERA_LAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f01fe22-e8ff-4106-8ac5-693ef920b2c9"),
     "Caldera Lake",
-    crate::card::CardArt::new("7f01fe22-e8ff-4106-8ac5-693ef920b2c9", "Allen Williams"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7f01fe22-e8ff-4106-8ac5-693ef920b2c9", "Allen Williams"),
+    CardSet::Tempest,
+    // A painland that also costs a turn, which is what the rate looked
+    // like before the Apocalypse cycle fixed it.
+    CardRules::new_land(&[]).with_abilities(
+        &const {
+            let [colorless, colored] = abilities::pain_land(
+                "{T}: Add {U} or {R}. This land deals 1 damage to you.",
+                &[ManaColor::Blue, ManaColor::Red],
+            );
+            [abilities::enters_tapped(CardType::Land), colorless, colored]
+        },
+    ),
 );
 
 // TMP 317 — Cinder Marsh
@@ -4148,13 +4157,21 @@ pub(in crate::card::sets) static MOGG_HOLLOWS: CardRecord = CardRecord::new(
 );
 
 // TMP 321 — Pine Barrens
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PINE_BARRENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d5ac39e8-bd0e-4fa3-bc1e-a93944d013f3"),
     "Pine Barrens",
-    crate::card::CardArt::new("d5ac39e8-bd0e-4fa3-bc1e-a93944d013f3", "Rebecca Guay"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d5ac39e8-bd0e-4fa3-bc1e-a93944d013f3", "Rebecca Guay"),
+    CardSet::Tempest,
+    // The black-green member of the slow cycle.
+    CardRules::new_land(&[]).with_abilities(
+        &const {
+            let [colorless, colored] = abilities::pain_land(
+                "{T}: Add {B} or {G}. This land deals 1 damage to you.",
+                &[ManaColor::Black, ManaColor::Green],
+            );
+            [abilities::enters_tapped(CardType::Land), colorless, colored]
+        },
+    ),
 );
 
 // TMP 322 — Reflecting Pool
@@ -4189,33 +4206,57 @@ pub(in crate::card::sets) static ROOTWATER_DEPTHS: CardRecord = CardRecord::new(
 );
 
 // TMP 324 — Salt Flats
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SALT_FLATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("224cb63f-9af0-4b00-ba0b-0b604abf20c8"),
     "Salt Flats",
-    crate::card::CardArt::new("224cb63f-9af0-4b00-ba0b-0b604abf20c8", "Scott Kirschner"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("224cb63f-9af0-4b00-ba0b-0b604abf20c8", "Scott Kirschner"),
+    CardSet::Tempest,
+    // The white-black member.
+    CardRules::new_land(&[]).with_abilities(
+        &const {
+            let [colorless, colored] = abilities::pain_land(
+                "{T}: Add {W} or {B}. This land deals 1 damage to you.",
+                &[ManaColor::White, ManaColor::Black],
+            );
+            [abilities::enters_tapped(CardType::Land), colorless, colored]
+        },
+    ),
 );
 
 // TMP 325 — Scabland
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCABLAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0374f269-b07e-43af-911a-5454b35f14e6"),
     "Scabland",
-    crate::card::CardArt::new("0374f269-b07e-43af-911a-5454b35f14e6", "Andrew Robinson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0374f269-b07e-43af-911a-5454b35f14e6", "Andrew Robinson"),
+    CardSet::Tempest,
+    // The red-white member.
+    CardRules::new_land(&[]).with_abilities(
+        &const {
+            let [colorless, colored] = abilities::pain_land(
+                "{T}: Add {R} or {W}. This land deals 1 damage to you.",
+                &[ManaColor::Red, ManaColor::White],
+            );
+            [abilities::enters_tapped(CardType::Land), colorless, colored]
+        },
+    ),
 );
 
 // TMP 326 — Skyshroud Forest
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYSHROUD_FOREST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa01f43b-d0b3-4cd5-9694-aed30a79462c"),
     "Skyshroud Forest",
-    crate::card::CardArt::new("aa01f43b-d0b3-4cd5-9694-aed30a79462c", "Roger Raupp"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("aa01f43b-d0b3-4cd5-9694-aed30a79462c", "Roger Raupp"),
+    CardSet::Tempest,
+    // The green-blue member.
+    CardRules::new_land(&[]).with_abilities(
+        &const {
+            let [colorless, colored] = abilities::pain_land(
+                "{T}: Add {G} or {U}. This land deals 1 damage to you.",
+                &[ManaColor::Green, ManaColor::Blue],
+            );
+            [abilities::enters_tapped(CardType::Land), colorless, colored]
+        },
+    ),
 );
 
 // TMP 327 — Stalking Stones

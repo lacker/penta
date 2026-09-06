@@ -12,6 +12,15 @@ fn painlands_offer_safe_colorless_or_colored_mana_with_immediate_damage() {
         (cards::CAVES_OF_KOILOS, [ManaColor::White, ManaColor::Black]),
         (cards::LLANOWAR_WASTES, [ManaColor::Black, ManaColor::Green]),
         (cards::YAVIMAYA_COAST, [ManaColor::Green, ManaColor::Blue]),
+        (cards::BATTLEFIELD_FORGE, [ManaColor::Red, ManaColor::White]),
+        (cards::SHIVAN_REEF, [ManaColor::Blue, ManaColor::Red]),
+        // The Tempest cycle prints the same two abilities and adds a turn of
+        // delay, which does not change what either ability costs.
+        (cards::CALDERA_LAKE, [ManaColor::Blue, ManaColor::Red]),
+        (cards::PINE_BARRENS, [ManaColor::Black, ManaColor::Green]),
+        (cards::SALT_FLATS, [ManaColor::White, ManaColor::Black]),
+        (cards::SCABLAND, [ManaColor::Red, ManaColor::White]),
+        (cards::SKYSHROUD_FOREST, [ManaColor::Green, ManaColor::Blue]),
     ] {
         let mut game = ready_game();
         let land = creature(10_000, definition, PlayerId::One);
@@ -302,6 +311,80 @@ fn coastal_tower_enters_tapped_and_fetchlands_find_only_their_land_types() {
             game.battlefield
                 .iter()
                 .any(|permanent| permanent.card.definition == eligible)
+        );
+    }
+}
+
+/// The Tempest painlands print a third ability the Apocalypse cycle does
+/// not, and Grand Coliseum prints all three plus a colour choice. What is
+/// worth separating is that the delay is a replacement on entry, not a cost
+/// of either mana ability: neither is more expensive for it.
+#[test]
+fn the_slow_painlands_arrive_tapped() {
+    for definition in [
+        cards::CALDERA_LAKE,
+        cards::PINE_BARRENS,
+        cards::SALT_FLATS,
+        cards::SCABLAND,
+        cards::SKYSHROUD_FOREST,
+        cards::GRAND_COLISEUM,
+    ] {
+        let mut game = ready_game();
+        game.battlefield.clear();
+        game.players[0].hand.clear();
+        game.players[0]
+            .hand
+            .push(card(10_900, definition, PlayerId::One));
+        game.apply(
+            PlayerId::One,
+            Action::PlayLand {
+                card: CardInstanceId(10_900),
+                option: PlayOptionId::DEFAULT,
+            },
+        )
+        .expect("a land drop is available");
+
+        let land = game
+            .battlefield
+            .last()
+            .expect("the land is on the battlefield");
+        assert!(land.tapped, "it arrived tapped");
+        assert_eq!(game.players[0].life, 20, "and cost no life to play");
+    }
+}
+
+/// Grand Coliseum's coloured ability makes any colour rather than one of
+/// two, and still costs exactly one life.
+#[test]
+fn grand_coliseum_pays_one_life_for_any_color() {
+    for color in [
+        ManaColor::White,
+        ManaColor::Blue,
+        ManaColor::Black,
+        ManaColor::Red,
+        ManaColor::Green,
+    ] {
+        let mut game = ready_game();
+        let coliseum = creature(10_910, cards::GRAND_COLISEUM, PlayerId::One);
+        let source = coliseum.card.id;
+        game.battlefield.push(coliseum);
+        game.apply(
+            PlayerId::One,
+            Action::ActivateManaAbility {
+                source,
+                ability: mana_ability_for(&game, source, color),
+                color,
+                counters_removed: None,
+                cost_object: None,
+                combination: None,
+                triggered_mana: None,
+            },
+        )
+        .unwrap();
+        assert_eq!(game.players[PlayerId::One.index()].life, 19);
+        assert_eq!(
+            game.players[PlayerId::One.index()].mana_pool.amount(color),
+            1
         );
     }
 }

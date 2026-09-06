@@ -1316,13 +1316,29 @@ pub(in crate::card::sets) static NIGHTSCAPE_MASTER: CardRecord = CardRecord::new
 );
 
 // INV 114 — Phyrexian Battleflies
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_BATTLEFLIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("da27c489-c541-4b0d-a844-71aa65e55ceb"),
     "Phyrexian Battleflies",
-    crate::card::CardArt::new("da27c489-c541-4b0d-a844-71aa65e55ceb", "Dan Frazier"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("da27c489-c541-4b0d-a844-71aa65e55ceb", "Dan Frazier"),
+    CardSet::Invasion,
+    // Pit Imp again, reprinted as a Phyrexian for a block that counted
+    // them.
+    CardRules::new_creature(mana_cost!("{B}"), &["Phyrexian", "Insect"], 0, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+0 until end of turn. Activate no more than twice each turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .activations_each_turn(2),
+    ]),
 );
 
 // INV 115 — Phyrexian Delver

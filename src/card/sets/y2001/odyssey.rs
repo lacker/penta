@@ -99,16 +99,31 @@ pub(in crate::card::sets) static AVEN_CLOUDCHASER: CardRecord = CardRecord::new(
 );
 
 // ODY 8 — Aven Flock
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_FLOCK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29866d0b-f9be-4284-9d21-03598ef6ae4f"),
     "Aven Flock",
-    crate::card::CardArt::new(
+    CardArt::new(
         "29866d0b-f9be-4284-9d21-03598ef6ae4f",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Toughness rather than power, so it wins the air by surviving rather
+    // than by killing.
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Bird", "Soldier"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{W}: This creature gets +0/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ODY 9 — Aven Shrine

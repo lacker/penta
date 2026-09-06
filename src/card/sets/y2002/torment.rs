@@ -279,13 +279,28 @@ pub(in crate::card::sets) static AQUAMOEBA: CardRecord = CardRecord::new(
 );
 
 // TOR 25 — Balshan Collaborator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALSHAN_COLLABORATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e23ebd3b-59bf-4f3d-b320-9283871c4540"),
     "Balshan Collaborator",
-    crate::card::CardArt::new("e23ebd3b-59bf-4f3d-b320-9283871c4540", "DiTerlizzi"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e23ebd3b-59bf-4f3d-b320-9283871c4540", "DiTerlizzi"),
+    CardSet::Torment,
+    // A blue creature that pumps with black mana, which is the whole of
+    // what Torment meant by collaboration.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Bird", "Soldier"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TOR 26 — Breakthrough

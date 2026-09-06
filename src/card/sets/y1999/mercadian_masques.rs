@@ -943,13 +943,29 @@ pub(in crate::card::sets) static DIPLOMATIC_IMMUNITY: CardRecord = CardRecord::n
 );
 
 // MMQ 76 — Drake Hatchling
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAKE_HATCHLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64ee32f9-6120-4f15-a692-89a4cd8167c6"),
     "Drake Hatchling",
-    crate::card::CardArt::new("64ee32f9-6120-4f15-a692-89a4cd8167c6", "Bradley Williams"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("64ee32f9-6120-4f15-a692-89a4cd8167c6", "Bradley Williams"),
+    CardSet::MercadianMasques,
+    // A 1/3 flier that attacks as a 2/3 once a turn, which is most of what
+    // blue asked of a three-drop.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Drake"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{U}: This creature gets +1/+0 until end of turn. Activate only once each turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .activations_each_turn(1),
+    ]),
 );
 
 // MMQ 77 — Embargo

@@ -1665,13 +1665,29 @@ pub(in crate::card::sets) static PERISH: CardRecord = CardRecord::new(
 );
 
 // TMP 148 — Pit Imp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PIT_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("24c7acfe-b5b2-426f-a5a1-1ff8ef7ebf72"),
     "Pit Imp",
-    crate::card::CardArt::new("24c7acfe-b5b2-426f-a5a1-1ff8ef7ebf72", "Phil Foglio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("24c7acfe-b5b2-426f-a5a1-1ff8ef7ebf72", "Phil Foglio"),
+    CardSet::Tempest,
+    // A 0/1 flier that becomes a 2/1 for two more mana, capped so it cannot
+    // simply eat the whole hand.
+    CardRules::new_creature(mana_cost!("{B}"), &["Imp"], 0, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+0 until end of turn. Activate no more than twice each turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .activations_each_turn(2),
+    ]),
 );
 
 // TMP 149 — Rain of Tears
@@ -1983,13 +1999,28 @@ pub(in crate::card::sets) static ENRAGING_LICID: CardRecord = CardRecord::new(
 );
 
 // TMP 172 — Firefly
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIREFLY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a312f0cf-225a-4f3d-b9a7-c47dd03b25c3"),
     "Firefly",
-    crate::card::CardArt::new("a312f0cf-225a-4f3d-b9a7-c47dd03b25c3", "Stephen Daniele"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a312f0cf-225a-4f3d-b9a7-c47dd03b25c3", "Stephen Daniele"),
+    CardSet::Tempest,
+    // Uncapped, which is the difference: with mana open it is as big as the
+    // turn allows.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Insect"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 173 — Fireslinger

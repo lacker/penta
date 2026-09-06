@@ -1250,16 +1250,31 @@ pub(in crate::card::sets) static SONG_OF_BLOOD: CardRecord = CardRecord::new(
 );
 
 // VIS 95 — Spitting Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPITTING_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9f6ef97-587f-4f7b-98a2-e3cc8b39df8b"),
     "Spitting Drake",
-    crate::card::CardArt::new(
+    CardArt::new(
         "c9f6ef97-587f-4f7b-98a2-e3cc8b39df8b",
         "Geofrey Darrow & I. Rabarot",
     ),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardSet::Visions,
+    // One activation a turn, so it is a 3/2 flier rather than a mana sink.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Drake"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn. Activate only once each turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .activations_each_turn(1),
+    ]),
 );
 
 // VIS 96 — Suq'Ata Lancer
@@ -1303,13 +1318,32 @@ pub(in crate::card::sets) static TREMOR: CardRecord = CardRecord::new(
 );
 
 // VIS 100 — Viashino Sandstalker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_SANDSTALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0eb0579a-a0b0-43b0-884c-13035158ae64"),
     "Viashino Sandstalker",
-    crate::card::CardArt::new("01770e13-ebd4-4c83-9e72-99374239a63d", "Andrew Robinson"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("01770e13-ebd4-4c83-9e72-99374239a63d", "Andrew Robinson"),
+    CardSet::Visions,
+    // Four damage for three mana with no board left behind, which is a burn
+    // spell that can be blocked.
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Lizard", "Warrior"], 4, 2).with_abilities(
+        &[
+            abilities::haste(),
+            AbilityDef::triggered(
+                "At the beginning of the end step, return this creature to its owner's hand.",
+                // Any end step, not only yours: cast on their turn it comes
+                // back the same turn, which is what makes it a trick.
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ],
+    ),
 );
 
 // VIS 101 — Bull Elephant

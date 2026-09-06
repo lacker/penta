@@ -1130,16 +1130,33 @@ pub(in crate::card::sets) static VIASHINO_BEY: CardRecord = CardRecord::new(
 );
 
 // ULG 94 — Viashino Cutthroat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_CUTTHROAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bcbab69d-3259-40f4-a588-ab550858a178"),
     "Viashino Cutthroat",
-    crate::card::CardArt::new(
+    CardArt::new(
         "bcbab69d-3259-40f4-a588-ab550858a178",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasLegacy,
+    // Five damage the turn it lands, every turn, for four mana -- as long
+    // as the mana is spent again each time.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Lizard"], 5, 3).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::triggered(
+            "At the beginning of the end step, return this creature to its owner's hand.",
+            // Any end step, not only yours: cast on their turn it comes
+            // back the same turn, which is what makes it a trick.
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ULG 95 — Viashino Heretic
@@ -1153,13 +1170,30 @@ pub(in crate::card::sets) static VIASHINO_HERETIC: CardRecord = CardRecord::new(
 );
 
 // ULG 96 — Viashino Sandscout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_SANDSCOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12dd888a-ca98-44dd-a213-858c3539dc97"),
     "Viashino Sandscout",
-    crate::card::CardArt::new("12dd888a-ca98-44dd-a213-858c3539dc97", "Scott M. Fischer"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("12dd888a-ca98-44dd-a213-858c3539dc97", "Scott M. Fischer"),
+    CardSet::UrzasLegacy,
+    // The cheap end of the same deal: two damage a turn for two mana, paid
+    // again and again.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Lizard", "Scout"], 2, 1).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::triggered(
+            "At the beginning of the end step, return this creature to its owner's hand.",
+            // Any end step, not only yours: cast on their turn it comes
+            // back the same turn, which is what makes it a trick.
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ULG 97 — Bloated Toad

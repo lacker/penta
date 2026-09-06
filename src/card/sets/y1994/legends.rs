@@ -7,10 +7,10 @@ use crate::card::{
     ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind,
     DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
+    DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellResolutionDestinationDef,
     SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -2523,13 +2523,25 @@ pub(in crate::card::sets) static TRANSMUTATION: CardRecord = CardRecord::new_wit
 );
 
 // LEG 124 — Underworld Dreams
-// Audit: unsupported — Needs an opponent-draw event trigger that deals damage to the exact player who drew.
 pub(in crate::card::sets) static UNDERWORLD_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0e8f8d8-eac0-451c-a167-be84667a8e3d"),
     "Underworld Dreams",
-    crate::card::CardArt::new("a0e8f8d8-eac0-451c-a167-be84667a8e3d", "Julie Baroh"),
-    crate::card::CardSet::Legends,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a0e8f8d8-eac0-451c-a167-be84667a8e3d", "Julie Baroh"),
+    CardSet::Legends,
+    // Three black mana for a clock the opponent winds themselves. It does
+    // nothing against a deck that has stopped drawing, and everything
+    // against one that has not.
+    CardRules::new_enchantment(mana_cost!("{B}{B}{B}")).with_ability(AbilityDef::triggered(
+        "Whenever an opponent draws a card, this enchantment deals 1 damage to that player.",
+        // "That player" is whoever drew, not simply the opponent: the
+        // recipient is read off the event so a multiplayer table hits the
+        // right one.
+        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // LEG 125 — Vampire Bats

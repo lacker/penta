@@ -363,6 +363,7 @@ mod turn_and_loyalty;
 mod tutors_and_fetch_lands;
 mod unblocked_attackers;
 mod unbounded_targets;
+mod underworld_dreams;
 mod unleash;
 mod untap_caps;
 mod untap_skip_spells;

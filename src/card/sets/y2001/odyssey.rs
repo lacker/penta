@@ -2008,13 +2008,29 @@ pub(in crate::card::sets) static TREETOP_SENTINEL: CardRecord = CardRecord::new(
 );
 
 // ODY 112 — Unifying Theory
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNIFYING_THEORY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8aa4bf82-65e7-4b0c-9f96-dd84a67dcfb2"),
     "Unifying Theory",
-    crate::card::CardArt::new("8aa4bf82-65e7-4b0c-9f96-dd84a67dcfb2", "Ron Spears"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8aa4bf82-65e7-4b0c-9f96-dd84a67dcfb2", "Ron Spears"),
+    CardSet::Odyssey,
+    // It offers the card to whoever cast the spell, so it helps the deck
+    // casting the most spells -- which is not always the one that played it.
+    CardRules::new_enchantment(mana_cost!("{1}{U}")).with_ability(AbilityDef::triggered(
+    "Whenever a player casts a spell, that player may pay {2}. If the player does, they draw a card.",
+    TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
+    EffectDef::PayOr(PayOrDef::optional(
+        EffectPaymentDef::mana(
+            PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)),
+            mana_cost!("{2}"),
+        ),
+        &const {
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                amount: ValueDef::Constant(1),
+            }
+        },
+    )),
+)),
 );
 
 // ODY 113 — Upheaval
@@ -2838,13 +2854,41 @@ pub(in crate::card::sets) static SADISTIC_HYPNOTIST: CardRecord = CardRecord::ne
 );
 
 // ODY 160 — Screams of the Damned
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCREAMS_OF_THE_DAMNED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66cc53cf-13eb-4028-944d-a670ad30dbca"),
     "Screams of the Damned",
-    crate::card::CardArt::new("66cc53cf-13eb-4028-944d-a670ad30dbca", "Jerry Tiritilli"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("66cc53cf-13eb-4028-944d-a670ad30dbca", "Jerry Tiritilli"),
+    CardSet::Odyssey,
+    // A sweeper that repeats for as long as the graveyard lasts, which in a
+    // deck built to fill one is most of the game.
+    CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::activated(
+    "{1}{B}, Exile a card from your graveyard: This enchantment deals 1 damage to each creature and each player.",
+    &[
+        CostDef::Mana(mana_cost!("{1}{B}")),
+        CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+            ObjectPredicateDef::Any,
+            ZoneKind::Graveyard,
+            ZoneKind::Exile,
+            1,
+        )),
+    ],
+    EffectDef::Sequence(&const {
+        [
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(1),
+            },
+        ]
+    }),
+)),
 );
 
 // ODY 161 — Skeletal Scrying
@@ -3193,13 +3237,26 @@ pub(in crate::card::sets) static BOMB_SQUAD: CardRecord = CardRecord::new(
 );
 
 // ODY 180 — Burning Sands
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BURNING_SANDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a5d5eef-6e3c-4907-a277-a13de2916e2b"),
     "Burning Sands",
-    crate::card::CardArt::new("9a5d5eef-6e3c-4907-a277-a13de2916e2b", "Ron Spencer"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9a5d5eef-6e3c-4907-a277-a13de2916e2b", "Ron Spencer"),
+    CardSet::Odyssey,
+    // Every dead creature costs its controller a land, which turns a board
+    // stall into a race neither deck can afford.
+    CardRules::new_enchantment(mana_cost!("{3}{R}{R}")).with_ability(abilities::dies_trigger_matching(
+    "Whenever a creature dies, that creature's controller sacrifices a land of their choice.",
+    ObjectPredicateDef::HasType(CardType::Creature),
+    EffectDef::SacrificeOfChoice {
+        player: EffectRecipientDef::ControllerOfTriggeringObject,
+        object: ObjectPredicateDef::HasType(CardType::Land),
+        count: ValueDef::Constant(1),
+        then: None,
+        amount: SacrificedAmountDef::Power,
+        otherwise: None,
+        optional: false,
+    },
+)),
 );
 
 // ODY 181 — Chainflinger

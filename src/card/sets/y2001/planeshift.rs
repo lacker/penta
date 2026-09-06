@@ -4,11 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DrawEventMatcherDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1897,13 +1897,29 @@ pub(in crate::card::sets) static NATURAL_EMERGENCE: CardRecord = CardRecord::new
 );
 
 // PLS 118 — Phyrexian Tyranny
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_TYRANNY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8440ca8-73ca-462b-a735-f6fb3d0de603"),
     "Phyrexian Tyranny",
-    crate::card::CardArt::new("e8440ca8-73ca-462b-a735-f6fb3d0de603", "Kev Walker"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e8440ca8-73ca-462b-a735-f6fb3d0de603", "Kev Walker"),
+    CardSet::Planeshift,
+    // Every card either player draws costs two mana or two life, which is a
+    // tax the deck holding it has already budgeted for.
+    CardRules::new_enchantment(mana_cost!("{U}{B}{R}")).with_ability(AbilityDef::triggered(
+        "Whenever a player draws a card, that player loses 2 life unless they pay {2}.",
+        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Any)),
+        EffectDef::PayOr(PayOrDef::unless(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::EventPlayer),
+                mana_cost!("{2}"),
+            ),
+            &const {
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(2),
+                }
+            },
+        )),
+    )),
 );
 
 // PLS 119 — Questing Phelddagrif

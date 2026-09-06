@@ -591,13 +591,56 @@ pub(in crate::card::sets) static SUNSCAPE_MASTER: CardRecord = CardRecord::new(
 );
 
 // INV 43 — Teferi's Care
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEFERI_S_CARE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("031b1cc1-4468-4bc5-85c0-c22dce131225"),
     "Teferi's Care",
-    crate::card::CardArt::new("031b1cc1-4468-4bc5-85c0-c22dce131225", "Scott Bailey"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("031b1cc1-4468-4bc5-85c0-c22dce131225", "Scott Bailey"),
+    CardSet::Invasion,
+    // Two answers to enchantments in one card, one of which spends the card
+    // itself -- which is the point of a two-mana enchantment.
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{W}, Sacrifice an enchantment: Destroy target enchantment.",
+            &[
+                CostDef::Mana(mana_cost!("{W}")),
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}{U}{U}: Counter target enchantment spell.",
+            &[CostDef::Mana(mana_cost!("{3}{U}{U}"))],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // INV 44 — Wayfaring Giant
@@ -2540,13 +2583,26 @@ pub(in crate::card::sets) static STAND_OR_FALL: CardRecord = CardRecord::new(
 // INV 172 — Stun (reprint)
 
 // INV 173 — Tectonic Instability
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TECTONIC_INSTABILITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0476cc6b-ecc6-44d6-9f44-a90d4ee85daa"),
     "Tectonic Instability",
-    crate::card::CardArt::new("0476cc6b-ecc6-44d6-9f44-a90d4ee85daa", "Rob Alexander"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0476cc6b-ecc6-44d6-9f44-a90d4ee85daa", "Rob Alexander"),
+    CardSet::Invasion,
+    // Every land drop costs its player the rest of their mana, which turns a
+    // tapped-out turn into two of them.
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(AbilityDef::triggered(
+        "Whenever a land enters, tap all lands its controller controls.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::HasType(CardType::Land),
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        EffectDef::Tap {
+            object: EffectRecipientDef::objects(ObjectSetDef::PermanentsControlledBy(
+                PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
+            )),
+        },
+    )),
 );
 
 // INV 174 — Thunderscape Apprentice
@@ -3574,13 +3630,39 @@ pub(in crate::card::sets) static AURA_MUTATION: CardRecord = CardRecord::new(
 );
 
 // INV 233 — Aura Shards
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AURA_SHARDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("df4039ef-af72-4267-ade9-fdb7c921279e"),
     "Aura Shards",
-    crate::card::CardArt::new("df4039ef-af72-4267-ade9-fdb7c921279e", "Ron Spencer"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("df4039ef-af72-4267-ade9-fdb7c921279e", "Ron Spencer"),
+    CardSet::Invasion,
+    // Every creature becomes a Disenchant, which against a deck built on
+    // permanents is an answer to every one of them.
+    CardRules::new_enchantment(mana_cost!("{1}{G}{W}")).with_ability(AbilityDef::triggered_with_targets(
+    "Whenever a creature you control enters, you may destroy target artifact or enchantment.",
+    TriggerEventDef::zone_changed(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+        ]),
+        None,
+        Some(ZoneKind::Battlefield),
+    ),
+    &const {
+        [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
+            ObjectPredicateDef::HasType(CardType::Artifact),
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+        ]))]
+    },
+    EffectDef::May {
+        player: EffectRecipientDef::Controller,
+        effect: &const {
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            }
+        },
+    },
+)),
 );
 
 // INV 234 — Backlash

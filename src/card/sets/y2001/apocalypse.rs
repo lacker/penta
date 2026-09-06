@@ -1965,13 +1965,29 @@ pub(in crate::card::sets) static LLANOWAR_DEAD: CardRecord = CardRecord::new(
 );
 
 // APC 110 — Martyrs' Tomb
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARTYRS_TOMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a906a775-7c2d-47b7-a20e-a325dd28d0bd"),
     "Martyrs' Tomb",
-    crate::card::CardArt::new("a906a775-7c2d-47b7-a20e-a325dd28d0bd", "Anthony S. Waters"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a906a775-7c2d-47b7-a20e-a325dd28d0bd", "Anthony S. Waters"),
+    CardSet::Apocalypse,
+    // Life into prevention, one point at a time, which only reads as a gain
+    // when the damage was going to kill something.
+    CardRules::new_enchantment(mana_cost!("{2}{W}{B}")).with_ability(AbilityDef::activated_with_targets(
+    "Pay 2 life: Prevent the next 1 damage that would be dealt to target creature this turn.",
+    &[CostDef::PayLife(2)],
+    &const {
+        [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+            CardType::Creature,
+        ))]
+    },
+    EffectDef::PreventDamage {
+        prevention: DamagePreventionDef::amount(
+            DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+            ValueDef::Constant(1),
+        ),
+        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+    },
+)),
 );
 
 // APC 111 — Minotaur Illusionist
@@ -2037,15 +2053,15 @@ pub(in crate::card::sets) static OVERGROWN_ESTATE: CardRecord = CardRecord::new(
 );
 
 // APC 114 — Pernicious Deed
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an activated ability's X inside a nontarget object query. ManaValueAtMostValue with ValueDef::ChosenX resolves in a target predicate on a spell with {X} in its mana cost, but an activated ability's X does not reach the query behind EffectRecipientDef::matching_objects, so the sweep destroys nothing at any X.
 pub(in crate::card::sets) static PERNICIOUS_DEED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae4cbb33-4947-49f0-b612-a92141fbfaa6"),
     "Pernicious Deed",
-    crate::card::CardArt::new(
+    CardArt::new(
         "ae4cbb33-4947-49f0-b612-a92141fbfaa6",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Apocalypse,
+    CardSet::Apocalypse,
     crate::card::CardRules::unsupported(),
 );
 

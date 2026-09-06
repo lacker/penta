@@ -7,10 +7,11 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, BlockRestrictionDef,
     BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CounterKind,
-    DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -462,13 +463,37 @@ pub(in crate::card::sets) static ACCUMULATED_KNOWLEDGE: CardRecord = CardRecord:
 );
 
 // NEM 27 — Aether Barrier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHER_BARRIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36298f9f-12cc-43bd-adda-ccabd67a9568"),
     "Aether Barrier",
-    crate::card::CardArt::new("36298f9f-12cc-43bd-adda-ccabd67a9568", "David Martin"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("36298f9f-12cc-43bd-adda-ccabd67a9568", "David Martin"),
+    CardSet::Nemesis,
+    // A tax on every creature spell, paid by whoever cast it -- which is why
+    // it belongs in the deck with no creatures at all.
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_ability(AbilityDef::triggered(
+    "Whenever a player casts a creature spell, that player sacrifices a permanent of their choice unless they pay {1}.",
+    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+        ObjectPredicateDef::Spell,
+        ObjectPredicateDef::HasType(CardType::Creature),
+    ])),
+    EffectDef::PayOr(PayOrDef::unless(
+        EffectPaymentDef::mana(
+            PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)),
+            mana_cost!("{1}"),
+        ),
+        &const {
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::ControllerOfTriggeringObject,
+                object: ObjectPredicateDef::Any,
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            }
+        },
+    )),
+)),
 );
 
 // NEM 28 — Air Bladder
@@ -976,13 +1001,39 @@ pub(in crate::card::sets) static DARK_TRIUMPH: CardRecord = CardRecord::new(
 );
 
 // NEM 56 — Death Pit Offering
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATH_PIT_OFFERING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6223e583-8ef6-4d93-8ed0-3ccf4488f166"),
     "Death Pit Offering",
-    crate::card::CardArt::new("6223e583-8ef6-4d93-8ed0-3ccf4488f166", "Pete Venters"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6223e583-8ef6-4d93-8ed0-3ccf4488f166", "Pete Venters"),
+    CardSet::Nemesis,
+    // It costs you the board and pays you back on everything that follows,
+    // which is a deal only a deck already holding creatures can take.
+    CardRules::new_enchantment(mana_cost!("{2}{B}{B}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this enchantment enters, sacrifice all creatures you control.",
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Creatures you control get +2/+2.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+            },
+        ),
+    ]),
 );
 
 // NEM 57 — Divining Witch

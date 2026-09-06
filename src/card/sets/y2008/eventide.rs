@@ -79,7 +79,7 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
 );
 
 // EVE 119 — Desecrator Hag
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a value that aggregates over a query to be readable inside a query filter. "The creature card with the greatest power" is expressible as a choice among the cards nothing beats, but the maximum is an AggregateObjectValues over the graveyard and a predicate cannot evaluate one, so the comparison silently fails and its negation admits every creature card.
 pub(in crate::card::sets) static DESECRATOR_HAG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("74d2e092-c805-447c-b784-1896b69524e0"),
     "Desecrator Hag",

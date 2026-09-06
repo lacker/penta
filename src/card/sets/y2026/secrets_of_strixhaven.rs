@@ -20,7 +20,7 @@ pub(in crate::card::sets) static ELITE_INTERCEPTOR: CardRecord = CardRecord::new
 );
 
 // SOS 42 — Deluge Virtuoso
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the amount of mana spent to cast a spell. Only ColorsOfManaSpent is recorded, so the opus clause cannot ask whether five or more was spent; the entry tap-and-stun is expressible.
 pub(in crate::card::sets) static DELUGE_VIRTUOSO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e3b16ed-8727-48fd-8b1f-c0cbd329385e"),
     "Deluge Virtuoso",

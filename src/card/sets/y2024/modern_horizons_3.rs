@@ -1707,7 +1707,7 @@ pub(in crate::card::sets) static CONDUIT_GOBLIN: CardRecord = CardRecord::new(
 );
 
 // MH3 184 — Expanding Ooze
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a modified predicate. "Target modified creature you control" asks whether a permanent carries an Aura, Equipment, or counter, and no predicate says it.
 pub(in crate::card::sets) static EXPANDING_OOZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbdb095d-b826-4e3e-8c61-0d408e52d6b8"),
     "Expanding Ooze",

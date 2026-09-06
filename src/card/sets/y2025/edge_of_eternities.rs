@@ -554,7 +554,7 @@ pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
 );
 
 // EOE 152 — Plasma Bolt
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs void. Neither half of its condition is available: ControllerHadPermanentLeaveThisTurn is per-player and does not exclude lands, and nothing records that a spell was warped this turn.
 pub(in crate::card::sets) static PLASMA_BOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a1a1834b-76c2-4496-b8c5-18b69ab34c4c"),
     "Plasma Bolt",

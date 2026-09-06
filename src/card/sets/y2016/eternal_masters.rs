@@ -12,7 +12,7 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // EMA 6 — Coalition Honor Guard
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rule that constrains how an opponent chooses targets. AppliedRuleDef can forbid actions and require blocks, but nothing requires a target to be chosen, which is the whole of what a Flagbearer does.
 pub(in crate::card::sets) static COALITION_HONOR_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5b7be3e-b4af-46d4-bcc6-b44c651f2012"),
     "Coalition Honor Guard",

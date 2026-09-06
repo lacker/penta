@@ -11,14 +11,15 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardNameSetDef,
-    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
-    DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
+    ChooseDef, ColorSet, DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef, EffectDef,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
+    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, RoundingDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -2374,7 +2375,7 @@ pub(in crate::card::sets) static CHAOSPHERE: CardRecord = CardRecord::new(
 );
 
 // MIR 165 — Cinder Cloud
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs to ask the colour of what actually died. A destroy follow-up binds the destroyed permanents as a set, and TriggerConditionDef::BoundObjectMatches over that binding is rejected as AbilityObjectBindingReferenceOutOfScope, so "if a white creature dies this way" cannot be read.
 pub(in crate::card::sets) static CINDER_CLOUD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f044c470-50ce-4a6c-b8ab-665357c3c11e"),
     "Cinder Cloud",
@@ -3623,16 +3624,45 @@ pub(in crate::card::sets) static JUNGLE_TROLL: CardRecord = CardRecord::new(
 );
 
 // MIR 270 — Kaervek's Purge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAERVEK_S_PURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a42ef95-92ec-40fe-ab30-a476f012a525"),
     "Kaervek's Purge",
-    crate::card::CardArt::new(
+    CardArt::new(
         "7a42ef95-92ec-40fe-ab30-a476f012a525",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardSet::Mirage,
+    // X has to match exactly, so it answers one creature precisely and
+    // nothing else, and the burn is a rebate for having guessed right.
+    CardRules::new_sorcery(mana_cost!("{X}{B}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target creature with mana value X. If that creature dies this way, Kaervek's \
+         Purge deals damage equal to the creature's power to the creature's controller.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            // A follow-up rather than a second clause: it binds only what
+            // actually reached the graveyard, so a regenerated or
+            // indestructible creature deals no damage.
+            then: Some(DestroyFollowUpDef {
+                binding: ParentBinding,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Binding(ParentBinding),
+                        select: ObjectValueDef::Power,
+                        operation: AggregateOperationDef::Sum,
+                    }),
+                },
+            }),
+        },
+    )),
 );
 
 // MIR 271 — Leering Gargoyle

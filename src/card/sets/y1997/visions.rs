@@ -157,13 +157,33 @@ pub(in crate::card::sets) static HOPE_CHARM: CardRecord = CardRecord::new(
 );
 
 // VIS 9 — Infantry Veteran
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INFANTRY_VETERAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0350470b-feea-4e15-bdf0-850b71dbeea6"),
     "Infantry Veteran",
-    crate::card::CardArt::new("0350470b-feea-4e15-bdf0-850b71dbeea6", "Christopher Rush"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0350470b-feea-4e15-bdf0-850b71dbeea6", "Christopher Rush"),
+    CardSet::Visions,
+    // A point of each on an attacker every turn, which is a one-drop that
+    // wins a combat a turn for free.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target attacking creature gets +1/+1 until end of turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // VIS 10 — Jamuraan Lion

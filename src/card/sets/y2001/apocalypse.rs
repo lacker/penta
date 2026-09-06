@@ -1515,13 +1515,24 @@ pub(in crate::card::sets) static TRANQUIL_PATH: CardRecord = CardRecord::new(
 );
 
 // APC 90 — Urborg Elf
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBORG_ELF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d8521bf-d026-4d26-831e-a2f253307c93"),
     "Urborg Elf",
-    crate::card::CardArt::new("1d8521bf-d026-4d26-831e-a2f253307c93", "Bob Petillo"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1d8521bf-d026-4d26-831e-a2f253307c93", "Bob Petillo"),
+    CardSet::Apocalypse,
+    // Three colours out of a two-drop, aimed at exactly the wedge the set
+    // was built around.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 1, 1).with_ability(
+        AbilityDef::activated_mana(
+            "{T}: Add {B}, {G}, or {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Green,
+                ManaColor::Blue,
+            ])),
+        ),
+    ),
 );
 
 // APC 91 — Aether Mutation

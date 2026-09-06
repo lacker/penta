@@ -2803,13 +2803,20 @@ pub(in crate::card::sets) static TREEFOLK_HEALER: CardRecord = CardRecord::new(
 );
 
 // INV 219 — Utopia Tree
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UTOPIA_TREE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("720452e9-3245-4b0e-94b6-843cbcb641a5"),
     "Utopia Tree",
-    crate::card::CardArt::new("720452e9-3245-4b0e-94b6-843cbcb641a5", "Gary Ruddell"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("720452e9-3245-4b0e-94b6-843cbcb641a5", "Gary Ruddell"),
+    CardSet::Invasion,
+    // Two mana for any colour a turn, which is what a five-colour deck paid
+    // before lands could do it.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant"], 0, 2).with_ability(
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ),
 );
 
 // INV 220 — Verdeloth the Ancient

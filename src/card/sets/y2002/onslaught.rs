@@ -3213,16 +3213,33 @@ pub(in crate::card::sets) static ELVISH_PIONEER: CardRecord = CardRecord::new(
 );
 
 // ONS 258 — Elvish Scrapper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_SCRAPPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae85fafb-114b-4fd8-ac4c-5ada57054705"),
     "Elvish Scrapper",
-    crate::card::CardArt::new(
+    CardArt::new(
         "ae85fafb-114b-4fd8-ac4c-5ada57054705",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardSet::Onslaught,
+    // Artifact removal held in play until it is needed, which beats holding
+    // it in hand against a deck that plays around one.
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}, Sacrifice this creature: Destroy target artifact.",
+            &[
+                CostDef::Mana(mana_cost!("{G}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // ONS 259 — Elvish Vanguard
@@ -3375,13 +3392,30 @@ pub(in crate::card::sets) static KROSAN_COLOSSUS: CardRecord = CardRecord::new(
 );
 
 // ONS 271 — Krosan Groundshaker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_GROUNDSHAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("82105090-5f71-4690-9ade-187354311ae3"),
     "Krosan Groundshaker",
-    crate::card::CardArt::new("82105090-5f71-4690-9ade-187354311ae3", "Wayne England"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("82105090-5f71-4690-9ade-187354311ae3", "Wayne England"),
+    CardSet::Onslaught,
+    // Trample for the tribe one member at a time, on a body big enough that
+    // it usually only needs to do it once.
+    CardRules::new_creature(mana_cost!("{4}{G}{G}{G}"), &["Beast"], 6, 6).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}: Target Beast creature gains trample until end of turn.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Beast"),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ONS 272 — Krosan Tusker (reprint)

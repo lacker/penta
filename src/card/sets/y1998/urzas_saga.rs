@@ -929,13 +929,28 @@ pub(in crate::card::sets) static CURFEW: CardRecord = CardRecord::new(
 );
 
 // USG 69 — Disruptive Student
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISRUPTIVE_STUDENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee43681d-e0f7-422b-a363-0d630f68d363"),
     "Disruptive Student",
-    crate::card::CardArt::new("ee43681d-e0f7-422b-a363-0d630f68d363", "Randy Gallegos"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee43681d-e0f7-422b-a363-0d630f68d363", "Randy Gallegos"),
+    CardSet::UrzasSaga,
+    // A tax that repeats every turn, which is worth more than a one-shot
+    // counter in a game that goes long.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Counter target spell unless its controller pays {1}.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+        ),
+    ),
 );
 
 // USG 70 — Douse

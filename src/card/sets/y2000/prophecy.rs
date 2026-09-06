@@ -1430,13 +1430,27 @@ pub(in crate::card::sets) static VETERAN_BRAWLERS: CardRecord = CardRecord::new(
 );
 
 // PCY 107 — Whip Sergeant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIP_SERGEANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e6b3f38-87c9-4cea-b9e5-b8fb42e64794"),
     "Whip Sergeant",
-    crate::card::CardArt::new("2e6b3f38-87c9-4cea-b9e5-b8fb42e64794", "Paolo Parente"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2e6b3f38-87c9-4cea-b9e5-b8fb42e64794", "Paolo Parente"),
+    CardSet::Prophecy,
+    // Haste for a mana, which turns every creature drawn later into an
+    // immediate attacker.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Soldier"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}: Target creature gains haste until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PCY 108 — Zerapa Minotaur

@@ -376,13 +376,23 @@ pub(in crate::card::sets) static ANTHROPLASM: CardRecord = CardRecord::new(
 );
 
 // ULG 26 — Archivist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCHIVIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9936cb4d-f4e3-4fc7-869e-8f17056e57d5"),
     "Archivist",
-    crate::card::CardArt::new("9936cb4d-f4e3-4fc7-869e-8f17056e57d5", "Pete Venters"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9936cb4d-f4e3-4fc7-869e-8f17056e57d5", "Pete Venters"),
+    CardSet::UrzasLegacy,
+    // A card a turn for as long as it lives, which is a rate no four-mana
+    // 1/1 has ever been allowed since.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{T}: Draw a card.",
+            &[CostDef::TapSource],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // ULG 27 — Aura Flux
@@ -1763,13 +1773,27 @@ pub(in crate::card::sets) static TREEFOLK_MYSTIC: CardRecord = CardRecord::new(
 );
 
 // ULG 115 — Weatherseed Elf
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEATHERSEED_ELF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4e74f8ae-992b-40a6-87e3-7b321dba4ffa"),
     "Weatherseed Elf",
-    crate::card::CardArt::new("4e74f8ae-992b-40a6-87e3-7b321dba4ffa", "Heather Hudson"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4e74f8ae-992b-40a6-87e3-7b321dba4ffa", "Heather Hudson"),
+    CardSet::UrzasLegacy,
+    // Evasion for one creature a turn, which in a green mirror is the
+    // whole difference between the boards.
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gains forestwalk until end of turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ULG 116 — Weatherseed Treefolk

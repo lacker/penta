@@ -2354,13 +2354,33 @@ pub(in crate::card::sets) static STRONGARM_THUG: CardRecord = CardRecord::new(
 );
 
 // MMQ 166 — Thrashing Wumpus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRASHING_WUMPUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("86bc07c6-2ba7-41f8-90ab-f9bbac86dd08"),
     "Thrashing Wumpus",
-    crate::card::CardArt::new("86bc07c6-2ba7-41f8-90ab-f9bbac86dd08", "Jeff Miracola"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("86bc07c6-2ba7-41f8-90ab-f9bbac86dd08", "Jeff Miracola"),
+    CardSet::MercadianMasques,
+    // A repeatable sweeper on a body, which only a deck with more life than
+    // the opponent can keep pointing at the board.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Beast"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{B}: This creature deals 1 damage to each creature and each player.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ),
 );
 
 // MMQ 167 — Undertaker

@@ -24,6 +24,7 @@ use crate::{
 mod any_color_for_life;
 mod assign_as_though_unblocked;
 mod attack_and_stay_tapped;
+mod attacker_pump;
 mod attacks_alone;
 mod aura_grants;
 mod aura_restrictions;
@@ -77,6 +78,7 @@ mod self_bounce_and_untap;
 mod skewer_the_critics;
 mod sliver_granted_pump;
 mod spell_then_draw;
+mod tap_for_chosen_colour;
 mod token_fixtures;
 mod tribal_lords;
 mod two_target_spells;

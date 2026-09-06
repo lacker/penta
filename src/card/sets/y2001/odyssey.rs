@@ -2935,13 +2935,30 @@ pub(in crate::card::sets) static DILIGENT_FARMHAND: CardRecord = CardRecord::new
 );
 
 // ODY 238 — Druid Lyrist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRUID_LYRIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9923532-bc4f-44de-b963-d6914321c49a"),
     "Druid Lyrist",
-    crate::card::CardArt::new("e9923532-bc4f-44de-b963-d6914321c49a", "Mark Zug"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e9923532-bc4f-44de-b963-d6914321c49a", "Mark Zug"),
+    CardSet::Odyssey,
+    // A one-drop that answers an enchantment whenever it becomes worth the
+    // card, which is what made it a sideboard staple.
+    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Druid"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}, Sacrifice this creature: Destroy target enchantment.",
+            &[
+                CostDef::Mana(mana_cost!("{G}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // ODY 239 — Druid's Call
@@ -3850,15 +3867,15 @@ pub(in crate::card::sets) static LIMESTONE_GOLEM: CardRecord = CardRecord::new(
 );
 
 // ODY 302 — Millikin
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mill as a mana-ability cost. The mana runtime's payable costs cover taps, sacrifices, discards, and exiles but not CostDef::MillCards, so a mana ability that pays one could never be offered even though the tap already bounds it.
 pub(in crate::card::sets) static MILLIKIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0550133b-22cf-4ecd-b89a-8c2f0beeaa22"),
     "Millikin",
-    crate::card::CardArt::new(
+    CardArt::new(
         "0550133b-22cf-4ecd-b89a-8c2f0beeaa22",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Odyssey,
+    CardSet::Odyssey,
     crate::card::CardRules::unsupported(),
 );
 

@@ -692,13 +692,19 @@ pub(in crate::card::sets) static METATHRAN_TRANSPORT: CardRecord = CardRecord::n
 );
 
 // INV 63 — Metathran Zombie
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METATHRAN_ZOMBIE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6676a0f7-8213-4547-b2ac-b904cd418073"),
     "Metathran Zombie",
-    crate::card::CardArt::new("6676a0f7-8213-4547-b2ac-b904cd418073", "Arnie Swekel"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6676a0f7-8213-4547-b2ac-b904cd418073", "Arnie Swekel"),
+    CardSet::Invasion,
+    // A blue creature that regenerates for black: the card is a gold card
+    // in everything but its mana cost, which is the point of the block.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Metathran", "Zombie"], 1, 1).with_ability(
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ),
 );
 
 // INV 64 — Opt

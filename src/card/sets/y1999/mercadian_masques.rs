@@ -2614,13 +2614,19 @@ pub(in crate::card::sets) static GROUNDSKEEPER: CardRecord = CardRecord::new(
 );
 
 // MMQ 251 — Horned Troll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORNED_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f2a6d10-054e-4d6f-aeb7-4204f02490c7"),
     "Horned Troll",
-    crate::card::CardArt::new("7f2a6d10-054e-4d6f-aeb7-4204f02490c7", "Heather Hudson"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7f2a6d10-054e-4d6f-aeb7-4204f02490c7", "Heather Hudson"),
+    CardSet::MercadianMasques,
+    // A 2/2 for three that survives combat as long as the mana is open,
+    // which is what green paid for instead of size.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Troll"], 2, 2).with_ability(
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+        ),
+    ),
 );
 
 // MMQ 252 — Howling Wolf

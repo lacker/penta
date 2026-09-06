@@ -1807,13 +1807,19 @@ pub(in crate::card::sets) static REIGN_OF_TERROR: CardRecord = CardRecord::new(
 );
 
 // MIR 138 — Restless Dead
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESTLESS_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a237cff4-af6f-4745-bda1-e3ed2267fa89"),
     "Restless Dead",
-    crate::card::CardArt::new("a237cff4-af6f-4745-bda1-e3ed2267fa89", "Ian Miller"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a237cff4-af6f-4745-bda1-e3ed2267fa89", "Ian Miller"),
+    CardSet::Mirage,
+    // A 1/1 that never dies while a black mana is up: the body is irrelevant
+    // and the regeneration is the whole card.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Skeleton"], 1, 1).with_ability(
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ),
 );
 
 // MIR 139 — Sewer Rats

@@ -712,13 +712,19 @@ pub(in crate::card::sets) static NIGHTSHADE_SEER: CardRecord = CardRecord::new(
 );
 
 // UDS 64 — Phyrexian Monitor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_MONITOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("571058b0-7e10-4259-8db9-5c8b78c1e13d"),
     "Phyrexian Monitor",
-    crate::card::CardArt::new("571058b0-7e10-4259-8db9-5c8b78c1e13d", "Carl Critchlow"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("571058b0-7e10-4259-8db9-5c8b78c1e13d", "Carl Critchlow"),
+    CardSet::UrzasDestiny,
+    // Four mana for a 2/2, which is a bad rate until the board stalls and
+    // nothing can profitably attack into it.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Skeleton"], 2, 2).with_ability(
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ),
 );
 
 // UDS 65 — Phyrexian Negator
@@ -1076,13 +1082,19 @@ pub(in crate::card::sets) static WILD_COLOS: CardRecord = CardRecord::new(
 );
 
 // UDS 101 — Ancient Silverback
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCIENT_SILVERBACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49651dd4-a489-42d3-b4eb-51f5353b334e"),
     "Ancient Silverback",
-    crate::card::CardArt::new("49651dd4-a489-42d3-b4eb-51f5353b334e", "Paolo Parente"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("49651dd4-a489-42d3-b4eb-51f5353b334e", "Paolo Parente"),
+    CardSet::UrzasDestiny,
+    // A 6/5 that regenerates for one: at six mana it is meant to end the
+    // game, and one open Forest is what keeps it alive to do it.
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Ape"], 6, 5).with_ability(
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+        ),
+    ),
 );
 
 // UDS 102 — Compost

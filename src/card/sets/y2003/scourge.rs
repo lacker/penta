@@ -6,15 +6,15 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AppliedEffectDef,
-    AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
-    BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef,
-    CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CostModificationDef,
-    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
-    ObjectRefDef, PayOrDef, PlayerRelation, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
+    AttackRestrictionDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
+    BlockRestrictionSubjectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef,
+    CostModificationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation, PlayerRuleDef,
+    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -311,16 +311,26 @@ pub(in crate::card::sets) static KARONA_S_ZEALOT: CardRecord = CardRecord::new(
 );
 
 // SCG 19 — Noble Templar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOBLE_TEMPLAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a9ede92-e64f-44a5-afb6-c7495077fb0b"),
     "Noble Templar",
-    crate::card::CardArt::new(
+    CardArt::new(
         "6a9ede92-e64f-44a5-afb6-c7495077fb0b",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardSet::Scourge,
+    // A six-drop that is a land on the turns you needed a land, which is the
+    // whole point of the landcycling cycle.
+    CardRules::new_creature(mana_cost!("{5}{W}"), &["Human", "Cleric", "Soldier"], 3, 6)
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::typecycling(
+                "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, \
+         reveal it, put it into your hand, then shuffle.)",
+                mana_cost!("{2}"),
+                ObjectPredicateDef::Subtype("Plains"),
+            ),
+        ]),
 );
 
 // SCG 20 — Rain of Blades (reprint)
@@ -766,13 +776,22 @@ pub(in crate::card::sets) static SCORNFUL_EGOTIST: CardRecord = CardRecord::new(
 );
 
 // SCG 51 — Shoreline Ranger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHORELINE_RANGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eed813c4-fff0-43f1-bc62-cbc3a126d600"),
     "Shoreline Ranger",
-    crate::card::CardArt::new("eed813c4-fff0-43f1-bc62-cbc3a126d600", "Michael Sutfin"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eed813c4-fff0-43f1-bc62-cbc3a126d600", "Michael Sutfin"),
+    CardSet::Scourge,
+    // Blue's copy: a flier late, an Island early, and never a card stuck in
+    // hand.
+    CardRules::new_creature(mana_cost!("{5}{U}"), &["Bird", "Soldier"], 3, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::typecycling(
+            "Islandcycling {2} ({2}, Discard this card: Search your library for a Island card, \
+         reveal it, put it into your hand, then shuffle.)",
+            mana_cost!("{2}"),
+            ObjectPredicateDef::Subtype("Island"),
+        ),
+    ]),
 );
 
 // SCG 52 — Stifle
@@ -1060,13 +1079,25 @@ pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new
 );
 
 // SCG 76 — Twisted Abomination
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TWISTED_ABOMINATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("446e672f-87aa-4308-98bb-d00548c5bcef"),
     "Twisted Abomination",
-    crate::card::CardArt::new("446e672f-87aa-4308-98bb-d00548c5bcef", "Daren Bader"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("446e672f-87aa-4308-98bb-d00548c5bcef", "Daren Bader"),
+    CardSet::Scourge,
+    // The best of the cycle: a Swamp on turn two and a regenerating 5/3 on
+    // turn six, out of the same card.
+    CardRules::new_creature(mana_cost!("{5}{B}"), &["Zombie", "Mutant"], 5, 3).with_abilities(&[
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+        ),
+        abilities::typecycling(
+            "Swampcycling {2} ({2}, Discard this card: Search your library for a Swamp card, \
+         reveal it, put it into your hand, then shuffle.)",
+            mana_cost!("{2}"),
+            ObjectPredicateDef::Subtype("Swamp"),
+        ),
+    ]),
 );
 
 // SCG 77 — Unburden
@@ -1193,13 +1224,33 @@ pub(in crate::card::sets) static CARBONIZE: CardRecord = CardRecord::new(
 );
 
 // SCG 84 — Chartooth Cougar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHARTOOTH_COUGAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b2c9c07-c3db-46ca-a204-b710c3a34ae9"),
     "Chartooth Cougar",
-    crate::card::CardArt::new("6b2c9c07-c3db-46ca-a204-b710c3a34ae9", "Tony Szczudlo"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6b2c9c07-c3db-46ca-a204-b710c3a34ae9", "Tony Szczudlo"),
+    CardSet::Scourge,
+    // Red's copy, with a mana sink attached for the game where the Mountain
+    // was not the half you needed.
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Cat", "Beast"], 4, 4).with_abilities(&[
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::typecycling(
+            "Mountaincycling {2} ({2}, Discard this card: Search your library for a Mountain card, \
+         reveal it, put it into your hand, then shuffle.)",
+            mana_cost!("{2}"),
+            ObjectPredicateDef::Subtype("Mountain"),
+        ),
+    ]),
 );
 
 // SCG 85 — Decree of Annihilation
@@ -1301,13 +1352,23 @@ pub(in crate::card::sets) static DRAGON_TYRANT: CardRecord = CardRecord::new(
 );
 
 // SCG 89 — Dragonspeaker Shaman
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAGONSPEAKER_SHAMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49f5fa96-dcfb-4d29-bea9-7dd99e8c43d8"),
     "Dragonspeaker Shaman",
-    crate::card::CardArt::new("49f5fa96-dcfb-4d29-bea9-7dd99e8c43d8", "Kev Walker"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("49f5fa96-dcfb-4d29-bea9-7dd99e8c43d8", "Kev Walker"),
+    CardSet::Scourge,
+    // Two mana off every Dragon turns a seven-drop into a five-drop, which is
+    // the difference between a card and a deck.
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Human", "Barbarian"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Dragon spells you cast cost {2} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::Subtype("Dragon"),
+                PlayerRelation::You,
+                ValueDef::Constant(2),
+            )),
+        ),
+    ),
 );
 
 // SCG 90 — Dragonstorm
@@ -1759,13 +1820,26 @@ pub(in crate::card::sets) static DRAGON_FANGS: CardRecord = CardRecord::new(
 );
 
 // SCG 118 — Elvish Aberration
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_ABERRATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0032a2ab-a385-47e4-843b-1ac677032dc4"),
     "Elvish Aberration",
-    crate::card::CardArt::new("137d326f-83e1-449a-b934-71c7986c64e7", "Matt Cavotta"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("137d326f-83e1-449a-b934-71c7986c64e7", "Matt Cavotta"),
+    CardSet::Scourge,
+    // Three green mana out of a body, or a Forest out of the same card on
+    // the turn there was no Forest.
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Elf", "Mutant"], 4, 5).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {G}{G}{G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(3)),
+        ),
+        abilities::typecycling(
+            "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
+         reveal it, put it into your hand, then shuffle.)",
+            mana_cost!("{2}"),
+            ObjectPredicateDef::Subtype("Forest"),
+        ),
+    ]),
 );
 
 // SCG 119 — Fierce Empath
@@ -1809,13 +1883,35 @@ pub(in crate::card::sets) static KROSAN_DROVER: CardRecord = CardRecord::new(
 );
 
 // SCG 123 — Krosan Warchief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_WARCHIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("435b700b-2072-47c0-9725-ad04414d2474"),
     "Krosan Warchief",
-    crate::card::CardArt::new("435b700b-2072-47c0-9725-ad04414d2474", "Greg Hildebrandt"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("435b700b-2072-47c0-9725-ad04414d2474", "Greg Hildebrandt"),
+    CardSet::Scourge,
+    // A discount and a regeneration shield for the tribe, on a body the tribe
+    // was going to play anyway.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Beast"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "Beast spells you cast cost {1} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::Subtype("Beast"),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{G}: Regenerate target Beast.",
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype("Beast"),
+                )]
+            },
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // SCG 124 — Kurgadon
@@ -1927,13 +2023,21 @@ pub(in crate::card::sets) static UPWELLING: CardRecord = CardRecord::new(
 );
 
 // SCG 132 — Wirewood Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WIREWOOD_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8676b1f-e37c-4ae1-9dbe-d000369fa422"),
     "Wirewood Guardian",
-    crate::card::CardArt::new("e8676b1f-e37c-4ae1-9dbe-d000369fa422", "Mark Tedin"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e8676b1f-e37c-4ae1-9dbe-d000369fa422", "Mark Tedin"),
+    CardSet::Scourge,
+    // Seven mana for a 6/6 is filler; being a Forest on turn two is what puts
+    // it in the deck.
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Giant"], 6, 6).with_ability(
+        abilities::typecycling(
+            "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
+     reveal it, put it into your hand, then shuffle.)",
+            mana_cost!("{2}"),
+            ObjectPredicateDef::Subtype("Forest"),
+        ),
+    ),
 );
 
 // SCG 133 — Wirewood Symbiote

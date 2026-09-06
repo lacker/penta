@@ -666,23 +666,31 @@ pub(in crate::card::sets) static SOLTARI_LANCER: CardRecord = CardRecord::new(
 );
 
 // TMP 45 — Soltari Monk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLTARI_MONK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("54e0d969-3e4d-4ff9-8bda-3a6ac8df01b2"),
     "Soltari Monk",
-    crate::card::CardArt::new("54e0d969-3e4d-4ff9-8bda-3a6ac8df01b2", "Janet Aulisio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("54e0d969-3e4d-4ff9-8bda-3a6ac8df01b2", "Janet Aulisio"),
+    CardSet::Tempest,
+    // Shadow makes it unblockable and protection makes it unkillable by the
+    // one colour that could have raced it.
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Soltari", "Monk"], 2, 1).with_abilities(&[
+        abilities::shadow(),
+        abilities::protection_from_color(ManaColor::Black),
+    ]),
 );
 
 // TMP 46 — Soltari Priest
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLTARI_PRIEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35a71390-3fa8-43eb-ad86-67de2a7aeab8"),
     "Soltari Priest",
-    crate::card::CardArt::new("35a71390-3fa8-43eb-ad86-67de2a7aeab8", "Janet Aulisio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("35a71390-3fa8-43eb-ad86-67de2a7aeab8", "Janet Aulisio"),
+    CardSet::Tempest,
+    // The same two mana aimed at the burn deck instead, which in this format
+    // was the other half of the field.
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Soltari", "Cleric"], 2, 1).with_abilities(&[
+        abilities::shadow(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // TMP 47 — Soltari Trooper

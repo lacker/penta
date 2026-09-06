@@ -72,6 +72,7 @@ mod granted_land_abilities;
 mod graveyard_and_control;
 mod guildsworn_prowler;
 mod lair_return_cost;
+mod landcycling;
 mod mass_shrink;
 mod maximum_blockers;
 mod miners_guidewing;

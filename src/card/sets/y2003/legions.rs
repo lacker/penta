@@ -320,13 +320,23 @@ pub(in crate::card::sets) static PLATED_SLIVER: CardRecord = CardRecord::new(
 );
 
 // LGN 20 — Starlight Invoker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STARLIGHT_INVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4c66afc4-3d6d-4ce7-acfc-a4ad34aa3e99"),
     "Starlight Invoker",
-    crate::card::CardArt::new("4c66afc4-3d6d-4ce7-acfc-a4ad34aa3e99", "Glen Angus"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4c66afc4-3d6d-4ce7-acfc-a4ad34aa3e99", "Glen Angus"),
+    CardSet::Legions,
+    // Eight mana for five life is a rate nobody pays until the game has gone
+    // so long that mana is the only resource left.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 3).with_ability(
+        AbilityDef::activated(
+            "{7}{W}: You gain 5 life.",
+            &[CostDef::Mana(mana_cost!("{7}{W}"))],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(5),
+            },
+        ),
+    ),
 );
 
 // LGN 21 — Stoic Champion
@@ -360,13 +370,24 @@ pub(in crate::card::sets) static SWOOPING_TALON: CardRecord = CardRecord::new(
 );
 
 // LGN 24 — Wall of Hope
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WALL_OF_HOPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b463b3e1-e314-4a65-a89e-0712f630b016"),
     "Wall of Hope",
-    crate::card::CardArt::new("b463b3e1-e314-4a65-a89e-0712f630b016", "David Martin"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b463b3e1-e314-4a65-a89e-0712f630b016", "David Martin"),
+    CardSet::Legions,
+    // Every point it takes comes back, so it does not merely block an
+    // attacker -- it undoes the attack.
+    CardRules::new_creature(mana_cost!("{W}"), &["Wall"], 0, 3).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::triggered(
+            "Whenever this creature is dealt damage, you gain that much life.",
+            TriggerEventDef::damage_to_source(),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+    ]),
 );
 
 // LGN 25 — Ward Sliver
@@ -523,13 +544,30 @@ pub(in crate::card::sets) static GEMPALM_SORCERER: CardRecord = CardRecord::new(
 );
 
 // LGN 40 — Glintwing Invoker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLINTWING_INVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16184709-f370-40cc-91f2-849a44ac451a"),
     "Glintwing Invoker",
-    crate::card::CardArt::new("16184709-f370-40cc-91f2-849a44ac451a", "Jim Nelson"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("16184709-f370-40cc-91f2-849a44ac451a", "Jim Nelson"),
+    CardSet::Legions,
+    // The blue member of the cycle turns a stalled board into six evasive
+    // damage a turn, once the mana is there.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Human", "Wizard"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{7}{U}: This creature gets +3/+3 and gains flying until end of turn.",
+            &[CostDef::Mana(mana_cost!("{7}{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                    AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // LGN 41 — Keeneye Aven
@@ -892,16 +930,38 @@ pub(in crate::card::sets) static DRIPPING_DEAD: CardRecord = CardRecord::new(
 );
 
 // LGN 68 — Earthblighter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EARTHBLIGHTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("830a4048-48ac-4856-9af9-5052ec146518"),
     "Earthblighter",
-    crate::card::CardArt::new(
+    CardArt::new(
         "830a4048-48ac-4856-9af9-5052ec146518",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardSet::Legions,
+    // Land destruction paid for in goblins, which is the one resource that
+    // deck has more of than it needs.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{B}, {T}, Sacrifice a Goblin: Destroy target land.",
+            &[
+                CostDef::Mana(mana_cost!("{2}{B}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::Subtype("Goblin"),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // LGN 69 — Embalmed Brawler
@@ -1096,13 +1156,32 @@ pub(in crate::card::sets) static SKINTHINNER: CardRecord = CardRecord::new(
 );
 
 // LGN 81 — Smokespew Invoker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SMOKESPEW_INVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fea393a4-58c8-4a42-bd95-a3312504f2e2"),
     "Smokespew Invoker",
-    crate::card::CardArt::new("fea393a4-58c8-4a42-bd95-a3312504f2e2", "Thomas M. Baxa"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fea393a4-58c8-4a42-bd95-a3312504f2e2", "Thomas M. Baxa"),
+    CardSet::Legions,
+    // Removal for eight mana, which is only a card in the game where eight
+    // mana is available and nothing else is.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 3, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{7}{B}: Target creature gets -3/-3 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{7}{B}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-3),
+                    ValueDef::Constant(-3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // LGN 82 — Sootfeather Flock
@@ -1317,23 +1396,51 @@ pub(in crate::card::sets) static CRESTED_CRAGHORN: CardRecord = CardRecord::new(
 );
 
 // LGN 92 — Flamewave Invoker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAMEWAVE_INVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13a68534-2d9a-47e9-9d2a-cb6df4362aa9"),
     "Flamewave Invoker",
-    crate::card::CardArt::new("13a68534-2d9a-47e9-9d2a-cb6df4362aa9", "Dave Dorman"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("13a68534-2d9a-47e9-9d2a-cb6df4362aa9", "Dave Dorman"),
+    CardSet::Legions,
+    // Five damage a turn that no blocker answers, which is how a red deck
+    // wins a game it has already stopped attacking in.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Mutant"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{7}{R}: This creature deals 5 damage to target player or planeswalker.",
+            &[CostDef::Mana(mana_cost!("{7}{R}"))],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(5),
+            },
+        ),
+    ),
 );
 
 // LGN 93 — Frenetic Raptor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRENETIC_RAPTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f6bc3c0-2d6e-4a09-84c4-b26a352186bb"),
     "Frenetic Raptor",
-    crate::card::CardArt::new("8f6bc3c0-2d6e-4a09-84c4-b26a352186bb", "Daren Bader"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8f6bc3c0-2d6e-4a09-84c4-b26a352186bb", "Daren Bader"),
+    CardSet::Legions,
+    // Six power that the Beast deck opposite cannot block at all, which is a
+    // mirror-breaker rather than a card.
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Beast"], 6, 6).with_ability(
+        AbilityDef::static_ability(
+            "Beasts can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Beast"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+    ),
 );
 
 // LGN 94 — Gempalm Incinerator
@@ -1440,13 +1547,40 @@ pub(in crate::card::sets) static GOBLIN_GRAPPLER: CardRecord = CardRecord::new(
 );
 
 // LGN 101 — Goblin Lookout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_LOOKOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23bbe84a-8857-467a-a4a1-e57086cc9501"),
     "Goblin Lookout",
-    crate::card::CardArt::new("23bbe84a-8857-467a-a4a1-e57086cc9501", "Jim Nelson"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("23bbe84a-8857-467a-a4a1-e57086cc9501", "Jim Nelson"),
+    CardSet::Legions,
+    // Two power on every goblin for one goblin, which turns a board that was
+    // trading into one that is lethal.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 1, 2).with_ability(
+        AbilityDef::activated(
+            "{T}, Sacrifice a Goblin: Goblin creatures get +2/+0 until end of turn.",
+            &[
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::Subtype("Goblin"),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Goblin"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // LGN 102 — Hunter Sliver

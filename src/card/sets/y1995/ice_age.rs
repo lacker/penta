@@ -459,13 +459,15 @@ pub(in crate::card::sets) static KJELDORAN_SKYKNIGHT: CardRecord = CardRecord::n
 );
 
 // ICE 41 — Kjeldoran Warrior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KJELDORAN_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce76f38f-566e-49ff-b197-510cfa1cb51c"),
     "Kjeldoran Warrior",
-    crate::card::CardArt::new("ce76f38f-566e-49ff-b197-510cfa1cb51c", "Mark Poole"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ce76f38f-566e-49ff-b197-510cfa1cb51c", "Mark Poole"),
+    CardSet::IceAge,
+    // A one-mana banding body, which exists to let a real attacker join a
+    // band rather than to attack itself.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Warrior"], 1, 1)
+        .with_ability(abilities::banding()),
 );
 
 // ICE 42 — Lightning Blow
@@ -614,13 +616,15 @@ pub(in crate::card::sets) static SERAPH: CardRecord = CardRecord::new(
 );
 
 // ICE 52 — Shield Bearer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIELD_BEARER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("318ff2da-d309-469c-8e2f-fa3c7517a15a"),
     "Shield Bearer",
-    crate::card::CardArt::new("318ff2da-d309-469c-8e2f-fa3c7517a15a", "Dan Frazier"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("318ff2da-d309-469c-8e2f-fa3c7517a15a", "Dan Frazier"),
+    CardSet::IceAge,
+    // Zero power and banding: it blocks, and it hands the damage
+    // assignment to you, which is the whole of what it does.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 0, 3)
+        .with_ability(abilities::banding()),
 );
 
 // ICE 53 — Snow Hound

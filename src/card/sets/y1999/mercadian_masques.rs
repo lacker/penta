@@ -1240,16 +1240,18 @@ pub(in crate::card::sets) static TIDAL_BORE: CardRecord = CardRecord::new(
 );
 
 // MMQ 110 — Tidal Kraken
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIDAL_KRAKEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("356a9dcd-1a4b-4371-8f1d-aa7cb65e97e8"),
     "Tidal Kraken",
-    crate::card::CardArt::new(
+    CardArt::new(
         "356a9dcd-1a4b-4371-8f1d-aa7cb65e97e8",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardSet::MercadianMasques,
+    // Eight mana for six unblockable damage a turn, which is three turns of
+    // attacking and no way to stop it.
+    CardRules::new_creature(mana_cost!("{5}{U}{U}{U}"), &["Kraken"], 6, 6)
+        .with_ability(abilities::cannot_be_blocked()),
 );
 
 // MMQ 111 — Timid Drake (reprint)

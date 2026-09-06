@@ -1220,13 +1220,17 @@ pub(in crate::card::sets) static TOUCH_OF_INVISIBILITY: CardRecord = CardRecord:
 // ODY 110 — Traumatize (reprint)
 
 // ODY 111 — Treetop Sentinel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREETOP_SENTINEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("606b4e02-f81a-490c-8d2e-cfea7917d6b7"),
     "Treetop Sentinel",
-    crate::card::CardArt::new("606b4e02-f81a-490c-8d2e-cfea7917d6b7", "Carl Critchlow"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("606b4e02-f81a-490c-8d2e-cfea7917d6b7", "Carl Critchlow"),
+    CardSet::Odyssey,
+    // A 2/3 flier green cannot touch: it blocks their ground creatures'
+    // pump spells and survives their removal.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Bird", "Soldier"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Green),
+    ]),
 );
 
 // ODY 112 — Unifying Theory

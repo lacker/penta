@@ -8,9 +8,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
     CharacteristicOperationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation,
-    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -325,13 +325,17 @@ pub(in crate::card::sets) static TORMENTED_ANGEL: CardRecord = CardRecord::new(
 );
 
 // UDS 23 — Voice of Duty
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOICE_OF_DUTY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c648e59-c872-4e04-b45f-2729b42410af"),
     "Voice of Duty",
-    crate::card::CardArt::new("1c648e59-c872-4e04-b45f-2729b42410af", "Mark Zug"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1c648e59-c872-4e04-b45f-2729b42410af", "Mark Zug"),
+    CardSet::UrzasDestiny,
+    // A four-mana flier that green can neither block nor answer, printed
+    // for the matchup where that is the whole game.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Angel"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Green),
+    ]),
 );
 
 // UDS 24 — Voice of Reason
@@ -494,13 +498,15 @@ pub(in crate::card::sets) static METATHRAN_ELITE: CardRecord = CardRecord::new(
 );
 
 // UDS 39 — Metathran Soldier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METATHRAN_SOLDIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("650d40d0-78ec-4b6e-8ea0-28d43ce175d5"),
     "Metathran Soldier",
-    crate::card::CardArt::new("650d40d0-78ec-4b6e-8ea0-28d43ce175d5", "Paolo Parente"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("650d40d0-78ec-4b6e-8ea0-28d43ce175d5", "Paolo Parente"),
+    CardSet::UrzasDestiny,
+    // A guaranteed point a turn, which is what blue's beatdown deck was
+    // reduced to buying.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Metathran", "Soldier"], 1, 1)
+        .with_ability(abilities::cannot_be_blocked()),
 );
 
 // UDS 40 — Opposition

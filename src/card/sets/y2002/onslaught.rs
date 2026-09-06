@@ -1895,13 +1895,24 @@ pub(in crate::card::sets) static SOULLESS_ONE: CardRecord = CardRecord::new(
 );
 
 // ONS 172 — Spined Basher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPINED_BASHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4d0d666a-8e31-466c-937f-54df910f664e"),
     "Spined Basher",
-    crate::card::CardArt::new("4d0d666a-8e31-466c-937f-54df910f664e", "Thomas M. Baxa"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4d0d666a-8e31-466c-937f-54df910f664e", "Thomas M. Baxa"),
+    CardSet::Onslaught,
+    // A 3/1 that turns up to win a block, which is the trick every morph
+    // creature in the set is selling.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Beast"], 3, 1).with_ability(
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}"),
+            crate::card::face_down::morph_cast(),
+            Some(
+                "Morph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. \
+                 Turn it face up any time for its morph cost.)",
+            ),
+            EffectDef::None,
+        ),
+    ),
 );
 
 // ONS 173 — Strongarm Tactics
@@ -3249,23 +3260,44 @@ pub(in crate::card::sets) static TEMPTING_WURM: CardRecord = CardRecord::new(
 );
 
 // ONS 292 — Towering Baloth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOWERING_BALOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2a8cc948-28ff-4bbe-b8c9-71de37478023"),
     "Towering Baloth",
-    crate::card::CardArt::new("2a8cc948-28ff-4bbe-b8c9-71de37478023", "Arnie Swekel"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2a8cc948-28ff-4bbe-b8c9-71de37478023", "Arnie Swekel"),
+    CardSet::Onslaught,
+    // Eight mana, or three now and seven later. Morph is what makes a card
+    // this expensive castable at all.
+    CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Beast"], 7, 6).with_ability(
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}"),
+            crate::card::face_down::morph_cast(),
+            Some(
+                "Morph {6}{G} (You may cast this card face down as a 2/2 creature for {3}. \
+                 Turn it face up any time for its morph cost.)",
+            ),
+            EffectDef::None,
+        ),
+    ),
 );
 
 // ONS 293 — Treespring Lorian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREESPRING_LORIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f525d7ce-37d3-4989-beb4-173447cb5294"),
     "Treespring Lorian",
-    crate::card::CardArt::new("f525d7ce-37d3-4989-beb4-173447cb5294", "Heather Hudson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f525d7ce-37d3-4989-beb4-173447cb5294", "Heather Hudson"),
+    CardSet::Onslaught,
+    // A 5/4 for six, or a 2/2 on turn three that becomes one later.
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Beast"], 5, 4).with_ability(
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}"),
+            crate::card::face_down::morph_cast(),
+            Some(
+                "Morph {5}{G} (You may cast this card face down as a 2/2 creature for {3}. \
+                 Turn it face up any time for its morph cost.)",
+            ),
+            EffectDef::None,
+        ),
+    ),
 );
 
 // ONS 294 — Tribal Unity

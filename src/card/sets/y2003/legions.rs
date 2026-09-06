@@ -367,13 +367,15 @@ pub(in crate::card::sets) static CHROMESHELL_CRAB: CardRecord = CardRecord::new(
 );
 
 // LGN 33 — Covert Operative
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COVERT_OPERATIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbda6799-3b55-4714-8305-713e1e198a15"),
     "Covert Operative",
-    crate::card::CardArt::new("dbda6799-3b55-4714-8305-713e1e198a15", "Kev Walker"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dbda6799-3b55-4714-8305-713e1e198a15", "Kev Walker"),
+    CardSet::Legions,
+    // Five mana for three unblockable damage a turn, and a Wizard for the
+    // tribe that cared.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Human", "Wizard"], 3, 2)
+        .with_ability(abilities::cannot_be_blocked()),
 );
 
 // LGN 34 — Crookclaw Elder

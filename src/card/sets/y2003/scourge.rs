@@ -407,13 +407,16 @@ pub(in crate::card::sets) static BRAIN_FREEZE: CardRecord = CardRecord::new_with
 );
 
 // SCG 30 — Coast Watcher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COAST_WATCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6bbbc67d-99d0-4277-a8f2-64509e59ec00"),
     "Coast Watcher",
-    crate::card::CardArt::new("6bbbc67d-99d0-4277-a8f2-64509e59ec00", "Luca Zontini"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6bbbc67d-99d0-4277-a8f2-64509e59ec00", "Luca Zontini"),
+    CardSet::Scourge,
+    // The cheap end of the same hoser cycle.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird", "Soldier"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Green),
+    ]),
 );
 
 // SCG 31 — Day of the Dragons

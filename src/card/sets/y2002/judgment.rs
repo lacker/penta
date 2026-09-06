@@ -92,13 +92,15 @@ pub(in crate::card::sets) static BENEVOLENT_BODYGUARD: CardRecord = CardRecord::
 );
 
 // JUD 6 — Border Patrol
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BORDER_PATROL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a49a85c8-3516-4dda-b16b-bf1bf890becb"),
     "Border Patrol",
-    crate::card::CardArt::new("a49a85c8-3516-4dda-b16b-bf1bf890becb", "Roger Raupp"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a49a85c8-3516-4dda-b16b-bf1bf890becb", "Roger Raupp"),
+    CardSet::Judgment,
+    // A 1/6 that attacks and still blocks. It kills nothing; what it does
+    // is make combat stop happening.
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Nomad"], 1, 6)
+        .with_abilities(&[abilities::vigilance()]),
 );
 
 // JUD 7 — Cagemail
@@ -1305,13 +1307,15 @@ pub(in crate::card::sets) static GENESIS: CardRecord = CardRecord::new(
 );
 
 // JUD 118 — Giant Warthog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIANT_WARTHOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c402ef0e-51e7-4da6-a434-b99c5d435698"),
     "Giant Warthog",
-    crate::card::CardArt::new("c402ef0e-51e7-4da6-a434-b99c5d435698", "Kev Walker"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c402ef0e-51e7-4da6-a434-b99c5d435698", "Kev Walker"),
+    CardSet::Judgment,
+    // Six mana for a 5/5 trampler, the plain green top end that every draft
+    // deck ended up with one of.
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Boar", "Beast"], 5, 5)
+        .with_abilities(&[abilities::trample()]),
 );
 
 // JUD 119 — Grizzly Fate

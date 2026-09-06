@@ -229,13 +229,15 @@ pub(in crate::card::sets) static SOUL_WARDEN: CardRecord = CardRecord::new(
 );
 
 // EXO 22 — Standing Troops
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STANDING_TROOPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("135e258a-71d8-45dd-9307-91111aa34bde"),
     "Standing Troops",
-    crate::card::CardArt::new("135e258a-71d8-45dd-9307-91111aa34bde", "Daren Bader"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("135e258a-71d8-45dd-9307-91111aa34bde", "Daren Bader"),
+    CardSet::Exodus,
+    // Vigilance on a 1/4 means the same body attacks and still holds the
+    // ground, which is the only way a 1-power creature ever attacks.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 1, 4)
+        .with_abilities(&[abilities::vigilance()]),
 );
 
 // EXO 23 — Treasure Hunter
@@ -1038,13 +1040,15 @@ pub(in crate::card::sets) static RECKLESS_OGRE: CardRecord = CardRecord::new(
 );
 
 // EXO 99 — Sabertooth Wyvern
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SABERTOOTH_WYVERN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("84c1d384-d341-4bab-bf71-5dbcf76d51e8"),
     "Sabertooth Wyvern",
-    crate::card::CardArt::new("84c1d384-d341-4bab-bf71-5dbcf76d51e8", "Keith Parkinson"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("84c1d384-d341-4bab-bf71-5dbcf76d51e8", "Keith Parkinson"),
+    CardSet::Exodus,
+    // Flying and first strike on a 3/2: it beats every other flier its size
+    // and trades with none of them.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Drake"], 3, 2)
+        .with_abilities(&[abilities::flying(), abilities::first_strike()]),
 );
 
 // EXO 100 — Scalding Salamander

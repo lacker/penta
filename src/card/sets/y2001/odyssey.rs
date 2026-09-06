@@ -1422,16 +1422,18 @@ pub(in crate::card::sets) static DIRTY_WERERAT: CardRecord = CardRecord::new(
 );
 
 // ODY 131 — Dusk Imp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DUSK_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f67943c0-304a-4d04-8e26-f45b3ab27a45"),
     "Dusk Imp",
-    crate::card::CardArt::new(
+    CardArt::new(
         "f67943c0-304a-4d04-8e26-f45b3ab27a45",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // A 2/1 flier for three: it races and it does not block, which is the
+    // deal black takes when it buys evasion.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp"], 2, 1)
+        .with_abilities(&[abilities::flying()]),
 );
 
 // ODY 132 — Entomb
@@ -2159,13 +2161,15 @@ pub(in crate::card::sets) static FRENETIC_OGRE: CardRecord = CardRecord::new(
 );
 
 // ODY 196 — Halberdier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HALBERDIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b69dfc05-51ba-4798-ac00-1e9b8bbbf280"),
     "Halberdier",
-    crate::card::CardArt::new("b69dfc05-51ba-4798-ac00-1e9b8bbbf280", "Ben Thompson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b69dfc05-51ba-4798-ac00-1e9b8bbbf280", "Ben Thompson"),
+    CardSet::Odyssey,
+    // First strike on a 3/1 kills anything its size before it swings back,
+    // and dies to any burn spell in the meantime.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Barbarian"], 3, 1)
+        .with_abilities(&[abilities::first_strike()]),
 );
 
 // ODY 197 — Impulsive Maneuvers
@@ -3061,13 +3065,13 @@ pub(in crate::card::sets) static WILD_MONGREL: CardRecord = CardRecord::new(
 );
 
 // ODY 284 — Woodland Druid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WOODLAND_DRUID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("34e501e6-38da-44ad-abe2-53ea7f0eb4ae"),
     "Woodland Druid",
-    crate::card::CardArt::new("34e501e6-38da-44ad-abe2-53ea7f0eb4ae", "Rick Farrell"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("34e501e6-38da-44ad-abe2-53ea7f0eb4ae", "Rick Farrell"),
+    CardSet::Odyssey,
+    // A vanilla 1/2 for one, which is a blocker rather than a threat.
+    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Druid"], 1, 2),
 );
 
 // ODY 285 — Zoologist

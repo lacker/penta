@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardRules, CardSet, CardType, ComparisonDef,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    TriggerConditionDef, ZoneKind,
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType,
+    ComparisonDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRelation, TriggerConditionDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -108,13 +108,15 @@ pub(in crate::card::sets) static CELESTIAL_CONVERGENCE: CardRecord = CardRecord:
 );
 
 // PCY 6 — Diving Griffin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIVING_GRIFFIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec9f72b2-e3d0-4b24-9a73-b95d54695fa4"),
     "Diving Griffin",
-    crate::card::CardArt::new("ec9f72b2-e3d0-4b24-9a73-b95d54695fa4", "John Howe"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ec9f72b2-e3d0-4b24-9a73-b95d54695fa4", "John Howe"),
+    CardSet::Prophecy,
+    // A 2/2 flier that attacks without giving up the block, which is what
+    // the third mana is buying.
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Griffin"], 2, 2)
+        .with_abilities(&[abilities::flying(), abilities::vigilance()]),
 );
 
 // PCY 7 — Entangler
@@ -1271,13 +1273,15 @@ pub(in crate::card::sets) static MUNGHA_WURM: CardRecord = CardRecord::new(
 );
 
 // PCY 120 — Pygmy Razorback
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PYGMY_RAZORBACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ad9744f-797a-4dd3-8617-192773be995c"),
     "Pygmy Razorback",
-    crate::card::CardArt::new("0ad9744f-797a-4dd3-8617-192773be995c", "Matt Cavotta"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0ad9744f-797a-4dd3-8617-192773be995c", "Matt Cavotta"),
+    CardSet::Prophecy,
+    // Trample on a 2/1 for two: a point gets through the chump block, and
+    // that is the whole card.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Boar"], 2, 1)
+        .with_abilities(&[abilities::trample()]),
 );
 
 // PCY 121 — Rib Cage Spider

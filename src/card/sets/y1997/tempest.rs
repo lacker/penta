@@ -3313,16 +3313,30 @@ pub(in crate::card::sets) static HORNED_SLIVER: CardRecord = CardRecord::new(
 );
 
 // TMP 235 — Krakilin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRAKILIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a90442e8-9d22-4767-9e08-bd314169ea70"),
     "Krakilin",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a90442e8-9d22-4767-9e08-bd314169ea70",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardSet::Tempest,
+    // The same deal as any X creature with a regeneration shield stapled on,
+    // which is what makes the mana spent on it hard to answer.
+    CardRules::new_creature(mana_cost!("{X}{G}{G}"), &["Elemental"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+        abilities::regenerate_self(
+            "{1}{G}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+        ),
+    ]),
 );
 
 // TMP 236 — Mirri's Guile
@@ -3593,13 +3607,44 @@ pub(in crate::card::sets) static SKYSHROUD_TROLL: CardRecord = CardRecord::new(
 );
 
 // TMP 258 — Spike Drone
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKE_DRONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d45a3d3-a114-496e-b575-504179a297cc"),
     "Spike Drone",
-    crate::card::CardArt::new("5d45a3d3-a114-496e-b575-504179a297cc", "Charles Gillespie"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5d45a3d3-a114-496e-b575-504179a297cc", "Charles Gillespie"),
+    CardSet::Tempest,
+    // One mana for a counter that can move once, which is a 1/1 that turns
+    // into a permanent upgrade on something worth keeping.
+    CardRules::new_creature(mana_cost!("{G}"), &["Spike"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with a +1/+1 counter on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}, Remove a +1/+1 counter from this creature: Put a +1/+1 counter on target creature.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::RemoveCountersFromSource {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                ))]
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // TMP 259 — Storm Front

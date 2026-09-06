@@ -13,15 +13,15 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CostQuantityDef,
-    CounterKind, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardNameDef,
+    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, ControlDurationDef,
+    CostDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -3351,13 +3351,23 @@ pub(in crate::card::sets) static HOWLING_GALE: CardRecord = CardRecord::new(
 );
 
 // ODY 245 — Ivy Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IVY_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc441d3a-e917-4dd6-b5f9-f99075ec398f"),
     "Ivy Elemental",
-    crate::card::CardArt::new("fc441d3a-e917-4dd6-b5f9-f99075ec398f", "Ron Spencer"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fc441d3a-e917-4dd6-b5f9-f99075ec398f", "Ron Spencer"),
+    CardSet::Odyssey,
+    // A creature whose whole body is whatever mana was left over, which is
+    // the plainest possible use for a late-game draw.
+    CardRules::new_creature(mana_cost!("{X}{G}"), &["Elemental"], 0, 0).with_ability(
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+    ),
 );
 
 // ODY 246 — Krosan Archer

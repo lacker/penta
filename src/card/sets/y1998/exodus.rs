@@ -5,12 +5,13 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, CostDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, ComparisonDef, CostDef, CounterKind,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -2006,13 +2007,32 @@ pub(in crate::card::sets) static TRANSMOGRIFYING_LICID: CardRecord = CardRecord:
 );
 
 // EXO 142 — Workhorse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WORKHORSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2571ff7-0287-4ba2-8365-5ff08de641a2"),
     "Workhorse",
-    crate::card::CardArt::new("c2571ff7-0287-4ba2-8365-5ff08de641a2", "DiTerlizzi"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c2571ff7-0287-4ba2-8365-5ff08de641a2", "DiTerlizzi"),
+    CardSet::Exodus,
+    // Six mana that comes back as four, which only reads as a gain in the
+    // turn you need all four at once.
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Horse"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with four +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 4,
+                },
+            ),
+        ),
+        AbilityDef::activated_mana(
+            "Remove a +1/+1 counter from this creature: Add {C}.",
+            &[CostDef::RemoveCountersFromSource {
+                kind: CounterKind::PlusOnePlusOne,
+                amount: 1,
+            }],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+    ]),
 );
 
 // EXO 143 — City of Traitors

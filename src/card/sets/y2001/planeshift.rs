@@ -830,16 +830,30 @@ pub(in crate::card::sets) static MOGG_JAILER: CardRecord = CardRecord::new(
 );
 
 // PLS 69 — Mogg Sentry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOGG_SENTRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8536ec54-cebd-4d44-8e52-42344a3e6daa"),
     "Mogg Sentry",
-    crate::card::CardArt::new(
+    CardArt::new(
         "8536ec54-cebd-4d44-8e52-42344a3e6daa",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardSet::Planeshift,
+    // A one-drop that punishes instants, which is the whole point: the
+    // opponent has to decide whether the trick is worth the four damage.
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever an opponent casts a spell, this creature gets +2/+2 until end of turn.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PLS 70 — Planeswalker's Fury

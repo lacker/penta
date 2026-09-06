@@ -13,10 +13,11 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     abilities, tokens,
 };
@@ -3769,13 +3770,31 @@ pub(in crate::card::sets) static SPITTING_GOURNA: CardRecord = CardRecord::new(
 );
 
 // ONS 285 — Stag Beetle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STAG_BEETLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72cc64b9-f5b9-42d3-9921-564c4c9f2c77"),
     "Stag Beetle",
-    crate::card::CardArt::new("72cc64b9-f5b9-42d3-9921-564c4c9f2c77", "Anthony S. Waters"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("72cc64b9-f5b9-42d3-9921-564c4c9f2c77", "Anthony S. Waters"),
+    CardSet::Onslaught,
+    // It counts the opponent's board too, so the worse the game is going the
+    // bigger it arrives -- which is the only five-drop that reads that way.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Insect"], 0, 0).with_ability(
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it, where X is the number of other creatures on the battlefield.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCountersValue {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                },
+            ),
+        ),
+    ),
 );
 
 // ONS 286 — Steely Resolve

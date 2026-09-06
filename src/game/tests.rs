@@ -51,6 +51,7 @@ mod each_upkeep;
 mod enchantment_engines;
 mod enters_answers;
 mod enters_sweepers;
+mod entry_counters;
 mod enumerated_apply;
 mod fear;
 mod fixtures;

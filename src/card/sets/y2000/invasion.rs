@@ -16,12 +16,13 @@ use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, DiscardSelectionDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, CounterKind, DiscardSelectionDef,
     EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -41,13 +42,32 @@ pub(in crate::card::sets) static ALABASTER_LEECH: CardRecord = CardRecord::new(
 // INV 2 — Angel of Mercy (reprint)
 
 // INV 3 — Ardent Soldier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARDENT_SOLDIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39dce974-846f-4365-b0a5-851e38668e7d"),
     "Ardent Soldier",
-    crate::card::CardArt::new("39dce974-846f-4365-b0a5-851e38668e7d", "Paolo Parente"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("39dce974-846f-4365-b0a5-851e38668e7d", "Paolo Parente"),
+    CardSet::Invasion,
+    // Two mana for a blocker or five for a slightly better one, which is what
+    // kicker sells: one card that is never dead.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{W}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::vigilance(),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with a +1/+1 counter on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 4 — Atalya, Samite Master
@@ -1760,13 +1780,35 @@ pub(in crate::card::sets) static URBORG_SHAMBLER: CardRecord = CardRecord::new(
 // INV 134s — Urborg Skeleton (alternate printing)
 
 // INV 134★ — Urborg Skeleton
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBORG_SKELETON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("467e9486-1604-4fa2-ab1f-be0d7a036798"),
     "Urborg Skeleton",
-    crate::card::CardArt::new("467e9486-1604-4fa2-ab1f-be0d7a036798", "Tom Wänerstrand"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("467e9486-1604-4fa2-ab1f-be0d7a036798", "Tom Wänerstrand"),
+    CardSet::Invasion,
+    // A regenerating wall for one mana, or a regenerating body for four --
+    // the same card at both ends of the curve.
+    CardRules::new_creature(mana_cost!("{B}"), &["Skeleton"], 0, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{B}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {3} (You may pay an additional {3} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with a +1/+1 counter on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 135 — Yawgmoth's Agenda
@@ -1920,16 +1962,41 @@ pub(in crate::card::sets) static HOODED_KAVU: CardRecord = CardRecord::new(
 );
 
 // INV 148 — Kavu Aggressor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAVU_AGGRESSOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a2832ad3-ce7f-44d2-beb2-c95d982905a6"),
     "Kavu Aggressor",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a2832ad3-ce7f-44d2-beb2-c95d982905a6",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Three power for three that never blocks, and a fourth point for anybody
+    // with seven mana and nothing better to do.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Kavu"], 3, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{6}{R}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {4} (You may pay an additional {4} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with a +1/+1 counter on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 149 — Kavu Monarch
@@ -2577,13 +2644,32 @@ pub(in crate::card::sets) static LLANOWAR_CAVALRY: CardRecord = CardRecord::new(
 );
 
 // INV 196 — Llanowar Elite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_ELITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e207863-de68-47e1-8c63-413b5fa48943"),
     "Llanowar Elite",
-    crate::card::CardArt::new("3e207863-de68-47e1-8c63-413b5fa48943", "Kev Walker"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3e207863-de68-47e1-8c63-413b5fa48943", "Kev Walker"),
+    CardSet::Invasion,
+    // A one-drop that is still a live draw on turn nine, which is the only
+    // reason a 1/1 trampler is worth a slot.
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Warrior"], 1, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{8}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {8} (You may pay an additional {8} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::trample(),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with five +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 5,
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 197 — Llanowar Vanguard
@@ -2687,13 +2773,32 @@ pub(in crate::card::sets) static NOMADIC_ELF: CardRecord = CardRecord::new(
 );
 
 // INV 201 — Pincer Spider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PINCER_SPIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23271658-19ae-420d-beeb-4bed4fdbb891"),
     "Pincer Spider",
-    crate::card::CardArt::new("23271658-19ae-420d-beeb-4bed4fdbb891", "Dan Frazier"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("23271658-19ae-420d-beeb-4bed4fdbb891", "Dan Frazier"),
+    CardSet::Invasion,
+    // A reach blocker early or a slightly larger one late, which is exactly
+    // what a green deck wants from its filler.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Spider"], 2, 3).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{5}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {3} (You may pay an additional {3} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::reach(),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with a +1/+1 counter on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 202 — Pulse of Llanowar

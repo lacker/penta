@@ -1397,13 +1397,27 @@ pub(in crate::card::sets) static ANAVOLVER: CardRecord = CardRecord::new(
 );
 
 // APC 76 — Bog Gnarr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOG_GNARR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f230831-023c-41aa-832e-16ac81e68588"),
     "Bog Gnarr",
-    crate::card::CardArt::new("3f230831-023c-41aa-832e-16ac81e68588", "Daren Bader"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f230831-023c-41aa-832e-16ac81e68588", "Daren Bader"),
+    CardSet::Apocalypse,
+    // It grows on the opponent's turn as readily as your own, so it is a
+    // blocker that punishes the removal aimed at it.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever a player casts a black spell, this creature gets +2/+2 until end of turn.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Black)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // APC 77 — Gaea's Balance
@@ -1417,13 +1431,27 @@ pub(in crate::card::sets) static GAEA_S_BALANCE: CardRecord = CardRecord::new(
 );
 
 // APC 78 — Glade Gnarr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLADE_GNARR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee38eeae-918b-4d19-b37a-175ac5db37a4"),
     "Glade Gnarr",
-    crate::card::CardArt::new("ee38eeae-918b-4d19-b37a-175ac5db37a4", "Daren Bader"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee38eeae-918b-4d19-b37a-175ac5db37a4", "Daren Bader"),
+    CardSet::Apocalypse,
+    // Six mana for a body that a control deck cannot answer without making
+    // it bigger first.
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Beast"], 4, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever a player casts a blue spell, this creature gets +2/+2 until end of turn.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Blue)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // APC 79 — Kavu Howler

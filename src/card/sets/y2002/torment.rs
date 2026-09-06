@@ -133,13 +133,24 @@ pub(in crate::card::sets) static MILITANT_MONK: CardRecord = CardRecord::new(
 );
 
 // TOR 10 — Morningtide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORNINGTIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a62e17a7-3602-45af-bdb6-fa5f2a9f1155"),
     "Morningtide",
-    crate::card::CardArt::new("a62e17a7-3602-45af-bdb6-fa5f2a9f1155", "Tony Szczudlo"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a62e17a7-3602-45af-bdb6-fa5f2a9f1155", "Tony Szczudlo"),
+    CardSet::Torment,
+    // Two mana that turns off both graveyards, which in a block built around
+    // them was a sideboard staple.
+    CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
+        "Exile all graveyards.",
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Graveyard],
+            ))),
+            zone: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // TOR 11 — Mystic Familiar

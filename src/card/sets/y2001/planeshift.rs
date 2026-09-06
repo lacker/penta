@@ -1340,13 +1340,37 @@ pub(in crate::card::sets) static LAVA_ZOMBIE: CardRecord = CardRecord::new(
 );
 
 // PLS 114 — Malicious Advice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MALICIOUS_ADVICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7b1547c2-ae9f-4871-a675-4026bf20e7e1"),
     "Malicious Advice",
-    crate::card::CardArt::new("7b1547c2-ae9f-4871-a675-4026bf20e7e1", "Glen Angus"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7b1547c2-ae9f-4871-a675-4026bf20e7e1", "Glen Angus"),
+    CardSet::Planeshift,
+    // Tapping scales with the mana and the life paid, so it is a Falter and
+    // a fog in the same card.
+    CardRules::new_instant(mana_cost!("{X}{U}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Tap X target artifacts, creatures, and/or lands. You lose X life.",
+        &[AbilityTargetDef::exactly_chosen_x(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::ChosenX,
+            },
+        ]),
+    )),
 );
 
 // PLS 115 — Marsh Crocodile

@@ -5,11 +5,11 @@ use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CounterKind,
+    DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -465,13 +465,29 @@ pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_
 );
 
 // NEM 31 — Dominate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOMINATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63b2dcb1-8c3e-434c-865a-196d4d799706"),
     "Dominate",
-    crate::card::CardArt::new("63b2dcb1-8c3e-434c-865a-196d4d799706", "Scott Hampton"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("63b2dcb1-8c3e-434c-865a-196d4d799706", "Scott Hampton"),
+    CardSet::Nemesis,
+    // Control theft sized to the mana, so it answers whatever the format's
+    // best creature happens to cost.
+    CardRules::new_instant(mana_cost!("{X}{1}{U}{U}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Gain control of target creature with mana value X or less.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                ]),
+            )],
+            EffectDef::GainControl {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                duration: ControlDurationDef::Indefinitely,
+                controller: PlayerRefDef::EffectController,
+            },
+        ),
+    ),
 );
 
 // NEM 32 — Ensnare

@@ -1581,12 +1581,12 @@ pub(in crate::card::sets) static DECAYING_SOIL: CardRecord = CardRecord::new(
 );
 
 // ODY 128 — Decompose
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a target slot whose members must share one owner. "Up to three target cards from a single graveyard" constrains the targets against each other, and a slot restricted to the graveyard zone alone happily offers one card from each player's.
 pub(in crate::card::sets) static DECOMPOSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("916fb8a8-f402-4ef6-8a6b-8fc591e04367"),
     "Decompose",
-    crate::card::CardArt::new("916fb8a8-f402-4ef6-8a6b-8fc591e04367", "Tony Szczudlo"),
-    crate::card::CardSet::Odyssey,
+    CardArt::new("916fb8a8-f402-4ef6-8a6b-8fc591e04367", "Tony Szczudlo"),
+    CardSet::Odyssey,
     crate::card::CardRules::unsupported(),
 );
 

@@ -465,13 +465,27 @@ pub(in crate::card::sets) static HEIGHTENED_AWARENESS: CardRecord = CardRecord::
 );
 
 // PCY 38 — Mana Vapors
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANA_VAPORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b6dfe49-9fd6-4fa0-b73e-e6470d8e7ca7"),
     "Mana Vapors",
-    crate::card::CardArt::new("0b6dfe49-9fd6-4fa0-b73e-e6470d8e7ca7", "Mark Romanoski"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0b6dfe49-9fd6-4fa0-b73e-e6470d8e7ca7", "Mark Romanoski"),
+    CardSet::Prophecy,
+    // A whole turn of mana taken, which is only ever a delay -- but a delay
+    // is what a two-mana sorcery is worth.
+    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Lands target player controls don't untap during their next untap step.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::objects_controlled_by_target(
+                ObjectPredicateDef::HasType(CardType::Land),
+                TargetIndex::PRIMARY,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+            duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+        },
+    )),
 );
 
 // PCY 39 — Overburden

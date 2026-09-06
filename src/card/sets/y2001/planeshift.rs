@@ -6,8 +6,9 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
     ChooseDef, CostDef, CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1225,13 +1226,32 @@ pub(in crate::card::sets) static FLEETFOOT_PANTHER: CardRecord = CardRecord::new
 );
 
 // PLS 109 — Gerrard's Command
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GERRARD_S_COMMAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d0fda263-b6a7-43e3-998a-72a9d84c4572"),
     "Gerrard's Command",
-    crate::card::CardArt::new("d0fda263-b6a7-43e3-998a-72a9d84c4572", "Roger Raupp"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d0fda263-b6a7-43e3-998a-72a9d84c4572", "Roger Raupp"),
+    CardSet::Planeshift,
+    // Untapping is what makes it a trick rather than a pump: the blocker
+    // that was already spent gets to block anyway.
+    CardRules::new_instant(mana_cost!("{G}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Untap target creature. It gets +3/+3 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // PLS 110 — Horned Kavu

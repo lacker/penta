@@ -508,13 +508,32 @@ pub(in crate::card::sets) static IMPROVISED_ARMOR: CardRecord = CardRecord::new(
 );
 
 // ONS 41 — Inspirit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55e0e300-db79-4328-ba1d-9c3910e47f52"),
     "Inspirit",
-    crate::card::CardArt::new("55e0e300-db79-4328-ba1d-9c3910e47f52", "Keith Garletts"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("55e0e300-db79-4328-ba1d-9c3910e47f52", "Keith Garletts"),
+    CardSet::Onslaught,
+    // The white version, which trades a point of power for two of
+    // toughness and a mana.
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Untap target creature. It gets +2/+4 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // ONS 42 — Ironfist Crusher

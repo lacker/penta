@@ -2648,13 +2648,27 @@ pub(in crate::card::sets) static SEARING_TOUCH: CardRecord = CardRecord::new(
 );
 
 // TMP 202 — Shadowstorm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHADOWSTORM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("367c4ad6-973d-47ba-9431-312f9f2996f6"),
     "Shadowstorm",
-    crate::card::CardArt::new("367c4ad6-973d-47ba-9431-312f9f2996f6", "Adam Rex"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("367c4ad6-973d-47ba-9431-312f9f2996f6", "Adam Rex"),
+    CardSet::Tempest,
+    // A sideboard card in spell form: worthless against anything that is
+    // not the one deck it answers.
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell(
+        "Shadowstorm deals 2 damage to each creature with shadow.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Shadow),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            amount: ValueDef::Constant(2),
+        },
+    )),
 );
 
 // TMP 203 — Shatter (reprint)

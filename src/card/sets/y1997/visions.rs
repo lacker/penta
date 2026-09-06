@@ -1423,13 +1423,29 @@ pub(in crate::card::sets) static TALRUUM_PIPER: CardRecord = CardRecord::new(
 );
 
 // VIS 99 — Tremor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9d64665-c1e0-40ab-a358-247f82966379"),
     "Tremor",
-    crate::card::CardArt::new("a9d64665-c1e0-40ab-a358-247f82966379", "Michael Danza"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a9d64665-c1e0-40ab-a358-247f82966379", "Michael Danza"),
+    CardSet::Visions,
+    // One damage that misses fliers, which in the right format is a
+    // one-mana answer to a whole deck of X/1s.
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell(
+        "Tremor deals 1 damage to each creature without flying.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        KeywordAbility::Flying,
+                    )),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // VIS 100 — Viashino Sandstalker
@@ -1784,7 +1800,7 @@ pub(in crate::card::sets) static STAMPEDING_WILDEBEESTS: CardRecord = CardRecord
 );
 
 // VIS 122 — Summer Bloom
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the additional-land permission as a resolving effect. AppliedRuleDef::MayPlayAdditionalLands exists but only as a StaticApply from a permanent; applying it for a turn is rejected as UnsupportedResolvingAppliedEffect.
 pub(in crate::card::sets) static SUMMER_BLOOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35d78f4e-d95d-49bc-9971-06a68a4e35fd"),
     "Summer Bloom",
@@ -1950,13 +1966,26 @@ pub(in crate::card::sets) static SCALEBANE_S_ELITE: CardRecord = CardRecord::new
 );
 
 // VIS 136 — Simoon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIMOON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("642d9239-82e0-4696-ad99-10796042d1f8"),
     "Simoon",
-    crate::card::CardArt::new("642d9239-82e0-4696-ad99-10796042d1f8", "Randy Gallegos"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("642d9239-82e0-4696-ad99-10796042d1f8", "Randy Gallegos"),
+    CardSet::Visions,
+    // The same sweep pointed at one player, which is what makes it worth
+    // two colours instead of one.
+    CardRules::new_instant(mana_cost!("{R}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Simoon deals 1 damage to each creature target opponent controls.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::objects_controlled_by_target(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                TargetIndex::PRIMARY,
+            ),
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // VIS 137 — Squandered Resources

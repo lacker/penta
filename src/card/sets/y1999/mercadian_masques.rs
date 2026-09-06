@@ -341,13 +341,39 @@ pub(in crate::card::sets) static JHOVALL_RIDER: CardRecord = CardRecord::new(
 );
 
 // MMQ 27 — Last Breath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LAST_BREATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3b540da2-f8c6-48d6-af6d-db78958f0a17"),
     "Last Breath",
-    crate::card::CardArt::new("3b540da2-f8c6-48d6-af6d-db78958f0a17", "DiTerlizzi"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3b540da2-f8c6-48d6-af6d-db78958f0a17", "DiTerlizzi"),
+    CardSet::MercadianMasques,
+    // Two mana to exile a small creature, and four life is what white pays
+    // for an answer that leaves nothing behind.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target creature with power 2 or less. Its controller gains 4 life.",
+        // "Power 2 or less" is written as less-than-3: the predicate
+        // vocabulary offers strict comparisons.
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+            // Their life, not yours: the four is what buys an exile at two
+            // mana, and it is paid whether or not the exile happened.
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
+                amount: ValueDef::Constant(4),
+            },
+        ]),
+    )),
 );
 
 // MMQ 28 — Moment of Silence

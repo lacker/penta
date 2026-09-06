@@ -818,13 +818,26 @@ pub(in crate::card::sets) static SLINGSHOT_GOBLIN: CardRecord = CardRecord::new(
 );
 
 // PLS 73 — Strafe
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRAFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec8b77cf-9c1e-4c8f-b452-295cc1570d0e"),
     "Strafe",
-    crate::card::CardArt::new("ec8b77cf-9c1e-4c8f-b452-295cc1570d0e", "Jim Nelson"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ec8b77cf-9c1e-4c8f-b452-295cc1570d0e", "Jim Nelson"),
+    CardSet::Planeshift,
+    // Three damage for one mana, on the condition that it never answers the
+    // mirror.
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Strafe deals 3 damage to target nonred creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Red)),
+            ]),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(3),
+        },
+    )),
 );
 
 // PLS 74 — Tahngarth, Talruum Hero (alternate printing)

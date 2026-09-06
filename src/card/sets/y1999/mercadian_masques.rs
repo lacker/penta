@@ -2871,13 +2871,20 @@ pub(in crate::card::sets) static SHOCK_TROOPS: CardRecord = CardRecord::new(
 );
 
 // MMQ 213 — Sizzle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIZZLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f1ca1eee-d97d-48c6-84f1-7d1f972c3ca9"),
     "Sizzle",
-    crate::card::CardArt::new("f1ca1eee-d97d-48c6-84f1-7d1f972c3ca9", "Brian Snõddy"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f1ca1eee-d97d-48c6-84f1-7d1f972c3ca9", "Brian Snõddy"),
+    CardSet::MercadianMasques,
+    // The same idea one-sided and a mana dearer, which is what the rate
+    // costs when it does not hurt you.
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+        "Sizzle deals 3 damage to each opponent.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Opponent,
+            amount: ValueDef::Constant(3),
+        },
+    )),
 );
 
 // MMQ 214 — Squee, Goblin Nabob

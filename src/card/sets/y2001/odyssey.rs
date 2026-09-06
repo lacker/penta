@@ -983,13 +983,28 @@ pub(in crate::card::sets) static CULTURAL_EXCHANGE: CardRecord = CardRecord::new
 );
 
 // ODY 80 — Deluge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DELUGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22e64f32-0436-4f07-b2b5-a622e3f59d65"),
     "Deluge",
-    crate::card::CardArt::new("22e64f32-0436-4f07-b2b5-a622e3f59d65", "Wayne England"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("22e64f32-0436-4f07-b2b5-a622e3f59d65", "Wayne England"),
+    CardSet::Odyssey,
+    // It taps the ground and leaves the air, which is a one-sided attack
+    // for a deck already flying over.
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Tap all creatures without flying.",
+        EffectDef::Tap {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        KeywordAbility::Flying,
+                    )),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+        },
+    )),
 );
 
 // ODY 81 — Dematerialize
@@ -1241,13 +1256,24 @@ pub(in crate::card::sets) static PUPPETEER: CardRecord = CardRecord::new(
 );
 
 // ODY 98 — Repel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REPEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("68ea14a6-539a-47eb-9147-a310be7b63fe"),
     "Repel",
-    crate::card::CardArt::new("68ea14a6-539a-47eb-9147-a310be7b63fe", "Terese Nielsen"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("68ea14a6-539a-47eb-9147-a310be7b63fe", "Terese Nielsen"),
+    CardSet::Odyssey,
+    // Not removal, but a turn: the creature comes back as the next draw,
+    // which costs its controller the card after.
+    CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Put target creature on top of its owner's library.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // ODY 99 — Rites of Refusal

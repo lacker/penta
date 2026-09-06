@@ -204,13 +204,28 @@ pub(in crate::card::sets) static GOLDEN_WISH: CardRecord = CardRecord::new(
 // JUD 13 — Guided Strike (reprint)
 
 // JUD 14 — Lead Astray
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEAD_ASTRAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20a8fd2f-11fa-4879-be89-ea7833cf60d4"),
     "Lead Astray",
-    crate::card::CardArt::new("20a8fd2f-11fa-4879-be89-ea7833cf60d4", "Adam Rex"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("20a8fd2f-11fa-4879-be89-ea7833cf60d4", "Adam Rex"),
+    CardSet::Judgment,
+    // Two mana to unblock an attack, or to stop one, depending on which
+    // turn it is cast.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Tap up to two target creatures.",
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            2,
+        )],
+        EffectDef::Tap {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
 );
 
 // JUD 15 — Nomad Mythmaker

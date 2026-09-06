@@ -3263,13 +3263,30 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
 );
 
 // USG 219 — Steam Blast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEAM_BLAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("144a1b4e-d960-4c3a-810b-11a0c78635ad"),
     "Steam Blast",
-    crate::card::CardArt::new("144a1b4e-d960-4c3a-810b-11a0c78635ad", "Mike Raabe"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("144a1b4e-d960-4c3a-810b-11a0c78635ad", "Mike Raabe"),
+    CardSet::UrzasSaga,
+    // Two to everything, board and players alike, so it clears small
+    // creatures and pushes the last damage at once.
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+        "Steam Blast deals 2 damage to each creature and each player.",
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )),
 );
 
 // USG 220 — Sulfuric Vapors

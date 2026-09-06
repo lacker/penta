@@ -3285,13 +3285,32 @@ pub(in crate::card::sets) static RECKLESS_ASSAULT: CardRecord = CardRecord::new(
 );
 
 // INV 264 — Recoil
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECOIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6a77be3-e3b0-40f5-a470-414bac49da60"),
     "Recoil",
-    crate::card::CardArt::new("b6a77be3-e3b0-40f5-a470-414bac49da60", "Alan Pollack"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b6a77be3-e3b0-40f5-a470-414bac49da60", "Alan Pollack"),
+    CardSet::Invasion,
+    // A bounce that costs the opponent a card either way, which is what
+    // makes it removal rather than a delay.
+    CardRules::new_instant(mana_cost!("{1}{U}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target permanent to its owner's hand. Then that player discards a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // INV 265 — Reviving Vapors

@@ -171,6 +171,7 @@ mod damage_dealt_by;
 mod damage_history;
 mod damage_limits;
 mod damage_redirection;
+mod damage_scopes;
 mod damaged_by_this_creature;
 mod decisions_and_effects;
 mod declarative_attack_restrictions;

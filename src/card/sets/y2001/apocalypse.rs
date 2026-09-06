@@ -2011,13 +2011,24 @@ pub(in crate::card::sets) static SUFFOCATING_BLAST: CardRecord = CardRecord::new
 );
 
 // APC 125 — Temporal Spring
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPORAL_SPRING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b584dfd1-a56c-406e-8504-47ea136dc102"),
     "Temporal Spring",
-    crate::card::CardArt::new("b584dfd1-a56c-406e-8504-47ea136dc102", "John Matson"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b584dfd1-a56c-406e-8504-47ea136dc102", "John Matson"),
+    CardSet::Apocalypse,
+    // The same tempo aimed at anything, which in three colours is what a
+    // gold card had to be worth.
+    CardRules::new_sorcery(mana_cost!("{1}{G}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Put target permanent on top of its owner's library.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // APC 126 — Vindicate

@@ -2792,13 +2792,23 @@ pub(in crate::card::sets) static RORIX_BLADEWING: CardRecord = CardRecord::new(
 );
 
 // ONS 225 — Searing Flesh
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEARING_FLESH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d83db110-42e7-4823-a686-b83205faf503"),
     "Searing Flesh",
-    crate::card::CardArt::new("d83db110-42e7-4823-a686-b83205faf503", "Pete Venters"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d83db110-42e7-4823-a686-b83205faf503", "Pete Venters"),
+    CardSet::Onslaught,
+    // Seven mana for seven damage that cannot go to a creature, which is a
+    // finisher and nothing else.
+    CardRules::new_sorcery(mana_cost!("{6}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Searing Flesh deals 7 damage to target opponent or planeswalker.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(7),
+        },
+    )),
 );
 
 // ONS 226 — Shaleskin Bruiser

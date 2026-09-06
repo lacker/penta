@@ -1020,13 +1020,20 @@ pub(in crate::card::sets) static DOWNHILL_CHARGE: CardRecord = CardRecord::new(
 );
 
 // NEM 80 — Flame Rift
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAME_RIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7717eeb9-c457-4a65-93a0-e91c7f6a1970"),
     "Flame Rift",
-    crate::card::CardArt::new("7717eeb9-c457-4a65-93a0-e91c7f6a1970", "Ben Thompson"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7717eeb9-c457-4a65-93a0-e91c7f6a1970", "Ben Thompson"),
+    CardSet::Nemesis,
+    // Four to each player for two mana, which is only a bargain for the
+    // deck that was going to lose the long game anyway.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Flame Rift deals 4 damage to each player.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::EachPlayer,
+            amount: ValueDef::Constant(4),
+        },
+    )),
 );
 
 // NEM 81 — Flowstone Crusher

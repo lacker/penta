@@ -1565,13 +1565,34 @@ pub(in crate::card::sets) static ASHEN_POWDER: CardRecord = CardRecord::new(
 );
 
 // MIR 105 — Barbed-Back Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARBED_BACK_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b96810d-72d3-4dee-a29f-cdf85ea5ce6f"),
     "Barbed-Back Wurm",
-    crate::card::CardArt::new("1b96810d-72d3-4dee-a29f-cdf85ea5ce6f", "Gary Leach"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1b96810d-72d3-4dee-a29f-cdf85ea5ce6f", "Gary Leach"),
+    CardSet::Mirage,
+    // It only shrinks a green creature already blocking it, so the ability
+    // is a combat trick rather than removal.
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Wurm"], 4, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{B}: Target green creature blocking this creature gets -1/-1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::BlockingSource,
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MIR 106 — Binding Agony
@@ -2850,13 +2871,34 @@ pub(in crate::card::sets) static RAGING_SPIRIT: CardRecord = CardRecord::new(
 );
 
 // MIR 189 — Reckless Embermage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_EMBERMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e41febe-6fad-451e-afe8-20d3ca3c88a4"),
     "Reckless Embermage",
-    crate::card::CardArt::new("9e41febe-6fad-451e-afe8-20d3ca3c88a4", "Tom Kyffin"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9e41febe-6fad-451e-afe8-20d3ca3c88a4", "Tom Kyffin"),
+    CardSet::Mirage,
+    // A repeatable Shock that shocks itself, so it has exactly two
+    // activations before it dies.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Wizard"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{R}: This creature deals 1 damage to any target and 1 damage to itself.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+                // The self-damage is unconditional, so it happens even when
+                // the chosen target has already left.
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Source,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ),
 );
 
 // MIR 190 — Reign of Chaos

@@ -523,13 +523,24 @@ pub(in crate::card::sets) static SOLTARI_CRUSADER: CardRecord = CardRecord::new(
 );
 
 // TMP 42 — Soltari Emissary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLTARI_EMISSARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a18751d3-052b-4ae5-ba07-16f00a1af40e"),
     "Soltari Emissary",
-    crate::card::CardArt::new("a18751d3-052b-4ae5-ba07-16f00a1af40e", "Adam Rex"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a18751d3-052b-4ae5-ba07-16f00a1af40e", "Adam Rex"),
+    CardSet::Tempest,
+    // One mana turns a 2/1 into an unblockable one, so the body is really a
+    // two-mana Shade with no ceiling on damage.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Soltari", "Soldier"], 2, 1).with_ability(
+        AbilityDef::activated(
+            "{W}: This creature gains shadow until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::shadow() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 43 — Soltari Foot Soldier

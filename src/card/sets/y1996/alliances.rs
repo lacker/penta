@@ -313,7 +313,7 @@ pub(in crate::card::sets) static ROYAL_DECREE: CardRecord = CardRecord::new(
 );
 
 // ALL 15a — Royal Herbalist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an exile-from-library activation cost. CostDef can mill cards but not exile them, and "exile the top card of your library" as a cost has no variant.
 pub(in crate::card::sets) static ROYAL_HERBALIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("027e03e1-1a39-47ba-b206-44d022b4c346"),
     "Royal Herbalist",

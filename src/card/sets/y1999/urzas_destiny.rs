@@ -599,13 +599,24 @@ pub(in crate::card::sets) static SIGIL_OF_SLEEP: CardRecord = CardRecord::new(
 );
 
 // UDS 47 — Telepathic Spies
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TELEPATHIC_SPIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("769e7f64-e32c-4242-aae9-45d50b89ff1f"),
     "Telepathic Spies",
-    crate::card::CardArt::new("769e7f64-e32c-4242-aae9-45d50b89ff1f", "Thomas M. Baxa"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("769e7f64-e32c-4242-aae9-45d50b89ff1f", "Thomas M. Baxa"),
+    CardSet::UrzasDestiny,
+    // Information rather than advantage: the body is small and the look is
+    // permanent knowledge of what they are holding.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, look at target opponent's hand.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::LookAtHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // UDS 48 — Temporal Adept

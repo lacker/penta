@@ -5,11 +5,11 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1141,13 +1141,28 @@ pub(in crate::card::sets) static RAGING_GOBLIN: CardRecord = CardRecord::new(
 );
 
 // EXO 97 — Ravenous Baboons
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAVENOUS_BABOONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d00b68b-8b6a-48c9-8911-2a3270897091"),
     "Ravenous Baboons",
-    crate::card::CardArt::new("6d00b68b-8b6a-48c9-8911-2a3270897091", "Daren Bader"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6d00b68b-8b6a-48c9-8911-2a3270897091", "Daren Bader"),
+    CardSet::Exodus,
+    // Four mana for a 2/2 and a nonbasic land, which in a gold-heavy format
+    // is a real tempo hit rather than a sideboard card.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Monkey"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target nonbasic land.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // EXO 98 — Reckless Ogre

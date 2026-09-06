@@ -1669,13 +1669,27 @@ pub(in crate::card::sets) static FERVENT_CHARGE: CardRecord = CardRecord::new(
 );
 
 // APC 99 — Flowstone Charger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_CHARGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c57abdab-d99c-418c-818d-b06a8722d733"),
     "Flowstone Charger",
-    crate::card::CardArt::new("c57abdab-d99c-418c-818d-b06a8722d733", "John Gallagher"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c57abdab-d99c-418c-818d-b06a8722d733", "John Gallagher"),
+    CardSet::Apocalypse,
+    // It attacks as a 5/2 and blocks as a 2/5, which is a fine pair of
+    // bodies to have on one card.
+    CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Beast"], 2, 5).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +3/-3 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(-3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // APC 100 — Fungal Shambler

@@ -2242,13 +2242,33 @@ pub(in crate::card::sets) static ANARCHY: CardRecord = CardRecord::new(
 );
 
 // ICE 171 — Avalanche
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVALANCHE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3a925e5-0d0a-42ec-b1c6-9793b8e11625"),
     "Avalanche",
-    crate::card::CardArt::new("d3a925e5-0d0a-42ec-b1c6-9793b8e11625", "Brian Snõddy"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d3a925e5-0d0a-42ec-b1c6-9793b8e11625", "Brian Snõddy"),
+    CardSet::IceAge,
+    // Four mana plus one a land, aimed only at snow lands: a sideboard card
+    // that reads as blank against half the field.
+    CardRules::new_sorcery(mana_cost!("{X}{2}{R}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Destroy X target snow lands.",
+            &[AbilityTargetDef::exactly_chosen_x(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Snow),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // ICE 172 — Balduvian Barbarians

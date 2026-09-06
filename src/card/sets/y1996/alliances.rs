@@ -248,13 +248,32 @@ pub(in crate::card::sets) static NOBLE_STEEDS: CardRecord = CardRecord::new(
 // ALL 12a — Reinforcements (alternate printing)
 
 // ALL 12b — Reinforcements
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REINFORCEMENTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0b26881-3ad7-4d70-8051-a7e222d910bf"),
     "Reinforcements",
-    crate::card::CardArt::new("c0b26881-3ad7-4d70-8051-a7e222d910bf", "Diana Vick"),
-    crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c0b26881-3ad7-4d70-8051-a7e222d910bf", "Diana Vick"),
+    CardSet::Alliances,
+    // One mana to put three creatures back on top, which is three turns of
+    // draws already decided.
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Put up to three target creature cards from your graveyard on top of your library.",
+        // "Up to three", so it still casts with an empty graveyard, and the
+        // cards are yours by ownership rather than control.
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+            3,
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // ALL 13a — Reprisal
@@ -1065,16 +1084,36 @@ pub(in crate::card::sets) static LIM_DUL_S_HIGH_GUARD: CardRecord = CardRecord::
 );
 
 // ALL 56 — Misinformation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MISINFORMATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f8638df-7915-4867-882a-95439486bd7b"),
     "Misinformation",
-    crate::card::CardArt::new(
+    CardArt::new(
         "2f8638df-7915-4867-882a-95439486bd7b",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardSet::Alliances,
+    // The same effect pointed the other way: it buries their graveyard
+    // under their own draws.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Put up to three target cards from an opponent's graveyard on top of their library in \
+         any order.",
+        // Any cards, not only creatures, and from their graveyard: it is a
+        // way to deny recursion rather than to rebuy anything.
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::Opponent),
+            },
+            3,
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // ALL 57a — Phantasmal Fiend (alternate printing)

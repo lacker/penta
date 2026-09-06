@@ -1400,16 +1400,66 @@ pub(in crate::card::sets) static MALEVOLENT_RUMBLE: CardRecord = CardRecord::new
 );
 
 // MH3 164 — Nyxborn Hydra
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NYXBORN_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("902a969e-9f22-4e92-93eb-9d4536ca82e5"),
     "Nyxborn Hydra",
-    crate::card::CardArt::new(
+    CardArt::new(
         "902a969e-9f22-4e92-93eb-9d4536ca82e5",
         "Vincent Christiaens",
     ),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardSet::ModernHorizons3,
+    // An X/X trampler, or two more mana to make something else that much
+    // bigger and keep the body in reserve. Both halves read the same
+    // counters, which is what makes bestowing it a real choice rather than
+    // a worse Giant Growth.
+    CardRules::new_creature(mana_cost!("{X}{G}"), &["Hydra"], 0, 0)
+        .with_type(CardType::Enchantment)
+        .with_abilities(&[
+            AbilityDef::alternative_cast_with_targets(
+                mana_cost!("{X}{G}{G}"),
+                AlternativeCastKindDef::Bestow,
+                Some(
+                    "Bestow {X}{G}{G} (If you cast this card for its bestow cost, it's an Aura \
+                     spell with enchant creature. It becomes a creature again if it's not \
+                     attached.)",
+                ),
+                &abilities::ENCHANT_CREATURE_TARGET,
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            abilities::reach(),
+            abilities::trample(),
+            AbilityDef::as_enters(
+                "This permanent enters with X +1/+1 counters on it.",
+                // The X it was cast for, whichever cost paid it: bestowed, the
+                // Aura carries the counters the creature half would have had,
+                // and the clause below is what spends them.
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCastXCounters {
+                        kind: CounterKind::PlusOnePlusOne,
+                    },
+                ),
+            ),
+            // Only while it is an Aura (CR 702.103d). The bonus is read off
+            // this permanent's own counters rather than fixed at attachment,
+            // so anything that grows the Aura grows what it is wearing.
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 for each +1/+1 counter on this Aura and has reach \
+                 and trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
+                            ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::reach() }),
+                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MH3 169 — Six

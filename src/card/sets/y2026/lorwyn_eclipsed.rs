@@ -9,7 +9,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // ECL 128 — Brambleback Brute
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cost that removes a counter of any kind. RemoveCountersFromSource names one kind, and naming -1/-1 would take away the choice the card gives once anything else has put a counter on it.
 pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ebb8365-c6e1-46e8-a242-6aa27b21e68a"),
     "Brambleback Brute",

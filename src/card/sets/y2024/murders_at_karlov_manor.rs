@@ -152,7 +152,7 @@ pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::n
 );
 
 // MKM 197 — Dog Walker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a turned-face-up trigger. Disguise itself has a cast kind and face-down characteristics, but no event fires when a permanent is turned face up, which is when this card does everything it does.
 pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6e0adb7-a030-4dcc-9284-cd91c7598a22"),
     "Dog Walker",

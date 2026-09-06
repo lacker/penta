@@ -4,11 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{TargetIndex, TurnStepDef, mana_cost};
 
 static YOU_CONTROL_AN_UNTAPPED_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
@@ -902,13 +902,28 @@ pub(in crate::card::sets) static WALL_OF_VIPERS: CardRecord = CardRecord::new(
 );
 
 // PCY 81 — Whipstitched Zombie
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIPSTITCHED_ZOMBIE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cd00b0b-2ac1-4926-a735-215f402ba1c4"),
     "Whipstitched Zombie",
-    crate::card::CardArt::new("9cd00b0b-2ac1-4926-a735-215f402ba1c4", "Mark Tedin"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9cd00b0b-2ac1-4926-a735-215f402ba1c4", "Mark Tedin"),
+    CardSet::Prophecy,
+    // The cheap end of the same deal: a 2/2 for two that keeps costing one
+    // every turn it survives.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you pay {B}.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless_mana(
+                mana_cost!("{B}"),
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ),
 );
 
 // PCY 82 — Avatar of Fury
@@ -1226,13 +1241,28 @@ pub(in crate::card::sets) static CALMING_VERSE: CardRecord = CardRecord::new(
 );
 
 // PCY 111 — Darba
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARBA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d82636dc-4b3e-44a8-bc72-dab1275dfb6d"),
     "Darba",
-    crate::card::CardArt::new("d82636dc-4b3e-44a8-bc72-dab1275dfb6d", "Heather Hudson"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d82636dc-4b3e-44a8-bc72-dab1275dfb6d", "Heather Hudson"),
+    CardSet::Prophecy,
+    // Five power for four mana, rented at two green a turn, which green
+    // can usually afford and rarely wants to.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Bird", "Beast"], 5, 4).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you pay {G}{G}.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless_mana(
+                mana_cost!("{G}{G}"),
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ),
 );
 
 // PCY 112 — Dual Nature

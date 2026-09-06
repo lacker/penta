@@ -466,13 +466,23 @@ pub(in crate::card::sets) static MAGGOT_CARRIER: CardRecord = CardRecord::new(
 );
 
 // PLS 46 — Morgue Toad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORGUE_TOAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77d8ae73-70d1-4082-8581-5f74c1aaa63b"),
     "Morgue Toad",
-    crate::card::CardArt::new("77d8ae73-70d1-4082-8581-5f74c1aaa63b", "Franz Vohwinkel"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("77d8ae73-70d1-4082-8581-5f74c1aaa63b", "Franz Vohwinkel"),
+    CardSet::Planeshift,
+    // A body that is really a two-colour ritual, held until the turn the
+    // fixing matters more than the blocker.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Frog"], 2, 2).with_ability(
+        AbilityDef::activated_mana(
+            "Sacrifice this creature: Add {U}{R}.",
+            &[CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Blue,
+                ManaColor::Red,
+            )),
+        ),
+    ),
 );
 
 // PLS 47 — Nightscape Battlemage

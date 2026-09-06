@@ -45,9 +45,11 @@ mod nyxborn_hydra;
 mod phantom_interference;
 mod raid_bombardment;
 mod reckless_impulse;
+mod sacrifice_for_mana;
 mod skewer_the_critics;
 mod sliver_granted_pump;
 mod token_fixtures;
+mod upkeep_or_sacrifice;
 pub(super) use token_fixtures::*;
 
 fn protection_keyword(color: ManaColor) -> KeywordAbility {

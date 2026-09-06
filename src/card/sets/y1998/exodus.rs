@@ -505,13 +505,28 @@ pub(in crate::card::sets) static ROOTWATER_MYSTIC: CardRecord = CardRecord::new(
 );
 
 // EXO 45 — School of Piranha
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCHOOL_OF_PIRANHA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("71217af5-3538-4e42-9343-3949b5306671"),
     "School of Piranha",
-    crate::card::CardArt::new("71217af5-3538-4e42-9343-3949b5306671", "Daren Bader"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("71217af5-3538-4e42-9343-3949b5306671", "Daren Bader"),
+    CardSet::Exodus,
+    // A 3/3 for two that keeps charging two, so it is only cheap on the
+    // turn it lands.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Fish"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you pay {1}{U}.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless_mana(
+                mana_cost!("{1}{U}"),
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ),
 );
 
 // EXO 46 — Scrivener
@@ -650,13 +665,29 @@ pub(in crate::card::sets) static CARNOPHAGE: CardRecord = CardRecord::new(
 );
 
 // EXO 54 — Cat Burglar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAT_BURGLAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("947109f9-7035-4a2a-bbc2-a2958f8c5d01"),
     "Cat Burglar",
-    crate::card::CardArt::new("947109f9-7035-4a2a-bbc2-a2958f8c5d01", "DiTerlizzi"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("947109f9-7035-4a2a-bbc2-a2958f8c5d01", "DiTerlizzi"),
+    CardSet::Exodus,
+    // Four mana for a repeating discard, which only beats a one-shot in a
+    // game long enough for the tap to come around several times.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Kor", "Rogue", "Minion"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{B}, {T}: Target player discards a card. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{2}{B}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ),
 );
 
 // EXO 55 — Culling the Weak

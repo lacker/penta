@@ -979,13 +979,19 @@ pub(in crate::card::sets) static ICY_PRISON: CardRecord = CardRecord::new(
 );
 
 // ICE 75 — Illusionary Forces
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ILLUSIONARY_FORCES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ab02268e-01cf-4729-95ca-5773afd40b56"),
     "Illusionary Forces",
-    crate::card::CardArt::new("ab02268e-01cf-4729-95ca-5773afd40b56", "Justin Hampton"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ab02268e-01cf-4729-95ca-5773afd40b56", "Justin Hampton"),
+    CardSet::IceAge,
+    // A 4/4 flier for four, rented one blue mana at a time -- and the rent
+    // goes up every turn it stays.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Illusion"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::cumulative_upkeep(CostDef::Mana(mana_cost!("{U}"))).override_text(
+                "Cumulative upkeep {U} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
+            ),
+    ]),
 );
 
 // ICE 76 — Illusionary Presence
@@ -1009,13 +1015,21 @@ pub(in crate::card::sets) static ILLUSIONARY_TERRAIN: CardRecord = CardRecord::n
 );
 
 // ICE 78 — Illusionary Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ILLUSIONARY_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6430e8e2-fee3-4744-820e-d6e16cb992bd"),
     "Illusionary Wall",
-    crate::card::CardArt::new("6430e8e2-fee3-4744-820e-d6e16cb992bd", "Mark Poole"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6430e8e2-fee3-4744-820e-d6e16cb992bd", "Mark Poole"),
+    CardSet::IceAge,
+    // Nothing gets past it on the ground or in the air, for as long as the
+    // blue mana holds out.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Illusion", "Wall"], 7, 4).with_abilities(&[
+        abilities::defender(),
+        abilities::flying(),
+        abilities::first_strike(),
+        abilities::cumulative_upkeep(CostDef::Mana(mana_cost!("{U}"))).override_text(
+                "Cumulative upkeep {U} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
+            ),
+    ]),
 );
 
 // ICE 79 — Illusions of Grandeur
@@ -4868,13 +4882,30 @@ pub(in crate::card::sets) static SOLDEVI_GOLEM: CardRecord = CardRecord::new(
 );
 
 // ICE 339 — Soldevi Simulacrum
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLDEVI_SIMULACRUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9fabc7b6-e766-4e3c-816e-04cfeceaff09"),
     "Soldevi Simulacrum",
-    crate::card::CardArt::new("9fabc7b6-e766-4e3c-816e-04cfeceaff09", "Dan Frazier"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9fabc7b6-e766-4e3c-816e-04cfeceaff09", "Dan Frazier"),
+    CardSet::IceAge,
+    // A body that grows as long as you feed it, which is a mana sink for a
+    // deck with nothing else to spend on.
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 2, 4).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::Mana(mana_cost!("{1}"))).override_text(
+                "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
+            ),
+        AbilityDef::activated(
+        "{1}: This creature gets +1/+0 until end of turn.",
+        &[CostDef::Mana(mana_cost!("{1}"))],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(0),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    ),
+    ]),
 );
 
 // ICE 340 — Staff of the Ages

@@ -991,13 +991,31 @@ pub(in crate::card::sets) static SINGE: CardRecord = CardRecord::new(
 );
 
 // PLS 72 — Slingshot Goblin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLINGSHOT_GOBLIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("81825aef-bef7-46b7-bf52-29e32c1836b0"),
     "Slingshot Goblin",
-    crate::card::CardArt::new("81825aef-bef7-46b7-bf52-29e32c1836b0", "Jeff Easley"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("81825aef-bef7-46b7-bf52-29e32c1836b0", "Jeff Easley"),
+    CardSet::Planeshift,
+    // A maindeck answer to exactly one colour, which in a format of blue
+    // fliers was worth the slot.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}, {T}: This creature deals 2 damage to target blue creature.",
+            &[CostDef::Mana(mana_cost!("{R}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Blue),
+                    ]),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // PLS 73 — Strafe
@@ -1056,13 +1074,35 @@ pub(in crate::card::sets) static THUNDERSCAPE_FAMILIAR: CardRecord = CardRecord:
 );
 
 // PLS 77 — Alpha Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALPHA_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("545ed916-59fc-4c60-9260-8c2dc88e67a1"),
     "Alpha Kavu",
-    crate::card::CardArt::new("545ed916-59fc-4c60-9260-8c2dc88e67a1", "Matt Cavotta"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("545ed916-59fc-4c60-9260-8c2dc88e67a1", "Matt Cavotta"),
+    CardSet::Planeshift,
+    // Toughness rather than power, which turns a Kavu board into blockers
+    // nothing profitably attacks into.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Kavu"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{G}: Target Kavu creature gets -1/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Kavu"),
+                    ]),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PLS 78 — Amphibious Kavu

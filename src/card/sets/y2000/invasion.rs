@@ -92,13 +92,23 @@ pub(in crate::card::sets) static BENALISH_EMISSARY: CardRecord = CardRecord::new
 );
 
 // INV 6 — Benalish Heralds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BENALISH_HERALDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13c6e51d-54eb-4e5b-9ec9-54521b16b8d1"),
     "Benalish Heralds",
-    crate::card::CardArt::new("13c6e51d-54eb-4e5b-9ec9-54521b16b8d1", "Don Hazeltine"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("13c6e51d-54eb-4e5b-9ec9-54521b16b8d1", "Don Hazeltine"),
+    CardSet::Invasion,
+    // A card a turn for four mana is a bad rate, and the second colour is
+    // what stops it being a good one.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Spellshaper"], 2, 4).with_ability(
+        AbilityDef::activated(
+            "{3}{U}, {T}: Draw a card.",
+            &[CostDef::Mana(mana_cost!("{3}{U}")), CostDef::TapSource],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // INV 7 — Benalish Lancer
@@ -388,13 +398,15 @@ pub(in crate::card::sets) static RAMPANT_ELEPHANT: CardRecord = CardRecord::new(
 );
 
 // INV 29 — Razorfoot Griffin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAZORFOOT_GRIFFIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("819e2046-9b78-4fd0-92f8-798bfac51195"),
     "Razorfoot Griffin",
-    crate::card::CardArt::new("819e2046-9b78-4fd0-92f8-798bfac51195", "Ben Thompson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("819e2046-9b78-4fd0-92f8-798bfac51195", "Ben Thompson"),
+    CardSet::Invasion,
+    // A flier that wins every fight in the air it is not outsized in, which
+    // is most of them at four mana.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Griffin"], 2, 2)
+        .with_abilities(&[abilities::flying(), abilities::first_strike()]),
 );
 
 // INV 30 — Restrain

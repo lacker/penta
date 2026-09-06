@@ -2211,13 +2211,20 @@ pub(in crate::card::sets) static YAVIMAYA_ANCIENTS: CardRecord = CardRecord::new
 );
 
 // ALL 105 — Yavimaya Ants
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YAVIMAYA_ANTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ded1c83-a289-4951-b72a-477a041610d3"),
     "Yavimaya Ants",
-    crate::card::CardArt::new("5ded1c83-a289-4951-b72a-477a041610d3", "Pat Lewis"),
-    crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5ded1c83-a289-4951-b72a-477a041610d3", "Pat Lewis"),
+    CardSet::Alliances,
+    // Five hasty power the turn it lands, which is the whole card -- the
+    // upkeep is what stops it being one afterwards.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Insect"], 5, 1).with_abilities(&[
+        abilities::trample(),
+        abilities::haste(),
+        abilities::cumulative_upkeep(CostDef::Mana(mana_cost!("{G}{G}"))).override_text(
+                "Cumulative upkeep {G}{G} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
+            ),
+    ]),
 );
 
 // ALL 106 — Energy Arc

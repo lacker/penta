@@ -91,6 +91,7 @@ mod reckless_impulse;
 mod sacrifice_for_mana;
 mod sacrifice_lands;
 mod sacrifice_to_tax;
+mod scaling_upkeep;
 mod self_bounce_and_untap;
 mod skewer_the_critics;
 mod sliver_granted_pump;

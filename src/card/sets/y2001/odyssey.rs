@@ -307,13 +307,23 @@ pub(in crate::card::sets) static CONFESSOR: CardRecord = CardRecord::new(
 );
 
 // ODY 16 — Dedicated Martyr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEDICATED_MARTYR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1f95b64-858b-4344-84a2-3afa5c7b9ee9"),
     "Dedicated Martyr",
-    crate::card::CardArt::new("d1f95b64-858b-4344-84a2-3afa5c7b9ee9", "Dave Dorman"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d1f95b64-858b-4344-84a2-3afa5c7b9ee9", "Dave Dorman"),
+    CardSet::Odyssey,
+    // Three life for one mana and a body already spent, which is the rate a
+    // deck racing on life is glad to take.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{W}, Sacrifice this creature: You gain 3 life.",
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::SacrificeSource],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // ODY 17 — Delaying Shield
@@ -376,13 +386,31 @@ pub(in crate::card::sets) static DIVINE_SACRAMENT: CardRecord = CardRecord::new(
 );
 
 // ODY 20 — Dogged Hunter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOGGED_HUNTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b50d4337-9b71-429b-b6bc-2d70299a6e76"),
     "Dogged Hunter",
-    crate::card::CardArt::new("b50d4337-9b71-429b-b6bc-2d70299a6e76", "rk post"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b50d4337-9b71-429b-b6bc-2d70299a6e76", "rk post"),
+    CardSet::Odyssey,
+    // Against a token deck it is a sweeper that never runs out; against
+    // anything else it is a 1/1.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Nomad"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Destroy target creature token.",
+            &[CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Token,
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // ODY 21 — Earnest Fellowship
@@ -1110,35 +1138,108 @@ pub(in crate::card::sets) static CAREFUL_STUDY: CardRecord = CardRecord::new(
 );
 
 // ODY 71 — Cephalid Broker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_BROKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b1d2cfe5-b905-4d8a-89e4-474619e2796c"),
     "Cephalid Broker",
-    crate::card::CardArt::new("b1d2cfe5-b905-4d8a-89e4-474619e2796c", "Dave Dorman"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b1d2cfe5-b905-4d8a-89e4-474619e2796c", "Dave Dorman"),
+    CardSet::Odyssey,
+    // Twice the Looter's rate for one more mana, which only matters in the
+    // deck that wanted the graveyard rather than the cards.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Cephalid"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target player draws two cards, then discards two cards.",
+            &[CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(2),
+                        },
+                        EffectDef::Discard {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(2),
+                            selection: DiscardSelectionDef::RecipientChooses,
+                            then: None,
+                        },
+                    ]
+                },
+            ),
+        ),
+    ),
 );
 
 // ODY 72 — Cephalid Looter (alternate printing)
 
 // ODY 72† — Cephalid Looter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_LOOTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1ae87f9d-d6eb-4178-a99d-76a9dffacf28"),
     "Cephalid Looter",
-    crate::card::CardArt::new("1ae87f9d-d6eb-4178-a99d-76a9dffacf28", "Keith Garletts"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1ae87f9d-d6eb-4178-a99d-76a9dffacf28", "Keith Garletts"),
+    CardSet::Odyssey,
+    // Filling the graveyard a card a turn is the whole Odyssey block, and
+    // this is the cheapest engine that does it.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Cephalid", "Rogue"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target player draws a card, then discards a card.",
+            &[CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::Discard {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(1),
+                            selection: DiscardSelectionDef::RecipientChooses,
+                            then: None,
+                        },
+                    ]
+                },
+            ),
+        ),
+    ),
 );
 
 // ODY 73 — Cephalid Retainer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_RETAINER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("78480527-cfd6-4065-b702-82de4694f9bb"),
     "Cephalid Retainer",
-    crate::card::CardArt::new("78480527-cfd6-4065-b702-82de4694f9bb", "Tony Szczudlo"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("78480527-cfd6-4065-b702-82de4694f9bb", "Tony Szczudlo"),
+    CardSet::Odyssey,
+    // Tapping a ground creature every turn is a soft lock against a deck
+    // with one big attacker and nothing in the air.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Cephalid", "Wizard"], 2, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{U}{U}: Tap target creature without flying.",
+            &[CostDef::Mana(mana_cost!("{U}{U}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ]),
+                )]
+            },
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // ODY 74 — Cephalid Scout
@@ -2250,13 +2351,27 @@ pub(in crate::card::sets) static FILTHY_CUR: CardRecord = CardRecord::new(
 );
 
 // ODY 137 — Fledgling Imp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLEDGLING_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d11770ee-dcf0-4dd4-ab43-b98f1133cec7"),
     "Fledgling Imp",
-    crate::card::CardArt::new("d11770ee-dcf0-4dd4-ab43-b98f1133cec7", "John Matson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d11770ee-dcf0-4dd4-ab43-b98f1133cec7", "John Matson"),
+    CardSet::Odyssey,
+    // Evasion paid for in cards, which a deck that wants its graveyard full
+    // was going to spend anyway.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{B}, Discard a card: This creature gains flying until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{B}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 138 — Frightcrawler
@@ -2562,12 +2677,12 @@ pub(in crate::card::sets) static NEFARIOUS_LICH: CardRecord = CardRecord::new(
 );
 
 // ODY 154 — Overeager Apprentice
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a chosen discard as a mana-ability cost. The mana path pays costs with no window in which to choose, so it accepts CostDef::DiscardHand but not DiscardCardMatching, whose choice of card the activation cannot carry.
 pub(in crate::card::sets) static OVEREAGER_APPRENTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b886292-5937-44ee-bc2a-f316791c91ae"),
     "Overeager Apprentice",
-    crate::card::CardArt::new("8b886292-5937-44ee-bc2a-f316791c91ae", "Ray Lago"),
-    crate::card::CardSet::Odyssey,
+    CardArt::new("8b886292-5937-44ee-bc2a-f316791c91ae", "Ray Lago"),
+    CardSet::Odyssey,
     crate::card::CardRules::unsupported(),
 );
 
@@ -2750,13 +2865,28 @@ pub(in crate::card::sets) static TRAVELING_PLAGUE: CardRecord = CardRecord::new(
 );
 
 // ODY 167 — Whispering Shade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHISPERING_SHADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5fbfdc2a-7bf3-4461-bef7-fa499d29d1b8"),
     "Whispering Shade",
-    crate::card::CardArt::new("5fbfdc2a-7bf3-4461-bef7-fa499d29d1b8", "Daren Bader"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5fbfdc2a-7bf3-4461-bef7-fa499d29d1b8", "Daren Bader"),
+    CardSet::Odyssey,
+    // A Shade with swampwalk is unblockable and unbounded, which is the
+    // whole plan of a mono-black deck flooding out.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Shade"], 1, 1).with_abilities(&[
+        abilities::landwalk(BasicLandType::Swamp),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ODY 168 — Zombie Assassin
@@ -2847,23 +2977,60 @@ pub(in crate::card::sets) static ACCEPTABLE_LOSSES: CardRecord = CardRecord::new
 // ODY 173 — Anarchist (reprint)
 
 // ODY 174 — Ashen Firebeast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ASHEN_FIREBEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ebaef0bd-8288-49ba-a889-d897a4aae64c"),
     "Ashen Firebeast",
-    crate::card::CardArt::new("ebaef0bd-8288-49ba-a889-d897a4aae64c", "Mark Tedin"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ebaef0bd-8288-49ba-a889-d897a4aae64c", "Mark Tedin"),
+    CardSet::Odyssey,
+    // Eight mana for a sweeper that repeats every turn, which is a card only
+    // a game nobody has won yet ever sees.
+    CardRules::new_creature(mana_cost!("{6}{R}{R}"), &["Elemental", "Beast"], 6, 6).with_ability(
+        AbilityDef::activated(
+            "{1}{R}: This creature deals 1 damage to each creature without flying.",
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // ODY 175 — Barbarian Lunatic
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARBARIAN_LUNATIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c899f9b-ebce-4424-9cd9-861a50a5f7d2"),
     "Barbarian Lunatic",
-    crate::card::CardArt::new("6c899f9b-ebce-4424-9cd9-861a50a5f7d2", "Ron Spears"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6c899f9b-ebce-4424-9cd9-861a50a5f7d2", "Ron Spears"),
+    CardSet::Odyssey,
+    // It trades itself for a creature at a time of your choosing, which is
+    // worth more than the two power it stops attacking with.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Barbarian"], 2, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{R}, Sacrifice this creature: It deals 2 damage to target creature.",
+            &[
+                CostDef::Mana(mana_cost!("{2}{R}")),
+                CostDef::SacrificeSource,
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // ODY 176 — Bash to Bits
@@ -3889,13 +4056,31 @@ pub(in crate::card::sets) static IVY_ELEMENTAL: CardRecord = CardRecord::new(
 );
 
 // ODY 246 — Krosan Archer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_ARCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e188562f-8219-4fb0-ac2c-5618cfb00bca"),
     "Krosan Archer",
-    crate::card::CardArt::new("e188562f-8219-4fb0-ac2c-5618cfb00bca", "Ron Spears"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e188562f-8219-4fb0-ac2c-5618cfb00bca", "Ron Spears"),
+    CardSet::Odyssey,
+    // Reach and a toughness sink, both paid for with the cards a threshold
+    // deck wanted in the graveyard anyway.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Centaur", "Archer"], 2, 3).with_abilities(&[
+        abilities::reach(),
+        AbilityDef::activated(
+            "{G}, Discard a card: This creature gets +0/+2 until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{G}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ODY 247 — Krosan Avenger
@@ -4773,13 +4958,28 @@ pub(in crate::card::sets) static JUNK_GOLEM: CardRecord = CardRecord::new(
 );
 
 // ODY 301 — Limestone Golem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIMESTONE_GOLEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b522518c-1846-4e95-b77d-2aadac78684d"),
     "Limestone Golem",
-    crate::card::CardArt::new("b522518c-1846-4e95-b77d-2aadac78684d", "Mark Tedin"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b522518c-1846-4e95-b77d-2aadac78684d", "Mark Tedin"),
+    CardSet::Odyssey,
+    // Six mana for a body that cashes itself in for a card, which is what a
+    // colourless deck plays instead of a spell.
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Golem"], 3, 4).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}, Sacrifice this creature: Target player draws a card.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // ODY 302 — Millikin

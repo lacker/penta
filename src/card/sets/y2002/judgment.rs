@@ -702,13 +702,30 @@ pub(in crate::card::sets) static LOST_IN_THOUGHT: CardRecord = CardRecord::new(
 );
 
 // JUD 46 — Mental Note
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MENTAL_NOTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1f343724-6ecd-494f-8bfc-93676af4e173"),
     "Mental Note",
-    crate::card::CardArt::new("1f343724-6ecd-494f-8bfc-93676af4e173", "Bradley Williams"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1f343724-6ecd-494f-8bfc-93676af4e173", "Bradley Williams"),
+    CardSet::Judgment,
+    // Two cards into the graveyard is the point and the card drawn is the
+    // price, which is exactly backwards from how it reads.
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
+        "Mill two cards.\nDraw a card.",
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // JUD 47 — Mirror Wall

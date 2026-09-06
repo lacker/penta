@@ -14,13 +14,35 @@ use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // PLS 1 — Aura Blast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AURA_BLAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("090f5ad6-e10e-49b3-8643-51a4e792517c"),
     "Aura Blast",
-    crate::card::CardArt::new("090f5ad6-e10e-49b3-8643-51a4e792517c", "Ron Walotsky"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("090f5ad6-e10e-49b3-8643-51a4e792517c", "Ron Walotsky"),
+    CardSet::Planeshift,
+    // Enchantment removal that replaces itself is never a dead sideboard
+    // card, which is the whole point of the cycle.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target enchantment.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // PLS 2 — Aurora Griffin
@@ -668,13 +690,41 @@ pub(in crate::card::sets) static SINISTER_STRENGTH: CardRecord = CardRecord::new
 );
 
 // PLS 55 — Slay
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eccda747-2680-4793-8a13-35e49b4de12f"),
     "Slay",
-    crate::card::CardArt::new("eccda747-2680-4793-8a13-35e49b4de12f", "Ben Thompson"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eccda747-2680-4793-8a13-35e49b4de12f", "Ben Thompson"),
+    CardSet::Planeshift,
+    // The green half of the same deal, aimed at the colour whose creatures
+    // regenerate.
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target green creature. It can't be regenerated.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                ]),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::WithRule {
+                        rule: AppliedRuleDef::CannotRegenerate,
+                        effect: &EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // PLS 56 — Volcano Imp
@@ -783,13 +833,35 @@ pub(in crate::card::sets) static GOBLIN_GAME: CardRecord = CardRecord::new(
 );
 
 // PLS 62 — Implode
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPLODE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a76ee318-8126-4ebf-884d-8369ae8726ac"),
     "Implode",
-    crate::card::CardArt::new("a76ee318-8126-4ebf-884d-8369ae8726ac", "Arnie Swekel"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a76ee318-8126-4ebf-884d-8369ae8726ac", "Arnie Swekel"),
+    CardSet::Planeshift,
+    // Five mana to take a land is a losing trade until the card it draws is
+    // counted, and then it is merely a slow one.
+    CardRules::new_sorcery(mana_cost!("{4}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // PLS 63 — Insolence

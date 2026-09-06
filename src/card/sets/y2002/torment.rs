@@ -8,10 +8,11 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
     ChooseDef, ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef, DamagePreventionDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectCountConditionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1158,13 +1159,37 @@ pub(in crate::card::sets) static STRENGTH_OF_LUNACY: CardRecord = CardRecord::ne
 );
 
 // TOR 87 — Unhinge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNHINGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b89deafd-cb7c-4da7-ab9b-8f795554a705"),
     "Unhinge",
-    crate::card::CardArt::new("b89deafd-cb7c-4da7-ab9b-8f795554a705", "Keith Garletts"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b89deafd-cb7c-4da7-ab9b-8f795554a705", "Keith Garletts"),
+    CardSet::Torment,
+    // Discard that does not cost you a card is the only kind a control deck
+    // is ever happy to draw late.
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards a card.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // TOR 88 — Waste Away
@@ -1188,13 +1213,36 @@ pub(in crate::card::sets) static ZOMBIE_TRAILBLAZER: CardRecord = CardRecord::ne
 );
 
 // TOR 90 — Accelerate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ACCELERATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a28dd88-db90-4f02-8aa9-39051d2c4763"),
     "Accelerate",
-    crate::card::CardArt::new("6a28dd88-db90-4f02-8aa9-39051d2c4763", "Gary Ruddell"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6a28dd88-db90-4f02-8aa9-39051d2c4763", "Gary Ruddell"),
+    CardSet::Torment,
+    // Haste at instant speed on a creature that just resolved, and a card to
+    // replace it -- which is what makes it a free attack.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gains haste until end of turn.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // TOR 91 — Balthor the Stout

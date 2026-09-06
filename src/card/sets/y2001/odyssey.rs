@@ -674,13 +674,39 @@ pub(in crate::card::sets) static SACRED_RITES: CardRecord = CardRecord::new(
 );
 
 // ODY 45 — Second Thoughts
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SECOND_THOUGHTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b09586de-4853-4e51-a4ac-70eabb37eef4"),
     "Second Thoughts",
-    crate::card::CardArt::new("b09586de-4853-4e51-a4ac-70eabb37eef4", "Ray Lago"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b09586de-4853-4e51-a4ac-70eabb37eef4", "Ray Lago"),
+    CardSet::Odyssey,
+    // Five mana for removal that only answers an attacker, which the card it
+    // draws is most of the apology for.
+    CardRules::new_instant(mana_cost!("{4}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target attacking creature.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 46 — Shelter
@@ -1444,13 +1470,34 @@ pub(in crate::card::sets) static PEDANTIC_LEARNING: CardRecord = CardRecord::new
 );
 
 // ODY 91 — Peek
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PEEK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f50843cc-20ac-4746-816e-f2630aa31594"),
     "Peek",
-    crate::card::CardArt::new("f50843cc-20ac-4746-816e-f2630aa31594", "Adam Rex"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f50843cc-20ac-4746-816e-f2630aa31594", "Adam Rex"),
+    CardSet::Odyssey,
+    // A cantrip that costs one mana and tells you what the opponent is
+    // holding, which is more than most one-mana cards do.
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Look at target player's hand.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::LookAtHand {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 92 — Persuasion
@@ -1710,13 +1757,36 @@ pub(in crate::card::sets) static TIME_STRETCH: CardRecord = CardRecord::new(
 );
 
 // ODY 109 — Touch of Invisibility
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOUCH_OF_INVISIBILITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5a0c915-92a9-4eb0-a02a-c1571b00761b"),
     "Touch of Invisibility",
-    crate::card::CardArt::new("a5a0c915-92a9-4eb0-a02a-c1571b00761b", "Eric Peterson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a5a0c915-92a9-4eb0-a02a-c1571b00761b", "Eric Peterson"),
+    CardSet::Odyssey,
+    // Four mana at sorcery speed for one unblocked attack, which only a deck
+    // with one enormous creature ever wanted.
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature can't be blocked this turn.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 110 — Traumatize (reprint)
@@ -1789,13 +1859,39 @@ pub(in crate::card::sets) static WORDS_OF_WISDOM: CardRecord = CardRecord::new(
 );
 
 // ODY 115 — Afflict
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AFFLICT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0012621b-c0e1-48d6-99b9-ecca4763d748"),
     "Afflict",
-    crate::card::CardArt::new("0012621b-c0e1-48d6-99b9-ecca4763d748", "Roger Raupp"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0012621b-c0e1-48d6-99b9-ecca4763d748", "Roger Raupp"),
+    CardSet::Odyssey,
+    // One point of shrink is a combat trick against exactly the creatures
+    // that were already trading.
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets -1/-1 until end of turn.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(-1),
+                            ValueDef::Constant(-1),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 116 — Bloodcurdler
@@ -2058,13 +2154,41 @@ pub(in crate::card::sets) static ENTOMB: CardRecord = CardRecord::new_with_legac
 );
 
 // ODY 133 — Execute
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXECUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("333123bc-fb66-4b5a-bf55-045d2906c8c3"),
     "Execute",
-    crate::card::CardArt::new("333123bc-fb66-4b5a-bf55-045d2906c8c3", "Gary Ruddell"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("333123bc-fb66-4b5a-bf55-045d2906c8c3", "Gary Ruddell"),
+    CardSet::Odyssey,
+    // A sideboard card that maindecks itself, because against the wrong deck
+    // it is still a cantrip.
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target white creature. It can't be regenerated.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ]),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::WithRule {
+                        rule: AppliedRuleDef::CannotRegenerate,
+                        effect: &EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 134 — Face of Fear
@@ -4076,13 +4200,34 @@ pub(in crate::card::sets) static RABID_ELEPHANT: CardRecord = CardRecord::new(
 );
 
 // ODY 264 — Refresh
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REFRESH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0084ba4e-98eb-4eb4-b23e-c5ab4d7d95cb"),
     "Refresh",
-    crate::card::CardArt::new("0084ba4e-98eb-4eb4-b23e-c5ab4d7d95cb", "Keith Garletts"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0084ba4e-98eb-4eb4-b23e-c5ab4d7d95cb", "Keith Garletts"),
+    CardSet::Odyssey,
+    // A regeneration shield that replaces itself, so holding it up costs
+    // nothing but the mana.
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Regenerate target creature.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Regenerate {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 265 — Rites of Spring

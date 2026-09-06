@@ -1567,13 +1567,34 @@ pub(in crate::card::sets) static SYMBIOTIC_DEPLOYMENT: CardRecord = CardRecord::
 );
 
 // APC 89 — Tranquil Path
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRANQUIL_PATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2da8c059-3309-49a5-ae97-c048aefc922f"),
     "Tranquil Path",
-    crate::card::CardArt::new("2da8c059-3309-49a5-ae97-c048aefc922f", "John Avon"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2da8c059-3309-49a5-ae97-c048aefc922f", "John Avon"),
+    CardSet::Apocalypse,
+    // It destroys your own enchantments too, so the card it draws is the
+    // only reason to play it over a targeted answer.
+    CardRules::new_sorcery(mana_cost!("{4}{G}")).with_ability(AbilityDef::spell(
+        "Destroy all enchantments.\nDraw a card.",
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        then: None,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // APC 90 — Urborg Elf

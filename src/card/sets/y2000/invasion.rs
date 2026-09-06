@@ -22,7 +22,8 @@ use crate::card::{
     EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
     ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -407,16 +408,33 @@ pub(in crate::card::sets) static RESTRAIN: CardRecord = CardRecord::new(
 );
 
 // INV 31 — Reviving Dose
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REVIVING_DOSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d44dd88-ad20-4d89-8831-d2dfa6873428"),
     "Reviving Dose",
-    crate::card::CardArt::new(
+    CardArt::new(
         "8d44dd88-ad20-4d89-8831-d2dfa6873428",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Three life for three mana is a bad rate; three life and a card is the
+    // rate a deck racing on life actually pays.
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
+        "You gain 3 life.\nDraw a card.",
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // INV 32 — Rewards of Diversity
@@ -1307,13 +1325,41 @@ pub(in crate::card::sets) static ANDRADITE_LEECH: CardRecord = CardRecord::new(
 );
 
 // INV 94 — Annihilate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANNIHILATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a3bf039-ecf6-477e-997c-e32c55323c01"),
     "Annihilate",
-    crate::card::CardArt::new("4a3bf039-ecf6-477e-997c-e32c55323c01", "Kev Walker"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4a3bf039-ecf6-477e-997c-e32c55323c01", "Kev Walker"),
+    CardSet::Invasion,
+    // Five mana for removal is a lot; five mana for removal and a card is
+    // what a control deck plays instead of two spells.
+    CardRules::new_instant(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target nonblack creature. It can't be regenerated.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::WithRule {
+                        rule: AppliedRuleDef::CannotRegenerate,
+                        effect: &EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // INV 95 — Bog Initiate
@@ -1387,13 +1433,38 @@ pub(in crate::card::sets) static DO_OR_DIE: CardRecord = CardRecord::new(
 );
 
 // INV 103 — Dredge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DREDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("68bfa3d5-0f0b-4684-9567-f1478da01df7"),
     "Dredge",
-    crate::card::CardArt::new("68bfa3d5-0f0b-4684-9567-f1478da01df7", "Donato Giancola"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("68bfa3d5-0f0b-4684-9567-f1478da01df7", "Donato Giancola"),
+    CardSet::Invasion,
+    // One mana to turn a permanent into a card, which is only a gain when
+    // the permanent was going to die anyway.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell(
+        "Sacrifice a creature or land.\nDraw a card.",
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::SacrificeOfChoice {
+                        player: EffectRecipientDef::Controller,
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ]),
+                        count: ValueDef::Constant(1),
+                        then: None,
+                        amount: SacrificedAmountDef::Power,
+                        otherwise: None,
+                        optional: false,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // INV 104 — Duskwalker
@@ -1664,13 +1735,41 @@ pub(in crate::card::sets) static PLAGUE_SPITTER: CardRecord = CardRecord::new(
 // INV 121 — Reckless Spite (reprint)
 
 // INV 122 — Recover
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECOVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("771e695b-24e1-4c65-81e0-1624bda646e7"),
     "Recover",
-    crate::card::CardArt::new("771e695b-24e1-4c65-81e0-1624bda646e7", "Nelson DeCastro"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("771e695b-24e1-4c65-81e0-1624bda646e7", "Nelson DeCastro"),
+    CardSet::Invasion,
+    // Two cards out of one spell, which is the rate that makes a slow
+    // three-mana sorcery playable at all.
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target creature card from your graveyard to your hand.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // INV 123 — Scavenged Weaponry

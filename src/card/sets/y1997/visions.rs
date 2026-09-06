@@ -11,12 +11,13 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
     AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{ParentBinding, TargetIndex, mana_cost};
 
 // VIS 1 — Archangel (reprint)
 
@@ -197,13 +198,40 @@ pub(in crate::card::sets) static LONGBOW_ARCHER: CardRecord = CardRecord::new(
 );
 
 // VIS 13 — Miraculous Recovery
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRACULOUS_RECOVERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76fecb31-790a-4454-918e-5aeb253021f0"),
     "Miraculous Recovery",
-    crate::card::CardArt::new("76fecb31-790a-4454-918e-5aeb253021f0", "Brian Horton"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("76fecb31-790a-4454-918e-5aeb253021f0", "Brian Horton"),
+    CardSet::Visions,
+    // Five mana at instant speed, so it can rebuy the creature that just
+    // died in combat and get a counter for the trouble.
+    CardRules::new_instant(mana_cost!("{4}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target creature card from your graveyard to the battlefield. Put a +1/+1 \
+         counter on it.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        // The counter goes on the permanent that arrived, not on the
+        // card that was targeted, so the move binds what it produced and
+        // the follow-up names that binding.
+        EffectDef::MoveObjects(MoveObjectsDef {
+            input: ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            moved: Some(ParentBinding),
+            then: &EffectDef::AddCounters {
+                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        }),
+    )),
 );
 
 // VIS 14 — Parapet

@@ -69,6 +69,7 @@ mod token_fixtures;
 mod two_target_spells;
 mod untap_out_of_combat;
 mod upkeep_or_sacrifice;
+mod upkeep_thresholds;
 pub(super) use token_fixtures::*;
 
 fn protection_keyword(color: ManaColor) -> KeywordAbility {

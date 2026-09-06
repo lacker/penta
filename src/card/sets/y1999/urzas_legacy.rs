@@ -123,13 +123,24 @@ pub(in crate::card::sets) static KARMIC_GUIDE: CardRecord = CardRecord::new(
 );
 
 // ULG 12 — Knighthood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KNIGHTHOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d5e98d3-2521-4340-8d48-98e8c2c7818d"),
     "Knighthood",
-    crate::card::CardArt::new("1d5e98d3-2521-4340-8d48-98e8c2c7818d", "Kev Walker"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1d5e98d3-2521-4340-8d48-98e8c2c7818d", "Kev Walker"),
+    CardSet::UrzasLegacy,
+    // First strike on everything, which turns a board of small creatures
+    // into blockers nothing profitably attacks into.
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(AbilityDef::static_ability(
+        "Creatures you control have first strike.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+        },
+    )),
 );
 
 // ULG 13 — Martyr's Cause

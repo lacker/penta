@@ -1084,13 +1084,27 @@ pub(in crate::card::sets) static FLOWSTONE_STRIKE: CardRecord = CardRecord::new(
 );
 
 // NEM 85 — Flowstone Surge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_SURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bc450922-0bbf-46c4-9955-79f4d41ee488"),
     "Flowstone Surge",
-    crate::card::CardArt::new("bc450922-0bbf-46c4-9955-79f4d41ee488", "Scott Hampton"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bc450922-0bbf-46c4-9955-79f4d41ee488", "Scott Hampton"),
+    CardSet::Nemesis,
+    // Power for toughness across the board, which suits the deck that was
+    // attacking anyway and ruins the one that was not.
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(AbilityDef::static_ability(
+        "Creatures you control get +1/-1.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(-1),
+            ),
+        },
+    )),
 );
 
 // NEM 86 — Flowstone Wall

@@ -25,7 +25,7 @@ use crate::card::{
     PlayerRelation, PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
+use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
 
 // MMQ 1 — Afterlife (reprint)
 
@@ -3497,13 +3497,30 @@ pub(in crate::card::sets) static SNORTING_GAHR: CardRecord = CardRecord::new(
 );
 
 // MMQ 273 — Spidersilk Armor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDERSILK_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9eb7694f-af4c-4152-b868-528257d05154"),
     "Spidersilk Armor",
-    crate::card::CardArt::new("9eb7694f-af4c-4152-b868-528257d05154", "Scott Hampton"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9eb7694f-af4c-4152-b868-528257d05154", "Scott Hampton"),
+    CardSet::MercadianMasques,
+    // Reach on the whole board, which answers a flying deck more cheaply
+    // than any one creature could.
+    CardRules::new_enchantment(mana_cost!("{2}{G}")).with_ability(AbilityDef::static_ability(
+        "Creatures you control get +0/+1 and have reach.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                AppliedEffectDef::add_ability(&const { abilities::reach() }),
+            ]),
+        },
+    )),
 );
 
 // MMQ 274 — Spontaneous Generation
@@ -3977,13 +3994,24 @@ pub(in crate::card::sets) static TOYMAKER: CardRecord = CardRecord::new(
 );
 
 // MMQ 315 — Worry Beads
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WORRY_BEADS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("400edfe9-9efa-43f9-b713-13ad4eae2fa4"),
     "Worry Beads",
-    crate::card::CardArt::new("400edfe9-9efa-43f9-b713-13ad4eae2fa4", "rk post"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("400edfe9-9efa-43f9-b713-13ad4eae2fa4", "rk post"),
+    CardSet::MercadianMasques,
+    // A mill that hits both players, so it only wins for the deck that was
+    // not planning to draw its whole library.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::triggered(
+        "At the beginning of each player's upkeep, that player mills a card.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::Mill {
+            player: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // MMQ 316 — Dust Bowl

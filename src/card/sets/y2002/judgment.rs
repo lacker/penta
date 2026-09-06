@@ -12,10 +12,11 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
-use crate::{TargetIndex, mana_cost};
+use crate::{TargetIndex, TurnStepDef, mana_cost};
 
 // JUD 1 — Ancestor's Chosen
 // Audit: unsupported — Card rules have not been implemented.
@@ -306,13 +307,28 @@ pub(in crate::card::sets) static SPURNMAGE_ADVOCATE: CardRecord = CardRecord::ne
 // JUD 28 — Suntail Hawk (reprint)
 
 // JUD 29 — Test of Endurance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEST_OF_ENDURANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf16bd6b-e99c-4da3-bd03-11f63b7ee85d"),
     "Test of Endurance",
-    crate::card::CardArt::new("cf16bd6b-e99c-4da3-bd03-11f63b7ee85d", "Mike Ploog"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cf16bd6b-e99c-4da3-bd03-11f63b7ee85d", "Mike Ploog"),
+    CardSet::Judgment,
+    // An alternate win for a deck that was already gaining life faster
+    // than it could lose.
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::triggered_if(
+        "At the beginning of your upkeep, if you have 50 or more life, you win the game.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+            left: ValueDef::LifeTotal(PlayerRelation::You),
+            comparison: ComparisonDef::GreaterOrEqual,
+            right: ValueDef::Constant(50),
+        }),
+        EffectDef::WinTheGame {
+            player: EffectRecipientDef::Controller,
+        },
+    )),
 );
 
 // JUD 30 — Trained Pronghorn

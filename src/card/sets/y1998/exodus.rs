@@ -6,10 +6,11 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CostDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardType, ComparisonDef, CostDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -85,16 +86,32 @@ pub(in crate::card::sets) static CHARGING_PALADIN: CardRecord = CardRecord::new(
 );
 
 // EXO 5 — Convalescence
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONVALESCENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fd49a61-42ba-400a-8ca9-9f6058bf85ca"),
     "Convalescence",
-    crate::card::CardArt::new(
+    CardArt::new(
         "0fd49a61-42ba-400a-8ca9-9f6058bf85ca",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardSet::Exodus,
+    // A life a turn, but only while behind, which is the shape of a card
+    // that stabilises rather than wins.
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(AbilityDef::triggered_if(
+        "At the beginning of your upkeep, if you have 10 or less life, you gain 1 life.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+            left: ValueDef::LifeTotal(PlayerRelation::You),
+            comparison: ComparisonDef::LessOrEqual,
+            right: ValueDef::Constant(10),
+        }),
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // EXO 6 — Exalted Dragon
@@ -108,13 +125,24 @@ pub(in crate::card::sets) static EXALTED_DRAGON: CardRecord = CardRecord::new(
 );
 
 // EXO 7 — High Ground
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIGH_GROUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c5239dc-f51b-48c0-91a2-ed6551aaff32"),
     "High Ground",
-    crate::card::CardArt::new("1c5239dc-f51b-48c0-91a2-ed6551aaff32", "rk post"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1c5239dc-f51b-48c0-91a2-ed6551aaff32", "rk post"),
+    CardSet::Exodus,
+    // Every blocker covers two attackers, so a small board holds off a
+    // much larger one.
+    CardRules::new_enchantment(mana_cost!("{W}")).with_ability(AbilityDef::static_ability(
+        "Each creature you control can block an additional creature each combat.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayBlockAdditionalCreatures(1)),
+        },
+    )),
 );
 
 // EXO 8 — Keeper of the Light

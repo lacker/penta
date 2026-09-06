@@ -3434,13 +3434,22 @@ pub(in crate::card::sets) static SERPENTINE_BASILISK: CardRecord = CardRecord::n
 // ONS 281 — Silklash Spider (reprint)
 
 // ONS 282 — Silvos, Rogue Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVOS_ROGUE_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e48715c-6ff7-4b0c-aa7e-a2c901215426"),
     "Silvos, Rogue Elemental",
-    crate::card::CardArt::new("3e48715c-6ff7-4b0c-aa7e-a2c901215426", "Carl Critchlow"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3e48715c-6ff7-4b0c-aa7e-a2c901215426", "Carl Critchlow"),
+    CardSet::Onslaught,
+    // Eight power that regenerates for one, which is as close to
+    // unanswerable as green gets without protection.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}{G}"), &["Elemental"], 8, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::trample(),
+            abilities::regenerate_self(
+                "{G}: Regenerate Silvos.",
+                &[CostDef::Mana(mana_cost!("{G}"))],
+            ),
+        ]),
 );
 
 // ONS 283 — Snarling Undorak

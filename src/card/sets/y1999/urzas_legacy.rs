@@ -771,13 +771,20 @@ pub(in crate::card::sets) static EVISCERATOR: CardRecord = CardRecord::new(
 );
 
 // ULG 53 — Fog of Gnats
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOG_OF_GNATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f1e9c54-134b-41da-8c3d-ec699d96778a"),
     "Fog of Gnats",
-    crate::card::CardArt::new("3f1e9c54-134b-41da-8c3d-ec699d96778a", "Jeff Miracola"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f1e9c54-134b-41da-8c3d-ec699d96778a", "Jeff Miracola"),
+    CardSet::UrzasLegacy,
+    // A two-mana flier that black mana keeps alive, so it blocks forever
+    // against anything without a real answer.
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Insect"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ]),
 );
 
 // ULG 54 — Giant Cockroach

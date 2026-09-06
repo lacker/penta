@@ -2927,13 +2927,20 @@ pub(in crate::card::sets) static CAULDRON_DANCE: CardRecord = CardRecord::new(
 );
 
 // INV 239 — Charging Troll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHARGING_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58956099-6b97-4c7b-ab23-9f9b4d50ef95"),
     "Charging Troll",
-    crate::card::CardArt::new("58956099-6b97-4c7b-ab23-9f9b4d50ef95", "Dave Dorman"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("58956099-6b97-4c7b-ab23-9f9b4d50ef95", "Dave Dorman"),
+    CardSet::Invasion,
+    // Vigilance and regeneration on one body, so it attacks and still holds
+    // the ground behind it.
+    CardRules::new_creature(mana_cost!("{2}{G}{W}"), &["Troll"], 3, 3).with_abilities(&[
+        abilities::vigilance(),
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+        ),
+    ]),
 );
 
 // INV 240 — Cinder Shade
@@ -3672,13 +3679,21 @@ pub(in crate::card::sets) static JUNTU_STAKES: CardRecord = CardRecord::new(
 );
 
 // INV 305 — Lotus Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOTUS_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ddfc6396-5377-4ab3-9c10-8abcdeae2aa1"),
     "Lotus Guardian",
-    crate::card::CardArt::new("ddfc6396-5377-4ab3-9c10-8abcdeae2aa1", "Dana Knutson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ddfc6396-5377-4ab3-9c10-8abcdeae2aa1", "Dana Knutson"),
+    CardSet::Invasion,
+    // Seven mana for a flier that fixes, which only a deck already casting
+    // seven-drops could want.
+    CardRules::new_creature(mana_cost!("{7}"), &["Dragon"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // INV 306 — Phyrexian Altar

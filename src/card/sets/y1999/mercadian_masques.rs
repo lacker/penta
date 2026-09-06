@@ -1436,13 +1436,27 @@ pub(in crate::card::sets) static STATECRAFT: CardRecord = CardRecord::new(
 );
 
 // MMQ 107 — Stinging Barrier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STINGING_BARRIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ca7f7cd5-4e91-474a-9f60-a66f3f462b1c"),
     "Stinging Barrier",
-    crate::card::CardArt::new("ca7f7cd5-4e91-474a-9f60-a66f3f462b1c", "Pat Lewis"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ca7f7cd5-4e91-474a-9f60-a66f3f462b1c", "Pat Lewis"),
+    CardSet::MercadianMasques,
+    // A wall that also kills X/1s, which is two roles a limited deck never
+    // has room to split.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{U}, {T}: This creature deals 1 damage to any target.",
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MMQ 108 — Thwart
@@ -2334,13 +2348,28 @@ pub(in crate::card::sets) static WALL_OF_DISTORTION: CardRecord = CardRecord::ne
 // MMQ 172 — Arms Dealer (reprint)
 
 // MMQ 173 — Battle Rampart
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BATTLE_RAMPART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f27f6658-0f00-4934-8d12-cd0dda3958c9"),
     "Battle Rampart",
-    crate::card::CardArt::new("f27f6658-0f00-4934-8d12-cd0dda3958c9", "Ron Spencer"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f27f6658-0f00-4934-8d12-cd0dda3958c9", "Ron Spencer"),
+    CardSet::MercadianMasques,
+    // A wall that gives haste, so the body it cannot use goes to whatever
+    // just arrived.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Wall"], 1, 3).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gains haste until end of turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 174 — Battle Squadron
@@ -3585,13 +3614,21 @@ pub(in crate::card::sets) static VINE_DRYAD: CardRecord = CardRecord::new(
 );
 
 // MMQ 285 — Vine Trellis
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VINE_TRELLIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e660241f-0976-4206-8149-7dac8466a2a3"),
     "Vine Trellis",
-    crate::card::CardArt::new("e660241f-0976-4206-8149-7dac8466a2a3", "DiTerlizzi"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e660241f-0976-4206-8149-7dac8466a2a3", "DiTerlizzi"),
+    CardSet::MercadianMasques,
+    // A wall that ramps, which is the only reason to spend a card on four
+    // toughness.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_mana(
+            "{T}: Add {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+        ),
+    ]),
 );
 
 // MMQ 286 — Assembly Hall
@@ -3661,13 +3698,31 @@ pub(in crate::card::sets) static CREDIT_VOUCHER: CardRecord = CardRecord::new(
 );
 
 // MMQ 290 — Crenellated Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRENELLATED_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d85ad08d-1120-411a-8bbe-ac93a56476bd"),
     "Crenellated Wall",
-    crate::card::CardArt::new("d85ad08d-1120-411a-8bbe-ac93a56476bd", "Arnie Swekel"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d85ad08d-1120-411a-8bbe-ac93a56476bd", "Arnie Swekel"),
+    CardSet::MercadianMasques,
+    // Four toughness it can lend, so a blocker somewhere else survives a
+    // fight it should have lost.
+    CardRules::new_creature(mana_cost!("{4}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gets +0/+4 until end of turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 291 — Crooked Scales

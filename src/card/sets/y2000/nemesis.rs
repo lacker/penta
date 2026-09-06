@@ -1094,13 +1094,28 @@ pub(in crate::card::sets) static FLOWSTONE_SURGE: CardRecord = CardRecord::new(
 );
 
 // NEM 86 — Flowstone Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("89844c2f-f0a4-41c6-ad8c-d559fcaec85c"),
     "Flowstone Wall",
-    crate::card::CardArt::new("89844c2f-f0a4-41c6-ad8c-d559fcaec85c", "Jeff Miracola"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("89844c2f-f0a4-41c6-ad8c-d559fcaec85c", "Jeff Miracola"),
+    CardSet::Nemesis,
+    // Six toughness it can spend a point at a time, so it blocks something
+    // large and then kills it.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Wall"], 0, 6).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/-1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // NEM 87 — Laccolith Grunt

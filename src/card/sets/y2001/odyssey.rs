@@ -2412,13 +2412,29 @@ pub(in crate::card::sets) static IMPULSIVE_MANEUVERS: CardRecord = CardRecord::n
 );
 
 // ODY 198 — Kamahl, Pit Fighter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAMAHL_PIT_FIGHTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee88c776-85f1-4beb-a814-f706f5c4f341"),
     "Kamahl, Pit Fighter",
-    crate::card::CardArt::new("ee88c776-85f1-4beb-a814-f706f5c4f341", "Kev Walker"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee88c776-85f1-4beb-a814-f706f5c4f341", "Kev Walker"),
+    CardSet::Odyssey,
+    // Six mana for three damage a turn, starting immediately, on a body
+    // that dies to anything.
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Human", "Barbarian"], 6, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::haste(),
+            AbilityDef::activated_with_targets(
+                "{T}: Kamahl deals 3 damage to any target.",
+                &[CostDef::TapSource],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+        ]),
 );
 
 // ODY 199 — Kamahl's Desire

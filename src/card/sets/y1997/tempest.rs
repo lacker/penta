@@ -28,13 +28,29 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // TMP 1 — Advance Scout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ADVANCE_SCOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("81ce7e1e-ffe5-4ced-8967-9a6917245240"),
     "Advance Scout",
-    crate::card::CardArt::new("81ce7e1e-ffe5-4ced-8967-9a6917245240", "Heather Hudson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("81ce7e1e-ffe5-4ced-8967-9a6917245240", "Heather Hudson"),
+    CardSet::Tempest,
+    // First strike it can hand to something bigger, which is where the
+    // keyword is actually worth mana.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier", "Scout"], 1, 1)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::activated_with_targets(
+                "{W}: Target creature gains first strike until end of turn.",
+                &[CostDef::Mana(mana_cost!("{W}"))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // TMP 2 — Angelic Protector
@@ -1364,13 +1380,28 @@ pub(in crate::card::sets) static WHISPERS_OF_THE_MUSE: CardRecord = CardRecord::
 );
 
 // TMP 104 — Wind Dancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WIND_DANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ea7f7a94-700a-4f3b-846c-a36505b80875"),
     "Wind Dancer",
-    crate::card::CardArt::new("ea7f7a94-700a-4f3b-846c-a36505b80875", "Susan Van Camp"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ea7f7a94-700a-4f3b-846c-a36505b80875", "Susan Van Camp"),
+    CardSet::Tempest,
+    // Evasion by the turn, which is what a one-power flier is for in a
+    // deck that has something worth pushing through.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Faerie"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gains flying until end of turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 105 — Wind Drake (reprint)
@@ -2394,13 +2425,28 @@ pub(in crate::card::sets) static FLOWSTONE_SALAMANDER: CardRecord = CardRecord::
 );
 
 // TMP 176 — Flowstone Wyvern
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_WYVERN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee7949c7-ab80-46a1-9cf7-d8e8c004df6e"),
     "Flowstone Wyvern",
-    crate::card::CardArt::new("ee7949c7-ab80-46a1-9cf7-d8e8c004df6e", "Stephen Daniele"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee7949c7-ab80-46a1-9cf7-d8e8c004df6e", "Stephen Daniele"),
+    CardSet::Tempest,
+    // Toughness for power on a flier, which turns a 3/3 into a lethal 7/1
+    // the turn it matters.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Drake"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{R}: This creature gets +2/-2 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 177 — Furnace of Rath
@@ -3510,13 +3556,26 @@ pub(in crate::card::sets) static LOBOTOMY: CardRecord = CardRecord::new(
 );
 
 // TMP 268 — Ranger en-Vec
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RANGER_EN_VEC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a89e82c-7206-4d74-95c6-ad3627e5a9ce"),
     "Ranger en-Vec",
-    crate::card::CardArt::new("4a89e82c-7206-4d74-95c6-ad3627e5a9ce", "Randy Elliott"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4a89e82c-7206-4d74-95c6-ad3627e5a9ce", "Randy Elliott"),
+    CardSet::Tempest,
+    // First strike and regeneration together mean it wins every combat and
+    // survives it, twice over.
+    CardRules::new_creature(
+        mana_cost!("{1}{G}{W}"),
+        &["Human", "Soldier", "Archer", "Ranger"],
+        2,
+        2,
+    )
+    .with_abilities(&[
+        abilities::first_strike(),
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+        ),
+    ]),
 );
 
 // TMP 269 — Segmented Wurm

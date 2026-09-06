@@ -69,13 +69,15 @@ pub(in crate::card::sets) static ARMOR_SLIVER: CardRecord = CardRecord::new(
 );
 
 // TMP 5 — Armored Pegasus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARMORED_PEGASUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f021a79-a182-4914-9ff4-d6fcba7c1d22"),
     "Armored Pegasus",
-    crate::card::CardArt::new("012049f8-0936-49ed-948d-0d34af28550f", "Una Fricker"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("012049f8-0936-49ed-948d-0d34af28550f", "Una Fricker"),
+    CardSet::Tempest,
+    // Two mana for a flier that survives the burn spell aimed at it, which
+    // is the whole difference between this and a 1/1.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Pegasus"], 1, 2)
+        .with_abilities(&[abilities::flying()]),
 );
 
 // TMP 6 — Auratog
@@ -649,13 +651,15 @@ pub(in crate::card::sets) static ESCAPED_SHAPESHIFTER: CardRecord = CardRecord::
 );
 
 // TMP 63 — Fighting Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIGHTING_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be436b65-9193-45ca-93e0-c5e9718f7e72"),
     "Fighting Drake",
-    crate::card::CardArt::new("be436b65-9193-45ca-93e0-c5e9718f7e72", "DiTerlizzi"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("be436b65-9193-45ca-93e0-c5e9718f7e72", "DiTerlizzi"),
+    CardSet::Tempest,
+    // A flier that blocks fliers and lives, which is what blue wanted from
+    // four mana before it wanted card advantage.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Drake"], 2, 4)
+        .with_abilities(&[abilities::flying()]),
 );
 
 // TMP 64 — Fylamarid
@@ -681,13 +685,14 @@ pub(in crate::card::sets) static GIANT_CRAB: CardRecord = CardRecord::new(
 );
 
 // TMP 67 — Horned Turtle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORNED_TURTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7d25497-36b4-48b9-ba01-f24f6222d6be"),
     "Horned Turtle",
-    crate::card::CardArt::new("b2348ce1-6305-42a7-8061-64275f6dc5c6", "DiTerlizzi"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b2348ce1-6305-42a7-8061-64275f6dc5c6", "DiTerlizzi"),
+    CardSet::Tempest,
+    // A vanilla wall that is not a Wall: it can attack, and every so often
+    // that matters.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Turtle"], 1, 4),
 );
 
 // TMP 68 — Insight
@@ -1977,13 +1982,13 @@ pub(in crate::card::sets) static LIGHTNING_BLAST: CardRecord = CardRecord::new(
 // TMP 186 — Lightning Elemental (reprint)
 
 // TMP 187 — Lowland Giant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOWLAND_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7398dec7-5e60-43c0-81a0-ab49beb37077"),
     "Lowland Giant",
-    crate::card::CardArt::new("7398dec7-5e60-43c0-81a0-ab49beb37077", "Paolo Parente"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7398dec7-5e60-43c0-81a0-ab49beb37077", "Paolo Parente"),
+    CardSet::Tempest,
+    // A vanilla 4/3 for four, which is the rate red paid for raw size.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Giant"], 4, 3),
 );
 
 // TMP 188 — Magmasaur
@@ -2722,13 +2727,14 @@ pub(in crate::card::sets) static STORM_FRONT: CardRecord = CardRecord::new(
 );
 
 // TMP 260 — Trained Armodon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRAINED_ARMODON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2380ab8f-58d2-4e1c-a115-cd2615b5a871"),
     "Trained Armodon",
-    crate::card::CardArt::new("2380ab8f-58d2-4e1c-a115-cd2615b5a871", "Gary Leach"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2380ab8f-58d2-4e1c-a115-cd2615b5a871", "Gary Leach"),
+    CardSet::Tempest,
+    // The vanilla 3/3 for three green kept reprinting, and the yardstick
+    // every other three-drop was measured against.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elephant"], 3, 3),
 );
 
 // TMP 261 — Tranquility (reprint)
@@ -2824,13 +2830,15 @@ pub(in crate::card::sets) static SELENIA_DARK_ANGEL: CardRecord = CardRecord::ne
 );
 
 // TMP 271 — Sky Spirit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKY_SPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb8efbec-e8bf-4e34-bf13-b43916d2e9ff"),
     "Sky Spirit",
-    crate::card::CardArt::new("eb8efbec-e8bf-4e34-bf13-b43916d2e9ff", "Rebecca Guay"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eb8efbec-e8bf-4e34-bf13-b43916d2e9ff", "Rebecca Guay"),
+    CardSet::Tempest,
+    // Flying and first strike on the same 2/2: it beats every other flier
+    // its size in the air and takes nothing back.
+    CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Spirit"], 2, 2)
+        .with_abilities(&[abilities::flying(), abilities::first_strike()]),
 );
 
 // TMP 272 — Soltari Guerrillas
@@ -2944,13 +2952,15 @@ pub(in crate::card::sets) static BOTTLE_GNOMES: CardRecord = CardRecord::new(
 );
 
 // TMP 279 — Coiled Tinviper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COILED_TINVIPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("426a28bd-033d-41af-b577-ece73cbd7b3a"),
     "Coiled Tinviper",
-    crate::card::CardArt::new("426a28bd-033d-41af-b577-ece73cbd7b3a", "John Matson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("426a28bd-033d-41af-b577-ece73cbd7b3a", "John Matson"),
+    CardSet::Tempest,
+    // A colourless first striker, which is what an artifact body was for:
+    // any deck could play it.
+    CardRules::new_creature(mana_cost!("{3}"), &["Snake"], 2, 1)
+        .with_abilities(&[abilities::first_strike()]),
 );
 
 // TMP 280 — Cold Storage
@@ -3177,13 +3187,14 @@ pub(in crate::card::sets) static MANAKIN: CardRecord = CardRecord::new(
 );
 
 // TMP 297 — Metallic Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METALLIC_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("30143f4f-9846-448d-8797-8fe0bc0cc5df"),
     "Metallic Sliver",
-    crate::card::CardArt::new("30143f4f-9846-448d-8797-8fe0bc0cc5df", "Allen Williams"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("30143f4f-9846-448d-8797-8fe0bc0cc5df", "Allen Williams"),
+    CardSet::Tempest,
+    // A 1/1 with nothing on it, printed so that every Sliver lord had one
+    // more body to talk to.
+    CardRules::new_creature(mana_cost!("{1}"), &["Sliver"], 1, 1),
 );
 
 // TMP 298 — Mogg Cannon

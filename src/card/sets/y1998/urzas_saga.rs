@@ -572,13 +572,30 @@ pub(in crate::card::sets) static SANCTUM_GUARDIAN: CardRecord = CardRecord::new(
 );
 
 // USG 44 — Seasoned Marshal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEASONED_MARSHAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17db0060-3667-4c8c-ae9b-d62dceac64e3"),
     "Seasoned Marshal",
-    crate::card::CardArt::new("9de20845-06b7-4542-8d61-4b97309669f9", "Matthew D. Wilson"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9de20845-06b7-4542-8d61-4b97309669f9", "Matthew D. Wilson"),
+    CardSet::UrzasSaga,
+    // Attacking taps their blocker, so the attack it makes is bigger than
+    // the 2/2 that made it.
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Soldier"], 2, 2).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature attacks, you may tap target creature.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // USG 45 — Serra Avatar

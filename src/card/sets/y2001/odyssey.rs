@@ -14,7 +14,8 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CostQuantityDef, DiscardSelectionDef, EffectDef,
+    CardSupertype, CardType, ComparisonDef, CostQuantityDef, DamageEventMatcherDef, DamageKindDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef,
@@ -1517,13 +1518,27 @@ pub(in crate::card::sets) static FAMISHED_GHOUL: CardRecord = CardRecord::new(
 );
 
 // ODY 136 — Filthy Cur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FILTHY_CUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("634b2b46-b213-4eb0-81d8-0e9dd161b85f"),
     "Filthy Cur",
-    crate::card::CardArt::new("634b2b46-b213-4eb0-81d8-0e9dd161b85f", "Adam Rex"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("634b2b46-b213-4eb0-81d8-0e9dd161b85f", "Adam Rex"),
+    CardSet::Odyssey,
+    // Damage to it is damage to you, so blocking with it is never free --
+    // and burning it is a way to burn you.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Dog"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature is dealt damage, you lose that much life.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Any,
+                source: DamageSourceMatcherDef::Any,
+                recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::Source),
+            }),
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+    ),
 );
 
 // ODY 137 — Fledgling Imp

@@ -2,12 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt,
-    CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, ValueDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, ValueDef,
     ZoneKind, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 static YOU_CONTROL_AN_UNTAPPED_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     query: ObjectQueryDef::matching(
@@ -416,13 +417,30 @@ pub(in crate::card::sets) static FOIL: CardRecord = CardRecord::new(
 );
 
 // PCY 35 — Gulf Squid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GULF_SQUID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf424982-a0ab-4db9-8889-f3cef10966c6"),
     "Gulf Squid",
-    crate::card::CardArt::new("bf424982-a0ab-4db9-8889-f3cef10966c6", "Wayne England"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bf424982-a0ab-4db9-8889-f3cef10966c6", "Wayne England"),
+    CardSet::Prophecy,
+    // Four mana to take their whole turn's mana, once. It is tempo bought
+    // with a card, which is what Prophecy sold.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Squid", "Beast"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, tap all lands target player controls.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::controlled_by(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    ),
+                )),
+            },
+        ),
+    ),
 );
 
 // PCY 36 — Hazy Homunculus
@@ -1324,13 +1342,25 @@ pub(in crate::card::sets) static ROOT_CAGE: CardRecord = CardRecord::new(
 );
 
 // PCY 123 — Silt Crawler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILT_CRAWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f334e864-4e62-4bc3-9470-661be3d879e2"),
     "Silt Crawler",
-    crate::card::CardArt::new("f334e864-4e62-4bc3-9470-661be3d879e2", "Arnie Swekel"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f334e864-4e62-4bc3-9470-661be3d879e2", "Arnie Swekel"),
+    CardSet::Prophecy,
+    // A 3/3 for three that costs the rest of the turn's mana, which is a
+    // real drawback on the turn it lands.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Beast"], 3, 3).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, tap all lands you control.",
+            EffectDef::Tap {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            },
+        ),
+    ),
 );
 
 // PCY 124 — Snag

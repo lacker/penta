@@ -1023,13 +1023,29 @@ pub(in crate::card::sets) static ROOTWATER_SHAMAN: CardRecord = CardRecord::new(
 );
 
 // TMP 85 — Sea Monster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEA_MONSTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d3837ac-54af-44f7-b576-ad5badbee9f2"),
     "Sea Monster",
-    crate::card::CardArt::new("8d3837ac-54af-44f7-b576-ad5badbee9f2", "Daniel Gelon"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d3837ac-54af-44f7-b576-ad5badbee9f2", "Daniel Gelon"),
+    CardSet::Tempest,
+    // Six power for six mana, and a blocker in every matchup where it
+    // cannot attack -- which is most of them.
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Serpent"], 6, 6).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't attack unless defending player controls an Island.",
+            // Read at declaration, and off the defending player rather
+            // than the controller: it is their Islands that let it swim.
+            EffectDef::CannotAttackUnless(
+                &const {
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )
+                },
+            ),
+        ),
+    ),
 );
 
 // TMP 86 — Shadow Rift

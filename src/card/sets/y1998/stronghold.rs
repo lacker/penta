@@ -471,13 +471,29 @@ pub(in crate::card::sets) static GLIDING_LICID: CardRecord = CardRecord::new(
 );
 
 // STH 32 — Hammerhead Shark
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAMMERHEAD_SHARK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("854627ab-38bd-4894-94d8-9ef51a57579c"),
     "Hammerhead Shark",
-    crate::card::CardArt::new("854627ab-38bd-4894-94d8-9ef51a57579c", "Stephen Daniele"),
-    crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("854627ab-38bd-4894-94d8-9ef51a57579c", "Stephen Daniele"),
+    CardSet::Stronghold,
+    // A 2/3 for two that blocks anything early and attacks only in the
+    // blue mirror.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Shark"], 2, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't attack unless defending player controls an Island.",
+            // Read at declaration, and off the defending player rather
+            // than the controller: it is their Islands that let it swim.
+            EffectDef::CannotAttackUnless(
+                &const {
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )
+                },
+            ),
+        ),
+    ),
 );
 
 // STH 33 — Hesitation

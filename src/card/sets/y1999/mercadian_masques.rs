@@ -1440,16 +1440,44 @@ pub(in crate::card::sets) static CACKLING_WITCH: CardRecord = CardRecord::new(
 );
 
 // MMQ 120 — Cateran Brute
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CATERAN_BRUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("73b6ce76-0ed0-4994-ae2c-d8e51ae09920"),
     "Cateran Brute",
-    crate::card::CardArt::new(
+    CardArt::new(
         "73b6ce76-0ed0-4994-ae2c-d8e51ae09920",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardSet::MercadianMasques,
+    // The middle link, and the one that fetches the Persuader to start the
+    // chain running the other way.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Horror", "Mercenary"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{2}, {T}: Search your library for a Mercenary permanent card with mana value \
+             2 or less, put it onto the battlefield, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Mercenary"),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 121 — Cateran Enforcer
@@ -1463,13 +1491,41 @@ pub(in crate::card::sets) static CATERAN_ENFORCER: CardRecord = CardRecord::new(
 );
 
 // MMQ 122 — Cateran Kidnappers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CATERAN_KIDNAPPERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3768bdc1-4055-423a-a1cc-69b4c620e3e6"),
     "Cateran Kidnappers",
-    crate::card::CardArt::new("3768bdc1-4055-423a-a1cc-69b4c620e3e6", "Carl Critchlow"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3768bdc1-4055-423a-a1cc-69b4c620e3e6", "Carl Critchlow"),
+    CardSet::MercadianMasques,
+    // Four power for four mana with a tutor attached, which is what the
+    // chain pays for being slower than the Rebels.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Mercenary"], 4, 2).with_ability(
+        AbilityDef::activated(
+            "{3}, {T}: Search your library for a Mercenary permanent card with mana value \
+             3 or less, put it onto the battlefield, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Mercenary"),
+                    ObjectPredicateDef::ManaValueAtMost(3),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 123 — Cateran Overlord
@@ -1483,13 +1539,41 @@ pub(in crate::card::sets) static CATERAN_OVERLORD: CardRecord = CardRecord::new(
 );
 
 // MMQ 124 — Cateran Persuader
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CATERAN_PERSUADER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a98bdbf1-32a6-4d9b-8e57-5d3aca6b05bc"),
     "Cateran Persuader",
-    crate::card::CardArt::new("a98bdbf1-32a6-4d9b-8e57-5d3aca6b05bc", "Carl Critchlow"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a98bdbf1-32a6-4d9b-8e57-5d3aca6b05bc", "Carl Critchlow"),
+    CardSet::MercadianMasques,
+    // The bottom of the Mercenary chain. Unlike the Rebels it searches
+    // downward, so each link fetches something smaller than itself.
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Human", "Mercenary"], 2, 1).with_ability(
+        AbilityDef::activated(
+            "{1}, {T}: Search your library for a Mercenary permanent card with mana value \
+             1 or less, put it onto the battlefield, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Mercenary"),
+                    ObjectPredicateDef::ManaValueAtMost(1),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 125 — Cateran Slaver

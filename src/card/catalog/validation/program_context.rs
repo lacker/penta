@@ -538,6 +538,7 @@ fn static_object_characteristic_supported(
 fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRuleDef) -> bool {
     match rule {
         AppliedRuleDef::AssignsNoCombatDamage
+        | AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked
         | AppliedRuleDef::AssignsCombatDamageEqualToToughness
         // Read off the creature dealing the damage, which the damage walk
         // has in hand.

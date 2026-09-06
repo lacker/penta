@@ -22,6 +22,7 @@ use crate::{
 };
 
 mod any_color_for_life;
+mod assign_as_though_unblocked;
 mod attack_and_stay_tapped;
 mod attacks_alone;
 mod bannerhide_krushok;

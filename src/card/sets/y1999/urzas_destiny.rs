@@ -1438,13 +1438,24 @@ pub(in crate::card::sets) static TAUNTING_ELF: CardRecord = CardRecord::new(
 );
 
 // UDS 123 — Thorn Elemental
-// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked; see Lone Wolf.
 pub(in crate::card::sets) static THORN_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("971d4b0d-fe3e-46f5-86df-3fbac6b900b0"),
     "Thorn Elemental",
-    crate::card::CardArt::new("971d4b0d-fe3e-46f5-86df-3fbac6b900b0", "rk post"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("971d4b0d-fe3e-46f5-86df-3fbac6b900b0", "rk post"),
+    CardSet::UrzasDestiny,
+    // Seven damage that no block prevents, which is the whole card: green
+    // paying seven mana to stop caring about creatures.
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Elemental"], 7, 7).with_abilities(&[
+        AbilityDef::static_ability(
+            "You may have this creature assign its combat damage as though it weren't blocked.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(
+                    AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked,
+                ),
+            },
+        ),
+    ]),
 );
 
 // UDS 124 — Yavimaya Elder

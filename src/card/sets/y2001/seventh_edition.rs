@@ -35,7 +35,10 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2012::magic_2013;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
-use crate::card::{CardArt, CardRules, CardSet, abilities};
+use crate::card::{
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, EffectDef,
+    EffectRecipientDef, abilities,
+};
 use crate::mana_cost;
 
 // 7ED 1 — Angelic Page (reprint)
@@ -1183,13 +1186,24 @@ pub(in crate::card::sets) static TRAINED_ORGG: CardRecord = CardRecord::new(
 // 7ED 261 — Pride of Lions (alternate printing)
 
 // 7ED 261★ — Pride of Lions
-// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked; see Lone Wolf.
 pub(in crate::card::sets) static PRIDE_OF_LIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f5006984-8e3d-4f13-b12e-1fbecd134bb3"),
     "Pride of Lions",
-    crate::card::CardArt::new("1673b038-97b6-4139-8468-9cbbd01dd239", "Gary Ruddell"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1673b038-97b6-4139-8468-9cbbd01dd239", "Gary Ruddell"),
+    CardSet::SeventhEdition,
+    // The mid-sized version of the same idea, printed into a core set
+    // where four unpreventable damage a turn was a clock.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Cat"], 4, 4).with_abilities(&[
+        AbilityDef::static_ability(
+            "You may have this creature assign its combat damage as though it weren't blocked.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(
+                    AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked,
+                ),
+            },
+        ),
+    ]),
 );
 
 // 7ED 262 — Rampant Growth (reprint)

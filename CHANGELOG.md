@@ -25,6 +25,15 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **An attacker can assign its combat damage as though it weren't blocked.**
+  `AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked` adds one further
+  division to the ones already offered -- everything on the defender, nothing
+  on the blockers -- rather than changing the block. The creature stays
+  blocked, so the blockers still deal their damage to it and everything
+  watching a block still saw one; and unlike trample it requires no lethal
+  damage on the blockers first, because none of them are assigned any.
+  Lone Wolf, Thorn Elemental, Pride of Lions, and Spinebiter print it.
+
 - **A player can have shroud rather than hexproof.**
   `PlayerRuleDef::Shroud` stops every spell and ability from targeting the
   affected player, their own included. `Hexproof` is controller-relative and

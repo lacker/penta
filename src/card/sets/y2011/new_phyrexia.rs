@@ -2915,13 +2915,27 @@ pub(in crate::card::sets) static ROTTED_HYSTRIX: CardRecord = CardRecord::new(
 );
 
 // NPH 121 — Spinebiter
-// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked.
 pub(in crate::card::sets) static SPINEBITER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfc79ac6-ffc6-4506-9dea-e20176f960ea"),
     "Spinebiter",
-    crate::card::CardArt::new("cfc79ac6-ffc6-4506-9dea-e20176f960ea", "Jaime Jones"),
-    crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cfc79ac6-ffc6-4506-9dea-e20176f960ea", "Jaime Jones"),
+    CardSet::NewPhyrexia,
+    // Infect makes the unblockable damage poison counters, which is the
+    // one combination where chump blocking was the only answer.
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Phyrexian", "Beast"], 3, 4).with_abilities(
+        &[
+            abilities::infect(),
+            AbilityDef::static_ability(
+                "You may have this creature assign its combat damage as though it weren't blocked.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(
+                        AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked,
+                    ),
+                },
+            ),
+        ],
+    ),
 );
 
 // NPH 122 — Thundering Tanadon

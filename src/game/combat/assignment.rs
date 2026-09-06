@@ -11,6 +11,7 @@ use super::super::{
     Target,
 };
 use super::damage_distributions;
+use crate::card::AppliedRuleDef;
 
 impl Game {
     /// Who divides this creature's combat damage. CR 702.21: a creature with
@@ -136,6 +137,33 @@ impl Game {
                 index
             });
 
+        // "As though it weren't blocked" is one extra division rather than a
+        // change to the combat: everything on the defender and nothing on the
+        // blockers, offered alongside the ordinary splits.
+        let unblocked_assignment = (source.attacking
+            && blocker_count > 0
+            && self.has_applied_rule(
+                source,
+                AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked,
+            ))
+        .then(|| self.combat_defender_target(source))
+        .flatten()
+        .map(|defender| Action::AssignCombatDamage {
+            attacker: source_id,
+            assignments: recipients
+                .iter()
+                .take(blocker_count)
+                .map(|recipient| CombatDamageAssignment {
+                    recipient: *recipient,
+                    amount: 0,
+                })
+                .chain(std::iter::once(CombatDamageAssignment {
+                    recipient: defender,
+                    amount: power,
+                }))
+                .collect(),
+        });
+
         damage_distributions(recipients.len(), power)
             .into_iter()
             .filter(|amounts| {
@@ -170,6 +198,7 @@ impl Game {
                     .map(|(recipient, amount)| CombatDamageAssignment { recipient, amount })
                     .collect(),
             })
+            .chain(unblocked_assignment)
             .collect()
     }
 

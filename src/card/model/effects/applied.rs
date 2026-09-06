@@ -202,6 +202,13 @@ pub enum AppliedRuleDef {
     /// under it is not asked how to divide its damage at all, so trample has
     /// nothing to spill and no blocker is dealt a lethal share.
     AssignsNoCombatDamage,
+    /// "You may have this creature assign its combat damage as though it
+    /// weren't blocked." An extra way to divide, not a change to the block:
+    /// the creature stays blocked, so the blockers still deal their damage to
+    /// it and anything watching a block still saw one. Unlike trample this is
+    /// all or nothing and asks nothing of the blockers -- none of them need
+    /// lethal damage first, because none of them are being assigned any.
+    MayAssignCombatDamageAsThoughUnblocked,
     /// "Combat damage that would be dealt by creatures you control can't be
     /// prevented." A rule about every prevention rather than one of them,
     /// like the turn-wide version, but carried by a permanent and scoped to

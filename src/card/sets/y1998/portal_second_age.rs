@@ -302,13 +302,24 @@ pub(in crate::card::sets) static WILDFIRE: CardRecord = CardRecord::new(
 );
 
 // P02 131 — Lone Wolf
-// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked.
 pub(in crate::card::sets) static LONE_WOLF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ff4d831-7388-4321-a636-79cf7bde25bb"),
     "Lone Wolf",
-    crate::card::CardArt::new("7ff4d831-7388-4321-a636-79cf7bde25bb", "Michael Weaver"),
-    crate::card::CardSet::PortalSecondAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7ff4d831-7388-4321-a636-79cf7bde25bb", "Michael Weaver"),
+    CardSet::PortalSecondAge,
+    // Blocking it stops nothing, so it is really a 2/2 that the defender
+    // can only trade with, never wall off.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Wolf"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "You may have this creature assign its combat damage as though it weren't blocked.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(
+                    AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked,
+                ),
+            },
+        ),
+    ]),
 );
 
 // P02 133 — Monstrous Growth

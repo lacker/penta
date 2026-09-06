@@ -1790,13 +1790,28 @@ pub(in crate::card::sets) static EBONY_CHARM: CardRecord = CardRecord::new(
 );
 
 // MIR 121 — Enfeeblement
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENFEEBLEMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf808509-c6c2-4dcb-b35b-e61291faf5d9"),
     "Enfeeblement",
-    crate::card::CardArt::new("bf808509-c6c2-4dcb-b35b-e61291faf5d9", "John Bolton"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bf808509-c6c2-4dcb-b35b-e61291faf5d9", "John Bolton"),
+    CardSet::Mirage,
+    // Removal for anything with two toughness, and dead weight against
+    // everything else.
+    CardRules::new_enchantment(mana_cost!("{B}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -2/-2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-2),
+                        ValueDef::Constant(-2),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // MIR 122 — Feral Shadow

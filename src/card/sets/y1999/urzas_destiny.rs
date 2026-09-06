@@ -921,13 +921,28 @@ pub(in crate::card::sets) static SQUIRMING_MASS: CardRecord = CardRecord::new(
 );
 
 // UDS 74 — Twisted Experiment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TWISTED_EXPERIMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64e37889-7dc0-476b-8b99-8f06881d352c"),
     "Twisted Experiment",
-    crate::card::CardArt::new("64e37889-7dc0-476b-8b99-8f06881d352c", "rk post"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("64e37889-7dc0-476b-8b99-8f06881d352c", "rk post"),
+    CardSet::UrzasDestiny,
+    // Power for toughness at a two-for-one rate, which only pays off on
+    // something that was never going to block.
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +3/-1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(-1),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // UDS 75 — Yawgmoth's Bargain

@@ -5,10 +5,10 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CopyAbilityDef, CopyExceptionsDef, CostDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    CardType, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
+    PlayerRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -752,13 +752,28 @@ pub(in crate::card::sets) static MERFOLK_MESMERIST: CardRecord = CardRecord::new
 );
 
 // M12 67 — Mind Control
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIND_CONTROL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37151305-e489-4df1-9b0a-c5e11c77d2f1"),
     "Mind Control",
-    crate::card::CardArt::new("ec7f77af-17d7-4746-bc83-f455b9b6f9ea", "Ryan Pancoast"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ec7f77af-17d7-4746-bc83-f455b9b6f9ea", "Ryan Pancoast"),
+    CardSet::Magic2012,
+    // Persuasion under a plainer name, printed into a core set where
+    // stealing the best creature was the blue plan.
+    CardRules::new_enchantment(mana_cost!("{3}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                    controller: PlayerRefDef::EffectController,
+                },
+            ),
+        ]),
 );
 
 // M12 68 — Mind Unbound
@@ -1590,13 +1605,31 @@ pub(in crate::card::sets) static GOBLIN_TUNNELER: CardRecord = CardRecord::new(
 );
 
 // M12 143 — Goblin War Paint
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_WAR_PAINT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4388e57e-0c87-4d66-a862-58261d76c5ac"),
     "Goblin War Paint",
-    crate::card::CardArt::new("fde711c9-fdef-4024-8269-a59ee0748f95", "Austin Hsu"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fde711c9-fdef-4024-8269-a59ee0748f95", "Austin Hsu"),
+    CardSet::Magic2012,
+    // Haste on an Aura, which only reads as a bonus on the turn the
+    // creature arrived.
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and has haste.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // M12 144 — Gorehorn Minotaurs

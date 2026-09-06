@@ -3393,13 +3393,31 @@ pub(in crate::card::sets) static VORACIOUS_COBRA: CardRecord = CardRecord::new(
 );
 
 // INV 289 — Wings of Hope
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WINGS_OF_HOPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be0d2402-f1ef-4a71-ac01-c7099c4ce54c"),
     "Wings of Hope",
-    crate::card::CardArt::new("be0d2402-f1ef-4a71-ac01-c7099c4ce54c", "Wayne England"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("be0d2402-f1ef-4a71-ac01-c7099c4ce54c", "Wayne England"),
+    CardSet::Invasion,
+    // Evasion and a body that survives the block it dodges, which is more
+    // than most two-mana Auras manage.
+    CardRules::new_enchantment(mana_cost!("{W}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+3 and has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // INV 290 — Yavimaya Barbarian

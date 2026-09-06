@@ -14,12 +14,13 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CostDef, CostQuantityDef, DamageEventMatcherDef,
-    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CostQuantityDef,
+    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    ScaledValueDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1092,13 +1093,28 @@ pub(in crate::card::sets) static PEEK: CardRecord = CardRecord::new(
 );
 
 // ODY 92 — Persuasion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PERSUASION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7db5d930-23b4-4726-8f5c-3c690b36f4a4"),
     "Persuasion",
-    crate::card::CardArt::new("7db5d930-23b4-4726-8f5c-3c690b36f4a4", "Adam Rex"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7db5d930-23b4-4726-8f5c-3c690b36f4a4", "Adam Rex"),
+    CardSet::Odyssey,
+    // Five mana to take the best creature on the board, which is what blue
+    // did before it could kill anything.
+    CardRules::new_enchantment(mana_cost!("{3}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                    controller: PlayerRefDef::EffectController,
+                },
+            ),
+        ]),
 );
 
 // ODY 93 — Phantom Whelp
@@ -3041,16 +3057,28 @@ pub(in crate::card::sets) static PIPER_S_MELODY: CardRecord = CardRecord::new(
 );
 
 // ODY 262 — Primal Frenzy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIMAL_FRENZY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f5e2d822-09d0-42e5-ad91-67c66e947b3d"),
     "Primal Frenzy",
-    crate::card::CardArt::new(
+    CardArt::new(
         "f5e2d822-09d0-42e5-ad91-67c66e947b3d",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Trample for one mana, which is worth it only on something already
+    // big enough to spill over.
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                },
+            ),
+        ]),
 );
 
 // ODY 263 — Rabid Elephant

@@ -620,13 +620,32 @@ pub(in crate::card::sets) static SERRA_ZEALOT: CardRecord = CardRecord::new(
 );
 
 // USG 47 — Serra's Embrace
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERRA_S_EMBRACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("145c3ebd-7a67-4606-8427-f3b91ab26b84"),
     "Serra's Embrace",
-    crate::card::CardArt::new("145c3ebd-7a67-4606-8427-f3b91ab26b84", "Terese Nielsen"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("145c3ebd-7a67-4606-8427-f3b91ab26b84", "Terese Nielsen"),
+    CardSet::UrzasSaga,
+    // Four mana that turns any creature into a threat that attacks and
+    // blocks in the same turn.
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and has flying and vigilance.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                        AppliedEffectDef::add_ability(&const { abilities::vigilance() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // USG 48 — Serra's Hymn
@@ -2869,13 +2888,25 @@ pub(in crate::card::sets) static RAZE: CardRecord = CardRecord::new(
 );
 
 // USG 208 — Reflexes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REFLEXES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("614782c2-a38a-4b3e-9716-7f5c09c4ad43"),
     "Reflexes",
-    crate::card::CardArt::new("614782c2-a38a-4b3e-9716-7f5c09c4ad43", "Steve White"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("614782c2-a38a-4b3e-9716-7f5c09c4ad43", "Steve White"),
+    CardSet::UrzasSaga,
+    // One mana of first strike, which decides a combat the turn it lands
+    // and is a dead card after.
+    CardRules::new_enchantment(mana_cost!("{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has first strike.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                },
+            ),
+        ]),
 );
 
 // USG 209 — Retromancer

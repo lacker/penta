@@ -497,13 +497,25 @@ pub(in crate::card::sets) static OATH_OF_SCHOLARS: CardRecord = CardRecord::new(
 );
 
 // EXO 43 — Robe of Mirrors
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROBE_OF_MIRRORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("371720a2-ec3f-43a5-9551-c018e164e79f"),
     "Robe of Mirrors",
-    crate::card::CardArt::new("371720a2-ec3f-43a5-9551-c018e164e79f", "John Matson"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("371720a2-ec3f-43a5-9551-c018e164e79f", "John Matson"),
+    CardSet::Exodus,
+    // Shroud protects the creature from removal and from its controller's
+    // own tricks in the same breath.
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has shroud.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                },
+            ),
+        ]),
 );
 
 // EXO 44 — Rootwater Mystic

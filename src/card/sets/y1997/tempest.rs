@@ -272,13 +272,28 @@ pub(in crate::card::sets) static HANNA_S_CUSTODY: CardRecord = CardRecord::new(
 );
 
 // TMP 23 — Hero's Resolve
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HERO_S_RESOLVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4cdcc7c-0d01-4aa2-8934-079dfc00eef2"),
     "Hero's Resolve",
-    crate::card::CardArt::new("b4cdcc7c-0d01-4aa2-8934-079dfc00eef2", "Pete Venters"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b4cdcc7c-0d01-4aa2-8934-079dfc00eef2", "Pete Venters"),
+    CardSet::Tempest,
+    // Five toughness for two mana, which wins a block and does nothing
+    // else -- and the card is gone either way.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+5.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(5),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // TMP 24 — Humility

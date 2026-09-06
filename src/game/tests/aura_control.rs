@@ -76,6 +76,22 @@ fn destroying_control_magic_hands_the_creature_back() {
     );
 }
 
+/// Persuasion prints the same clause as Control Magic a decade later, so it
+/// should reach the same static effect rather than a second implementation
+/// of the same words.
+#[test]
+fn persuasion_takes_the_creature_and_gives_it_back() {
+    let (mut game, creature_id, aura_id) = stolen(cards::PERSUASION, cards::SERRA_ANGEL);
+    assert_eq!(controller(&game, creature_id), Some(PlayerId::One));
+
+    game.destroy_permanent(aura_id);
+    drain_pending(&mut game);
+    game.check_state_based_actions();
+    drain_pending(&mut game);
+
+    assert_eq!(controller(&game, creature_id), Some(PlayerId::Two));
+}
+
 #[test]
 fn steal_artifact_takes_the_artifact() {
     let (game, artifact_id, _aura) = stolen(cards::STEAL_ARTIFACT, cards::JUGGERNAUT);

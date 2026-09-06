@@ -3259,13 +3259,31 @@ pub(in crate::card::sets) static LEERY_FOGBEAST: CardRecord = CardRecord::new(
 );
 
 // ONS 274 — Mythic Proportions
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYTHIC_PROPORTIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("829069cf-7e63-4443-b679-65ad15d6ca5e"),
     "Mythic Proportions",
-    crate::card::CardArt::new("829069cf-7e63-4443-b679-65ad15d6ca5e", "Jim Nelson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("829069cf-7e63-4443-b679-65ad15d6ca5e", "Jim Nelson"),
+    CardSet::Onslaught,
+    // Seven mana on an Aura, which loses to any removal spell and wins
+    // the game against none.
+    CardRules::new_enchantment(mana_cost!("{4}{G}{G}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +8/+8 and has trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(8),
+                            ValueDef::Constant(8),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // ONS 275 — Naturalize

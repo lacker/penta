@@ -5544,7 +5544,7 @@ pub(in crate::card::sets) static ARENA_OF_THE_ANCIENTS: CardRecord = CardRecord:
 );
 
 // LEG 274 — Black Mana Battery
-// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {B}, then add an additional {B} for each charge counter removed this way”.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
 pub(in crate::card::sets) static BLACK_MANA_BATTERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d0c66e64-e357-457d-8302-b3a1fc0c56ce"),
     "Black Mana Battery",
@@ -5554,7 +5554,7 @@ pub(in crate::card::sets) static BLACK_MANA_BATTERY: CardRecord = CardRecord::ne
 );
 
 // LEG 275 — Blue Mana Battery
-// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {U}, then add an additional {U} for each charge counter removed this way”.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
 pub(in crate::card::sets) static BLUE_MANA_BATTERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35393661-2c53-46f0-bb33-2390d552b060"),
     "Blue Mana Battery",
@@ -5627,7 +5627,7 @@ pub(in crate::card::sets) static GAUNTLETS_OF_CHAOS: CardRecord = CardRecord::ne
 );
 
 // LEG 279 — Green Mana Battery
-// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {G}, then add an additional {G} for each charge counter removed this way”.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
 pub(in crate::card::sets) static GREEN_MANA_BATTERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4671fa01-4a9e-4cd9-8154-b0d45e11b702"),
     "Green Mana Battery",
@@ -5842,7 +5842,7 @@ pub(in crate::card::sets) static PLANAR_GATE: CardRecord = CardRecord::new_with_
 );
 
 // LEG 291 — Red Mana Battery
-// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {R}, then add an additional {R} for each charge counter removed this way”.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
 pub(in crate::card::sets) static RED_MANA_BATTERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("363cc5d6-70f8-4a3c-92bd-8f49774bdce2"),
     "Red Mana Battery",
@@ -5978,7 +5978,7 @@ pub(in crate::card::sets) static VOODOO_DOLL: CardRecord = CardRecord::new(
 );
 
 // LEG 299 — White Mana Battery
-// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}, Remove any number of charge counters from this artifact: Add {W}, then add an additional {W} for each charge counter removed this way”.
+// Audit: unsupported — Needs the number of counters removed as a value. Its mana ability pays a tap and RemoveAnyNumberOfCountersFromSource, both of which the boundary allows; what it cannot say is "add one, then one more for each counter removed", where the storage lands add exactly one per counter.
 pub(in crate::card::sets) static WHITE_MANA_BATTERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35fbbe41-d21b-4028-905f-054c44d30eb2"),
     "White Mana Battery",

@@ -4420,7 +4420,7 @@ pub(in crate::card::sets) static JESTER_S_MASK: CardRecord = CardRecord::new(
 );
 
 // ICE 326 — Jeweled Amulet
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs remembered mana type. The artifact notes which type paid for its first ability and produces that type later, and no card-local state records a mana type.
 pub(in crate::card::sets) static JEWELED_AMULET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("34f7bad2-d28f-42d2-9246-fe3545ef49a7"),
     "Jeweled Amulet",

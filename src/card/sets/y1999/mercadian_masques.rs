@@ -709,13 +709,15 @@ pub(in crate::card::sets) static SPIRITUAL_FOCUS: CardRecord = CardRecord::new(
 );
 
 // MMQ 50 — Steadfast Guard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEADFAST_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6381774b-fb91-46cc-9bf6-6eeb4d67a165"),
     "Steadfast Guard",
-    crate::card::CardArt::new("6381774b-fb91-46cc-9bf6-6eeb4d67a165", "Adam Rex"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6381774b-fb91-46cc-9bf6-6eeb4d67a165", "Adam Rex"),
+    CardSet::MercadianMasques,
+    // Two mana for a 2/2 that attacks and blocks in the same turn, which is
+    // the whole card.
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Rebel"], 2, 2)
+        .with_ability(abilities::vigilance()),
 );
 
 // MMQ 51 — Story Circle

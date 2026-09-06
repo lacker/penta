@@ -836,16 +836,39 @@ pub(in crate::card::sets) static ENDBRINGER_S_REVEL: CardRecord = CardRecord::ne
 );
 
 // PCY 64 — Fen Stalker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FEN_STALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e7d1125-7eb0-4065-bc2c-764689380fa8"),
     "Fen Stalker",
-    crate::card::CardArt::new(
+    CardArt::new(
         "8e7d1125-7eb0-4065-bc2c-764689380fa8",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardSet::Prophecy,
+    // Evasion on the same terms, so attacking with it and holding up a
+    // trick are the same decision.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Nightstalker"], 3, 2).with_ability(
+        AbilityDef::static_ability(
+            "This creature has fear as long as you control no untapped lands.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::Equal,
+                    right: ValueDef::Constant(0),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: abilities::FEAR_RESTRICTION,
+                },
+            },
+        ),
+    ),
 );
 
 // PCY 65 — Flay
@@ -1724,13 +1747,36 @@ pub(in crate::card::sets) static VINTARA_ELEPHANT: CardRecord = CardRecord::new(
 );
 
 // PCY 132 — Vintara Snapper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VINTARA_SNAPPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("897edf01-fc6f-4835-b025-c137d921ce09"),
     "Vintara Snapper",
-    crate::card::CardArt::new("897edf01-fc6f-4835-b025-c137d921ce09", "Joel Biske"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("897edf01-fc6f-4835-b025-c137d921ce09", "Joel Biske"),
+    CardSet::Prophecy,
+    // Untargetable exactly when the mana is spent, which is the whole
+    // Prophecy tension in one card.
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Turtle"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "This creature has shroud as long as you control no untapped lands.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::Equal,
+                    right: ValueDef::Constant(0),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                },
+            },
+        ),
+    ),
 );
 
 // PCY 133 — Vitalizing Wind

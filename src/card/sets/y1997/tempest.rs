@@ -21,12 +21,28 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, TargetChooserDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
+/// Every creature but the one asking, negated: what "gets -1/-1 for each
+/// other creature on the battlefield" subtracts. Scaled by -1 rather than
+/// negated, because the static power-and-toughness layer reads a scale and
+/// not a negation.
+static OTHER_CREATURES: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
+    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+        ]),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::Any,
+    )),
+    -1,
+));
 // TMP 1 — Advance Scout
 pub(in crate::card::sets) static ADVANCE_SCOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("81ce7e1e-ffe5-4ced-8967-9a6917245240"),
@@ -2758,13 +2774,22 @@ pub(in crate::card::sets) static MOGG_RAIDER: CardRecord = CardRecord::new(
 );
 
 // TMP 192 — Mogg Squad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOGG_SQUAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b267071-42a6-4e25-9c92-5bca32f8d9af"),
     "Mogg Squad",
-    crate::card::CardArt::new("4b267071-42a6-4e25-9c92-5bca32f8d9af", "Joel Biske"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4b267071-42a6-4e25-9c92-5bca32f8d9af", "Joel Biske"),
+    CardSet::Tempest,
+    // Three power that shrinks as the board fills, so it is a bear on turn
+    // two and a blank on turn six.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature gets -1/-1 for each other creature on the battlefield.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(OTHER_CREATURES, OTHER_CREATURES),
+            },
+        ),
+    ),
 );
 
 // TMP 193 — No Quarter

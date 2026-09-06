@@ -8,10 +8,10 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardRules,
     CardSet, CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ComparisonDef, CostDef, CostQuantityDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
@@ -563,13 +563,31 @@ pub(in crate::card::sets) static GRIP_OF_AMNESIA: CardRecord = CardRecord::new(
 );
 
 // JUD 42 — Hapless Researcher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAPLESS_RESEARCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22ed0ee7-6749-4f38-8e53-c11b46b17e5d"),
     "Hapless Researcher",
-    crate::card::CardArt::new("22ed0ee7-6749-4f38-8e53-c11b46b17e5d", "Ron Spears"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("22ed0ee7-6749-4f38-8e53-c11b46b17e5d", "Ron Spears"),
+    CardSet::Judgment,
+    // A one-drop that is a card-filtering spell the deck can hold until it
+    // needs one.
+    CardRules::new_creature(mana_cost!("{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "Sacrifice this creature: Draw a card, then discard a card.",
+            &[CostDef::SacrificeSource],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+    ),
 );
 
 // JUD 43 — Keep Watch
@@ -814,13 +832,30 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
 );
 
 // JUD 63 — Cabal Trainee
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_TRAINEE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d345d702-b205-4391-985a-6201e707f0ba"),
     "Cabal Trainee",
-    crate::card::CardArt::new("d345d702-b205-4391-985a-6201e707f0ba", "Pete Venters"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d345d702-b205-4391-985a-6201e707f0ba", "Pete Venters"),
+    CardSet::Judgment,
+    // Two power off an attacker for a one-drop, which is a fog aimed at
+    // exactly one creature.
+    CardRules::new_creature(mana_cost!("{B}"), &["Human", "Minion"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Target creature gets -2/-0 until end of turn.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // JUD 64 — Death Wish

@@ -10,8 +10,8 @@ use crate::card::{
     ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DamageEventMatcherDef,
     DamagePreventionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -482,13 +482,27 @@ pub(in crate::card::sets) static FATIGUE: CardRecord = CardRecord::new(
 );
 
 // UDS 33 — Fledgling Osprey
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLEDGLING_OSPREY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8cd46bfa-ca09-422f-9891-db9399fa2d3a"),
     "Fledgling Osprey",
-    crate::card::CardArt::new("8cd46bfa-ca09-422f-9891-db9399fa2d3a", "Heather Hudson"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8cd46bfa-ca09-422f-9891-db9399fa2d3a", "Heather Hudson"),
+    CardSet::UrzasDestiny,
+    // A one-mana flier as soon as any Aura lands on it, which is why the
+    // block put Auras worth playing in the same colour.
+    CardRules::new_creature(mana_cost!("{U}"), &["Bird"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "This creature has flying as long as it's enchanted.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Enchanted,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                },
+            },
+        ),
+    ),
 );
 
 // UDS 34 — Illuminated Wings
@@ -538,13 +552,27 @@ pub(in crate::card::sets) static MENTAL_DISCIPLINE: CardRecord = CardRecord::new
 );
 
 // UDS 38 — Metathran Elite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METATHRAN_ELITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa941f17-1b81-4017-90ae-4466eba8da2f"),
     "Metathran Elite",
-    crate::card::CardArt::new("aa941f17-1b81-4017-90ae-4466eba8da2f", "Jim Nelson"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("aa941f17-1b81-4017-90ae-4466eba8da2f", "Jim Nelson"),
+    CardSet::UrzasDestiny,
+    // Unblockable while enchanted, so the Aura that makes it bigger also
+    // makes the extra size matter.
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Metathran", "Soldier"], 2, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked as long as it's enchanted.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Enchanted,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                },
+            },
+        ),
+    ),
 );
 
 // UDS 39 — Metathran Soldier

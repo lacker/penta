@@ -451,13 +451,15 @@ pub(in crate::card::sets) static SOLTARI_EMISSARY: CardRecord = CardRecord::new(
 );
 
 // TMP 43 — Soltari Foot Soldier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLTARI_FOOT_SOLDIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdf295dc-72df-4097-b767-d89ab807bf2e"),
     "Soltari Foot Soldier",
-    crate::card::CardArt::new("bdf295dc-72df-4097-b767-d89ab807bf2e", "Janet Aulisio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bdf295dc-72df-4097-b767-d89ab807bf2e", "Janet Aulisio"),
+    CardSet::Tempest,
+    // One mana for one unblockable damage a turn, which is what shadow does
+    // in a format where nobody else has it.
+    CardRules::new_creature(mana_cost!("{W}"), &["Soltari", "Soldier"], 1, 1)
+        .with_ability(abilities::shadow()),
 );
 
 // TMP 44 — Soltari Lancer
@@ -1044,13 +1046,15 @@ pub(in crate::card::sets) static THALAKOS_SEER: CardRecord = CardRecord::new(
 );
 
 // TMP 95 — Thalakos Sentry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THALAKOS_SENTRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("739a13d6-5f73-4166-b923-9db8ee3f2cf7"),
     "Thalakos Sentry",
-    crate::card::CardArt::new("739a13d6-5f73-4166-b923-9db8ee3f2cf7", "Andrew Robinson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("739a13d6-5f73-4166-b923-9db8ee3f2cf7", "Andrew Robinson"),
+    CardSet::Tempest,
+    // Blue's shadow body: it connects every turn and blocks the other
+    // shadow creatures.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Thalakos", "Soldier"], 1, 2)
+        .with_ability(abilities::shadow()),
 );
 
 // TMP 96 — Time Ebb (reprint)
@@ -1332,13 +1336,15 @@ pub(in crate::card::sets) static DAUTHI_GHOUL: CardRecord = CardRecord::new(
 // TMP 122 — Dauthi Horror (reprint)
 
 // TMP 123 — Dauthi Marauder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUTHI_MARAUDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee847d84-ec8d-4ec3-8436-68d6f144e22f"),
     "Dauthi Marauder",
-    crate::card::CardArt::new("ee847d84-ec8d-4ec3-8436-68d6f144e22f", "Andrew Robinson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee847d84-ec8d-4ec3-8436-68d6f144e22f", "Andrew Robinson"),
+    CardSet::Tempest,
+    // Three unblockable damage a turn for three mana, and no defence at all
+    // -- the fastest clock in the cycle.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Dauthi", "Minion"], 3, 1)
+        .with_ability(abilities::shadow()),
 );
 
 // TMP 124 — Dauthi Mercenary
@@ -1788,13 +1794,14 @@ pub(in crate::card::sets) static CANYON_DRAKE: CardRecord = CardRecord::new(
 );
 
 // TMP 167 — Canyon Wildcat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANYON_WILDCAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0169e52b-7909-4a8f-8ca2-62f030f9a85a"),
     "Canyon Wildcat",
-    crate::card::CardArt::new("0169e52b-7909-4a8f-8ca2-62f030f9a85a", "Gary Leach"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0169e52b-7909-4a8f-8ca2-62f030f9a85a", "Gary Leach"),
+    CardSet::Tempest,
+    // Two damage a turn that the red mirror cannot block.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Cat"], 2, 1)
+        .with_ability(abilities::landwalk(BasicLandType::Mountain)),
 );
 
 // TMP 168 — Chaotic Goo

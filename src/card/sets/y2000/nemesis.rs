@@ -4,11 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, ComparisonDef, CounterKind, DamageEventMatcherDef,
+    DamagePreventionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -844,13 +845,26 @@ pub(in crate::card::sets) static SEAL_OF_DOOM: CardRecord = CardRecord::new(
 );
 
 // NEM 71 — Spineless Thug
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPINELESS_THUG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e4a9bb47-3855-425d-924c-09dbde74735b"),
     "Spineless Thug",
-    crate::card::CardArt::new("e4a9bb47-3855-425d-924c-09dbde74735b", "Matthew D. Wilson"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e4a9bb47-3855-425d-924c-09dbde74735b", "Matthew D. Wilson"),
+    CardSet::Nemesis,
+    // A 2/2 for two with the smallest possible drawback, printed for the
+    // deck that only attacks.
+    CardRules::new_creature(
+        mana_cost!("{1}{B}"),
+        &["Phyrexian", "Zombie", "Mercenary"],
+        2,
+        2,
+    )
+    .with_ability(AbilityDef::static_ability(
+        "This creature can't block.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+        },
+    )),
 );
 
 // NEM 72 — Spiteful Bully

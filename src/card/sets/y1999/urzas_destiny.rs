@@ -6,11 +6,11 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
-    CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, PowerToughnessOperationDef,
-    ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    CharacteristicOperationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation,
+    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -994,16 +994,25 @@ pub(in crate::card::sets) static GOBLIN_MASONS: CardRecord = CardRecord::new(
 );
 
 // UDS 87 — Hulking Ogre
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HULKING_OGRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0676d39e-229f-480b-874e-ff0cb8e335d8"),
     "Hulking Ogre",
-    crate::card::CardArt::new(
+    CardArt::new(
         "0676d39e-229f-480b-874e-ff0cb8e335d8",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasDestiny,
+    // A 3/3 for three that never blocks, which is a fair rate for a deck
+    // that was not going to block anyway.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Ogre"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+    ),
 );
 
 // UDS 88 — Impatience

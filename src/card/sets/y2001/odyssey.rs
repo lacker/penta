@@ -2042,13 +2042,15 @@ pub(in crate::card::sets) static DEMORALIZE: CardRecord = CardRecord::new(
 );
 
 // ODY 185 — Dwarven Grunt
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWARVEN_GRUNT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6f00d726-4289-48ff-8c14-6a5080a00fda"),
     "Dwarven Grunt",
-    crate::card::CardArt::new("6f00d726-4289-48ff-8c14-6a5080a00fda", "Mike Ploog"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6f00d726-4289-48ff-8c14-6a5080a00fda", "Mike Ploog"),
+    CardSet::Odyssey,
+    // A one-drop that gets through against red decks, which is the only
+    // matchup where one power matters.
+    CardRules::new_creature(mana_cost!("{R}"), &["Dwarf"], 1, 1)
+        .with_ability(abilities::landwalk(BasicLandType::Mountain)),
 );
 
 // ODY 186 — Dwarven Recruiter
@@ -2683,13 +2685,31 @@ pub(in crate::card::sets) static KROSAN_AVENGER: CardRecord = CardRecord::new(
 );
 
 // ODY 248 — Krosan Beast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_BEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af822507-fd4c-454b-ab07-106c81c535bf"),
     "Krosan Beast",
-    crate::card::CardArt::new("af822507-fd4c-454b-ab07-106c81c535bf", "Kev Walker"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("af822507-fd4c-454b-ab07-106c81c535bf", "Kev Walker"),
+    CardSet::Odyssey,
+    // A 1/1 for four that becomes an 8/8. Nothing in between: it is dead
+    // weight until the graveyard fills and unanswerable afterwards.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Squirrel", "Beast"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "Threshold — This creature gets +7/+7 as long as there are seven or more \
+             cards in your graveyard.",
+            EffectDef::IfCondition {
+                condition: &THRESHOLD,
+                then: &const {
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(7),
+                            ValueDef::Constant(7),
+                        ),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // ODY 249 — Leaf Dancer
@@ -2707,13 +2727,31 @@ pub(in crate::card::sets) static LEAF_DANCER: CardRecord = CardRecord::new(
 );
 
 // ODY 250 — Metamorphic Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METAMORPHIC_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f47e020a-ed73-465a-b7eb-a4eeccd096cc"),
     "Metamorphic Wurm",
-    crate::card::CardArt::new("f47e020a-ed73-465a-b7eb-a4eeccd096cc", "Thomas M. Baxa"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f47e020a-ed73-465a-b7eb-a4eeccd096cc", "Thomas M. Baxa"),
+    CardSet::Odyssey,
+    // A 3/3 that becomes a 7/7, which is the middle of the threshold curve
+    // and the one that is playable before it turns on.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elephant", "Wurm"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "Threshold — This creature gets +4/+4 as long as there are seven or more \
+             cards in your graveyard.",
+            EffectDef::IfCondition {
+                condition: &THRESHOLD,
+                then: &const {
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // ODY 251 — Moment's Peace
@@ -2931,13 +2969,31 @@ pub(in crate::card::sets) static SPELLBANE_CENTAUR: CardRecord = CardRecord::new
 );
 
 // ODY 272 — Springing Tiger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPRINGING_TIGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04462629-fb03-40e8-84e6-4a66e4d5392b"),
     "Springing Tiger",
-    crate::card::CardArt::new("04462629-fb03-40e8-84e6-4a66e4d5392b", "Arnie Swekel"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("04462629-fb03-40e8-84e6-4a66e4d5392b", "Arnie Swekel"),
+    CardSet::Odyssey,
+    // A fair 3/3 that quietly becomes a 5/5, which is what a common was
+    // allowed to do.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Cat"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "Threshold — This creature gets +2/+2 as long as there are seven or more \
+             cards in your graveyard.",
+            EffectDef::IfCondition {
+                condition: &THRESHOLD,
+                then: &const {
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // ODY 273 — Squirrel Mob

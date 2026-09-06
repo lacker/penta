@@ -1102,13 +1102,22 @@ pub(in crate::card::sets) static HEAT_WAVE: CardRecord = CardRecord::new(
 );
 
 // VIS 84 — Hulking Cyclops
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HULKING_CYCLOPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a3ee5ea8-7023-4dde-ab51-d3ba234d74b9"),
     "Hulking Cyclops",
-    crate::card::CardArt::new("a3ee5ea8-7023-4dde-ab51-d3ba234d74b9", "DiTerlizzi"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a3ee5ea8-7023-4dde-ab51-d3ba234d74b9", "DiTerlizzi"),
+    CardSet::Visions,
+    // Five power for five mana, and it can only ever attack: the drawback is
+    // what pays for the size.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Cyclops"], 5, 5).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+    ),
 );
 
 // VIS 85 — Keeper of Kookus

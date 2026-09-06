@@ -8,10 +8,11 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardNameDef,
     CardRules, CardSet, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
+    ComparisonDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
@@ -1169,13 +1170,44 @@ pub(in crate::card::sets) static WORLDGORGER_DRAGON: CardRecord = CardRecord::ne
 );
 
 // JUD 104 — Anurid Barkripper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANURID_BARKRIPPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33255dfd-f8a9-4a15-aac5-c53dc0257859"),
     "Anurid Barkripper",
-    crate::card::CardArt::new("33255dfd-f8a9-4a15-aac5-c53dc0257859", "Randy Gallegos"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("33255dfd-f8a9-4a15-aac5-c53dc0257859", "Randy Gallegos"),
+    CardSet::Judgment,
+    // A 2/2 for three that grows to a 4/4, so it is never a dead card and
+    // occasionally a very good one.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Frog", "Beast"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Threshold — This creature gets +2/+2 as long as there are seven or more \
+             cards in your graveyard.",
+            EffectDef::IfCondition {
+                // Threshold (CR 702.15a) counts cards you own, not every
+                // graveyard on the table. Written out here because Judgment
+                // has only this one card that reads it.
+                condition: &const {
+                    TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerSetDef::Related(PlayerRelation::You),
+                        ),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 7,
+                    }
+                },
+                then: &const {
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // JUD 105 — Anurid Swarmsnapper

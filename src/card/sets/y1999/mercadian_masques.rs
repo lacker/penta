@@ -2265,13 +2265,15 @@ pub(in crate::card::sets) static ROBBER_FLY: CardRecord = CardRecord::new(
 );
 
 // MMQ 210 — Rock Badger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROCK_BADGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dff05df8-76f5-48c6-ac96-7b4e6a7050f6"),
     "Rock Badger",
-    crate::card::CardArt::new("dff05df8-76f5-48c6-ac96-7b4e6a7050f6", "Heather Hudson"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dff05df8-76f5-48c6-ac96-7b4e6a7050f6", "Heather Hudson"),
+    CardSet::MercadianMasques,
+    // Five mana for a 3/3 that is unblockable in the mirror and ordinary
+    // against everybody else.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Badger", "Beast"], 3, 3)
+        .with_ability(abilities::landwalk(BasicLandType::Mountain)),
 );
 
 // MMQ 211 — Seismic Mage

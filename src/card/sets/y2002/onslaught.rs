@@ -16,8 +16,8 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    PlayerRefDef, PlayerRelation, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
+    ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -719,16 +719,25 @@ pub(in crate::card::sets) static SUNFIRE_BALM: CardRecord = CardRecord::new(
 );
 
 // ONS 57 — True Believer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRUE_BELIEVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4289bdcb-6eea-458f-a4eb-89e26264673a"),
     "True Believer",
-    crate::card::CardArt::new(
+    CardArt::new(
         "4289bdcb-6eea-458f-a4eb-89e26264673a",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardSet::Onslaught,
+    // The same protection on a body, which is the whole reason it is
+    // worth killing and the whole reason that is hard.
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Cleric"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "You have shroud.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(PlayerRuleDef::Shroud)),
+            },
+        ),
+    ),
 );
 
 // ONS 58 — Unified Strike

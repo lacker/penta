@@ -25,6 +25,13 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **A player can have shroud rather than hexproof.**
+  `PlayerRuleDef::Shroud` stops every spell and ability from targeting the
+  affected player, their own included. `Hexproof` is controller-relative and
+  stops only opponents, which is the whole difference between the two
+  keywords; neither prevents damage, so an untargeted sweeper still reaches
+  a shrouded player. Ivory Mask and True Believer are the first users.
+
 - **A creature can be barred from attacking or blocking on its own.**
   `AppliedRuleDef::CannotAttackAlone` and `CannotBlockAlone` constrain the
   finished declaration rather than any one attack or block: declaring the

@@ -422,9 +422,11 @@ impl Game {
             })
     }
 
-    /// Whether a spell or ability may target this player after applying both
-    /// protection and player hexproof. Hexproof is controller-relative;
-    /// protection is source-relative and can stop the player's own spell.
+    /// Whether a spell or ability may target this player after applying
+    /// protection, shroud, and player hexproof. Hexproof is
+    /// controller-relative and shroud is not, which is the whole difference
+    /// between them; protection is source-relative and can stop the player's
+    /// own spell.
     pub(super) fn player_can_be_targeted_by(
         &self,
         player: PlayerId,
@@ -432,7 +434,10 @@ impl Game {
         source: GameObjectId,
         source_is_spell: bool,
     ) -> bool {
-        (player == targeting_controller
+        !self.player_rule_applies(
+            player,
+            AppliedRuleDef::PlayerRule(crate::card::PlayerRuleDef::Shroud),
+        ) && (player == targeting_controller
             || !self.player_rule_applies(
                 player,
                 AppliedRuleDef::PlayerRule(crate::card::PlayerRuleDef::Hexproof),

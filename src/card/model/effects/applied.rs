@@ -167,6 +167,12 @@ pub enum PlayerRuleDef {
     /// opponents control. Unlike protection, this does not prevent damage or
     /// make an Aura that is already attached fall off.
     Hexproof,
+    /// The affected player cannot be targeted by spells or abilities at all,
+    /// their own included. Unlike [`Self::Hexproof`] the rule is not
+    /// controller-relative, which is the whole difference between shroud and
+    /// hexproof; and unlike protection it prevents no damage and makes
+    /// nothing already attached fall off.
+    Shroud,
     /// The affected player's life total cannot change. They cannot gain or
     /// lose life, and a nonzero life payment cannot be made, but damage can
     /// still be dealt when another rule says it cannot be prevented.

@@ -7,14 +7,14 @@ use crate::card::sets::y2012::avacyn_restored as catalog_avr;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
-    BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
+    AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
+    CardSupertype, CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -2162,13 +2162,18 @@ pub(in crate::card::sets) static SANDS_OF_TIME: CardRecord = CardRecord::new(
 );
 
 // VIS 154 — Sisay's Ring
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SISAY_S_RING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a08becd3-ca5e-4150-8d28-52436a3eaffd"),
     "Sisay's Ring",
-    crate::card::CardArt::new("a08becd3-ca5e-4150-8d28-52436a3eaffd", "Donato Giancola"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a08becd3-ca5e-4150-8d28-52436a3eaffd", "Donato Giancola"),
+    CardSet::Visions,
+    // Four mana for two, which only pays off in a deck whose top end is
+    // expensive enough to want the turn back.
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_mana(
+        "{T}: Add {C}{C}.",
+        &[CostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
+    )),
 );
 
 // VIS 155 — Snake Basket

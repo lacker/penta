@@ -22,7 +22,7 @@ use crate::card::{
     CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    PlayerRelation, PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
@@ -307,13 +307,20 @@ pub(in crate::card::sets) static INVIOLABILITY: CardRecord = CardRecord::new(
 );
 
 // MMQ 24 — Ivory Mask
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IVORY_MASK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35ea3762-a419-412c-b2bd-0a40902d8d51"),
     "Ivory Mask",
-    crate::card::CardArt::new("35ea3762-a419-412c-b2bd-0a40902d8d51", "Glen Angus"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("35ea3762-a419-412c-b2bd-0a40902d8d51", "Glen Angus"),
+    CardSet::MercadianMasques,
+    // Shroud rather than hexproof, so it also turns off the controller's
+    // own targeted spells aimed at themselves.
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::static_ability(
+        "You have shroud.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::Controller,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(PlayerRuleDef::Shroud)),
+        },
+    )),
 );
 
 // MMQ 25 — Jhovall Queen

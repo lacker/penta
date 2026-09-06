@@ -47,6 +47,7 @@ mod miners_guidewing;
 mod moon_circuit_hacker;
 mod nyxborn_hydra;
 mod phantom_interference;
+mod player_shroud;
 mod protection_from_subtype;
 mod raid_bombardment;
 mod reckless_impulse;

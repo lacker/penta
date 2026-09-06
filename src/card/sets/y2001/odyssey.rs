@@ -2214,13 +2214,30 @@ pub(in crate::card::sets) static FLAME_BURST: CardRecord = CardRecord::new(
 );
 
 // ODY 195 — Frenetic Ogre
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRENETIC_OGRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0dc939cc-826a-4208-ba5b-a11e1cd47aa2"),
     "Frenetic Ogre",
-    crate::card::CardArt::new("0dc939cc-826a-4208-ba5b-a11e1cd47aa2", "Ron Spears"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0dc939cc-826a-4208-ba5b-a11e1cd47aa2", "Ron Spears"),
+    CardSet::Odyssey,
+    // Cards for damage at a rate a red deck can pay once, maybe twice,
+    // before the hand is gone.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Ogre"], 2, 3).with_ability(
+        AbilityDef::activated(
+            "{R}, Discard a card at random: This creature gets +3/+0 until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::DiscardCardsAtRandom(1),
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 196 — Halberdier
@@ -2399,13 +2416,30 @@ pub(in crate::card::sets) static PARDIC_MINER: CardRecord = CardRecord::new(
 );
 
 // ODY 213 — Pardic Swordsmith
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARDIC_SWORDSMITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44ac622c-db04-41bf-817e-4698843e6346"),
     "Pardic Swordsmith",
-    crate::card::CardArt::new("44ac622c-db04-41bf-817e-4698843e6346", "Bob Petillo"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("44ac622c-db04-41bf-817e-4698843e6346", "Bob Petillo"),
+    CardSet::Odyssey,
+    // The small version on a 1/1, where each card bought is worth more
+    // because the body is worth less.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dwarf"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{R}, Discard a card at random: This creature gets +2/+0 until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::DiscardCardsAtRandom(1),
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 214 — Price of Glory
@@ -2859,13 +2893,23 @@ pub(in crate::card::sets) static NANTUKO_DISCIPLE: CardRecord = CardRecord::new(
 );
 
 // ODY 254 — Nantuko Elder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c0a4e6e-cc4e-43d5-aece-f009e117366a"),
     "Nantuko Elder",
-    crate::card::CardArt::new("5c0a4e6e-cc4e-43d5-aece-f009e117366a", "Daren Bader"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5c0a4e6e-cc4e-43d5-aece-f009e117366a", "Daren Bader"),
+    CardSet::Odyssey,
+    // Ramp on a body, and the colourless half means it fixes nothing --
+    // it only accelerates.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Insect", "Druid"], 1, 2).with_ability(
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Colorless,
+                ManaColor::Green,
+            )),
+        ),
+    ),
 );
 
 // ODY 255 — Nantuko Mentor

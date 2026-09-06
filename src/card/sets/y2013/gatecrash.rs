@@ -616,13 +616,30 @@ pub(in crate::card::sets) static ZARICHI_TIGER: CardRecord = CardRecord::new_wit
 );
 
 // GTC 29 — Aetherize
-// Audit: unsupported — Needs a simultaneous multi-object move to return all attacking creatures without resolving the zone changes sequentially.
 pub(in crate::card::sets) static AETHERIZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33303859-c6e0-4ebd-bb5f-44be7f5d7459"),
     "Aetherize",
-    crate::card::CardArt::new("33303859-c6e0-4ebd-bb5f-44be7f5d7459", "Ryan Barger"),
-    crate::card::CardSet::Gatecrash,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("33303859-c6e0-4ebd-bb5f-44be7f5d7459", "Ryan Barger"),
+    CardSet::Gatecrash,
+    // Four mana to blank an alpha strike. It answers the attack rather than
+    // the board, so everything comes back next turn.
+    CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
+        "Return all attacking creatures to their owner's hand.",
+        // One move rather than a sequence: the creatures leave together,
+        // so nothing that watches a single departure sees them one by one.
+        EffectDef::MoveObjects(MoveObjectsDef {
+            input: ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::Attacking,
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            )),
+            from: Some(ZoneKind::Battlefield),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            moved: None,
+            then: &EffectDef::None,
+        }),
+    )),
 );
 
 // GTC 30 — Agoraphobia
@@ -4254,7 +4271,7 @@ pub(in crate::card::sets) static UNEXPECTED_RESULTS: CardRecord = CardRecord::ne
 );
 
 // GTC 204 — Urban Evolution
-// Audit: unsupported — Needs a turn-long permission to play one additional land.
+// Audit: unsupported — Needs the additional-land permission as a resolving effect. AppliedRuleDef::MayPlayAdditionalLands exists but only as a StaticApply from a permanent; applying it for a turn is rejected as UnsupportedResolvingAppliedEffect.
 pub(in crate::card::sets) static URBAN_EVOLUTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9fcd6fac-2cde-4a89-b484-b910be2dcecf"),
     "Urban Evolution",

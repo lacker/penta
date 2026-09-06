@@ -1681,13 +1681,15 @@ pub(in crate::card::sets) static GANGRENOUS_GOLIATH: CardRecord = CardRecord::ne
 );
 
 // ONS 151 — Gluttonous Zombie
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLUTTONOUS_ZOMBIE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("db909e95-7979-41f0-b17a-874c4137fcc1"),
     "Gluttonous Zombie",
-    crate::card::CardArt::new("db909e95-7979-41f0-b17a-874c4137fcc1", "Thomas M. Baxa"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("db909e95-7979-41f0-b17a-874c4137fcc1", "Thomas M. Baxa"),
+    CardSet::Onslaught,
+    // Five mana for a 3/3 nobody blocks, which is what an unevasive 3/3 at
+    // that cost would never be worth.
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Zombie"], 3, 3)
+        .with_ability(abilities::fear()),
 );
 
 // ONS 152 — Gravespawn Sovereign
@@ -1831,13 +1833,15 @@ pub(in crate::card::sets) static SCREECHING_BUZZARD: CardRecord = CardRecord::ne
 );
 
 // ONS 166 — Severed Legion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEVERED_LEGION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("efe12afd-da41-436e-af84-fa3b36a58030"),
     "Severed Legion",
-    crate::card::CardArt::new("efe12afd-da41-436e-af84-fa3b36a58030", "Dany Orizio"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("efe12afd-da41-436e-af84-fa3b36a58030", "Dany Orizio"),
+    CardSet::Onslaught,
+    // A 2/2 for three that attacks every turn regardless of the board,
+    // which is the whole of mono-black's beatdown plan.
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2)
+        .with_ability(abilities::fear()),
 );
 
 // ONS 167 — Shade's Breath

@@ -7,21 +7,22 @@ use super::model::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
     AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AggregateOperationDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
-    BattlefieldEntryModificationDef, BindObjectsDef, CardChoiceSourceDef, CardNameDef, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef,
-    ChooseObjectOrderDef, CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef,
-    CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostModificationDef,
-    CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
-    InstalledTriggerLifetimeDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost,
-    MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCountConditionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef,
-    ObjectValueDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef,
-    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef,
-    ScaledValueDef, SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
+    BattlefieldEntryModificationDef, BindObjectsDef, BlockRestrictionDef, BlockRestrictionMatchDef,
+    BlockRestrictionSubjectDef, CardChoiceSourceDef, CardNameDef, CardType, CardTypeSet,
+    ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseObjectOrderDef,
+    CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef, CopyExceptionsDef,
+    CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostModificationDef, CounterKind,
+    CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
+    KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectCollectionSourceDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef,
+    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef, ScaledValueDef,
+    SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
     SpellResolutionDestinationDef, SuspendAbilityDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
@@ -228,6 +229,37 @@ pub const fn shadow() -> AbilityDef {
     keyword(
         "Shadow (This creature can block or be blocked by only creatures with shadow.)",
         KeywordAbility::Shadow,
+    )
+}
+
+/// The two kinds of creature fear lets through, which is the whole of what
+/// the keyword says.
+static ARTIFACT_OR_BLACK: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    ObjectPredicateDef::Color(ManaColor::Black),
+]);
+
+/// "Fear (This creature can't be blocked except by artifact creatures and/or
+/// black creatures.)"
+///
+/// Written as the pairing restriction it abbreviates rather than as a
+/// keyword flag: unlike intimidate, which reads the attacker's own colours
+/// and so has to be asked at declaration time, fear names a fixed pair of
+/// qualities and the existing "except by" restriction says it exactly.
+#[must_use]
+pub const fn fear() -> AbilityDef {
+    AbilityDef::static_ability(
+        "Fear (This creature can't be blocked except by artifact creatures and/or black \
+         creatures.)",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                BlockRestrictionDef::prohibit(
+                    BlockRestrictionSubjectDef::Attacker,
+                    BlockRestrictionMatchDef::Except(ARTIFACT_OR_BLACK),
+                ),
+            )),
+        },
     )
 }
 

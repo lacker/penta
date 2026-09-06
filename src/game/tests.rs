@@ -23,6 +23,7 @@ use crate::{
 
 mod bannerhide_krushok;
 mod enumerated_apply;
+mod fear;
 mod fixtures;
 pub(super) use fixtures::*;
 

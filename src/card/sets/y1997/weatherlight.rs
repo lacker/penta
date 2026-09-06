@@ -1504,13 +1504,14 @@ pub(in crate::card::sets) static ODYLIC_WRAITH: CardRecord = CardRecord::new(
 );
 
 // WTH 78 — Razortooth Rats
-// Audit: unsupported — Fear is not represented by the shared evasion vocabulary.
 pub(in crate::card::sets) static RAZORTOOTH_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae869780-27e8-4a6d-9ac6-cdab617725e2"),
     "Razortooth Rats",
-    crate::card::CardArt::new("ae869780-27e8-4a6d-9ac6-cdab617725e2", "Brian Horton"),
-    crate::card::CardSet::Weatherlight,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ae869780-27e8-4a6d-9ac6-cdab617725e2", "Brian Horton"),
+    CardSet::Weatherlight,
+    // Three mana for two damage a turn that most decks simply cannot stop,
+    // which is the deal fear has always offered.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Rat"], 2, 1).with_ability(abilities::fear()),
 );
 
 // WTH 79 — Shadow Rider

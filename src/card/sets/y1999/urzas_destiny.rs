@@ -818,13 +818,15 @@ pub(in crate::card::sets) static SOUL_FEAST: CardRecord = CardRecord::new(
 );
 
 // UDS 73 — Squirming Mass
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUIRMING_MASS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e47793a3-9a98-4733-8d6a-2fb1a67b15c9"),
     "Squirming Mass",
-    crate::card::CardArt::new("e47793a3-9a98-4733-8d6a-2fb1a67b15c9", "Ron Spencer"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e47793a3-9a98-4733-8d6a-2fb1a67b15c9", "Ron Spencer"),
+    CardSet::UrzasDestiny,
+    // A 1/1 that connects every turn. Small, but the damage is not optional
+    // for the opponent.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Horror"], 1, 1)
+        .with_ability(abilities::fear()),
 );
 
 // UDS 74 — Twisted Experiment

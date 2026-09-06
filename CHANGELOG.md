@@ -25,6 +25,12 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Fear is available as a shared evasion clause.** `abilities::fear()` is the
+  pairing restriction the keyword abbreviates -- blockers outside "artifact
+  creature or black creature" are barred -- rather than a new keyword flag.
+  Unlike intimidate, which reads the attacker's own colours, fear names a
+  fixed pair of qualities, so the existing "except by" restriction says it.
+
 - **Spectacle's condition is readable where an alternative cost is offered.**
   `TriggerConditionDef::OpponentLostLifeThisTurn` is controller-relative, so
   it answers before there is a spell on the stack. The existing

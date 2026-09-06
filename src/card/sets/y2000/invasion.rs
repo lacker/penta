@@ -20,9 +20,10 @@ use crate::card::{
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, CounterKind, DiscardSelectionDef,
     EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
-    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
-    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementConditionDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
+    ScaledValueDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
@@ -860,13 +861,41 @@ pub(in crate::card::sets) static MANA_MAZE: CardRecord = CardRecord::new(
 );
 
 // INV 60 — Manipulate Fate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANIPULATE_FATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5bb52acb-dedb-4ed6-a6da-8c036f2b2958"),
     "Manipulate Fate",
-    crate::card::CardArt::new("5bb52acb-dedb-4ed6-a6da-8c036f2b2958", "John Matson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5bb52acb-dedb-4ed6-a6da-8c036f2b2958", "John Matson"),
+    CardSet::Invasion,
+    // Exiling your own cards is the point: it is a cantrip in a deck that
+    // wanted three specific cards out of the library.
+    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
+        "Search your library for three cards, exile them, then shuffle.\nDraw a card.",
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::Any,
+                        minimum: 0,
+                        maximum: ValueDef::Constant(3),
+                        reveal: false,
+                        destination: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // INV 61 — Metathran Aerostat
@@ -2554,13 +2583,41 @@ pub(in crate::card::sets) static TRIBAL_FLAMES: CardRecord = CardRecord::new(
 );
 
 // INV 177 — Turf Wound
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TURF_WOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91392e9f-f96a-4ac5-b1f1-c73540cf249e"),
     "Turf Wound",
-    crate::card::CardArt::new("91392e9f-f96a-4ac5-b1f1-c73540cf249e", "Thomas Gianni"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("91392e9f-f96a-4ac5-b1f1-c73540cf249e", "Thomas Gianni"),
+    CardSet::Invasion,
+    // Taking a land drop for three mana is a losing trade; taking it at
+    // instant speed for free is a tempo play.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player can't play lands this turn.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::PlayLand,
+                                ObjectPredicateDef::Any,
+                            ),
+                        )),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // INV 178 — Urza's Rage
@@ -3277,13 +3334,24 @@ pub(in crate::card::sets) static WALLOP: CardRecord = CardRecord::new(
 );
 
 // INV 224 — Wandering Stream
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WANDERING_STREAM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6da5cb6c-253b-44f0-98f9-d75f42c6e14b"),
     "Wandering Stream",
-    crate::card::CardArt::new("6da5cb6c-253b-44f0-98f9-d75f42c6e14b", "Quinton Hoover"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6da5cb6c-253b-44f0-98f9-d75f42c6e14b", "Quinton Hoover"),
+    CardSet::Invasion,
+    // Ten life in a five-colour deck and two in anything else, which is the
+    // whole domain cycle in one card.
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Domain — You gain 2 life for each basic land type among lands you control.",
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Scaled(
+                &const {
+                    ScaledValueDef::new(ValueDef::BasicLandTypesControlled(PlayerRelation::You), 2)
+                },
+            ),
+        },
+    )),
 );
 
 // INV 225 — Whip Silk

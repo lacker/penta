@@ -19,9 +19,10 @@ use crate::card::{
     DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
     EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -287,13 +288,41 @@ pub(in crate::card::sets) static CANTIVORE: CardRecord = CardRecord::new(
 );
 
 // ODY 14 — Cease-Fire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEASE_FIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1646c998-aee5-497f-bd75-24ced1dabef9"),
     "Cease-Fire",
-    crate::card::CardArt::new("1646c998-aee5-497f-bd75-24ced1dabef9", "Darrell Riche"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1646c998-aee5-497f-bd75-24ced1dabef9", "Darrell Riche"),
+    CardSet::Odyssey,
+    // It buys exactly one turn against a creature deck, and against anything
+    // else it is a cantrip.
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player can't cast creature spells this turn.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                            PlayRestrictionDef::new(
+                                PlayActionMatcherDef::CastSpell,
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ),
+                        )),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 15 — Confessor
@@ -1468,13 +1497,36 @@ pub(in crate::card::sets) static ESCAPE_ARTIST: CardRecord = CardRecord::new(
 );
 
 // ODY 85 — Extract
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXTRACT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97f99a3d-d811-4666-aac8-5957068157dc"),
     "Extract",
-    crate::card::CardArt::new("97f99a3d-d811-4666-aac8-5957068157dc", "Matt Cavotta"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("97f99a3d-d811-4666-aac8-5957068157dc", "Matt Cavotta"),
+    CardSet::Odyssey,
+    // One mana to take the one card the opponent's deck is built around,
+    // which is either the whole game or nothing at all.
+    CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Search target player's library for a card and exile it. Then that player shuffles.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::Any,
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // ODY 86 — Fervent Denial
@@ -1848,13 +1900,33 @@ pub(in crate::card::sets) static THOUGHT_NIBBLER: CardRecord = CardRecord::new(
 );
 
 // ODY 108 — Time Stretch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIME_STRETCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d4c3d626-880c-422a-ac09-a79a52847477"),
     "Time Stretch",
-    crate::card::CardArt::new("d4c3d626-880c-422a-ac09-a79a52847477", "Paolo Parente"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d4c3d626-880c-422a-ac09-a79a52847477", "Paolo Parente"),
+    CardSet::Odyssey,
+    // Ten mana for two turns, which is only ever cast by the deck that has
+    // already decided the game is going that long.
+    CardRules::new_sorcery(mana_cost!("{8}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player takes two extra turns after this one.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::TakeExtraTurn {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::TakeExtraTurn {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // ODY 109 — Touch of Invisibility
@@ -3489,13 +3561,30 @@ pub(in crate::card::sets) static MOLTEN_INFLUENCE: CardRecord = CardRecord::new(
 );
 
 // ODY 208 — Mudhole
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MUDHOLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("993d31bc-7355-4dfc-ac4e-ababaa0dc529"),
     "Mudhole",
-    crate::card::CardArt::new("993d31bc-7355-4dfc-ac4e-ababaa0dc529", "Gary Ruddell"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("993d31bc-7355-4dfc-ac4e-ababaa0dc529", "Gary Ruddell"),
+    CardSet::Odyssey,
+    // A sideboard card aimed at exactly one deck, and in this block that deck
+    // was everywhere.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player exiles all land cards from their graveyard.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Graveyard],
+                PlayerRelation::Opponent,
+            ))),
+            zone: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // ODY 209 — Need for Speed
@@ -3806,13 +3895,26 @@ pub(in crate::card::sets) static WHIPKEEPER: CardRecord = CardRecord::new(
 );
 
 // ODY 229 — Bearscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEARSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3284b61a-bd95-4846-ad3f-903cd1158867"),
     "Bearscape",
-    crate::card::CardArt::new("3284b61a-bd95-4846-ad3f-903cd1158867", "Heather Hudson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3284b61a-bd95-4846-ad3f-903cd1158867", "Heather Hudson"),
+    CardSet::Odyssey,
+    // The graveyard becomes a creature factory, which is why a deck already
+    // milling itself never runs out of blockers.
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(AbilityDef::activated(
+        "{1}{G}, Exile two cards from your graveyard: Create a 2/2 green Bear creature token.",
+        &[
+            CostDef::Mana(mana_cost!("{1}{G}")),
+            CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                ZoneKind::Exile,
+                2,
+            )),
+        ],
+        EffectDef::create_creature_token(&["Bear"], &[ManaColor::Green], 2, 2),
+    )),
 );
 
 // ODY 230 — Beast Attack

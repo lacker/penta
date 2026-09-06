@@ -41,6 +41,7 @@ mod charm_modes;
 mod colour_pair_targets;
 mod combat_damage_riders;
 mod conditional_bodies;
+mod conditional_counters;
 mod conditional_statics;
 mod counted_rituals;
 mod cycling_cards;

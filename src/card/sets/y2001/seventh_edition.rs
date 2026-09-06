@@ -36,8 +36,10 @@ use crate::card::sets::y2012::magic_2013;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
+    CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ScaledValueDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -271,13 +273,43 @@ pub(in crate::card::sets) static SACRED_NECTAR: CardRecord = CardRecord::new(
 // 7ED 49 — Starlight (alternate printing)
 
 // 7ED 49★ — Starlight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STARLIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f6992524-6921-473b-8301-cb63fe502600"),
     "Starlight",
-    crate::card::CardArt::new("413c5a7e-e19d-4cbd-9279-88391b75c6c5", "Brian Despain"),
-    crate::card::CardSet::SeventhEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("413c5a7e-e19d-4cbd-9279-88391b75c6c5", "Brian Despain"),
+    CardSet::SeventhEdition,
+    // A sideboard card that does nothing at all against four colours, which
+    // is what the price of three life a creature buys.
+    CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "You gain 3 life for each black creature target opponent controls.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )]
+        },
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Scaled(
+                &const {
+                    ScaledValueDef::new(
+                        ValueDef::CountMatchingObjects(
+                            &const {
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::All(&[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::Color(ManaColor::Black),
+                                    ]),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Opponent,
+                                )
+                            },
+                        ),
+                        3,
+                    )
+                },
+            ),
+        },
+    )),
 );
 
 // 7ED 50 — Staunch Defenders (reprint)

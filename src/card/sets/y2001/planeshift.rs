@@ -246,13 +246,46 @@ pub(in crate::card::sets) static ARCTIC_MERFOLK: CardRecord = CardRecord::new(
 );
 
 // PLS 22 — Confound
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONFOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f3b7d39-ce98-48e2-b2bf-0d55b4d3102b"),
     "Confound",
-    crate::card::CardArt::new("4f3b7d39-ce98-48e2-b2bf-0d55b4d3102b", "Doug Chaffee"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4f3b7d39-ce98-48e2-b2bf-0d55b4d3102b", "Doug Chaffee"),
+    CardSet::Planeshift,
+    // A counterspell narrow enough to be free: it answers the removal aimed
+    // at your creature and replaces itself either way.
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell that targets a creature.\nDraw a card.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Counter {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // PLS 23 — Dralnu's Pet

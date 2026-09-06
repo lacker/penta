@@ -6,8 +6,8 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, CostDef,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef,
+    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, CardArt, CardRules, CardSet, CardType,
+    CostDef, DamageEventMatcherDef, DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef,
     DividedTotal, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
     ScaledValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
@@ -1749,13 +1749,28 @@ pub(in crate::card::sets) static EBONY_TREEFOLK: CardRecord = CardRecord::new(
 );
 
 // APC 98 — Fervent Charge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FERVENT_CHARGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d610a9d5-c650-45ad-a9b0-b55113701e05"),
     "Fervent Charge",
-    crate::card::CardArt::new("d610a9d5-c650-45ad-a9b0-b55113701e05", "Mark Tedin"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d610a9d5-c650-45ad-a9b0-b55113701e05", "Mark Tedin"),
+    CardSet::Apocalypse,
+    // Two power on every attacker, which turns a board that was trading
+    // evenly into one that wins every combat.
+    CardRules::new_enchantment(mana_cost!("{1}{R}{W}{B}")).with_ability(AbilityDef::triggered(
+        "Whenever a creature you control attacks, it gets +2/+2 until end of turn.",
+        TriggerEventDef::Attacks(AttackEventMatcherDef::any(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+        ]))),
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::TriggeringObject,
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(2),
+                ValueDef::Constant(2),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // APC 99 — Flowstone Charger
@@ -1850,13 +1865,30 @@ pub(in crate::card::sets) static GOBLIN_LEGIONNAIRE: CardRecord = CardRecord::ne
 );
 
 // APC 104 — Goblin Trenches
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_TRENCHES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2100844c-6a41-40f5-b7f8-9b426d5a6945"),
     "Goblin Trenches",
-    crate::card::CardArt::new("2100844c-6a41-40f5-b7f8-9b426d5a6945", "Wayne England"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2100844c-6a41-40f5-b7f8-9b426d5a6945", "Wayne England"),
+    CardSet::Apocalypse,
+    // Every spare land becomes two bodies, which is what a deck flooding
+    // out wants more than it wants another land drop.
+    CardRules::new_enchantment(mana_cost!("{1}{R}{W}")).with_ability(AbilityDef::activated(
+        "{2}, Sacrifice a land: Create two 1/1 red and white Goblin Soldier creature tokens.",
+        &[
+            CostDef::Mana(mana_cost!("{2}")),
+            CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                controller: PlayerRelation::You,
+            },
+        ],
+        EffectDef::create_creature_token(
+            &["Goblin", "Soldier"],
+            &[ManaColor::Red, ManaColor::White],
+            1,
+            1,
+        )
+        .with_count(ValueDef::Constant(2)),
+    )),
 );
 
 // APC 105 — Guided Passage
@@ -2156,16 +2188,49 @@ pub(in crate::card::sets) static SQUEE_S_REVENGE: CardRecord = CardRecord::new(
 );
 
 // APC 124 — Suffocating Blast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUFFOCATING_BLAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2a70297-2a7b-4a0c-ace5-cd61bfe6dafd"),
     "Suffocating Blast",
-    crate::card::CardArt::new(
+    CardArt::new(
         "c2a70297-2a7b-4a0c-ace5-cd61bfe6dafd",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardSet::Apocalypse,
+    // Four mana for two cards' worth of answers, which is what a deck playing
+    // three colours is buying with its mana base.
+    CardRules::new_instant(mana_cost!("{1}{U}{U}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Counter target spell and Suffocating Blast deals 3 damage to target creature.",
+            &const {
+                [
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                ]
+            },
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::Counter {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            zone: ZoneKind::Graveyard,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                            amount: ValueDef::Constant(3),
+                        },
+                    ]
+                },
+            ),
+        ),
+    ),
 );
 
 // APC 125 — Temporal Spring

@@ -1970,13 +1970,24 @@ pub(in crate::card::sets) static SILENT_ASSASSIN: CardRecord = CardRecord::new(
 );
 
 // MMQ 161 — Skulking Fugitive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKULKING_FUGITIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("175ed19c-9635-45ee-bb2c-32b96270a246"),
     "Skulking Fugitive",
-    crate::card::CardArt::new("175ed19c-9635-45ee-bb2c-32b96270a246", "Scott M. Fischer"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("175ed19c-9635-45ee-bb2c-32b96270a246", "Scott M. Fischer"),
+    CardSet::MercadianMasques,
+    // The Masques printing of the same deal, fetchable by the Mercenary
+    // chain, which is what makes it worth the drawback.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Horror", "Mercenary"], 3, 4).with_ability(
+        AbilityDef::triggered(
+            "When this creature becomes the target of a spell or ability, sacrifice it.",
+            // Any spell or ability, including its controller's own: a
+            // pump spell kills it just as surely as removal does.
+            TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ),
 );
 
 // MMQ 162 — Snuff Out

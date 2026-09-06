@@ -2399,13 +2399,35 @@ pub(in crate::card::sets) static GOBLIN_SKY_RAIDER: CardRecord = CardRecord::new
 );
 
 // ONS 209 — Goblin Sledder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_SLEDDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a9a1ecf-29f6-474e-bbcf-3455d388aa94"),
     "Goblin Sledder",
-    crate::card::CardArt::new("3a9a1ecf-29f6-474e-bbcf-3455d388aa94", "Ron Spencer"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3a9a1ecf-29f6-474e-bbcf-3455d388aa94", "Ron Spencer"),
+    CardSet::Onslaught,
+    // Mogg Raider again, for the block that made Goblins a deck rather
+    // than a theme.
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice a Goblin: Target creature gets +1/+1 until end of turn.",
+            // "A Goblin", so it can eat itself, which is what makes it a
+            // free sacrifice outlet as well as a combat trick.
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::Subtype("Goblin"),
+                controller: PlayerRelation::You,
+            }],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ONS 210 — Goblin Taskmaster

@@ -2225,13 +2225,35 @@ pub(in crate::card::sets) static MOGG_FANATIC: CardRecord = CardRecord::new_with
 );
 
 // TMP 191 — Mogg Raider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOGG_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94e9cc0a-c210-4525-8c7f-9c6306cc21b0"),
     "Mogg Raider",
-    crate::card::CardArt::new("94e9cc0a-c210-4525-8c7f-9c6306cc21b0", "Brian Snõddy"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("94e9cc0a-c210-4525-8c7f-9c6306cc21b0", "Brian Snõddy"),
+    CardSet::Tempest,
+    // A free sacrifice outlet stapled to a combat trick, and the reason
+    // every Goblin deck could turn a chump block into a kill.
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice a Goblin: Target creature gets +1/+1 until end of turn.",
+            // "A Goblin", so it can eat itself, which is what makes it a
+            // free sacrifice outlet as well as a combat trick.
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::Subtype("Goblin"),
+                controller: PlayerRelation::You,
+            }],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 192 — Mogg Squad
@@ -3468,7 +3490,7 @@ pub(in crate::card::sets) static MOGG_CANNON: CardRecord = CardRecord::new(
 );
 
 // TMP 299 — Patchwork Gnomes
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared runtime cannot pay a chosen discard as an activated-ability cost. AbilityCostDef::DiscardCards is outside the boundary because it needs a decision window to ask which card goes; DiscardCardsAtRandom and DiscardHand are inside precisely because they ask nothing.
 pub(in crate::card::sets) static PATCHWORK_GNOMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdaa9ac4-b742-4a24-a316-97538adfd361"),
     "Patchwork Gnomes",

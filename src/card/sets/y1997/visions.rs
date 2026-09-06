@@ -907,13 +907,24 @@ pub(in crate::card::sets) static SUQ_ATA_ASSASSIN: CardRecord = CardRecord::new(
 );
 
 // VIS 70 — Tar Pit Warrior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAR_PIT_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e1283190-094e-4a9f-bf67-f9fd05778744"),
     "Tar Pit Warrior",
-    crate::card::CardArt::new("e1283190-094e-4a9f-bf67-f9fd05778744", "George Pratt"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e1283190-094e-4a9f-bf67-f9fd05778744", "George Pratt"),
+    CardSet::Visions,
+    // A 3/4 for three, which is above rate until anybody points anything
+    // at it -- including your own trick.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Cyclops", "Warrior"], 3, 4).with_ability(
+        AbilityDef::triggered(
+            "When this creature becomes the target of a spell or ability, sacrifice it.",
+            // Any spell or ability, including its controller's own: a
+            // pump spell kills it just as surely as removal does.
+            TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ),
 );
 
 // VIS 71 — Urborg Mindsucker

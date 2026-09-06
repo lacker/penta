@@ -4008,13 +4008,29 @@ pub(in crate::card::sets) static RIPTIDE_REPLICATOR: CardRecord = CardRecord::ne
 );
 
 // ONS 310 — Slate of Ancestry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLATE_OF_ANCESTRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae596e8c-04f5-48b0-b5e2-683c74912e85"),
     "Slate of Ancestry",
-    crate::card::CardArt::new("ae596e8c-04f5-48b0-b5e2-683c74912e85", "Corey D. Macourek"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ae596e8c-04f5-48b0-b5e2-683c74912e85", "Corey D. Macourek"),
+    CardSet::Onslaught,
+    // The hand is spent either way, so it is only a deal for the deck that
+    // has already emptied it onto the board.
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated(
+        "{4}, {T}, Discard your hand: Draw a card for each creature you control.",
+        &[
+            CostDef::Mana(mana_cost!("{4}")),
+            CostDef::TapSource,
+            CostDef::DiscardHand,
+        ],
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        },
+    )),
 );
 
 // ONS 311 — Tribal Golem

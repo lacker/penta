@@ -4779,13 +4779,24 @@ pub(in crate::card::sets) static RUNED_ARCH: CardRecord = CardRecord::new(
 );
 
 // ICE 335 — Shield of the Ages
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIELD_OF_THE_AGES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7411ab40-47f6-44d1-8e33-9ff5301dcd9b"),
     "Shield of the Ages",
-    crate::card::CardArt::new("7411ab40-47f6-44d1-8e33-9ff5301dcd9b", "Anson Maddocks"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7411ab40-47f6-44d1-8e33-9ff5301dcd9b", "Anson Maddocks"),
+    CardSet::IceAge,
+    // No tap in the cost, so with enough mana it prevents as much as you
+    // can pay for -- one point at a time, which is the catch.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated(
+        "{2}: Prevent the next 1 damage that would be dealt to you this turn.",
+        &[CostDef::Mana(mana_cost!("{2}"))],
+        EffectDef::PreventDamage {
+            prevention: DamagePreventionDef::amount(
+                DamageEventMatcherDef::to(EffectRecipientDef::Controller),
+                ValueDef::Constant(1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ICE 336 — Skull Catapult

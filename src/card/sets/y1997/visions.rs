@@ -10,11 +10,11 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
     AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, EffectDef,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -2108,13 +2108,21 @@ pub(in crate::card::sets) static DRAGON_MASK: CardRecord = CardRecord::new(
 );
 
 // VIS 145 — Helm of Awakening
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HELM_OF_AWAKENING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("41bba882-39b8-42db-9a01-54c6712b8019"),
     "Helm of Awakening",
-    crate::card::CardArt::new("41bba882-39b8-42db-9a01-54c6712b8019", "Adam Rex"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("41bba882-39b8-42db-9a01-54c6712b8019", "Adam Rex"),
+    CardSet::Visions,
+    // It helps whoever casts the most spells, and that is not always the
+    // player who paid two mana for it.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::static_ability(
+        "Spells cost {1} less to cast.",
+        EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+            ObjectPredicateDef::Any,
+            PlayerRelation::Any,
+            ValueDef::Constant(1),
+        )),
+    )),
 );
 
 // VIS 146 — Iron-Heart Chimera
@@ -2244,13 +2252,32 @@ pub(in crate::card::sets) static TIN_WING_CHIMERA: CardRecord = CardRecord::new(
 );
 
 // VIS 158 — Triangle of War
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIANGLE_OF_WAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4c1d7d4d-bed7-4d28-a304-ad33f42e9831"),
     "Triangle of War",
-    crate::card::CardArt::new("4c1d7d4d-bed7-4d28-a304-ad33f42e9831", "Ian Miller"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4c1d7d4d-bed7-4d28-a304-ad33f42e9831", "Ian Miller"),
+    CardSet::Visions,
+    // Removal that costs a creature's toughness rather than a card, which
+    // is the cheapest way a green deck ever got to kill something.
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
+        "{2}, Sacrifice this artifact: Target creature you control fights target creature an opponent controls.",
+        &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+            ])),
+        ],
+        EffectDef::Fight {
+            first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            second: ObjectRefDef::Target(TargetIndex(1)),
+            excess: None,
+        },
+    )),
 );
 
 // VIS 159 — Wand of Denial

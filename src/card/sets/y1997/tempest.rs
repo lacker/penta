@@ -3989,13 +3989,29 @@ pub(in crate::card::sets) static EMERALD_MEDALLION: CardRecord = CardRecord::new
 );
 
 // TMP 284 — Emmessi Tome
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EMMESSI_TOME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a870e48a-41ae-4d9f-b181-074deb067d40"),
     "Emmessi Tome",
-    crate::card::CardArt::new("a870e48a-41ae-4d9f-b181-074deb067d40", "Tom Wänerstrand"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a870e48a-41ae-4d9f-b181-074deb067d40", "Tom Wänerstrand"),
+    CardSet::Tempest,
+    // Nine mana across two turns for one extra card, which only a deck
+    // with nothing else to do with its mana can afford.
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated(
+        "{5}, {T}: Draw two cards, then discard a card.",
+        &[CostDef::Mana(mana_cost!("{5}")), CostDef::TapSource],
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // TMP 285 — Energizer
@@ -4297,13 +4313,27 @@ pub(in crate::card::sets) static SCROLL_RACK: CardRecord = CardRecord::new(
 );
 
 // TMP 309 — Squee's Toy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUEE_S_TOY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2b524ae7-cb24-41af-b41b-3cb3ee8cf3b0"),
     "Squee's Toy",
-    crate::card::CardArt::new("2b524ae7-cb24-41af-b41b-3cb3ee8cf3b0", "Heather Hudson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2b524ae7-cb24-41af-b41b-3cb3ee8cf3b0", "Heather Hudson"),
+    CardSet::Tempest,
+    // One mana for a shield that resets every turn, which is what a deck
+    // full of one-toughness blockers actually wants.
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
+        "{T}: Prevent the next 1 damage that would be dealt to target creature this turn.",
+        &[CostDef::TapSource],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::PreventDamage {
+            prevention: DamagePreventionDef::amount(
+                DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                ValueDef::Constant(1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // TMP 310 — Static Orb

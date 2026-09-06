@@ -1813,13 +1813,28 @@ pub(in crate::card::sets) static SLIVER_OVERLORD: CardRecord = CardRecord::new(
 );
 
 // SCG 140 — Ark of Blight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARK_OF_BLIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f3b09956-cc34-4472-8b9f-ae355522bd5a"),
     "Ark of Blight",
-    crate::card::CardArt::new("f3b09956-cc34-4472-8b9f-ae355522bd5a", "David Martin"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f3b09956-cc34-4472-8b9f-ae355522bd5a", "David Martin"),
+    CardSet::Scourge,
+    // Land destruction the opponent can see coming for a whole turn, which
+    // is why it costs two mana less than doing it at instant speed.
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_with_targets(
+        "{3}, {T}, Sacrifice this artifact: Destroy target land.",
+        &[
+            CostDef::Mana(mana_cost!("{3}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // SCG 141 — Proteus Machine

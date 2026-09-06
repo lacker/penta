@@ -4008,13 +4008,21 @@ pub(in crate::card::sets) static LOTUS_GUARDIAN: CardRecord = CardRecord::new(
 );
 
 // INV 306 — Phyrexian Altar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_ALTAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("25158cd5-749b-408c-9ab1-0f83e38730f7"),
     "Phyrexian Altar",
-    crate::card::CardArt::new("25158cd5-749b-408c-9ab1-0f83e38730f7", "Ron Spears"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("25158cd5-749b-408c-9ab1-0f83e38730f7", "Ron Spears"),
+    CardSet::Invasion,
+    // Any creature becomes any colour of mana, with no tap in the cost, so
+    // a board full of tokens is a board full of mana.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
+        "Sacrifice a creature: Add one mana of any color.",
+        &[CostDef::SacrificePermanent {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            controller: PlayerRelation::You,
+        }],
+        EffectDef::AddMana(AddManaEffectDef::any_color()),
+    )),
 );
 
 // INV 307 — Phyrexian Lens
@@ -4033,13 +4041,32 @@ pub(in crate::card::sets) static PHYREXIAN_LENS: CardRecord = CardRecord::new(
 );
 
 // INV 308 — Planar Portal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLANAR_PORTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("24315eaa-ef55-4fd6-9145-e75b3de6f492"),
     "Planar Portal",
-    crate::card::CardArt::new("24315eaa-ef55-4fd6-9145-e75b3de6f492", "Mark Tedin"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("24315eaa-ef55-4fd6-9145-e75b3de6f492", "Mark Tedin"),
+    CardSet::Invasion,
+    // Twelve mana to turn the whole library into one card, which is a rate
+    // that only matters in a game nobody is winning quickly.
+    CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated(
+        "{6}, {T}: Search your library for a card, put that card into your hand, then shuffle.",
+        &[CostDef::Mana(mana_cost!("{6}")), CostDef::TapSource],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::Any,
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // INV 309 — Power Armor

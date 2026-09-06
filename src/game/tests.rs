@@ -22,6 +22,7 @@ use crate::{
 };
 
 mod any_color_for_life;
+mod artifact_engines;
 mod assign_as_though_unblocked;
 mod attack_and_stay_tapped;
 mod attacker_pump;

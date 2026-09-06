@@ -4214,13 +4214,53 @@ pub(in crate::card::sets) static SKYCLOUD_EGG: CardRecord = CardRecord::new(
 );
 
 // ODY 310 — Steamclaw
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEAMCLAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f84a9bf-ce64-4301-8f2c-20f1b4acd3ef"),
     "Steamclaw",
-    crate::card::CardArt::new("4f84a9bf-ce64-4301-8f2c-20f1b4acd3ef", "Jim Nelson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4f84a9bf-ce64-4301-8f2c-20f1b4acd3ef", "Jim Nelson"),
+    CardSet::Odyssey,
+    // Repeatable graveyard hate that can also cash itself in for one last
+    // exile, which is what makes it worth a maindeck slot against threshold.
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{3}, {T}: Exile target card from a graveyard.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}, Sacrifice this artifact: Exile target card from a graveyard.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ODY 311 — Sungrass Egg

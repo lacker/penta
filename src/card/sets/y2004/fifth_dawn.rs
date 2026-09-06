@@ -149,16 +149,30 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new_w
 );
 
 // 5DN 110 — Clock of Omens
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOCK_OF_OMENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ffce71b-eb60-4649-a62b-a1b4acaa9d2d"),
     "Clock of Omens",
-    crate::card::CardArt::new(
+    CardArt::new(
         "0ffce71b-eb60-4649-a62b-a1b4acaa9d2d",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::FifthDawn,
-    crate::card::CardRules::unsupported(),
+    CardSet::FifthDawn,
+    // Two artifacts tapped to untap one, which is only a gain when the one
+    // being untapped is worth more than the two that paid for it.
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_with_targets(
+        "Tap two untapped artifacts you control: Untap target artifact.",
+        &[CostDef::TapPermanents {
+            object: ObjectPredicateDef::HasType(CardType::Artifact),
+            controller: PlayerRelation::You,
+            count: 2,
+        }],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+        )],
+        EffectDef::Untap {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
 );
 
 // 5DN 114 — Crucible of Worlds

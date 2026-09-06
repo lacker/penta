@@ -3184,7 +3184,7 @@ pub(in crate::card::sets) static CHROMATIC_SPHERE: CardRecord = CardRecord::new(
 );
 
 // INV 300 — Crosis's Attendant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static CROSIS_S_ATTENDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("45edc18c-2046-4d0e-92fe-a6cf4aaf1c6f"),
     "Crosis's Attendant",
@@ -3194,7 +3194,7 @@ pub(in crate::card::sets) static CROSIS_S_ATTENDANT: CardRecord = CardRecord::ne
 );
 
 // INV 301 — Darigaaz's Attendant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static DARIGAAZ_S_ATTENDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6f22b575-443a-4c06-8e75-d4140cbd3660"),
     "Darigaaz's Attendant",
@@ -3221,7 +3221,7 @@ pub(in crate::card::sets) static DRAKE_SKULL_CAMEO: CardRecord = CardRecord::new
 );
 
 // INV 303 — Dromar's Attendant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static DROMAR_S_ATTENDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("24936fa9-41a3-4da5-91cf-c28fa45f47c9"),
     "Dromar's Attendant",
@@ -3291,7 +3291,7 @@ pub(in crate::card::sets) static POWER_ARMOR: CardRecord = CardRecord::new(
 );
 
 // INV 310 — Rith's Attendant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static RITH_S_ATTENDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a26e8130-7fe9-4ef4-98af-928814f5b130"),
     "Rith's Attendant",
@@ -3418,7 +3418,7 @@ pub(in crate::card::sets) static TIGEREYE_CAMEO: CardRecord = CardRecord::new(
 );
 
 // INV 315 — Treva's Attendant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static TREVA_S_ATTENDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9857af81-fb95-4dc4-b048-9ce4e96d1eca"),
     "Treva's Attendant",

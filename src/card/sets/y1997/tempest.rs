@@ -15,13 +15,13 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef, DividedTotal,
-    DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeSetDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef,
+    DamageEventMatcherDef, DamagePreventionDef, DividedTotal, DrawEventMatcherDef, EffectDef,
+    EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -122,13 +122,29 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_SHADOW: CardRecord = CardR
 // TMP 13 — Circle of Protection: White (reprint)
 
 // TMP 14 — Clergy en-Vec
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLERGY_EN_VEC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fcb0e068-16d0-4e1c-acad-0a6d34148c5a"),
     "Clergy en-Vec",
-    crate::card::CardArt::new("fcb0e068-16d0-4e1c-acad-0a6d34148c5a", "Heather Hudson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fcb0e068-16d0-4e1c-acad-0a6d34148c5a", "Heather Hudson"),
+    CardSet::Tempest,
+    // The same Samite body Mirage printed, reprinted for a block where the
+    // one point still swung combat.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 15 — Cloudchaser Eagle
@@ -327,13 +343,29 @@ pub(in crate::card::sets) static ORIM_S_PRAYER: CardRecord = CardRecord::new(
 );
 
 // TMP 33 — Orim, Samite Healer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORIM_SAMITE_HEALER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7086d077-f083-4870-8b0b-2d34aca49df1"),
     "Orim, Samite Healer",
-    crate::card::CardArt::new("7086d077-f083-4870-8b0b-2d34aca49df1", "Kaja Foglio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7086d077-f083-4870-8b0b-2d34aca49df1", "Kaja Foglio"),
+    CardSet::Tempest,
+    // Three points a turn from a 1/3 body: it blanks a burn spell or wins
+    // any fight its own creatures pick.
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Cleric"], 1, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 3 damage that would be dealt to any target this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )),
 );
 
 // TMP 34 — Pacifism (reprint)

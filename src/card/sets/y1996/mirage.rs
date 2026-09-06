@@ -12,11 +12,12 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardType, ChoiceVisibilityDef, ChooseDef, DamageEventMatcherDef, DamagePreventionDef,
+    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -273,13 +274,29 @@ pub(in crate::card::sets) static FAVORABLE_DESTINY: CardRecord = CardRecord::new
 );
 
 // MIR 17 — Femeref Healer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FEMEREF_HEALER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("90dedd5e-e2ee-46ec-8541-27f1548b2a2a"),
     "Femeref Healer",
-    crate::card::CardArt::new("90dedd5e-e2ee-46ec-8541-27f1548b2a2a", "Steve Luke"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("90dedd5e-e2ee-46ec-8541-27f1548b2a2a", "Steve Luke"),
+    CardSet::Mirage,
+    // One point a turn, which only matters in a format where creatures are
+    // small enough for one point to decide a fight.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MIR 18 — Femeref Knight

@@ -12,12 +12,13 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardChoiceSourceDef, CardRules,
     CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, GraveyardPlayPermissionDef,
-    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, OngoingEffectDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    GraveyardPlayPermissionDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -516,13 +517,29 @@ pub(in crate::card::sets) static RUNE_OF_PROTECTION_WHITE: CardRecord = CardReco
 );
 
 // USG 42 — Sanctum Custodian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANCTUM_CUSTODIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27a64b98-9002-48fe-a3e5-4449050c87e1"),
     "Sanctum Custodian",
-    crate::card::CardArt::new("27a64b98-9002-48fe-a3e5-4449050c87e1", "Paolo Parente"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("27a64b98-9002-48fe-a3e5-4449050c87e1", "Paolo Parente"),
+    CardSet::UrzasSaga,
+    // Two points a turn, which is the middle of the Samite curve this block
+    // kept extending.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 2 damage that would be dealt to any target this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // USG 43 — Sanctum Guardian

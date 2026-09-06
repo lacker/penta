@@ -5,13 +5,14 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, CharacteristicOperationDef, CounterKind, EffectDef, EffectRecipientDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
+    CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, PowerToughnessOperationDef,
     ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // UDS 1 — Academy Rector
 // Audit: unsupported — Card rules have not been implemented.
@@ -130,13 +131,29 @@ pub(in crate::card::sets) static MASK_OF_LAW_AND_GRACE: CardRecord = CardRecord:
 );
 
 // UDS 12 — Master Healer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MASTER_HEALER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e21a342c-ad80-43e4-8b2d-1c48241c52b1"),
     "Master Healer",
-    crate::card::CardArt::new("e21a342c-ad80-43e4-8b2d-1c48241c52b1", "Adam Rex"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e21a342c-ad80-43e4-8b2d-1c48241c52b1", "Adam Rex"),
+    CardSet::UrzasDestiny,
+    // Four points a turn stops nearly any single attacker, which is what
+    // five mana had to buy by the end of the block.
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Cleric"], 1, 4).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 4 damage that would be dealt to any target this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // UDS 13 — Opalescence

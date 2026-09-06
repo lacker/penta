@@ -3,19 +3,20 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostModificationDef, CounterKind,
-    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef,
-    GraveyardTypeConditionDef, ManaColor, MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef,
-    SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
+    CostModificationDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
+    DividedTotal, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef, GraveyardTypeConditionDef, ManaColor,
+    MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, SpellAdditionalCostDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, tokens,
 };
 use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
@@ -778,7 +779,7 @@ pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_
 );
 
 // MH2 147 — Abundant Harvest
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reveal-until whose unmatched cards go somewhere other than the graveyard. MillUntilDef mills everything it passes over, where this puts the rest on the bottom of the library in a random order.
 pub(in crate::card::sets) static ABUNDANT_HARVEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16782095-0b7f-4489-8a97-b74f8efef352"),
     "Abundant Harvest",
@@ -828,13 +829,56 @@ pub(in crate::card::sets) static AEVE_PROGENITOR_OOZE: CardRecord = CardRecord::
 );
 
 // MH2 149 — Bannerhide Krushok
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1271251b-7d79-4cb4-80bb-98574aa63249"),
     "Bannerhide Krushok",
-    crate::card::CardArt::new("1271251b-7d79-4cb4-80bb-98574aa63249", "Joe Slucher"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1271251b-7d79-4cb4-80bb-98574aa63249", "Joe Slucher"),
+    CardSet::ModernHorizons2,
+    // Three ways to spend the same card: a 4/4 trampler, two counters out of
+    // the hand for two mana, or the whole four back out of the graveyard once
+    // the game has gone long.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Beast"], 4, 4).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::activated_with_cost_list_and_targets(
+            "Reinforce 2—{1}{G} ({1}{G}, Discard this card: Put two +1/+1 counters on target \
+             creature.)",
+            AbilityCostList::two(
+                AbilityCostDef::Mana(mana_cost!("{1}{G}")),
+                AbilityCostDef::DiscardSource,
+            ),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(2),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::activated_with_cost_list_and_targets(
+            "Scavenge {5}{G}{G} ({5}{G}{G}, Exile this card from your graveyard: Put a number of \
+             +1/+1 counters equal to this card's power on target creature. Scavenge only as a \
+             sorcery.)",
+            AbilityCostList::two(
+                AbilityCostDef::Mana(mana_cost!("{5}{G}{G}")),
+                AbilityCostDef::ExileSource,
+            ),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            // "This card's power" is the Krushok's own, read after it has
+            // already been exiled to pay: the printed 4, since nothing on a
+            // card in a graveyard was modifying it.
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::SourcePower,
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard])
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // MH2 157 — Endurance

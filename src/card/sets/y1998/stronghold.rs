@@ -1914,7 +1914,7 @@ pub(in crate::card::sets) static PRIMAL_RAGE: CardRecord = CardRecord::new(
 );
 
 // STH 113 — Provoke
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs provoke; see Deftblade Elite.
 pub(in crate::card::sets) static PROVOKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa3c58f1-5276-420e-8c09-d256492ee87b"),
     "Provoke",

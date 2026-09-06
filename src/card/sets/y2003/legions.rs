@@ -125,7 +125,7 @@ pub(in crate::card::sets) static DEFENDER_OF_THE_ORDER: CardRecord = CardRecord:
 );
 
 // LGN 12 — Deftblade Elite
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs provoke. The requirement has to name the creature the trigger targeted, and neither MustBeBlockedBy (which takes a predicate over blockers, with no way to say "the target") nor MustBlockEachAttackerIfAble (which is every attacker) can say it.
 pub(in crate::card::sets) static DEFTBLADE_ELITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76ffbae4-7aad-493c-86a0-c6e6425da8fd"),
     "Deftblade Elite",

@@ -21,6 +21,7 @@ use crate::{
     TargetSlotDef, TargetSlotId, ZonePlacement,
 };
 
+mod bannerhide_krushok;
 mod enumerated_apply;
 mod fixtures;
 pub(super) use fixtures::*;

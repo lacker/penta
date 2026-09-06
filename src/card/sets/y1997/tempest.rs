@@ -16,13 +16,13 @@ use crate::card::{
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef,
-    DamageEventMatcherDef, DamagePreventionDef, DividedTotal, DrawEventMatcherDef, EffectDef,
-    EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, DividedTotal,
+    DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1710,13 +1710,32 @@ pub(in crate::card::sets) static MINION_OF_THE_WASTES: CardRecord = CardRecord::
 );
 
 // TMP 147 — Perish
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PERISH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e47ace1d-73de-44aa-a3fe-2e2a21ebec79"),
     "Perish",
-    crate::card::CardArt::new("e47ace1d-73de-44aa-a3fe-2e2a21ebec79", "Rebecca Guay"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e47ace1d-73de-44aa-a3fe-2e2a21ebec79", "Rebecca Guay"),
+    CardSet::Tempest,
+    // Three mana that answers a whole green board, printed for a format
+    // where that was most boards.
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell(
+        "Destroy all green creatures. They can't be regenerated.",
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &const {
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Color(ManaColor::Green),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                }
+            },
+        },
+    )),
 );
 
 // TMP 148 — Pit Imp
@@ -1815,13 +1834,39 @@ pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new_with_le
 );
 
 // TMP 152 — Reckless Spite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_SPITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9141daea-1f4f-4227-b7d7-20753e3cb4d4"),
     "Reckless Spite",
-    crate::card::CardArt::new("9141daea-1f4f-4227-b7d7-20753e3cb4d4", "Pete Venters"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9141daea-1f4f-4227-b7d7-20753e3cb4d4", "Pete Venters"),
+    CardSet::Tempest,
+    // Two creatures for three mana at instant speed, and five life is what
+    // that rate costs.
+    CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy two target nonblack creatures. You lose 5 life.",
+        // Exactly two, so it needs two legal targets to be cast at all.
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(5),
+            },
+        ]),
+    )),
 );
 
 // TMP 153 — Sadistic Glee
@@ -1937,13 +1982,35 @@ pub(in crate::card::sets) static ANCIENT_RUNES: CardRecord = CardRecord::new(
 );
 
 // TMP 162 — Apocalypse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static APOCALYPSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ff23780-d183-4cca-ad0c-448ef325bf36"),
     "Apocalypse",
-    crate::card::CardArt::new("7ff23780-d183-4cca-ad0c-448ef325bf36", "Allen Williams"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7ff23780-d183-4cca-ad0c-448ef325bf36", "Allen Williams"),
+    CardSet::Tempest,
+    // Everything goes, including your hand. It is a reset button rather
+    // than a play, which is why it costs five.
+    CardRules::new_sorcery(mana_cost!("{2}{R}{R}{R}")).with_ability(AbilityDef::spell(
+        "Exile all permanents. You discard your hand.",
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                // "Discard your hand": as many cards as there are, which is
+                // how the catalog says it elsewhere.
+                amount: ValueDef::Constant(i32::MAX),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // TMP 163 — Barbed Sliver

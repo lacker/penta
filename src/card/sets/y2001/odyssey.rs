@@ -2343,7 +2343,7 @@ pub(in crate::card::sets) static MINE_LAYER: CardRecord = CardRecord::new(
 );
 
 // ODY 206 — Minotaur Explorer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a random discard as a resolving payment. The shared runtime's payment costs include DiscardCards and DiscardMatching, both of which let the payer choose, and "discard a card at random" is a different cost.
 pub(in crate::card::sets) static MINOTAUR_EXPLORER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55725e38-d60a-41a2-93b0-2eefe6d2cc59"),
     "Minotaur Explorer",

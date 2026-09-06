@@ -1551,36 +1551,130 @@ pub(in crate::card::sets) static STRATADON: CardRecord = CardRecord::new(
 );
 
 // PLS 136 — Crosis's Catacombs
-// Audit: unsupported — Needs a nonmana payment. CostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static CROSIS_S_CATACOMBS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7caad74f-c0d0-4eca-94be-b89a2c9a3980"),
     "Crosis's Catacombs",
-    crate::card::CardArt::new(
+    CardArt::new(
         "7caad74f-c0d0-4eca-94be-b89a2c9a3980",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardSet::Planeshift,
+    // A three-colour land that costs a land: the fixing is real and so is
+    // the turn of tempo it takes back.
+    CardRules::new_land(&["Lair"]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        // The Lair itself is excluded by its own subtype, so a
+                        // second one cannot pay for the first.
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {U}, {B}, or {R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // PLS 137 — Darigaaz's Caldera
-// Audit: unsupported — Needs a nonmana payment. CostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static DARIGAAZ_S_CALDERA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("752f6f0c-af30-4937-b4a7-48f493e007a0"),
     "Darigaaz's Caldera",
-    crate::card::CardArt::new("752f6f0c-af30-4937-b4a7-48f493e007a0", "Franz Vohwinkel"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("752f6f0c-af30-4937-b4a7-48f493e007a0", "Franz Vohwinkel"),
+    CardSet::Planeshift,
+    // The Jund member of the cycle.
+    CardRules::new_land(&["Lair"]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        // The Lair itself is excluded by its own subtype, so a
+                        // second one cannot pay for the first.
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B}, {R}, or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // PLS 138 — Dromar's Cavern
-// Audit: unsupported — Needs a nonmana payment. CostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("85f10cee-6a63-438e-a9df-6b902dd025b8"),
     "Dromar's Cavern",
-    crate::card::CardArt::new("85f10cee-6a63-438e-a9df-6b902dd025b8", "Franz Vohwinkel"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("85f10cee-6a63-438e-a9df-6b902dd025b8", "Franz Vohwinkel"),
+    CardSet::Planeshift,
+    // The Esper member.
+    CardRules::new_land(&["Lair"]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        // The Lair itself is excluded by its own subtype, so a
+                        // second one cannot pay for the first.
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {W}, {U}, or {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // PLS 139 — Forsaken City
@@ -1662,13 +1756,44 @@ pub(in crate::card::sets) static METEOR_CRATER: CardRecord = CardRecord::new(
 );
 
 // PLS 141 — Rith's Grove
-// Audit: unsupported — Needs a nonmana payment. CostDef offers only mana, life, and energy, so "sacrifice it unless you return a non-Lair land you control" has no cost to put on the unless.
 pub(in crate::card::sets) static RITH_S_GROVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("740fa25d-9c1f-44eb-9eb4-0dd514cb315a"),
     "Rith's Grove",
-    crate::card::CardArt::new("740fa25d-9c1f-44eb-9eb4-0dd514cb315a", "Scott Bailey"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("740fa25d-9c1f-44eb-9eb4-0dd514cb315a", "Scott Bailey"),
+    CardSet::Planeshift,
+    // The Naya member.
+    CardRules::new_land(&["Lair"]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        // The Lair itself is excluded by its own subtype, so a
+                        // second one cannot pay for the first.
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R}, {G}, or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::Green,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // PLS 142 — Terminal Moraine

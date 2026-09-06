@@ -41,6 +41,7 @@ mod filtered_sweeps;
 mod flying_blockers_only;
 mod free_sacrifice_outlet;
 mod guildsworn_prowler;
+mod lair_return_cost;
 mod mass_shrink;
 mod maximum_blockers;
 mod miners_guidewing;

@@ -201,13 +201,15 @@ pub(in crate::card::sets) static KNIGHT_OF_VALOR: CardRecord = CardRecord::new(
 );
 
 // VIS 12 — Longbow Archer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LONGBOW_ARCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2ee185d-f5ae-4b1d-90a4-840182f87ab8"),
     "Longbow Archer",
-    crate::card::CardArt::new("e2ee185d-f5ae-4b1d-90a4-840182f87ab8", "Eric Peterson"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e2ee185d-f5ae-4b1d-90a4-840182f87ab8", "Eric Peterson"),
+    CardSet::Visions,
+    // Two keywords that answer opposite halves of a board: it kills the
+    // ground creature first and catches the flier.
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier", "Archer"], 2, 2)
+        .with_abilities(&[abilities::reach(), abilities::first_strike()]),
 );
 
 // VIS 13 — Miraculous Recovery

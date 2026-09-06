@@ -2082,26 +2082,62 @@ pub(in crate::card::sets) static VIASHINO_GRAPPLER: CardRecord = CardRecord::new
 );
 
 // INV 180 — Zap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7502ce01-b762-40fe-a064-c7b20b08a722"),
     "Zap",
-    crate::card::CardArt::new("7502ce01-b762-40fe-a064-c7b20b08a722", "John Matson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7502ce01-b762-40fe-a064-c7b20b08a722", "John Matson"),
+    CardSet::Invasion,
+    // One damage is barely a spell; the card it replaces is the reason
+    // to run it.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Zap deals 1 damage to any target.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // INV 181 — Aggressive Urge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AGGRESSIVE_URGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37e3154d-9b1c-4f93-9bc3-a39e68d59d23"),
     "Aggressive Urge",
-    crate::card::CardArt::new(
+    CardArt::new(
         "37e3154d-9b1c-4f93-9bc3-a39e68d59d23",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // A trick that costs nothing in cards, so it can be held up every turn
+    // without ever being a blank.
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +1/+1 until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // INV 182 — Bind

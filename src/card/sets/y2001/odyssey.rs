@@ -89,13 +89,26 @@ pub(in crate::card::sets) static AVEN_ARCHER: CardRecord = CardRecord::new(
 );
 
 // ODY 7 — Aven Cloudchaser
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_CLOUDCHASER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("08afe190-368e-4259-9959-00beaccee7ba"),
     "Aven Cloudchaser",
-    crate::card::CardArt::new("08afe190-368e-4259-9959-00beaccee7ba", "Justin Sweet"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("08afe190-368e-4259-9959-00beaccee7ba", "Justin Sweet"),
+    CardSet::Odyssey,
+    // Cloudchaser Eagle again with a second creature type, printed into a
+    // block where enchantments actually mattered.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Soldier"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target enchantment.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // ODY 8 — Aven Flock

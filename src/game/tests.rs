@@ -56,6 +56,7 @@ mod reckless_impulse;
 mod sacrifice_for_mana;
 mod skewer_the_critics;
 mod sliver_granted_pump;
+mod spell_then_draw;
 mod token_fixtures;
 mod untap_out_of_combat;
 mod upkeep_or_sacrifice;

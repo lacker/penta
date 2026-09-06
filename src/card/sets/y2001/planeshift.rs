@@ -1037,13 +1037,15 @@ pub(in crate::card::sets) static THORNSCAPE_FAMILIAR: CardRecord = CardRecord::n
 );
 
 // PLS 96 — Ancient Spider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCIENT_SPIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75ca99de-57e7-47c4-b40a-6e41e3b18069"),
     "Ancient Spider",
-    crate::card::CardArt::new("75ca99de-57e7-47c4-b40a-6e41e3b18069", "Greg Staples"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("75ca99de-57e7-47c4-b40a-6e41e3b18069", "Greg Staples"),
+    CardSet::Planeshift,
+    // The same pair on a 2/5, which stops nearly everything the format
+    // could attack with.
+    CardRules::new_creature(mana_cost!("{2}{G}{W}"), &["Spider"], 2, 5)
+        .with_abilities(&[abilities::reach(), abilities::first_strike()]),
 );
 
 /// "Return a <kind> creature you control to its owner's hand." Two

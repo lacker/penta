@@ -184,13 +184,26 @@ pub(in crate::card::sets) static CLERGY_EN_VEC: CardRecord = CardRecord::new(
 );
 
 // TMP 15 — Cloudchaser Eagle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUDCHASER_EAGLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a70a6da-dea3-49c0-8c49-6a2229c3ac91"),
     "Cloudchaser Eagle",
-    crate::card::CardArt::new("3a70a6da-dea3-49c0-8c49-6a2229c3ac91", "Una Fricker"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3a70a6da-dea3-49c0-8c49-6a2229c3ac91", "Una Fricker"),
+    CardSet::Tempest,
+    // A body and an answer in one card, which is why white commons like
+    // this never rotate out of a limited deck.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target enchantment.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // TMP 16 — Disenchant (reprint)
@@ -510,13 +523,28 @@ pub(in crate::card::sets) static SERENE_OFFERING: CardRecord = CardRecord::new(
 );
 
 // TMP 41 — Soltari Crusader
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLTARI_CRUSADER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6cd07471-b216-465c-9946-1eac689db32e"),
     "Soltari Crusader",
-    crate::card::CardArt::new("6cd07471-b216-465c-9946-1eac689db32e", "Randy Gallegos"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6cd07471-b216-465c-9946-1eac689db32e", "Randy Gallegos"),
+    CardSet::Tempest,
+    // Shadow means the pump is never wasted: nothing blocks it, so every
+    // point is damage.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Soltari", "Knight"], 2, 1).with_abilities(&[
+        abilities::shadow(),
+        AbilityDef::activated(
+            "{1}{W}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 42 — Soltari Emissary
@@ -1519,13 +1547,34 @@ pub(in crate::card::sets) static DAUTHI_MARAUDER: CardRecord = CardRecord::new(
 );
 
 // TMP 124 — Dauthi Mercenary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUTHI_MERCENARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c340e779-c648-48fd-a159-174b46f2d1b3"),
     "Dauthi Mercenary",
-    crate::card::CardArt::new("c340e779-c648-48fd-a159-174b46f2d1b3", "Matthew D. Wilson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c340e779-c648-48fd-a159-174b46f2d1b3", "Matthew D. Wilson"),
+    CardSet::Tempest,
+    // The black member of the same pair, which needed the other colour to
+    // turn its mana into damage.
+    CardRules::new_creature(
+        mana_cost!("{2}{B}"),
+        &["Dauthi", "Knight", "Mercenary"],
+        2,
+        1,
+    )
+    .with_abilities(&[
+        abilities::shadow(),
+        AbilityDef::activated(
+            "{1}{B}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 125 — Dauthi Mindripper
@@ -2615,13 +2664,34 @@ pub(in crate::card::sets) static ROLLING_THUNDER: CardRecord = CardRecord::new(
 );
 
 // TMP 199 — Sandstone Warrior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDSTONE_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eaa61413-3c6a-4895-b8e7-2723e273a952"),
     "Sandstone Warrior",
-    crate::card::CardArt::new("eaa61413-3c6a-4895-b8e7-2723e273a952", "Stephen Daniele"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eaa61413-3c6a-4895-b8e7-2723e273a952", "Stephen Daniele"),
+    CardSet::Tempest,
+    // First strike makes each point of power worth more than it looks,
+    // because the blocker never gets to answer.
+    CardRules::new_creature(
+        mana_cost!("{2}{R}{R}"),
+        &["Human", "Soldier", "Warrior"],
+        1,
+        3,
+    )
+    .with_abilities(&[
+        abilities::first_strike(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 200 — Scorched Earth

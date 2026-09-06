@@ -996,13 +996,29 @@ pub(in crate::card::sets) static DWARVEN_SCORCHER: CardRecord = CardRecord::new(
 );
 
 // JUD 87 — Ember Shot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EMBER_SHOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a9eb72b-9ae2-4b64-bbb9-187446b5fd2f"),
     "Ember Shot",
-    crate::card::CardArt::new("6a9eb72b-9ae2-4b64-bbb9-187446b5fd2f", "Alan Pollack"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6a9eb72b-9ae2-4b64-bbb9-187446b5fd2f", "Alan Pollack"),
+    CardSet::Judgment,
+    // Seven mana for three damage and a card, which is what a common looks
+    // like when it is designed for limited alone.
+    CardRules::new_instant(mana_cost!("{6}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Ember Shot deals 3 damage to any target.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // JUD 88 — Firecat Blitz
@@ -1533,13 +1549,33 @@ pub(in crate::card::sets) static SERENE_SUNSET: CardRecord = CardRecord::new(
 );
 
 // JUD 132 — Sudden Strength
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUDDEN_STRENGTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e3ca1108-ccf2-48ea-8ca7-986aa45d5fe8"),
     "Sudden Strength",
-    crate::card::CardArt::new("e3ca1108-ccf2-48ea-8ca7-986aa45d5fe8", "Alan Pollack"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e3ca1108-ccf2-48ea-8ca7-986aa45d5fe8", "Alan Pollack"),
+    CardSet::Judgment,
+    // Three sizes bigger than Aggressive Urge for two more mana, and still
+    // free in cards.
+    CardRules::new_instant(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +3/+3 until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // JUD 133 — Sylvan Safekeeper

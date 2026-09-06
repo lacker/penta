@@ -1260,13 +1260,28 @@ pub(in crate::card::sets) static PARDIC_ARSONIST: CardRecord = CardRecord::new(
 );
 
 // TOR 106 — Pardic Collaborator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARDIC_COLLABORATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9a60f33-1d1a-4c7c-9eb2-d9fc0d56b127"),
     "Pardic Collaborator",
-    crate::card::CardArt::new("a9a60f33-1d1a-4c7c-9eb2-d9fc0d56b127", "Pete Venters"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a9a60f33-1d1a-4c7c-9eb2-d9fc0d56b127", "Pete Venters"),
+    CardSet::Torment,
+    // A red creature whose pump costs black, which is the whole point of
+    // the cycle it belongs to.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Barbarian"], 2, 2).with_abilities(&[
+        abilities::first_strike(),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TOR 107 — Pardic Lancer

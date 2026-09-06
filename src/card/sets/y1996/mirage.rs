@@ -13,13 +13,14 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, ColorSet, DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    HalvedValueDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
-    ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChooseDef, ColorSet, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
+    DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef, SumValueDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -89,13 +90,35 @@ pub(in crate::card::sets) static AFTERLIFE: CardRecord = CardRecord::new(
 );
 
 // MIR 2 — Alarum
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALARUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("155f2aa6-6c47-4a06-b0ef-2d9205cd133e"),
     "Alarum",
-    crate::card::CardArt::new("155f2aa6-6c47-4a06-b0ef-2d9205cd133e", "Andrew Robinson"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("155f2aa6-6c47-4a06-b0ef-2d9205cd133e", "Andrew Robinson"),
+    CardSet::Mirage,
+    // An untap and a toughness boost at instant speed: it takes back a
+    // creature that already attacked and turns it into a blocker.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Untap target nonattacking creature. It gets +1/+3 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Attacking),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // MIR 3 — Auspicious Ancestor
@@ -1381,13 +1404,42 @@ pub(in crate::card::sets) static THIRST: CardRecord = CardRecord::new(
 );
 
 // MIR 100 — Tidal Wave
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIDAL_WAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49a9689b-bf1e-404e-ba08-0b04de4288fb"),
     "Tidal Wave",
-    crate::card::CardArt::new("49a9689b-bf1e-404e-ba08-0b04de4288fb", "Brian Snõddy"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("49a9689b-bf1e-404e-ba08-0b04de4288fb", "Brian Snõddy"),
+    CardSet::Mirage,
+    // Three mana for a 5/5 blocker that exists only for this combat, which
+    // is a Fog that can also kill something.
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Create a 5/5 blue Wall creature token with defender. Sacrifice it at the beginning of \
+         the next end step.",
+        EffectDef::create_creature_token(&["Wall"], &[ManaColor::Blue], 5, 5)
+            .with_abilities(&const { [abilities::defender()] })
+            .with_created_tokens(CreatedTokensDef {
+                // Bound as it is created, so the delayed clause sacrifices
+                // this Wall rather than any Wall on the board.
+                binding: ParentBinding,
+                then: &const {
+                    EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                        &const {
+                            AbilityDef::triggered(
+                                "At the beginning of the next end step, sacrifice that token.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::Sacrifice {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ParentBinding,
+                                    )),
+                                },
+                            )
+                        },
+                    ))
+                },
+            }),
+    )),
 );
 
 // MIR 101 — Vaporous Djinn

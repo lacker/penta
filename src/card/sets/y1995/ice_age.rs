@@ -8,11 +8,12 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef,
-    CounterKind, DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef,
-    ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DividedTotal, EffectChoiceDef,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SpellAdditionalCostDef,
+    StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -650,13 +651,30 @@ pub(in crate::card::sets) static SNOW_HOUND: CardRecord = CardRecord::new(
 // ICE 54 — Swords to Plowshares (reprint)
 
 // ICE 55 — Warning
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARNING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cca5b4a7-df11-4635-a147-df12cd13a67c"),
     "Warning",
-    crate::card::CardArt::new("cca5b4a7-df11-4635-a147-df12cd13a67c", "Pat Lewis"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cca5b4a7-df11-4635-a147-df12cd13a67c", "Pat Lewis"),
+    CardSet::IceAge,
+    // One mana that blanks an attacker without killing it, and leaves the
+    // blocker free to kill it back.
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Prevent all combat damage that would be dealt by target attacking creature this turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Attacking,
+            ]),
+        )],
+        // Damage dealt *by* it, so it still takes damage from whatever blocks
+        // it -- this saves the blocker, not the attacker.
+        EffectDef::PreventDamage {
+            prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_from(
+                ObjectRefDef::Target(TargetIndex::PRIMARY),
+            )),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ICE 56 — White Scarab

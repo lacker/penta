@@ -1099,13 +1099,29 @@ pub(in crate::card::sets) static THRULL_SURGEON: CardRecord = CardRecord::new(
 );
 
 // EXO 77 — Vampire Hounds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VAMPIRE_HOUNDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("746bc301-9f08-4d9b-819e-690f6fce6bc8"),
     "Vampire Hounds",
-    crate::card::CardArt::new("746bc301-9f08-4d9b-819e-690f6fce6bc8", "Kev Walker"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("746bc301-9f08-4d9b-819e-690f6fce6bc8", "Kev Walker"),
+    CardSet::Exodus,
+    // Creatures for size, which only a deck with more bodies than it can
+    // cast would call a bargain.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Dog"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "Discard a creature card: This creature gets +2/+2 until end of turn.",
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            ))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 78 — Volrath's Dungeon

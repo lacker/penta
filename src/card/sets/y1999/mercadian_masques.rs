@@ -3361,13 +3361,29 @@ pub(in crate::card::sets) static LEY_LINE: CardRecord = CardRecord::new(
 );
 
 // MMQ 257 — Lumbering Satyr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LUMBERING_SATYR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d897088-0667-4864-91c3-5f0ac7f9b220"),
     "Lumbering Satyr",
-    crate::card::CardArt::new("5d897088-0667-4864-91c3-5f0ac7f9b220", "Alan Pollack"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5d897088-0667-4864-91c3-5f0ac7f9b220", "Alan Pollack"),
+    CardSet::MercadianMasques,
+    // Forestwalk for everything, so a green mirror turns into a race that
+    // neither side can block.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Satyr", "Beast"], 5, 4).with_ability(
+        AbilityDef::static_ability(
+            "All creatures have forestwalk.",
+            EffectDef::StaticApply {
+                // "All", not "you control": it hands the keyword to the
+                // opponent's as readily, which is the drawback these were
+                // priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+            },
+        ),
+    ),
 );
 
 // MMQ 258 — Lure (reprint)

@@ -75,6 +75,7 @@ mod skewer_the_critics;
 mod sliver_granted_pump;
 mod spell_then_draw;
 mod token_fixtures;
+mod tribal_lords;
 mod two_target_spells;
 mod untap_out_of_combat;
 mod upkeep_or_sacrifice;

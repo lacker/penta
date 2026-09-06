@@ -2193,13 +2193,32 @@ pub(in crate::card::sets) static ACIDIC_SLIVER: CardRecord = CardRecord::new(
 );
 
 // STH 127 — Crystalline Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYSTALLINE_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06551990-713c-4b8b-bebb-4e849babb5bb"),
     "Crystalline Sliver",
-    crate::card::CardArt::new("06551990-713c-4b8b-bebb-4e849babb5bb", "Allen Williams"),
-    crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("06551990-713c-4b8b-bebb-4e849babb5bb", "Allen Williams"),
+    CardSet::Stronghold,
+    // Shroud for the tribe, which protects the board from removal and from
+    // its own controller's tricks alike.
+    CardRules::new_creature(mana_cost!("{W}{U}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Slivers have shroud.",
+            EffectDef::StaticApply {
+                // "All", not "you control": it hands the keyword to the
+                // opponent's as readily, which is the drawback these were
+                // priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+            },
+        ),
+    ),
 );
 
 // STH 128 — Hibernation Sliver

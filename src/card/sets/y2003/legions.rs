@@ -23,13 +23,32 @@ pub(in crate::card::sets) static AKROMA_ANGEL_OF_WRATH: CardRecord = CardRecord:
 );
 
 // LGN 2 — Akroma's Devoted
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AKROMA_S_DEVOTED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("798893df-e720-471d-822d-50284de23efd"),
     "Akroma's Devoted",
-    crate::card::CardArt::new("798893df-e720-471d-822d-50284de23efd", "Dave Dorman"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("798893df-e720-471d-822d-50284de23efd", "Dave Dorman"),
+    CardSet::Legions,
+    // The same lord shape for a tribe that wanted to attack and hold the
+    // ground in the same turn.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Cleric"], 2, 4).with_ability(
+        AbilityDef::static_ability(
+            "Cleric creatures have vigilance.",
+            EffectDef::StaticApply {
+                // "All", not "you control": it hands the keyword to the
+                // opponent's as readily, which is the drawback these were
+                // priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Cleric"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::vigilance() }),
+            },
+        ),
+    ),
 );
 
 // LGN 3 — Aven Redeemer

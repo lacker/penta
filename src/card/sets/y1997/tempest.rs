@@ -699,13 +699,32 @@ pub(in crate::card::sets) static STAUNCH_DEFENDERS: CardRecord = CardRecord::new
 );
 
 // TMP 50 — Talon Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TALON_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f186c4b1-b7ec-46eb-a961-257411b401b0"),
     "Talon Sliver",
-    crate::card::CardArt::new("f186c4b1-b7ec-46eb-a961-257411b401b0", "Mike Raabe"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f186c4b1-b7ec-46eb-a961-257411b401b0", "Mike Raabe"),
+    CardSet::Tempest,
+    // The white member of the cycle, which turns every Sliver on the board
+    // into a creature nothing profitably blocks.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Sliver"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures have first strike.",
+            EffectDef::StaticApply {
+                // "All", not "you control": it hands the keyword to the
+                // opponent's as readily, which is the drawback these were
+                // priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+            },
+        ),
+    ),
 );
 
 // TMP 51 — Warmth
@@ -1421,13 +1440,32 @@ pub(in crate::card::sets) static WIND_DANCER: CardRecord = CardRecord::new(
 // TMP 105 — Wind Drake (reprint)
 
 // TMP 106 — Winged Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WINGED_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("03aa58b4-dbc2-414e-aa7a-f09360d59b3c"),
     "Winged Sliver",
-    crate::card::CardArt::new("03aa58b4-dbc2-414e-aa7a-f09360d59b3c", "Anthony S. Waters"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("03aa58b4-dbc2-414e-aa7a-f09360d59b3c", "Anthony S. Waters"),
+    CardSet::Tempest,
+    // Evasion for the whole tribe, which is what turned a board of 1/1s
+    // into a clock.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Sliver"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures have flying.",
+            EffectDef::StaticApply {
+                // "All", not "you control": it hands the keyword to the
+                // opponent's as readily, which is the drawback these were
+                // priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+            },
+        ),
+    ),
 );
 
 // TMP 107 — Abandon Hope
@@ -2534,13 +2572,32 @@ pub(in crate::card::sets) static HAVOC: CardRecord = CardRecord::new(
 );
 
 // TMP 182 — Heart Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEART_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27a83ab6-0d15-49e4-90e3-b3a2a095c632"),
     "Heart Sliver",
-    crate::card::CardArt::new("27a83ab6-0d15-49e4-90e3-b3a2a095c632", "Ron Spencer"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("27a83ab6-0d15-49e4-90e3-b3a2a095c632", "Ron Spencer"),
+    CardSet::Tempest,
+    // Haste for the tribe, so every Sliver drawn later attacks the turn it
+    // arrives.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Sliver"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures have haste.",
+            EffectDef::StaticApply {
+                // "All", not "you control": it hands the keyword to the
+                // opponent's as readily, which is the drawback these were
+                // priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+            },
+        ),
+    ),
 );
 
 // TMP 183 — Jackal Pup
@@ -3171,13 +3228,32 @@ pub(in crate::card::sets) static HEARTWOOD_TREEFOLK: CardRecord = CardRecord::ne
 );
 
 // TMP 234 — Horned Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORNED_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d0175cec-e64c-45c6-9208-76127e76a7cf"),
     "Horned Sliver",
-    crate::card::CardArt::new("d0175cec-e64c-45c6-9208-76127e76a7cf", "Allen Williams"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d0175cec-e64c-45c6-9208-76127e76a7cf", "Allen Williams"),
+    CardSet::Tempest,
+    // Trample, which matters exactly when the opponent has Slivers of their
+    // own to chump with.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Sliver"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "All Sliver creatures have trample.",
+            EffectDef::StaticApply {
+                // "All", not "you control": it hands the keyword to the
+                // opponent's as readily, which is the drawback these were
+                // priced on.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Sliver"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+            },
+        ),
+    ),
 );
 
 // TMP 235 — Krakilin

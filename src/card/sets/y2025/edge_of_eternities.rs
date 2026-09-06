@@ -435,13 +435,53 @@ pub(in crate::card::sets) static CRYOSHATTER: CardRecord = CardRecord::new(
 );
 
 // EOE 66 — Mechanozoa
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MECHANOZOA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0cb8d8ce-329a-4a97-b3d8-796703ebcb37"),
     "Mechanozoa",
-    crate::card::CardArt::new("0cb8d8ce-329a-4a97-b3d8-796703ebcb37", "Daarken"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0cb8d8ce-329a-4a97-b3d8-796703ebcb37", "Daarken"),
+    CardSet::EdgeOfEternities,
+    // Warped on three it is a Frost Lynx that comes back; cast on six it is
+    // a 5/7 that does the same thing again. Either way the stun counter is
+    // what buys the tempo.
+    CardRules::new_artifact_creature(mana_cost!("{4}{U}{U}"), &["Robot", "Jellyfish"], 5, 7)
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, tap target artifact or creature an opponent controls \
+                 and put a stun counter on it. (If a permanent with a stun counter would become \
+                 untapped, remove one from it instead.)",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                )],
+                // Tapping first and stunning second is the printed order, and
+                // it matters: a permanent that was already tapped still takes
+                // the counter, so the untap it misses is the next one.
+                EffectDef::Sequence(&[
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::Stun,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            abilities::warp(
+                mana_cost!("{2}{U}"),
+                "Warp {2}{U} (You may cast this card from your hand for its warp cost. Exile it \
+                 at the beginning of the next end step, then you may cast it from exile on a \
+                 later turn.)",
+            ),
+            abilities::warped_exile(),
+        ]),
 );
 
 // EOE 72 — Quantum Riddler
@@ -488,13 +528,30 @@ pub(in crate::card::sets) static QUANTUM_RIDDLER: CardRecord = CardRecord::new(
 );
 
 // EOE 77 — Starbreach Whale
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a1a0476-7145-4493-97e5-4fc05c85e476"),
     "Starbreach Whale",
-    crate::card::CardArt::new("8a1a0476-7145-4493-97e5-4fc05c85e476", "Sam Burley"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8a1a0476-7145-4493-97e5-4fc05c85e476", "Sam Burley"),
+    CardSet::EdgeOfEternities,
+    // Warp buys the surveil on turn two and the 3/5 flier later, off one
+    // card. The entry trigger is what makes the early half worth a turn:
+    // it fires both times.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Whale"], 3, 5).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, surveil 2. (Look at the top two cards of your library, \
+             then put any number of them into your graveyard and the rest on top of your library \
+             in any order.)",
+            abilities::surveil(ValueDef::Constant(2)),
+        ),
+        abilities::warp(
+            mana_cost!("{1}{U}"),
+            "Warp {1}{U} (You may cast this card from your hand for its warp cost. Exile it at \
+             the beginning of the next end step, then you may cast it from exile on a later \
+             turn.)",
+        ),
+        abilities::warped_exile(),
+    ]),
 );
 
 // EOE 152 — Plasma Bolt

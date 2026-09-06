@@ -9,12 +9,13 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
-    BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, ColorChoiceOperationDef, CostDef, CostModificationDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    ScaledValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, CostDef, CostModificationDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -225,13 +226,45 @@ pub(in crate::card::sets) static PURIFY: CardRecord = CardRecord::new(
 );
 
 // ULG 20 — Radiant, Archangel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RADIANT_ARCHANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("99509da7-3e11-4c38-804b-286ce572f36e"),
     "Radiant, Archangel",
-    crate::card::CardArt::new("99509da7-3e11-4c38-804b-286ce572f36e", "Michael Sutfin"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("99509da7-3e11-4c38-804b-286ce572f36e", "Michael Sutfin"),
+    CardSet::UrzasLegacy,
+    // It counts the opponent's fliers too, so the decks best placed to
+    // block it are the ones that make it biggest.
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::vigilance(),
+            AbilityDef::static_ability(
+                "Radiant gets +1/+1 for each other creature on the battlefield with flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ULG 21 — Radiant's Dragoons

@@ -115,3 +115,59 @@ fn an_opponent_scoped_count_ignores_your_own() {
     );
     assert_eq!(stats(&game, knight), Some((4, 4)), "theirs are what count");
 }
+
+/// "Each other Squirrel" excludes the Mob itself, which a count that forgot
+/// to exclude the source would get wrong by exactly one -- and one is the
+/// whole difference on an empty board.
+#[test]
+fn other_excludes_the_counting_creature_itself() {
+    let (game, mob) = board(cards::SQUIRREL_MOB, &[], &[]);
+    assert_eq!(
+        stats(&game, mob),
+        Some((2, 2)),
+        "alone it counts nothing, so it stays its printed size"
+    );
+
+    let (game, mob) = board(cards::SQUIRREL_MOB, &[cards::SQUIRREL_MOB], &[]);
+    assert_eq!(stats(&game, mob), Some((3, 3)), "one other Squirrel");
+}
+
+/// Cards in graveyards are counted across both players', not just the
+/// controller's.
+#[test]
+fn a_graveyard_count_spans_both_graveyards() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let mut vore = creature(56_500, cards::TERRAVORE, PlayerId::One);
+    vore.entered_controller_turn = 0;
+    let id = vore.card.id;
+    game.battlefield.push(vore);
+    game.players[0].graveyard.clear();
+    game.players[1].graveyard.clear();
+    game.check_state_based_actions();
+    assert_eq!(
+        stats(&game, id),
+        None,
+        "an empty pair of graveyards is a 0/0"
+    );
+
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let mut vore = creature(56_500, cards::TERRAVORE, PlayerId::One);
+    vore.entered_controller_turn = 0;
+    let id = vore.card.id;
+    game.battlefield.push(vore);
+    game.players[0].graveyard.clear();
+    game.players[1].graveyard.clear();
+    game.players[0]
+        .graveyard
+        .push(card(56_501, cards::MOUNTAIN, PlayerId::One));
+    game.players[1]
+        .graveyard
+        .push(card(56_502, cards::FOREST, PlayerId::Two));
+    assert_eq!(
+        stats(&game, id),
+        Some((2, 2)),
+        "one land in each graveyard is two"
+    );
+}

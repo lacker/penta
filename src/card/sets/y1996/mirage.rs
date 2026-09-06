@@ -3319,13 +3319,31 @@ pub(in crate::card::sets) static LURE_OF_PREY: CardRecord = CardRecord::new(
 );
 
 // MIR 228 — Maro
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bcfec2de-cff3-4015-9a43-a58be525a2da"),
     "Maro",
-    crate::card::CardArt::new("bcfec2de-cff3-4015-9a43-a58be525a2da", "Stuart Griffin"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bcfec2de-cff3-4015-9a43-a58be525a2da", "Stuart Griffin"),
+    CardSet::Mirage,
+    // Its size is the hand it came out of, so casting it makes it smaller
+    // and holding it makes it bigger.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 0, 0).with_abilities(&[
+        AbilityDef::static_ability(
+            "Maro's power and toughness are each equal to the number of cards in your hand.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::CardsInHandAbove {
+                        player: PlayerRelation::You,
+                        threshold: 0,
+                    },
+                    ValueDef::CardsInHandAbove {
+                        player: PlayerRelation::You,
+                        threshold: 0,
+                    },
+                ),
+            },
+        ),
+    ]),
 );
 
 // MIR 229 — Mindbender Spores

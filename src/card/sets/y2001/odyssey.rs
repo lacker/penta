@@ -185,13 +185,35 @@ pub(in crate::card::sets) static BLESSED_ORATOR: CardRecord = CardRecord::new(
 );
 
 // ODY 13 — Cantivore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANTIVORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5243fc3-176b-44a3-9f1a-ab069a08757a"),
     "Cantivore",
-    crate::card::CardArt::new("b5243fc3-176b-44a3-9f1a-ab069a08757a", "Daren Bader"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b5243fc3-176b-44a3-9f1a-ab069a08757a", "Daren Bader"),
+    CardSet::Odyssey,
+    // A body made of both players' graveyards, in a block that filled them
+    // faster than anything before it.
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Lhurgoyf"], 0, 0)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::static_ability(
+                "Cantivore's power and toughness are each equal to the number of enchantment cards in all graveyards.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 14 — Cease-Fire
@@ -906,13 +928,35 @@ pub(in crate::card::sets) static CHAMBER_OF_MANIPULATION: CardRecord = CardRecor
 );
 
 // ODY 77 — Cognivore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COGNIVORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7de76ff6-d065-4db1-b28d-4a4ccb1cc0fa"),
     "Cognivore",
-    crate::card::CardArt::new("7de76ff6-d065-4db1-b28d-4a4ccb1cc0fa", "Adam Rex"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7de76ff6-d065-4db1-b28d-4a4ccb1cc0fa", "Adam Rex"),
+    CardSet::Odyssey,
+    // Eight mana, and worth it only in the deck that has already cast
+    // twenty instants.
+    CardRules::new_creature(mana_cost!("{6}{U}{U}"), &["Lhurgoyf"], 0, 0)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::static_ability(
+                "Cognivore's power and toughness are each equal to the number of instant cards in all graveyards.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 78 — Concentrate
@@ -2399,13 +2443,35 @@ pub(in crate::card::sets) static MAGMA_VEIN: CardRecord = CardRecord::new(
 );
 
 // ODY 204 — Magnivore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGNIVORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("200fa50d-5a54-47eb-a123-29c4fb55ebee"),
     "Magnivore",
-    crate::card::CardArt::new("200fa50d-5a54-47eb-a123-29c4fb55ebee", "Carl Critchlow"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("200fa50d-5a54-47eb-a123-29c4fb55ebee", "Carl Critchlow"),
+    CardSet::Odyssey,
+    // Haste on a body the size of the sorceries already cast, which is why
+    // it belonged in a deck full of them.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Lhurgoyf"], 0, 0)
+        .with_abilities(&[
+            abilities::haste(),
+            AbilityDef::static_ability(
+                "Magnivore's power and toughness are each equal to the number of sorcery cards in all graveyards.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 205 — Mine Layer
@@ -3251,13 +3317,39 @@ pub(in crate::card::sets) static SPRINGING_TIGER: CardRecord = CardRecord::new(
 );
 
 // ODY 273 — Squirrel Mob
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUIRREL_MOB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("181254ce-259a-4b31-8937-728564f2baf3"),
     "Squirrel Mob",
-    crate::card::CardArt::new("181254ce-259a-4b31-8937-728564f2baf3", "Carl Critchlow"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("181254ce-259a-4b31-8937-728564f2baf3", "Carl Critchlow"),
+    CardSet::Odyssey,
+    // It counts every other Squirrel including the opponent's, which in
+    // practice means only its own deck's.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Squirrel"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature gets +1/+1 for each other Squirrel on the battlefield.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype("Squirrel"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype("Squirrel"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                ),
+            },
+        ),
+    ]),
 );
 
 // ODY 274 — Squirrel Nest
@@ -3325,13 +3417,35 @@ pub(in crate::card::sets) static SYLVAN_MIGHT: CardRecord = CardRecord::new(
 );
 
 // ODY 278 — Terravore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRAVORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c39c412b-2f21-483a-b744-5d55bc007c0d"),
     "Terravore",
-    crate::card::CardArt::new("c39c412b-2f21-483a-b744-5d55bc007c0d", "Jim Nelson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c39c412b-2f21-483a-b744-5d55bc007c0d", "Jim Nelson"),
+    CardSet::Odyssey,
+    // Land destruction feeds it, which is the one deck that could keep
+    // both graveyards full of lands.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Lhurgoyf"], 0, 0)
+        .with_abilities(&[
+            abilities::trample(),
+            AbilityDef::static_ability(
+                "Terravore's power and toughness are each equal to the number of land cards in all graveyards.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 279 — Twigwalker

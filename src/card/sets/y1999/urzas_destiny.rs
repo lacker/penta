@@ -263,16 +263,18 @@ pub(in crate::card::sets) static TETHERED_GRIFFIN: CardRecord = CardRecord::new(
 );
 
 // UDS 22 — Tormented Angel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TORMENTED_ANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("00d4d751-50df-4d8f-a6d9-4e76797c429a"),
     "Tormented Angel",
-    crate::card::CardArt::new(
+    CardArt::new(
         "00d4d751-50df-4d8f-a6d9-4e76797c429a",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasDestiny,
+    // An Angel that holds the air rather than winning it: a 1/5 flier stops
+    // everything its size and kills nothing.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Angel"], 1, 5)
+        .with_abilities(&[abilities::flying()]),
 );
 
 // UDS 23 — Voice of Duty
@@ -885,13 +887,15 @@ pub(in crate::card::sets) static FLAME_JET: CardRecord = CardRecord::new(
 );
 
 // UDS 82 — Goblin Berserker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_BERSERKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a3c7635d-98b2-4505-9153-d7e9e53ea16d"),
     "Goblin Berserker",
-    crate::card::CardArt::new("a3c7635d-98b2-4505-9153-d7e9e53ea16d", "Christopher Rush"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a3c7635d-98b2-4505-9153-d7e9e53ea16d", "Christopher Rush"),
+    CardSet::UrzasDestiny,
+    // First strike and haste on a 2/2: four mana for two damage now and a
+    // body that wins the fight it starts.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Berserker"], 2, 2)
+        .with_abilities(&[abilities::first_strike(), abilities::haste()]),
 );
 
 // UDS 83 — Goblin Festival
@@ -1060,13 +1064,15 @@ pub(in crate::card::sets) static WAKE_OF_DESTRUCTION: CardRecord = CardRecord::n
 );
 
 // UDS 100 — Wild Colos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WILD_COLOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2d39f746-7b82-476a-9774-3375debb47bd"),
     "Wild Colos",
-    crate::card::CardArt::new("2d39f746-7b82-476a-9774-3375debb47bd", "Marc Fishman"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2d39f746-7b82-476a-9774-3375debb47bd", "Marc Fishman"),
+    CardSet::UrzasDestiny,
+    // Three mana for two damage the turn it lands, which is all haste on a
+    // 2/2 ever promised.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goat", "Beast"], 2, 2)
+        .with_abilities(&[abilities::haste()]),
 );
 
 // UDS 101 — Ancient Silverback
@@ -1133,13 +1139,15 @@ pub(in crate::card::sets) static GAMEKEEPER: CardRecord = CardRecord::new(
 );
 
 // UDS 107 — Goliath Beetle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOLIATH_BEETLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f83d8765-f654-4837-9b06-739610188415"),
     "Goliath Beetle",
-    crate::card::CardArt::new("f83d8765-f654-4837-9b06-739610188415", "Don Hazeltine"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f83d8765-f654-4837-9b06-739610188415", "Don Hazeltine"),
+    CardSet::UrzasDestiny,
+    // A 3/1 trampler: the toughness is the price of the extra damage that
+    // gets through a 1/1 chump block.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Insect"], 3, 1)
+        .with_abilities(&[abilities::trample()]),
 );
 
 // UDS 108 — Heart Warden

@@ -307,16 +307,18 @@ pub(in crate::card::sets) static WINGBEAT_WARRIOR: CardRecord = CardRecord::new(
 );
 
 // LGN 30 — Aven Envoy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_ENVOY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40ead30e-9f96-4fca-b619-fdc8d1b5e2e0"),
     "Aven Envoy",
-    crate::card::CardArt::new(
+    CardArt::new(
         "40ead30e-9f96-4fca-b619-fdc8d1b5e2e0",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardSet::Legions,
+    // A 0/2 flier for one, which blocks the other one-drop fliers and does
+    // nothing else at all.
+    CardRules::new_creature(mana_cost!("{U}"), &["Bird", "Soldier"], 0, 2)
+        .with_abilities(&[abilities::flying()]),
 );
 
 // LGN 31 — Cephalid Pathmage
@@ -393,13 +395,14 @@ pub(in crate::card::sets) static ECHO_TRACER: CardRecord = CardRecord::new(
 );
 
 // LGN 38 — Fugitive Wizard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FUGITIVE_WIZARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a1020538-89c8-4986-9687-78ab326acb3e"),
     "Fugitive Wizard",
-    crate::card::CardArt::new("a1020538-89c8-4986-9687-78ab326acb3e", "Jim Nelson"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a1020538-89c8-4986-9687-78ab326acb3e", "Jim Nelson"),
+    CardSet::Legions,
+    // A vanilla 1/1 for one, printed because the Wizard tribe needed a body
+    // cheap enough to be worth counting.
+    CardRules::new_creature(mana_cost!("{U}"), &["Human", "Wizard"], 1, 1),
 );
 
 // LGN 39 — Gempalm Sorcerer
@@ -1332,13 +1335,15 @@ pub(in crate::card::sets) static CANOPY_CRAWLER: CardRecord = CardRecord::new(
 );
 
 // LGN 123 — Defiant Elf
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEFIANT_ELF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3b7a0b8f-6942-40b0-8efc-234ae77855b4"),
     "Defiant Elf",
-    crate::card::CardArt::new("3b7a0b8f-6942-40b0-8efc-234ae77855b4", "Pete Venters"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3b7a0b8f-6942-40b0-8efc-234ae77855b4", "Pete Venters"),
+    CardSet::Legions,
+    // Trample on a 1/1 is nearly nothing, which is the joke: it gets through
+    // for one exactly when nothing is blocking it anyway.
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf"], 1, 1)
+        .with_abilities(&[abilities::trample()]),
 );
 
 // LGN 124 — Elvish Soultiller
@@ -1352,13 +1357,14 @@ pub(in crate::card::sets) static ELVISH_SOULTILLER: CardRecord = CardRecord::new
 );
 
 // LGN 125 — Enormous Baloth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENORMOUS_BALOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cebfb5a6-9052-47be-b931-834b5064df31"),
     "Enormous Baloth",
-    crate::card::CardArt::new("cebfb5a6-9052-47be-b931-834b5064df31", "Mark Tedin"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cebfb5a6-9052-47be-b931-834b5064df31", "Mark Tedin"),
+    CardSet::Legions,
+    // Seven mana for a 7/7, the plain end of the Beast curve this block was
+    // built around.
+    CardRules::new_creature(mana_cost!("{6}{G}"), &["Beast"], 7, 7),
 );
 
 // LGN 126 — Feral Throwback

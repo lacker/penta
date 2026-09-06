@@ -1135,13 +1135,45 @@ pub(in crate::card::sets) static RESCIND: CardRecord = CardRecord::new(
 );
 
 // USG 93 — Rewind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REWIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e51c4fb-fb29-4b1c-b78e-1fadf94fc9a5"),
     "Rewind",
-    crate::card::CardArt::new("9e51c4fb-fb29-4b1c-b78e-1fadf94fc9a5", "Dermot Power"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9e51c4fb-fb29-4b1c-b78e-1fadf94fc9a5", "Dermot Power"),
+    CardSet::UrzasSaga,
+    // Four mana that costs nothing on the turn you hold it up: the four
+    // lands come back, so the counter is effectively free.
+    CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell. Untap up to four lands.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            }),
+            // Any lands, not only yours, and "up to" so the counter still
+            // resolves when there is nothing worth untapping.
+            AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                4,
+            ),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex(1)),
+            },
+        ]),
+    )),
 );
 
 // USG 94 — Sandbar Merfolk

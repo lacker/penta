@@ -11,8 +11,8 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameSetDef, CardRules,
-    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardNameSetDef,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
     DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
     EffectRecipientDef, HalvedValueDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
@@ -1520,13 +1520,58 @@ pub(in crate::card::sets) static CATACOMB_DRAGON: CardRecord = CardRecord::new(
 );
 
 // MIR 113 — Choking Sands
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHOKING_SANDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e41c15fb-01a1-446e-9e88-71e8e95d9bce"),
     "Choking Sands",
-    crate::card::CardArt::new("e41c15fb-01a1-446e-9e88-71e8e95d9bce", "Roger Raupp"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e41c15fb-01a1-446e-9e88-71e8e95d9bce", "Roger Raupp"),
+    CardSet::Mirage,
+    // Three mana to kill a nonbasic land and burn its controller, which is
+    // what a black deck plays against greedy mana rather than against lands.
+    CardRules::new_sorcery(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target non-Swamp land. If that land was nonbasic, Choking Sands deals 2 damage \
+         to the land's controller.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    // "Non-Swamp" is a subtype check, so a dual land that is a
+                    // Swamp among other types is spared too.
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasAnyBasicLandType(&[
+                        BasicLandType::Swamp,
+                    ])),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // Read after the destruction, from last-known information about
+            // the land that just left.
+            EffectDef::IfCondition {
+                condition: &const {
+                    TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    }
+                },
+                then: &const {
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        )),
+                        amount: ValueDef::Constant(2),
+                    }
+                },
+            },
+        ]),
+    )),
 );
 
 // MIR 114 — Crypt Cobra

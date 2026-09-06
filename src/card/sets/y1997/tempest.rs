@@ -3770,7 +3770,7 @@ pub(in crate::card::sets) static CALDERA_LAKE: CardRecord = CardRecord::new(
 );
 
 // TMP 317 — Cinder Marsh
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an untap-skipping rider on a mana ability. A mana ability's effect must be a bare AddMana, not a Sequence, and AddManaEffectDef carries only its own fixed riders (self-damage, sacrifice-when-out-of-counters); there is no "skip your next untap step".
 pub(in crate::card::sets) static CINDER_MARSH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9fee067d-c31f-4b09-99f5-84d1102f96b0"),
     "Cinder Marsh",
@@ -3803,7 +3803,7 @@ pub(in crate::card::sets) static MAZE_OF_SHADOWS: CardRecord = CardRecord::new(
 );
 
 // TMP 320 — Mogg Hollows
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an untap-skipping rider on a mana ability. A mana ability's effect must be a bare AddMana, not a Sequence, and AddManaEffectDef carries only its own fixed riders (self-damage, sacrifice-when-out-of-counters); there is no "skip your next untap step".
 pub(in crate::card::sets) static MOGG_HOLLOWS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("474e3fb0-b0f9-4c6d-8c57-e5079a3a3c66"),
     "Mogg Hollows",
@@ -3844,7 +3844,7 @@ pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new_w
 );
 
 // TMP 323 — Rootwater Depths
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an untap-skipping rider on a mana ability. A mana ability's effect must be a bare AddMana, not a Sequence, and AddManaEffectDef carries only its own fixed riders (self-damage, sacrifice-when-out-of-counters); there is no "skip your next untap step".
 pub(in crate::card::sets) static ROOTWATER_DEPTHS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4d4bcbef-66bf-4625-82d5-a01c39d3d78e"),
     "Rootwater Depths",
@@ -3894,7 +3894,7 @@ pub(in crate::card::sets) static STALKING_STONES: CardRecord = CardRecord::new(
 );
 
 // TMP 328 — Thalakos Lowlands
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an untap-skipping rider on a mana ability. A mana ability's effect must be a bare AddMana, not a Sequence, and AddManaEffectDef carries only its own fixed riders (self-damage, sacrifice-when-out-of-counters); there is no "skip your next untap step".
 pub(in crate::card::sets) static THALAKOS_LOWLANDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa3dcb12-e224-40c8-aecf-941fceb1d323"),
     "Thalakos Lowlands",
@@ -3904,7 +3904,7 @@ pub(in crate::card::sets) static THALAKOS_LOWLANDS: CardRecord = CardRecord::new
 );
 
 // TMP 329 — Vec Townships
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an untap-skipping rider on a mana ability. A mana ability's effect must be a bare AddMana, not a Sequence, and AddManaEffectDef carries only its own fixed riders (self-damage, sacrifice-when-out-of-counters); there is no "skip your next untap step".
 pub(in crate::card::sets) static VEC_TOWNSHIPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15377e49-e929-413f-9501-8f3e4afa0050"),
     "Vec Townships",

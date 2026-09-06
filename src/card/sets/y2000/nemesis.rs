@@ -1276,13 +1276,29 @@ pub(in crate::card::sets) static SEAL_OF_FIRE: CardRecord = CardRecord::new_with
 );
 
 // NEM 99 — Shrieking Mogg
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRIEKING_MOGG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ce46919-d312-490c-8942-39fbb2d375bf"),
     "Shrieking Mogg",
-    crate::card::CardArt::new("0ce46919-d312-490c-8942-39fbb2d375bf", "Dan Frazier"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0ce46919-d312-490c-8942-39fbb2d375bf", "Dan Frazier"),
+    CardSet::Nemesis,
+    // It taps the blockers and attacks the same turn, which is the whole
+    // two-card combo in one card.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 1, 1).with_abilities(&[
+        abilities::haste(),
+        abilities::enters_trigger(
+            "When this creature enters, tap all other creatures.",
+            EffectDef::Tap {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+            },
+        ),
+    ]),
 );
 
 // NEM 100 — Stronghold Gambit

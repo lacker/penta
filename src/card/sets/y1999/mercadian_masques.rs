@@ -1908,13 +1908,31 @@ pub(in crate::card::sets) static HAUNTED_CROSSROADS: CardRecord = CardRecord::ne
 );
 
 // MMQ 139 — Highway Robber
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIGHWAY_ROBBER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc826c88-fe3c-4004-8283-27910c550fae"),
     "Highway Robber",
-    crate::card::CardArt::new("fc826c88-fe3c-4004-8283-27910c550fae", "Kev Walker"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fc826c88-fe3c-4004-8283-27910c550fae", "Kev Walker"),
+    CardSet::MercadianMasques,
+    // A four-point life swing on a 2/2, which in a slow format is closer
+    // to a clock than it looks.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Mercenary"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent loses 2 life and you gain 2 life.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+    ),
 );
 
 // MMQ 140 — Instigator

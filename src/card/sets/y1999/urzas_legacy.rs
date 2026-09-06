@@ -268,13 +268,23 @@ pub(in crate::card::sets) static RADIANT_ARCHANGEL: CardRecord = CardRecord::new
 );
 
 // ULG 21 — Radiant's Dragoons
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RADIANT_S_DRAGOONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a0f39de-6ad2-410c-bc6c-75fd3c8d159b"),
     "Radiant's Dragoons",
-    crate::card::CardArt::new("8a0f39de-6ad2-410c-bc6c-75fd3c8d159b", "Pete Venters"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8a0f39de-6ad2-410c-bc6c-75fd3c8d159b", "Pete Venters"),
+    CardSet::UrzasLegacy,
+    // Five life and a wall, and the echo means you pay for it twice or
+    // give the wall back.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier"], 2, 5).with_abilities(&[
+        abilities::echo(
+            "Echo {3}{W} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{3}{W}"),
+        ),
+        abilities::enters_trigger("When this creature enters, you gain 5 life.", EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(5),
+            }),
+    ]),
 );
 
 // ULG 22 — Radiant's Judgment
@@ -740,13 +750,24 @@ pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new
 );
 
 // ULG 52 — Eviscerator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EVISCERATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("167e7f67-8d44-4134-b7b9-54ccdfb8675c"),
     "Eviscerator",
-    crate::card::CardArt::new("167e7f67-8d44-4134-b7b9-54ccdfb8675c", "Michael Sutfin"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("167e7f67-8d44-4134-b7b9-54ccdfb8675c", "Michael Sutfin"),
+    CardSet::UrzasLegacy,
+    // Five power for five mana and five life, which is a rate only a deck
+    // already racing can pay.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Phyrexian", "Horror"], 5, 5)
+        .with_abilities(&[
+            abilities::protection_from_color(ManaColor::White),
+            abilities::enters_trigger(
+                "When this creature enters, you lose 5 life.",
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(5),
+                },
+            ),
+        ]),
 );
 
 // ULG 53 — Fog of Gnats
@@ -1059,13 +1080,27 @@ pub(in crate::card::sets) static GHITU_FIRE_EATER: CardRecord = CardRecord::new(
 );
 
 // ULG 77 — Ghitu Slinger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHITU_SLINGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67e4bc1d-6a4b-408a-8921-433249c960f9"),
     "Ghitu Slinger",
-    crate::card::CardArt::new("67e4bc1d-6a4b-408a-8921-433249c960f9", "Melissa A. Benson"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("67e4bc1d-6a4b-408a-8921-433249c960f9", "Melissa A. Benson"),
+    CardSet::UrzasLegacy,
+    // Two damage and a 2/2, which is two cards' worth for one -- and the
+    // echo is what pays for it.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Nomad"], 2, 2).with_abilities(&[
+        abilities::echo(
+            "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{2}{R}"),
+        ),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, it deals 2 damage to any target.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // ULG 78 — Ghitu War Cry
@@ -1497,16 +1532,26 @@ pub(in crate::card::sets) static MULTANI_MARO_SORCERER: CardRecord = CardRecord:
 );
 
 // ULG 108 — Multani's Acolyte
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MULTANI_S_ACOLYTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4e5fdecb-bca0-48ea-b5bb-d0886c7d3316"),
     "Multani's Acolyte",
-    crate::card::CardArt::new(
+    CardArt::new(
         "4e5fdecb-bca0-48ea-b5bb-d0886c7d3316",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasLegacy,
+    // A 2/1 that replaces itself, rented for a turn, which is the whole
+    // echo bargain in its cheapest form.
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Elf"], 2, 1).with_abilities(&[
+        abilities::echo(
+            "Echo {G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{G}{G}"),
+        ),
+        abilities::enters_trigger("When this creature enters, draw a card.", EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            }),
+    ]),
 );
 
 // ULG 109 — Multani's Presence

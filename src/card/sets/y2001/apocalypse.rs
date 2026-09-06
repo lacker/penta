@@ -1779,16 +1779,26 @@ pub(in crate::card::sets) static GUIDED_PASSAGE: CardRecord = CardRecord::new(
 );
 
 // APC 106 — Jungle Barrier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JUNGLE_BARRIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4eb114a4-44e5-4375-92b8-00a0b0acbe94"),
     "Jungle Barrier",
-    crate::card::CardArt::new(
+    CardArt::new(
         "4eb114a4-44e5-4375-92b8-00a0b0acbe94",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardSet::Apocalypse,
+    // A wall that replaces itself, which is the only way a defensive card
+    // is never a wasted draw.
+    CardRules::new_creature(mana_cost!("{2}{G}{U}"), &["Plant", "Wall"], 2, 6).with_abilities(&[
+        abilities::defender(),
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // APC 107 — Last Stand

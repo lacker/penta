@@ -1132,13 +1132,29 @@ pub(in crate::card::sets) static KELDON_CHAMPION: CardRecord = CardRecord::new(
 );
 
 // UDS 91 — Keldon Vandals
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KELDON_VANDALS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f18cdf4d-42ce-4f2d-8b8f-8cf52a1b8db4"),
     "Keldon Vandals",
-    crate::card::CardArt::new("f18cdf4d-42ce-4f2d-8b8f-8cf52a1b8db4", "Greg Staples"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f18cdf4d-42ce-4f2d-8b8f-8cf52a1b8db4", "Greg Staples"),
+    CardSet::UrzasDestiny,
+    // Artifact removal stapled to a 4/1, in a block where every deck had
+    // artifacts worth destroying.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Rogue"], 4, 1).with_abilities(&[
+        abilities::echo(
+            "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{2}{R}"),
+        ),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target artifact.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // UDS 92 — Landslide

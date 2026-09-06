@@ -487,13 +487,22 @@ pub(in crate::card::sets) static MASTER_OF_THE_VEIL: CardRecord = CardRecord::ne
 );
 
 // LGN 44 — Merchant of Secrets
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MERCHANT_OF_SECRETS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1109bdd-a5ce-4e63-adee-54e43a4c4a1e"),
     "Merchant of Secrets",
-    crate::card::CardArt::new("d1109bdd-a5ce-4e63-adee-54e43a4c4a1e", "Greg Hildebrandt"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d1109bdd-a5ce-4e63-adee-54e43a4c4a1e", "Greg Hildebrandt"),
+    CardSet::Legions,
+    // Three mana for a card and a body, which is exactly the rate a limited
+    // deck wants and no constructed deck does.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // LGN 45 — Mistform Seaswift

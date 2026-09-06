@@ -1052,13 +1052,24 @@ pub(in crate::card::sets) static FLEDGLING_DRAGON: CardRecord = CardRecord::new(
 );
 
 // JUD 91 — Goretusk Firebeast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GORETUSK_FIREBEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9919d2dd-d6a1-4d45-b6aa-227ed05d7051"),
     "Goretusk Firebeast",
-    crate::card::CardArt::new("9919d2dd-d6a1-4d45-b6aa-227ed05d7051", "Keith Garletts"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9919d2dd-d6a1-4d45-b6aa-227ed05d7051", "Keith Garletts"),
+    CardSet::Judgment,
+    // Six mana for four damage to the face and a 2/2, which reads as a
+    // finisher only when the game is already close.
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Elemental", "Boar", "Beast"], 2, 2)
+        .with_ability(abilities::enters_trigger_with_targets(
+            "When this creature enters, it deals 4 damage to target player or planeswalker.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
+        )),
 );
 
 // JUD 92 — Infectious Rage

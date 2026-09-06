@@ -2489,13 +2489,30 @@ pub(in crate::card::sets) static BULWARK: CardRecord = CardRecord::new(
 );
 
 // USG 179 — Crater Hellion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRATER_HELLION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2382e525-1750-484a-bf95-dbb42bbb30ae"),
     "Crater Hellion",
-    crate::card::CardArt::new("2382e525-1750-484a-bf95-dbb42bbb30ae", "Daren Bader"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2382e525-1750-484a-bf95-dbb42bbb30ae", "Daren Bader"),
+    CardSet::UrzasSaga,
+    // It sweeps the board and survives, which is why the echo is the only
+    // thing keeping it honest.
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Hellion", "Beast"], 6, 6).with_abilities(&[
+        abilities::echo(
+            "Echo {4}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{4}{R}{R}"),
+        ),
+        abilities::enters_trigger("When this creature enters, it deals 4 damage to each other creature.", EffectDef::DealDamage {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                amount: ValueDef::Constant(4),
+            }),
+    ]),
 );
 
 // USG 180 — Destructive Urge

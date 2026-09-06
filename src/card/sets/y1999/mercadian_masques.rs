@@ -25,8 +25,8 @@ use crate::card::{
     DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
     ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
     PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerRuleDef,
-    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
 
@@ -3503,16 +3503,75 @@ pub(in crate::card::sets) static WILD_JHOVALL: CardRecord = CardRecord::new(
 // MMQ 228 — Word of Blasting (reprint)
 
 // MMQ 229 — Ancestral Mask
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTRAL_MASK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1203f98a-fb6e-4f16-88e3-553eba177450"),
     "Ancestral Mask",
-    crate::card::CardArt::new(
+    CardArt::new(
         "1203f98a-fb6e-4f16-88e3-553eba177450",
         "Massimiliano Frezzato",
     ),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardSet::MercadianMasques,
+    // Two power for every other enchantment on the table, which in an
+    // enchantment deck is a one-card kill.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 for each other enchantment on the battlefield.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Scaled(
+                            &const {
+                                ScaledValueDef::new(
+                                    ValueDef::CountMatchingObjects(
+                                        &const {
+                                            ObjectQueryDef::matching(
+                                                ObjectPredicateDef::All(&[
+                                                    ObjectPredicateDef::HasType(
+                                                        CardType::Enchantment,
+                                                    ),
+                                                    ObjectPredicateDef::Not(
+                                                        &ObjectPredicateDef::Source,
+                                                    ),
+                                                ]),
+                                                &[ZoneKind::Battlefield],
+                                                PlayerRelation::Any,
+                                            )
+                                        },
+                                    ),
+                                    2,
+                                )
+                            },
+                        ),
+                        ValueDef::Scaled(
+                            &const {
+                                ScaledValueDef::new(
+                                    ValueDef::CountMatchingObjects(
+                                        &const {
+                                            ObjectQueryDef::matching(
+                                                ObjectPredicateDef::All(&[
+                                                    ObjectPredicateDef::HasType(
+                                                        CardType::Enchantment,
+                                                    ),
+                                                    ObjectPredicateDef::Not(
+                                                        &ObjectPredicateDef::Source,
+                                                    ),
+                                                ]),
+                                                &[ZoneKind::Battlefield],
+                                                PlayerRelation::Any,
+                                            )
+                                        },
+                                    ),
+                                    2,
+                                )
+                            },
+                        ),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // MMQ 230 — Bifurcate
@@ -4196,13 +4255,32 @@ pub(in crate::card::sets) static SQUALLMONGER: CardRecord = CardRecord::new(
 );
 
 // MMQ 277 — Stamina
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STAMINA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed8abca3-6e31-49cd-b9bf-86ad68e1cc83"),
     "Stamina",
-    crate::card::CardArt::new("ed8abca3-6e31-49cd-b9bf-86ad68e1cc83", "Paolo Parente"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ed8abca3-6e31-49cd-b9bf-86ad68e1cc83", "Paolo Parente"),
+    CardSet::MercadianMasques,
+    // Vigilance now and one regeneration later, which is two combats bought
+    // with one card.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has vigilance.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::vigilance() }),
+                },
+            ),
+            AbilityDef::activated(
+                "Sacrifice this Aura: Regenerate enchanted creature.",
+                &[CostDef::SacrificeSource],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // MMQ 278 — Sustenance

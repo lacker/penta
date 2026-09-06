@@ -15,8 +15,8 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
     BlockRestrictionDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CostModificationDef, CounterKind,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, DividedTotal,
+    CardType, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CostDef, CostModificationDef,
+    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, DividedTotal,
     DrawEventMatcherDef, EffectChoiceDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
     ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
@@ -1354,13 +1354,28 @@ pub(in crate::card::sets) static SKYSHROUD_CONDOR: CardRecord = CardRecord::new(
 // TMP 89 — Spell Blast (reprint)
 
 // TMP 90 — Steal Enchantment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEAL_ENCHANTMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("734be7fa-0998-4771-9b97-4989b3fc1471"),
     "Steal Enchantment",
-    crate::card::CardArt::new("734be7fa-0998-4771-9b97-4989b3fc1471", "Hannibal King"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("734be7fa-0998-4771-9b97-4989b3fc1471", "Hannibal King"),
+    CardSet::Tempest,
+    // Two mana for whatever enchantment the opponent spent the most on,
+    // which is the cheapest theft in the game when it has a target.
+    CardRules::new_enchantment(mana_cost!("{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_enchantment(),
+            AbilityDef::static_ability(
+                "You control enchanted enchantment.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                    controller: PlayerRefDef::EffectController,
+                },
+            ),
+        ]),
 );
 
 // TMP 91 — Stinging Licid
@@ -2243,13 +2258,27 @@ pub(in crate::card::sets) static RECKLESS_SPITE: CardRecord = CardRecord::new(
 );
 
 // TMP 153 — Sadistic Glee
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SADISTIC_GLEE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d9e1959c-b87b-4e17-a0d2-0489ea79220b"),
     "Sadistic Glee",
-    crate::card::CardArt::new("d9e1959c-b87b-4e17-a0d2-0489ea79220b", "Pete Venters"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d9e1959c-b87b-4e17-a0d2-0489ea79220b", "Pete Venters"),
+    CardSet::Tempest,
+    // Every dead creature on either side makes it permanently bigger, which
+    // is a one-mana threat in a format of trades.
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::dies_trigger_matching(
+                "Whenever a creature dies, put a +1/+1 counter on enchanted creature.",
+                ObjectPredicateDef::HasType(CardType::Creature),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // TMP 154 — Sarcomancy

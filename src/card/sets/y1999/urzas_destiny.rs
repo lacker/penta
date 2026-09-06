@@ -8,10 +8,11 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
     ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef,
+    SetOperationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -39,13 +40,36 @@ pub(in crate::card::sets) static ARCHERY_TRAINING: CardRecord = CardRecord::new(
 // UDS 3 — Capashen Knight (reprint)
 
 // UDS 4 — Capashen Standard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAPASHEN_STANDARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16665386-405e-48c9-8c69-c21b03931c2f"),
     "Capashen Standard",
-    crate::card::CardArt::new("16665386-405e-48c9-8c69-c21b03931c2f", "Todd Lockwood"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("16665386-405e-48c9-8c69-c21b03931c2f", "Todd Lockwood"),
+    CardSet::UrzasDestiny,
+    // One mana for a point of stats that turns back into a card, so the Aura
+    // is never the card lost to a removal spell.
+    CardRules::new_enchantment(mana_cost!("{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this Aura: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // UDS 5 — Capashen Templar
@@ -471,16 +495,41 @@ pub(in crate::card::sets) static BUBBLING_BEEBLES: CardRecord = CardRecord::new(
 );
 
 // UDS 30 — Disappear
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISAPPEAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdf280f4-74a1-4e6f-aec6-1852f04204e4"),
     "Disappear",
-    crate::card::CardArt::new(
+    CardArt::new(
         "bdf280f4-74a1-4e6f-aec6-1852f04204e4",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasDestiny,
+    // It picks both halves up at once, which turns a four-mana Aura into a
+    // repeatable Unsummon rather than a card lost.
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "{U}: Return enchanted creature and this Aura to their owners' hands.",
+                &[CostDef::Mana(mana_cost!("{U}"))],
+                EffectDef::Sequence(
+                    &const {
+                        [
+                            EffectDef::MoveToZone {
+                                object: EffectRecipientDef::AttachedPermanent,
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                            },
+                            EffectDef::MoveToZone {
+                                object: EffectRecipientDef::Source,
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                            },
+                        ]
+                    },
+                ),
+            ),
+        ]),
 );
 
 // UDS 31 — Donate
@@ -528,13 +577,33 @@ pub(in crate::card::sets) static FLEDGLING_OSPREY: CardRecord = CardRecord::new(
 );
 
 // UDS 34 — Illuminated Wings
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ILLUMINATED_WINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f98e703-a0d3-497f-840a-aa026b02d47f"),
     "Illuminated Wings",
-    crate::card::CardArt::new("7f98e703-a0d3-497f-840a-aa026b02d47f", "Jim Nelson"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7f98e703-a0d3-497f-840a-aa026b02d47f", "Jim Nelson"),
+    CardSet::UrzasDestiny,
+    // Evasion that cashes itself in once the creature is answered, which is
+    // the only way an Aura avoids being a two-for-one.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this Aura: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // UDS 35 — Iridescent Drake
@@ -835,13 +904,31 @@ pub(in crate::card::sets) static CARNIVAL_OF_SOULS: CardRecord = CardRecord::new
 );
 
 // UDS 56 — Chime of Night
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHIME_OF_NIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1ec7c917-b254-4643-afc2-b6387f267469"),
     "Chime of Night",
-    crate::card::CardArt::new("1ec7c917-b254-4643-afc2-b6387f267469", "Pete Venters"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1ec7c917-b254-4643-afc2-b6387f267469", "Pete Venters"),
+    CardSet::UrzasDestiny,
+    // It is removal that waits for the enchanted creature to leave, which
+    // against a deck bouncing its own creatures is a slow two-for-one.
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::dies_trigger_with_targets(
+            "When this Aura is put into a graveyard from the battlefield, destroy target nonblack creature.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]))]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        ]),
 );
 
 // UDS 57 — Disease Carriers
@@ -874,13 +961,33 @@ pub(in crate::card::sets) static DISEASE_CARRIERS: CardRecord = CardRecord::new(
 );
 
 // UDS 58 — Dying Wail
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DYING_WAIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2a25a472-495e-4062-b66f-c37f148b494f"),
     "Dying Wail",
-    crate::card::CardArt::new("2a25a472-495e-4062-b66f-c37f148b494f", "Brian Snõddy"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2a25a472-495e-4062-b66f-c37f148b494f", "Brian Snõddy"),
+    CardSet::UrzasDestiny,
+    // The Aura is a Threaten in reverse: it costs a card now to take two
+    // when whatever it lands on eventually dies.
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::dies_trigger_matching_with_targets(
+                "When enchanted creature dies, target player discards two cards.",
+                ObjectPredicateDef::AttachedToSource,
+                &const {
+                    [AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )]
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // UDS 59 — Encroach

@@ -49,6 +49,7 @@ mod aura_control;
 mod aura_death;
 mod aura_grants;
 mod aura_host_triggers;
+mod aura_leaves_triggers;
 mod aura_prevention;
 mod aura_restrictions;
 mod aura_tap_triggers;

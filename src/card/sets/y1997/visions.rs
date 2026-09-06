@@ -10,7 +10,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
     AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, DiscardSelectionDef,
+    CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
+    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
@@ -414,13 +415,37 @@ pub(in crate::card::sets) static RIGHTEOUS_AURA: CardRecord = CardRecord::new(
 );
 
 // VIS 21 — Sun Clasp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUN_CLASP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e3f1fb74-bc08-4c3b-9fbe-da6973aaeaa2"),
     "Sun Clasp",
-    crate::card::CardArt::new("e3f1fb74-bc08-4c3b-9fbe-da6973aaeaa2", "John Coulthart"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e3f1fb74-bc08-4c3b-9fbe-da6973aaeaa2", "John Coulthart"),
+    CardSet::Visions,
+    // Four points of stats for two mana, and the creature can be picked up
+    // rather than lost when the removal comes.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+3.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(3),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{W}: Return enchanted creature to its owner's hand.",
+                &[CostDef::Mana(mana_cost!("{W}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // VIS 22 — Teferi's Honor Guard
@@ -888,13 +913,38 @@ pub(in crate::card::sets) static CRYPT_RATS: CardRecord = CardRecord::new(
 );
 
 // VIS 56 — Dark Privilege
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARK_PRIVILEGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c63ecd7b-a5e6-4e19-9ca2-dda14754305a"),
     "Dark Privilege",
-    crate::card::CardArt::new("10d2cf44-cc20-4a37-81ae-930f8c6d0896", "Tom Kyffin"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("10d2cf44-cc20-4a37-81ae-930f8c6d0896", "Tom Kyffin"),
+    CardSet::Visions,
+    // A regeneration shield paid in other creatures, which is what a deck
+    // making tokens has instead of mana.
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "Sacrifice a creature: Regenerate enchanted creature.",
+                &[CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                }],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // VIS 57 — Death Watch
@@ -1860,13 +1910,32 @@ pub(in crate::card::sets) static LICHENTHROPE: CardRecord = CardRecord::new(
 );
 
 // VIS 113 — Mortal Wound
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORTAL_WOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("808830ff-496a-41dc-8b64-334ddaca9435"),
     "Mortal Wound",
-    crate::card::CardArt::new("808830ff-496a-41dc-8b64-334ddaca9435", "Kev Walker"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("808830ff-496a-41dc-8b64-334ddaca9435", "Kev Walker"),
+    CardSet::Visions,
+    // One mana that turns any ping into removal, which is why a deck with
+    // one damage to spare plays it over a real answer.
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered(
+                "When enchanted creature is dealt damage, destroy it.",
+                TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                    kind: DamageKindDef::Any,
+                    source: DamageSourceMatcherDef::Any,
+                    recipient: DamageRecipientMatcherDef::Recipients(
+                        EffectRecipientDef::AttachedPermanent,
+                    ),
+                }),
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // VIS 114 — Natural Order

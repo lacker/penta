@@ -14,10 +14,10 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    CardSupertype, CardType, ControlDurationDef, CostDef, CounterKind, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     abilities, tokens,
 };
@@ -1113,13 +1113,28 @@ pub(in crate::card::sets) static AIRBORNE_AID: CardRecord = CardRecord::new(
 );
 
 // ONS 63 — Annex
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANNEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c95d5cb7-3121-430b-80c3-84c75e5f869e"),
     "Annex",
-    crate::card::CardArt::new("c95d5cb7-3121-430b-80c3-84c75e5f869e", "John Avon"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c95d5cb7-3121-430b-80c3-84c75e5f869e", "John Avon"),
+    CardSet::Onslaught,
+    // Four mana for one of their lands, which is a tempo loss for you and a
+    // colour the opponent no longer has.
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "You control enchanted land.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                    controller: PlayerRefDef::EffectController,
+                },
+            ),
+        ]),
 );
 
 // ONS 64 — Aphetto Alchemist

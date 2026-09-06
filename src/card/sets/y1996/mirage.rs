@@ -12,13 +12,14 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldArrivalDef,
-    BlockRestrictionDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ColorSet, CostDef, CounterKind, CreatedTokensDef,
-    DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
-    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    BattlefieldEntryScalarChoiceDef, BlockRestrictionDef, CardArt, CardNameSetDef, CardRules,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet, CostDef,
+    CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, ManaTypeDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -3499,13 +3500,27 @@ pub(in crate::card::sets) static PREFERRED_SELECTION: CardRecord = CardRecord::n
 );
 
 // MIR 234 — Quirion Elves
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUIRION_ELVES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be9a64fb-1e8d-4ed8-b4c5-3d44db9c1d3b"),
     "Quirion Elves",
-    crate::card::CardArt::new("be9a64fb-1e8d-4ed8-b4c5-3d44db9c1d3b", "Randy Gallegos"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("be9a64fb-1e8d-4ed8-b4c5-3d44db9c1d3b", "Randy Gallegos"),
+    CardSet::Mirage,
+    // A mana elf that fixes for the splash as well as the main colour, chosen
+    // as it lands rather than when it was drawn.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Druid"], 1, 1).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this creature enters, choose a color.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::COLOR,
+            )),
+        ),
+        abilities::tap_for(ManaColor::Green),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of the chosen color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)),
+        ),
+    ]),
 );
 
 // MIR 235 — Rampant Growth (reprint)

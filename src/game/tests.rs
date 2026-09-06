@@ -96,6 +96,7 @@ mod casting_windows;
 mod chain_spells;
 mod chaos_orb;
 mod charm_modes;
+mod chosen_characteristics;
 mod chosen_colors;
 mod classic_keyword_mechanics;
 mod cocoon;

@@ -13,13 +13,14 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
+    BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ControlDurationDef, CostDef, CounterKind, DamageEventMatcherDef,
     DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
     ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    PlayerRelation, PlayerRuleDef, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -956,13 +957,40 @@ pub(in crate::card::sets) static SANDSKIN: CardRecord = CardRecord::new(
 );
 
 // ONS 53 — Shared Triumph
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHARED_TRIUMPH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0d07ebe6-76cf-4345-b59b-9954496c44d0"),
     "Shared Triumph",
-    crate::card::CardArt::new("0d07ebe6-76cf-4345-b59b-9954496c44d0", "Mark Brill"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0d07ebe6-76cf-4345-b59b-9954496c44d0", "Mark Brill"),
+    CardSet::Onslaught,
+    // An anthem that names its tribe as it lands, so the same card fits
+    // whichever tribal deck drew it.
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this enchantment enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Creatures of the chosen type get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasSourcesChosenScalar(
+                            BattlefieldEntryChoiceDestinationDef::CreatureType,
+                        ),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // ONS 54 — Shieldmage Elder
@@ -2147,13 +2175,37 @@ pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new_wit
 );
 
 // ONS 133 — Cover of Darkness
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COVER_OF_DARKNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0d6d7d88-d82b-40f4-bf57-ec5d7c480689"),
     "Cover of Darkness",
-    crate::card::CardArt::new("0d6d7d88-d82b-40f4-bf57-ec5d7c480689", "Kev Walker"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0d6d7d88-d82b-40f4-bf57-ec5d7c480689", "Kev Walker"),
+    CardSet::Onslaught,
+    // Fear for a whole tribe is unblockable against most decks, which turns a
+    // board stall into a two-turn clock.
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this enchantment enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Creatures of the chosen type have fear.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasSourcesChosenScalar(
+                            BattlefieldEntryChoiceDestinationDef::CreatureType,
+                        ),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: abilities::FEAR_RESTRICTION,
+            },
+        ),
+    ]),
 );
 
 // ONS 134 — Crown of Suspicion
@@ -4513,13 +4565,37 @@ pub(in crate::card::sets) static STAG_BEETLE: CardRecord = CardRecord::new(
 );
 
 // ONS 286 — Steely Resolve
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEELY_RESOLVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b88c530a-abc3-4cc4-8a48-5b76e1504a3c"),
     "Steely Resolve",
-    crate::card::CardArt::new("b88c530a-abc3-4cc4-8a48-5b76e1504a3c", "Greg Staples"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b88c530a-abc3-4cc4-8a48-5b76e1504a3c", "Greg Staples"),
+    CardSet::Onslaught,
+    // Shroud on the tribe blanks every removal spell the opponent drew, and
+    // every trick of your own along with it.
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this enchantment enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Creatures of the chosen type have shroud.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasSourcesChosenScalar(
+                            BattlefieldEntryChoiceDestinationDef::CreatureType,
+                        ),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+            },
+        ),
+    ]),
 );
 
 // ONS 287 — Symbiotic Beast

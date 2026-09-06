@@ -3,13 +3,14 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
+    BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DiscardSelectionDef, DrawEventMatcherDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -217,13 +218,40 @@ pub(in crate::card::sets) static SURPRISE_DEPLOYMENT: CardRecord = CardRecord::n
 );
 
 // PLS 19 — Voice of All
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOICE_OF_ALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75f37536-db3d-4726-9e45-b9108247d0e6"),
     "Voice of All",
-    crate::card::CardArt::new("75f37536-db3d-4726-9e45-b9108247d0e6", "rk post"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("75f37536-db3d-4726-9e45-b9108247d0e6", "rk post"),
+    CardSet::Planeshift,
+    // A flier that one whole colour cannot answer, chosen after seeing what
+    // the opponent is playing.
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::as_enters(
+            "As this creature enters, choose a color.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::COLOR,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "This creature has protection from the chosen color.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::keyword(
+                            "Protection from the chosen color",
+                            KeywordAbility::ProtectionFrom(
+                                &ObjectPredicateDef::HasSourcesChosenScalar(
+                                    BattlefieldEntryChoiceDestinationDef::Color,
+                                ),
+                            ),
+                        )
+                    },
+                ),
+            },
+        ),
+    ]),
 );
 
 // PLS 20 — Allied Strategies
@@ -434,13 +462,32 @@ pub(in crate::card::sets) static SEA_SNIDD: CardRecord = CardRecord::new(
 );
 
 // PLS 32 — Shifting Sky
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIFTING_SKY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1071726d-48f0-46d6-802b-dd9589489580"),
     "Shifting Sky",
-    crate::card::CardArt::new("1071726d-48f0-46d6-802b-dd9589489580", "Jerry Tiritilli"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1071726d-48f0-46d6-802b-dd9589489580", "Jerry Tiritilli"),
+    CardSet::Planeshift,
+    // Every nonland permanent becomes one colour, which turns a protection
+    // effect or a colour-hoser into a one-sided sweeper.
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this enchantment enters, choose a color.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::COLOR,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "All nonland permanents are the chosen color.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::set_color(ManaTypeDef::ChosenColor),
+            },
+        ),
+    ]),
 );
 
 // PLS 33 — Sisay's Ingenuity

@@ -391,13 +391,18 @@ pub(in crate::card::sets) static WALL_OF_HOPE: CardRecord = CardRecord::new(
 );
 
 // LGN 25 — Ward Sliver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARD_SLIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e264369a-ab81-4938-9fa6-7c3e069442f4"),
     "Ward Sliver",
-    crate::card::CardArt::new("e264369a-ab81-4938-9fa6-7c3e069442f4", "Pete Venters"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e264369a-ab81-4938-9fa6-7c3e069442f4", "Pete Venters"),
+    CardSet::Legions,
+    // Audit: unsupported -- "all Slivers have protection from the chosen
+    // color" grants a keyword whose predicate reads the granting source's
+    // chosen colour, but a granted ability resolves
+    // `HasSourcesChosenScalar` against the creature holding it, which never
+    // made a choice, so every block is allowed. Needs the grant to carry the
+    // grantor's chosen scalar.
+    CardRules::unsupported(),
 );
 
 // LGN 26 — Whipgrass Entangler

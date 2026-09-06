@@ -17,14 +17,14 @@ use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
-    ScaledValueDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, CounterKind,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeDef,
+    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PartitionGroupDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    RevealObjectsDef, SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -4568,13 +4568,28 @@ pub(in crate::card::sets) static WAX_WANE: CardRecord = CardRecord::new(
 );
 
 // INV 297 — Alloy Golem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALLOY_GOLEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1fb6d6a1-9d71-405b-9c93-1a7f06c67abd"),
     "Alloy Golem",
-    crate::card::CardArt::new("1fb6d6a1-9d71-405b-9c93-1a7f06c67abd", "Greg Staples"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1fb6d6a1-9d71-405b-9c93-1a7f06c67abd", "Greg Staples"),
+    CardSet::Invasion,
+    // Six mana for a 4/4 whose only trick is being whatever colour the rest
+    // of the deck needed it to be.
+    CardRules::new_artifact_creature(mana_cost!("{6}"), &["Golem"], 4, 4).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this creature enters, choose a color.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::COLOR,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "This creature is the chosen color.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::set_color(ManaTypeDef::ChosenColor),
+            },
+        ),
+    ]),
 );
 
 // INV 298 — Bloodstone Cameo

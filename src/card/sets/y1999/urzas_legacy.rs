@@ -1061,13 +1061,32 @@ pub(in crate::card::sets) static SLEEPER_S_GUILE: CardRecord = CardRecord::new(
 );
 
 // ULG 68 — Subversion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUBVERSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("50f1bca9-5831-4e8b-8920-f28ebb3ffb27"),
     "Subversion",
-    crate::card::CardArt::new("50f1bca9-5831-4e8b-8920-f28ebb3ffb27", "Rob Alexander"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("50f1bca9-5831-4e8b-8920-f28ebb3ffb27", "Rob Alexander"),
+    CardSet::UrzasLegacy,
+    // A point a turn that no blocker answers, which is a clock a control
+    // deck can win with while doing nothing else.
+    CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::triggered(
+        "At the beginning of your upkeep, each opponent loses 1 life. You gain life equal to the life lost this way.",
+        TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+        // Loss of life rather than damage, so nothing prevents it; with one
+        // opponent the life gained is the same fixed point.
+        EffectDef::Sequence(&[
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // ULG 69 — Swat

@@ -20,7 +20,8 @@ use crate::card::{
     EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1627,13 +1628,35 @@ pub(in crate::card::sets) static BLOODCURDLER: CardRecord = CardRecord::new(
 );
 
 // ODY 117 — Braids, Cabal Minion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAIDS_CABAL_MINION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4dcdcad5-e4fb-480e-984f-1ac5cdc986b9"),
     "Braids, Cabal Minion",
-    crate::card::CardArt::new("4dcdcad5-e4fb-480e-984f-1ac5cdc986b9", "Eric Peterson"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4dcdcad5-e4fb-480e-984f-1ac5cdc986b9", "Eric Peterson"),
+    CardSet::Odyssey,
+    // Symmetrical on the card and never in the game: the player who cast
+    // it has already spent their turn, and the other one has not.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Minion"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::triggered(
+            "At the beginning of each player's upkeep, that player sacrifices an artifact, creature, or land of their choice.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::player(PlayerRefDef::EventPlayer),
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        )),
 );
 
 // ODY 118 — Buried Alive (reprint)

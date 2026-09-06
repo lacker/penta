@@ -1913,13 +1913,26 @@ pub(in crate::card::sets) static GRAVESPAWN_SOVEREIGN: CardRecord = CardRecord::
 );
 
 // ONS 153 — Grinning Demon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRINNING_DEMON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72de2f66-0b86-4c21-b4c8-c2d97e3fd095"),
     "Grinning Demon",
-    crate::card::CardArt::new("72de2f66-0b86-4c21-b4c8-c2d97e3fd095", "Mark Zug"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("72de2f66-0b86-4c21-b4c8-c2d97e3fd095", "Mark Zug"),
+    CardSet::Onslaught,
+    // A 6/6 on turn four, with the two life a turn standing in for the
+    // colour's usual price of a card.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Demon"], 6, 6)
+        .with_morph(mana_cost!("{2}{B}{B}"))
+        .with_ability(AbilityDef::triggered(
+            "At the beginning of your upkeep, you lose 2 life.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        )),
 );
 
 // ONS 154 — Haunted Cadaver

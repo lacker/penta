@@ -748,13 +748,32 @@ pub(in crate::card::sets) static WATERSPOUT_DJINN: CardRecord = CardRecord::new(
 );
 
 // VIS 51 — Aku Djinn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AKU_DJINN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("369a5df5-fc36-476c-84f4-ec4bdeb4f9d2"),
     "Aku Djinn",
-    crate::card::CardArt::new("369a5df5-fc36-476c-84f4-ec4bdeb4f9d2", "Terese Nielsen"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("369a5df5-fc36-476c-84f4-ec4bdeb4f9d2", "Terese Nielsen"),
+    CardSet::Visions,
+    // Five trampling power for five, on the understanding that everything
+    // opposite it grows every turn you keep it.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Djinn"], 5, 6).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, put a +1/+1 counter on each creature each opponent controls.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // VIS 52 — Blanket of Night

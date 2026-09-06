@@ -21,11 +21,11 @@ use crate::card::{
     BattlefieldEntryModificationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerRuleDef,
-    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
 
@@ -2101,13 +2101,29 @@ pub(in crate::card::sets) static MISSHAPEN_FIEND: CardRecord = CardRecord::new(
 );
 
 // MMQ 148 — Molting Harpy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOLTING_HARPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ddfe33fb-71d5-4552-bcd3-f07e4e3847e1"),
     "Molting Harpy",
-    crate::card::CardArt::new("ddfe33fb-71d5-4552-bcd3-f07e4e3847e1", "Jeff Laubenstein"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ddfe33fb-71d5-4552-bcd3-f07e4e3847e1", "Jeff Laubenstein"),
+    CardSet::MercadianMasques,
+    // A one-mana 2/1 flier that costs two every turn afterwards, so it is
+    // only cheap in the window where the game is already decided.
+    CardRules::new_creature(mana_cost!("{B}"), &["Harpy", "Mercenary"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you pay {2}.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless_mana(
+                mana_cost!("{2}"),
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ]),
 );
 
 // MMQ 149 — Nether Spirit
@@ -2759,13 +2775,36 @@ pub(in crate::card::sets) static KYREN_NEGOTIATIONS: CardRecord = CardRecord::ne
 );
 
 // MMQ 199 — Kyren Sniper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYREN_SNIPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4df99e19-0b1e-48ec-a146-38cf147eab61"),
     "Kyren Sniper",
-    crate::card::CardArt::new("4df99e19-0b1e-48ec-a146-38cf147eab61", "Carl Critchlow"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4df99e19-0b1e-48ec-a146-38cf147eab61", "Carl Critchlow"),
+    CardSet::MercadianMasques,
+    // One damage a turn from a body that never has to attack, which is a
+    // clock nothing on the ground can answer.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, you may have this creature deal 1 damage to target player or planeswalker.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 200 — Lava Runner
@@ -2791,13 +2830,31 @@ pub(in crate::card::sets) static LIGHTNING_HOUNDS: CardRecord = CardRecord::new(
 );
 
 // MMQ 202 — Lithophage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98ee0f17-de64-4abb-afad-4005275f1a3c"),
     "Lithophage",
-    crate::card::CardArt::new("98ee0f17-de64-4abb-afad-4005275f1a3c", "Mike Ploog"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("98ee0f17-de64-4abb-afad-4005275f1a3c", "Mike Ploog"),
+    CardSet::MercadianMasques,
+    // Seven power for five mana, paid for one Mountain at a time until
+    // there are no Mountains left to cast anything else with.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Insect"], 7, 7).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you sacrifice a Mountain.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain])),
+                },
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ),
 );
 
 // MMQ 203 — Lunge

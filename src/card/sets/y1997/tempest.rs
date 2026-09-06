@@ -3636,13 +3636,23 @@ pub(in crate::card::sets) static TRUMPETING_ARMODON: CardRecord = CardRecord::ne
 );
 
 // TMP 263 — Verdant Force
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VERDANT_FORCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29bd094c-fcc1-4abf-ba3e-03a5b9b6d1c2"),
     "Verdant Force",
-    crate::card::CardArt::new("29bd094c-fcc1-4abf-ba3e-03a5b9b6d1c2", "DiTerlizzi"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("29bd094c-fcc1-4abf-ba3e-03a5b9b6d1c2", "DiTerlizzi"),
+    CardSet::Tempest,
+    // Two bodies a turn round rather than one, because it triggers on the
+    // opponent's upkeep as well -- which is what eight mana buys.
+    CardRules::new_creature(mana_cost!("{5}{G}{G}{G}"), &["Elemental"], 7, 7).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of each upkeep, create a 1/1 green Saproling creature token.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1),
+        ),
+    ),
 );
 
 // TMP 264 — Verdigris

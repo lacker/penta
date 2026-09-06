@@ -4,10 +4,10 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, abilities,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -772,13 +772,34 @@ pub(in crate::card::sets) static AVATAR_OF_WOE: CardRecord = CardRecord::new(
 );
 
 // PCY 57 — Bog Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOG_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75191915-352e-4de7-b216-63f0ff588ba5"),
     "Bog Elemental",
-    crate::card::CardArt::new("75191915-352e-4de7-b216-63f0ff588ba5", "Glen Angus"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("75191915-352e-4de7-b216-63f0ff588ba5", "Glen Angus"),
+    CardSet::Prophecy,
+    // A 5/4 that eats a land every turn, which is a clock pointed at both
+    // players at once.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Elemental"], 5, 4).with_abilities(&[
+        abilities::protection_from_color(ManaColor::White),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you sacrifice a land.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    )),
+                },
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ]),
 );
 
 // PCY 58 — Bog Glider
@@ -1011,13 +1032,32 @@ pub(in crate::card::sets) static OUTBREAK: CardRecord = CardRecord::new(
 );
 
 // PCY 72 — Pit Raptor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PIT_RAPTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e37cd150-1064-43b7-919b-8922d8a18f21"),
     "Pit Raptor",
-    crate::card::CardArt::new("e37cd150-1064-43b7-919b-8922d8a18f21", "Thomas Gianni"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e37cd150-1064-43b7-919b-8922d8a18f21", "Thomas Gianni"),
+    CardSet::Prophecy,
+    // A 4/3 flier with first strike for four, rented rather than bought --
+    // the rent is most of a turn every turn.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Bird", "Mercenary"], 4, 3).with_abilities(
+        &[
+            abilities::flying(),
+            abilities::first_strike(),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, sacrifice this creature unless you pay {2}{B}{B}.",
+                TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+                EffectDef::PayOr(PayOrDef::unless_mana(
+                    mana_cost!("{2}{B}{B}"),
+                    &EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    },
+                )),
+            ),
+        ],
+    ),
 );
 
 // PCY 73 — Plague Fiend

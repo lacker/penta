@@ -3,12 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, CostDef, CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1260,13 +1260,32 @@ pub(in crate::card::sets) static DARING_LEAP: CardRecord = CardRecord::new(
 );
 
 // PLS 102 — Destructive Flow
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DESTRUCTIVE_FLOW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7db86e34-c3ec-4a29-8779-81350a985644"),
     "Destructive Flow",
-    crate::card::CardArt::new("7db86e34-c3ec-4a29-8779-81350a985644", "Don Hazeltine"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7db86e34-c3ec-4a29-8779-81350a985644", "Don Hazeltine"),
+    CardSet::Planeshift,
+    // Three colours to cast, which is the joke: it punishes exactly the
+    // mana base that could have paid for it.
+    CardRules::new_enchantment(mana_cost!("{B}{R}{G}")).with_ability(AbilityDef::triggered(
+        "At the beginning of each player's upkeep, that player sacrifices a nonbasic land of their choice.",
+        TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::player(PlayerRefDef::EventPlayer),
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+            ]),
+            count: ValueDef::Constant(1),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // PLS 103 — Doomsday Specter

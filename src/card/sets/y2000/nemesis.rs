@@ -986,13 +986,31 @@ pub(in crate::card::sets) static SPINELESS_THUG: CardRecord = CardRecord::new(
 );
 
 // NEM 72 — Spiteful Bully
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPITEFUL_BULLY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5535d14a-7126-4a94-96a0-e17ad5c72070"),
     "Spiteful Bully",
-    crate::card::CardArt::new("5535d14a-7126-4a94-96a0-e17ad5c72070", "Chippy"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5535d14a-7126-4a94-96a0-e17ad5c72070", "Chippy"),
+    CardSet::Nemesis,
+    // A 3/3 for two whose upkeep is paid in your own creatures, so it is
+    // best in the deck that has nothing else worth keeping.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Phyrexian", "Zombie", "Mercenary"], 3, 3)
+        .with_ability(AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, this creature deals 3 damage to target creature you control.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]))]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        )),
 );
 
 // NEM 73 — Stronghold Discipline

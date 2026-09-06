@@ -936,7 +936,7 @@ pub(in crate::card::sets) static SILVERBLADE_PALADIN: CardRecord = CardRecord::n
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              double strike.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -959,7 +959,7 @@ pub(in crate::card::sets) static SPECTRAL_GATEGUARDS: CardRecord = CardRecord::n
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              vigilance.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -1307,7 +1307,7 @@ pub(in crate::card::sets) static ELGAUD_SHIELDMATE: CardRecord = CardRecord::new
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              hexproof.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -2148,7 +2148,7 @@ pub(in crate::card::sets) static WINGCRAFTER: CardRecord = CardRecord::new_with_
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              flying.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -3502,7 +3502,7 @@ pub(in crate::card::sets) static HANWEIR_LANCER: CardRecord = CardRecord::new_wi
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              first strike.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -3636,7 +3636,7 @@ pub(in crate::card::sets) static LIGHTNING_MAULER: CardRecord = CardRecord::new_
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              haste.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -4369,7 +4369,7 @@ pub(in crate::card::sets) static DRUIDS_FAMILIAR: CardRecord = CardRecord::new_w
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, each of those creatures \\
+            "As long as this creature is paired with another creature, each of those creatures \
              gets +2/+2.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -4466,7 +4466,7 @@ pub(in crate::card::sets) static GEIST_TRAPPERS: CardRecord = CardRecord::new_wi
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              reach.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -4651,7 +4651,7 @@ pub(in crate::card::sets) static NIGHTSHADE_PEDDLER: CardRecord = CardRecord::ne
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              deathtouch.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -4674,7 +4674,7 @@ pub(in crate::card::sets) static PATHBREAKER_WURM: CardRecord = CardRecord::new_
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, both creatures have \\
+            "As long as this creature is paired with another creature, both creatures have \
              trample.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,
@@ -5099,7 +5099,7 @@ pub(in crate::card::sets) static WOLFIR_SILVERHEART: CardRecord = CardRecord::ne
         SOULBOND_ABILITIES[0],
         SOULBOND_ABILITIES[1],
         AbilityDef::static_ability(
-            "As long as this creature is paired with another creature, each of those creatures \\
+            "As long as this creature is paired with another creature, each of those creatures \
              gets +4/+4.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceIsPaired,

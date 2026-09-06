@@ -231,6 +231,30 @@ fn validate_additional_printings(
     additional_printings.len()
 }
 
+/// A wrapped string literal continues with a single backslash. Two of them
+/// is an escaped backslash instead, which leaves a stray `\\` and the
+/// following indentation inside the rules text -- visible to players, and
+/// invisible to every other check, since the card still compiles and
+/// validates. Eleven soulbond cards shipped that way before this existed.
+#[test]
+fn wrapped_rules_text_uses_a_single_continuation_backslash() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut violations = Vec::new();
+    for path in printed_set_files(&root.join("src/card/sets")) {
+        let source = fs::read_to_string(&path).expect("a printed set source is readable");
+        for (index, line) in source.lines().enumerate() {
+            if line.ends_with("\\\\") && !line.ends_with("\\\\\\\\") {
+                violations.push(format!("{}:{}", path.display(), index + 1));
+            }
+        }
+    }
+    assert!(
+        violations.is_empty(),
+        "wrapped rules text must end in one backslash, not two:\n{}",
+        violations.join("\n"),
+    );
+}
+
 fn printed_set_files(sets: &Path) -> Vec<PathBuf> {
     let mut files = Vec::new();
     for year in fs::read_dir(sets).expect("card set directory exists") {

@@ -110,7 +110,6 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
                     &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(
                         ManaColor::Blue,
                     )),
-                    true,
                 ),
                 AbilityDef::spell_with_targets(
                     "Return target creature card from your graveyard.",
@@ -174,7 +173,6 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
         .declarative_effect(),
         Some(EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         })
     );

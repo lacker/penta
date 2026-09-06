@@ -176,20 +176,32 @@ pub(in crate::card::sets) static CLEANSE: CardRecord = CardRecord::new_with_lega
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),
 );
 
 // LEG 6 — Clergy of the Holy Nimbus
-// Audit: unsupported — Needs a would-be-destroyed replacement that regenerates the source, and an activation restricted to opponents. The turn-scoped regeneration prohibition its second clause applies is available.
 pub(in crate::card::sets) static CLERGY_OF_THE_HOLY_NIMBUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("db1f578f-fa3b-4447-953b-1490852b6c80"),
     "Clergy of the Holy Nimbus",
-    crate::card::CardArt::new("db1f578f-fa3b-4447-953b-1490852b6c80", "Daniel Gelon"),
-    crate::card::CardSet::Legends,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("db1f578f-fa3b-4447-953b-1490852b6c80", "Daniel Gelon"),
+    CardSet::Legends,
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_abilities(&[
+        abilities::regenerates_if_destroyed(
+            "If this creature would be destroyed, regenerate it.",
+        ),
+        AbilityDef::activated(
+            "{1}: This creature can't be regenerated this turn. Only your opponents may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .only_opponents_may_activate(),
+    ]),
 );
 
 // LEG 7 — D'Avenant Archer
@@ -239,7 +251,6 @@ pub(in crate::card::sets) static DIVINE_OFFERING: CardRecord = CardRecord::new_w
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::GainLife {
@@ -904,7 +915,6 @@ pub(in crate::card::sets) static ACID_RAIN: CardRecord = CardRecord::new_with_le
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -1126,7 +1136,6 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new_with_
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -1832,7 +1841,6 @@ pub(in crate::card::sets) static BLIGHT: CardRecord = CardRecord::new_with_legac
                 TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
                 EffectDef::Destroy {
                     object: EffectRecipientDef::AttachedPermanent,
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -2436,10 +2444,12 @@ pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new_with_le
                 minimum: 1,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::Destroy {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                    can_regenerate: false,
-                    then: None,
+                then: &EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                        then: None,
+                    },
                 },
             }),
         )),
@@ -2619,7 +2629,6 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_wi
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -3010,7 +3019,6 @@ pub(in crate::card::sets) static GLYPH_OF_DESTRUCTION: CardRecord = CardRecord::
                 },
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ))),
@@ -3307,7 +3315,6 @@ pub(in crate::card::sets) static SPINAL_VILLAIN: CardRecord = CardRecord::new_wi
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -3715,7 +3722,6 @@ pub(in crate::card::sets) static FLORAL_SPUZZEM: CardRecord = CardRecord::new_wi
                 effect: &EffectDef::Sequence(&[
                     EffectDef::Destroy {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: true,
                         then: None,
                     },
                     EffectDef::Apply {
@@ -5059,7 +5065,6 @@ pub(in crate::card::sets) static RAMSES_OVERDARK: CardRecord = CardRecord::new_w
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         )),
@@ -5240,7 +5245,6 @@ pub(in crate::card::sets) static TETSUO_UMEZAWA: CardRecord = CardRecord::new_wi
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -6197,7 +6201,6 @@ pub(in crate::card::sets) static THE_TABERNACLE_AT_PENDRELL_VALE: CardRecord = C
                         mana_cost!("{1}"),
                         &EffectDef::Destroy {
                             object: EffectRecipientDef::Source,
-                            can_regenerate: true,
                             then: None,
                         },
                     )),

@@ -1044,12 +1044,14 @@ pub(in crate::card::sets) static NECRITE: CardRecord = CardRecord::new_with_lega
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
                     },
-                    // "It can't be regenerated" is the destruction's own flag rather than a
-                    // separate prohibition: nothing else this turn is being denied a shield.
-                    EffectDef::Destroy {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: false,
-                        then: None,
+                    // The prohibition modifies only this destruction; it does not last
+                    // for the rest of the turn.
+                    EffectDef::WithRule {
+                        rule: AppliedRuleDef::CannotRegenerate,
+                        effect: &EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
                     },
                 ]),
             },

@@ -157,10 +157,7 @@ impl Game {
                 return None;
             }
             target_defs.extend_from_slice(mode_spell.targets());
-            mode_effects.push(ScopedEffect {
-                effect,
-                target_base,
-            });
+            mode_effects.push(ScopedEffect::at(effect, target_base));
         }
         Self::extend_plan_with_splices(target_defs, mode_effects, spliced)
     }
@@ -183,10 +180,7 @@ impl Game {
                 return None;
             }
             target_defs.extend_from_slice(spell.targets());
-            mode_effects.push(ScopedEffect {
-                effect,
-                target_base,
-            });
+            mode_effects.push(ScopedEffect::at(effect, target_base));
         }
         Some(SelectedSpellPlan {
             target_defs,

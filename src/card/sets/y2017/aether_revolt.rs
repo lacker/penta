@@ -62,7 +62,6 @@ pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
 // AER 57 — Fatal Push
 static PUSH_IT: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    can_regenerate: true,
     then: None,
 };
 

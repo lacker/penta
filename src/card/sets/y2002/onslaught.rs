@@ -63,7 +63,6 @@ pub(in crate::card::sets) static AKROMAS_VENGEANCE: CardRecord = CardRecord::new
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2280,7 +2279,6 @@ pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2822,7 +2820,6 @@ pub(in crate::card::sets) static CHAIN_OF_ACID: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::May {
@@ -3067,7 +3064,6 @@ pub(in crate::card::sets) static NATURALIZE: CardRecord = CardRecord::new_with_l
             ObjectPredicateDef::HasType(CardType::Artifact),
             ObjectPredicateDef::HasType(CardType::Enchantment),
         ])),
-        true,
     )),
 );
 

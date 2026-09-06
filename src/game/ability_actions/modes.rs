@@ -44,10 +44,7 @@ impl Game {
             };
             let target_base = target_defs.len();
             target_defs.extend_from_slice(mode_spell.targets());
-            mode_effects.push(ScopedEffect {
-                effect,
-                target_base,
-            });
+            mode_effects.push(ScopedEffect::at(effect, target_base));
         }
         Some(SelectedSpellPlan {
             target_defs,

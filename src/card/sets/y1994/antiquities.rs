@@ -356,7 +356,6 @@ pub(in crate::card::sets) static GATE_TO_PHYREXIA: CardRecord = CardRecord::new_
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         )
@@ -537,10 +536,12 @@ pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new_with_leg
             // The damage reads the controller as the spell resolves, so it still lands
             // even though the artifact has just been destroyed.
             EffectDef::Sequence(&[
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: false,
-                    then: None,
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
                 },
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -626,14 +627,16 @@ pub(in crate::card::sets) static SHATTERSTORM: CardRecord = CardRecord::new_with
     CardSet::Antiquities,
     CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_abilities(&[AbilityDef::spell(
         "Destroy all artifacts. They can't be regenerated.",
-        EffectDef::Destroy {
-            object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::Any,
-            ),
-            can_regenerate: false,
-            then: None,
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
+            },
         },
     )]),
 );
@@ -725,10 +728,12 @@ pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new_with_lega
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
             EffectDef::Sequence(&[
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: false,
-                    then: None,
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
                 },
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1947,7 +1952,6 @@ pub(in crate::card::sets) static STRIP_MINE: CardRecord = CardRecord::new_with_l
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

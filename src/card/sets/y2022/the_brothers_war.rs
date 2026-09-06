@@ -39,7 +39,7 @@ pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecor
                     },
                     1,
                 )],
-                EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+                EffectDef::destroy_target(TargetIndex::PRIMARY),
             ),
             AbilityDef::activated_with_targets(
                 "{T}: You and target opponent each draw a card.",

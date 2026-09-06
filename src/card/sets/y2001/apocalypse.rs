@@ -841,7 +841,6 @@ pub(in crate::card::sets) static QUAGMIRE_DRUID: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1251,7 +1250,6 @@ pub(in crate::card::sets) static SMASH: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::DrawCards {
@@ -2007,7 +2005,6 @@ pub(in crate::card::sets) static VINDICATE: CardRecord = CardRecord::new_with_le
     CardRules::new_sorcery(mana_cost!("{1}{W}{B}")).with_ability(AbilityDef::destroy_target(
         "Destroy target permanent.",
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any),
-        true,
     )),
 );
 

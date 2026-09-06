@@ -495,6 +495,13 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     // the same way.
                     && shared_battlefield_exit_replacement_effect(effect)
             }
+            ReplacementEventDef::WouldBeDestroyed { object } => {
+                !definition.optional
+                    && definition.condition.is_none()
+                    && battlefield_only(definition.source_zones)
+                    && shared_object_predicate(object)
+                    && shared_destruction_replacement_effect(effect)
+            }
             ReplacementEventDef::WouldGainLife(_) => {
                 !definition.optional
                     && definition.condition.is_none()
@@ -664,6 +671,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     // A triggered mana ability resolves without an offer to
                     // read an amount off, so this one stays outside.
                     EffectDef::BindOutput { .. }
+                    | EffectDef::WithRule { .. }
                     | EffectDef::ContinueReplacedDraw
                     | EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }

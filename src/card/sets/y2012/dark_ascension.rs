@@ -454,7 +454,6 @@ pub(in crate::card::sets) static RAY_OF_REVELATION: CardRecord = CardRecord::new
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1367,7 +1366,6 @@ pub(in crate::card::sets) static DEATHS_CARESS: CardRecord = CardRecord::new_wit
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::GainLife {
@@ -1586,7 +1584,6 @@ pub(in crate::card::sets) static MIKAEUS_THE_UNHALLOWED: CardRecord = CardRecord
                 }),
                 EffectDef::Destroy {
                     object: EffectRecipientDef::TriggeringObject,
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -1684,7 +1681,6 @@ pub(in crate::card::sets) static SKIRSDAG_FLAYER: CardRecord = CardRecord::new_w
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1839,7 +1835,6 @@ pub(in crate::card::sets) static ZOMBIE_APOCALYPSE: CardRecord = CardRecord::new
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ]),
@@ -1873,7 +1868,6 @@ pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::ne
                             player: EffectRecipientDef::Controller,
                             effect: &EffectDef::Destroy {
                                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                can_regenerate: true,
                                 then: Some(DestroyFollowUpDef {
                                     binding: ParentBinding,
                                     effect: &EffectDef::IfCondition {
@@ -2425,7 +2419,6 @@ pub(in crate::card::sets) static SCORCH_THE_FIELDS: CardRecord = CardRecord::new
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::DealDamage {
@@ -2531,7 +2524,6 @@ pub(in crate::card::sets) static TORCH_FIEND: CardRecord = CardRecord::new_with_
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2641,7 +2633,6 @@ pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_wi
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -2652,7 +2643,6 @@ pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_wi
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),

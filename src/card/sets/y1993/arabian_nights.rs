@@ -10,8 +10,9 @@ use crate::card::{
     EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
     KeywordAbility, LikelihoodDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -42,23 +43,25 @@ pub(in crate::card::sets) static ABU_JAFAR: CardRecord = CardRecord::new_with_le
         abilities::dies_trigger(
             "When this creature dies, destroy all creatures blocking or blocked by it. They \
              can't be regenerated.",
-            EffectDef::Destroy {
-                // Both sides of whatever block it was in. One direction is read off the
-                // candidate and the other off Abu Ja'far, whose own record is last-known by
-                // the time the trigger resolves -- it is dead, which is what set this off.
-                object: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::BlockedBySource,
-                            ObjectPredicateDef::BlockingSource,
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    // Both sides of whatever block it was in. One direction is read off the
+                    // candidate and the other off Abu Ja'far, whose own record is last-known by
+                    // the time the trigger resolves -- it is dead, which is what set this off.
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::BlockedBySource,
+                                ObjectPredicateDef::BlockingSource,
+                            ]),
                         ]),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                can_regenerate: false,
-                then: None,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
             },
         ),
     ),
@@ -137,7 +140,6 @@ pub(in crate::card::sets) static KING_SULEIMAN: CardRecord = CardRecord::new_wit
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -990,7 +992,6 @@ pub(in crate::card::sets) static DESERT_TWISTER: CardRecord = CardRecord::new_wi
     CardRules::new_sorcery(mana_cost!("{4}{G}{G}")).with_abilities(&[AbilityDef::destroy_target(
         "Destroy target permanent.",
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any),
-        true,
     )]),
 );
 
@@ -1443,13 +1444,55 @@ pub(in crate::card::sets) static JEWELED_BIRD: CardRecord = CardRecord::new(
 );
 
 // ARN 67 — Pyramids
-// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “• The next time target land would be destroyed this turn, remove all damage marked on it instead”.
 pub(in crate::card::sets) static PYRAMIDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d2e9decf-47b7-44e0-b380-8055b6011021"),
     "Pyramids",
     crate::card::CardArt::new("d2e9decf-47b7-44e0-b380-8055b6011021", "Amy Weber"),
     crate::card::CardSet::ArabianNights,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::modal_activated(
+        "{2}: Choose one — Destroy target Aura attached to a land; The next time target land would be destroyed this turn, remove all damage marked on it instead.",
+        &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+        &[
+            AbilityDef::spell_with_targets(
+                "Destroy target Aura attached to a land",
+                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(CardType::Land)),
+                ]))],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "The next time target land would be destroyed this turn, remove all damage marked on it instead",
+                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Land,
+                ))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&const {
+                        AbilityDef::defined_replacement(
+                            "The next time this land would be destroyed this turn, remove all damage marked on it instead.",
+                            ReplacementAbilityDef::new()
+                                .with_event(ReplacementEventDef::WouldBeDestroyed {
+                                    object: ObjectPredicateDef::Source,
+                                })
+                                .once(),
+                            ReplacementEffectDef::Sequence(&[
+                                ReplacementEffectDef::ReplaceEventWithNothing,
+                                ReplacementEffectDef::RemoveDamageFromDestroyedObject,
+                            ]),
+                        )
+                    }),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+        1,
+        1,
+        false,
+    )),
 );
 
 // ARN 68 — Ring of Ma'rûf

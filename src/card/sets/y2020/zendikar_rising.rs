@@ -245,7 +245,6 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

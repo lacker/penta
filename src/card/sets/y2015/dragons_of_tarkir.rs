@@ -85,7 +85,6 @@ pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::ne
                     )],
                     EffectDef::Destroy {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: true,
                         then: None,
                     },
                 ),

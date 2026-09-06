@@ -568,9 +568,8 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_wit
                 ),
                 AbilityDef::destroy_target(
                     "Destroy target artifact.",
-                    &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact)),
-                    true,
-                ),
+                    &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact))
+),
                 AbilityDef::spell_with_targets(
                     "This spell deals 5 damage to target creature.",
                     &[AbilityTargetDef::exactly_one_permanent(

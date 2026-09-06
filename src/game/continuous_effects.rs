@@ -496,6 +496,7 @@ impl Game {
             // does, so an Attach inside one is still part of the clause.
             EffectDef::ForEachInBinding { effect, .. }
             | EffectDef::WithBattlefieldArrival { effect, .. }
+            | EffectDef::WithRule { effect, .. }
             | EffectDef::BindOutput { effect, .. } => Self::immediate_attachment_target(*effect),
             EffectDef::PutOntoBattlefieldThen { then, .. } => {
                 Self::immediate_attachment_target(*then)

@@ -208,7 +208,6 @@ pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Artifact,
                 )),
-                true,
             ),
         ),
     ])),
@@ -406,7 +405,6 @@ pub(in crate::card::sets) static VORACIOUS_VARMINT: CardRecord = CardRecord::new
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

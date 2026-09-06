@@ -89,7 +89,6 @@ pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new_with_l
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -467,7 +466,6 @@ pub(in crate::card::sets) static DISENCHANT: CardRecord = CardRecord::new_with_l
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -769,7 +767,6 @@ pub(in crate::card::sets) static NORTHERN_PALADIN: CardRecord = CardRecord::new_
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1050,14 +1047,16 @@ pub(in crate::card::sets) static WRATH_OF_GOD: CardRecord = CardRecord::new_with
     CardSet::Alpha,
     CardRules::new_sorcery(mana_cost!("{2}{W}{W}")).with_ability(AbilityDef::spell(
         "Destroy all creatures. They can't be regenerated.",
-        EffectDef::Destroy {
-            object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::Any,
-            ),
-            can_regenerate: false,
-            then: None,
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
+            },
         },
     )),
 );
@@ -1150,7 +1149,6 @@ pub(in crate::card::sets) static BLUE_ELEMENTAL_BLAST: CardRecord = CardRecord::
             AbilityDef::destroy_target(
                 "Destroy target red permanent.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(ManaColor::Red)),
-                true,
             ),
         ],
     )),
@@ -2702,7 +2700,6 @@ pub(in crate::card::sets) static ROYAL_ASSASSIN: CardRecord = CardRecord::new_wi
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2843,7 +2840,6 @@ pub(in crate::card::sets) static SINKHOLE: CardRecord = CardRecord::new_with_leg
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -2867,10 +2863,12 @@ pub(in crate::card::sets) static TERROR: CardRecord = CardRecord::new_with_legac
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
             ]),
         )],
-        EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: false,
-            then: None,
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
         },
     )]),
 );
@@ -3134,7 +3132,6 @@ pub(in crate::card::sets) static DWARVEN_DEMOLITION_TEAM: CardRecord =
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -3308,7 +3305,6 @@ pub(in crate::card::sets) static FLASHFIRES: CardRecord = CardRecord::new_with_l
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -3650,7 +3646,6 @@ pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::n
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(
                     ManaColor::Blue,
                 )),
-                true,
             ),
         ],
     )),
@@ -3728,7 +3723,6 @@ pub(in crate::card::sets) static SHATTER: CardRecord = CardRecord::new_with_lega
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -3813,7 +3807,6 @@ pub(in crate::card::sets) static STONE_GIANT: CardRecord = CardRecord::new_with_
                         },
                         EffectDef::Destroy {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            can_regenerate: true,
                             then: None,
                         },
                     ))),
@@ -3840,7 +3833,6 @@ pub(in crate::card::sets) static STONE_RAIN: CardRecord = CardRecord::new_with_l
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -3852,10 +3844,15 @@ pub(in crate::card::sets) static TUNNEL: CardRecord = CardRecord::new_with_legac
     "Tunnel",
     CardArt::new("b21ebc9f-a93e-4d18-b3e8-8459e3abbf31", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[AbilityDef::destroy_target(
+    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Destroy target Wall. It can't be regenerated.",
-        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Subtype("Wall")),
-        false,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Subtype("Wall"),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+        },
     )]),
 );
 
@@ -4039,7 +4036,6 @@ pub(in crate::card::sets) static BERSERK: CardRecord = CardRecord::new_with_lega
                         },
                         then: &EffectDef::Destroy {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            can_regenerate: true,
                             then: None,
                         },
                     },
@@ -4361,7 +4357,6 @@ pub(in crate::card::sets) static ICE_STORM: CardRecord = CardRecord::new_with_le
     CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::destroy_target(
         "Destroy target land.",
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Land)),
-        true,
     )]),
 );
 
@@ -4423,7 +4418,6 @@ pub(in crate::card::sets) static KUDZU: CardRecord = CardRecord::new(
                 EffectDef::Sequence(&[
                     EffectDef::Destroy {
                         object: EffectRecipientDef::TriggeringObject,
-                        can_regenerate: true,
                         then: None,
                     },
                     EffectDef::Choose(ChooseDef {
@@ -4761,7 +4755,6 @@ pub(in crate::card::sets) static TRANQUILITY: CardRecord = CardRecord::new_with_
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -4781,7 +4774,6 @@ pub(in crate::card::sets) static TSUNAMI: CardRecord = CardRecord::new_with_lega
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -5063,14 +5055,12 @@ pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new_with_le
                                 likelihood: LikelihoodDef::new(0.9),
                                 on_success: &EffectDef::Destroy {
                                     object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                                    can_regenerate: true,
                                     then: None,
                                 },
                                 on_failure: &EffectDef::None,
                             },
                             EffectDef::Destroy {
                                 object: EffectRecipientDef::Source,
-                                can_regenerate: true,
                                 then: None,
                             },
                         ]),
@@ -5697,7 +5687,6 @@ pub(in crate::card::sets) static NEVINYRRALS_DISK: CardRecord = CardRecord::new_
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),

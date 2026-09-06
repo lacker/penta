@@ -394,7 +394,6 @@ pub(in crate::card::sets) static DIVINE_RECKONING: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
                         "divine_reckoning_destroyed"
                     ))),
-                    can_regenerate: true,
                     then: None,
                 },
             }),
@@ -846,7 +845,6 @@ pub(in crate::card::sets) static PARASELENE: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: Some(DestroyFollowUpDef {
                 binding: ParentBinding,
                 effect: &EffectDef::GainLife {
@@ -923,7 +921,6 @@ pub(in crate::card::sets) static REBUKE: CardRecord = CardRecord::new_with_legac
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::Attacking,
         ])),
-        true,
     )),
 );
 
@@ -1005,7 +1002,6 @@ pub(in crate::card::sets) static SLAYER_OF_THE_WICKED: CardRecord = CardRecord::
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1024,7 +1020,6 @@ pub(in crate::card::sets) static SMITE_THE_MONSTROUS: CardRecord = CardRecord::n
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::PowerAtLeast(4),
         ])),
-        true,
     )),
 );
 
@@ -1187,7 +1182,6 @@ pub(in crate::card::sets) static URGENT_EXORCISM: CardRecord = CardRecord::new_w
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -3093,7 +3087,6 @@ pub(in crate::card::sets) static MAW_OF_THE_MIRE: CardRecord = CardRecord::new_w
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::GainLife {
@@ -3202,7 +3195,6 @@ pub(in crate::card::sets) static REAPER_FROM_THE_ABYSS: CardRecord = CardRecord:
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -3479,7 +3471,6 @@ pub(in crate::card::sets) static VICTIM_OF_NIGHT: CardRecord = CardRecord::new_w
             ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Werewolf")),
             ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Zombie")),
         ])),
-        true,
     )),
 );
 
@@ -3531,7 +3522,6 @@ pub(in crate::card::sets) static ANCIENT_GRUDGE: CardRecord = CardRecord::new_wi
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                 CardType::Artifact,
             )),
-            true,
         ),
         abilities::flashback(mana_cost!("{G}")),
     ]),
@@ -4207,7 +4197,6 @@ pub(in crate::card::sets) static INTO_THE_MAW_OF_HELL: CardRecord = CardRecord::
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::DealDamage {
@@ -4759,7 +4748,6 @@ pub(in crate::card::sets) static BRAMBLECRUSH: CardRecord = CardRecord::new_with
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
             &ObjectPredicateDef::HasType(CardType::Creature),
         )),
-        true,
     )),
 );
 
@@ -5904,7 +5892,6 @@ pub(in crate::card::sets) static EVIL_TWIN: CardRecord = CardRecord::new(
                         )],
                         EffectDef::Destroy {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            can_regenerate: true,
                             then: None,
                         },
                     )),
@@ -6589,7 +6576,6 @@ pub(in crate::card::sets) static WITCHBANE_ORB: CardRecord = CardRecord::new(
                         ObjectPredicateDef::Subtype("Curse"),
                     ),
                 )),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -6630,10 +6616,12 @@ pub(in crate::card::sets) static WOODEN_STAKE: CardRecord = CardRecord::new_with
                     creature: ObjectPredicateDef::AttachedToSource,
                     other: ObjectPredicateDef::Subtype("Vampire"),
                 },
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::TriggeringObject,
-                    can_regenerate: false,
-                    then: None,
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::TriggeringObject,
+                        then: None,
+                    },
                 },
             ),
             abilities::equip(
@@ -6708,7 +6696,6 @@ pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new_wit
         )], EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
                 // Declining the printed "may" skips the entire search, including

@@ -51,7 +51,7 @@ pub(super) fn parse_ongoing_effect(
         || !definition.targets.is_empty()
         || definition.modes.is_some()
         || definition.activation_limit.is_some()
-        || definition.any_player_may_activate
+        || definition.activation_permission != crate::card::ActivationPermissionDef::Controller
         || definition.condition.is_some()
         || definition.costs.as_slice().iter().any(|cost| {
             if mana {

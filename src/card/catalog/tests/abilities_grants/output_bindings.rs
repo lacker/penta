@@ -81,7 +81,6 @@ fn resolving_card_name_choices_require_and_expose_a_typed_binding() {
             ObjectPredicateDef::NameEquals(CardNameDef::Binding(binding)),
             &[ZoneKind::Battlefield],
         ))),
-        can_regenerate: true,
         then: None,
     }));
     let producer = Box::leak(Box::new(EffectDef::ChooseCardName {

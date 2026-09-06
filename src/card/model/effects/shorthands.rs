@@ -57,10 +57,9 @@ impl EffectDef {
     }
 
     #[must_use]
-    pub const fn destroy_target(target: TargetIndex, can_regenerate: bool) -> Self {
+    pub const fn destroy_target(target: TargetIndex) -> Self {
         Self::Destroy {
             object: EffectRecipientDef::Target(target),
-            can_regenerate,
             then: None,
         }
     }

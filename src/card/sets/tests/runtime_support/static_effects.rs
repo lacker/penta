@@ -339,7 +339,8 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                 })
         }
         // None of these is a static ability; all execute from the stack.
-        EffectDef::BindOutput { .. }
+        EffectDef::WithRule { .. }
+        | EffectDef::BindOutput { .. }
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::BecomeMonarch { .. }

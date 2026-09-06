@@ -133,16 +133,14 @@ pub(in crate::card::sets) static COLLECTIVE_EFFORT: CardRecord = CardRecord::new
                     &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::PowerAtLeast(4),
-                    ])),
-                    true,
-                ),
+                    ]))
+),
                 AbilityDef::destroy_target(
                     "Destroy target enchantment.",
                     &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                         CardType::Enchantment,
-                    )),
-                    true,
-                ),
+                    ))
+),
                 AbilityDef::spell_with_targets(
                     "Put a +1/+1 counter on each creature target player controls.",
                     &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(

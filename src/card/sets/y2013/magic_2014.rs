@@ -534,7 +534,6 @@ pub(in crate::card::sets) static SOLEMN_OFFERING: CardRecord = CardRecord::new_w
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::GainLife {
@@ -1351,7 +1350,6 @@ pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new_with_l
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
         ])),
-        true,
     )),
 );
 
@@ -1480,7 +1478,6 @@ pub(in crate::card::sets) static LITURGY_OF_BLOOD: CardRecord = CardRecord::new_
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(3)),
@@ -1630,7 +1627,6 @@ pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new_
             ]),
         )], EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             }),
         AbilityDef::triggered_if(
@@ -2070,7 +2066,6 @@ pub(in crate::card::sets) static FLESHPULPER_GIANT: CardRecord = CardRecord::new
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             },
@@ -3328,7 +3323,6 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with
                             CounterKind::named("charge"),
                         )),
                     ]), &[ZoneKind::Battlefield], PlayerRelation::Any),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -3626,7 +3620,6 @@ pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::ne
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

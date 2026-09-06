@@ -65,7 +65,6 @@ pub(in crate::card::sets) static ECHOING_RUIN: CardRecord = CardRecord::new(
                     )),
                 },
             ])),
-            can_regenerate: true,
             then: None,
         },
     )),

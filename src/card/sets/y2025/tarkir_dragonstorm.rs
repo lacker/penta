@@ -843,7 +843,7 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
                             owner: None,
                         },
                     )],
-                EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+                EffectDef::destroy_target(TargetIndex::PRIMARY),
             ),
         ]),
 );

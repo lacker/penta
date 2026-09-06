@@ -218,7 +218,6 @@ pub(in crate::card::sets) static ENGINEERED_EXPLOSIVES: CardRecord = CardRecord:
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    can_regenerate: true,
                     then: None,
                 },
             ),

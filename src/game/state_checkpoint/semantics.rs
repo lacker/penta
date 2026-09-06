@@ -490,15 +490,23 @@ pub(super) fn scoped_effect_snapshot(
 ) -> Option<ScopedEffectSnapshot> {
     let mut path = Vec::new();
     let found = match ability.effect.definition {
-        AbilityProgramDef::Effects(definition) => {
-            locate_effect(definition, effect.effect, &mut path)
-        }
+        AbilityProgramDef::Effects(definition) => locate_effect(
+            definition,
+            crate::game::EffectLocalRules::default(),
+            effect,
+            &mut path,
+        ),
         AbilityProgramDef::Replacement(replacement) => replacement_child_effects(replacement)
             .into_iter()
             .enumerate()
             .any(|(index, root)| {
                 path.push(index);
-                if locate_effect(root, effect.effect, &mut path) {
+                if locate_effect(
+                    root,
+                    crate::game::EffectLocalRules::default(),
+                    effect,
+                    &mut path,
+                ) {
                     true
                 } else {
                     path.pop();
@@ -525,12 +533,17 @@ pub(super) fn catalog_scoped_effect(
             (*replacement_child_effects(replacement).get(root)?, path)
         }
     };
+    let mut local_rules = crate::game::EffectLocalRules::default();
     for &index in path {
+        if let EffectDef::WithRule { rule, .. } = effect {
+            local_rules = local_rules.with(rule);
+        }
         effect = *child_effects(effect).get(index)?;
     }
     Some(ScopedEffect {
         effect,
         target_base: snapshot.target_base,
+        local_rules,
     })
 }
 
@@ -615,6 +628,8 @@ fn collect_replacement_effects(
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)
         | ReplacementEffectDef::Perform(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)
@@ -625,13 +640,22 @@ fn collect_replacement_effects(
     }
 }
 
-fn locate_effect(current: EffectDef, needle: EffectDef, path: &mut Vec<usize>) -> bool {
-    if current == needle {
+fn locate_effect(
+    current: EffectDef,
+    local_rules: crate::game::EffectLocalRules,
+    needle: ScopedEffect,
+    path: &mut Vec<usize>,
+) -> bool {
+    if current == needle.effect && local_rules == needle.local_rules {
         return true;
     }
+    let local_rules = match current {
+        EffectDef::WithRule { rule, .. } => local_rules.with(rule),
+        _ => local_rules,
+    };
     for (index, child) in child_effects(current).into_iter().enumerate() {
         path.push(index);
-        if locate_effect(child, needle, path) {
+        if locate_effect(child, local_rules, needle, path) {
             return true;
         }
         path.pop();
@@ -665,6 +689,8 @@ pub(super) fn replacement_child_effects(effect: ReplacementEffectDef) -> Vec<Eff
             .collect(),
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)
@@ -871,6 +897,8 @@ fn collect_replacement_copy_abilities(
         ReplacementEffectDef::Perform(_)
         | ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)

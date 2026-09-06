@@ -197,7 +197,7 @@ pub(in crate::card::sets) static AURA_OF_SILENCE: CardRecord = CardRecord::new_w
             &[AbilityTargetDef::exactly_one_permanent(
                 OPPONENTS_ARTIFACTS_AND_ENCHANTMENTS,
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ]),
 );
@@ -510,17 +510,19 @@ pub(in crate::card::sets) static SERENITY: CardRecord = CardRecord::new(
             step: crate::card::TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        EffectDef::Destroy {
-            object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                ]),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::Any,
-            ),
-            can_regenerate: false,
-            then: None,
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
+            },
         },
     )),
 );
@@ -586,7 +588,7 @@ pub(in crate::card::sets) static SOUTHERN_PALADIN: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Color(ManaColor::Red),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
 );
@@ -1283,7 +1285,10 @@ pub(in crate::card::sets) static FATAL_BLOW: CardRecord = CardRecord::new(
                 ObjectPredicateDef::WasDealtDamageThisTurn,
             ]),
         )],
-        EffectDef::destroy_target(TargetIndex::PRIMARY, false),
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+        },
     )),
 );
 
@@ -1675,19 +1680,21 @@ pub(in crate::card::sets) static WAVE_OF_TERROR: CardRecord = CardRecord::new(
                 step: crate::card::TurnStepDef::Draw,
                 player: PlayerRelation::You,
             },
-            EffectDef::Destroy {
-                object: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
-                            CounterKind::named("age"),
-                        )),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                can_regenerate: false,
-                then: None,
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
+                                CounterKind::named("age"),
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
             },
         ),
     ]),
@@ -2112,7 +2119,6 @@ pub(in crate::card::sets) static GOBLIN_VANDAL: CardRecord = CardRecord::new_wit
                 &EffectDef::Sequence(&[
                     EffectDef::Destroy {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: true,
                         then: None,
                     },
                     EffectDef::Apply {
@@ -2930,7 +2936,6 @@ pub(in crate::card::sets) static TRANQUIL_GROVE: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),

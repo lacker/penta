@@ -504,10 +504,12 @@ pub(in crate::card::sets) static AETHER_STORM: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Pay 4 life: Destroy this enchantment. It can't be regenerated. Any player may activate this ability.",
             &[AbilityCostDef::PayLife(4)],
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Source,
-                can_regenerate: false,
-                then: None,
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Source,
+                    then: None,
+                },
             },
         )
         .open_to_any_player(),
@@ -1102,17 +1104,19 @@ pub(in crate::card::sets) static DRUDGE_SPELL: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 None,
             ),
-            EffectDef::Destroy {
-                object: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype("Skeleton"),
-                        ObjectPredicateDef::Token,
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                can_regenerate: false,
-                then: None,
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype("Skeleton"),
+                            ObjectPredicateDef::Token,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
             },
         ),
     ]),
@@ -1679,7 +1683,6 @@ pub(in crate::card::sets) static CHANDLER: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         )),
@@ -1827,7 +1830,6 @@ pub(in crate::card::sets) static JOVEN: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         )),
@@ -1882,7 +1884,6 @@ pub(in crate::card::sets) static ORCISH_MINE: CardRecord = CardRecord::new(
                 EffectDef::Sequence(&[
                     EffectDef::Destroy {
                         object: EffectRecipientDef::AttachedPermanent,
-                        can_regenerate: true,
                         then: None,
                     },
                     EffectDef::DealDamage {
@@ -2516,17 +2517,19 @@ pub(in crate::card::sets) static APOCALYPSE_CHIME: CardRecord = CardRecord::new(
             AbilityCostDef::TapSource,
             AbilityCostDef::SacrificeSource,
         ],
-        EffectDef::Destroy {
-            object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::DebutSet(CardSet::Homelands),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                ]),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::Any,
-            ),
-            can_regenerate: false,
-            then: None,
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::DebutSet(CardSet::Homelands),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
+            },
         },
     )),
 );

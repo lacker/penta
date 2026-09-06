@@ -775,7 +775,6 @@ pub(in crate::card::sets) static CLEAR_A_PATH: CardRecord = CardRecord::new_with
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Defender),
         ])),
-        true,
     )),
 );
 
@@ -1758,7 +1757,6 @@ pub(in crate::card::sets) static GAZE_OF_GRANITE: CardRecord = CardRecord::new_w
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -2234,13 +2232,18 @@ pub(in crate::card::sets) static PUTREFY: CardRecord = CardRecord::new_with_lega
     "Putrefy",
     CardArt::new("0d43a0b6-2a5c-4959-96ee-6e570949dfed", "Igor Kieryluk"),
     CardSet::DragonsMaze,
-    CardRules::new_instant(mana_cost!("{1}{B}{G}")).with_ability(AbilityDef::destroy_target(
+    CardRules::new_instant(mana_cost!("{1}{B}{G}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target artifact or creature. It can't be regenerated.",
-        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Creature),
-        ])),
-        false,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ]),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+        },
     )),
 );
 
@@ -2651,7 +2654,6 @@ pub(in crate::card::sets) static TEYSA_ENVOY_OF_GHOSTS: CardRecord = CardRecord:
                 EffectDef::Sequence(&[
                     EffectDef::Destroy {
                         object: EffectRecipientDef::TriggeringObject,
-                        can_regenerate: true,
                         then: None,
                     },
                     EffectDef::create_creature_token(
@@ -3569,7 +3571,6 @@ pub(in crate::card::sets) static WEAR_TEAR: CardRecord = CardRecord::new_fuse_wi
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Artifact,
                 )),
-                true,
             )),
         ),
         (
@@ -3579,7 +3580,6 @@ pub(in crate::card::sets) static WEAR_TEAR: CardRecord = CardRecord::new_fuse_wi
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Enchantment,
                 )),
-                true,
             )),
         ),
     ],

@@ -203,10 +203,11 @@ use mana_state::{
 };
 use procedure_state::{DrawReplacement, PendingProcedure};
 use replacement_state::{
-    ApplicableReplacement, ApplicableZoneMoveReplacement, BattlefieldExitCompletion,
-    EntryCompletion, FrozenZoneMoveReplacement, PendingBattlefieldEntry,
-    PendingBattlefieldExitBatch, PendingBattlefieldExitMove, PendingEvent,
-    PendingReplacementEffect, ReplaceableEvent, ReplacementEffectContext,
+    ApplicableReplacement, ApplicableZoneMoveReplacement, BattlefieldExitCause,
+    BattlefieldExitCompletion, BattlefieldExitReplacementAction, EntryCompletion,
+    FrozenZoneMoveReplacement, PendingBattlefieldEntry, PendingBattlefieldExitBatch,
+    PendingBattlefieldExitMove, PendingEvent, PendingReplacementEffect, ReplaceableEvent,
+    ReplacementEffectContext,
 };
 use trigger_state::{
     AbilitySourceRef, BattlefieldTriggerListener, CommittedStackObjectEvent, CommittedTriggerEvent,

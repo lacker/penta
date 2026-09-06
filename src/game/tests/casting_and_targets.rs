@@ -379,16 +379,7 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
     assert_eq!(distinct.target_defs, [FIRST_TARGETS[0], SECOND_TARGETS[0]],);
     assert_eq!(
         distinct.mode_effects,
-        [
-            ScopedEffect {
-                effect: FIRST,
-                target_base: 0,
-            },
-            ScopedEffect {
-                effect: SECOND,
-                target_base: 1,
-            },
-        ],
+        [ScopedEffect::at(FIRST, 0), ScopedEffect::at(SECOND, 1),],
     );
 
     let repeated = Game::selected_spell_plan(spell, &[ModeId(1), ModeId(1)], &[])
@@ -396,16 +387,7 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
     assert_eq!(repeated.target_defs, [SECOND_TARGETS[0], SECOND_TARGETS[0]],);
     assert_eq!(
         repeated.mode_effects,
-        [
-            ScopedEffect {
-                effect: SECOND,
-                target_base: 0,
-            },
-            ScopedEffect {
-                effect: SECOND,
-                target_base: 1,
-            },
-        ],
+        [ScopedEffect::at(SECOND, 0), ScopedEffect::at(SECOND, 1),],
     );
 
     let stack_object = |id: u32,

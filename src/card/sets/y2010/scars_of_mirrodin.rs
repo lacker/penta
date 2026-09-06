@@ -226,7 +226,6 @@ pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -540,7 +539,6 @@ pub(in crate::card::sets) static SUNBLAST_ANGEL: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2114,7 +2112,6 @@ pub(in crate::card::sets) static HOARD_SMELTER_DRAGON: CardRecord = CardRecord::
             EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::Apply {
@@ -2284,7 +2281,6 @@ pub(in crate::card::sets) static MELT_TERRAIN: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::DealDamage {
@@ -2347,7 +2343,6 @@ pub(in crate::card::sets) static OXIDDA_SCRAPMELTER: CardRecord = CardRecord::ne
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2439,7 +2434,6 @@ pub(in crate::card::sets) static ACID_WEB_SPIDER: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             },
@@ -2636,7 +2630,6 @@ pub(in crate::card::sets) static ENGULFING_SLAGWURM: CardRecord = CardRecord::ne
             EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::TriggeringObject,
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::GainLife {
@@ -2863,7 +2856,6 @@ pub(in crate::card::sets) static SLICE_IN_TWAIN: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::DrawCards {
@@ -3092,7 +3084,6 @@ pub(in crate::card::sets) static ARGENTUM_ARMOR: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -4083,7 +4074,6 @@ pub(in crate::card::sets) static LUX_CANNON: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -4790,7 +4780,6 @@ pub(in crate::card::sets) static STEEL_HELLKITE: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Opponent,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         )
@@ -4949,7 +4938,6 @@ pub(in crate::card::sets) static SYLVOK_REPLICA: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

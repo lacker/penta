@@ -926,7 +926,6 @@ pub(in crate::card::sets) static DEATH_STROKE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::Tapped,
         ])),
-        true,
     )),
 );
 
@@ -1216,7 +1215,6 @@ pub(in crate::card::sets) static STRONGHOLD_ASSASSIN: CardRecord = CardRecord::n
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -1625,7 +1623,6 @@ pub(in crate::card::sets) static RUINATION: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),

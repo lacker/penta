@@ -5,7 +5,6 @@ fn non_targeting_choice_references_are_lexically_scoped() {
     let chosen = EffectRecipientDef::object(ObjectRefDef::Binding(binding));
     let destroy_chosen: &'static EffectDef = Box::leak(Box::new(EffectDef::Destroy {
         object: chosen,
-        can_regenerate: true,
         then: None,
     }));
 
@@ -407,7 +406,6 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
     )];
     static LEXICAL_EFFECT: EffectDef = EffectDef::Destroy {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
         then: None,
     };
     static LEXICAL_TRIGGER: AbilityDef = AbilityDef::triggered(

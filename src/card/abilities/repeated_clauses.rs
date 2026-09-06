@@ -277,7 +277,6 @@ static DESTROY_AT_END_OF_COMBAT: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
         ParentBinding,
     )),
-    can_regenerate: true,
     then: None,
 };
 static END_OF_COMBAT_DESTROY_TRIGGER: AbilityDef = AbilityDef::triggered(

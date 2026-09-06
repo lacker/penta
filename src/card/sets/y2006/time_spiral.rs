@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ColorSet, ComparisonDef, CostQuantityDef, CounterKind, CounterKindDef,
-    CounterOperationDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRelation, PregameConditionDef, PrintedManaCost,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, ColorSet, ComparisonDef, CostQuantityDef, CounterKind,
+    CounterKindDef, CounterOperationDef, DiscardSelectionDef, EffectChoiceDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PregameConditionDef, PrintedManaCost,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef,
     TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -45,6 +45,36 @@ pub(in crate::card::sets) static CAVALRY_MASTER: CardRecord = CardRecord::new(
                 effect: AppliedEffectDef::add_ability(&abilities::flanking()),
             },
         ),
+    ]),
+);
+
+// TSP 26 — Knight of the Holy Nimbus
+pub(in crate::card::sets) static KNIGHT_OF_THE_HOLY_NIMBUS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8fdeb716-4632-4895-b771-0ebd59c868d5"),
+    "Knight of the Holy Nimbus",
+    CardArt::new("8fdeb716-4632-4895-b771-0ebd59c868d5", "Wayne England"),
+    CardSet::TimeSpiral,
+    CardRules::new_creature(
+        mana_cost!("{W}{W}"),
+        &["Human", "Rebel", "Knight"],
+        2,
+        2,
+    )
+    .with_abilities(&[
+        abilities::flanking(),
+        abilities::regenerates_if_destroyed(
+            "If this creature would be destroyed, regenerate it. (Tap it, remove it from combat, and heal all damage on it.)",
+        ),
+        AbilityDef::activated(
+            "{2}: This creature can't be regenerated this turn. Only your opponents may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .only_opponents_may_activate(),
     ]),
 );
 
@@ -533,6 +563,7 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BENALISH_CAVALRY,
     &CAVALRY_MASTER,
+    &KNIGHT_OF_THE_HOLY_NIMBUS,
     &MOMENTARY_BLINK,
     &SERRA_AVENGER,
     &ANCESTRAL_VISION,

@@ -63,7 +63,6 @@ pub(in crate::card::sets) static VICIOUS_RIVALRY: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),

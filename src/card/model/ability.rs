@@ -110,15 +110,11 @@ impl AbilityDef {
     /// A one-target destroy spell. The effect recipient is derived from the
     /// target declaration so the two cannot drift apart.
     #[must_use]
-    pub const fn destroy_target(
-        text: &'static str,
-        target: &'static AbilityTargetDef,
-        can_regenerate: bool,
-    ) -> Self {
+    pub const fn destroy_target(text: &'static str, target: &'static AbilityTargetDef) -> Self {
         Self::spell_with_targets(
             text,
             core::slice::from_ref(target),
-            EffectDef::destroy_target(TargetIndex::PRIMARY, can_regenerate),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         )
     }
 
@@ -685,6 +681,23 @@ impl AbilityDef {
             panic!("only an activated ability can be opened to other players");
         };
         self.definition = DeclarativeAbilityDef::Activated(definition.open_to_any_player());
+        self
+    }
+
+    /// Restricts an activated ability to opponents of the permanent's
+    /// controller. The permanent remains the source after an opponent puts
+    /// the ability on the stack.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the clause is not an activated ability.
+    #[must_use]
+    pub const fn only_opponents_may_activate(mut self) -> Self {
+        let DeclarativeAbilityDef::Activated(definition) = self.definition else {
+            panic!("only an activated ability can be restricted to opponents");
+        };
+        self.definition =
+            DeclarativeAbilityDef::Activated(definition.only_opponents_may_activate());
         self
     }
 

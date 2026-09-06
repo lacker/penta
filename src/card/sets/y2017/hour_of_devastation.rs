@@ -56,7 +56,6 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),

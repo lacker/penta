@@ -3554,7 +3554,7 @@ pub(in crate::card::sets) static WASTELAND: CardRecord = CardRecord::new_with_le
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
                 ]),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ]),
 );

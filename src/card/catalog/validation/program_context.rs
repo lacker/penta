@@ -634,6 +634,12 @@ fn validate_resolving_effect(
 ) -> Result<(), &'static str> {
     match effect {
         EffectDef::Sequence([]) => Err("empty Sequence"),
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect,
+        } if matches!(*effect, EffectDef::Destroy { .. }) => {
+            validate_resolving_effect(*effect, source_zones)
+        }
         EffectDef::InstallTrigger(trigger) => {
             let Some(effect) = trigger.ability.declarative_effect() else {
                 return Err("InstallTrigger with a non-declarative program");
@@ -680,7 +686,8 @@ fn validate_resolving_effect(
                 || !definition.targets.is_empty()
                 || definition.modes.is_some()
                 || definition.activation_limit.is_some()
-                || definition.any_player_may_activate
+                || definition.activation_permission
+                    != crate::card::ActivationPermissionDef::Controller
                 || definition.condition.is_some()
                 || definition.costs.as_slice().iter().any(|cost| {
                     if mana {
@@ -703,7 +710,8 @@ fn validate_resolving_effect(
         {
             Err("Apply grants an ability to a nonbattlefield source")
         }
-        EffectDef::ContinueReplacedDraw
+        EffectDef::WithRule { .. }
+        | EffectDef::ContinueReplacedDraw
         | EffectDef::ConditionalStatic(_)
         | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice

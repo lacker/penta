@@ -88,7 +88,6 @@ pub(in crate::card::sets) static PEST_INFESTATION: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::create_token(tokens::pest())

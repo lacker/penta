@@ -125,7 +125,6 @@ pub(in crate::card::sets) static EXORCIST: CardRecord = CardRecord::new_with_leg
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -254,7 +253,6 @@ pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new_wi
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -327,7 +325,6 @@ pub(in crate::card::sets) static TIVADARS_CRUSADE: CardRecord = CardRecord::new_
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )]),
@@ -635,7 +632,6 @@ pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         )],
@@ -1335,14 +1331,21 @@ pub(in crate::card::sets) static FISSURE: CardRecord = CardRecord::new_with_lega
     "Fissure",
     CardArt::new("aa2d778d-d74b-45ec-a86b-5d52ffad6ba5", "Douglas Shuler"),
     CardSet::TheDark,
-    CardRules::new_instant(mana_cost!("{3}{R}{R}")).with_abilities(&[AbilityDef::destroy_target(
-        "Destroy target creature or land. It can't be regenerated.",
-        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Land),
-        ])),
-        false,
-    )]),
+    CardRules::new_instant(mana_cost!("{3}{R}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target creature or land. It can't be regenerated.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+            )],
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // DRK 64 — Goblin Caves
@@ -1392,7 +1395,6 @@ pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::n
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1846,7 +1848,6 @@ pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new_with
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1921,7 +1922,6 @@ pub(in crate::card::sets) static SCAVENGER_FOLK: CardRecord = CardRecord::new_wi
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

@@ -66,7 +66,6 @@ pub(in crate::card::sets) static PATH_OF_PEACE: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::GainLife {
@@ -91,7 +90,6 @@ pub(in crate::card::sets) static VENGEANCE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::Tapped,
         ])),
-        true,
     )),
 );
 

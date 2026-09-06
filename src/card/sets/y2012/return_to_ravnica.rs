@@ -190,7 +190,6 @@ pub(in crate::card::sets) static AVENGING_ARROW: CardRecord = CardRecord::new_wi
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -370,7 +369,6 @@ pub(in crate::card::sets) static KEENING_APPARITION: CardRecord = CardRecord::ne
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -1446,7 +1444,6 @@ pub(in crate::card::sets) static ASSASSINS_STRIKE: CardRecord = CardRecord::new_
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::Discard {
@@ -1599,7 +1596,6 @@ pub(in crate::card::sets) static DESTROY_THE_EVIDENCE: CardRecord = CardRecord::
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::MillUntil(&MillUntilDef {
@@ -1784,7 +1780,6 @@ pub(in crate::card::sets) static LAUNCH_PARTY: CardRecord = CardRecord::new(
             EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::LoseLife {
@@ -2078,7 +2073,6 @@ pub(in crate::card::sets) static ULTIMATE_PRICE: CardRecord = CardRecord::new_wi
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::ColorCount(1),
         ])),
-        true,
     )),
 );
 
@@ -2199,7 +2193,6 @@ pub(in crate::card::sets) static BATTERHORN: CardRecord = CardRecord::new_with_l
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             },
@@ -2776,7 +2769,6 @@ pub(in crate::card::sets) static SURVEY_THE_WRECKAGE: CardRecord = CardRecord::n
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_art(
@@ -2874,7 +2866,6 @@ pub(in crate::card::sets) static VANDALBLAST: CardRecord = CardRecord::new_with_
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2887,7 +2878,6 @@ pub(in crate::card::sets) static VANDALBLAST: CardRecord = CardRecord::new_with_
                     &[ZoneKind::Battlefield],
                     PlayerRelation::NotYou,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2931,7 +2921,6 @@ pub(in crate::card::sets) static AERIAL_PREDATION: CardRecord = CardRecord::new_
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::GainLife {
@@ -3565,7 +3554,6 @@ pub(in crate::card::sets) static ABRUPT_DECAY: CardRecord = CardRecord::new_with
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -3994,7 +3982,6 @@ pub(in crate::card::sets) static DREADBORE: CardRecord = CardRecord::new_with_le
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::HasType(CardType::Planeswalker),
         ])),
-        true,
     )),
 );
 
@@ -4249,7 +4236,6 @@ pub(in crate::card::sets) static GOLGARI_CHARM: CardRecord = CardRecord::new_wit
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Enchantment,
                 )),
-                true,
             ),
             AbilityDef::spell(
                 "Regenerate each creature you control.",
@@ -4911,7 +4897,6 @@ pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -5339,7 +5324,6 @@ pub(in crate::card::sets) static SUPREME_VERDICT: CardRecord = CardRecord::new_w
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -5555,7 +5539,6 @@ pub(in crate::card::sets) static VRASKA_THE_UNSEEN: CardRecord = CardRecord::new
                         TriggerEventDef::combat_damage_to_source(ObjectPredicateDef::HasType(CardType::Creature)),
                         EffectDef::Destroy {
                             object: EffectRecipientDef::TriggeringObject,
-                            can_regenerate: true,
                             then: None,
                         },
                     )),
@@ -5575,7 +5558,6 @@ pub(in crate::card::sets) static VRASKA_THE_UNSEEN: CardRecord = CardRecord::new
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -5959,7 +5941,6 @@ pub(in crate::card::sets) static SUNDERING_GROWTH: CardRecord = CardRecord::new_
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             abilities::populate(),

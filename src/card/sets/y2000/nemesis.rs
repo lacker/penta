@@ -279,7 +279,7 @@ pub(in crate::card::sets) static SEAL_OF_CLEANSING: CardRecord = CardRecord::new
                     ObjectPredicateDef::HasType(CardType::Enchantment),
                 ]),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
 );
@@ -1095,9 +1095,8 @@ pub(in crate::card::sets) static MOGG_SALVAGE: CardRecord = CardRecord::new_with
             "Destroy target artifact.",
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                 CardType::Artifact,
-            )),
-            true,
-        ),
+            ))
+),
         AbilityDef::alternative_cast(
             mana_cost!("{0}"),
             AlternativeCastKindDef::AlternativeCost,

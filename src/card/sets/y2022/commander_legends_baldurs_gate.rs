@@ -428,7 +428,6 @@ pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
         ])),
-        true,
     )),
 );
 

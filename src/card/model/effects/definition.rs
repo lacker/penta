@@ -6,8 +6,7 @@ pub enum EffectDef {
         kind: CounterKind,
         amount: ValueDef,
     },
-    /// Choose one kind of counter currently on the recipient, bind that kind
-    /// for the nested effect, then continue resolving it.
+    /// Choose a counter kind on the recipient and bind it for the nested effect.
     ChooseCounterKind {
         object: EffectRecipientDef,
         then: &'static EffectDef,
@@ -25,22 +24,17 @@ pub enum EffectDef {
         choices: &'static [EffectChoiceDef],
     },
     AddMana(AddManaEffectDef),
-    /// Adds mana of one colour, however much a value says. Mana abilities use
-    /// [`Self::AddMana`] so the planner can read them without resolution;
-    /// this is for effects that cannot know their amount until they resolve.
+    /// Adds a value's amount of one color outside a mana ability.
     AddManaEqualTo {
         color: ManaColor,
         amount: ValueDef,
     },
-    /// "{cost}: Level N." Puts level counters on the source until its level
-    /// is `level`; a Class is level 1 with none on it (CR 717.3). Reaching a
-    /// level raises an event, so its matching trigger fires exactly once.
+    /// "{cost}: Level N." Adds counters until the Class reaches that level;
+    /// reaching it raises the matching event exactly once (CR 717.3).
     GainClassLevel {
         level: u8,
     },
-    /// Add counters to a player. Poison's state-based loss and energy's
-    /// payment semantics are consumers of the counter kind rather than
-    /// separate effect operations.
+    /// Adds player counters; their kind supplies poison or energy semantics.
     AddPlayerCounters {
         recipient: EffectRecipientDef,
         kind: CounterKind,
@@ -50,6 +44,11 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         effect: AppliedEffectDef,
         duration: ResolvedEffectDurationDef,
+    },
+    /// Scopes a rules modifier to the nested effect (CR 608.2c).
+    WithRule {
+        rule: AppliedRuleDef,
+        effect: &'static EffectDef,
     },
     /// An Aura spell attaching itself to what it enchants. The permanent the
     /// spell becomes is what attaches, so this is only meaningful on the spell
@@ -322,7 +321,6 @@ pub enum EffectDef {
     },
     Destroy {
         object: EffectRecipientDef,
-        can_regenerate: bool,
         /// Binds only recipients actually put into a graveyard, then continues.
         /// Indestructible, regenerated, and zone-change-replaced permanents are absent.
         then: Option<DestroyFollowUpDef>,

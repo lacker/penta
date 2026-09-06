@@ -52,4 +52,5 @@ include!("targeting/restriction_shapes.rs");
 include!("targeting/target_predicate_zones.rs");
 include!("targeting/zone_move_shapes.rs");
 include!("targeting/created_token_continuations.rs");
+include!("targeting/replacement_effect_shapes.rs");
 include!("targeting/effect_shapes.rs");

@@ -449,7 +449,6 @@ fn battle_display_rules() -> CardRules {
                 },
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             )

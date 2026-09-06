@@ -41,6 +41,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             .copied()
             .collect(),
         EffectDef::BindOutput { effect, .. }
+        | EffectDef::WithRule { effect, .. }
         | EffectDef::ForEachInBinding { effect, .. }
         | EffectDef::May { effect, .. }
         | EffectDef::ChooseCounterKind { then: effect, .. }
@@ -272,7 +273,6 @@ mod tests {
     fn destroy_continuation_is_a_child() {
         let destroy = |then| EffectDef::Destroy {
             object: EffectRecipientDef::Source,
-            can_regenerate: true,
             then,
         };
 

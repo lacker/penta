@@ -75,7 +75,12 @@ fn recursive_effect_children_round_trip_all_continuation_branches() {
     ];
     for (root, expected_path) in cases {
         let mut path = Vec::new();
-        assert!(locate_effect(*root, CREATE_TOKEN, &mut path));
+        assert!(locate_effect(
+            *root,
+            crate::game::EffectLocalRules::default(),
+            ScopedEffect::primary(CREATE_TOKEN),
+            &mut path,
+        ));
         assert_eq!(path, expected_path);
 
         let mut rebuilt = *root;

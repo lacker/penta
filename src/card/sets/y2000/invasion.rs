@@ -934,7 +934,6 @@ pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new_
                 object: EffectRecipientDef::object(ObjectRefDef::SourceOfTargetedStackObject(
                     TargetIndex::PRIMARY,
                 )),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::DrawCards {
@@ -1718,7 +1717,6 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_leg
                 },
                 then: &EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             },

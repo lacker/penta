@@ -5,11 +5,13 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CopyAbilityDef,
-    CopyExceptionsDef, CostDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
+    ConditionalStaticEffectDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
+    ReplacementEffectDef, ResolvedEffectDurationDef, StaticApplyDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -237,13 +239,45 @@ pub(in crate::card::sets) static GRAND_ABOLISHER: CardRecord = CardRecord::new(
 );
 
 // M12 20 — Griffin Rider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIFFIN_RIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f1a5517-e442-4fbc-b8c3-fea28e5e44d2"),
     "Griffin Rider",
-    crate::card::CardArt::new("3f1a5517-e442-4fbc-b8c3-fea28e5e44d2", "Steve Prescott"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f1a5517-e442-4fbc-b8c3-fea28e5e44d2", "Steve Prescott"),
+    CardSet::Magic2012,
+    // A 4/4 flier for two mana, on the condition that the four-mana Griffin
+    // that enables it survived the turn.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "As long as you control a Griffin creature, this creature gets +3/+3 and has flying.",
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Griffin"),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
+                },
+                then: StaticApplyDef {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    ]),
+                },
+            }),
+        ),
+    ),
 );
 
 // M12 21 — Griffin Sentinel (reprint)

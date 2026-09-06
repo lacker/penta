@@ -93,13 +93,35 @@ pub(in crate::card::sets) static FEND_OFF: CardRecord = CardRecord::new(
 );
 
 // UDS 8 — Field Surgeon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIELD_SURGEON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb830403-0832-47f7-b4b4-4f241f1b9112"),
     "Field Surgeon",
-    crate::card::CardArt::new("bb830403-0832-47f7-b4b4-4f241f1b9112", "Heather Hudson"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bb830403-0832-47f7-b4b4-4f241f1b9112", "Heather Hudson"),
+    CardSet::UrzasDestiny,
+    // A point of prevention per spare creature, which is a combat trick a
+    // wide board can pay for over and over.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap an untapped creature you control: Prevent the next 1 damage that would be dealt to target creature this turn.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                ))]
+            },
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // UDS 9 — Flicker
@@ -598,13 +620,35 @@ pub(in crate::card::sets) static METATHRAN_SOLDIER: CardRecord = CardRecord::new
 );
 
 // UDS 40 — Opposition
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OPPOSITION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("95be2701-af7c-483e-8165-e8bd4b2774ed"),
     "Opposition",
-    crate::card::CardArt::new("95be2701-af7c-483e-8165-e8bd4b2774ed", "Todd Lockwood"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("95be2701-af7c-483e-8165-e8bd4b2774ed", "Todd Lockwood"),
+    CardSet::UrzasDestiny,
+    // Every creature becomes a permanent the opponent does not get to use,
+    // which is a lock rather than a tempo play once the board is wide.
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap an untapped creature you control: Tap target artifact, creature, or land.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ]),
+                )]
+            },
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // UDS 41 — Private Research

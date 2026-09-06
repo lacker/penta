@@ -3159,13 +3159,34 @@ pub(in crate::card::sets) static DIRTCOWL_WURM: CardRecord = CardRecord::new(
 );
 
 // TMP 222 — Earthcraft
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EARTHCRAFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9dda7531-82a1-4f49-8858-601ddbc6e2bc"),
     "Earthcraft",
-    crate::card::CardArt::new("9dda7531-82a1-4f49-8858-601ddbc6e2bc", "Randy Gallegos"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9dda7531-82a1-4f49-8858-601ddbc6e2bc", "Randy Gallegos"),
+    CardSet::Tempest,
+    // Untapping a land with a creature is the whole card: every creature on
+    // the board becomes a land that has already been played.
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap an untapped creature you control: Untap target basic land.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                )]
+            },
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // TMP 223 — Eladamri's Vineyard
@@ -4402,13 +4423,28 @@ pub(in crate::card::sets) static STATIC_ORB: CardRecord = CardRecord::new(
 );
 
 // TMP 311 — Telethopter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TELETHOPTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77d26c29-cd98-446b-b4e1-687561ed6d3f"),
     "Telethopter",
-    crate::card::CardArt::new("77d26c29-cd98-446b-b4e1-687561ed6d3f", "Thomas M. Baxa"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("77d26c29-cd98-446b-b4e1-687561ed6d3f", "Thomas M. Baxa"),
+    CardSet::Tempest,
+    // Any spare creature buys it evasion, which turns a board stall into
+    // three damage a turn.
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Thopter"], 3, 1).with_ability(
+        AbilityDef::activated(
+            "Tap an untapped creature you control: This creature gains flying until end of turn.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 312 — Thumbscrews

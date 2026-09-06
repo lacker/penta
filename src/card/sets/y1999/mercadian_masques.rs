@@ -2789,13 +2789,32 @@ pub(in crate::card::sets) static KYREN_LEGATE: CardRecord = CardRecord::new(
 );
 
 // MMQ 198 — Kyren Negotiations
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYREN_NEGOTIATIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0c263a17-bbc2-433e-93f8-72e57b818322"),
     "Kyren Negotiations",
-    crate::card::CardArt::new("0c263a17-bbc2-433e-93f8-72e57b818322", "Scott Hampton"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0c263a17-bbc2-433e-93f8-72e57b818322", "Scott Hampton"),
+    CardSet::MercadianMasques,
+    // It turns every creature into a Shock the opponent cannot block, which
+    // is what makes a board of tokens lethal.
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap an untapped creature you control: This enchantment deals 1 damage to target player or planeswalker.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // MMQ 199 — Kyren Sniper

@@ -16,10 +16,10 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardNameDef,
     CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, ControlDurationDef,
     CostDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
+    EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -444,13 +444,34 @@ pub(in crate::card::sets) static LUMINOUS_GUARDIAN: CardRecord = CardRecord::new
 );
 
 // ODY 32 — Master Apothecary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MASTER_APOTHECARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9ff6624-ed0e-43d0-9519-112979b165f5"),
     "Master Apothecary",
-    crate::card::CardArt::new("f9ff6624-ed0e-43d0-9519-112979b165f5", "Terese Nielsen"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f9ff6624-ed0e-43d0-9519-112979b165f5", "Terese Nielsen"),
+    CardSet::Odyssey,
+    // Every other Cleric on the board is a point of prevention, which turns
+    // a tribe of small bodies into an unattackable wall.
+    CardRules::new_creature(mana_cost!("{W}{W}{W}"), &["Human", "Cleric"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap an untapped Cleric you control: Prevent the next 2 damage that would be dealt to any target this turn.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Cleric"),
+                ]),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            &const { [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)] },
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 33 — Mystic Crusader
@@ -771,16 +792,55 @@ pub(in crate::card::sets) static WAYWARD_ANGEL: CardRecord = CardRecord::new(
 );
 
 // ODY 58 — Aboshan, Cephalid Emperor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ABOSHAN_CEPHALID_EMPEROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("82db4a41-03e8-4f0c-946c-a98fc5c9f7c8"),
     "Aboshan, Cephalid Emperor",
-    crate::card::CardArt::new(
+    CardArt::new(
         "82db4a41-03e8-4f0c-946c-a98fc5c9f7c8",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Tapping the board is the win condition; the Octopuses are the fuel,
+    // and neither half costs a card once it is set up.
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Cephalid"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "Tap an untapped Octopus you control: Tap target permanent.",
+                &[CostDef::TapPermanents {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Octopus"),
+                    ]),
+                    controller: PlayerRelation::You,
+                    count: 1,
+                }],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Any,
+                    )]
+                },
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::activated(
+                "{U}{U}{U}: Tap all creatures without flying.",
+                &[CostDef::Mana(mana_cost!("{U}{U}{U}"))],
+                EffectDef::Tap {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                KeywordAbility::Flying,
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 59 — Aboshan's Desire
@@ -1243,13 +1303,35 @@ pub(in crate::card::sets) static LAQUATUS_S_CREATIVITY: CardRecord = CardRecord:
 );
 
 // ODY 89 — Patron Wizard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PATRON_WIZARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10b863b8-7780-4bbe-a7f8-46bfdcb34a2b"),
     "Patron Wizard",
-    crate::card::CardArt::new("10b863b8-7780-4bbe-a7f8-46bfdcb34a2b", "Donato Giancola"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("10b863b8-7780-4bbe-a7f8-46bfdcb34a2b", "Donato Giancola"),
+    CardSet::Odyssey,
+    // A tax on every spell for as long as the Wizards keep coming, and none
+    // of it costs mana -- which is what makes three blue pips worth it.
+    CardRules::new_creature(mana_cost!("{U}{U}{U}"), &["Human", "Wizard"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap an untapped Wizard you control: Counter target spell unless its controller pays {1}.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Wizard"),
+                ]),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                })]
+            },
+            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+        ),
+    ),
 );
 
 // ODY 90 — Pedantic Learning
@@ -3712,12 +3794,12 @@ pub(in crate::card::sets) static ROAR_OF_THE_WURM: CardRecord = CardRecord::new(
 );
 
 // ODY 267 — Seton, Krosan Protector
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mana ability bounded by tapping another permanent. The shared runtime counts a mana ability as bounded only by a cost that spends the source or sacrifices a permanent, and CostDef::TapPermanents is not in that list, so tapping a Druid cannot bound one.
 pub(in crate::card::sets) static SETON_KROSAN_PROTECTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("641a3bae-9146-4e70-862a-86a56f7c3816"),
     "Seton, Krosan Protector",
-    crate::card::CardArt::new("641a3bae-9146-4e70-862a-86a56f7c3816", "Greg Staples"),
-    crate::card::CardSet::Odyssey,
+    CardArt::new("641a3bae-9146-4e70-862a-86a56f7c3816", "Greg Staples"),
+    CardSet::Odyssey,
     crate::card::CardRules::unsupported(),
 );
 

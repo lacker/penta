@@ -91,6 +91,7 @@ mod spell_restrictions;
 mod spell_then_draw;
 mod tap_for_chosen_colour;
 mod token_fixtures;
+mod tribal_conditionals;
 mod tribal_lords;
 mod two_target_spells;
 mod untap_out_of_combat;

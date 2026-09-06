@@ -4,11 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, DamageEventMatcherDef,
-    DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
+    ConditionalStaticEffectDef, CostDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    ObjectSetPredicateDef, PlayerRelation, ResolvedEffectDurationDef, StaticApplyDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -115,13 +116,45 @@ pub(in crate::card::sets) static CELESTIAL_GATEKEEPER: CardRecord = CardRecord::
 );
 
 // LGN 7 — Cloudreach Cavalry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUDREACH_CAVALRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("65680bda-b999-4c2a-99a8-b03287e00807"),
     "Cloudreach Cavalry",
-    crate::card::CardArt::new("65680bda-b999-4c2a-99a8-b03287e00807", "Kev Walker"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("65680bda-b999-4c2a-99a8-b03287e00807", "Kev Walker"),
+    CardSet::Legions,
+    // A two-mana 3/3 flier in the right deck and a bear in the wrong one,
+    // which is the whole bargain Legions offered.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "As long as you control a Bird, this creature gets +2/+2 and has flying.",
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Bird"),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
+                },
+                then: StaticApplyDef {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    ]),
+                },
+            }),
+        ),
+    ),
 );
 
 // LGN 8 — Daru Mender
@@ -1435,13 +1468,45 @@ pub(in crate::card::sets) static SKIRK_MARAUDER: CardRecord = CardRecord::new(
 );
 
 // LGN 114 — Skirk Outrider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKIRK_OUTRIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("416de0f4-1540-4286-a1ac-4f57301c54e9"),
     "Skirk Outrider",
-    crate::card::CardArt::new("416de0f4-1540-4286-a1ac-4f57301c54e9", "Greg Staples"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("416de0f4-1540-4286-a1ac-4f57301c54e9", "Greg Staples"),
+    CardSet::Legions,
+    // Goblins and Beasts were not the same deck, which is exactly why this
+    // one asks you to build it that way.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "As long as you control a Beast, this creature gets +2/+2 and has trample.",
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Beast"),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
+                },
+                then: StaticApplyDef {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    ]),
+                },
+            }),
+        ),
+    ),
 );
 
 // LGN 115 — Unstable Hulk

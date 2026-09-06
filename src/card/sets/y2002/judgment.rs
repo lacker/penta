@@ -1139,13 +1139,39 @@ pub(in crate::card::sets) static BURNING_WISH: CardRecord = CardRecord::new(
 );
 
 // JUD 84 — Dwarven Bloodboiler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWARVEN_BLOODBOILER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ac576b2-cda4-4aea-aa5c-933ec0457dda"),
     "Dwarven Bloodboiler",
-    crate::card::CardArt::new("9ac576b2-cda4-4aea-aa5c-933ec0457dda", "Arnie Swekel"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9ac576b2-cda4-4aea-aa5c-933ec0457dda", "Arnie Swekel"),
+    CardSet::Judgment,
+    // Two power a turn for free, so long as the Dwarves are worth less
+    // attacking with than the creature being pumped.
+    CardRules::new_creature(mana_cost!("{R}{R}{R}"), &["Dwarf"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "Tap an untapped Dwarf you control: Target creature gets +2/+0 until end of turn.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Dwarf"),
+                ]),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // JUD 85 — Dwarven Driller

@@ -2708,13 +2708,34 @@ pub(in crate::card::sets) static JOKULHAUPS: CardRecord = CardRecord::new(
 );
 
 // ICE 196 — Karplusan Giant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KARPLUSAN_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c524ac2a-294c-4b19-b00b-999e370a3b95"),
     "Karplusan Giant",
-    crate::card::CardArt::new("c524ac2a-294c-4b19-b00b-999e370a3b95", "Daniel Gelon"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c524ac2a-294c-4b19-b00b-999e370a3b95", "Daniel Gelon"),
+    CardSet::IceAge,
+    // Seven mana for a 3/3 that grows for free, which only reads as a deal
+    // in a deck whose lands are all snow anyway.
+    CardRules::new_creature(mana_cost!("{6}{R}"), &["Giant"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "Tap an untapped snow land you control: This creature gets +1/+1 until end of turn.",
+            &[CostDef::TapPermanents {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Snow),
+                ]),
+                controller: PlayerRelation::You,
+                count: 1,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ICE 197 — Karplusan Yeti

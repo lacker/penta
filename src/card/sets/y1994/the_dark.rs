@@ -2038,7 +2038,7 @@ pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy
 );
 
 // DRK 91 — Whippoorwill
-// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{G}{G}, {T}: Target creature can't be regenerated this turn. Damage that would be dealt to that creature this turn can't be prevented or dealt instead to another permanent or player.…”.
+// Audit: unsupported — Needs a prohibition on preventing or redirecting damage to one creature, plus a die-replacement that exiles it. AppliedRuleDef::CannotRegenerate covers the first clause alone.
 pub(in crate::card::sets) static WHIPPOORWILL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e56146bf-5db0-4bef-83bb-efa5ebec6684"),
     "Whippoorwill",
@@ -2508,7 +2508,7 @@ pub(in crate::card::sets) static WAND_OF_ITH: CardRecord = CardRecord::new(
 );
 
 // DRK 115 — War Barge
-// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{3}: Target creature gains islandwalk until end of turn. When this artifact leaves the battlefield this turn, destroy that creature. A creature destroyed this way can't be regenerated”.
+// Audit: unsupported — Needs a delayed leaves-the-battlefield trigger bound to the creature this activation targeted. AppliedRuleDef::CannotRegenerate covers the regeneration clause; the binding from activation to a later leave event is what is missing.
 pub(in crate::card::sets) static WAR_BARGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9023c078-4169-498b-8626-a4862e0631f8"),
     "War Barge",

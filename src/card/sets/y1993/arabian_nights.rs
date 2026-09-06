@@ -996,7 +996,7 @@ pub(in crate::card::sets) static DESERT_TWISTER: CardRecord = CardRecord::new_wi
 );
 
 // ARN 47 — Drop of Honey
-// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “At the beginning of your upkeep, destroy the creature with the least power. It can't be regenerated. If two or more creatures are tied for least power, you choose one of them”.
+// Audit: unsupported — Needs least-power selection. AppliedRuleDef::CannotRegenerate covers the regeneration clause; picking "the creature with the least power" is the aggregate-in-a-predicate gap Desecrator Hag names.
 pub(in crate::card::sets) static DROP_OF_HONEY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("26e090d4-e7fe-403c-9aca-05c1b45ed238"),
     "Drop of Honey",

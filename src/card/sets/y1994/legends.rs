@@ -3763,7 +3763,7 @@ pub(in crate::card::sets) static GIANT_TURTLE: CardRecord = CardRecord::new_with
 );
 
 // LEG 189 — Glyph of Reincarnation
-// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “Destroy all creatures that were blocked by target Wall this turn. They can't be regenerated. For each creature that died this way, put a creature card from the graveyard of the player…”.
+// Audit: unsupported — Needs a record of which creatures a Wall blocked this turn, and a per-creature graveyard return keyed to whoever controlled each one when it was blocked. AppliedRuleDef::CannotRegenerate covers only the regeneration clause.
 pub(in crate::card::sets) static GLYPH_OF_REINCARNATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a67e8214-a192-4143-9d5e-d0e254e1bf6e"),
     "Glyph of Reincarnation",

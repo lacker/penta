@@ -3063,7 +3063,7 @@ pub(in crate::card::sets) static CHAOSLACE: CardRecord = CardRecord::new_with_le
 );
 
 // LEA 140 — Disintegrate
-// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “Disintegrate deals X damage to any target. If it's a creature, it can't be regenerated this turn, and if it would die this turn, exile it instead”.
+// Audit: unsupported — Needs a die-replacement scoped to the creatures this spell damaged. AppliedRuleDef::CannotRegenerate covers the middle clause, but "if it would die this turn, exile it instead" has to attach to the damaged creature for the rest of the turn.
 pub(in crate::card::sets) static DISINTEGRATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8712c49e-f171-4669-bed9-87575a37af11"),
     "Disintegrate",

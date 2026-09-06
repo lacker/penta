@@ -23,7 +23,7 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind,
-    abilities,
+    ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
 
@@ -437,23 +437,88 @@ pub(in crate::card::sets) static RAMOSIAN_CAPTAIN: CardRecord = CardRecord::new(
 );
 
 // MMQ 36 — Ramosian Commander
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAMOSIAN_COMMANDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("867f5d82-71c2-455f-ab16-5a32bba46986"),
     "Ramosian Commander",
-    crate::card::CardArt::new("867f5d82-71c2-455f-ab16-5a32bba46986", "Scott Hampton"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("867f5d82-71c2-455f-ab16-5a32bba46986", "Scott Hampton"),
+    CardSet::MercadianMasques,
+    // The top of the chain a deck actually assembles: by the time this is
+    // searching, the mana is there and the library is the deck.
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Rebel"], 2, 4).with_ability(
+        AbilityDef::activated(
+            "{6}, {T}: Search your library for a Rebel permanent card with mana value 5 \
+             or less, put it onto the battlefield, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{6}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                // "Rebel permanent card", so a Rebel instant would not
+                // qualify even if one existed; the chain fetches bodies
+                // and Equipment alike.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Rebel"),
+                    ObjectPredicateDef::ManaValueAtMost(5),
+                ]),
+                // Failing to find is allowed, so the minimum is zero:
+                // the mana and the tap are spent either way.
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 37 — Ramosian Lieutenant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAMOSIAN_LIEUTENANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("debe840a-ebc9-43c4-9bf7-7eb292b65bf9"),
     "Ramosian Lieutenant",
-    crate::card::CardArt::new("debe840a-ebc9-43c4-9bf7-7eb292b65bf9", "Alan Pollack"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("debe840a-ebc9-43c4-9bf7-7eb292b65bf9", "Alan Pollack"),
+    CardSet::MercadianMasques,
+    // The middle link, fetched by the Sergeant and fetching the Commander.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Rebel"], 1, 2).with_ability(
+        AbilityDef::activated(
+            "{4}, {T}: Search your library for a Rebel permanent card with mana value 3 \
+             or less, put it onto the battlefield, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{4}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                // "Rebel permanent card", so a Rebel instant would not
+                // qualify even if one existed; the chain fetches bodies
+                // and Equipment alike.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Rebel"),
+                    ObjectPredicateDef::ManaValueAtMost(3),
+                ]),
+                // Failing to find is allowed, so the minimum is zero:
+                // the mana and the tap are spent either way.
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 38 — Ramosian Rally
@@ -470,13 +535,46 @@ pub(in crate::card::sets) static RAMOSIAN_RALLY: CardRecord = CardRecord::new(
 );
 
 // MMQ 39 — Ramosian Sergeant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAMOSIAN_SERGEANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ef2b036d-5721-4a6e-bf43-69148b90da10"),
     "Ramosian Sergeant",
-    crate::card::CardArt::new("ef2b036d-5721-4a6e-bf43-69148b90da10", "Don Hazeltine"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ef2b036d-5721-4a6e-bf43-69148b90da10", "Don Hazeltine"),
+    CardSet::MercadianMasques,
+    // The bottom of the Rebel chain and the card that starts it: one mana
+    // for a body that turns spare mana into the next link.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Rebel"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{3}, {T}: Search your library for a Rebel permanent card with mana value 2 \
+             or less, put it onto the battlefield, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                // "Rebel permanent card", so a Rebel instant would not
+                // qualify even if one existed; the chain fetches bodies
+                // and Equipment alike.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Rebel"),
+                    ObjectPredicateDef::ManaValueAtMost(2),
+                ]),
+                // Failing to find is allowed, so the minimum is zero:
+                // the mana and the tap are spent either way.
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 40 — Ramosian Sky Marshal

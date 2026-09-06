@@ -3619,7 +3619,7 @@ pub(in crate::card::sets) static CRYSTAL_QUARRY: CardRecord = CardRecord::new(
 );
 
 // ODY 319 — Darkwater Catacombs
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static DARKWATER_CATACOMBS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2583b941-6156-4c4b-a068-0d0ac75a3dd3"),
     "Darkwater Catacombs",
@@ -3642,7 +3642,7 @@ pub(in crate::card::sets) static DESERTED_TEMPLE: CardRecord = CardRecord::new(
 );
 
 // ODY 321 — Mossfire Valley
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static MOSSFIRE_VALLEY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b6c08ce-d01d-4ae6-81d3-149679e27e6a"),
     "Mossfire Valley",
@@ -3694,7 +3694,7 @@ pub(in crate::card::sets) static SEAFLOOR_DEBRIS: CardRecord = CardRecord::new(
 );
 
 // ODY 326 — Shadowblood Ridge
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static SHADOWBLOOD_RIDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("69a5f84a-9e9b-42b6-a973-864409d6e564"),
     "Shadowblood Ridge",
@@ -3726,7 +3726,7 @@ pub(in crate::card::sets) static SKYCLOUD_EXPANSE: CardRecord = CardRecord::new_
 );
 
 // ODY 328 — Sungrass Prairie
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — The shared mana planner cannot activate a mana ability whose cost itself requires mana; see Agent of Stromgald.
 pub(in crate::card::sets) static SUNGRASS_PRAIRIE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7bfa27ee-553e-4c6e-a79c-9757bd74c057"),
     "Sungrass Prairie",

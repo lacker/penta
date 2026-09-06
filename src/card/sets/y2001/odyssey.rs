@@ -2146,13 +2146,29 @@ pub(in crate::card::sets) static ZOMBIE_CANNIBAL: CardRecord = CardRecord::new(
 // ODY 171 — Zombify (alternate printing)
 
 // ODY 171† — Zombify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZOMBIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("284d5203-92db-4b1f-af73-fd372c8244cf"),
     "Zombify",
-    crate::card::CardArt::new("284d5203-92db-4b1f-af73-fd372c8244cf", "Mark Romanoski"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("284d5203-92db-4b1f-af73-fd372c8244cf", "Mark Romanoski"),
+    CardSet::Odyssey,
+    // Four mana for whatever the graveyard already paid for, which is why
+    // the card is a deck rather than a spell.
+    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target creature card from your graveyard to the battlefield.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // ODY 172 — Acceptable Losses

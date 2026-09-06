@@ -614,13 +614,31 @@ pub(in crate::card::sets) static CRYSTAL_SPRAY: CardRecord = CardRecord::new(
 // INV 51 — Disrupt (reprint)
 
 // INV 52 — Distorting Wake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISTORTING_WAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf48eec9-96be-4f53-9d9a-c6f02d44c995"),
     "Distorting Wake",
-    crate::card::CardArt::new("cf48eec9-96be-4f53-9d9a-c6f02d44c995", "Arnie Swekel"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cf48eec9-96be-4f53-9d9a-c6f02d44c995", "Arnie Swekel"),
+    CardSet::Invasion,
+    // A bounce sweeper sized to the mana, which at four or five targets is
+    // a whole turn and then the game.
+    CardRules::new_sorcery(mana_cost!("{X}{U}{U}{U}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Return X target nonland permanents to their owners' hands.",
+            &[AbilityTargetDef::exactly_chosen_x(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // INV 53 — Dream Thrush

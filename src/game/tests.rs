@@ -56,6 +56,7 @@ mod mass_shrink;
 mod maximum_blockers;
 mod miners_guidewing;
 mod moon_circuit_hacker;
+mod multi_target_slots;
 mod nyxborn_hydra;
 mod phantom_interference;
 mod player_shroud;

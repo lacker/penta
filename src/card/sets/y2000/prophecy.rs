@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef,
+    BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CounterKind,
     DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
@@ -1633,13 +1633,29 @@ pub(in crate::card::sets) static THRESHER_BEAST: CardRecord = CardRecord::new(
 );
 
 // PCY 129 — Thrive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cb20099-fc53-4fdf-86f4-d7d8155c2af1"),
     "Thrive",
-    crate::card::CardArt::new("9cb20099-fc53-4fdf-86f4-d7d8155c2af1", "Mike Ploog"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9cb20099-fc53-4fdf-86f4-d7d8155c2af1", "Mike Ploog"),
+    CardSet::Prophecy,
+    // A counter on each of X creatures, which is a board-wide anthem that
+    // stays after the turn ends.
+    CardRules::new_sorcery(mana_cost!("{X}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Put a +1/+1 counter on each of X target creatures.",
+        &[AbilityTargetDef::exactly_chosen_x(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // PCY 130 — Verdant Field

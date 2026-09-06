@@ -386,13 +386,42 @@ pub(in crate::card::sets) static CEPHALID_VANDAL: CardRecord = CardRecord::new(
 );
 
 // TOR 32 — Churning Eddy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHURNING_EDDY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd28bc8e-842f-4788-92a0-3019e3c2385f"),
     "Churning Eddy",
-    crate::card::CardArt::new("bd28bc8e-842f-4788-92a0-3019e3c2385f", "Thomas M. Baxa"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bd28bc8e-842f-4788-92a0-3019e3c2385f", "Thomas M. Baxa"),
+    CardSet::Torment,
+    // A creature and a land at once, which in a slow format is a whole turn
+    // taken off the opponent.
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target creature and target land to their owners' hands.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            }),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex(1)),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ]),
+    )),
 );
 
 // TOR 33 — Circular Logic

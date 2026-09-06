@@ -1253,13 +1253,29 @@ pub(in crate::card::sets) static SPELLGORGER_BARBARIAN: CardRecord = CardRecord:
 );
 
 // JUD 101 — Swelter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SWELTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f667c26-40f5-4ac5-87a4-cb03f70590a2"),
     "Swelter",
-    crate::card::CardArt::new("8f667c26-40f5-4ac5-87a4-cb03f70590a2", "Ben Thompson"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8f667c26-40f5-4ac5-87a4-cb03f70590a2", "Ben Thompson"),
+    CardSet::Judgment,
+    // Two damage split across two creatures rather than divided, so it only
+    // reads well against a board of X/2s.
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Swelter deals 2 damage to each of two target creatures.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(2),
+        },
+    )),
 );
 
 // JUD 102 — Swirling Sandstorm

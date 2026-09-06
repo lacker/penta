@@ -6,20 +6,32 @@ use crate::card::{
     CardArt, CardNameSetDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
     CostAdjustmentDef, CostAmountDef, CostDef, EffectDef, EffectRecipientDef, ManaColor,
     ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, SpellCostConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, SacrificedAmountDef, SpellCostConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // MRD 57 — Barter in Blood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("beccbb2c-ca1d-4b72-9eca-a64a313fd830"),
     "Barter in Blood",
-    crate::card::CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
-    crate::card::CardSet::Mirrodin,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("beccbb2c-ca1d-4b72-9eca-a64a313fd830", "Paolo Parente"),
+    CardSet::Mirrodin,
+    // Two creatures apiece, so it only comes out ahead when the caster has
+    // fewer than the opponent.
+    CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_ability(AbilityDef::spell(
+        "Each player sacrifices two creatures of their choice.",
+        EffectDef::SacrificeOfChoice {
+            player: EffectRecipientDef::EachPlayer,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            count: ValueDef::Constant(2),
+            then: None,
+            amount: SacrificedAmountDef::Power,
+            otherwise: None,
+            optional: false,
+        },
+    )),
 );
 
 // MRD 122 — Hum of the Radix

@@ -1450,16 +1450,33 @@ pub(in crate::card::sets) static PLATED_SPIDER: CardRecord = CardRecord::new(
 );
 
 // UDS 117 — Plow Under
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLOW_UNDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a30735c4-7f12-4db9-972b-9b7568a8ada8"),
     "Plow Under",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a30735c4-7f12-4db9-972b-9b7568a8ada8",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasDestiny,
+    // Two lands and two draws, which is the whole card: the tempo is worse
+    // for the opponent than the cards are.
+    CardRules::new_sorcery(mana_cost!("{3}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Put two target lands on top of their owners' libraries.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // UDS 118 — Rofellos, Llanowar Emissary

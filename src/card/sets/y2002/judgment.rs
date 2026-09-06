@@ -1424,13 +1424,43 @@ pub(in crate::card::sets) static CANOPY_CLAWS: CardRecord = CardRecord::new(
 );
 
 // JUD 109 — Centaur Rootcaster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CENTAUR_ROOTCASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f10dfd9-9889-4d9e-872a-07623dee6b6b"),
     "Centaur Rootcaster",
-    crate::card::CardArt::new("3f10dfd9-9889-4d9e-872a-07623dee6b6b", "Eric Peterson"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f10dfd9-9889-4d9e-872a-07623dee6b6b", "Eric Peterson"),
+    CardSet::Judgment,
+    // Ramp that only pays out once the board is already going your way,
+    // which is the wrong order for a four-drop and why it stayed a common.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Centaur", "Druid"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ),
 );
 
 // JUD 110 — Crush of Wurms

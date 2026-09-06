@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType,
-    CastTimingPermissionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
+    CardType, CastTimingPermissionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -64,16 +65,29 @@ pub(in crate::card::sets) static LEYLINE_OF_ANTICIPATION: CardRecord = CardRecor
 );
 
 // M11 66 — Merfolk Spy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MERFOLK_SPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5ae05cc-116b-4268-ba78-709aeff36ab1"),
     "Merfolk Spy",
-    crate::card::CardArt::new(
+    CardArt::new(
         "b5ae05cc-116b-4268-ba78-709aeff36ab1",
         "Matt Cavotta & Richard Whitters",
     ),
-    crate::card::CardSet::Magic2011,
-    crate::card::CardRules::unsupported(),
+    CardSet::Magic2011,
+    // Islandwalk against the deck it most wants to look at, and the reveal
+    // is at random, so it reports rather than chooses.
+    CardRules::new_creature(mana_cost!("{U}"), &["Merfolk", "Rogue"], 1, 1).with_abilities(&[
+        abilities::landwalk(BasicLandType::Island),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, that player reveals a card at random from their hand.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            EffectDef::RevealAtRandomFromHand {
+                player: EffectRecipientDef::Opponent,
+            },
+        ),
+    ]),
 );
 
 // M11 70 — Preordain

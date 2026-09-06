@@ -2157,13 +2157,38 @@ pub(in crate::card::sets) static ZOMBIE_ASSASSIN: CardRecord = CardRecord::new(
 );
 
 // ODY 169 — Zombie Cannibal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZOMBIE_CANNIBAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5fe73ea4-caa2-41de-a065-272a4d850362"),
     "Zombie Cannibal",
-    crate::card::CardArt::new("5fe73ea4-caa2-41de-a065-272a4d850362", "Adam Rex"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5fe73ea4-caa2-41de-a065-272a4d850362", "Adam Rex"),
+    CardSet::Odyssey,
+    // Graveyard hate the threshold decks could not answer, because it comes
+    // attached to a clock that has to be blocked.
+    CardRules::new_creature(mana_cost!("{B}"), &["Zombie"], 1, 1).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature deals combat damage to a player, you may exile target card from that player's graveyard.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::Opponent),
+                },
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+            },
+        ),
+    ),
 );
 
 // ODY 170 — Zombie Infestation (reprint)
@@ -2783,13 +2808,35 @@ pub(in crate::card::sets) static SHOWER_OF_COALS: CardRecord = CardRecord::new(
 );
 
 // ODY 222 — Spark Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPARK_MAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cff5902e-2ca1-43bb-b636-c860b3d0b3f2"),
     "Spark Mage",
-    crate::card::CardArt::new("cff5902e-2ca1-43bb-b636-c860b3d0b3f2", "Paolo Parente"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cff5902e-2ca1-43bb-b636-c860b3d0b3f2", "Paolo Parente"),
+    CardSet::Odyssey,
+    // A one-drop that clears the way for itself, so long as the thing in
+    // the way is small enough to be worth one point.
+    CardRules::new_creature(mana_cost!("{R}"), &["Dwarf", "Wizard"], 1, 1).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature deals combat damage to a player, you may have this creature deal 1 damage to target creature that player controls.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ),
 );
 
 // ODY 223 — Steam Vines

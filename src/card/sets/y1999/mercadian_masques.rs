@@ -3123,13 +3123,36 @@ pub(in crate::card::sets) static CALLER_OF_THE_HUNT: CardRecord = CardRecord::ne
 );
 
 // MMQ 234 — Caustic Wasps
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAUSTIC_WASPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59a46e20-2910-4287-a5e0-bccac8cbabcd"),
     "Caustic Wasps",
-    crate::card::CardArt::new("59a46e20-2910-4287-a5e0-bccac8cbabcd", "Glen Angus"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("59a46e20-2910-4287-a5e0-bccac8cbabcd", "Glen Angus"),
+    CardSet::MercadianMasques,
+    // Flying makes the trigger a near-certainty, which is what turns a 1/1
+    // into repeatable artifact removal.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Insect"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature deals combat damage to a player, you may destroy target artifact that player controls.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // MMQ 235 — Clear the Land

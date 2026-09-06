@@ -17,7 +17,8 @@ use crate::card::{
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
-    ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    SacrificedAmountDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities, tokens,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -312,13 +313,35 @@ pub(in crate::card::sets) static DAUNTING_DEFENDER: CardRecord = CardRecord::new
 );
 
 // ONS 22 — Dawning Purist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAWNING_PURIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8cb25b0-e4c3-4a4e-b722-ea30e695f917"),
     "Dawning Purist",
-    crate::card::CardArt::new("b8cb25b0-e4c3-4a4e-b722-ea30e695f917", "Brian Snõddy"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b8cb25b0-e4c3-4a4e-b722-ea30e695f917", "Brian Snõddy"),
+    CardSet::Onslaught,
+    // Enchantment removal that has to earn the right to fire, which is the
+    // trade a sideboard card makes to be worth a maindeck slot.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 2, 2)
+        .with_morph(mana_cost!("{1}{W}"))
+        .with_ability(AbilityDef::triggered_with_targets(
+            "Whenever this creature deals combat damage to a player, you may destroy target enchantment that player controls.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        )),
 );
 
 // ONS 23 — Defensive Maneuvers
@@ -1574,13 +1597,31 @@ pub(in crate::card::sets) static CABAL_ARCHON: CardRecord = CardRecord::new(
 );
 
 // ONS 130 — Cabal Executioner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_EXECUTIONER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd7727a7-0cdf-4fd5-82b4-e6587c10ca80"),
     "Cabal Executioner",
-    crate::card::CardArt::new("cd7727a7-0cdf-4fd5-82b4-e6587c10ca80", "Rebecca Guay"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cd7727a7-0cdf-4fd5-82b4-e6587c10ca80", "Rebecca Guay"),
+    CardSet::Onslaught,
+    // Edict on a stick, which asks the defender to keep a blocker back and
+    // punishes them for it in the same swing.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Cleric"], 2, 2)
+        .with_morph(mana_cost!("{3}{B}{B}"))
+        .with_ability(AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, that player sacrifices a creature of their choice.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Opponent,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        )),
 );
 
 // ONS 131 — Cabal Slaver
@@ -1877,13 +1918,28 @@ pub(in crate::card::sets) static HEAD_GAMES: CardRecord = CardRecord::new(
 );
 
 // ONS 156 — Headhunter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEADHUNTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cbd82d5-d64f-4833-b1a9-9652fcfa1578"),
     "Headhunter",
-    crate::card::CardArt::new("3cbd82d5-d64f-4833-b1a9-9652fcfa1578", "Matt Cavotta"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3cbd82d5-d64f-4833-b1a9-9652fcfa1578", "Matt Cavotta"),
+    CardSet::Onslaught,
+    // A body this small connecting is not the threat; the card it takes
+    // every time it does is, and a deck with no blockers pays over and over.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Cleric"], 1, 1)
+        .with_morph(mana_cost!("{B}"))
+        .with_ability(AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, that player discards a card.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        )),
 );
 
 // ONS 157 — Infest
@@ -2826,13 +2882,35 @@ pub(in crate::card::sets) static SHALESKIN_BRUISER: CardRecord = CardRecord::new
 // ONS 227 — Shock (reprint)
 
 // ONS 228 — Skirk Commando
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKIRK_COMMANDO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8c870a66-4cd5-4a8d-9948-feffa7d4ff11"),
     "Skirk Commando",
-    crate::card::CardArt::new("8c870a66-4cd5-4a8d-9948-feffa7d4ff11", "Dave Dorman"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8c870a66-4cd5-4a8d-9948-feffa7d4ff11", "Dave Dorman"),
+    CardSet::Onslaught,
+    // Unblocked once and the blocker that would have stopped it next turn
+    // is gone, which is what the morph cost is really buying.
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Goblin"], 2, 1)
+        .with_morph(mana_cost!("{2}{R}"))
+        .with_ability(AbilityDef::triggered_with_targets(
+            "Whenever this creature deals combat damage to a player, you may have it deal 2 damage to target creature that player controls.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            },
+        )),
 );
 
 // ONS 229 — Skirk Fire Marshal
@@ -2889,13 +2967,35 @@ pub(in crate::card::sets) static SLICE_AND_DICE: CardRecord = CardRecord::new(
 );
 
 // ONS 233 — Snapping Thragg
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAPPING_THRAGG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c8a47d41-b893-46b9-90c9-ccd8f9f78855"),
     "Snapping Thragg",
-    crate::card::CardArt::new("c8a47d41-b893-46b9-90c9-ccd8f9f78855", "Iain McCaig"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c8a47d41-b893-46b9-90c9-ccd8f9f78855", "Iain McCaig"),
+    CardSet::Onslaught,
+    // The same deal as the Commando one size up, on a body that gets there
+    // without help.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Beast"], 3, 3)
+        .with_morph(mana_cost!("{4}{R}{R}"))
+        .with_ability(AbilityDef::triggered_with_targets(
+            "Whenever this creature deals combat damage to a player, you may have it deal 3 damage to target creature that player controls.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Source,
+                players: PlayerRelation::Opponent,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            },
+        )),
 );
 
 // ONS 234 — Solar Blast

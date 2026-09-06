@@ -966,13 +966,27 @@ pub(in crate::card::sets) static FLAME_RIFT: CardRecord = CardRecord::new(
 );
 
 // NEM 81 — Flowstone Crusher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_CRUSHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c93f0066-1ff0-4e52-9959-9eb0def60957"),
     "Flowstone Crusher",
-    crate::card::CardArt::new("c93f0066-1ff0-4e52-9959-9eb0def60957", "Ben Thompson"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c93f0066-1ff0-4e52-9959-9eb0def60957", "Ben Thompson"),
+    CardSet::Nemesis,
+    // A gentler version of the same trade on a bigger body, so it survives
+    // more of the pumps it makes.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Beast"], 4, 4).with_ability(
+        AbilityDef::activated(
+            "{R}: This creature gets +1/-1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // NEM 82 — Flowstone Overseer

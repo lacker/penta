@@ -1675,13 +1675,28 @@ pub(in crate::card::sets) static PIT_IMP: CardRecord = CardRecord::new(
 );
 
 // TMP 149 — Rain of Tears
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAIN_OF_TEARS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("803ba4ef-24ed-4f45-aed8-f9442322e31e"),
     "Rain of Tears",
-    crate::card::CardArt::new("cad93919-273f-4a26-8ebd-13503dd6b220", "Charles Gillespie"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cad93919-273f-4a26-8ebd-13503dd6b220", "Charles Gillespie"),
+    CardSet::Tempest,
+    // Three mana to set them back one, which is a losing trade unless the
+    // deck is built to keep doing it.
+    CardRules::new_sorcery(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // TMP 150 — Rats of Rath
@@ -2009,13 +2024,27 @@ pub(in crate::card::sets) static FIRESLINGER: CardRecord = CardRecord::new(
 );
 
 // TMP 174 — Flowstone Giant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("46e8240a-d882-4f60-8960-1856284e04a0"),
     "Flowstone Giant",
-    crate::card::CardArt::new("46e8240a-d882-4f60-8960-1856284e04a0", "Joel Biske"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("46e8240a-d882-4f60-8960-1856284e04a0", "Joel Biske"),
+    CardSet::Tempest,
+    // Trades toughness for power one point at a time, so it can always
+    // kill exactly what it needs to and then die to anything.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Giant"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{R}: This creature gets +2/-2 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 175 — Flowstone Salamander
@@ -2732,13 +2761,23 @@ pub(in crate::card::sets) static MUSCLE_SLIVER: CardRecord = CardRecord::new(
 );
 
 // TMP 239 — Natural Spring
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NATURAL_SPRING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8ddfc1cc-5c13-443c-a0ae-0bcc931923e7"),
     "Natural Spring",
-    crate::card::CardArt::new("1ff5d12a-8634-468b-86ca-4ba0f7c013ca", "Susan Van Camp"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1ff5d12a-8634-468b-86ca-4ba0f7c013ca", "Susan Van Camp"),
+    CardSet::Tempest,
+    // Eight life for five mana at sorcery speed. It does nothing to the
+    // board, which is why it was a limited card.
+    CardRules::new_sorcery(mana_cost!("{3}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player gains 8 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(8),
+        },
+    )),
 );
 
 // TMP 240 — Nature's Revolt
@@ -2974,13 +3013,28 @@ pub(in crate::card::sets) static VERDIGRIS: CardRecord = CardRecord::new(
 );
 
 // TMP 265 — Winter's Grasp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WINTER_S_GRASP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2215de4-da49-4270-aec7-5e16a938bae4"),
     "Winter's Grasp",
-    crate::card::CardArt::new("7af28a5d-45dc-4e31-9009-5c0bd25a9032", "Tom Wänerstrand"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7af28a5d-45dc-4e31-9009-5c0bd25a9032", "Tom Wänerstrand"),
+    CardSet::Tempest,
+    // The green printing of the same effect, from the block where every
+    // colour got one.
+    CardRules::new_sorcery(mana_cost!("{1}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // TMP 266 — Dracoplasm

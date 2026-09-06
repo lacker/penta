@@ -650,13 +650,23 @@ pub(in crate::card::sets) static SECURITY_DETAIL: CardRecord = CardRecord::new(
 );
 
 // MMQ 48 — Soothing Balm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOOTHING_BALM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("96b8f4be-9f4d-4373-8141-a03518ecd38a"),
     "Soothing Balm",
-    crate::card::CardArt::new("96b8f4be-9f4d-4373-8141-a03518ecd38a", "Scott M. Fischer"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("96b8f4be-9f4d-4373-8141-a03518ecd38a", "Scott M. Fischer"),
+    CardSet::MercadianMasques,
+    // Five life at instant speed for two mana, which is a burn spell's
+    // worth of life and no board presence at all.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player gains 5 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(5),
+        },
+    )),
 );
 
 // MMQ 49 — Spiritual Focus

@@ -5565,13 +5565,35 @@ pub(in crate::card::sets) static NOMAD_STADIUM: CardRecord = CardRecord::new(
 );
 
 // ODY 323 — Petrified Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PETRIFIED_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eaeaf9f2-d196-4607-a704-06f2315d8cc5"),
     "Petrified Field",
-    crate::card::CardArt::new("eaeaf9f2-d196-4607-a704-06f2315d8cc5", "Glen Angus"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eaeaf9f2-d196-4607-a704-06f2315d8cc5", "Glen Angus"),
+    CardSet::Odyssey,
+    // A land that gives a land back, which against a deck attacking the mana
+    // base is a card the opponent has to answer twice.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this land: Return target land card from your graveyard to your hand.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ODY 324 — Ravaged Highlands

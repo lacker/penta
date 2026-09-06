@@ -2406,13 +2406,42 @@ pub(in crate::card::sets) static RITH_S_GROVE: CardRecord = CardRecord::new(
 );
 
 // PLS 142 — Terminal Moraine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERMINAL_MORAINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("353a8ea8-3f1f-4f77-95bc-b09b96996285"),
     "Terminal Moraine",
-    crate::card::CardArt::new("353a8ea8-3f1f-4f77-95bc-b09b96996285", "Scott Bailey"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("353a8ea8-3f1f-4f77-95bc-b09b96996285", "Scott Bailey"),
+    CardSet::Planeshift,
+    // A colourless land that turns into whatever colour was missing, three
+    // mana and a turn later than you wanted it.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+        "{2}, {T}, Sacrifice this land: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+        &[
+            CostDef::Mana(mana_cost!("{2}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    ),
+    ]),
 );
 
 // PLS 143 — Treva's Ruins

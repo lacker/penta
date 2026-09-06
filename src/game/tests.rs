@@ -247,6 +247,7 @@ mod isd_random_graveyard;
 mod isd_skirsdag_high_priest;
 mod isd_token_cards;
 mod jade_statue;
+mod karoo_lands;
 mod keymaster_rogue;
 mod kicker;
 mod killing_glare;

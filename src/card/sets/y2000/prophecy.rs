@@ -2473,13 +2473,45 @@ pub(in crate::card::sets) static RHYSTIC_CAVE: CardRecord = CardRecord::new(
 );
 
 // PCY 143 — Wintermoon Mesa
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WINTERMOON_MESA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f07144a6-6e47-4315-8353-f8958f014f41"),
     "Wintermoon Mesa",
-    crate::card::CardArt::new("f07144a6-6e47-4315-8353-f8958f014f41", "Tom Wänerstrand"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f07144a6-6e47-4315-8353-f8958f014f41", "Tom Wänerstrand"),
+    CardSet::Prophecy,
+    // It comes down tapped and leaves taking two of their lands with it,
+    // which is a turn traded for a turn.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Sacrifice this land: Tap two target lands.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &const {
+                [
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    )),
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    )),
+                ]
+            },
+            EffectDef::Tap {
+                object: EffectRecipientDef::objects(ObjectSetDef::Union(
+                    &const {
+                        [
+                            ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                            ObjectSetDef::LegalTargets(TargetIndex(1)),
+                        ]
+                    },
+                )),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -2468,13 +2468,37 @@ pub(in crate::card::sets) static WURM_S_TOOTH: CardRecord = CardRecord::new(
 );
 
 // M12 224 — Buried Ruin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BURIED_RUIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e910cf59-f7aa-44b1-bb8a-c2211179137c"),
     "Buried Ruin",
-    crate::card::CardArt::new("e910cf59-f7aa-44b1-bb8a-c2211179137c", "Franz Vohwinkel"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e910cf59-f7aa-44b1-bb8a-c2211179137c", "Franz Vohwinkel"),
+    CardSet::Magic2012,
+    // An artifact back for three mana and the land itself, which an artifact
+    // deck counts as a spell rather than a land.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+        "{2}, {T}, Sacrifice this land: Return target artifact card from your graveyard to your hand.",
+        &[
+            CostDef::Mana(mana_cost!("{2}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
+        ],
+        &const {
+                    [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    })]
+                },
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    ),
+    ]),
 );
 
 // M12 225 — Dragonskull Summit (reprint)

@@ -6,13 +6,15 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, BlockRestrictionDef,
     BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CounterKind,
-    DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, ControlDurationDef,
+    CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // NEM 1 — Angelic Favor
@@ -2371,23 +2373,87 @@ pub(in crate::card::sets) static KOR_HAVEN: CardRecord = CardRecord::new_with_le
 );
 
 // NEM 142 — Rath's Edge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RATH_S_EDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42681dce-5c63-4e56-955e-39f085ea6ae9"),
     "Rath's Edge",
-    crate::card::CardArt::new("42681dce-5c63-4e56-955e-39f085ea6ae9", "Ron Spencer"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("42681dce-5c63-4e56-955e-39f085ea6ae9", "Ron Spencer"),
+    CardSet::Nemesis,
+    // One damage for five mana and a land is a terrible rate, and the only
+    // one available to a deck with no spells left.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{4}, {T}, Sacrifice a land: Rath's Edge deals 1 damage to any target.",
+            &[
+                CostDef::Mana(mana_cost!("{4}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // NEM 143 — Terrain Generator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRAIN_GENERATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6fe66a2-8e70-414f-bedb-8f1f85f1d2d9"),
     "Terrain Generator",
-    crate::card::CardArt::new("e6fe66a2-8e70-414f-bedb-8f1f85f1d2d9", "Alan Pollack"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e6fe66a2-8e70-414f-bedb-8f1f85f1d2d9", "Alan Pollack"),
+    CardSet::Nemesis,
+    // An extra land drop every turn for two mana, which only a deck holding
+    // more lands than it can play ever wants.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{2}, {T}: You may put a basic land card from your hand onto the battlefield tapped.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    &[ZoneKind::Hand],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &const {
+                    EffectDef::WithBattlefieldArrival {
+                        effect: &const {
+                            EffectDef::MoveToZone {
+                                object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                    ParentBinding,
+                                )),
+                                zone: ZoneKind::Battlefield,
+                                placement: ZonePlacement::Top,
+                            }
+                        },
+                        arrival: crate::card::BattlefieldArrivalDef {
+                            modifications: &const { [BattlefieldEntryModificationDef::Tapped] },
+                            ..crate::card::BattlefieldArrivalDef::DEFAULT
+                        },
+                    }
+                },
+            }),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

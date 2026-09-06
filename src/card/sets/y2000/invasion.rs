@@ -5101,13 +5101,36 @@ pub(in crate::card::sets) static IRRIGATION_DITCH: CardRecord = CardRecord::new(
 );
 
 // INV 325 — Keldon Necropolis
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KELDON_NECROPOLIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f0cccf6-b79b-4fff-89aa-801341598532"),
     "Keldon Necropolis",
-    crate::card::CardArt::new("4f0cccf6-b79b-4fff-89aa-801341598532", "Franz Vohwinkel"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4f0cccf6-b79b-4fff-89aa-801341598532", "Franz Vohwinkel"),
+    CardSet::Invasion,
+    // A land that turns spare creatures into damage, which is a win condition
+    // no removal spell can answer.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{4}{R}, {T}, Sacrifice a creature: Keldon Necropolis deals 2 damage to any target.",
+            &[
+                CostDef::Mana(mana_cost!("{4}{R}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // INV 326 — Salt Marsh

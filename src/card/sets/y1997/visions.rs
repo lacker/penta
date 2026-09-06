@@ -12,10 +12,11 @@ use crate::card::{
     AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
     DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
+    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -2516,33 +2517,129 @@ pub(in crate::card::sets) static WAND_OF_DENIAL: CardRecord = CardRecord::new(
 );
 
 // VIS 160 — Coral Atoll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CORAL_ATOLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d7c4619-e5af-4aa0-bd3f-6bf0e1fdc1fc"),
     "Coral Atoll",
-    crate::card::CardArt::new("5d7c4619-e5af-4aa0-bd3f-6bf0e1fdc1fc", "John Avon"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5d7c4619-e5af-4aa0-bd3f-6bf0e1fdc1fc", "John Avon"),
+    CardSet::Visions,
+    // Two mana out of one land, paid for with the land drop you already made
+    // -- which is a turn behind and a mana ahead.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return an untapped Island you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &const {
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    }
+                },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Colorless,
+                ManaColor::Blue,
+            )),
+        ),
+    ]),
 );
 
 // VIS 161 — Dormant Volcano
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DORMANT_VOLCANO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6aa92be7-883f-42bd-8623-00eb2df28a98"),
     "Dormant Volcano",
-    crate::card::CardArt::new("6aa92be7-883f-42bd-8623-00eb2df28a98", "John Avon"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6aa92be7-883f-42bd-8623-00eb2df28a98", "John Avon"),
+    CardSet::Visions,
+    // The red member of the cycle, and the one a burn deck could least
+    // afford the tempo for.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return an untapped Mountain you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &const {
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    }
+                },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Colorless,
+                ManaColor::Red,
+            )),
+        ),
+    ]),
 );
 
 // VIS 162 — Everglades
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EVERGLADES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1f2eaf7-7f08-446b-892f-5a844f74808f"),
     "Everglades",
-    crate::card::CardArt::new("c1f2eaf7-7f08-446b-892f-5a844f74808f", "Bob Eggleton"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c1f2eaf7-7f08-446b-892f-5a844f74808f", "Bob Eggleton"),
+    CardSet::Visions,
+    // Black's copy of the same bargain: a turn of tempo for a permanent
+    // extra mana.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return an untapped Swamp you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &const {
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    }
+                },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Colorless,
+                ManaColor::Black,
+            )),
+        ),
+    ]),
 );
 
 // VIS 163 — Griffin Canyon
@@ -2556,23 +2653,87 @@ pub(in crate::card::sets) static GRIFFIN_CANYON: CardRecord = CardRecord::new(
 );
 
 // VIS 164 — Jungle Basin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JUNGLE_BASIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc3146db-2f86-4728-9af1-ff651f871652"),
     "Jungle Basin",
-    crate::card::CardArt::new("cc3146db-2f86-4728-9af1-ff651f871652", "John Avon"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cc3146db-2f86-4728-9af1-ff651f871652", "John Avon"),
+    CardSet::Visions,
+    // Green's copy, in the colour most likely to have a spare Forest to
+    // hand back.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return an untapped Forest you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &const {
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    }
+                },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Colorless,
+                ManaColor::Green,
+            )),
+        ),
+    ]),
 );
 
 // VIS 165 — Karoo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAROO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d786815c-53ec-483e-ad56-382778a57b1a"),
     "Karoo",
-    crate::card::CardArt::new("d786815c-53ec-483e-ad56-382778a57b1a", "Zina Saunders"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d786815c-53ec-483e-ad56-382778a57b1a", "Zina Saunders"),
+    CardSet::Visions,
+    // The cycle's namesake, and the reason a two-mana land was worth an
+    // entire turn of setup.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you return an untapped Plains you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: CostDef::MovePermanentMatching {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &const {
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    }
+                },
+            )),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::Colorless,
+                ManaColor::White,
+            )),
+        ),
+    ]),
 );
 
 // VIS 166 — Quicksand (reprint)

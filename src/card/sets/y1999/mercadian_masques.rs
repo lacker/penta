@@ -5101,13 +5101,39 @@ pub(in crate::card::sets) static SUBTERRANEAN_HANGAR: CardRecord = CardRecord::n
 );
 
 // MMQ 330 — Tower of the Magistrate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOWER_OF_THE_MAGISTRATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee0481db-15ae-46b4-89a3-01c95a9626c7"),
     "Tower of the Magistrate",
-    crate::card::CardArt::new("ee0481db-15ae-46b4-89a3-01c95a9626c7", "Thomas Gianni"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee0481db-15ae-46b4-89a3-01c95a9626c7", "Thomas Gianni"),
+    CardSet::MercadianMasques,
+    // Protection from artifacts blanks an Equipment and every artifact
+    // creature's blocks, for one mana out of a land.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Target creature gains protection from artifacts until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(
+                    &const {
+                        AbilityDef::keyword(
+                            "Protection from artifacts",
+                            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
+                                CardType::Artifact,
+                            )),
+                        )
+                    },
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 331 — Plains (reprint)

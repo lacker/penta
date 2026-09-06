@@ -4896,13 +4896,38 @@ pub(in crate::card::sets) static BLOODSTAINED_MIRE: CardRecord = CardRecord::new
 );
 
 // ONS 314 — Contested Cliffs
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONTESTED_CLIFFS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d6363ea-3814-4014-ad9e-1066c72d907c"),
     "Contested Cliffs",
-    crate::card::CardArt::new("8d6363ea-3814-4014-ad9e-1066c72d907c", "Anthony S. Waters"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d6363ea-3814-4014-ad9e-1066c72d907c", "Anthony S. Waters"),
+    CardSet::Onslaught,
+    // A repeatable fight out of a land, which is why a Beast deck could
+    // afford to play removal that costs no cards at all.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+        "{R}{G}, {T}: Target Beast creature you control fights target creature an opponent controls.",
+        &[CostDef::Mana(mana_cost!("{R}{G}")), CostDef::TapSource],
+        &const {
+            [
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Beast"),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ])),
+            ]
+        },
+        EffectDef::Fight {
+            first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            second: ObjectRefDef::Target(TargetIndex(1)),
+            excess: None,
+        },
+    ),
+    ]),
 );
 
 // ONS 315 — Daru Encampment
@@ -5051,23 +5076,61 @@ pub(in crate::card::sets) static POLLUTED_DELTA: CardRecord = CardRecord::new_wi
 );
 
 // ONS 322 — Riptide Laboratory
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIPTIDE_LABORATORY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d993c973-2eb6-423c-8ee9-10749a751524"),
     "Riptide Laboratory",
-    crate::card::CardArt::new("d993c973-2eb6-423c-8ee9-10749a751524", "John Avon"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d993c973-2eb6-423c-8ee9-10749a751524", "John Avon"),
+    CardSet::Onslaught,
+    // It buys back an enters-the-battlefield trigger every turn, which is
+    // what turns a Wizard deck into an engine.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{1}{U}, {T}: Return target Wizard you control to its owner's hand.",
+            &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype("Wizard"),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ONS 323 — Seaside Haven
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEASIDE_HAVEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c940a6b-3c5e-4ce2-92b6-63e2cb575c15"),
     "Seaside Haven",
-    crate::card::CardArt::new("9c940a6b-3c5e-4ce2-92b6-63e2cb575c15", "Mark Brill"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9c940a6b-3c5e-4ce2-92b6-63e2cb575c15", "Mark Brill"),
+    CardSet::Onslaught,
+    // Every Bird that was going to die anyway becomes a card, out of a land
+    // the deck was playing regardless.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{W}{U}, {T}, Sacrifice a Bird: Draw a card.",
+            &[
+                CostDef::Mana(mana_cost!("{W}{U}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::Subtype("Bird"),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ONS 324 — Secluded Steppe
@@ -5121,13 +5184,35 @@ pub(in crate::card::sets) static TRANQUIL_THICKET: CardRecord = CardRecord::new(
 );
 
 // ONS 327 — Unholy Grotto
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNHOLY_GROTTO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52f464a9-586c-4cf3-894b-b407c9f4dcb8"),
     "Unholy Grotto",
-    crate::card::CardArt::new("52f464a9-586c-4cf3-894b-b407c9f4dcb8", "John Avon"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("52f464a9-586c-4cf3-894b-b407c9f4dcb8", "John Avon"),
+    CardSet::Onslaught,
+    // A Zombie back on top every turn is the same card drawn over and over,
+    // which is what a tribal deck wants from its land slot.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{B}, {T}: Put target Zombie card from your graveyard on top of your library.",
+            &[CostDef::Mana(mana_cost!("{B}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype("Zombie"),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ONS 328 — Windswept Heath

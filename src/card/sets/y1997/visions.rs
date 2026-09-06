@@ -1299,13 +1299,30 @@ pub(in crate::card::sets) static OGRE_ENFORCER: CardRecord = CardRecord::new(
 );
 
 // VIS 90 — Raging Gorilla
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAGING_GORILLA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("07c284ce-33b8-4fb2-9dd9-4c477bedc774"),
     "Raging Gorilla",
-    crate::card::CardArt::new("07c284ce-33b8-4fb2-9dd9-4c477bedc774", "Tom Kyffin"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("07c284ce-33b8-4fb2-9dd9-4c477bedc774", "Tom Kyffin"),
+    CardSet::Visions,
+    // A 2/3 that becomes a 4/1 the moment combat pairs it off, so it wins
+    // the exchange and then dies to anything.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Ape"], 2, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature blocks or becomes blocked, it gets +2/-2 until end of turn.",
+            TriggerEventDef::BlocksOrBecomesBlockedBy {
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Any,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // VIS 91 — Relentless Assault

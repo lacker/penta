@@ -3063,13 +3063,30 @@ pub(in crate::card::sets) static BARBED_FOLIAGE: CardRecord = CardRecord::new(
 );
 
 // MIR 208 — Brushwagg
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRUSHWAGG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c20edc3-5ad0-42c1-a5ec-3e680fb03297"),
     "Brushwagg",
-    crate::card::CardArt::new("6c20edc3-5ad0-42c1-a5ec-3e680fb03297", "Ian Miller"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6c20edc3-5ad0-42c1-a5ec-3e680fb03297", "Ian Miller"),
+    CardSet::Mirage,
+    // The bonus runs the other way: it shrinks to survive, which makes it
+    // a wall in combat and a 3/2 the rest of the time.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Brushwagg"], 3, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature blocks or becomes blocked, it gets -2/+2 until end of turn.",
+            TriggerEventDef::BlocksOrBecomesBlockedBy {
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Any,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MIR 209 — Canopy Dragon

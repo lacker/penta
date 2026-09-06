@@ -1246,13 +1246,27 @@ pub(in crate::card::sets) static RAVENOUS_BABOONS: CardRecord = CardRecord::new(
 );
 
 // EXO 98 — Reckless Ogre
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_OGRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("90d27b79-a22d-48d9-86b2-7ad02cab8697"),
     "Reckless Ogre",
-    crate::card::CardArt::new("90d27b79-a22d-48d9-86b2-7ad02cab8697", "Paolo Parente"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("90d27b79-a22d-48d9-86b2-7ad02cab8697", "Paolo Parente"),
+    CardSet::Exodus,
+    // Six damage from one attacker, on the condition that nothing else
+    // attacks -- which is the opposite of what a red deck wants to do.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Ogre"], 3, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks alone, it gets +3/+0 until end of turn.",
+            TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 1, Some(1)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 99 — Sabertooth Wyvern

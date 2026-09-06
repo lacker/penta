@@ -22,6 +22,7 @@ use crate::{
 };
 
 mod attack_and_stay_tapped;
+mod attacks_alone;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod discard_a_land_cost;

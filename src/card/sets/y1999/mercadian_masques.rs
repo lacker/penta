@@ -3011,13 +3011,27 @@ pub(in crate::card::sets) static DEEPWOOD_TANTIV: CardRecord = CardRecord::new(
 );
 
 // MMQ 242 — Deepwood Wolverine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_WOLVERINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("db9a9a76-741a-4ba3-bd4b-0eb87d678253"),
     "Deepwood Wolverine",
-    crate::card::CardArt::new("db9a9a76-741a-4ba3-bd4b-0eb87d678253", "Ray Lago"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("db9a9a76-741a-4ba3-bd4b-0eb87d678253", "Ray Lago"),
+    CardSet::MercadianMasques,
+    // A one-mana 1/1 that punishes a block, so it either gets through or
+    // trades up.
+    CardRules::new_creature(mana_cost!("{G}"), &["Wolverine"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +2/+0 until end of turn.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 243 — Desert Twister (reprint)
@@ -3333,13 +3347,27 @@ pub(in crate::card::sets) static SNAKE_PIT: CardRecord = CardRecord::new(
 );
 
 // MMQ 272 — Snorting Gahr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNORTING_GAHR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e568503e-a886-4c8b-9d46-8520c2cdda48"),
     "Snorting Gahr",
-    crate::card::CardArt::new("e568503e-a886-4c8b-9d46-8520c2cdda48", "Andrew Goldhawk"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e568503e-a886-4c8b-9d46-8520c2cdda48", "Andrew Goldhawk"),
+    CardSet::MercadianMasques,
+    // Four mana for a 3/3 that blocks are afraid of, which is most of
+    // what green commons did that year.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Rhino", "Beast"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +2/+2 until end of turn.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 273 — Spidersilk Armor

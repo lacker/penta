@@ -2506,13 +2506,30 @@ pub(in crate::card::sets) static DISORDER: CardRecord = CardRecord::new(
 );
 
 // USG 182 — Dromosaur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DROMOSAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("65de0b43-64df-44dc-850c-25f48d6ab53b"),
     "Dromosaur",
-    crate::card::CardArt::new("65de0b43-64df-44dc-850c-25f48d6ab53b", "Ciruelo"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("65de0b43-64df-44dc-850c-25f48d6ab53b", "Ciruelo"),
+    CardSet::UrzasSaga,
+    // Raging Gorilla again at the same rate, printed a year later in a
+    // set that had no room for the reprint.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dinosaur"], 2, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature blocks or becomes blocked, it gets +2/-2 until end of turn.",
+            TriggerEventDef::BlocksOrBecomesBlockedBy {
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::Any,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // USG 183 — Electryte

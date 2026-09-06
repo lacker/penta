@@ -1825,13 +1825,27 @@ pub(in crate::card::sets) static RAGE_WEAVER: CardRecord = CardRecord::new(
 );
 
 // INV 160 — Rogue Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROGUE_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61e1a445-129d-4bb9-a8b0-3f55e3e0bc58"),
     "Rogue Kavu",
-    crate::card::CardArt::new("61e1a445-129d-4bb9-a8b0-3f55e3e0bc58", "Darrell Riche"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("61e1a445-129d-4bb9-a8b0-3f55e3e0bc58", "Darrell Riche"),
+    CardSet::Invasion,
+    // A two-mana 3/1 as long as it goes in alone, which is exactly the
+    // turn a red deck has nothing else to add.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Kavu"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks alone, it gets +2/+0 until end of turn.",
+            TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 1, Some(1)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 161 — Ruby Leech

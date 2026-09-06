@@ -13,8 +13,8 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
@@ -279,13 +279,27 @@ pub(in crate::card::sets) static DARU_HEALER: CardRecord = CardRecord::new(
 );
 
 // ONS 20 — Daru Lancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARU_LANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd888ca8-0ebe-46f0-9317-3b193ccc43fb"),
     "Daru Lancer",
-    crate::card::CardArt::new("cd888ca8-0ebe-46f0-9317-3b193ccc43fb", "Brian Snõddy"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cd888ca8-0ebe-46f0-9317-3b193ccc43fb", "Brian Snõddy"),
+    CardSet::Onslaught,
+    // Six mana for a 3/4 first striker nobody casts, or three for a 2/2 that
+    // wins a fight later. Morph is the whole reason the card sees play.
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Human", "Soldier"], 3, 4).with_abilities(
+        &[
+            abilities::first_strike(),
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {2}{W}{W} (You may cast this card face down as a 2/2 creature for {3}. \
+                 Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ],
+    ),
 );
 
 // ONS 21 — Daunting Defender
@@ -394,13 +408,14 @@ pub(in crate::card::sets) static GLARECASTER: CardRecord = CardRecord::new(
 );
 
 // ONS 31 — Glory Seeker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLORY_SEEKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9047075e-9fca-484d-bb79-32c0d6821281"),
     "Glory Seeker",
-    crate::card::CardArt::new("9047075e-9fca-484d-bb79-32c0d6821281", "Dave Dorman"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9047075e-9fca-484d-bb79-32c0d6821281", "Dave Dorman"),
+    CardSet::Onslaught,
+    // A vanilla 2/2 for two, printed as a Soldier for the tribal deck that
+    // cares which body it is.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 2, 2),
 );
 
 // ONS 32 — Grassland Crusader
@@ -2024,13 +2039,25 @@ pub(in crate::card::sets) static AVARAX: CardRecord = CardRecord::new(
 );
 
 // ONS 188 — Battering Craghorn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BATTERING_CRAGHORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ef71f42-87e5-4b1d-aac1-3752b81cee7c"),
     "Battering Craghorn",
-    crate::card::CardArt::new("9ef71f42-87e5-4b1d-aac1-3752b81cee7c", "Matt Cavotta"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9ef71f42-87e5-4b1d-aac1-3752b81cee7c", "Matt Cavotta"),
+    CardSet::Onslaught,
+    // The 3/1 first striker is a blowout when it is turned up blocking, and
+    // a card nobody would cast for four otherwise.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Goat", "Beast"], 3, 1).with_abilities(&[
+        abilities::first_strike(),
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}"),
+            crate::card::face_down::morph_cast(),
+            Some(
+                "Morph {1}{R}{R} (You may cast this card face down as a 2/2 creature for {3}. \
+                 Turn it face up any time for its morph cost.)",
+            ),
+            EffectDef::None,
+        ),
+    ]),
 );
 
 // ONS 189 — Blistering Firecat
@@ -2486,13 +2513,16 @@ pub(in crate::card::sets) static RISKY_MOVE: CardRecord = CardRecord::new(
 );
 
 // ONS 224 — Rorix Bladewing
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RORIX_BLADEWING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f2caba5-9f30-4b5e-833e-68c85a47ef7c"),
     "Rorix Bladewing",
-    crate::card::CardArt::new("7f2caba5-9f30-4b5e-833e-68c85a47ef7c", "Darrell Riche"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7f2caba5-9f30-4b5e-833e-68c85a47ef7c", "Darrell Riche"),
+    CardSet::Onslaught,
+    // Six mana for six damage the turn it lands, which is what a Dragon was
+    // worth before they all started doing something else as well.
+    CardRules::new_creature(mana_cost!("{3}{R}{R}{R}"), &["Dragon"], 6, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[abilities::flying(), abilities::haste()]),
 );
 
 // ONS 225 — Searing Flesh
@@ -2905,7 +2935,6 @@ pub(in crate::card::sets) static ELVISH_VANGUARD: CardRecord = CardRecord::new(
 );
 
 // ONS 260 — Elvish Warrior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2c6b767b-49e5-4845-9b3f-29540e5fa330"),
     "Elvish Warrior",
@@ -2913,8 +2942,10 @@ pub(in crate::card::sets) static ELVISH_WARRIOR: CardRecord = CardRecord::new(
         "2c6b767b-49e5-4845-9b3f-29540e5fa330",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardSet::Onslaught,
+    // A vanilla 2/3 for two, which is what green paid for a body that beats
+    // every two-drop in a colour that was not trying to.
+    CardRules::new_creature(mana_cost!("{G}{G}"), &["Elf", "Warrior"], 2, 3),
 );
 
 // ONS 261 — Enchantress's Presence

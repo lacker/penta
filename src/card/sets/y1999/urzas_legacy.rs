@@ -68,13 +68,17 @@ pub(in crate::card::sets) static CESSATION: CardRecord = CardRecord::new(
 );
 
 // ULG 5 — Defender of Law
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEFENDER_OF_LAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c8e8719-8c33-429d-8b95-b7f813888850"),
     "Defender of Law",
-    crate::card::CardArt::new("9c8e8719-8c33-429d-8b95-b7f813888850", "Carl Critchlow"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9c8e8719-8c33-429d-8b95-b7f813888850", "Carl Critchlow"),
+    CardSet::UrzasLegacy,
+    // A blocker held up on the opponent's turn that the red deck's burn
+    // cannot answer, which is most of a sideboard card in one body.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 1).with_abilities(&[
+        abilities::flash(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // ULG 6 — Devout Harpist
@@ -90,13 +94,29 @@ pub(in crate::card::sets) static DEVOUT_HARPIST: CardRecord = CardRecord::new(
 // ULG 7 — Erase (reprint)
 
 // ULG 8 — Expendable Troops
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXPENDABLE_TROOPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f31d7d1b-a219-4653-be99-a885bc9b2e2f"),
     "Expendable Troops",
-    crate::card::CardArt::new("f31d7d1b-a219-4653-be99-a885bc9b2e2f", "Carl Critchlow"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f31d7d1b-a219-4653-be99-a885bc9b2e2f", "Carl Critchlow"),
+    CardSet::UrzasLegacy,
+    // It only fires in combat, so the two mana buys a blocker that kills
+    // something the turn it stops blocking.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 2, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: It deals 2 damage to target attacking or blocking creature.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]))]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // ULG 9 — Hope and Glory
@@ -436,13 +456,25 @@ pub(in crate::card::sets) static DELUSIONS_OF_MEDIOCRITY: CardRecord = CardRecor
 );
 
 // ULG 31 — Fleeting Image
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLEETING_IMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ef9a5501-f149-47d0-9d79-151a524c7c54"),
     "Fleeting Image",
-    crate::card::CardArt::new("ef9a5501-f149-47d0-9d79-151a524c7c54", "Scott M. Fischer"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ef9a5501-f149-47d0-9d79-151a524c7c54", "Scott M. Fischer"),
+    CardSet::UrzasLegacy,
+    // Two mana to dodge anything, every time, which makes a 2/1 flier
+    // impossible to answer with cards rather than with damage.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Illusion"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{1}{U}: Return this creature to its owner's hand.",
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // ULG 32 — Frantic Search
@@ -1182,13 +1214,17 @@ pub(in crate::card::sets) static AVALANCHE_RIDERS: CardRecord = CardRecord::new(
 );
 
 // ULG 75 — Defender of Chaos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEFENDER_OF_CHAOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("717ae26a-e5a0-4478-9995-00ea6bd84c03"),
     "Defender of Chaos",
-    crate::card::CardArt::new("717ae26a-e5a0-4478-9995-00ea6bd84c03", "Carl Critchlow"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("717ae26a-e5a0-4478-9995-00ea6bd84c03", "Carl Critchlow"),
+    CardSet::UrzasLegacy,
+    // The mirror of the Defender of Law, aimed at the white weenie deck
+    // that would otherwise block it all day.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Knight"], 2, 1).with_abilities(&[
+        abilities::flash(),
+        abilities::protection_from_color(ManaColor::White),
+    ]),
 );
 
 // ULG 76 — Ghitu Fire-Eater
@@ -2163,13 +2199,20 @@ pub(in crate::card::sets) static THRAN_LENS: CardRecord = CardRecord::new(
 );
 
 // ULG 134 — Thran War Machine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRAN_WAR_MACHINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5908714a-be91-4279-b87e-e2bc09dbaaba"),
     "Thran War Machine",
-    crate::card::CardArt::new("5908714a-be91-4279-b87e-e2bc09dbaaba", "Pete Venters"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5908714a-be91-4279-b87e-e2bc09dbaaba", "Pete Venters"),
+    CardSet::UrzasLegacy,
+    // Four power for four that costs four again next turn and cannot be
+    // held back, which is a rate only a deck already ahead can use.
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 4, 5).with_abilities(&[
+        abilities::echo(
+            "Echo {4} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{4}"),
+        ),
+        abilities::attacks_each_combat_if_able(),
+    ]),
 );
 
 // ULG 135 — Thran Weaponry

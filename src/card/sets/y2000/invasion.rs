@@ -1666,13 +1666,33 @@ pub(in crate::card::sets) static TAINTED_WELL: CardRecord = CardRecord::new(
 );
 
 // INV 127 — Trench Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRENCH_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b076f85-d1bf-491a-af9d-f35b8e1bd163"),
     "Trench Wurm",
-    crate::card::CardArt::new("1b076f85-d1bf-491a-af9d-f35b8e1bd163", "Wayne England"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1b076f85-d1bf-491a-af9d-f35b8e1bd163", "Wayne England"),
+    CardSet::Invasion,
+    // A 3/3 body attached to repeatable land destruction, at a rate slow
+    // enough that it only wins a game already going long.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Wurm"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{R}, {T}: Destroy target nonbasic land.",
+            &[CostDef::Mana(mana_cost!("{2}{R}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // INV 128 — Tsabo's Assassin
@@ -3518,13 +3538,15 @@ pub(in crate::card::sets) static PYRE_ZOMBIE: CardRecord = CardRecord::new(
 );
 
 // INV 262 — Raging Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAGING_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9c77844-742c-48cf-9c1e-954ffe781e25"),
     "Raging Kavu",
-    crate::card::CardArt::new("27573679-e9e5-4bfc-b5d5-85d4648b01b6", "Arnie Swekel"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("27573679-e9e5-4bfc-b5d5-85d4648b01b6", "Arnie Swekel"),
+    CardSet::Invasion,
+    // Flash and haste together make it a combat trick that stays on the
+    // board, which is what three power for three mana is really selling.
+    CardRules::new_creature(mana_cost!("{1}{R}{G}"), &["Kavu"], 3, 1)
+        .with_abilities(&[abilities::flash(), abilities::haste()]),
 );
 
 // INV 263 — Reckless Assault
@@ -3819,13 +3841,17 @@ pub(in crate::card::sets) static UNDERMINE: CardRecord = CardRecord::new(
 );
 
 // INV 283 — Urborg Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBORG_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97d1327e-bf87-423f-8a04-8124e45b9ae0"),
     "Urborg Drake",
-    crate::card::CardArt::new("97d1327e-bf87-423f-8a04-8124e45b9ae0", "Sam Wood"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("97d1327e-bf87-423f-8a04-8124e45b9ae0", "Sam Wood"),
+    CardSet::Invasion,
+    // A 2/3 flier for three that never gets to stay home, so the deck
+    // playing it has to be the one that wanted to attack anyway.
+    CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Drake"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::attacks_each_combat_if_able(),
+    ]),
 );
 
 // INV 284 — Vicious Kavu

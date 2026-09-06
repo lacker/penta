@@ -639,13 +639,25 @@ pub(in crate::card::sets) static SLAY: CardRecord = CardRecord::new(
 );
 
 // PLS 56 — Volcano Imp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOLCANO_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8281cc6-2132-4f76-841e-d1ade9cafb84"),
     "Volcano Imp",
-    crate::card::CardArt::new("a8281cc6-2132-4f76-841e-d1ade9cafb84", "Thomas M. Baxa"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a8281cc6-2132-4f76-841e-d1ade9cafb84", "Thomas M. Baxa"),
+    CardSet::Planeshift,
+    // First strike on a flier turns every air combat into a one-sided one,
+    // for as much red mana as you can spare.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Imp"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{1}{R}: This creature gains first strike until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // PLS 57 — Warped Devotion

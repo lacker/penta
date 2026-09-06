@@ -359,13 +359,30 @@ pub(in crate::card::sets) static DEFENSIVE_MANEUVERS: CardRecord = CardRecord::n
 // ONS 25 — Disciple of Grace (reprint)
 
 // ONS 26 — Dive Bomber
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIVE_BOMBER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("65162b24-8a3b-4b92-a831-6f23f809c76f"),
     "Dive Bomber",
-    crate::card::CardArt::new("65162b24-8a3b-4b92-a831-6f23f809c76f", "Randy Gallegos"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("65162b24-8a3b-4b92-a831-6f23f809c76f", "Randy Gallegos"),
+    CardSet::Onslaught,
+    // A flier that trades itself for whatever is already in combat, which is
+    // two cards' worth of work in a format of small creatures.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Soldier"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this creature: It deals 2 damage to target attacking or blocking creature.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]))]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // ONS 27 — Doubtless One
@@ -2499,13 +2516,33 @@ pub(in crate::card::sets) static DRAGON_ROOST: CardRecord = CardRecord::new(
 );
 
 // ONS 199 — Dwarven Blastminer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWARVEN_BLASTMINER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2970831a-738b-476f-9d46-39f10a1f91e7"),
     "Dwarven Blastminer",
-    crate::card::CardArt::new("2970831a-738b-476f-9d46-39f10a1f91e7", "Gary Ruddell"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2970831a-738b-476f-9d46-39f10a1f91e7", "Gary Ruddell"),
+    CardSet::Onslaught,
+    // The same land destruction on a body cheap enough to matter, which is
+    // what made nonbasic mana bases a real risk.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf"], 1, 1)
+        .with_morph(mana_cost!("{R}"))
+        .with_ability(AbilityDef::activated_with_targets(
+            "{2}{R}, {T}: Destroy target nonbasic land.",
+            &[CostDef::Mana(mana_cost!("{2}{R}")), CostDef::TapSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        )),
 );
 
 // ONS 200 — Embermage Goblin (alternate printing)

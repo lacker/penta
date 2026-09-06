@@ -10,7 +10,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
-    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
+    CounterKind, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
@@ -336,13 +337,28 @@ pub(in crate::card::sets) static VENERABLE_MONK: CardRecord = CardRecord::new(
 );
 
 // STH 22 — Wall of Essence
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WALL_OF_ESSENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f237426-a657-4234-9f79-0a06558eeb39"),
     "Wall of Essence",
-    crate::card::CardArt::new("2f237426-a657-4234-9f79-0a06558eeb39", "Adam Rex"),
-    crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2f237426-a657-4234-9f79-0a06558eeb39", "Adam Rex"),
+    CardSet::Stronghold,
+    // A wall with four toughness gains four life a turn against anything
+    // big enough to want to attack through it.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::triggered(
+            "Whenever this creature is dealt combat damage, you gain that much life.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Combat,
+                source: DamageSourceMatcherDef::Any,
+                recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Source),
+            }),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        ),
+    ]),
 );
 
 // STH 23 — Warrior en-Kor

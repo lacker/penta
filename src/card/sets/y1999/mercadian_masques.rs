@@ -21,11 +21,12 @@ use crate::card::{
     BattlefieldEntryModificationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerRuleDef,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
 
@@ -475,13 +476,26 @@ pub(in crate::card::sets) static ORIM_S_CURE: CardRecord = CardRecord::new(
 );
 
 // MMQ 34 — Pious Warrior
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PIOUS_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bc20c1f0-9883-484c-88d8-1cab08d0b210"),
     "Pious Warrior",
-    crate::card::CardArt::new("bc20c1f0-9883-484c-88d8-1cab08d0b210", "Jeff Miracola"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bc20c1f0-9883-484c-88d8-1cab08d0b210", "Jeff Miracola"),
+    CardSet::MercadianMasques,
+    // The life comes back however the damage arrives, so blocking a big
+    // creature is a gain rather than a trade.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Rebel", "Warrior"], 2, 3)
+        .with_ability(AbilityDef::triggered(
+            "Whenever this creature is dealt combat damage, you gain that much life.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Combat,
+                source: DamageSourceMatcherDef::Any,
+                recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Source),
+            }),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggerEventAmount,
+            },
+        )),
 );
 
 // MMQ 35 — Ramosian Captain
@@ -2745,13 +2759,23 @@ pub(in crate::card::sets) static KRIS_MAGE: CardRecord = CardRecord::new(
 );
 
 // MMQ 196 — Kyren Glider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYREN_GLIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0bc55e01-342e-4856-937e-14561b8d165b"),
     "Kyren Glider",
-    crate::card::CardArt::new("0bc55e01-342e-4856-937e-14561b8d165b", "Daren Bader"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0bc55e01-342e-4856-937e-14561b8d165b", "Daren Bader"),
+    CardSet::MercadianMasques,
+    // A flier that cannot block is a clock and nothing else, which is all
+    // a two-mana goblin was ever asked to be.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+    ]),
 );
 
 // MMQ 197 — Kyren Legate

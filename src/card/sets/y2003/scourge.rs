@@ -1273,13 +1273,15 @@ pub(in crate::card::sets) static FORM_OF_THE_DRAGON: CardRecord = CardRecord::ne
 );
 
 // SCG 94 — Goblin Brigand
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_BRIGAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b024afe-7a28-4e3b-afbd-b42f1c45f338"),
     "Goblin Brigand",
-    crate::card::CardArt::new("4b024afe-7a28-4e3b-afbd-b42f1c45f338", "Arnie Swekel"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4b024afe-7a28-4e3b-afbd-b42f1c45f338", "Arnie Swekel"),
+    CardSet::Scourge,
+    // Two power for two with the usual goblin catch: the opponent always
+    // knows exactly what is attacking.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Warrior"], 2, 2)
+        .with_ability(abilities::attacks_each_combat_if_able()),
 );
 
 // SCG 95 — Goblin Psychopath

@@ -651,13 +651,24 @@ pub(in crate::card::sets) static SEAL_OF_REMOVAL: CardRecord = CardRecord::new(
 );
 
 // NEM 43 — Sliptide Serpent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLIPTIDE_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f8647649-5669-46c4-8840-9ff967fabd99"),
     "Sliptide Serpent",
-    crate::card::CardArt::new("f8647649-5669-46c4-8840-9ff967fabd99", "Daren Bader"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f8647649-5669-46c4-8840-9ff967fabd99", "Daren Bader"),
+    CardSet::Nemesis,
+    // Six mana for a 4/4 that dodges removal for four more, which is the
+    // deal a control deck takes when it has nothing else to do.
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Serpent"], 4, 4).with_ability(
+        AbilityDef::activated(
+            "{3}{U}: Return this creature to its owner's hand.",
+            &[CostDef::Mana(mana_cost!("{3}{U}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // NEM 44 — Sneaky Homunculus

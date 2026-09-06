@@ -708,13 +708,25 @@ pub(in crate::card::sets) static ZHALFIRIN_COMMANDER: CardRecord = CardRecord::n
 );
 
 // MIR 50 — Zhalfirin Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZHALFIRIN_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb65d104-bd50-481e-a70e-62aeb2f2c12b"),
     "Zhalfirin Knight",
-    crate::card::CardArt::new("eb65d104-bd50-481e-a70e-62aeb2f2c12b", "John Bolton"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eb65d104-bd50-481e-a70e-62aeb2f2c12b", "John Bolton"),
+    CardSet::Mirage,
+    // Flanking already wins the combat; the first strike is for the turn
+    // the blocker is bigger than that.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::flanking(),
+        AbilityDef::activated(
+            "{W}{W}: This creature gains first strike until end of turn.",
+            &[CostDef::Mana(mana_cost!("{W}{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MIR 51 — Zuberi, Golden Feather

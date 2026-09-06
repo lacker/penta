@@ -863,13 +863,23 @@ pub(in crate::card::sets) static DESOLATION: CardRecord = CardRecord::new(
 );
 
 // VIS 59 — Fallen Askari
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FALLEN_ASKARI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("00107210-313f-49c1-84ff-92628f75b764"),
     "Fallen Askari",
-    crate::card::CardArt::new("00107210-313f-49c1-84ff-92628f75b764", "Adrian Smith"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("00107210-313f-49c1-84ff-92628f75b764", "Adrian Smith"),
+    CardSet::Visions,
+    // Flanking makes it a poor thing to block, and it cannot block back --
+    // so it is two mana that only ever points one way.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::flanking(),
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+    ]),
 );
 
 // VIS 60 — Forbidden Ritual

@@ -810,13 +810,24 @@ pub(in crate::card::sets) static BALLOON_PEDDLER: CardRecord = CardRecord::new(
 );
 
 // MMQ 60 — Blockade Runner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOCKADE_RUNNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59e483df-b58a-401e-85bc-0afda4bf7cac"),
     "Blockade Runner",
-    crate::card::CardArt::new("59e483df-b58a-401e-85bc-0afda4bf7cac", "Carl Critchlow"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("59e483df-b58a-401e-85bc-0afda4bf7cac", "Carl Critchlow"),
+    CardSet::MercadianMasques,
+    // One mana makes it unblockable, so the 2/2 body connects every turn
+    // the mana is available.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Merfolk"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{U}: This creature can't be blocked this turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 61 — Brainstorm (reprint)

@@ -5,11 +5,11 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1008,13 +1008,27 @@ pub(in crate::card::sets) static FLOWSTONE_FLOOD: CardRecord = CardRecord::new(
 );
 
 // EXO 84 — Furnace Brood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FURNACE_BROOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0a79c6d9-96f1-434a-89b8-d773aa77ac5e"),
     "Furnace Brood",
-    crate::card::CardArt::new("0a79c6d9-96f1-434a-89b8-d773aa77ac5e", "Jeff Miracola"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0a79c6d9-96f1-434a-89b8-d773aa77ac5e", "Jeff Miracola"),
+    CardSet::Exodus,
+    // One mana turns off regeneration for the turn, which is what red
+    // played against the recursive creatures of the format.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Elemental"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}: Target creature can't be regenerated this turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 85 — Keeper of the Flame

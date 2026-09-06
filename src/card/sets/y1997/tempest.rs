@@ -1066,13 +1066,26 @@ pub(in crate::card::sets) static ROOTWATER_DIVER: CardRecord = CardRecord::new(
 );
 
 // TMP 82 — Rootwater Hunter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROOTWATER_HUNTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cdf7ea34-2cde-4ec5-9b12-99b0002da986"),
     "Rootwater Hunter",
-    crate::card::CardArt::new("cdf7ea34-2cde-4ec5-9b12-99b0002da986", "Brom"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cdf7ea34-2cde-4ec5-9b12-99b0002da986", "Brom"),
+    CardSet::Tempest,
+    // A pinger in blue, which is unusual enough that the three-mana 1/1
+    // body is beside the point.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: This creature deals 1 damage to any target.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // TMP 83 — Rootwater Matriarch

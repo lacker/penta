@@ -168,13 +168,30 @@ pub(in crate::card::sets) static INFANTRY_VETERAN: CardRecord = CardRecord::new(
 );
 
 // VIS 10 — Jamuraan Lion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JAMURAAN_LION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a30df3d3-17b3-4bd0-b566-ed4d32a921f2"),
     "Jamuraan Lion",
-    crate::card::CardArt::new("bfc681f5-9fff-48b6-98d9-e85c85e582a3", "Stuart Griffin"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bfc681f5-9fff-48b6-98d9-e85c85e582a3", "Stuart Griffin"),
+    CardSet::Visions,
+    // Tapping to stop a blocker, so the 3/1 body and the ability compete
+    // for the same turn.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Cat"], 3, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{W}, {T}: Target creature can't block this turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // VIS 11 — Knight of Valor

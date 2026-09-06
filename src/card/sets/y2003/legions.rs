@@ -1106,13 +1106,27 @@ pub(in crate::card::sets) static SMOKESPEW_INVOKER: CardRecord = CardRecord::new
 );
 
 // LGN 82 — Sootfeather Flock
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOOTFEATHER_FLOCK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("216a2ccc-8847-452b-b030-27d8506675bd"),
     "Sootfeather Flock",
-    crate::card::CardArt::new("216a2ccc-8847-452b-b030-27d8506675bd", "David Martin"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("216a2ccc-8847-452b-b030-27d8506675bd", "David Martin"),
+    CardSet::Legions,
+    // A five-mana 3/2 flier is filler; arriving as a 2/2 for three and
+    // flipping later is what makes it playable.
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Bird", "Beast"], 3, 2)
+        .with_morph(mana_cost!("{3}{B}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {3}{B} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            abilities::flying(),
+        ]),
 );
 
 // LGN 83 — Spectral Sliver
@@ -1554,13 +1568,27 @@ pub(in crate::card::sets) static RIDGETOP_RAPTOR: CardRecord = CardRecord::new(
 );
 
 // LGN 109 — Rockshard Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROCKSHARD_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2d6343c0-3fb5-4bac-bea7-cba36498cd69"),
     "Rockshard Elemental",
-    crate::card::CardArt::new("2d6343c0-3fb5-4bac-bea7-cba36498cd69", "Anthony S. Waters"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2d6343c0-3fb5-4bac-bea7-cba36498cd69", "Anthony S. Waters"),
+    CardSet::Legions,
+    // Eight power against a blocker, which is what double strike on four
+    // power really means -- and the morph hides it until it is too late.
+    CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Elemental"], 4, 3)
+        .with_morph(mana_cost!("{4}{R}{R}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {4}{R}{R} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            abilities::double_strike(),
+        ]),
 );
 
 // LGN 110 — Shaleskin Plower
@@ -1679,13 +1707,27 @@ pub(in crate::card::sets) static BERSERK_MURLODONT: CardRecord = CardRecord::new
 );
 
 // LGN 118 — Branchsnap Lorian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRANCHSNAP_LORIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52118ff1-ad76-4b97-9fdc-6adfe80140f8"),
     "Branchsnap Lorian",
-    crate::card::CardArt::new("52118ff1-ad76-4b97-9fdc-6adfe80140f8", "Heather Hudson"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("52118ff1-ad76-4b97-9fdc-6adfe80140f8", "Heather Hudson"),
+    CardSet::Legions,
+    // Four trampling power for three, on a body one blocker kills -- unless
+    // it arrives face down and flips after blockers.
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Beast"], 4, 1)
+        .with_morph(mana_cost!("{G}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {G} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            abilities::trample(),
+        ]),
 );
 
 // LGN 119 — Brontotherium

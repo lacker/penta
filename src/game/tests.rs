@@ -72,6 +72,7 @@ mod mass_shrink;
 mod maximum_blockers;
 mod miners_guidewing;
 mod moon_circuit_hacker;
+mod morph_bodies;
 mod multi_target_slots;
 mod nyxborn_hydra;
 mod opposing_anthems;

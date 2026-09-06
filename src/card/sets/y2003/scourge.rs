@@ -719,13 +719,24 @@ pub(in crate::card::sets) static RUSH_OF_KNOWLEDGE: CardRecord = CardRecord::new
 );
 
 // SCG 50 — Scornful Egotist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCORNFUL_EGOTIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fec6b189-97e7-4627-9785-a9ce2f1ad89f"),
     "Scornful Egotist",
-    crate::card::CardArt::new("fec6b189-97e7-4627-9785-a9ce2f1ad89f", "Jim Nelson"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fec6b189-97e7-4627-9785-a9ce2f1ad89f", "Jim Nelson"),
+    CardSet::Scourge,
+    // Eight mana for a 1/1 is the joke; one blue to flip a 2/2 face up is
+    // the reason anybody ever put it in a deck.
+    CardRules::new_creature(mana_cost!("{7}{U}"), &["Human", "Wizard"], 1, 1)
+        .with_morph(mana_cost!("{U}"))
+        .with_ability(AbilityDef::alternative_cast(
+            mana_cost!("{3}"),
+            crate::card::face_down::morph_cast(),
+            Some(
+                "Morph {U} (You may cast this card face down as a 2/2 creature for {3}. \
+                 Turn it face up any time for its morph cost.)",
+            ),
+            EffectDef::None,
+        )),
 );
 
 // SCG 51 — Shoreline Ranger
@@ -1832,13 +1843,25 @@ pub(in crate::card::sets) static SPROUTING_VINES: CardRecord = CardRecord::new(
 );
 
 // SCG 129 — Titanic Bulvox
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TITANIC_BULVOX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f42c4d7-b555-449c-a539-119c1ae62232"),
     "Titanic Bulvox",
-    crate::card::CardArt::new("3f42c4d7-b555-449c-a539-119c1ae62232", "Wayne England"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f42c4d7-b555-449c-a539-119c1ae62232", "Wayne England"),
+    CardSet::Scourge,
+    // Seven trampling power either way, and the morph cost buys the turn it
+    // arrives rather than the mana it costs.
+    CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Beast"], 7, 4)
+        .with_morph(mana_cost!("{4}{G}{G}{G}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {4}{G}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),abilities::trample()]),
 );
 
 // SCG 130 — Treetop Scout

@@ -310,13 +310,27 @@ pub(in crate::card::sets) static CROWN_OF_AWE: CardRecord = CardRecord::new(
 );
 
 // ONS 17 — Crude Rampart
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRUDE_RAMPART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af5d1be2-d6ae-4820-aa01-62f261b0f110"),
     "Crude Rampart",
-    crate::card::CardArt::new("af5d1be2-d6ae-4820-aa01-62f261b0f110", "Sam Wood"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("af5d1be2-d6ae-4820-aa01-62f261b0f110", "Sam Wood"),
+    CardSet::Onslaught,
+    // A wall that can arrive as a 2/2 attacker instead, which is the only
+    // way a Defender ever gets to be a surprise.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Wall"], 4, 5)
+        .with_morph(mana_cost!("{4}{W}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {4}{W} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            abilities::defender(),
+        ]),
 );
 
 // ONS 18 — Daru Cavalier
@@ -383,7 +397,17 @@ pub(in crate::card::sets) static DAWNING_PURIST: CardRecord = CardRecord::new(
     // trade a sideboard card makes to be worth a maindeck slot.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 2, 2)
         .with_morph(mana_cost!("{1}{W}"))
-        .with_ability(AbilityDef::triggered_with_targets(
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {1}{W} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+AbilityDef::triggered_with_targets(
             "Whenever this creature deals combat damage to a player, you may destroy target enchantment that player controls.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::Source,
@@ -402,7 +426,8 @@ pub(in crate::card::sets) static DAWNING_PURIST: CardRecord = CardRecord::new(
                     then: None,
                 },
             },
-        )),
+        ),
+        ]),
 );
 
 // ONS 23 — Defensive Maneuvers
@@ -901,13 +926,38 @@ pub(in crate::card::sets) static WEATHERED_WAYFARER: CardRecord = CardRecord::ne
 );
 
 // ONS 60 — Whipcorder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIPCORDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3bf6987e-a6e4-4a88-af0b-cf3b2d2b80c7"),
     "Whipcorder",
-    crate::card::CardArt::new("3bf6987e-a6e4-4a88-af0b-cf3b2d2b80c7", "Ron Spencer"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3bf6987e-a6e4-4a88-af0b-cf3b2d2b80c7", "Ron Spencer"),
+    CardSet::Onslaught,
+    // Tapping a blocker every turn for one white is a soft lock, and the
+    // morph is how it survives the removal aimed at it.
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier", "Rebel"], 2, 2)
+        .with_morph(mana_cost!("{W}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {W} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::activated_with_targets(
+                "{W}, {T}: Tap target creature.",
+                &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )]
+                },
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ]),
 );
 
 // ONS 61 — Words of Worship
@@ -952,13 +1002,41 @@ pub(in crate::card::sets) static ANNEX: CardRecord = CardRecord::new(
 );
 
 // ONS 64 — Aphetto Alchemist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static APHETTO_ALCHEMIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dfd2628f-63c4-4e19-83ea-26041650faab"),
     "Aphetto Alchemist",
-    crate::card::CardArt::new("dfd2628f-63c4-4e19-83ea-26041650faab", "Ron Spears"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dfd2628f-63c4-4e19-83ea-26041650faab", "Ron Spears"),
+    CardSet::Onslaught,
+    // Untapping an artifact for free is a combo piece; untapping a creature
+    // is a combat trick, and it is the same two mana either way.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Wizard"], 1, 2)
+        .with_morph(mana_cost!("{U}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {U} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::activated_with_targets(
+                "{T}: Untap target artifact or creature.",
+                &[CostDef::TapSource],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                    )]
+                },
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ]),
 );
 
 // ONS 65 — Aphetto Grifter
@@ -1173,13 +1251,41 @@ pub(in crate::card::sets) static DISPERSING_ORB: CardRecord = CardRecord::new(
 );
 
 // ONS 81 — Disruptive Pitmage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISRUPTIVE_PITMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5b0d9c2f-356c-4f27-8560-8ffceadac31c"),
     "Disruptive Pitmage",
-    crate::card::CardArt::new("5b0d9c2f-356c-4f27-8560-8ffceadac31c", "Darrell Riche"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5b0d9c2f-356c-4f27-8560-8ffceadac31c", "Darrell Riche"),
+    CardSet::Onslaught,
+    // The same tax the Disruptive Student charges, on a body that can be
+    // held back as a 2/2 until the mana is free.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1)
+        .with_morph(mana_cost!("{U}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {U} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::activated_with_targets(
+                "{T}: Counter target spell unless its controller pays {1}.",
+                &[CostDef::TapSource],
+                &const {
+                    [AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Spell,
+                            zones: &[ZoneKind::Stack],
+                            controller: None,
+                            owner: None,
+                        },
+                    )]
+                },
+                abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            ),
+        ]),
 );
 
 // ONS 82 — Essence Fracture
@@ -1734,13 +1840,38 @@ pub(in crate::card::sets) static BLACKMAIL: CardRecord = CardRecord::new(
 );
 
 // ONS 128 — Boneknitter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BONEKNITTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9d58030-a95a-4221-93bc-30a59344e30b"),
     "Boneknitter",
-    crate::card::CardArt::new("c9d58030-a95a-4221-93bc-30a59344e30b", "Pete Venters"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c9d58030-a95a-4221-93bc-30a59344e30b", "Pete Venters"),
+    CardSet::Onslaught,
+    // It regenerates itself as readily as the rest of the tribe, which is
+    // what makes a board of Zombies impossible to sweep.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie", "Cleric"], 1, 1)
+        .with_morph(mana_cost!("{2}{B}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::activated_with_targets(
+                "{1}{B}: Regenerate target Zombie.",
+                &[CostDef::Mana(mana_cost!("{1}{B}"))],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Subtype("Zombie"),
+                    )]
+                },
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ]),
 );
 
 // ONS 129 — Cabal Archon
@@ -1763,7 +1894,17 @@ pub(in crate::card::sets) static CABAL_EXECUTIONER: CardRecord = CardRecord::new
     // punishes them for it in the same swing.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Cleric"], 2, 2)
         .with_morph(mana_cost!("{3}{B}{B}"))
-        .with_ability(AbilityDef::triggered(
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {3}{B}{B} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, that player sacrifices a creature of their choice.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::Source,
@@ -1778,7 +1919,8 @@ pub(in crate::card::sets) static CABAL_EXECUTIONER: CardRecord = CardRecord::new
                 otherwise: None,
                 optional: false,
             },
-        )),
+        ),
+        ]),
 );
 
 // ONS 131 — Cabal Slaver
@@ -2085,17 +2227,28 @@ pub(in crate::card::sets) static GRINNING_DEMON: CardRecord = CardRecord::new(
     // colour's usual price of a card.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Demon"], 6, 6)
         .with_morph(mana_cost!("{2}{B}{B}"))
-        .with_ability(AbilityDef::triggered(
-            "At the beginning of your upkeep, you lose 2 life.",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::You,
-            },
-            EffectDef::LoseLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(2),
-            },
-        )),
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {2}{B}{B} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, you lose 2 life.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // ONS 154 — Haunted Cadaver
@@ -2128,7 +2281,17 @@ pub(in crate::card::sets) static HEADHUNTER: CardRecord = CardRecord::new(
     // every time it does is, and a deck with no blockers pays over and over.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Cleric"], 1, 1)
         .with_morph(mana_cost!("{B}"))
-        .with_ability(AbilityDef::triggered(
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {B} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, that player discards a card.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::Source,
@@ -2140,7 +2303,8 @@ pub(in crate::card::sets) static HEADHUNTER: CardRecord = CardRecord::new(
                 selection: DiscardSelectionDef::RecipientChooses,
                 then: None,
             },
-        )),
+        ),
+        ]),
 );
 
 // ONS 157 — Infest
@@ -2609,13 +2773,33 @@ pub(in crate::card::sets) static CHAIN_OF_PLASMA: CardRecord = CardRecord::new(
 );
 
 // ONS 194 — Charging Slateback
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHARGING_SLATEBACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d2cfff37-655f-4107-abf3-e6f63d0e4de2"),
     "Charging Slateback",
-    crate::card::CardArt::new("d2cfff37-655f-4107-abf3-e6f63d0e4de2", "Mark Tedin"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d2cfff37-655f-4107-abf3-e6f63d0e4de2", "Mark Tedin"),
+    CardSet::Onslaught,
+    // It never blocks, so the face-down mode is the only way it does
+    // anything on the turn the opponent is attacking.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Beast"], 4, 3)
+        .with_morph(mana_cost!("{4}{R}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {4}{R} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::static_ability(
+                "This creature can't block.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                },
+            ),
+        ]),
 );
 
 // ONS 195 — Commando Raid
@@ -2671,24 +2855,35 @@ pub(in crate::card::sets) static DWARVEN_BLASTMINER: CardRecord = CardRecord::ne
     // what made nonbasic mana bases a real risk.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf"], 1, 1)
         .with_morph(mana_cost!("{R}"))
-        .with_ability(AbilityDef::activated_with_targets(
-            "{2}{R}, {T}: Destroy target nonbasic land.",
-            &[CostDef::Mana(mana_cost!("{2}{R}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
-                            CardSupertype::Basic,
-                        )),
-                    ]),
-                )]
-            },
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                then: None,
-            },
-        )),
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {R} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::activated_with_targets(
+                "{2}{R}, {T}: Destroy target nonbasic land.",
+                &[CostDef::Mana(mana_cost!("{2}{R}")), CostDef::TapSource],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                CardSupertype::Basic,
+                            )),
+                        ]),
+                    )]
+                },
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // ONS 200 — Embermage Goblin (alternate printing)
@@ -2911,13 +3106,46 @@ pub(in crate::card::sets) static GOBLIN_SLEDDER: CardRecord = CardRecord::new(
 );
 
 // ONS 210 — Goblin Taskmaster
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_TASKMASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("feff65ca-aedf-4434-b701-590d600d1a0b"),
     "Goblin Taskmaster",
-    crate::card::CardArt::new("feff65ca-aedf-4434-b701-590d600d1a0b", "Trevor Hairsine"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("feff65ca-aedf-4434-b701-590d600d1a0b", "Trevor Hairsine"),
+    CardSet::Onslaught,
+    // A one-drop that turns spare mana into damage every turn, which is all
+    // a goblin deck ever needs from its worst card.
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1)
+        .with_morph(mana_cost!("{R}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {R} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::activated_with_targets(
+                "{1}{R}: Target Goblin creature gets +1/+0 until end of turn.",
+                &[CostDef::Mana(mana_cost!("{1}{R}"))],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Goblin"),
+                        ]),
+                    )]
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // ONS 211 — Grand Melee
@@ -3128,7 +3356,17 @@ pub(in crate::card::sets) static SKIRK_COMMANDO: CardRecord = CardRecord::new(
     // is gone, which is what the morph cost is really buying.
     CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Goblin"], 2, 1)
         .with_morph(mana_cost!("{2}{R}"))
-        .with_ability(AbilityDef::triggered_with_targets(
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {2}{R} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+AbilityDef::triggered_with_targets(
             "Whenever this creature deals combat damage to a player, you may have it deal 2 damage to target creature that player controls.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::Source,
@@ -3147,7 +3385,8 @@ pub(in crate::card::sets) static SKIRK_COMMANDO: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(2),
                 },
             },
-        )),
+        ),
+        ]),
 );
 
 // ONS 229 — Skirk Fire Marshal
@@ -3213,7 +3452,17 @@ pub(in crate::card::sets) static SNAPPING_THRAGG: CardRecord = CardRecord::new(
     // without help.
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Beast"], 3, 3)
         .with_morph(mana_cost!("{4}{R}{R}"))
-        .with_ability(AbilityDef::triggered_with_targets(
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {4}{R}{R} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+AbilityDef::triggered_with_targets(
             "Whenever this creature deals combat damage to a player, you may have it deal 3 damage to target creature that player controls.",
             TriggerEventDef::CombatDamageDealtToPlayers {
                 sources: ObjectPredicateDef::Source,
@@ -3232,7 +3481,8 @@ pub(in crate::card::sets) static SNAPPING_THRAGG: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(3),
                 },
             },
-        )),
+        ),
+        ]),
 );
 
 // ONS 234 — Solar Blast
@@ -3719,13 +3969,24 @@ pub(in crate::card::sets) static KAMAHL_S_SUMMONS: CardRecord = CardRecord::new(
 );
 
 // ONS 270 — Krosan Colossus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_COLOSSUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a804f3c0-5ebf-43ca-b200-09f7c1bbe902"),
     "Krosan Colossus",
-    crate::card::CardArt::new("a804f3c0-5ebf-43ca-b200-09f7c1bbe902", "Kev Walker"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a804f3c0-5ebf-43ca-b200-09f7c1bbe902", "Kev Walker"),
+    CardSet::Onslaught,
+    // Nine mana for nine power, or three now and eight later -- which is the
+    // same total, spread across the turns you actually have.
+    CardRules::new_creature(mana_cost!("{6}{G}{G}{G}"), &["Giant"], 9, 9)
+        .with_morph(mana_cost!("{6}{G}{G}"))
+        .with_ability(AbilityDef::alternative_cast(
+            mana_cost!("{3}"),
+            crate::card::face_down::morph_cast(),
+            Some(
+                "Morph {6}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. \
+                 Turn it face up any time for its morph cost.)",
+            ),
+            EffectDef::None,
+        )),
 );
 
 // ONS 271 — Krosan Groundshaker
@@ -3895,23 +4156,70 @@ pub(in crate::card::sets) static SILVOS_ROGUE_ELEMENTAL: CardRecord = CardRecord
 );
 
 // ONS 283 — Snarling Undorak
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNARLING_UNDORAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("05788d63-6210-44f2-9ae4-e55e9507a3a9"),
     "Snarling Undorak",
-    crate::card::CardArt::new("05788d63-6210-44f2-9ae4-e55e9507a3a9", "Justin Sweet"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("05788d63-6210-44f2-9ae4-e55e9507a3a9", "Justin Sweet"),
+    CardSet::Onslaught,
+    // A pump that only the Beast deck can use, on a body that deck was
+    // already playing.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 3, 3)
+        .with_morph(mana_cost!("{1}{G}{G}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {1}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            AbilityDef::activated_with_targets(
+                "{2}{G}: Target Beast creature gets +1/+1 until end of turn.",
+                &[CostDef::Mana(mana_cost!("{2}{G}"))],
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Beast"),
+                        ]),
+                    )]
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // ONS 284 — Spitting Gourna
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPITTING_GOURNA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("746b98bf-5398-4a00-b4fe-a990ea9cfd77"),
     "Spitting Gourna",
-    crate::card::CardArt::new("746b98bf-5398-4a00-b4fe-a990ea9cfd77", "Heather Hudson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("746b98bf-5398-4a00-b4fe-a990ea9cfd77", "Heather Hudson"),
+    CardSet::Onslaught,
+    // Reach on a five-drop matters only against fliers, so the morph cost is
+    // what makes it a card against everything else.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Beast"], 3, 4)
+        .with_morph(mana_cost!("{4}{G}"))
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{3}"),
+                crate::card::face_down::morph_cast(),
+                Some(
+                    "Morph {4}{G} (You may cast this card face down as a 2/2 creature for {3}. \
+                     Turn it face up any time for its morph cost.)",
+                ),
+                EffectDef::None,
+            ),
+            abilities::reach(),
+        ]),
 );
 
 // ONS 285 — Stag Beetle

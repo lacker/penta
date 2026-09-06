@@ -6,8 +6,8 @@ use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardNameDef, CardRules, CardSet,
-    CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardRules,
+    CardSet, CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
     ComparisonDef, CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
@@ -105,13 +105,31 @@ pub(in crate::card::sets) static BORDER_PATROL: CardRecord = CardRecord::new(
 );
 
 // JUD 7 — Cagemail
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAGEMAIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72ab91ab-2bcf-4617-bec3-2bf040d4997c"),
     "Cagemail",
-    crate::card::CardArt::new("72ab91ab-2bcf-4617-bec3-2bf040d4997c", "Scott M. Fischer"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("72ab91ab-2bcf-4617-bec3-2bf040d4997c", "Scott M. Fischer"),
+    CardSet::Judgment,
+    // A pacifism that leaves the creature able to block, which is the point:
+    // it is aimed at an attacker.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and can't attack.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // JUD 8 — Chastise

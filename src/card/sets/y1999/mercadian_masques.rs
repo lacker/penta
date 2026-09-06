@@ -962,13 +962,25 @@ pub(in crate::card::sets) static DARTING_MERFOLK: CardRecord = CardRecord::new(
 );
 
 // MMQ 73 — Dehydration
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEHYDRATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2c9e4043-e7a6-4c68-aa03-ef2f88e46451"),
     "Dehydration",
-    crate::card::CardArt::new("2c9e4043-e7a6-4c68-aa03-ef2f88e46451", "Val Mayerik"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2c9e4043-e7a6-4c68-aa03-ef2f88e46451", "Val Mayerik"),
+    CardSet::MercadianMasques,
+    // Four mana to turn something off permanently, which is what blue had
+    // instead of removal.
+    CardRules::new_enchantment(mana_cost!("{3}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature doesn't untap during its controller's untap step.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                },
+            ),
+        ]),
 );
 
 // MMQ 74 — Diplomatic Escort

@@ -26,6 +26,7 @@ mod assign_as_though_unblocked;
 mod attack_and_stay_tapped;
 mod attacks_alone;
 mod aura_grants;
+mod aura_restrictions;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod blocker_punishment;

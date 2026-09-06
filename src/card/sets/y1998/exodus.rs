@@ -1210,13 +1210,31 @@ pub(in crate::card::sets) static MAGE_IL_VEC: CardRecord = CardRecord::new(
 );
 
 // EXO 87 — Maniacal Rage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANIACAL_RAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f3aa840f-6a70-4674-acb7-ded0ea4397d8"),
     "Maniacal Rage",
-    crate::card::CardArt::new("f3aa840f-6a70-4674-acb7-ded0ea4397d8", "Pete Venters"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f3aa840f-6a70-4674-acb7-ded0ea4397d8", "Pete Venters"),
+    CardSet::Exodus,
+    // Two sizes for the ability to hold the ground, which an attacking deck
+    // gives up for free.
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and can't block.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // EXO 88 — Mogg Assassin

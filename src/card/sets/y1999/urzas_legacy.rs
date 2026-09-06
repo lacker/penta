@@ -966,13 +966,34 @@ pub(in crate::card::sets) static SICK_AND_TIRED: CardRecord = CardRecord::new(
 );
 
 // ULG 67 — Sleeper's Guile
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLEEPER_S_GUILE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a001ca83-35b5-48e5-8337-92258d5affc2"),
     "Sleeper's Guile",
-    crate::card::CardArt::new("a001ca83-35b5-48e5-8337-92258d5affc2", "Daren Bader"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a001ca83-35b5-48e5-8337-92258d5affc2", "Daren Bader"),
+    CardSet::UrzasLegacy,
+    // The Aura comes back when it dies, so removing the creature under it
+    // costs a card and buys nothing.
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has fear.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: abilities::FEAR_RESTRICTION,
+                },
+            ),
+            abilities::dies_trigger(
+                "When this Aura is put into a graveyard from the battlefield, return it to \
+                 its owner's hand.",
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::TriggeringZoneChangeResult,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // ULG 68 — Subversion

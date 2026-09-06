@@ -3373,13 +3373,37 @@ pub(in crate::card::sets) static SHIVAN_ZOMBIE: CardRecord = CardRecord::new(
 // INV 272 — Simoon (reprint)
 
 // INV 273 — Sleeper's Robe
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLEEPER_S_ROBE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3411f0fd-8b85-4d0d-a202-701a24ffac9f"),
     "Sleeper's Robe",
-    crate::card::CardArt::new("3411f0fd-8b85-4d0d-a202-701a24ffac9f", "Alan Pollack"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3411f0fd-8b85-4d0d-a202-701a24ffac9f", "Alan Pollack"),
+    CardSet::Invasion,
+    // Evasion and a card each time it connects, which together are most of
+    // what a two-mana Aura can hope to be.
+    CardRules::new_enchantment(mana_cost!("{U}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has fear.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: abilities::FEAR_RESTRICTION,
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever enchanted creature deals combat damage to an opponent, you may \
+                 draw a card.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+            ),
+        ]),
 );
 
 // INV 274 — Slinking Serpent

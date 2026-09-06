@@ -121,13 +121,32 @@ pub(in crate::card::sets) static JASMINE_SEER: CardRecord = CardRecord::new(
 );
 
 // UDS 11 — Mask of Law and Grace
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MASK_OF_LAW_AND_GRACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6bd97150-b405-4bb5-b5a8-fceda4a45ebb"),
     "Mask of Law and Grace",
-    crate::card::CardArt::new("6bd97150-b405-4bb5-b5a8-fceda4a45ebb", "Kev Walker"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6bd97150-b405-4bb5-b5a8-fceda4a45ebb", "Kev Walker"),
+    CardSet::UrzasDestiny,
+    // One mana that answers two colours of removal at once, and makes the
+    // creature unblockable by both.
+    CardRules::new_enchantment(mana_cost!("{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has protection from black and from red.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(
+                            &const { abilities::protection_from_color(ManaColor::Black) },
+                        ),
+                        AppliedEffectDef::add_ability(
+                            &const { abilities::protection_from_color(ManaColor::Red) },
+                        ),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // UDS 12 — Master Healer

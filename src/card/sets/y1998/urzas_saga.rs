@@ -885,13 +885,25 @@ pub(in crate::card::sets) static CATALOG: CardRecord = CardRecord::new(
 );
 
 // USG 65 — Cloak of Mists
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOAK_OF_MISTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd54251c-5a2e-48e4-9790-a64dcc44eb8e"),
     "Cloak of Mists",
-    crate::card::CardArt::new("dd54251c-5a2e-48e4-9790-a64dcc44eb8e", "John Matson"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dd54251c-5a2e-48e4-9790-a64dcc44eb8e", "John Matson"),
+    CardSet::UrzasSaga,
+    // Unconditional evasion for two mana, which is worth a card only on
+    // something the opponent cannot afford to take.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature can't be blocked.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                },
+            ),
+        ]),
 );
 
 // USG 66 — Confiscate

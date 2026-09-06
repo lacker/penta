@@ -1970,13 +1970,26 @@ pub(in crate::card::sets) static INSUBORDINATION: CardRecord = CardRecord::new(
 );
 
 // MMQ 142 — Intimidation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INTIMIDATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b9e1724-91cf-422e-909b-ddb69a6f9f76"),
     "Intimidation",
-    crate::card::CardArt::new("1b9e1724-91cf-422e-909b-ddb69a6f9f76", "Terese Nielsen"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1b9e1724-91cf-422e-909b-ddb69a6f9f76", "Terese Nielsen"),
+    CardSet::MercadianMasques,
+    // Five mana to make a whole board unblockable, which only a deck
+    // already ahead on the board wants to pay.
+    CardRules::new_enchantment(mana_cost!("{2}{B}{B}{B}")).with_ability(
+        AbilityDef::static_ability(
+            "Creatures you control have fear.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: abilities::FEAR_RESTRICTION,
+            },
+        ),
+    ),
 );
 
 // MMQ 143 — Larceny

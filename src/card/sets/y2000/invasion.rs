@@ -1795,13 +1795,24 @@ pub(in crate::card::sets) static HALAM_DJINN: CardRecord = CardRecord::new(
 );
 
 // INV 147 — Hooded Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOODED_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5464b80a-22fe-42c7-a839-31667712fb2d"),
     "Hooded Kavu",
-    crate::card::CardArt::new("5464b80a-22fe-42c7-a839-31667712fb2d", "John Howe"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5464b80a-22fe-42c7-a839-31667712fb2d", "John Howe"),
+    CardSet::Invasion,
+    // A red creature whose evasion costs black, which is the whole point of
+    // the cycle it belongs to.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Kavu"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{B}: This creature gains fear until end of turn.",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: abilities::FEAR_RESTRICTION,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 148 — Kavu Aggressor

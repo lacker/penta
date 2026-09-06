@@ -1651,13 +1651,30 @@ pub(in crate::card::sets) static BOG_RAIDERS: CardRecord = CardRecord::new(
 // USG 119s — Bog Raiders (alternate printing)
 
 // USG 120 — Breach
-// Audit: unsupported — Needs fear as a grantable ability. abilities::fear() is a static block restriction, and granting a static ability is rejected as ExecutableStaticAbility; a keyword could be granted, which is what "gains fear until end of turn" asks for.
 pub(in crate::card::sets) static BREACH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eada28cb-92bf-47e0-b09d-4709be32dbe6"),
     "Breach",
-    crate::card::CardArt::new("eada28cb-92bf-47e0-b09d-4709be32dbe6", "Greg Staples"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eada28cb-92bf-47e0-b09d-4709be32dbe6", "Greg Staples"),
+    CardSet::UrzasSaga,
+    // Two power and evasion for three mana, which is what a black combat
+    // trick had to offer before the colour had better ones.
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +2/+0 and gains fear until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                abilities::FEAR_RESTRICTION,
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // USG 121 — Cackling Fiend

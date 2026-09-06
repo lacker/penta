@@ -1873,13 +1873,27 @@ pub(in crate::card::sets) static MADDENING_IMP: CardRecord = CardRecord::new(
 );
 
 // TMP 144 — Marsh Lurker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARSH_LURKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("90c4b759-f53d-4977-8d97-a93762622e75"),
     "Marsh Lurker",
-    crate::card::CardArt::new("90c4b759-f53d-4977-8d97-a93762622e75", "Tom Kyffin"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("90c4b759-f53d-4977-8d97-a93762622e75", "Tom Kyffin"),
+    CardSet::Tempest,
+    // Lands for evasion, so it gets through once or twice and then the
+    // deck has paid for it.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Beast"], 3, 2).with_ability(
+        AbilityDef::activated(
+            "Sacrifice a Swamp: This creature gains fear until end of turn.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: abilities::FEAR_RESTRICTION,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 145 — Mindwhip Sliver

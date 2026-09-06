@@ -765,13 +765,31 @@ pub(in crate::card::sets) static CULLING_THE_WEAK: CardRecord = CardRecord::new(
 );
 
 // EXO 56 — Cursed Flesh
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CURSED_FLESH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7433b9bf-ee6e-41fe-b826-0d20584198b1"),
     "Cursed Flesh",
-    crate::card::CardArt::new("7433b9bf-ee6e-41fe-b826-0d20584198b1", "Ron Spencer"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7433b9bf-ee6e-41fe-b826-0d20584198b1", "Ron Spencer"),
+    CardSet::Exodus,
+    // A point of each for evasion, which is a trade only something already
+    // large would take.
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -1/-1 and has fear.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(-1),
+                            ValueDef::Constant(-1),
+                        ),
+                        abilities::FEAR_RESTRICTION,
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // EXO 57 — Dauthi Cutthroat

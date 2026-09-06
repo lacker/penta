@@ -45,6 +45,7 @@ pub(super) use fixtures::*;
 mod filtered_sweeps;
 mod flying_blockers_only;
 mod free_sacrifice_outlet;
+mod granted_fear;
 mod granted_haste;
 mod guildsworn_prowler;
 mod lair_return_cost;

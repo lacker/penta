@@ -239,6 +239,20 @@ static ARTIFACT_OR_BLACK: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::Color(ManaColor::Black),
 ]);
 
+/// The whole of what fear does, as an applied effect.
+///
+/// A card that *grants* fear applies this rather than handing over
+/// [`fear()`]: a granted static ability has no execution path, and fear is
+/// only ever this restriction anyway -- there is no fear keyword flag for an
+/// effect to set. So "gains fear until end of turn" and the printed keyword
+/// reach the same rule by the same route.
+pub const FEAR_RESTRICTION: AppliedEffectDef = AppliedEffectDef::Rule(
+    AppliedRuleDef::BlockRestriction(BlockRestrictionDef::prohibit(
+        BlockRestrictionSubjectDef::Attacker,
+        BlockRestrictionMatchDef::Except(ARTIFACT_OR_BLACK),
+    )),
+);
+
 /// "Fear (This creature can't be blocked except by artifact creatures and/or
 /// black creatures.)"
 ///
@@ -253,12 +267,7 @@ pub const fn fear() -> AbilityDef {
          creatures.)",
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
-                BlockRestrictionDef::prohibit(
-                    BlockRestrictionSubjectDef::Attacker,
-                    BlockRestrictionMatchDef::Except(ARTIFACT_OR_BLACK),
-                ),
-            )),
+            effect: FEAR_RESTRICTION,
         },
     )
 }

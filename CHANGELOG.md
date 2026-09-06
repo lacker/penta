@@ -25,6 +25,14 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Fear is grantable, as the restriction rather than the ability.**
+  `abilities::FEAR_RESTRICTION` is the applied effect `abilities::fear()`
+  hands to its own source, exposed so a card that grants fear can apply the
+  same rule. This is not an approximation of a keyword grant: the catalog
+  has no fear keyword flag, so the restriction is the only representation
+  fear has ever had here. Granting the static ability instead is rejected,
+  because a granted static ability has nothing to execute.
+
 - **An attacker can assign its combat damage as though it weren't blocked.**
   `AppliedRuleDef::MayAssignCombatDamageAsThoughUnblocked` adds one further
   division to the ones already offered -- everything on the defender, nothing

@@ -547,13 +547,24 @@ pub(in crate::card::sets) static PLANESWALKER_S_SCORN: CardRecord = CardRecord::
 );
 
 // PLS 53 — Shriek of Dread
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRIEK_OF_DREAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("54a7fb3b-8e81-4763-b2a1-7c2108a00afe"),
     "Shriek of Dread",
-    crate::card::CardArt::new("54a7fb3b-8e81-4763-b2a1-7c2108a00afe", "Nelson DeCastro"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("54a7fb3b-8e81-4763-b2a1-7c2108a00afe", "Nelson DeCastro"),
+    CardSet::Planeshift,
+    // Evasion alone, which only reads as a spell in a deck whose creatures
+    // were already the plan.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gains fear until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: abilities::FEAR_RESTRICTION,
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // PLS 54 — Sinister Strength

@@ -1628,13 +1628,27 @@ pub(in crate::card::sets) static EXECUTE: CardRecord = CardRecord::new(
 );
 
 // ODY 134 — Face of Fear
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FACE_OF_FEAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17542219-1165-4483-9cef-7abecaebb6a2"),
     "Face of Fear",
-    crate::card::CardArt::new("17542219-1165-4483-9cef-7abecaebb6a2", "Thomas M. Baxa"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("17542219-1165-4483-9cef-7abecaebb6a2", "Thomas M. Baxa"),
+    CardSet::Odyssey,
+    // Six mana for a 3/4, and the hand is what makes it unblockable, which
+    // suits a deck already discarding on purpose.
+    CardRules::new_creature(mana_cost!("{5}{B}"), &["Horror"], 3, 4).with_ability(
+        AbilityDef::activated(
+            "{2}{B}, Discard a card: This creature gains fear until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{2}{B}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: abilities::FEAR_RESTRICTION,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 135 — Famished Ghoul

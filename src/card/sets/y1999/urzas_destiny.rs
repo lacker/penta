@@ -221,13 +221,28 @@ pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new_with_
 );
 
 // UDS 14 — Reliquary Monk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RELIQUARY_MONK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("243e9386-2a7f-406a-9ed3-77d4bf1b50fd"),
     "Reliquary Monk",
-    crate::card::CardArt::new("243e9386-2a7f-406a-9ed3-77d4bf1b50fd", "Thomas M. Baxa"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("243e9386-2a7f-406a-9ed3-77d4bf1b50fd", "Thomas M. Baxa"),
+    CardSet::UrzasDestiny,
+    // A 2/2 that answers something on the way out, so trading with it is
+    // never quite even.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Monk", "Cleric"], 2, 2).with_ability(
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, destroy target artifact or enchantment.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // UDS 15 — Replenish
@@ -1095,13 +1110,25 @@ pub(in crate::card::sets) static GOBLIN_MARSHAL: CardRecord = CardRecord::new(
 );
 
 // UDS 86 — Goblin Masons
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_MASONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("124070d9-c362-4053-a405-9438b1cfac02"),
     "Goblin Masons",
-    crate::card::CardArt::new("124070d9-c362-4053-a405-9438b1cfac02", "DiTerlizzi"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("124070d9-c362-4053-a405-9438b1cfac02", "DiTerlizzi"),
+    CardSet::UrzasDestiny,
+    // Aimed at Walls alone, which was a real card type to answer in the
+    // format it was printed for.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 2, 1).with_ability(
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, destroy target Wall.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype("Wall"),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // UDS 87 — Hulking Ogre

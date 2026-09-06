@@ -3443,13 +3443,26 @@ pub(in crate::card::sets) static PRIMAL_BOOST: CardRecord = CardRecord::new(
 );
 
 // ONS 278 — Ravenous Baloth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAVENOUS_BALOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c98182d6-5b25-4493-9286-f29633e1bec4"),
     "Ravenous Baloth",
-    crate::card::CardArt::new("c98182d6-5b25-4493-9286-f29633e1bec4", "Arnie Swekel"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c98182d6-5b25-4493-9286-f29633e1bec4", "Arnie Swekel"),
+    CardSet::Onslaught,
+    // Four life at instant speed on a 4/4, which is why removal aimed at it
+    // never quite worked.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 4, 4).with_ability(
+        AbilityDef::activated(
+            "Sacrifice a Beast: You gain 4 life.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::Subtype("Beast"),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ),
 );
 
 // ONS 279 — Run Wild

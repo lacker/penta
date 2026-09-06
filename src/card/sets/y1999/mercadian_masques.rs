@@ -18,7 +18,8 @@ use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
+    BattlefieldEntryModificationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
+    BlockRestrictionSubjectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
@@ -2167,13 +2168,27 @@ pub(in crate::card::sets) static QUAGMIRE_LAMPREY: CardRecord = CardRecord::new(
 // MMQ 155 — Rain of Tears (reprint)
 
 // MMQ 156 — Rampart Crawler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAMPART_CRAWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b60f86f-c78a-4dfb-bb18-e9bcf21b26c4"),
     "Rampart Crawler",
-    crate::card::CardArt::new("8b60f86f-c78a-4dfb-bb18-e9bcf21b26c4", "Pete Venters"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8b60f86f-c78a-4dfb-bb18-e9bcf21b26c4", "Pete Venters"),
+    CardSet::MercadianMasques,
+    // A one-drop that walks past exactly the cards printed to stop
+    // one-drops.
+    CardRules::new_creature(mana_cost!("{B}"), &["Lizard", "Mercenary"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked by Walls.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::prohibit(
+                        BlockRestrictionSubjectDef::Attacker,
+                        BlockRestrictionMatchDef::Matching(ObjectPredicateDef::Subtype("Wall")),
+                    ),
+                )),
+            },
+        ),
+    ),
 );
 
 // MMQ 157 — Rouse

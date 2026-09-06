@@ -325,16 +325,33 @@ pub(in crate::card::sets) static SWORD_DANCER: CardRecord = CardRecord::new(
 );
 
 // PCY 26 — Trenching Steed
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRENCHING_STEED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a359837-2e41-4ddc-9299-89a783d62014"),
     "Trenching Steed",
-    crate::card::CardArt::new(
+    CardArt::new(
         "9a359837-2e41-4ddc-9299-89a783d62014",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardSet::Prophecy,
+    // Lands for toughness, which is the whole Prophecy deal: the mana base
+    // is the resource being spent.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Horse", "Rebel"], 2, 3).with_ability(
+        AbilityDef::activated(
+            "Sacrifice a land: This creature gets +0/+3 until end of turn.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PCY 27 — Troubled Healer
@@ -378,13 +395,27 @@ pub(in crate::card::sets) static AVATAR_OF_WILL: CardRecord = CardRecord::new(
 );
 
 // PCY 31 — Coastal Hornclaw
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COASTAL_HORNCLAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5b91ddc-8630-4214-8dce-215f28ccc685"),
     "Coastal Hornclaw",
-    crate::card::CardArt::new("a5b91ddc-8630-4214-8dce-215f28ccc685", "DiTerlizzi"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a5b91ddc-8630-4214-8dce-215f28ccc685", "DiTerlizzi"),
+    CardSet::Prophecy,
+    // Lands for evasion, at a rate that only pays when the game is already
+    // being won on the board.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Bird"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "Sacrifice a land: This creature gains flying until end of turn.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // PCY 32 — Denying Wind

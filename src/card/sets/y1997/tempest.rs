@@ -134,13 +134,30 @@ pub(in crate::card::sets) static ARMORED_PEGASUS: CardRecord = CardRecord::new(
 );
 
 // TMP 6 — Auratog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AURATOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("86dca066-d5e3-442a-95a0-e695c1d5850c"),
     "Auratog",
-    crate::card::CardArt::new("86dca066-d5e3-442a-95a0-e695c1d5850c", "Jeff Miracola"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("86dca066-d5e3-442a-95a0-e695c1d5850c", "Jeff Miracola"),
+    CardSet::Tempest,
+    // Enchantments for size, which only reads well in the deck that was
+    // stacking Auras on it anyway.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Atog"], 1, 2).with_ability(
+        AbilityDef::activated(
+            "Sacrifice an enchantment: This creature gets +2/+2 until end of turn.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 7 — Avenging Angel
@@ -1489,13 +1506,20 @@ pub(in crate::card::sets) static BELLOWING_FIEND: CardRecord = CardRecord::new(
 );
 
 // TMP 109 — Blood Pet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOOD_PET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5a89ba1b-e68b-4d70-a25e-27be9bf48a3b"),
     "Blood Pet",
-    crate::card::CardArt::new("5a89ba1b-e68b-4d70-a25e-27be9bf48a3b", "Brom"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5a89ba1b-e68b-4d70-a25e-27be9bf48a3b", "Brom"),
+    CardSet::Tempest,
+    // A one-drop that is really a ritual with a body attached, which an
+    // aggressive black deck counted as both.
+    CardRules::new_creature(mana_cost!("{B}"), &["Thrull"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "Sacrifice this creature: Add {B}.",
+            &[CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
+        ),
+    ),
 );
 
 // TMP 110 — Bounty Hunter
@@ -3815,13 +3839,23 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
 );
 
 // TMP 278 — Bottle Gnomes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOTTLE_GNOMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("645297d1-ee77-4879-83eb-8114fbabb9a4"),
     "Bottle Gnomes",
-    crate::card::CardArt::new("645297d1-ee77-4879-83eb-8114fbabb9a4", "Kaja Foglio"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("645297d1-ee77-4879-83eb-8114fbabb9a4", "Kaja Foglio"),
+    CardSet::Tempest,
+    // Three life whenever it is convenient, on a body that also blocks
+    // once for free.
+    CardRules::new_creature(mana_cost!("{3}"), &["Gnome"], 1, 3).with_ability(
+        AbilityDef::activated(
+            "Sacrifice this creature: You gain 3 life.",
+            &[CostDef::SacrificeSource],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // TMP 279 — Coiled Tinviper

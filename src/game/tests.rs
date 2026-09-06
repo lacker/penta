@@ -29,6 +29,7 @@ mod aura_grants;
 mod aura_restrictions;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
+mod blocked_by_matching;
 mod blocker_punishment;
 mod board_counted_sizes;
 mod cannot_act_alone;

@@ -6,13 +6,15 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y1993::beta as catalog_leb;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CostDef, CounterKind,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
+    BlockRestrictionSubjectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CostDef, CounterKind,
     DamageEventMatcherDef, DamagePreventionDef, DividedTotal, EffectChoiceDef, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, StaticApplyDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ManaRestrictionDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, StaticApplyDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -3006,13 +3008,29 @@ pub(in crate::card::sets) static SABRETOOTH_TIGER: CardRecord = CardRecord::new(
 // ICE 217 — Stone Rain (reprint)
 
 // ICE 218 — Stone Spirit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STONE_SPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("789dfae7-fe23-4e2e-9f5f-304535d22a78"),
     "Stone Spirit",
-    crate::card::CardArt::new("789dfae7-fe23-4e2e-9f5f-304535d22a78", "Jeff A. Menges"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("789dfae7-fe23-4e2e-9f5f-304535d22a78", "Jeff A. Menges"),
+    CardSet::IceAge,
+    // A ground creature that fliers cannot stop, which in a format full of
+    // them is nearly unblockable.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Elemental", "Spirit"], 4, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked by creatures with flying.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::prohibit(
+                        BlockRestrictionSubjectDef::Attacker,
+                        BlockRestrictionMatchDef::Matching(ObjectPredicateDef::HasKeyword(
+                            KeywordAbility::Flying,
+                        )),
+                    ),
+                )),
+            },
+        ),
+    ),
 );
 
 // ICE 219 — Stonehands

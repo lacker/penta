@@ -1679,13 +1679,20 @@ pub(in crate::card::sets) static BEREAVEMENT: CardRecord = CardRecord::new(
 );
 
 // USG 118 — Blood Vassal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOOD_VASSAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e692dea-750b-40b2-9440-8b570e67c23e"),
     "Blood Vassal",
-    crate::card::CardArt::new("7e692dea-750b-40b2-9440-8b570e67c23e", "Chippy"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7e692dea-750b-40b2-9440-8b570e67c23e", "Chippy"),
+    CardSet::UrzasSaga,
+    // Two mana out of a two-mana body, which is a ritual that had to wait
+    // a turn to be cast.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Thrull"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "Sacrifice this creature: Add {B}{B}.",
+            &[CostDef::SacrificeSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(2)),
+        ),
+    ),
 );
 
 // USG 119 — Bog Raiders

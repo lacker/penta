@@ -1785,23 +1785,62 @@ pub(in crate::card::sets) static PHYREXIAN_INFILTRATOR: CardRecord = CardRecord:
 );
 
 // INV 117 — Phyrexian Reaper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_REAPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ccdd498b-1081-43fe-8193-518337a5a3ea"),
     "Phyrexian Reaper",
-    crate::card::CardArt::new("ccdd498b-1081-43fe-8193-518337a5a3ea", "Sam Wood"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ccdd498b-1081-43fe-8193-518337a5a3ea", "Sam Wood"),
+    CardSet::Invasion,
+    // Green decks block with everything, so the Reaper is a 3/3 that the whole
+    // board has to walk around rather than trade with.
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Phyrexian", "Zombie"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked by a green creature, destroy that \
+             creature. It can't be regenerated.",
+            TriggerEventDef::BecomesBlockedBy {
+                blocker: ObjectPredicateDef::Color(ManaColor::Green),
+            },
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &const {
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::TriggeringObject,
+                        then: None,
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // INV 118 — Phyrexian Slayer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_SLAYER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5fa8c604-343f-4c94-ac25-439ab1845c19"),
     "Phyrexian Slayer",
-    crate::card::CardArt::new("5fa8c604-343f-4c94-ac25-439ab1845c19", "Sam Wood"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5fa8c604-343f-4c94-ac25-439ab1845c19", "Sam Wood"),
+    CardSet::Invasion,
+    // The same deal against white, and this one flies, so the blocker it eats is
+    // usually the only one that could have reached it.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Minion"], 2, 2).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever this creature becomes blocked by a white creature, destroy that \
+             creature. It can't be regenerated.",
+                TriggerEventDef::BecomesBlockedBy {
+                    blocker: ObjectPredicateDef::Color(ManaColor::White),
+                },
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &const {
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::TriggeringObject,
+                            then: None,
+                        }
+                    },
+                },
+            ),
+        ],
+    ),
 );
 
 // INV 119 — Plague Spitter

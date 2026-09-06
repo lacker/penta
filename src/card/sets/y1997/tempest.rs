@@ -3377,13 +3377,27 @@ pub(in crate::card::sets) static ELADAMRI_LORD_OF_LEAVES: CardRecord = CardRecor
 );
 
 // TMP 225 — Elven Warhounds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVEN_WARHOUNDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29138c1e-11cb-488f-8e04-f5488e08a81e"),
     "Elven Warhounds",
-    crate::card::CardArt::new("29138c1e-11cb-488f-8e04-f5488e08a81e", "Kev Walker"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("29138c1e-11cb-488f-8e04-f5488e08a81e", "Kev Walker"),
+    CardSet::Tempest,
+    // Not removal but close enough: the blocker goes on top of its library, so
+    // the defender spends their next draw buying it back.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Dog"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked by a creature, put that creature on top of \
+             its owner's library.",
+            TriggerEventDef::BecomesBlockedBy {
+                blocker: ObjectPredicateDef::HasType(CardType::Creature),
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::TriggeringObject,
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // TMP 226 — Elvish Fury

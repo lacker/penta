@@ -2049,16 +2049,34 @@ pub(in crate::card::sets) static CONSPIRACY: CardRecord = CardRecord::new(
 );
 
 // MMQ 128 — Corrupt Official
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CORRUPT_OFFICIAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5cb652fc-5a21-4e02-a776-a38fb41ad18c"),
     "Corrupt Official",
-    crate::card::CardArt::new(
+    CardArt::new(
         "5cb652fc-5a21-4e02-a776-a38fb41ad18c",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardSet::MercadianMasques,
+    // It regenerates, so the block that has to happen is the block that costs a
+    // card -- and the defender does not choose which one.
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Human", "Minion"], 3, 1).with_abilities(&[
+        abilities::regenerate_self(
+            "{2}{B}: Regenerate this creature.",
+            &[CostDef::mana(mana_cost!("{2}{B}"))],
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, defending player discards a card at random.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                    PlayerRelation::DefendingPlayer,
+                )),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::Random,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MMQ 129 — Dark Ritual (reprint)
@@ -2284,13 +2302,34 @@ pub(in crate::card::sets) static INTIMIDATION: CardRecord = CardRecord::new(
 );
 
 // MMQ 143 — Larceny
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LARCENY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a863da2-0639-4eed-8da9-2e9a38c04a23"),
     "Larceny",
-    crate::card::CardArt::new("3a863da2-0639-4eed-8da9-2e9a38c04a23", "Dave Dorman"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3a863da2-0639-4eed-8da9-2e9a38c04a23", "Dave Dorman"),
+    CardSet::MercadianMasques,
+    // The same tax with no tribe attached: any creature connecting empties a
+    // card out of the hand that was supposed to stop the next one.
+    CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::triggered(
+        "Whenever a creature you control deals combat damage to a player, that player \
+             discards a card.",
+        TriggerEventDef::CombatDamageDealtToPlayers {
+            sources: ObjectPredicateDef::All(
+                &const {
+                    [
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]
+                },
+            ),
+            players: PlayerRelation::Any,
+        },
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(1),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: None,
+        },
+    )),
 );
 
 // MMQ 144 — Liability
@@ -2448,13 +2487,27 @@ pub(in crate::card::sets) static PUTREFACTION: CardRecord = CardRecord::new(
 );
 
 // MMQ 154 — Quagmire Lamprey
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUAGMIRE_LAMPREY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c91c44e-6bfc-4595-9cdb-17d73f912c09"),
     "Quagmire Lamprey",
-    crate::card::CardArt::new("3c91c44e-6bfc-4595-9cdb-17d73f912c09", "Glen Angus"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3c91c44e-6bfc-4595-9cdb-17d73f912c09", "Glen Angus"),
+    CardSet::MercadianMasques,
+    // A 1/1 nobody wants to block, because the counter it leaves behind outlasts
+    // the combat it was spent on.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Fish"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked by a creature, put a -1/-1 counter on that \
+             creature.",
+            TriggerEventDef::BecomesBlockedBy {
+                blocker: ObjectPredicateDef::HasType(CardType::Creature),
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::TriggeringObject,
+                kind: CounterKind::MinusOneMinusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // MMQ 155 — Rain of Tears (reprint)

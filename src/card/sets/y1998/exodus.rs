@@ -1792,13 +1792,34 @@ pub(in crate::card::sets) static PREDATORY_HUNGER: CardRecord = CardRecord::new(
 );
 
 // EXO 118 — Pygmy Troll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PYGMY_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7be9714d-125f-4700-879d-b920fe9f1b68"),
     "Pygmy Troll",
-    crate::card::CardArt::new("7be9714d-125f-4700-879d-b920fe9f1b68", "Daniel Gelon"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7be9714d-125f-4700-879d-b920fe9f1b68", "Daniel Gelon"),
+    CardSet::Exodus,
+    // One green regenerates it and the block itself makes it bigger, so a 1/1
+    // trades up with anything the defender can afford to lose.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Troll"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked by a creature, this creature gets +1/+1 until \
+             end of turn.",
+            TriggerEventDef::BecomesBlockedBy {
+                blocker: ObjectPredicateDef::HasType(CardType::Creature),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[CostDef::mana(mana_cost!("{G}"))],
+        ),
+    ]),
 );
 
 // EXO 119 — Rabid Wolverines

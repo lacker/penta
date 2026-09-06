@@ -20,8 +20,8 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
     ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, RoundingDef, ScaledValueDef, SumValueDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -3371,13 +3371,32 @@ pub(in crate::card::sets) static JUNGLE_PATROL: CardRecord = CardRecord::new(
 );
 
 // MIR 224 — Jungle Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JUNGLE_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f17f81b9-1fa1-4062-a9b3-048179274c05"),
     "Jungle Wurm",
-    crate::card::CardArt::new("f17f81b9-1fa1-4062-a9b3-048179274c05", "Tom Kyffin"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f17f81b9-1fa1-4062-a9b3-048179274c05", "Tom Kyffin"),
+    CardSet::Mirage,
+    // Rampage in reverse: gang-blocking is the answer rather than the mistake,
+    // and two chump blockers cut a 5/5 down to a 3/3.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Wurm"], 5, 5).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets -1/-1 until end of turn for each \
+             creature blocking it beyond the first.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Scaled(
+                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -1) },
+                    ),
+                    ValueDef::Scaled(
+                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -1) },
+                    ),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MIR 225 — Karoo Meerkat

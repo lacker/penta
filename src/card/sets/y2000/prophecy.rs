@@ -1721,13 +1721,37 @@ pub(in crate::card::sets) static LATULLA_S_ORDERS: CardRecord = CardRecord::new(
 );
 
 // PCY 97 — Lesser Gargadon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LESSER_GARGADON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63ed7aec-a513-418e-9cef-e0c51203055b"),
     "Lesser Gargadon",
-    crate::card::CardArt::new("63ed7aec-a513-418e-9cef-e0c51203055b", "Rob Alexander"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("63ed7aec-a513-418e-9cef-e0c51203055b", "Rob Alexander"),
+    CardSet::Prophecy,
+    // Six power for four mana, rented rather than bought: every swing and every
+    // block costs a land, so the clock runs on the controller too.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Beast"], 6, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks or blocks, sacrifice a land.",
+            TriggerEventDef::AnyOf(
+                &const {
+                    [
+                        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                        TriggerEventDef::Blocks {
+                            blocked: ObjectPredicateDef::Any,
+                        },
+                    ]
+                },
+            ),
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::Controller,
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        ),
+    ),
 );
 
 // PCY 98 — Panic Attack

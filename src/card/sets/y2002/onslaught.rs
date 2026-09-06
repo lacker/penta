@@ -2130,13 +2130,28 @@ AbilityDef::triggered(
 );
 
 // ONS 131 — Cabal Slaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_SLAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9c04fd3-021a-4011-be9b-0d268557aa06"),
     "Cabal Slaver",
-    crate::card::CardArt::new("b9c04fd3-021a-4011-be9b-0d268557aa06", "Pete Venters"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b9c04fd3-021a-4011-be9b-0d268557aa06", "Pete Venters"),
+    CardSet::Onslaught,
+    // A three-mana body that turns every one-drop Goblin already on the board
+    // into a Hymn, which is what makes the tribe worth playing in black.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Cleric"], 2, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever a Goblin deals combat damage to a player, that player discards a card.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::Subtype("Goblin"),
+                players: PlayerRelation::Any,
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // ONS 132 — Chain of Smog

@@ -13,8 +13,9 @@ use crate::card::{
     EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
     ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StaticApplyDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, StaticApplyDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -3612,13 +3613,32 @@ pub(in crate::card::sets) static HOT_SPRINGS: CardRecord = CardRecord::new(
 // ICE 249 — Hurricane (reprint)
 
 // ICE 250 — Johtull Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JOHTULL_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64a22e88-f7b1-48c8-a199-e57edcd50654"),
     "Johtull Wurm",
-    crate::card::CardArt::new("64a22e88-f7b1-48c8-a199-e57edcd50654", "Daniel Gelon"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("64a22e88-f7b1-48c8-a199-e57edcd50654", "Daniel Gelon"),
+    CardSet::IceAge,
+    // The same penalty on a bigger body, and the toughness holds up better than
+    // the power does, so it survives the swarm it can no longer kill.
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Wurm"], 6, 6).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets -2/-1 until end of turn for each \
+             creature blocking it beyond the first.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Scaled(
+                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -2) },
+                    ),
+                    ValueDef::Scaled(
+                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -1) },
+                    ),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ICE 251 — Juniper Order Druid

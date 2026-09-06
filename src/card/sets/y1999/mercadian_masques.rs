@@ -3552,13 +3552,24 @@ pub(in crate::card::sets) static HEART_OF_RAMOS: CardRecord = CardRecord::new(
 );
 
 // MMQ 297 — Henge Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HENGE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("028e5e18-b639-4461-87e4-5306371440b5"),
     "Henge Guardian",
-    crate::card::CardArt::new("028e5e18-b639-4461-87e4-5306371440b5", "Chippy"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("028e5e18-b639-4461-87e4-5306371440b5", "Chippy"),
+    CardSet::MercadianMasques,
+    // Colourless trample on demand, so any deck can turn a 3/4 into a real
+    // attacker for two more mana.
+    CardRules::new_creature(mana_cost!("{5}"), &["Dragon", "Wurm"], 3, 4).with_ability(
+        AbilityDef::activated(
+            "{2}: This creature gains trample until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 298 — Horn of Plenty

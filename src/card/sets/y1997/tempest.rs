@@ -833,13 +833,24 @@ pub(in crate::card::sets) static FYLAMARID: CardRecord = CardRecord::new(
 // TMP 65 — Gaseous Form (reprint)
 
 // TMP 66 — Giant Crab
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIANT_CRAB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11c65a35-e219-4b60-ab95-ce7eff67d646"),
     "Giant Crab",
-    crate::card::CardArt::new("11c65a35-e219-4b60-ab95-ce7eff67d646", "Tom Kyffin"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("11c65a35-e219-4b60-ab95-ce7eff67d646", "Tom Kyffin"),
+    CardSet::Tempest,
+    // One mana makes a 3/3 untargetable, which is what blue paid instead of
+    // counterspells to protect a body.
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Crab"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{U}: This creature gains shroud until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TMP 67 — Horned Turtle

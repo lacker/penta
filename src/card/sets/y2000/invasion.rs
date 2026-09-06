@@ -2020,13 +2020,24 @@ pub(in crate::card::sets) static URZA_S_RAGE: CardRecord = CardRecord::new(
 );
 
 // INV 179 — Viashino Grappler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_GRAPPLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a94aeb4-349c-4394-848d-c1c9133856e2"),
     "Viashino Grappler",
-    crate::card::CardArt::new("4a94aeb4-349c-4394-848d-c1c9133856e2", "Mark Romanoski"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4a94aeb4-349c-4394-848d-c1c9133856e2", "Mark Romanoski"),
+    CardSet::Invasion,
+    // A red creature that tramples for green mana, which is what the block
+    // charged for a gold effect on a mono-coloured card.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Lizard"], 3, 1).with_ability(
+        AbilityDef::activated(
+            "{G}: This creature gains trample until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 180 — Zap
@@ -2185,13 +2196,23 @@ pub(in crate::card::sets) static KAVU_TITAN: CardRecord = CardRecord::new(
 );
 
 // INV 195 — Llanowar Cavalry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_CAVALRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21d92191-a743-4916-bbe4-5e207e964d9b"),
     "Llanowar Cavalry",
-    crate::card::CardArt::new("21d92191-a743-4916-bbe4-5e207e964d9b", "Eric Peterson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("21d92191-a743-4916-bbe4-5e207e964d9b", "Eric Peterson"),
+    CardSet::Invasion,
+    // A 1/4 that attacks and still blocks, for one white mana.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Soldier"], 1, 4).with_ability(
+        AbilityDef::activated(
+            "{W}: This creature gains vigilance until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::vigilance() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 196 — Llanowar Elite
@@ -2354,13 +2375,23 @@ pub(in crate::card::sets) static SCOUTING_TREK: CardRecord = CardRecord::new(
 );
 
 // INV 211 — Serpentine Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERPENTINE_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("699f1fe8-02c6-4d95-9231-3f8aefe603da"),
     "Serpentine Kavu",
-    crate::card::CardArt::new("699f1fe8-02c6-4d95-9231-3f8aefe603da", "Heather Hudson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("699f1fe8-02c6-4d95-9231-3f8aefe603da", "Heather Hudson"),
+    CardSet::Invasion,
+    // Five mana for a 4/4, or six for a 4/4 that attacks immediately.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Kavu"], 4, 4).with_ability(
+        AbilityDef::activated(
+            "{R}: This creature gains haste until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 212 — Sulam Djinn
@@ -2902,13 +2933,24 @@ pub(in crate::card::sets) static METEOR_STORM: CardRecord = CardRecord::new(
 );
 
 // INV 257 — Noble Panther
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOBLE_PANTHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f327818-8222-4295-8cef-118757b34d17"),
     "Noble Panther",
-    crate::card::CardArt::new("3f327818-8222-4295-8cef-118757b34d17", "Matt Cavotta"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3f327818-8222-4295-8cef-118757b34d17", "Matt Cavotta"),
+    CardSet::Invasion,
+    // Colourless activation, so the first strike is available whatever else
+    // the turn was spent on.
+    CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Cat"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{1}: This creature gains first strike until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 258 — Ordered Migration

@@ -552,6 +552,8 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         | AppliedRuleDef::MayAttackDespiteDefender
         | AppliedRuleDef::MayAttackAsThoughHasty
         | AppliedRuleDef::MustBlockEachAttackerIfAble
+        | AppliedRuleDef::CannotAttackAlone
+        | AppliedRuleDef::CannotBlockAlone
         | AppliedRuleDef::CannotChangeController
         | AppliedRuleDef::CannotRegenerate
         | AppliedRuleDef::DoesNotUntapDuringUntapStep

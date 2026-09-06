@@ -1592,13 +1592,25 @@ pub(in crate::card::sets) static MOGG_BOMBERS: CardRecord = CardRecord::new(
 );
 
 // STH 92 — Mogg Flunkies
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOGG_FLUNKIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b1b384e-a7d5-4b5f-87d5-95ac1a6c6320"),
     "Mogg Flunkies",
-    crate::card::CardArt::new("1b1b384e-a7d5-4b5f-87d5-95ac1a6c6320", "Brom"),
-    crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1b1b384e-a7d5-4b5f-87d5-95ac1a6c6320", "Brom"),
+    CardSet::Stronghold,
+    // Three power for two mana, rented against ever attacking or blocking
+    // on its own, which a Goblin deck rarely wants to do anyway.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't attack or block alone.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttackAlone),
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlockAlone),
+                ]),
+            },
+        ),
+    ),
 );
 
 // STH 93 — Mogg Infestation

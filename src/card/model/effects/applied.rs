@@ -371,6 +371,17 @@ pub enum AppliedRuleDef {
     /// way -- from the blocks it is actually offered -- so an attacker it
     /// cannot block does not hold the declaration open.
     MustBlockEachAttackerIfAble,
+    /// "This creature can't attack alone." A constraint on the finished
+    /// declaration rather than on the creature: declaring it is always legal,
+    /// and only ending the declaration with nothing beside it is not. The
+    /// mirror of [`Self::CannotBlockAlone`], and the two are separate because
+    /// a card may print either half on its own.
+    CannotAttackAlone,
+    /// "This creature can't block alone." Counted across the whole
+    /// declaration, not per attacker: a creature under this rule needs
+    /// another blocker somewhere in the combat, not another blocker on the
+    /// same attacker.
+    CannotBlockAlone,
     /// Damage a matching source would deal to the affected permanent's
     /// controller is dealt to that permanent instead. The redirection is read
     /// live, so a condition on the recipient -- "as long as this creature is

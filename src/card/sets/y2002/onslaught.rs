@@ -448,13 +448,30 @@ pub(in crate::card::sets) static GUSTCLOAK_HARRIER: CardRecord = CardRecord::new
 );
 
 // ONS 35 — Gustcloak Runner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUSTCLOAK_RUNNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb227f65-9189-41ed-94a0-2aa21cad26f5"),
     "Gustcloak Runner",
-    crate::card::CardArt::new("eb227f65-9189-41ed-94a0-2aa21cad26f5", "Glen Angus"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eb227f65-9189-41ed-94a0-2aa21cad26f5", "Glen Angus"),
+    CardSet::Onslaught,
+    // Blocking it achieves nothing, so it either connects or wastes the
+    // defender's turn -- and it is untapped either way.
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may untap it and remove it from combat.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::Untap {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::RemoveFromCombat {
+                        object: EffectRecipientDef::Source,
+                    },
+                ]),
+            },
+        ),
+    ),
 );
 
 // ONS 36 — Gustcloak Savior
@@ -468,13 +485,30 @@ pub(in crate::card::sets) static GUSTCLOAK_SAVIOR: CardRecord = CardRecord::new(
 );
 
 // ONS 37 — Gustcloak Sentinel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUSTCLOAK_SENTINEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b90da5c3-fd8f-445d-809f-e129870d7449"),
     "Gustcloak Sentinel",
-    crate::card::CardArt::new("b90da5c3-fd8f-445d-809f-e129870d7449", "Mark Zug"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b90da5c3-fd8f-445d-809f-e129870d7449", "Mark Zug"),
+    CardSet::Onslaught,
+    // The same escape on a body big enough that blocking it was the
+    // defender's only real option.
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Soldier"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may untap it and remove it from combat.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::Untap {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::RemoveFromCombat {
+                        object: EffectRecipientDef::Source,
+                    },
+                ]),
+            },
+        ),
+    ),
 );
 
 // ONS 38 — Gustcloak Skirmisher

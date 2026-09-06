@@ -13,10 +13,10 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, CostDef, CostQuantityDef, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
+    AppliedRuleDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
+    CardSupertype, CardType, ComparisonDef, CostDef, CostQuantityDef, DamageEventMatcherDef,
+    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerConditionDef,
     TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -2139,13 +2139,25 @@ pub(in crate::card::sets) static EARTH_RIFT: CardRecord = CardRecord::new(
 );
 
 // ODY 190 — Ember Beast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EMBER_BEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("25080720-612f-40c0-8894-cda8e3e8afb8"),
     "Ember Beast",
-    crate::card::CardArt::new("25080720-612f-40c0-8894-cda8e3e8afb8", "Wayne England"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("25080720-612f-40c0-8894-cda8e3e8afb8", "Wayne England"),
+    CardSet::Odyssey,
+    // The same deal a size up: a 3/4 body that cannot hold the ground by
+    // itself, which is exactly what a 3/4 is for.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Beast"], 3, 4).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't attack or block alone.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttackAlone),
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlockAlone),
+                ]),
+            },
+        ),
+    ),
 );
 
 // ODY 191 — Engulfing Flames

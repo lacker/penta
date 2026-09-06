@@ -271,7 +271,7 @@ impl Game {
                         && !permanent.attacking
                         && self.must_attack_if_able(permanent)
                 });
-                if !a_creature_must_attack && self.attack_declaration_is_payable(player) {
+                if !a_creature_must_attack && self.attack_declaration_may_finish(player) {
                     actions.push(Action::FinishDeclaringAttackers);
                 }
                 actions.extend(self.attacker_actions(player));

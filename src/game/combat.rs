@@ -371,6 +371,29 @@ impl Game {
         blockers >= maximum
     }
 
+    /// Whether the attack declaration may be locked in: nothing about its
+    /// shape is illegal, and its declaration cost can be paid.
+    pub(in crate::game) fn attack_declaration_may_finish(&self, player: PlayerId) -> bool {
+        !self.attack_declaration_restriction_is_unsatisfied(player)
+            && self.attack_declaration_is_payable(player)
+    }
+
+    /// Whether the finished attack declaration leaves a creature that
+    /// cannot attack alone doing exactly that.
+    ///
+    /// Like the minimum-blocker rule this is a constraint on the declaration
+    /// rather than on any one attack: declaring the creature is legal, and it
+    /// only becomes illegal by being the only one when the declaration ends.
+    fn attack_declaration_restriction_is_unsatisfied(&self, player: PlayerId) -> bool {
+        let attackers: Vec<_> = self
+            .battlefield
+            .iter()
+            .filter(|permanent| permanent.attacking && permanent.controller == player)
+            .collect();
+        attackers.len() == 1
+            && self.has_applied_rule(attackers[0], AppliedRuleDef::CannotAttackAlone)
+    }
+
     /// Whether some attacker that takes more than one blocker is blocked by
     /// too few.
     ///
@@ -394,6 +417,19 @@ impl Game {
                     .count();
                 blockers > 0 && blockers < minimum
             })
+            || self.lone_blocker_cannot_block_alone(player)
+    }
+
+    /// Whether the player's whole block declaration is one creature that
+    /// cannot block alone. Counted across the combat rather than per
+    /// attacker: what the clause forbids is being the only blocker anywhere.
+    fn lone_blocker_cannot_block_alone(&self, player: PlayerId) -> bool {
+        let blockers: Vec<_> = self
+            .battlefield
+            .iter()
+            .filter(|permanent| permanent.controller == player && !permanent.blocking.is_empty())
+            .collect();
+        blockers.len() == 1 && self.has_applied_rule(blockers[0], AppliedRuleDef::CannotBlockAlone)
     }
 
     /// Whether this blocker could legally be declared against this one

@@ -27,6 +27,7 @@ mod attacks_alone;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod blocker_punishment;
+mod cannot_act_alone;
 mod conditional_statics;
 mod dies_shrink_trigger;
 mod discard_a_land_cost;
@@ -53,6 +54,7 @@ mod sacrifice_for_mana;
 mod skewer_the_critics;
 mod sliver_granted_pump;
 mod token_fixtures;
+mod untap_out_of_combat;
 mod upkeep_or_sacrifice;
 pub(super) use token_fixtures::*;
 

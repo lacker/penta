@@ -25,6 +25,14 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **A creature can be barred from attacking or blocking on its own.**
+  `AppliedRuleDef::CannotAttackAlone` and `CannotBlockAlone` constrain the
+  finished declaration rather than any one attack or block: declaring the
+  creature is legal, and only ending the declaration with nothing beside it
+  is not. They are separate rules because a card may print either half.
+  Blocking alone is counted across the whole combat rather than per
+  attacker. Mogg Flunkies and Ember Beast are the first users.
+
 - **A block restriction can cap how many creatures block.**
   `BlockRestrictionDef::MaximumBlockers` is the mirror of `MinimumBlockers`
   in wording only. A minimum constrains the finished declaration, because

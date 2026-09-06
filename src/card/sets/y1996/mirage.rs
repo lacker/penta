@@ -12,15 +12,15 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, ColorSet, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
-    DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef, SumValueDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    BattlefieldArrivalDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, ColorSet, CreatedTokensDef, DamageEventMatcherDef,
+    DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
+    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -379,13 +379,46 @@ pub(in crate::card::sets) static FEMEREF_SCOUTS: CardRecord = CardRecord::new(
 // MIR 20 — Healing Salve (reprint)
 
 // MIR 21 — Illumination
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ILLUMINATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb28f6e5-c9ef-416e-b315-967d857e7600"),
     "Illumination",
-    crate::card::CardArt::new("eb28f6e5-c9ef-416e-b315-967d857e7600", "David O'Connor"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eb28f6e5-c9ef-416e-b315-967d857e7600", "David O'Connor"),
+    CardSet::Mirage,
+    // Two white mana to answer the artifacts and enchantments white
+    // otherwise cannot touch, and the life is the apology.
+    CardRules::new_instant(mana_cost!("{W}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target artifact or enchantment spell. Its controller gains life equal to its \
+         mana value.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+            // Their life, not yours, and the mana value is read from the
+            // spell after it has already left the stack.
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
+                amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            },
+        ]),
+    )),
 );
 
 // MIR 22 — Iron Tusk Elephant
@@ -1498,13 +1531,37 @@ pub(in crate::card::sets) static ABYSSAL_HUNTER: CardRecord = CardRecord::new(
 );
 
 // MIR 104 — Ashen Powder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ASHEN_POWDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("686aebd0-0d34-47e3-bbbd-ad08d2a3a864"),
     "Ashen Powder",
-    crate::card::CardArt::new("686aebd0-0d34-47e3-bbbd-ad08d2a3a864", "Geofrey Darrow"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("686aebd0-0d34-47e3-bbbd-ad08d2a3a864", "Geofrey Darrow"),
+    CardSet::Mirage,
+    // Four mana to take the best thing that died, which in a long game is
+    // better than anything the deck could have drawn.
+    CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Put target creature card from an opponent's graveyard onto the battlefield under your \
+         control.",
+        // Their graveyard only, so it steals rather than recurs.
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::Opponent),
+            },
+        )],
+        EffectDef::WithBattlefieldArrival {
+            effect: &EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
+            arrival: BattlefieldArrivalDef {
+                controller: Some(PlayerRelation::You),
+                ..BattlefieldArrivalDef::DEFAULT
+            },
+        },
+    )),
 );
 
 // MIR 105 — Barbed-Back Wurm

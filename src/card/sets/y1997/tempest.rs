@@ -1579,13 +1579,39 @@ pub(in crate::card::sets) static DREAD_OF_NIGHT: CardRecord = CardRecord::new(
 );
 
 // TMP 131 — Dregs of Sorrow
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DREGS_OF_SORROW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("80e4203a-ff11-4075-a03a-11448779b413"),
     "Dregs of Sorrow",
-    crate::card::CardArt::new("80e4203a-ff11-4075-a03a-11448779b413", "Thomas Gianni"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("80e4203a-ff11-4075-a03a-11448779b413", "Thomas Gianni"),
+    CardSet::Tempest,
+    // Removal and cards in one card at a rate nobody would pay before turn
+    // seven, which is exactly when it is castable.
+    CardRules::new_sorcery(mana_cost!("{X}{4}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy X target nonblack creatures. Draw X cards.",
+        &[AbilityTargetDef::exactly_chosen_x(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // The same X the targets were chosen for, so a countered or
+            // vanished target does not reduce the draw.
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::ChosenX,
+            },
+        ]),
+    )),
 );
 
 // TMP 132 — Endless Scream

@@ -3062,13 +3062,15 @@ pub(in crate::card::sets) static NURTURING_LICID: CardRecord = CardRecord::new(
 // TMP 243 — Overrun (reprint)
 
 // TMP 244 — Pincher Beetles
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PINCHER_BEETLES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dba68902-1e05-414a-8c3d-1f97da61d09d"),
     "Pincher Beetles",
-    crate::card::CardArt::new("dba68902-1e05-414a-8c3d-1f97da61d09d", "Stephen Daniele"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dba68902-1e05-414a-8c3d-1f97da61d09d", "Stephen Daniele"),
+    CardSet::Tempest,
+    // A 3/1 nothing can target, which in a removal-heavy format is worth
+    // more than the fragile body suggests.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Insect"], 3, 1)
+        .with_ability(abilities::shroud()),
 );
 
 // TMP 245 — Rampant Growth (reprint)
@@ -3134,16 +3136,17 @@ pub(in crate::card::sets) static ROOT_MAZE: CardRecord = CardRecord::new_with_le
 );
 
 // TMP 251 — Rootbreaker Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROOTBREAKER_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a686ed6-fc13-4882-b56c-667f556d9804"),
     "Rootbreaker Wurm",
-    crate::card::CardArt::new(
+    CardArt::new(
         "9a686ed6-fc13-4882-b56c-667f556d9804",
         "Richard Kane Ferguson",
     ),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardSet::Tempest,
+    // Seven mana for a 6/6 trampler, the plain top end of green's curve.
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Wurm"], 6, 6)
+        .with_ability(abilities::trample()),
 );
 
 // TMP 252 — Rootwalla (reprint)

@@ -1917,13 +1917,15 @@ pub(in crate::card::sets) static RIGHTEOUS_WAR: CardRecord = CardRecord::new(
 );
 
 // VIS 135 — Scalebane's Elite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCALEBANE_S_ELITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3bff610-783a-46b7-bd15-061da41027bb"),
     "Scalebane's Elite",
-    crate::card::CardArt::new("b3bff610-783a-46b7-bd15-061da41027bb", "Steve Luke"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b3bff610-783a-46b7-bd15-061da41027bb", "Steve Luke"),
+    CardSet::Visions,
+    // A 4/4 that black cannot block or remove, printed for a format where
+    // black did both.
+    CardRules::new_creature(mana_cost!("{3}{G}{W}"), &["Human", "Soldier"], 4, 4)
+        .with_ability(abilities::protection_from_color(ManaColor::Black)),
 );
 
 // VIS 136 — Simoon

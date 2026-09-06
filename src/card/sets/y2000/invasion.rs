@@ -2853,13 +2853,14 @@ pub(in crate::card::sets) static KANGEE_AERIE_KEEPER: CardRecord = CardRecord::n
 );
 
 // INV 254 — Llanowar Knight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6c75d89-e432-49aa-a407-555b223b7eff"),
     "Llanowar Knight",
-    crate::card::CardArt::new("e6c75d89-e432-49aa-a407-555b223b7eff", "Heather Hudson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e6c75d89-e432-49aa-a407-555b223b7eff", "Heather Hudson"),
+    CardSet::Invasion,
+    // The two-mana version of the same hoser.
+    CardRules::new_creature(mana_cost!("{G}{W}"), &["Elf", "Knight"], 2, 2)
+        .with_ability(abilities::protection_from_color(ManaColor::Black)),
 );
 
 // INV 255 — Lobotomy (reprint)
@@ -3142,13 +3143,27 @@ pub(in crate::card::sets) static URBORG_DRAKE: CardRecord = CardRecord::new(
 );
 
 // INV 284 — Vicious Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VICIOUS_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31e9e629-7c25-4d45-aa35-9ba5f95b43cb"),
     "Vicious Kavu",
-    crate::card::CardArt::new("31e9e629-7c25-4d45-aa35-9ba5f95b43cb", "Kev Walker"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("31e9e629-7c25-4d45-aa35-9ba5f95b43cb", "Kev Walker"),
+    CardSet::Invasion,
+    // A 2/2 that attacks as a 4/2, so blocking it profitably takes a
+    // creature they were not going to trade.
+    CardRules::new_creature(mana_cost!("{1}{B}{R}"), &["Kavu"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +2/+0 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 285 — Vile Consumption

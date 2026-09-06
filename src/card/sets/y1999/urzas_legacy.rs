@@ -1569,13 +1569,15 @@ pub(in crate::card::sets) static YAVIMAYA_SCION: CardRecord = CardRecord::new(
 );
 
 // ULG 120 — Yavimaya Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YAVIMAYA_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dde16069-7176-42dc-88d8-fb37b7894007"),
     "Yavimaya Wurm",
-    crate::card::CardArt::new("dde16069-7176-42dc-88d8-fb37b7894007", "Melissa A. Benson"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dde16069-7176-42dc-88d8-fb37b7894007", "Melissa A. Benson"),
+    CardSet::UrzasLegacy,
+    // Two mana cheaper than Rootbreaker Wurm and two toughness worse,
+    // which is the whole difference.
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Wurm"], 6, 4)
+        .with_ability(abilities::trample()),
 );
 
 // ULG 121 — Angel's Trumpet

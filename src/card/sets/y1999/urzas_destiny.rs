@@ -1188,16 +1188,17 @@ pub(in crate::card::sets) static COMPOST: CardRecord = CardRecord::new(
 );
 
 // UDS 103 — Elvish Lookout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_LOOKOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d9a8a0e2-311a-4627-8a48-43df045c3112"),
     "Elvish Lookout",
-    crate::card::CardArt::new(
+    CardArt::new(
         "d9a8a0e2-311a-4627-8a48-43df045c3112",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasDestiny,
+    // A one-mana Elf that removal cannot answer, which matters only to a
+    // deck counting Elves.
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf"], 1, 1).with_ability(abilities::shroud()),
 );
 
 // UDS 104 — Elvish Piper

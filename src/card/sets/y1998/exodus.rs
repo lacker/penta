@@ -61,13 +61,27 @@ pub(in crate::card::sets) static CATACLYSM: CardRecord = CardRecord::new(
 );
 
 // EXO 4 — Charging Paladin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHARGING_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29db1bbf-a6cf-460c-bec8-dbd682157af4"),
     "Charging Paladin",
-    crate::card::CardArt::new("851f3f72-2923-4432-898a-02679a8b320f", "Ciruelo"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("851f3f72-2923-4432-898a-02679a8b320f", "Ciruelo"),
+    CardSet::Exodus,
+    // Toughness rather than power: it attacks into anything and survives,
+    // which is white's version of an unblockable threat.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +0/+3 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 5 — Convalescence

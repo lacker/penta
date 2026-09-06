@@ -11,13 +11,13 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardNameSetDef, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, DamageEventMatcherDef, DamagePreventionDef,
-    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameSetDef, CardRules,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet,
+    DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -2348,13 +2348,33 @@ pub(in crate::card::sets) static DWARVEN_MINER: CardRecord = CardRecord::new(
 );
 
 // MIR 170 — Dwarven Nomad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWARVEN_NOMAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("30b09e65-5e69-48f8-be9b-a1e9706f18bf"),
     "Dwarven Nomad",
-    crate::card::CardArt::new("30b09e65-5e69-48f8-be9b-a1e9706f18bf", "Mike Kimble"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("30b09e65-5e69-48f8-be9b-a1e9706f18bf", "Mike Kimble"),
+    CardSet::Mirage,
+    // It cannot make itself unblockable usefully; what it does is push
+    // somebody else's small attacker through every turn.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dwarf", "Nomad"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature with power 2 or less can't be blocked this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    // Read when the ability is activated and again when it
+                    // resolves, so a creature pumped in response is no
+                    // longer a legal target.
+                    ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MIR 171 — Ekundu Cyclops
@@ -2582,13 +2602,24 @@ pub(in crate::card::sets) static PYRIC_SALAMANDER: CardRecord = CardRecord::new(
 );
 
 // MIR 188 — Raging Spirit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAGING_SPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a196c21b-e9f5-4ae8-8a1e-668685ef4cf0"),
     "Raging Spirit",
-    crate::card::CardArt::new("a196c21b-e9f5-4ae8-8a1e-668685ef4cf0", "Scott M. Fischer"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a196c21b-e9f5-4ae8-8a1e-668685ef4cf0", "Scott M. Fischer"),
+    CardSet::Mirage,
+    // Two mana to dodge protection from red and every colour-based removal
+    // spell, which is the only reason the ability is there.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Spirit"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{2}: This creature becomes colorless until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::set_colors(ColorSet::empty()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MIR 189 — Reckless Embermage

@@ -17,10 +17,11 @@ use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
-    CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef,
-    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PartitionGroupDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, EffectDef,
+    EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -1504,13 +1505,24 @@ pub(in crate::card::sets) static YAWGMOTH_S_AGENDA: CardRecord = CardRecord::new
 );
 
 // INV 136 — Ancient Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCIENT_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c8ccb5d0-735b-443f-addd-8b70f5f2c60d"),
     "Ancient Kavu",
-    crate::card::CardArt::new("c8ccb5d0-735b-443f-addd-8b70f5f2c60d", "Glen Angus"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c8ccb5d0-735b-443f-addd-8b70f5f2c60d", "Glen Angus"),
+    CardSet::Invasion,
+    // A colourless mode in a block full of protection-from-colour: two mana
+    // turns off every one of them at once.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Kavu"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{2}: This creature becomes colorless until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::set_colors(ColorSet::empty()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 137 — Bend or Break

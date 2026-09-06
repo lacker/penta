@@ -901,13 +901,33 @@ pub(in crate::card::sets) static COMPLICATE: CardRecord = CardRecord::new(
 );
 
 // ONS 77 — Crafty Pathmage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRAFTY_PATHMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5d91378-f831-40ef-a79b-b044af1470e0"),
     "Crafty Pathmage",
-    crate::card::CardArt::new("c5d91378-f831-40ef-a79b-b044af1470e0", "Wayne England"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c5d91378-f831-40ef-a79b-b044af1470e0", "Wayne England"),
+    CardSet::Onslaught,
+    // The blue printing of the same effect, and a Wizard, which is what
+    // Onslaught cared about.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature with power 2 or less can't be blocked this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    // Read when the ability is activated and again when it
+                    // resolves, so a creature pumped in response is no
+                    // longer a legal target.
+                    ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ONS 78 — Crown of Ascension

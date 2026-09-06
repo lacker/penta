@@ -3,10 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    ObjectPredicateDef, PayOrDef, PlayerRelation, PlayerSetDef, SpellAdditionalCostDef,
-    TriggerEventDef, TurnStepDef, ValueDef, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, CardArt,
+    CardRules, CardSet, CardType, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PayOrDef, PlayerRelation,
+    PlayerSetDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -43,13 +44,40 @@ pub(in crate::card::sets) static SPHINX_OF_FORESIGHT: CardRecord = CardRecord::n
 );
 
 // RNA 115 — Skewer the Critics
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKEWER_THE_CRITICS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97295660-6bea-46ae-9a3b-0fc6abba407f"),
     "Skewer the Critics",
-    crate::card::CardArt::new("97295660-6bea-46ae-9a3b-0fc6abba407f", "Heonhwa"),
-    crate::card::CardSet::RavnicaAllegiance,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("97295660-6bea-46ae-9a3b-0fc6abba407f", "Heonhwa"),
+    CardSet::RavnicaAllegiance,
+    // A one-mana Lava Spike in the deck that was already attacking, and a
+    // dead card in the deck that was not. Nothing about the spell changes
+    // when spectacle pays for it; only the price does.
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "This spell deals 3 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+        // Spectacle (CR 702.137a) is an alternative cost gated on a board
+        // condition, which is the same shape Mogg Salvage's free cast has.
+        // "Lost life", not "was dealt damage": a Thoughtseize or a painland
+        // turns it on just as well as an attack.
+        AbilityDef::alternative_cast(
+            mana_cost!("{R}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "Spectacle {R} (You may cast this spell for its spectacle cost rather than its \
+                 mana cost if an opponent lost life this turn.)",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&TriggerConditionDef::OpponentLostLifeThisTurn),
+    ]),
 );
 
 // RNA 171 — Final Payment

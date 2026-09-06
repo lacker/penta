@@ -535,6 +535,9 @@ impl Game {
                 TriggerConditionDef::ControllerGainedLifeThisTurn => {
                     self.life_gained_this_turn[controller.index()] > 0
                 }
+                TriggerConditionDef::OpponentLostLifeThisTurn => {
+                    self.lost_life_this_turn[controller.opponent().index()]
+                }
                 TriggerConditionDef::ControllerHadPermanentLeaveThisTurn => {
                     self.permanent_left_battlefield_this_turn[controller.index()]
                 }

@@ -25,6 +25,12 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Spectacle's condition is readable where an alternative cost is offered.**
+  `TriggerConditionDef::OpponentLostLifeThisTurn` is controller-relative, so
+  it answers before there is a spell on the stack. The existing
+  `ValueDef::OpponentsWhoLostLifeThisTurn` reads its controller off a stack
+  object and so cannot gate a cast. Skewer the Critics is the first user.
+
 - **Bargain is a named optional additional cost.**
   `OptionalAdditionalCostKindDef::Bargain` joins kicker's family: paid once as
   the spell is cast, read back with `ValueDef::IfAdditionalCostPaid`. Candy

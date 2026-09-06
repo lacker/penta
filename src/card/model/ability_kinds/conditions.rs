@@ -168,6 +168,11 @@ pub enum TriggerConditionDef {
     /// means and any amount. Counted as it happens: the life total afterwards
     /// cannot tell a gain from a loss that undid it.
     ControllerGainedLifeThisTurn,
+    /// Whether an opponent of this ability's controller lost life this turn,
+    /// which is what spectacle (CR 702.137a) reads. Controller-relative
+    /// rather than a value over the stack, because the alternative cost is
+    /// offered before there is a spell to read a controller from.
+    OpponentLostLifeThisTurn,
     /// Revolt (CR 702.121a): whether a permanent left the battlefield from
     /// under this ability's controller this turn. Counted as it happens, for
     /// the same reason the life gain above is: the board afterwards cannot

@@ -33,6 +33,7 @@ mod nyxborn_hydra;
 mod phantom_interference;
 mod raid_bombardment;
 mod reckless_impulse;
+mod skewer_the_critics;
 mod token_fixtures;
 pub(super) use token_fixtures::*;
 

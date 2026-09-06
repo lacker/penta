@@ -556,6 +556,49 @@ pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
 
+/// The delayed half of mobilize: the tokens this attack made go away at the
+/// next end step, and it has to be exactly those. By then nothing about the
+/// board could tell them from the ones the last attack made, or from a
+/// Warrior that arrived some other way, so they are bound as they are
+/// created and this names the binding.
+static MOBILIZE_SACRIFICE: EffectDef =
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+        "At the beginning of the next end step, sacrifice those tokens.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::Sacrifice {
+            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+        },
+    )));
+
+/// Mobilize N (CR 702.180a): "Whenever this creature attacks, create N tapped
+/// and attacking 1/1 red Warrior creature tokens. Sacrifice them at the
+/// beginning of the next end step."
+///
+/// Written out as the triggered ability it abbreviates. The caller supplies
+/// the printed text because the reminder spells the number out in words.
+#[must_use]
+pub const fn mobilize(count: u16, text: &'static str) -> AbilityDef {
+    AbilityDef::triggered(
+        text,
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
+            .with_art(crate::card::CardArt::new(
+                "7edc0515-a130-45a7-aa09-0e23bba41587",
+                "Forrest Imel",
+            ))
+            .with_amount(count)
+            .entering_tapped()
+            .entering_attacking()
+            .with_created_tokens(CreatedTokensDef {
+                binding: ParentBinding,
+                then: &MOBILIZE_SACRIFICE,
+            }),
+    )
+}
+
 /// Boast (CR 702.141): the two restrictions the keyword abbreviates, applied
 /// to an activated ability the caller has already built.
 ///

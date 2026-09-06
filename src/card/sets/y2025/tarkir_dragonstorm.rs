@@ -7,12 +7,11 @@ use crate::card::{
     CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatedTokensDef,
     EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef,
-    FreePlayDurationDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
-    PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, QuantifierDef, ResolvedEffectDurationDef, SpellForm,
-    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    FreePlayDurationDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayOptionDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, ParentBinding, PlayOptionId, TargetIndex};
 use crate::mana_cost;
@@ -330,40 +329,10 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_
     // instant your opponent was holding for the turn you attack.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Bard"], 1, 3)
         .with_abilities(&[
-            // Mobilize 2 (CR 702.180a). Written out rather than abbreviated: the
-            // keyword is a shorthand for a triggered ability, and this is that ability.
-            AbilityDef::triggered(
+            abilities::mobilize(
+                2,
                 "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
                  creature tokens. Sacrifice them at the beginning of the next end step.)",
-                TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
-                    .with_art(CardArt::new(
-                        "7edc0515-a130-45a7-aa09-0e23bba41587",
-                        "Forrest Imel",
-                    ))
-                    .with_amount(2)
-                    .entering_tapped()
-                    .entering_attacking()
-                    .with_created_tokens(CreatedTokensDef {
-                        binding: ParentBinding,
-                        // The tokens go away at the next end step, and it has to be exactly the
-                        // ones this attack made: by then nothing about the board could tell them
-                        // apart from the pair the last attack made, or from a Warrior that arrived
-                        // some other way. So they are bound as they are created and the delayed
-                        // clause names the binding.
-                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                                "At the beginning of the next end step, sacrifice those tokens.",
-                                TriggerEventDef::StepBegins {
-                                    step: TurnStepDef::End,
-                                    player: PlayerRelation::Any,
-                                },
-                                EffectDef::Sacrifice {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ParentBinding,
-                                    )),
-                                },
-                            ))),
-                    }),
             ),
             AbilityDef::static_ability(
                 "Your opponents can't cast spells during your turn.",
@@ -436,13 +405,22 @@ pub(in crate::card::sets) static SEIZE_OPPORTUNITY: CardRecord = CardRecord::new
 );
 
 // TDM 120 — Shock Brigade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHOCK_BRIGADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66940466-8e9d-4a85-bfb0-e92189b7a121"),
     "Shock Brigade",
-    crate::card::CardArt::new("66940466-8e9d-4a85-bfb0-e92189b7a121", "Fajareka Setiawan"),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("66940466-8e9d-4a85-bfb0-e92189b7a121", "Fajareka Setiawan"),
+    CardSet::TarkirDragonstorm,
+    // A 1/3 body nobody blocks profitably, attacking as two creatures. The
+    // Warrior is gone by the end step, so what mobilize buys is damage on
+    // this attack rather than a board.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Soldier"], 1, 3).with_abilities(&[
+        abilities::menace(),
+        abilities::mobilize(
+            1,
+            "Mobilize 1 (Whenever this creature attacks, create a tapped and attacking 1/1 red \
+             Warrior creature token. Sacrifice it at the beginning of the next end step.)",
+        ),
+    ]),
 );
 
 // TDM 127 — Tersa Lightshatter

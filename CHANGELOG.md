@@ -25,6 +25,11 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Bargain is a named optional additional cost.**
+  `OptionalAdditionalCostKindDef::Bargain` joins kicker's family: paid once as
+  the spell is cast, read back with `ValueDef::IfAdditionalCostPaid`. Candy
+  Grapple is the first card to print it.
+
 - **"Until the end of your next turn" is now a permission duration.**
   `ExilePlayDurationDef::UntilEndOfYourNextTurn` grants play permission over
   exiled cards through the holder's following turn. It is always a turn longer

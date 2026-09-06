@@ -1,16 +1,18 @@
 //! Wilds of Eldraine cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::AdditionalCostIndex;
 use crate::card::PlayOptionDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, BlockRestrictionDef, CardArt,
-    CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
-    CardType, CharacteristicOperationDef, CostModificationDef, CounterKind, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellForm,
-    SpellResolutionDestinationDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    AdditionalCostValueDef, AlternateSpellKind, AppliedEffectDef, AppliedRuleDef,
+    BlockRestrictionDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
+    CardStructure, CardSupertype, CardType, CharacteristicOperationDef, CostModificationDef,
+    CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, OptionalAdditionalCostAbilityDef,
+    OptionalAdditionalCostKindDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::{CardPartId, PlayOptionId, mana_cost};
@@ -40,13 +42,60 @@ pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
 );
 
 // WOE 83 — Candy Grapple
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("190d97bc-dbef-496d-9bd1-b785bdf8a964"),
     "Candy Grapple",
-    crate::card::CardArt::new("190d97bc-dbef-496d-9bd1-b785bdf8a964", "Konstantin Porubov"),
-    crate::card::CardSet::WildsOfEldraine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("190d97bc-dbef-496d-9bd1-b785bdf8a964", "Konstantin Porubov"),
+    CardSet::WildsOfEldraine,
+    // Two mana kills most of what a limited deck plays, and the Food this
+    // set hands out is what turns the rest into targets too.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::optional_additional_cost(
+            "Bargain (You may sacrifice an artifact, enchantment, or token as you cast this \
+             spell.)",
+            OptionalAdditionalCostAbilityDef {
+                kind: OptionalAdditionalCostKindDef::Bargain,
+                label: OptionalAdditionalCostKindDef::Bargain.label(),
+                mana_cost: None,
+                // "Or token": a creature token qualifies on the last clause
+                // even though it is neither an artifact nor an enchantment.
+                additional_cost: Some(SpellAdditionalCostDef::Sacrifice {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::Token,
+                    ]),
+                    quantity: CostQuantityDef::Fixed(1),
+                }),
+                resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            },
+        ),
+        AbilityDef::spell_with_targets(
+            "Target creature gets -3/-3 until end of turn. If this spell was bargained, that \
+             creature gets -5/-5 until end of turn instead.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                // One effect reading the payment back, not two: "instead"
+                // means the bargained spell never applies the smaller number.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+                        AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(-5),
+                        ValueDef::Constant(-3),
+                    )),
+                    ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+                        AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(-5),
+                        ValueDef::Constant(-3),
+                    )),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 /// The Rat this set's Rat deck keeps printing: a 1/1 body that attacks and

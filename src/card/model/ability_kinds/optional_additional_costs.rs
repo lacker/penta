@@ -38,6 +38,10 @@ pub enum OptionalAdditionalCostKindDef {
     /// Conspire (CR 702.78): tap two untapped creatures that share a color
     /// with the spell once; a cast trigger on the spell creates the copy.
     Conspire,
+    /// Bargain (CR 702.166): sacrifice an artifact, enchantment, or token
+    /// once. Like kicker it buys a yes rather than a number, and what that
+    /// yes is worth is printed beside it on each card that has it.
+    Bargain,
 }
 
 impl OptionalAdditionalCostKindDef {
@@ -51,6 +55,7 @@ impl OptionalAdditionalCostKindDef {
             Self::Repeatable => "Additional cost",
             Self::Squad => "Squad",
             Self::Conspire => "Conspire",
+            Self::Bargain => "Bargain",
         }
     }
 
@@ -114,6 +119,7 @@ impl OptionalAdditionalCostAbilityDef {
             ),
             (OptionalAdditionalCostKindDef::Squad, None) => "Squad".into(),
             (OptionalAdditionalCostKindDef::Conspire, _) => "Conspire".into(),
+            (OptionalAdditionalCostKindDef::Bargain, _) => "Bargain".into(),
         }
     }
 

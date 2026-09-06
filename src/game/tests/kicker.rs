@@ -412,3 +412,60 @@ fn primitive_justice_scales_targets_and_counts_only_green_for_life() {
         vec![artifacts[3]],
     );
 }
+
+/// Bargain is kicker's shape with a sacrifice instead of mana: paid once,
+/// read back as a yes. Candy Grapple is the first card to print it, and the
+/// two sizes are one effect reading the payment rather than two clauses.
+#[test]
+fn bargain_is_optional_and_the_payment_picks_which_number_applies() {
+    for bargained in [false, true] {
+        let mut game = ready_game();
+        game.battlefield.clear();
+        let mut victim = creature(21_000, cards::SERRA_ANGEL, PlayerId::Two);
+        victim.entered_controller_turn = 0;
+        let victim_id = victim.card.id;
+        game.battlefield.push(victim);
+        let food = creature(21_001, cards::ORNITHOPTER, PlayerId::One);
+        game.battlefield.push(food);
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
+
+        let grapple = card_in_hand(&mut game, cards::CANDY_GRAPPLE);
+        let cast = game
+            .legal_actions(PlayerId::One)
+            .into_iter()
+            .find(|action| match action {
+                Action::CastSpell {
+                    card: candidate,
+                    choices,
+                    ..
+                } => {
+                    *candidate == grapple
+                        && choices.costs().additional().is_empty() != bargained
+                        && choices
+                            .targets()
+                            .iter()
+                            .flat_map(TargetSelection::targets)
+                            .copied()
+                            .eq([Target::Permanent(victim_id)])
+                }
+                _ => false,
+            })
+            .expect("both the bargained and unbargained casts are offered");
+        game.apply(PlayerId::One, cast).expect("the spell is cast");
+        settle(&mut game);
+
+        // A 4/4 survives -3/-3 as a 1/1 and does not survive -5/-5, which is
+        // the whole of what the sacrifice buys.
+        let toughness = game
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == victim_id)
+            .and_then(|permanent| game.toughness(permanent));
+        if bargained {
+            assert_eq!(toughness, None, "the bargained -5/-5 kills a 4/4");
+        } else {
+            assert_eq!(toughness, Some(1), "the unbargained -3/-3 leaves a 1/1");
+        }
+    }
+}

@@ -18,9 +18,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef,
-    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PartitionGroupDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -3318,13 +3318,47 @@ pub(in crate::card::sets) static SEASHELL_CAMEO: CardRecord = CardRecord::new(
 );
 
 // INV 312 — Sparring Golem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPARRING_GOLEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d829d9de-83fa-4feb-8efc-0075315163c6"),
     "Sparring Golem",
-    crate::card::CardArt::new("d829d9de-83fa-4feb-8efc-0075315163c6", "Adam Rex"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d829d9de-83fa-4feb-8efc-0075315163c6", "Adam Rex"),
+    CardSet::Invasion,
+    // Colourless, so any deck can have the same awkward attacker nobody
+    // wants to gang up on.
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Golem"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +1/+1 until end of turn \
+             for each creature blocking it.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Counted as the trigger resolves, so a blocker that
+                // has already left is not counted and one added by a
+                // later effect is.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(
+                        &const {
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::BlockingSource,
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            )
+                        },
+                    ),
+                    ValueDef::CountMatchingObjects(
+                        &const {
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::BlockingSource,
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            )
+                        },
+                    ),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // INV 313 — Tek

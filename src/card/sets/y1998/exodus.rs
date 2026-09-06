@@ -7,7 +7,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef,
-    ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
@@ -1193,13 +1193,47 @@ pub(in crate::card::sets) static ELVEN_PALISADE: CardRecord = CardRecord::new(
 );
 
 // EXO 110 — Elvish Berserker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_BERSERKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dfa69a8e-1b75-4d93-918d-d772cec69e99"),
     "Elvish Berserker",
-    crate::card::CardArt::new("dfa69a8e-1b75-4d93-918d-d772cec69e99", "Paolo Parente"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dfa69a8e-1b75-4d93-918d-d772cec69e99", "Paolo Parente"),
+    CardSet::Exodus,
+    // A 1/1 that punishes a gang block: the more creatures they commit, the
+    // bigger it gets, so double-blocking it is a trap.
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Berserker"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +1/+1 until end of turn \
+             for each creature blocking it.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Counted as the trigger resolves, so a blocker that
+                // has already left is not counted and one added by a
+                // later effect is.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(
+                        &const {
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::BlockingSource,
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            )
+                        },
+                    ),
+                    ValueDef::CountMatchingObjects(
+                        &const {
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::BlockingSource,
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            )
+                        },
+                    ),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // EXO 111 — Jackalope Herd

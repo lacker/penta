@@ -17,8 +17,9 @@ use crate::card::{
     CardSupertype, CardType, ComparisonDef, CostQuantityDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef,
+    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2876,13 +2877,61 @@ pub(in crate::card::sets) static PRIMAL_FRENZY: CardRecord = CardRecord::new(
 );
 
 // ODY 263 — Rabid Elephant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RABID_ELEPHANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fe394a38-ee44-4342-adcf-8c65d14f4978"),
     "Rabid Elephant",
-    crate::card::CardArt::new("fe394a38-ee44-4342-adcf-8c65d14f4978", "Dave Dorman"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fe394a38-ee44-4342-adcf-8c65d14f4978", "Dave Dorman"),
+    CardSet::Odyssey,
+    // A 3/4 that becomes a 7/8 against a double block, which is the whole
+    // reason to attack with it into an open board.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Elephant"], 3, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +2/+2 until end of turn \
+             for each creature blocking it.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Counted as the trigger resolves, so a blocker that
+                // has already left is not counted and one added by a
+                // later effect is.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Scaled(
+                        &const {
+                            ScaledValueDef {
+                                value: ValueDef::CountMatchingObjects(
+                                    &const {
+                                        ObjectQueryDef::matching(
+                                            ObjectPredicateDef::BlockingSource,
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::Any,
+                                        )
+                                    },
+                                ),
+                                factor: 2,
+                            }
+                        },
+                    ),
+                    ValueDef::Scaled(
+                        &const {
+                            ScaledValueDef {
+                                value: ValueDef::CountMatchingObjects(
+                                    &const {
+                                        ObjectQueryDef::matching(
+                                            ObjectPredicateDef::BlockingSource,
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::Any,
+                                        )
+                                    },
+                                ),
+                                factor: 2,
+                            }
+                        },
+                    ),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ODY 264 — Refresh

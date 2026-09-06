@@ -22,6 +22,7 @@ use crate::{
 };
 
 mod bannerhide_krushok;
+mod becomes_blocked_pump;
 mod enumerated_apply;
 mod fear;
 mod fixtures;

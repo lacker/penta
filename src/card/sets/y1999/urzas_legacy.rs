@@ -13,8 +13,8 @@ use crate::card::{
     ChooseDef, ColorChoiceOperationDef, CostModificationDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SpellAdditionalCostDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1239,13 +1239,61 @@ pub(in crate::card::sets) static DERANGED_HERMIT: CardRecord = CardRecord::new(
 );
 
 // ULG 102 — Gang of Elk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GANG_OF_ELK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5a84177f-43a3-4d14-9a4c-2ca931cfe092"),
     "Gang of Elk",
-    crate::card::CardArt::new("5a84177f-43a3-4d14-9a4c-2ca931cfe092", "Una Fricker"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5a84177f-43a3-4d14-9a4c-2ca931cfe092", "Una Fricker"),
+    CardSet::UrzasLegacy,
+    // A 5/4 that a single blocker cannot stop and a double block makes
+    // enormous. It is meant to be unblockable in practice.
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Elk", "Beast"], 5, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +2/+2 until end of turn \
+             for each creature blocking it.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // Counted as the trigger resolves, so a blocker that
+                // has already left is not counted and one added by a
+                // later effect is.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Scaled(
+                        &const {
+                            ScaledValueDef {
+                                value: ValueDef::CountMatchingObjects(
+                                    &const {
+                                        ObjectQueryDef::matching(
+                                            ObjectPredicateDef::BlockingSource,
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::Any,
+                                        )
+                                    },
+                                ),
+                                factor: 2,
+                            }
+                        },
+                    ),
+                    ValueDef::Scaled(
+                        &const {
+                            ScaledValueDef {
+                                value: ValueDef::CountMatchingObjects(
+                                    &const {
+                                        ObjectQueryDef::matching(
+                                            ObjectPredicateDef::BlockingSource,
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::Any,
+                                        )
+                                    },
+                                ),
+                                factor: 2,
+                            }
+                        },
+                    ),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ULG 103 — Harmonic Convergence

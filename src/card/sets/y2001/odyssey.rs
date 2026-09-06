@@ -1709,13 +1709,24 @@ pub(in crate::card::sets) static MIND_BURST: CardRecord = CardRecord::new(
 );
 
 // ODY 149 — Mindslicer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINDSLICER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("895b1c9b-b1a1-457b-92cd-3469a38b69a3"),
     "Mindslicer",
-    crate::card::CardArt::new("895b1c9b-b1a1-457b-92cd-3469a38b69a3", "Kev Walker"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("895b1c9b-b1a1-457b-92cd-3469a38b69a3", "Kev Walker"),
+    CardSet::Odyssey,
+    // A 4/3 nobody can afford to kill, which means it attacks freely and
+    // the game ends on whoever blinks.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Horror"], 4, 3).with_ability(
+        abilities::dies_trigger(
+            "When this creature dies, each player discards their hand.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(i32::MAX),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // ODY 150 — Morbid Hunger

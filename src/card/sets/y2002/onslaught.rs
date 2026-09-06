@@ -17,7 +17,7 @@ use crate::card::{
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -1681,13 +1681,29 @@ pub(in crate::card::sets) static FEEDING_FRENZY: CardRecord = CardRecord::new(
 );
 
 // ONS 148 — Festering Goblin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FESTERING_GOBLIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7209cc8-b519-4f27-87d8-b12e239a121f"),
     "Festering Goblin",
-    crate::card::CardArt::new("e7209cc8-b519-4f27-87d8-b12e239a121f", "Thomas M. Baxa"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e7209cc8-b519-4f27-87d8-b12e239a121f", "Thomas M. Baxa"),
+    CardSet::Onslaught,
+    // A one-drop whose death is the point: it blocks an X/1 and kills it
+    // from the graveyard.
+    CardRules::new_creature(mana_cost!("{B}"), &["Zombie", "Goblin"], 1, 1).with_ability(
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, target creature gets -1/-1 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // ONS 149 — Frightshroud Courier
@@ -3302,33 +3318,54 @@ pub(in crate::card::sets) static STEELY_RESOLVE: CardRecord = CardRecord::new(
 );
 
 // ONS 287 — Symbiotic Beast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SYMBIOTIC_BEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb61443d-e47a-4fe1-b777-67a3670a5a56"),
     "Symbiotic Beast",
-    crate::card::CardArt::new("bb61443d-e47a-4fe1-b777-67a3670a5a56", "Franz Vohwinkel"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bb61443d-e47a-4fe1-b777-67a3670a5a56", "Franz Vohwinkel"),
+    CardSet::Onslaught,
+    // Six mana for eight power spread across five bodies, which no single
+    // removal spell touches.
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Insect", "Beast"], 4, 4).with_ability(
+        abilities::dies_trigger(
+            "When this creature dies, create four 1/1 green Insect creature tokens.",
+            EffectDef::create_token(tokens::creature(&["Insect"], &[ManaColor::Green], 1, 1))
+                .with_amount(4),
+        ),
+    ),
 );
 
 // ONS 288 — Symbiotic Elf
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SYMBIOTIC_ELF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33af35c6-7802-4366-ad20-1e330b4957ef"),
     "Symbiotic Elf",
-    crate::card::CardArt::new("33af35c6-7802-4366-ad20-1e330b4957ef", "Wayne England"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("33af35c6-7802-4366-ad20-1e330b4957ef", "Wayne England"),
+    CardSet::Onslaught,
+    // The body is worth the same either way, so answering it is never
+    // profitable -- only necessary.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf"], 2, 2).with_ability(
+        abilities::dies_trigger(
+            "When this creature dies, create two 1/1 green Insect creature tokens.",
+            EffectDef::create_token(tokens::creature(&["Insect"], &[ManaColor::Green], 1, 1))
+                .with_amount(2),
+        ),
+    ),
 );
 
 // ONS 289 — Symbiotic Wurm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SYMBIOTIC_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a60313ca-10cc-4c33-a557-1401c5721e3b"),
     "Symbiotic Wurm",
-    crate::card::CardArt::new("a60313ca-10cc-4c33-a557-1401c5721e3b", "Matt Cavotta"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a60313ca-10cc-4c33-a557-1401c5721e3b", "Matt Cavotta"),
+    CardSet::Onslaught,
+    // Eight mana for a 7/7 that leaves seven creatures behind, which is
+    // the top of a cycle that punishes removal at every rung.
+    CardRules::new_creature(mana_cost!("{5}{G}{G}{G}"), &["Wurm"], 7, 7).with_ability(
+        abilities::dies_trigger(
+            "When this creature dies, create seven 1/1 green Insect creature tokens.",
+            EffectDef::create_token(tokens::creature(&["Insect"], &[ManaColor::Green], 1, 1))
+                .with_amount(7),
+        ),
+    ),
 );
 
 // ONS 290 — Taunting Elf (reprint)

@@ -25,6 +25,7 @@ mod attack_and_stay_tapped;
 mod attacks_alone;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
+mod dies_shrink_trigger;
 mod discard_a_land_cost;
 mod discard_to_regenerate;
 mod enumerated_apply;

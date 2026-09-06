@@ -1364,13 +1364,24 @@ pub(in crate::card::sets) static SAPRAZZAN_OUTRIGGER: CardRecord = CardRecord::n
 );
 
 // MMQ 102 — Saprazzan Raider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("62493f34-cea8-4d9f-8781-005947b69c9d"),
     "Saprazzan Raider",
-    crate::card::CardArt::new("62493f34-cea8-4d9f-8781-005947b69c9d", "Jeff Miracola"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("62493f34-cea8-4d9f-8781-005947b69c9d", "Jeff Miracola"),
+    CardSet::MercadianMasques,
+    // Unblockable in effect, though it goes home instead of through: the
+    // attack is a threat the defender cannot profitably answer.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk"], 1, 2).with_ability(
+        AbilityDef::triggered(
+            "When this creature becomes blocked, return it to its owner's hand.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 103 — Shoving Match

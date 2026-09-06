@@ -713,16 +713,32 @@ pub(in crate::card::sets) static CHIME_OF_NIGHT: CardRecord = CardRecord::new(
 );
 
 // UDS 57 — Disease Carriers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISEASE_CARRIERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49125cfc-dbae-4543-9d2d-4cc78f45ce9a"),
     "Disease Carriers",
-    crate::card::CardArt::new(
+    CardArt::new(
         "49125cfc-dbae-4543-9d2d-4cc78f45ce9a",
         "Chippy & Matthew D. Wilson",
     ),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardSet::UrzasDestiny,
+    // The body is the down payment; what it actually buys is a removal
+    // spell that the opponent has to walk into.
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Rat"], 2, 2).with_ability(
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, target creature gets -2/-2 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // UDS 58 — Dying Wail
@@ -997,13 +1013,25 @@ pub(in crate::card::sets) static GOBLIN_FESTIVAL: CardRecord = CardRecord::new(
 );
 
 // UDS 84 — Goblin Gardener
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_GARDENER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7eab0544-9c0b-4365-86bb-bc0c3e9d87ce"),
     "Goblin Gardener",
-    crate::card::CardArt::new("7eab0544-9c0b-4365-86bb-bc0c3e9d87ce", "Dan Frazier"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7eab0544-9c0b-4365-86bb-bc0c3e9d87ce", "Dan Frazier"),
+    CardSet::UrzasDestiny,
+    // Land destruction attached to a creature that was going to trade
+    // anyway, which is how red got it at common.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin"], 2, 1).with_ability(
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, destroy target land.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // UDS 85 — Goblin Marshal

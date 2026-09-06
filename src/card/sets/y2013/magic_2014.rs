@@ -3330,13 +3330,53 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with
 );
 
 // M14 216 — Ring of Three Wishes
-// Audit: unsupported — CounterKind has no wish counter, so the entry counters and removal cost cannot share the printed counter identity.
 pub(in crate::card::sets) static RING_OF_THREE_WISHES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("219ab03a-2b3b-4eef-8a42-2cbe793d2f33"),
     "Ring of Three Wishes",
-    crate::card::CardArt::new("219ab03a-2b3b-4eef-8a42-2cbe793d2f33", "Mark Winters"),
-    crate::card::CardSet::Magic2014,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("219ab03a-2b3b-4eef-8a42-2cbe793d2f33", "Mark Winters"),
+    CardSet::Magic2014,
+    // Five to play and six a use, three times. What it buys is not speed but
+    // certainty: any card in the deck, whenever the game has stalled.
+    CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with three wish counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("wish"),
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{5}, {T}, Remove a wish counter from this artifact: Search your library for a card, \
+             put that card into your hand, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{5}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("wish"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                // "A card", with no restriction at all, which is the whole
+                // point of paying eleven mana for the first one.
+                object: ObjectPredicateDef::Any,
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // M14 217 — Rod of Ruin (reprint)

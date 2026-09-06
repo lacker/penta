@@ -3593,13 +3593,24 @@ pub(in crate::card::sets) static COASTAL_TOWER: CardRecord = CardRecord::new_wit
 );
 
 // INV 322 — Elfhame Palace
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELFHAME_PALACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("65986555-a5d7-497e-876f-b8d967d6aa5b"),
     "Elfhame Palace",
-    crate::card::CardArt::new("65986555-a5d7-497e-876f-b8d967d6aa5b", "Jerry Tiritilli"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("65986555-a5d7-497e-876f-b8d967d6aa5b", "Jerry Tiritilli"),
+    CardSet::Invasion,
+    // The green-white tap-land: a turn of tempo for two colours, which is
+    // what Invasion's gold deck paid every game.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {W}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // INV 323 — Geothermal Crevice
@@ -3633,23 +3644,43 @@ pub(in crate::card::sets) static KELDON_NECROPOLIS: CardRecord = CardRecord::new
 );
 
 // INV 326 — Salt Marsh
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SALT_MARSH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed64934b-0e64-4b2f-97aa-c3fb7e6ce0b0"),
     "Salt Marsh",
-    crate::card::CardArt::new("ed64934b-0e64-4b2f-97aa-c3fb7e6ce0b0", "Jerry Tiritilli"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ed64934b-0e64-4b2f-97aa-c3fb7e6ce0b0", "Jerry Tiritilli"),
+    CardSet::Invasion,
+    // The blue-black member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {B}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // INV 327 — Shivan Oasis
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_OASIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9841f7e8-162c-44a3-96f3-af944fce15d1"),
     "Shivan Oasis",
-    crate::card::CardArt::new("9841f7e8-162c-44a3-96f3-af944fce15d1", "Rob Alexander"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9841f7e8-162c-44a3-96f3-af944fce15d1", "Rob Alexander"),
+    CardSet::Invasion,
+    // The red-green member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {G}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // INV 328 — Sulfur Vent
@@ -3676,13 +3707,23 @@ pub(in crate::card::sets) static TINDER_FARM: CardRecord = CardRecord::new(
 );
 
 // INV 330 — Urborg Volcano
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBORG_VOLCANO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c76f346c-ae34-4f5f-8e3b-6c77b0c4d530"),
     "Urborg Volcano",
-    crate::card::CardArt::new("c76f346c-ae34-4f5f-8e3b-6c77b0c4d530", "Tony Szczudlo"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c76f346c-ae34-4f5f-8e3b-6c77b0c4d530", "Tony Szczudlo"),
+    CardSet::Invasion,
+    // The black-red member of the same cycle.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {R}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // INV 331 — Plains (reprint)

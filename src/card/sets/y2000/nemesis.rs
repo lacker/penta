@@ -6,10 +6,10 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, ComparisonDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities,
+    DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -598,13 +598,28 @@ pub(in crate::card::sets) static STRONGHOLD_MACHINIST: CardRecord = CardRecord::
 );
 
 // NEM 47 — Stronghold Zeppelin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRONGHOLD_ZEPPELIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d672110d-b7c4-4233-9c46-73323be7204d"),
     "Stronghold Zeppelin",
-    crate::card::CardArt::new("d672110d-b7c4-4233-9c46-73323be7204d", "Arnie Swekel"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d672110d-b7c4-4233-9c46-73323be7204d", "Arnie Swekel"),
+    CardSet::Nemesis,
+    // A 3/3 flier for four with a real drawback, from a set that was
+    // pricing evasion carefully.
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            // A restriction on the blocker rather than the attacker, so
+            // it stops this creature from blocking on the ground without
+            // saying anything about who may block it.
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // NEM 48 — Submerge
@@ -661,16 +676,31 @@ pub(in crate::card::sets) static BATTLEFIELD_PERCHER: CardRecord = CardRecord::n
 );
 
 // NEM 53 — Belbe's Percher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BELBE_S_PERCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d95dcb2e-8945-47dd-ad40-b5bdcc3ea742"),
     "Belbe's Percher",
-    crate::card::CardArt::new(
+    CardArt::new(
         "d95dcb2e-8945-47dd-ad40-b5bdcc3ea742",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardSet::Nemesis,
+    // Black's printing of the same deal: a 2/2 flier that cannot come down
+    // to block the ground.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Bird"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            // A restriction on the blocker rather than the attacker, so
+            // it stops this creature from blocking on the ground without
+            // saying anything about who may block it.
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // NEM 54 — Carrion Wall

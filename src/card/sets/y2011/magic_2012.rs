@@ -6,9 +6,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CopyAbilityDef, CopyExceptionsDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
+    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -844,13 +844,28 @@ pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_
 // M12 74 — Redirect (reprint)
 
 // M12 75 — Skywinder Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYWINDER_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("628213e9-bde9-43fd-a0d9-8c7fb17be879"),
     "Skywinder Drake",
-    crate::card::CardArt::new("628213e9-bde9-43fd-a0d9-8c7fb17be879", "Dan Murayama Scott"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("628213e9-bde9-43fd-a0d9-8c7fb17be879", "Dan Murayama Scott"),
+    CardSet::Magic2012,
+    // Rishadan Airship reprinted as a Drake, a decade later and at the
+    // same rate.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Drake"], 3, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            // A restriction on the blocker rather than the attacker, so
+            // it stops this creature from blocking on the ground without
+            // saying anything about who may block it.
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // M12 76 — Sphinx of Uthuun (reprint)

@@ -19,9 +19,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef,
+    CardSupertype, CardType, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
     ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -846,13 +846,28 @@ pub(in crate::card::sets) static CHARISMA: CardRecord = CardRecord::new(
 );
 
 // MMQ 67 — Cloud Sprite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUD_SPRITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d14352c-ac8c-45b5-b930-63822408ba3d"),
     "Cloud Sprite",
-    crate::card::CardArt::new("3d14352c-ac8c-45b5-b930-63822408ba3d", "Mark Zug"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3d14352c-ac8c-45b5-b930-63822408ba3d", "Mark Zug"),
+    CardSet::MercadianMasques,
+    // One mana for a flier that answers other one-mana fliers and nothing
+    // else at all.
+    CardRules::new_creature(mana_cost!("{U}"), &["Faerie"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            // A restriction on the blocker rather than the attacker, so
+            // it stops this creature from blocking on the ground without
+            // saying anything about who may block it.
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // MMQ 68 — Coastal Piracy
@@ -1133,13 +1148,28 @@ pub(in crate::card::sets) static PORT_INSPECTOR: CardRecord = CardRecord::new(
 );
 
 // MMQ 91 — Rishadan Airship
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RISHADAN_AIRSHIP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d8e596b-f5ef-405a-8910-c5d0b5c8c0fc"),
     "Rishadan Airship",
-    crate::card::CardArt::new("5d8e596b-f5ef-405a-8910-c5d0b5c8c0fc", "Kev Walker"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5d8e596b-f5ef-405a-8910-c5d0b5c8c0fc", "Kev Walker"),
+    CardSet::MercadianMasques,
+    // Three evasive damage for three mana. It dies to everything and
+    // blocks almost nothing, which is what pays for the rate.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Pirate"], 3, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            // A restriction on the blocker rather than the attacker, so
+            // it stops this creature from blocking on the ground without
+            // saying anything about who may block it.
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // MMQ 92 — Rishadan Brigand

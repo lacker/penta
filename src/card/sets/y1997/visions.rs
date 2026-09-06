@@ -11,10 +11,10 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
     AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    InstalledTriggerDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -375,13 +375,28 @@ pub(in crate::card::sets) static CHRONATOG: CardRecord = CardRecord::new(
 );
 
 // VIS 29 — Cloud Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUD_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f2a5146-cf2e-40c0-b498-06e611343196"),
     "Cloud Elemental",
-    crate::card::CardArt::new("4f2a5146-cf2e-40c0-b498-06e611343196", "Adam Rex"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4f2a5146-cf2e-40c0-b498-06e611343196", "Adam Rex"),
+    CardSet::Visions,
+    // A 2/3 flier that only ever fights in the air, which is the discount
+    // blue pays for a body that would otherwise be a fine blocker.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Elemental"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            // A restriction on the blocker rather than the attacker, so
+            // it stops this creature from blocking on the ground without
+            // saying anything about who may block it.
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // VIS 30 — Desertion

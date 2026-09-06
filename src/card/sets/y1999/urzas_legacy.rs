@@ -699,13 +699,14 @@ pub(in crate::card::sets) static FOG_OF_GNATS: CardRecord = CardRecord::new(
 );
 
 // ULG 54 — Giant Cockroach
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIANT_COCKROACH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0521bf0c-9f43-402e-8065-d2fc02e20194"),
     "Giant Cockroach",
-    crate::card::CardArt::new("0521bf0c-9f43-402e-8065-d2fc02e20194", "Heather Hudson"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0521bf0c-9f43-402e-8065-d2fc02e20194", "Heather Hudson"),
+    CardSet::UrzasLegacy,
+    // A vanilla 4/2 for four. It attacks well and blocks once, which is the
+    // trade black keeps offering.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Insect"], 4, 2),
 );
 
 // ULG 55 — Lurking Skirge

@@ -1689,13 +1689,15 @@ pub(in crate::card::sets) static FUNGAL_SHAMBLER: CardRecord = CardRecord::new(
 );
 
 // APC 101 — Gaea's Skyfolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GAEA_S_SKYFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a564432-c2b3-4cf6-b4bc-2e2600b92911"),
     "Gaea's Skyfolk",
-    crate::card::CardArt::new("8a564432-c2b3-4cf6-b4bc-2e2600b92911", "Terese Nielsen"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8a564432-c2b3-4cf6-b4bc-2e2600b92911", "Terese Nielsen"),
+    CardSet::Apocalypse,
+    // A 2/2 flier for two, which neither colour gets alone: the gold cost is
+    // exactly what the extra evasion is worth.
+    CardRules::new_creature(mana_cost!("{G}{U}"), &["Elf", "Merfolk"], 2, 2)
+        .with_abilities(&[abilities::flying()]),
 );
 
 // APC 102 — Gerrard's Verdict

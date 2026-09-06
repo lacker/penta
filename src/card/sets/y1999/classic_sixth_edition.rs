@@ -23,6 +23,8 @@ use crate::card::sets::y2012::avacyn_restored as catalog_avr;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
+use crate::card::{CardArt, CardRules, CardSet};
+use crate::mana_cost;
 
 // 6ED 1 — Animate Wall (reprint)
 
@@ -93,13 +95,14 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 // 6ED 34 — Pearl Dragon (reprint)
 
 // 6ED 35 — Regal Unicorn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REGAL_UNICORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("daa1fb8c-12fa-4e9c-979f-55e89356acaf"),
     "Regal Unicorn",
-    crate::card::CardArt::new("54ca9b1c-fead-4bb6-800f-8b762a82fda7", "Zina Saunders"),
-    crate::card::CardSet::ClassicSixthEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("54ca9b1c-fead-4bb6-800f-8b762a82fda7", "Zina Saunders"),
+    CardSet::ClassicSixthEdition,
+    // A vanilla 2/3 for three: it survives the two-drop it blocks, which is
+    // all white asked of a common at this cost.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Unicorn"], 2, 3),
 );
 
 // 6ED 36 — Remedy (reprint)

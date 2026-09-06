@@ -16,13 +16,15 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // TOR 1 — Angel of Retribution
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGEL_OF_RETRIBUTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f3215ba-e492-4cfd-aa16-0da4818eed1b"),
     "Angel of Retribution",
-    crate::card::CardArt::new("7f3215ba-e492-4cfd-aa16-0da4818eed1b", "rk post"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7f3215ba-e492-4cfd-aa16-0da4818eed1b", "rk post"),
+    CardSet::Torment,
+    // Seven mana for a 5/5 flier that wins every fight in the air, which is
+    // what an Angel cost before they started costing less.
+    CardRules::new_creature(mana_cost!("{6}{W}"), &["Angel"], 5, 5)
+        .with_abilities(&[abilities::flying(), abilities::first_strike()]),
 );
 
 // TOR 2 — Aven Trooper

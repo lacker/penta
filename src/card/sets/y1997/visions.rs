@@ -285,13 +285,32 @@ pub(in crate::card::sets) static RESISTANCE_FIGHTER: CardRecord = CardRecord::ne
 );
 
 // VIS 19 — Retribution of the Meek
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RETRIBUTION_OF_THE_MEEK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("860b8633-1bfc-426a-8666-5e6a584d4525"),
     "Retribution of the Meek",
-    crate::card::CardArt::new("860b8633-1bfc-426a-8666-5e6a584d4525", "Nathalie Hertz"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("860b8633-1bfc-426a-8666-5e6a584d4525", "Nathalie Hertz"),
+    CardSet::Visions,
+    // A wrath that spares the small creatures, which in practice means it
+    // spares whichever board is not winning.
+    CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
+        "Destroy all creatures with power 4 or greater. They can't be regenerated.",
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &const {
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::PowerAtLeast(4),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                }
+            },
+        },
+    )),
 );
 
 // VIS 20 — Righteous Aura
@@ -525,13 +544,20 @@ pub(in crate::card::sets) static OVINOMANCER: CardRecord = CardRecord::new(
 );
 
 // VIS 40 — Prosperity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PROSPERITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3fa5e806-3cf2-4241-b45d-a05d2b715efd"),
     "Prosperity",
-    crate::card::CardArt::new("3fa5e806-3cf2-4241-b45d-a05d2b715efd", "Dan Frazier"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3fa5e806-3cf2-4241-b45d-a05d2b715efd", "Dan Frazier"),
+    CardSet::Visions,
+    // Symmetrical draw, so it is a combo piece rather than a card-advantage
+    // spell: the deck that casts it has a use for their cards too.
+    CardRules::new_sorcery(mana_cost!("{X}{U}")).with_ability(AbilityDef::spell(
+        "Each player draws X cards.",
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Any)),
+            amount: ValueDef::ChosenX,
+        },
+    )),
 );
 
 // VIS 41 — Rainbow Efreet
@@ -595,13 +621,31 @@ pub(in crate::card::sets) static TIME_AND_TIDE: CardRecord = CardRecord::new(
 );
 
 // VIS 47 — Undo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2bef942e-9d17-4d40-a4c9-8be715e73a08"),
     "Undo",
-    crate::card::CardArt::new("2bef942e-9d17-4d40-a4c9-8be715e73a08", "Terese Nielsen"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2bef942e-9d17-4d40-a4c9-8be715e73a08", "Terese Nielsen"),
+    CardSet::Visions,
+    // Two creatures back to hand for three mana at sorcery speed, which is
+    // tempo rather than an answer.
+    CardRules::new_sorcery(mana_cost!("{1}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return two target creatures to their owners' hands.",
+        // Exactly two, so it needs two legal targets to be cast at all.
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // VIS 48 — Vanishing

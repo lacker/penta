@@ -5,8 +5,8 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
@@ -656,13 +656,30 @@ pub(in crate::card::sets) static DAUTHI_WARLORD: CardRecord = CardRecord::new(
 );
 
 // EXO 60 — Death's Duet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATH_S_DUET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4756b6fd-2bb2-4be1-9b02-851a26ff4303"),
     "Death's Duet",
-    crate::card::CardArt::new("4756b6fd-2bb2-4be1-9b02-851a26ff4303", "Keith Parkinson"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4756b6fd-2bb2-4be1-9b02-851a26ff4303", "Keith Parkinson"),
+    CardSet::Exodus,
+    // Three mana to buy back two creatures, which is what black pays when
+    // it is not trying to be fast.
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Return two target creature cards from your graveyard to your hand.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // EXO 61 — Entropic Specter
@@ -676,13 +693,25 @@ pub(in crate::card::sets) static ENTROPIC_SPECTER: CardRecord = CardRecord::new(
 );
 
 // EXO 62 — Fugue
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FUGUE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1629cd63-95aa-40b6-aa57-7fb88f569e59"),
     "Fugue",
-    crate::card::CardArt::new("1629cd63-95aa-40b6-aa57-7fb88f569e59", "Randy Gallegos"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1629cd63-95aa-40b6-aa57-7fb88f569e59", "Randy Gallegos"),
+    CardSet::Exodus,
+    // Five mana for three cards, which is a fine rate late and unplayable
+    // early -- the shape every discard sorcery has.
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards three cards.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(3),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: None,
+        },
+    )),
 );
 
 // EXO 63 — Grollub

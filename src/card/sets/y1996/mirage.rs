@@ -3182,7 +3182,7 @@ pub(in crate::card::sets) static SERENE_HEART: CardRecord = CardRecord::new(
 );
 
 // MIR 243 — Stalking Tiger
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a maximum-blockers restriction. BlockRestrictionDef offers MinimumBlockers, which menace uses, but nothing caps how many creatures may block.
 pub(in crate::card::sets) static STALKING_TIGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f12cc4e9-010a-4ff7-a026-dcb6113a36fb"),
     "Stalking Tiger",
@@ -4024,13 +4024,28 @@ pub(in crate::card::sets) static IGNEOUS_GOLEM: CardRecord = CardRecord::new(
 );
 
 // MIR 306 — Lead Golem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEAD_GOLEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dc9afb9e-eab3-4969-9a44-2c01bf730e68"),
     "Lead Golem",
-    crate::card::CardArt::new("dc9afb9e-eab3-4969-9a44-2c01bf730e68", "Hannibal King"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dc9afb9e-eab3-4969-9a44-2c01bf730e68", "Hannibal King"),
+    CardSet::Mirage,
+    // Five mana for a 3/5 that attacks every other turn. It is really a
+    // blocker that can threaten, rather than an attacker.
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 3, 5).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it doesn't untap during its controller's \
+             next untap step.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // The untap step comes before upkeep, so an effect that
+                // runs to the next upkeep is still live while that untap
+                // step happens and gone immediately after it.
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
+            },
+        ),
+    ),
 );
 
 // MIR 307 — Lion's Eye Diamond

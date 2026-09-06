@@ -2416,13 +2416,28 @@ pub(in crate::card::sets) static ALUREN: CardRecord = CardRecord::new(
 );
 
 // TMP 214 — Apes of Rath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static APES_OF_RATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("25eff287-6b53-4e6d-9da2-d80d05bb8c51"),
     "Apes of Rath",
-    crate::card::CardArt::new("25eff287-6b53-4e6d-9da2-d80d05bb8c51", "Jeff Laubenstein"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("25eff287-6b53-4e6d-9da2-d80d05bb8c51", "Jeff Laubenstein"),
+    CardSet::Tempest,
+    // Five power for four mana, paid for by only attacking every second
+    // turn -- and by never blocking on the turns in between.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Ape"], 5, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it doesn't untap during its controller's \
+             next untap step.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // The untap step comes before upkeep, so an effect that
+                // runs to the next upkeep is still live while that untap
+                // step happens and gone immediately after it.
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
+            },
+        ),
+    ),
 );
 
 // TMP 215 — Bayou Dragonfly
@@ -2458,7 +2473,7 @@ pub(in crate::card::sets) static CANOPY_SPIDER: CardRecord = CardRecord::new(
 );
 
 // TMP 218 — Charging Rhino
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a maximum-blockers restriction. BlockRestrictionDef offers MinimumBlockers, which menace uses, but nothing caps how many creatures may block.
 pub(in crate::card::sets) static CHARGING_RHINO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49e47248-051c-4ee6-aad2-352ebd1f38ca"),
     "Charging Rhino",

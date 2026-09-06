@@ -21,6 +21,7 @@ use crate::{
     TargetSlotDef, TargetSlotId, ZonePlacement,
 };
 
+mod attack_and_stay_tapped;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod enumerated_apply;

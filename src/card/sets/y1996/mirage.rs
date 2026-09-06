@@ -51,13 +51,40 @@ const fn slow_fetch_land_ability(
 }
 
 // MIR 1 — Afterlife
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AFTERLIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4644694d-52e6-4d00-8cad-748899eeea84"),
     "Afterlife",
-    crate::card::CardArt::new("4644694d-52e6-4d00-8cad-748899eeea84", "Pete Venters"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4644694d-52e6-4d00-8cad-748899eeea84", "Pete Venters"),
+    CardSet::Mirage,
+    // Three mana at instant speed to answer anything, and the Spirit is what
+    // white pays for unconditional removal.
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target creature. It can't be regenerated. Its controller creates a 1/1 white \
+         Spirit creature token with flying.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            // The prohibition is applied before the destruction, so a shield
+            // already on the creature cannot replace it.
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // The Spirit is theirs, not yours: it is compensation rather than
+            // a second half of the removal.
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+                .with_abilities(&const { [abilities::flying()] })
+                .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+        ]),
+    )),
 );
 
 // MIR 2 — Alarum

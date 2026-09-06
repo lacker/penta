@@ -286,26 +286,43 @@ pub(in crate::card::sets) static SEAL_OF_CLEANSING: CardRecord = CardRecord::new
 );
 
 // NEM 19 — Silkenfist Fighter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILKENFIST_FIGHTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3480efc4-1078-4c63-a94c-d00a7507f6b1"),
     "Silkenfist Fighter",
-    crate::card::CardArt::new("3480efc4-1078-4c63-a94c-d00a7507f6b1", "Mark Brill"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3480efc4-1078-4c63-a94c-d00a7507f6b1", "Mark Brill"),
+    CardSet::Nemesis,
+    // Untapping mid-combat does not remove it from combat: it still fights,
+    // and it is untapped afterwards to block.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Kor", "Soldier"], 1, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, untap it.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ),
 );
 
 // NEM 20 — Silkenfist Order
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILKENFIST_ORDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93741517-90ed-46fe-a505-fe6299f188bf"),
     "Silkenfist Order",
-    crate::card::CardArt::new(
+    CardArt::new(
         "93741517-90ed-46fe-a505-fe6299f188bf",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardSet::Nemesis,
+    // The larger version of the same trick.
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Kor", "Soldier"], 3, 5).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, untap it.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ),
 );
 
 // NEM 21 — Sivvi's Ruse

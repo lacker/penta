@@ -17,8 +17,8 @@ use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
-    CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, EffectDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
+    CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
@@ -1019,13 +1019,30 @@ pub(in crate::card::sets) static VODALIAN_HYPNOTIST: CardRecord = CardRecord::ne
 );
 
 // INV 85 — Vodalian Merchant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VODALIAN_MERCHANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1c0effa-a4b8-4166-a66a-90cf01c6ea0d"),
     "Vodalian Merchant",
-    crate::card::CardArt::new("c1c0effa-a4b8-4166-a66a-90cf01c6ea0d", "Scott M. Fischer"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c1c0effa-a4b8-4166-a66a-90cf01c6ea0d", "Scott M. Fischer"),
+    CardSet::Invasion,
+    // A body and a look at one more card, which is what blue's commons did
+    // before they drew outright.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Merfolk"], 1, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, draw a card, then discard a card.",
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+    ),
 );
 
 // INV 86 — Vodalian Serpent
@@ -2129,13 +2146,22 @@ pub(in crate::card::sets) static KAVU_CHAMELEON: CardRecord = CardRecord::new(
 );
 
 // INV 192 — Kavu Climber
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAVU_CLIMBER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2063f31e-d972-411e-a265-1d409153b49c"),
     "Kavu Climber",
-    crate::card::CardArt::new("2063f31e-d972-411e-a265-1d409153b49c", "Rob Alexander"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2063f31e-d972-411e-a265-1d409153b49c", "Rob Alexander"),
+    CardSet::Invasion,
+    // Five mana for a 3/3 and a card, which is what green paid to stop
+    // running out of gas.
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Kavu"], 3, 3).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // INV 193 — Kavu Lair

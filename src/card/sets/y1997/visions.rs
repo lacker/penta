@@ -1789,13 +1789,25 @@ pub(in crate::card::sets) static SUMMER_BLOOM: CardRecord = CardRecord::new(
 );
 
 // VIS 123 — Uktabi Orangutan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UKTABI_ORANGUTAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("101c7d58-43cc-4ebd-87f1-2016fbff56dd"),
     "Uktabi Orangutan",
-    crate::card::CardArt::new("101c7d58-43cc-4ebd-87f1-2016fbff56dd", "Una Fricker"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("101c7d58-43cc-4ebd-87f1-2016fbff56dd", "Una Fricker"),
+    CardSet::Visions,
+    // Three mana for a body and an artifact, which made it a maindeck card
+    // in a format full of them.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Ape"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target artifact.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // VIS 124 — Warthog

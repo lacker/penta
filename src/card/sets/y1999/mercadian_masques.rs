@@ -842,13 +842,27 @@ pub(in crate::card::sets) static BUOYANCY: CardRecord = CardRecord::new(
 );
 
 // MMQ 64 — Chambered Nautilus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHAMBERED_NAUTILUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("860c613d-d031-4c2a-922b-39f4eec04e18"),
     "Chambered Nautilus",
-    crate::card::CardArt::new("860c613d-d031-4c2a-922b-39f4eec04e18", "John Matson"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("860c613d-d031-4c2a-922b-39f4eec04e18", "John Matson"),
+    CardSet::MercadianMasques,
+    // A 2/2 that draws when they stop it, so blocking it is never free.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Nautilus", "Beast"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may draw a card.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 65 — Chameleon Spirit
@@ -1303,13 +1317,28 @@ pub(in crate::card::sets) static SAPRAZZAN_BREAKER: CardRecord = CardRecord::new
 );
 
 // MMQ 99 — Saprazzan Heir
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_HEIR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0e3d913d-2dcf-4747-8169-0c44ec895864"),
     "Saprazzan Heir",
-    crate::card::CardArt::new("0e3d913d-2dcf-4747-8169-0c44ec895864", "Terese Nielsen"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0e3d913d-2dcf-4747-8169-0c44ec895864", "Terese Nielsen"),
+    CardSet::MercadianMasques,
+    // Three cards for letting a 1/1 die, which is a price most boards can
+    // afford to refuse.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Merfolk"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may draw three cards.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    }
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 100 — Saprazzan Legate
@@ -2921,13 +2950,23 @@ pub(in crate::card::sets) static DEEPWOOD_ELDER: CardRecord = CardRecord::new(
 );
 
 // MMQ 241 — Deepwood Tantiv
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_TANTIV: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfa2028e-4e73-4ff2-a9e2-9ac347d67893"),
     "Deepwood Tantiv",
-    crate::card::CardArt::new("bfa2028e-4e73-4ff2-a9e2-9ac347d67893", "Joel Biske"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bfa2028e-4e73-4ff2-a9e2-9ac347d67893", "Joel Biske"),
+    CardSet::MercadianMasques,
+    // A body that punishes blocking rather than attacking, which is what a
+    // 2/4 is for.
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 2, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you gain 2 life.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // MMQ 242 — Deepwood Wolverine
@@ -3203,13 +3242,23 @@ pub(in crate::card::sets) static SABER_ANTS: CardRecord = CardRecord::new(
 );
 
 // MMQ 268 — Sacred Prey
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SACRED_PREY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e965d32c-3151-48e8-b256-0b7fa8a8a211"),
     "Sacred Prey",
-    crate::card::CardArt::new("e965d32c-3151-48e8-b256-0b7fa8a8a211", "Rebecca Guay"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e965d32c-3151-48e8-b256-0b7fa8a8a211", "Rebecca Guay"),
+    CardSet::MercadianMasques,
+    // The one-mana version of the same idea, and about as small as it
+    // could be.
+    CardRules::new_creature(mana_cost!("{G}"), &["Horse"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you gain 1 life.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // MMQ 269 — Silverglade Elemental

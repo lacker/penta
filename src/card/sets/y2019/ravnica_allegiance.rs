@@ -54,7 +54,7 @@ pub(in crate::card::sets) static SKEWER_THE_CRITICS: CardRecord = CardRecord::ne
     // when spectacle pays for it; only the price does.
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "This spell deals 3 damage to any target.",
+            "Skewer the Critics deals 3 damage to any target.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],

@@ -1523,7 +1523,7 @@ pub(in crate::card::sets) static BOG_RAIDERS: CardRecord = CardRecord::new(
 // USG 119s — Bog Raiders (alternate printing)
 
 // USG 120 — Breach
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs fear as a grantable ability. abilities::fear() is a static block restriction, and granting a static ability is rejected as ExecutableStaticAbility; a keyword could be granted, which is what "gains fear until end of turn" asks for.
 pub(in crate::card::sets) static BREACH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eada28cb-92bf-47e0-b09d-4709be32dbe6"),
     "Breach",

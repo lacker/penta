@@ -1056,13 +1056,28 @@ pub(in crate::card::sets) static HIGH_SEAS: CardRecord = CardRecord::new(
 );
 
 // MMQ 84 — Hoodwink
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOODWINK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d505fbb-ec85-475b-a0e1-6670627ec017"),
     "Hoodwink",
-    crate::card::CardArt::new("8d505fbb-ec85-475b-a0e1-6670627ec017", "Arnie Swekel"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d505fbb-ec85-475b-a0e1-6670627ec017", "Arnie Swekel"),
+    CardSet::MercadianMasques,
+    // Two mana at instant speed to undo a land drop or bounce a rock, which
+    // is tempo rather than an answer.
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target artifact, enchantment, or land to its owner's hand.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // MMQ 85 — Indentured Djinn

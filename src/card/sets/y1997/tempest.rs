@@ -1840,13 +1840,35 @@ pub(in crate::card::sets) static SPINAL_GRAFT: CardRecord = CardRecord::new(
 );
 
 // TMP 160 — Aftershock
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AFTERSHOCK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c91a26b2-03f8-43f0-a3a4-ff6c5a3690c4"),
     "Aftershock",
-    crate::card::CardArt::new("c91a26b2-03f8-43f0-a3a4-ff6c5a3690c4", "Hannibal King"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c91a26b2-03f8-43f0-a3a4-ff6c5a3690c4", "Hannibal King"),
+    CardSet::Tempest,
+    // Four mana to answer anything, and three damage to yourself for the
+    // privilege of not having to pick a category.
+    CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target artifact, creature, or land. Aftershock deals 3 damage to you.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            // The damage happens whether or not the destruction did,
+            // so it is a second clause rather than a follow-up.
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ]),
+    )),
 );
 
 // TMP 161 — Ancient Runes

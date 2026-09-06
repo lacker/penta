@@ -5,9 +5,9 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -1579,13 +1579,22 @@ pub(in crate::card::sets) static RESUSCITATE: CardRecord = CardRecord::new(
 );
 
 // EXO 122 — Rootwater Alligator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROOTWATER_ALLIGATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a840bba-4725-45fd-885f-1b3d615dfa97"),
     "Rootwater Alligator",
-    crate::card::CardArt::new("3a840bba-4725-45fd-885f-1b3d615dfa97", "Stephen Daniele"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3a840bba-4725-45fd-885f-1b3d615dfa97", "Stephen Daniele"),
+    CardSet::Exodus,
+    // Forests for lives, which a green deck can afford exactly once or
+    // twice before the trade stops being worth it.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Crocodile"], 3, 2).with_ability(
+        abilities::regenerate_self(
+            "Sacrifice a Forest: Regenerate this creature.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                controller: PlayerRelation::You,
+            }],
+        ),
+    ),
 );
 
 // EXO 123 — Skyshroud Elite
@@ -1689,13 +1698,27 @@ pub(in crate::card::sets) static ERRATIC_PORTAL: CardRecord = CardRecord::new(
 );
 
 // EXO 133 — Medicine Bag
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MEDICINE_BAG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("399c06d5-af2a-47a1-9239-ff14224a026b"),
     "Medicine Bag",
-    crate::card::CardArt::new("399c06d5-af2a-47a1-9239-ff14224a026b", "DiTerlizzi"),
-    crate::card::CardSet::Exodus,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("399c06d5-af2a-47a1-9239-ff14224a026b", "DiTerlizzi"),
+    CardSet::Exodus,
+    // The shield is portable and repeatable, but the tap means it
+    // protects one creature per turn and no more.
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_with_targets(
+        "{1}, {T}, Discard a card: Regenerate target creature.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{1}")),
+            AbilityCostDef::TapSource,
+            AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Regenerate {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
 );
 
 // EXO 134 — Memory Crystal

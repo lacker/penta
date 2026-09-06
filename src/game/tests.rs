@@ -26,6 +26,7 @@ mod attacks_alone;
 mod bannerhide_krushok;
 mod becomes_blocked_pump;
 mod discard_a_land_cost;
+mod discard_to_regenerate;
 mod enumerated_apply;
 mod fear;
 mod fixtures;

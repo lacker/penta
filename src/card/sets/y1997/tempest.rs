@@ -3251,13 +3251,19 @@ pub(in crate::card::sets) static SKYSHROUD_RANGER: CardRecord = CardRecord::new(
 );
 
 // TMP 257 — Skyshroud Troll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYSHROUD_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("925c488d-79db-47d1-b7be-851f31732026"),
     "Skyshroud Troll",
-    crate::card::CardArt::new("925c488d-79db-47d1-b7be-851f31732026", "Matthew D. Wilson"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("925c488d-79db-47d1-b7be-851f31732026", "Matthew D. Wilson"),
+    CardSet::Tempest,
+    // The Troll clause at green's usual rate: nothing kills it but
+    // exile, an edict, or a swing wide enough not to care.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Troll", "Giant"], 3, 3).with_ability(
+        abilities::regenerate_self(
+            "{1}{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+        ),
+    ),
 );
 
 // TMP 258 — Spike Drone
@@ -3794,13 +3800,19 @@ pub(in crate::card::sets) static MOGG_CANNON: CardRecord = CardRecord::new(
 );
 
 // TMP 299 — Patchwork Gnomes
-// Audit: unsupported — The shared runtime cannot pay a chosen discard as an activated-ability cost. AbilityCostDef::DiscardCards is outside the boundary because it needs a decision window to ask which card goes; DiscardCardsAtRandom and DiscardHand are inside precisely because they ask nothing.
 pub(in crate::card::sets) static PATCHWORK_GNOMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdaa9ac4-b742-4a24-a316-97538adfd361"),
     "Patchwork Gnomes",
-    crate::card::CardArt::new("bdaa9ac4-b742-4a24-a316-97538adfd361", "Mike Raabe"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bdaa9ac4-b742-4a24-a316-97538adfd361", "Mike Raabe"),
+    CardSet::Tempest,
+    // A colorless regenerator, so the discard is the only colour
+    // requirement and any deck can hold the ground with it.
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Gnome"], 2, 1).with_ability(
+        abilities::regenerate_self(
+            "Discard a card: Regenerate this creature.",
+            &[AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+        ),
+    ),
 );
 
 // TMP 300 — Pearl Medallion

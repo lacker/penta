@@ -769,13 +769,22 @@ pub(in crate::card::sets) static GHASTLY_REMAINS: CardRecord = CardRecord::new(
 );
 
 // LGN 72 — Goblin Turncoat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_TURNCOAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2ac74e64-8831-4af2-9c6d-22c533389144"),
     "Goblin Turncoat",
-    crate::card::CardArt::new("2ac74e64-8831-4af2-9c6d-22c533389144", "Jim Nelson"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2ac74e64-8831-4af2-9c6d-22c533389144", "Jim Nelson"),
+    CardSet::Legions,
+    // Goblins are the currency, and a deck with any of them has more
+    // than it can profitably attack with.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Goblin", "Mercenary"], 2, 1).with_ability(
+        abilities::regenerate_self(
+            "Sacrifice a Goblin: Regenerate this creature.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::Subtype("Goblin"),
+                controller: PlayerRelation::You,
+            }],
+        ),
+    ),
 );
 
 // LGN 73 — Graveborn Muse

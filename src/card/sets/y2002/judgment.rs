@@ -1602,13 +1602,19 @@ pub(in crate::card::sets) static THRISS_NANTUKO_PRIMUS: CardRecord = CardRecord:
 );
 
 // JUD 135 — Tunneler Wurm
-// Audit: unsupported — The shared runtime cannot pay a chosen discard as an activated-ability cost. AbilityCostDef::DiscardCards is outside the boundary because it needs a decision window to ask which card goes; DiscardCardsAtRandom and DiscardHand are inside precisely because they ask nothing.
 pub(in crate::card::sets) static TUNNELER_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c8e246c8-3b3f-47c4-8a1b-b5f2d36f0ca4"),
     "Tunneler Wurm",
-    crate::card::CardArt::new("c8e246c8-3b3f-47c4-8a1b-b5f2d36f0ca4", "Jeff Easley"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c8e246c8-3b3f-47c4-8a1b-b5f2d36f0ca4", "Jeff Easley"),
+    CardSet::Judgment,
+    // Eight mana for a 6/6 that the hand keeps alive, which is a rate
+    // only a deck with nothing to cast can pay.
+    CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Wurm"], 6, 6).with_ability(
+        abilities::regenerate_self(
+            "Discard a card: Regenerate this creature.",
+            &[AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+        ),
+    ),
 );
 
 // JUD 136 — Venomous Vines

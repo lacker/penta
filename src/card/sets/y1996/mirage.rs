@@ -3599,13 +3599,32 @@ pub(in crate::card::sets) static UNYARO_BEE_STING: CardRecord = CardRecord::new(
 );
 
 // MIR 251 — Village Elder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VILLAGE_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("253a1d97-ec45-41c9-ba81-bbb6ab584b2b"),
     "Village Elder",
-    crate::card::CardArt::new("253a1d97-ec45-41c9-ba81-bbb6ab584b2b", "Donato Giancola"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("253a1d97-ec45-41c9-ba81-bbb6ab584b2b", "Donato Giancola"),
+    CardSet::Mirage,
+    // Lands are the fuel, so the shield is finite and every use costs a
+    // turn of development.
+    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Druid"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}, Sacrifice a Forest: Regenerate target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // MIR 252 — Waiting in the Weeds

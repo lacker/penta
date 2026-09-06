@@ -84,16 +84,31 @@ pub(in crate::card::sets) static DEFIANT_VANGUARD: CardRecord = CardRecord::new(
 );
 
 // NEM 8 — Fanatical Devotion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FANATICAL_DEVOTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be0ed1fb-d380-4e3e-a43f-c39660a996e9"),
     "Fanatical Devotion",
-    crate::card::CardArt::new(
+    CardArt::new(
         "be0ed1fb-d380-4e3e-a43f-c39660a996e9",
         "Massimiliano Frezzato",
     ),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardSet::Nemesis,
+    // A free sacrifice outlet dressed as protection: the creature saved
+    // is rarely the point.
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice a creature: Regenerate target creature.",
+            &[AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+            }],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // NEM 9 — Lashknife

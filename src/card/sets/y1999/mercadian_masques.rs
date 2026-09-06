@@ -1780,13 +1780,19 @@ pub(in crate::card::sets) static DEATHGAZER: CardRecord = CardRecord::new(
 );
 
 // MMQ 131 — Deepwood Ghoul
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_GHOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29cd6685-37ca-47c7-8f64-1fb86e9610ca"),
     "Deepwood Ghoul",
-    crate::card::CardArt::new("29cd6685-37ca-47c7-8f64-1fb86e9610ca", "Alan Pollack"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("29cd6685-37ca-47c7-8f64-1fb86e9610ca", "Alan Pollack"),
+    CardSet::MercadianMasques,
+    // Life is the only cost, so it blocks forever against a deck with no
+    // reach and not at all against one with any.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 2, 1).with_ability(
+        abilities::regenerate_self(
+            "Pay 2 life: Regenerate this creature.",
+            &[AbilityCostDef::PayLife(2)],
+        ),
+    ),
 );
 
 // MMQ 132 — Deepwood Legate
@@ -3267,13 +3273,29 @@ pub(in crate::card::sets) static RUSHWOOD_ELEMENTAL: CardRecord = CardRecord::ne
 );
 
 // MMQ 265 — Rushwood Herbalist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSHWOOD_HERBALIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9afde98f-a429-4eff-9d06-8582267ac74b"),
     "Rushwood Herbalist",
-    crate::card::CardArt::new("9afde98f-a429-4eff-9d06-8582267ac74b", "Terese Nielsen"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9afde98f-a429-4eff-9d06-8582267ac74b", "Terese Nielsen"),
+    CardSet::MercadianMasques,
+    // A Spellshaper body on the Medicine Bag effect, which trades the
+    // artifact's durability for a creature that can also attack.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Spellshaper"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}, Discard a card: Regenerate target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // MMQ 266 — Rushwood Legate

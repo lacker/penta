@@ -1128,13 +1128,31 @@ pub(in crate::card::sets) static COVETOUS_DRAGON: CardRecord = CardRecord::new(
 );
 
 // UDS 81 — Flame Jet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAME_JET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a511f9df-b53b-4fea-87cd-9f18f6833f92"),
     "Flame Jet",
-    crate::card::CardArt::new("a511f9df-b53b-4fea-87cd-9f18f6833f92", "John Avon"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a511f9df-b53b-4fea-87cd-9f18f6833f92", "John Avon"),
+    CardSet::UrzasDestiny,
+    // Three damage that cannot go to a creature, which is a burn spell only
+    // a deck aiming at the player wants.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Flame Jet deals 3 damage to target player or planeswalker.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // UDS 82 — Goblin Berserker

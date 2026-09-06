@@ -1476,13 +1476,21 @@ pub(in crate::card::sets) static LAVABORN_MUSE: CardRecord = CardRecord::new(
 );
 
 // LGN 106 — Macetail Hystrodon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MACETAIL_HYSTRODON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8451ab3f-5d61-4f35-ab70-5a5060caf53d"),
     "Macetail Hystrodon",
-    crate::card::CardArt::new("8451ab3f-5d61-4f35-ab70-5a5060caf53d", "Daren Bader"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8451ab3f-5d61-4f35-ab70-5a5060caf53d", "Daren Bader"),
+    CardSet::Legions,
+    // Seven mana for a creature that attacks the turn it lands, or three to
+    // throw it away -- which is the only way a seven-drop stays playable.
+    CardRules::new_creature(mana_cost!("{6}{R}"), &["Beast"], 4, 4).with_abilities(&[
+        abilities::first_strike(),
+        abilities::haste(),
+        abilities::cycling(
+            "Cycling {3} ({3}, Discard this card: Draw a card.)",
+            mana_cost!("{3}"),
+        ),
+    ]),
 );
 
 // LGN 107 — Magma Sliver

@@ -10,10 +10,10 @@ use crate::card::{
     AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
     BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef,
     CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CostModificationDef,
-    CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation,
+    PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -263,13 +263,27 @@ pub(in crate::card::sets) static FRONTLINE_STRATEGIST: CardRecord = CardRecord::
 );
 
 // SCG 16 — Gilded Light
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GILDED_LIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("01b92597-cb1e-4b8f-9ee9-07b48cf1a5c6"),
     "Gilded Light",
-    crate::card::CardArt::new("01b92597-cb1e-4b8f-9ee9-07b48cf1a5c6", "John Avon"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("01b92597-cb1e-4b8f-9ee9-07b48cf1a5c6", "John Avon"),
+    CardSet::Scourge,
+    // It answers the discard spell and the burn spell with the same card, so
+    // long as either one targets.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::spell(
+            "You gain shroud until end of turn.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(PlayerRuleDef::Shroud)),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // SCG 17 — Guilty Conscience
@@ -368,13 +382,32 @@ pub(in crate::card::sets) static WING_SHARDS: CardRecord = CardRecord::new(
 );
 
 // SCG 26 — Wipe Clean
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WIPE_CLEAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf7c14c9-cb5a-49f0-be2c-eb3166f02510"),
     "Wipe Clean",
-    crate::card::CardArt::new("cf7c14c9-cb5a-49f0-be2c-eb3166f02510", "Arnie Swekel"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cf7c14c9-cb5a-49f0-be2c-eb3166f02510", "Arnie Swekel"),
+    CardSet::Scourge,
+    // Exile rather than destroy, which matters against exactly the
+    // enchantments that come back.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Exile target enchantment.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {3} ({3}, Discard this card: Draw a card.)",
+            mana_cost!("{3}"),
+        ),
+    ]),
 );
 
 // SCG 27 — Zealous Inquisitor
@@ -1000,13 +1033,33 @@ pub(in crate::card::sets) static TWISTED_ABOMINATION: CardRecord = CardRecord::n
 );
 
 // SCG 77 — Unburden
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNBURDEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd5fc0e0-4ee5-40eb-a9f0-9b1fff2adefc"),
     "Unburden",
-    crate::card::CardArt::new("bd5fc0e0-4ee5-40eb-a9f0-9b1fff2adefc", "Wayne England"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bd5fc0e0-4ee5-40eb-a9f0-9b1fff2adefc", "Wayne England"),
+    CardSet::Scourge,
+    // Two cards for three mana is a fair rate only on the turn the opponent
+    // still has two, which cycling lets you wait for.
+    CardRules::new_sorcery(mana_cost!("{1}{B}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target player discards two cards.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // SCG 78 — Undead Warchief
@@ -1461,13 +1514,31 @@ pub(in crate::card::sets) static SKIRK_VOLCANIST: CardRecord = CardRecord::new(
 );
 
 // SCG 105 — Spark Spray
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPARK_SPRAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f60d8716-4297-484c-8e02-c30ce2773a65"),
     "Spark Spray",
-    crate::card::CardArt::new("f60d8716-4297-484c-8e02-c30ce2773a65", "Pete Venters"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f60d8716-4297-484c-8e02-c30ce2773a65", "Pete Venters"),
+    CardSet::Scourge,
+    // One damage is barely a spell; being a cantrip against every deck that
+    // has no one-toughness creature is what earns the slot.
+    CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Spark Spray deals 1 damage to any target.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )]
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::cycling(
+            "Cycling {R} ({R}, Discard this card: Draw a card.)",
+            mana_cost!("{R}"),
+        ),
+    ]),
 );
 
 // SCG 106 — Sulfuric Vortex
@@ -1547,23 +1618,74 @@ pub(in crate::card::sets) static ANCIENT_OOZE: CardRecord = CardRecord::new(
 );
 
 // SCG 113 — Break Asunder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BREAK_ASUNDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb989895-a5c7-4151-8620-ab277d826303"),
     "Break Asunder",
-    crate::card::CardArt::new("fb989895-a5c7-4151-8620-ab277d826303", "Jim Nelson"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fb989895-a5c7-4151-8620-ab277d826303", "Jim Nelson"),
+    CardSet::Scourge,
+    // Four mana is a bad rate for the effect and a fine rate for a card that
+    // is never stuck in your hand.
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target artifact or enchantment.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // SCG 114 — Claws of Wirewood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLAWS_OF_WIREWOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b94cd33f-40b6-4b11-97a4-8676ef27631e"),
     "Claws of Wirewood",
-    crate::card::CardArt::new("b94cd33f-40b6-4b11-97a4-8676ef27631e", "Tony Szczudlo"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b94cd33f-40b6-4b11-97a4-8676ef27631e", "Tony Szczudlo"),
+    CardSet::Scourge,
+    // Green's answer to fliers, with three damage to your own face as the
+    // price -- and a cantrip when there are none.
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Claws of Wirewood deals 3 damage to each creature with flying and each player.",
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            ),
+                            amount: ValueDef::Constant(3),
+                        },
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::EachPlayer,
+                            amount: ValueDef::Constant(3),
+                        },
+                    ]
+                },
+            ),
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // SCG 115 — Decree of Savagery

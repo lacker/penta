@@ -95,13 +95,32 @@ pub(in crate::card::sets) static ASTRAL_SLIDE: CardRecord = CardRecord::new(
 );
 
 // ONS 5 — Aura Extraction
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AURA_EXTRACTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55d16883-5e98-4dd2-92dd-0ba92f1099cb"),
     "Aura Extraction",
-    crate::card::CardArt::new("55d16883-5e98-4dd2-92dd-0ba92f1099cb", "Luca Zontini"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("55d16883-5e98-4dd2-92dd-0ba92f1099cb", "Luca Zontini"),
+    CardSet::Onslaught,
+    // It costs the opponent their next draw as well as the enchantment,
+    // which is most of a card on top of the answer.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Put target enchantment on top of its owner's library.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // ONS 6 — Aurification
@@ -1164,13 +1183,48 @@ pub(in crate::card::sets) static DISRUPTIVE_PITMAGE: CardRecord = CardRecord::ne
 );
 
 // ONS 82 — Essence Fracture
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ESSENCE_FRACTURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("df0b6c7a-0891-492d-8e07-6a198bf2ccc4"),
     "Essence Fracture",
-    crate::card::CardArt::new("df0b6c7a-0891-492d-8e07-6a198bf2ccc4", "Wayne England"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("df0b6c7a-0891-492d-8e07-6a198bf2ccc4", "Wayne England"),
+    CardSet::Onslaught,
+    // Five mana to buy one turn, which is only worth it when that turn is
+    // the one the game is decided on.
+    CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return two target creatures to their owners' hands.",
+            &const {
+                [
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                ]
+            },
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Target(TargetIndex(1)),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                    ]
+                },
+            ),
+        ),
+        abilities::cycling(
+            "Cycling {2}{U} ({2}{U}, Discard this card: Draw a card.)",
+            mana_cost!("{2}{U}"),
+        ),
+    ]),
 );
 
 // ONS 83 — Fleeting Aven
@@ -1257,16 +1311,35 @@ pub(in crate::card::sets) static IXIDOR_S_WILL: CardRecord = CardRecord::new(
 );
 
 // ONS 91 — Mage's Guile
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGE_S_GUILE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("301cb538-a931-4916-927b-4986046b1158"),
     "Mage's Guile",
-    crate::card::CardArt::new(
+    CardArt::new(
         "301cb538-a931-4916-927b-4986046b1158",
         "Edward P. Beard, Jr.",
     ),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardSet::Onslaught,
+    // A counterspell for removal that never sits dead in hand, which is what
+    // a two-mana protection spell has to offer to be playable.
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gains shroud until end of turn.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {U} ({U}, Discard this card: Draw a card.)",
+            mana_cost!("{U}"),
+        ),
+    ]),
 );
 
 // ONS 92 — Meddle (reprint)
@@ -1814,13 +1887,20 @@ pub(in crate::card::sets) static DIRGE_OF_DREAD: CardRecord = CardRecord::new(
 );
 
 // ONS 139 — Disciple of Malice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISCIPLE_OF_MALICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("74cc7ab0-a5db-4ae9-af9a-89fd5aaaab57"),
     "Disciple of Malice",
-    crate::card::CardArt::new("74cc7ab0-a5db-4ae9-af9a-89fd5aaaab57", "Matt Cavotta"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("74cc7ab0-a5db-4ae9-af9a-89fd5aaaab57", "Matt Cavotta"),
+    CardSet::Onslaught,
+    // A blocker aimed at exactly one deck, which cycling lets you maindeck
+    // without ever drawing it against the others.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Cleric"], 1, 2).with_abilities(&[
+        abilities::protection_from_color(ManaColor::White),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // ONS 140 — Doomed Necromancer
@@ -1864,13 +1944,37 @@ pub(in crate::card::sets) static ENTRAILS_FEASTER: CardRecord = CardRecord::new(
 );
 
 // ONS 144 — Fade from Memory
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FADE_FROM_MEMORY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("56b34afa-0183-49aa-aa5f-03e070020136"),
     "Fade from Memory",
-    crate::card::CardArt::new("56b34afa-0183-49aa-aa5f-03e070020136", "David Martin"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("56b34afa-0183-49aa-aa5f-03e070020136", "David Martin"),
+    CardSet::Onslaught,
+    // Graveyard hate that costs nothing to maindeck, because against the
+    // wrong deck it is simply a cantrip.
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Exile target card from a graveyard.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {B} ({B}, Discard this card: Draw a card.)",
+            mana_cost!("{B}"),
+        ),
+    ]),
 );
 
 // ONS 145 — Fallen Cleric
@@ -4157,13 +4261,21 @@ pub(in crate::card::sets) static TRIBAL_GOLEM: CardRecord = CardRecord::new(
 );
 
 // ONS 312 — Barren Moor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARREN_MOOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("45be3811-a223-4c45-9b24-0317f2d53c60"),
     "Barren Moor",
-    crate::card::CardArt::new("45be3811-a223-4c45-9b24-0317f2d53c60", "Heather Hudson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("45be3811-a223-4c45-9b24-0317f2d53c60", "Heather Hudson"),
+    CardSet::Onslaught,
+    // A land that is a spell when you have enough of them, which is what a
+    // deck playing twenty-four of them needs its twenty-fourth to be.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Black),
+        abilities::cycling(
+            "Cycling {B} ({B}, Discard this card: Draw a card.)",
+            mana_cost!("{B}"),
+        ),
+    ]),
 );
 
 // ONS 313 — Bloodstained Mire
@@ -4234,13 +4346,21 @@ pub(in crate::card::sets) static FLOODED_STRAND: CardRecord = CardRecord::new_wi
 );
 
 // ONS 317 — Forgotten Cave
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORGOTTEN_CAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5202668-a32c-4473-b272-e86264992576"),
     "Forgotten Cave",
-    crate::card::CardArt::new("c5202668-a32c-4473-b272-e86264992576", "Tony Szczudlo"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c5202668-a32c-4473-b272-e86264992576", "Tony Szczudlo"),
+    CardSet::Onslaught,
+    // The red member of the cycle, and the reason a burn deck can afford to
+    // play a land that comes down tapped.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Red),
+        abilities::cycling(
+            "Cycling {R} ({R}, Discard this card: Draw a card.)",
+            mana_cost!("{R}"),
+        ),
+    ]),
 );
 
 // ONS 318 — Goblin Burrows
@@ -4296,13 +4416,21 @@ pub(in crate::card::sets) static GRAND_COLISEUM: CardRecord = CardRecord::new(
 );
 
 // ONS 320 — Lonely Sandbar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LONELY_SANDBAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d8ddab06-aff7-4c40-bcaa-10cbfe899dd9"),
     "Lonely Sandbar",
-    crate::card::CardArt::new("d8ddab06-aff7-4c40-bcaa-10cbfe899dd9", "Heather Hudson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d8ddab06-aff7-4c40-bcaa-10cbfe899dd9", "Heather Hudson"),
+    CardSet::Onslaught,
+    // A tapped land early or a cantrip late, which is exactly the trade a
+    // control deck wants to be able to make.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Blue),
+        abilities::cycling(
+            "Cycling {U} ({U}, Discard this card: Draw a card.)",
+            mana_cost!("{U}"),
+        ),
+    ]),
 );
 
 // ONS 321 — Polluted Delta
@@ -4370,13 +4498,21 @@ pub(in crate::card::sets) static STARLIT_SANCTUM: CardRecord = CardRecord::new(
 );
 
 // ONS 326 — Tranquil Thicket
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRANQUIL_THICKET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afcb7cef-8aeb-4c84-88e9-6df17768e292"),
     "Tranquil Thicket",
-    crate::card::CardArt::new("afcb7cef-8aeb-4c84-88e9-6df17768e292", "Heather Hudson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("afcb7cef-8aeb-4c84-88e9-6df17768e292", "Heather Hudson"),
+    CardSet::Onslaught,
+    // Green's copy of the same deal, in the colour least likely to want a
+    // land that does nothing on the turn it lands.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::tap_for(ManaColor::Green),
+        abilities::cycling(
+            "Cycling {G} ({G}, Discard this card: Draw a card.)",
+            mana_cost!("{G}"),
+        ),
+    ]),
 );
 
 // ONS 327 — Unholy Grotto

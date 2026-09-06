@@ -130,13 +130,35 @@ pub(in crate::card::sets) static HOPE_AND_GLORY: CardRecord = CardRecord::new(
 );
 
 // ULG 10 — Iron Will
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRON_WILL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bee0ee84-6c22-4649-b621-e3fdb08bbe45"),
     "Iron Will",
-    crate::card::CardArt::new("bee0ee84-6c22-4649-b621-e3fdb08bbe45", "Val Mayerik"),
-    crate::card::CardSet::UrzasLegacy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bee0ee84-6c22-4649-b621-e3fdb08bbe45", "Val Mayerik"),
+    CardSet::UrzasLegacy,
+    // A combat trick that is never a dead card, which is the whole reason
+    // cycling was printed on tricks at all.
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gets +0/+4 until end of turn.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // ULG 11 — Karmic Guide

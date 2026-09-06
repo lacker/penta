@@ -40,6 +40,7 @@ mod combat_damage_riders;
 mod conditional_bodies;
 mod conditional_statics;
 mod counted_rituals;
+mod cycling_cards;
 mod damage_taken_triggers;
 mod destroy_and_escape;
 mod dies_returns;

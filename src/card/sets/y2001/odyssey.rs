@@ -2081,16 +2081,41 @@ pub(in crate::card::sets) static LAST_RITES: CardRecord = CardRecord::new(
 );
 
 // ODY 147 — Malevolent Awakening
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MALEVOLENT_AWAKENING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35d94052-aae3-4ced-9309-fc4a0d1f159d"),
     "Malevolent Awakening",
-    crate::card::CardArt::new(
+    CardArt::new(
         "35d94052-aae3-4ced-9309-fc4a0d1f159d",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Trading the body on the board for the one in the graveyard, which is
+    // only a gain when the graveyard holds something bigger.
+    CardRules::new_enchantment(mana_cost!("{1}{B}{B}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{B}{B}, Sacrifice a creature: Return target creature card from your graveyard to your hand.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{B}{B}")),
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                })]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // ODY 148 — Mind Burst
@@ -2783,13 +2808,36 @@ pub(in crate::card::sets) static MAD_DOG: CardRecord = CardRecord::new(
 );
 
 // ODY 203 — Magma Vein
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGMA_VEIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("69ed2b52-2862-423c-8ce3-6c8232d9d92c"),
     "Magma Vein",
-    crate::card::CardArt::new("69ed2b52-2862-423c-8ce3-6c8232d9d92c", "Glen Angus"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("69ed2b52-2862-423c-8ce3-6c8232d9d92c", "Glen Angus"),
+    CardSet::Odyssey,
+    // A sweeper that costs a land per point, so it only answers a board of
+    // one-toughness creatures -- which is the board it was printed against.
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(AbilityDef::activated(
+        "{R}, Sacrifice a land: This enchantment deals 1 damage to each creature without flying.",
+        &[
+            CostDef::Mana(mana_cost!("{R}")),
+            CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                controller: PlayerRelation::You,
+            },
+        ],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        KeywordAbility::Flying,
+                    )),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // ODY 204 — Magnivore
@@ -2865,16 +2913,33 @@ pub(in crate::card::sets) static MUDHOLE: CardRecord = CardRecord::new(
 );
 
 // ODY 209 — Need for Speed
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEED_FOR_SPEED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8407b02f-66b3-4cfa-a3c4-105f314fd037"),
     "Need for Speed",
-    crate::card::CardArt::new(
+    CardArt::new(
         "8407b02f-66b3-4cfa-a3c4-105f314fd037",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // One mana that turns every land drawn late into an attack, which is
+    // the whole reason a deck flooding out plays it.
+    CardRules::new_enchantment(mana_cost!("{R}")).with_ability(AbilityDef::activated_with_targets(
+        "Sacrifice a land: Target creature gains haste until end of turn.",
+        &[CostDef::SacrificePermanent {
+            object: ObjectPredicateDef::HasType(CardType::Land),
+            controller: PlayerRelation::You,
+        }],
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )]
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // ODY 210 — Obstinate Familiar

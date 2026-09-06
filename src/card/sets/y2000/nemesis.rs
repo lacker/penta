@@ -10,7 +10,7 @@ use crate::card::{
     DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility,
     ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -624,16 +624,30 @@ pub(in crate::card::sets) static SEAHUNTER: CardRecord = CardRecord::new(
 );
 
 // NEM 42 — Seal of Removal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEAL_OF_REMOVAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("487becfe-a9b1-4029-a487-2a32561570cb"),
     "Seal of Removal",
-    crate::card::CardArt::new(
+    CardArt::new(
         "487becfe-a9b1-4029-a487-2a32561570cb",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardSet::Nemesis,
+    // The bounce is paid for a turn early and kept on the table, which
+    // costs a card but takes the tempo loss off the turn it matters.
+    CardRules::new_enchantment(mana_cost!("{U}")).with_ability(AbilityDef::activated_with_targets(
+        "Sacrifice this enchantment: Return target creature to its owner's hand.",
+        &[CostDef::SacrificeSource],
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )]
+        },
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // NEM 43 — Sliptide Serpent
@@ -950,16 +964,35 @@ pub(in crate::card::sets) static RATHI_INTIMIDATOR: CardRecord = CardRecord::new
 );
 
 // NEM 70 — Seal of Doom
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEAL_OF_DOOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("396d9f58-a4ca-4197-94be-0f115427224e"),
     "Seal of Doom",
-    crate::card::CardArt::new(
+    CardArt::new(
         "396d9f58-a4ca-4197-94be-0f115427224e",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardSet::Nemesis,
+    // Removal announced three turns early, which the opponent can play
+    // around and can never counter.
+    CardRules::new_enchantment(mana_cost!("{2}{B}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice this enchantment: Destroy target nonblack creature. It can't be regenerated.",
+            &[CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]))]
+            },
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ),
+    ),
 );
 
 // NEM 71 — Spineless Thug

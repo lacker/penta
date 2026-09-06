@@ -2169,13 +2169,39 @@ pub(in crate::card::sets) static SHIVAN_EMISSARY: CardRecord = CardRecord::new(
 );
 
 // INV 167 — Shivan Harvest
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_HARVEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47dbd765-d7ea-4181-bd22-5c749ad081af"),
     "Shivan Harvest",
-    crate::card::CardArt::new("47dbd765-d7ea-4181-bd22-5c749ad081af", "Daren Bader"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("47dbd765-d7ea-4181-bd22-5c749ad081af", "Daren Bader"),
+    CardSet::Invasion,
+    // Repeatable land destruction paid for in creatures, which only a deck
+    // making tokens for free can keep pointing at a mana base.
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{R}, Sacrifice a creature: Destroy target nonbasic land.",
+            &[
+                CostDef::Mana(mana_cost!("{1}{R}")),
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // INV 168 — Skittish Kavu
@@ -2476,13 +2502,28 @@ pub(in crate::card::sets) static KAVU_CLIMBER: CardRecord = CardRecord::new(
 );
 
 // INV 193 — Kavu Lair
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAVU_LAIR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f4581b53-23a0-4ca6-a77c-97d79e7a6570"),
     "Kavu Lair",
-    crate::card::CardArt::new("f4581b53-23a0-4ca6-a77c-97d79e7a6570", "Chippy"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f4581b53-23a0-4ca6-a77c-97d79e7a6570", "Chippy"),
+    CardSet::Invasion,
+    // It draws for whoever played the big creature, so in a deck of small
+    // ones it is a gift to the opponent.
+    CardRules::new_enchantment(mana_cost!("{2}{G}")).with_ability(AbilityDef::triggered(
+        "Whenever a creature with power 4 or greater enters, its controller draws a card.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::PowerAtLeast(4),
+            ]),
+            None,
+            Some(ZoneKind::Battlefield),
+        ),
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // INV 194 — Kavu Titan
@@ -2973,13 +3014,43 @@ pub(in crate::card::sets) static AETHER_RIFT: CardRecord = CardRecord::new(
 );
 
 // INV 228 — Angelic Shield
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGELIC_SHIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5aaa3e4e-4e08-4df2-9e0c-66e15a10fec4"),
     "Angelic Shield",
-    crate::card::CardArt::new("5aaa3e4e-4e08-4df2-9e0c-66e15a10fec4", "Adam Rex"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5aaa3e4e-4e08-4df2-9e0c-66e15a10fec4", "Adam Rex"),
+    CardSet::Invasion,
+    // A point of toughness on every body wins the combats a two-mana
+    // enchantment has no business winning, and it can still be cashed in.
+    CardRules::new_enchantment(mana_cost!("{W}{U}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Creatures you control get +0/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this enchantment: Return target creature to its owner's hand.",
+            &[CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // INV 229 — Armadillo Cloak
@@ -3240,13 +3311,43 @@ pub(in crate::card::sets) static DUELING_GROUNDS: CardRecord = CardRecord::new(
 );
 
 // INV 246 — Fires of Yavimaya
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIRES_OF_YAVIMAYA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("967f1658-8777-46fc-a648-07fb19e46745"),
     "Fires of Yavimaya",
-    crate::card::CardArt::new("967f1658-8777-46fc-a648-07fb19e46745", "Val Mayerik"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("967f1658-8777-46fc-a648-07fb19e46745", "Val Mayerik"),
+    CardSet::Invasion,
+    // Haste for the whole board is what made a deck of four-drops beat a
+    // deck of answers, and the sacrifice wins the last combat.
+    CardRules::new_enchantment(mana_cost!("{1}{R}{G}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Creatures you control have haste.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this enchantment: Target creature gets +2/+2 until end of turn.",
+            &[CostDef::SacrificeSource],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // INV 247 — Frenzied Tilling (reprint)

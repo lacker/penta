@@ -47,6 +47,7 @@ mod dies_sweeper;
 mod discard_a_land_cost;
 mod discard_to_regenerate;
 mod each_upkeep;
+mod enchantment_engines;
 mod enters_answers;
 mod enters_sweepers;
 mod enumerated_apply;

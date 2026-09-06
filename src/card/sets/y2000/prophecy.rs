@@ -71,13 +71,31 @@ pub(in crate::card::sets) static ABOLISH: CardRecord = CardRecord::new(
 );
 
 // PCY 2 — Aura Fracture
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AURA_FRACTURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("de8d3e36-977f-4169-8f2a-a4057b912ccb"),
     "Aura Fracture",
-    crate::card::CardArt::new("de8d3e36-977f-4169-8f2a-a4057b912ccb", "Rebecca Guay"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("de8d3e36-977f-4169-8f2a-a4057b912ccb", "Rebecca Guay"),
+    CardSet::Prophecy,
+    // Repeatable enchantment removal for the price of a land each time,
+    // which is what a sideboard card looks like when it never rotates out.
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice a land: Destroy target enchantment.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                controller: PlayerRelation::You,
+            }],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // PCY 3 — Avatar of Hope

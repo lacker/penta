@@ -254,13 +254,36 @@ pub(in crate::card::sets) static ERTAI_S_TRICKERY: CardRecord = CardRecord::new(
 );
 
 // PLS 25 — Escape Routes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ESCAPE_ROUTES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbc9062e-ddd9-41ac-a88a-33f5a7b22103"),
     "Escape Routes",
-    crate::card::CardArt::new("dbc9062e-ddd9-41ac-a88a-33f5a7b22103", "Marc Fishman"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dbc9062e-ddd9-41ac-a88a-33f5a7b22103", "Marc Fishman"),
+    CardSet::Planeshift,
+    // Three mana to rebuy an enters-the-battlefield trigger every turn,
+    // which is a whole deck rather than a trick.
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{U}: Return target white or black creature you control to its owner's hand.",
+            &[CostDef::Mana(mana_cost!("{2}{U}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Color(ManaColor::White),
+                            ObjectPredicateDef::Color(ManaColor::Black),
+                        ]),
+                    ]),
+                )]
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // PLS 26 — Gainsay

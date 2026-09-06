@@ -1935,13 +1935,24 @@ pub(in crate::card::sets) static MYSTIC_SNAKE: CardRecord = CardRecord::new(
 );
 
 // APC 113 — Overgrown Estate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OVERGROWN_ESTATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1c48c58-3532-4022-9eec-1a870385cbf3"),
     "Overgrown Estate",
-    crate::card::CardArt::new("c1c48c58-3532-4022-9eec-1a870385cbf3", "Brian Snõddy"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c1c48c58-3532-4022-9eec-1a870385cbf3", "Brian Snõddy"),
+    CardSet::Apocalypse,
+    // Three life per land is a rate only a deck that has already stopped
+    // needing lands can use, which is exactly the deck it was printed for.
+    CardRules::new_enchantment(mana_cost!("{W}{B}{G}")).with_ability(AbilityDef::activated(
+        "Sacrifice a land: You gain 3 life.",
+        &[CostDef::SacrificePermanent {
+            object: ObjectPredicateDef::HasType(CardType::Land),
+            controller: PlayerRelation::You,
+        }],
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(3),
+        },
+    )),
 );
 
 // APC 114 — Pernicious Deed

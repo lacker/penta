@@ -4,7 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, BlockRestrictionDef,
+    BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, ControlDurationDef, CostDef, CounterKind,
     DamageEventMatcherDef, DamagePreventionDef, EffectDef, EffectRecipientDef, KeywordAbility,
     ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
@@ -1657,13 +1658,38 @@ pub(in crate::card::sets) static STAMPEDE_DRIVER: CardRecord = CardRecord::new(
 );
 
 // NEM 123 — Treetop Bracers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREETOP_BRACERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d6d85032-26e9-44af-ab52-56d9c24e337d"),
     "Treetop Bracers",
-    crate::card::CardArt::new("d6d85032-26e9-44af-ab52-56d9c24e337d", "Heather Hudson"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d6d85032-26e9-44af-ab52-56d9c24e337d", "Heather Hudson"),
+    CardSet::Nemesis,
+    // Evasion for two mana in the colour with the fewest fliers to fear,
+    // which is most of what a green creature needed to keep connecting.
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and can't be blocked except by creatures with flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                            BlockRestrictionDef::prohibit(
+                                BlockRestrictionSubjectDef::Attacker,
+                                BlockRestrictionMatchDef::Except(ObjectPredicateDef::HasKeyword(
+                                    KeywordAbility::Flying,
+                                )),
+                            ),
+                        )),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // NEM 124 — Wild Mammoth

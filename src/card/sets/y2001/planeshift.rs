@@ -943,13 +943,33 @@ pub(in crate::card::sets) static MIRRORWOOD_TREEFOLK: CardRecord = CardRecord::n
 );
 
 // PLS 84 — Multani's Harmony
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MULTANI_S_HARMONY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c76352ea-e3d2-4221-8ebe-e953301c35ab"),
     "Multani's Harmony",
-    crate::card::CardArt::new("c76352ea-e3d2-4221-8ebe-e953301c35ab", "Darrell Riche"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c76352ea-e3d2-4221-8ebe-e953301c35ab", "Darrell Riche"),
+    CardSet::Planeshift,
+    // One mana turns any creature into a five-colour land, which is what a
+    // deck with three colours and no fixing was willing to pay a card for.
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has \"{T}: Add one mana of any color.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated_mana(
+                                "{T}: Add one mana of any color.",
+                                &[CostDef::TapSource],
+                                EffectDef::AddMana(AddManaEffectDef::any_color()),
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // PLS 85 — Nemata, Grove Guardian

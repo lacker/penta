@@ -1222,13 +1222,41 @@ pub(in crate::card::sets) static PREDICT: CardRecord = CardRecord::new(
 );
 
 // ODY 95 — Psionic Gift
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PSIONIC_GIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("862fc18f-90d2-430d-aff2-47c1483dee9d"),
     "Psionic Gift",
-    crate::card::CardArt::new("862fc18f-90d2-430d-aff2-47c1483dee9d", "Dany Orizio"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("862fc18f-90d2-430d-aff2-47c1483dee9d", "Dany Orizio"),
+    CardSet::Odyssey,
+    // A pinger for two mana, so long as you already had a creature worth
+    // tapping and are happy never to attack with it.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has \"{T}: This creature deals 1 damage to any target.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated_with_targets(
+                                "{T}: This creature deals 1 damage to any target.",
+                                &[CostDef::TapSource],
+                                &const {
+                                    [AbilityTargetDef::exactly_one(
+                                        AbilityTargetPredicate::AnyTarget,
+                                    )]
+                                },
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    amount: ValueDef::Constant(1),
+                                },
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 96 — Pulsating Illusion
@@ -1554,13 +1582,41 @@ pub(in crate::card::sets) static CABAL_SHRINE: CardRecord = CardRecord::new(
 );
 
 // ODY 122 — Caustic Tar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAUSTIC_TAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3700a61f-76fe-42e6-be93-0ba319b7b543"),
     "Caustic Tar",
-    crate::card::CardArt::new("3700a61f-76fe-42e6-be93-0ba319b7b543", "John Avon"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3700a61f-76fe-42e6-be93-0ba319b7b543", "John Avon"),
+    CardSet::Odyssey,
+    // Six mana that ends the game on its own if it is never answered,
+    // which is the deal every land enchantment of this cycle offers.
+    CardRules::new_enchantment(mana_cost!("{4}{B}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: Target player loses 3 life.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated_with_targets(
+                                "{T}: Target player loses 3 life.",
+                                &[CostDef::TapSource],
+                                &const {
+                                    [AbilityTargetDef::exactly_one(
+                                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                                    )]
+                                },
+                                EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    amount: ValueDef::Constant(3),
+                                },
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 123 — Childhood Horror
@@ -3543,13 +3599,38 @@ pub(in crate::card::sets) static SQUIRREL_MOB: CardRecord = CardRecord::new(
 );
 
 // ODY 274 — Squirrel Nest
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUIRREL_NEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22eccb27-1723-4c5a-96b8-85e6e5739c30"),
     "Squirrel Nest",
-    crate::card::CardArt::new("22eccb27-1723-4c5a-96b8-85e6e5739c30", "Anthony S. Waters"),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("22eccb27-1723-4c5a-96b8-85e6e5739c30", "Anthony S. Waters"),
+    CardSet::Odyssey,
+    // A land that makes a body every turn, which is more than a three-mana
+    // enchantment was supposed to do and why it kept finding combo homes.
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: Create a 1/1 green Squirrel creature token.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated(
+                                "{T}: Create a 1/1 green Squirrel creature token.",
+                                &[CostDef::TapSource],
+                                EffectDef::create_creature_token(
+                                    &["Squirrel"],
+                                    &[ManaColor::Green],
+                                    1,
+                                    1,
+                                ),
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // ODY 275 — Still Life

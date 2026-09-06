@@ -582,13 +582,47 @@ pub(in crate::card::sets) static DESOLATION_ANGEL: CardRecord = CardRecord::new(
 );
 
 // APC 39 — Foul Presence
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOUL_PRESENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c5a6fa8-d422-4e56-9e7b-2ff2fc8aecfe"),
     "Foul Presence",
-    crate::card::CardArt::new("7c5a6fa8-d422-4e56-9e7b-2ff2fc8aecfe", "Ray Lago"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7c5a6fa8-d422-4e56-9e7b-2ff2fc8aecfe", "Ray Lago"),
+    CardSet::Apocalypse,
+    // Shrinks what it lands on and turns it into removal, which is a deal
+    // worth taking on a creature that was never going to attack.
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -1/-1 and has \"{T}: Target creature gets -1/-1 until end of turn.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(-1),
+                            ValueDef::Constant(-1),
+                        ),
+                        AppliedEffectDef::add_ability(&const { AbilityDef::activated_with_targets(
+                                "{T}: Target creature gets -1/-1 until end of turn.",
+                                &[CostDef::TapSource],
+                                &const {
+                                    [AbilityTargetDef::exactly_one_permanent(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                    )]
+                                },
+                                EffectDef::Apply {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    effect: AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::Constant(-1),
+                                        ValueDef::Constant(-1),
+                                    ),
+                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                },
+                            ) }),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // APC 40 — Grave Defiler
@@ -1933,16 +1967,48 @@ pub(in crate::card::sets) static PUTRID_WARRIOR: CardRecord = CardRecord::new(
 );
 
 // APC 118 — Quicksilver Dagger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUICKSILVER_DAGGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("83c74012-6060-4fad-aa73-6e6afd33c482"),
     "Quicksilver Dagger",
-    crate::card::CardArt::new(
+    CardArt::new(
         "83c74012-6060-4fad-aa73-6e6afd33c482",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardSet::Apocalypse,
+    // The damage is incidental; the card every turn is the reason to spend
+    // three mana and a creature's attack on an Aura.
+    CardRules::new_enchantment(mana_cost!("{1}{U}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has \"{T}: This creature deals 1 damage to target player or planeswalker. You draw a card.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { AbilityDef::activated_with_targets(
+                            "{T}: This creature deals 1 damage to target player or planeswalker. You draw a card.",
+                            &[CostDef::TapSource],
+                            &const {
+                                [AbilityTargetDef::exactly_one(
+                                    AbilityTargetPredicate::PlayerOrPlaneswalker(
+                                        PlayerRelation::Any,
+                                    ),
+                                )]
+                            },
+                            EffectDef::Sequence(&const { [
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    amount: ValueDef::Constant(1),
+                                },
+                                EffectDef::DrawCards {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(1),
+                                },
+                            ] }),
+                        ) }),
+                },
+            ),
+        ]),
 );
 
 // APC 119 — Razorfin Hunter

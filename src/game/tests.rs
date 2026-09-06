@@ -56,6 +56,7 @@ mod flying_blockers_only;
 mod free_sacrifice_outlet;
 mod granted_fear;
 mod granted_haste;
+mod granted_land_abilities;
 mod graveyard_and_control;
 mod guildsworn_prowler;
 mod lair_return_cost;

@@ -672,13 +672,43 @@ pub(in crate::card::sets) static STORMWATCH_EAGLE: CardRecord = CardRecord::new(
 );
 
 // PCY 51 — Sunken Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNKEN_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9211ee02-e854-4414-92b1-65a7af29f0b9"),
     "Sunken Field",
-    crate::card::CardArt::new("9211ee02-e854-4414-92b1-65a7af29f0b9", "Donato Giancola"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9211ee02-e854-4414-92b1-65a7af29f0b9", "Donato Giancola"),
+    CardSet::Prophecy,
+    // A tax the opponent has to play around every turn, paid for by a land
+    // that was going to be tapped for mana anyway.
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: Counter target spell unless its controller pays {1}.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated_with_targets(
+                                "{T}: Counter target spell unless its controller pays {1}.",
+                                &[CostDef::TapSource],
+                                &const {
+                                    [AbilityTargetDef::exactly_one(
+                                        AbilityTargetPredicate::Object {
+                                            object: ObjectPredicateDef::Spell,
+                                            zones: &[ZoneKind::Stack],
+                                            controller: None,
+                                            owner: None,
+                                        },
+                                    )]
+                                },
+                                abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // PCY 52 — Troublesome Spirit
@@ -922,13 +952,42 @@ pub(in crate::card::sets) static NAKAYA_SHADE: CardRecord = CardRecord::new(
 );
 
 // PCY 70 — Noxious Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOXIOUS_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10c84d09-555c-472b-b445-5dd5a44cd555"),
     "Noxious Field",
-    crate::card::CardArt::new("10c84d09-555c-472b-b445-5dd5a44cd555", "Eric Peterson"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("10c84d09-555c-472b-b445-5dd5a44cd555", "Eric Peterson"),
+    CardSet::Prophecy,
+    // The same land, pointed at everything at once, which only a deck
+    // with no creatures of its own can keep using.
+    CardRules::new_enchantment(mana_cost!("{1}{B}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: This land deals 1 damage to each creature and each player.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&const { AbilityDef::activated(
+                            "{T}: This land deals 1 damage to each creature and each player.",
+                            &[CostDef::TapSource],
+                            EffectDef::Sequence(&const { [
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::matching_objects(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::Any,
+                                    ),
+                                    amount: ValueDef::Constant(1),
+                                },
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::EachPlayer,
+                                    amount: ValueDef::Constant(1),
+                                },
+                            ] }),
+                        ) }),
+                },
+            ),
+        ]),
 );
 
 // PCY 71 — Outbreak
@@ -1114,13 +1173,41 @@ pub(in crate::card::sets) static AVATAR_OF_FURY: CardRecord = CardRecord::new(
 );
 
 // PCY 83 — Barbed Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARBED_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c76db48-6f05-49c3-a49c-587c0a8a3613"),
     "Barbed Field",
-    crate::card::CardArt::new("1c76db48-6f05-49c3-a49c-587c0a8a3613", "Carl Critchlow"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1c76db48-6f05-49c3-a49c-587c0a8a3613", "Carl Critchlow"),
+    CardSet::Prophecy,
+    // The red half of the cycle: a land that pings, which is slow and
+    // impossible to race once nothing can remove it.
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: This land deals 1 damage to any target.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated_with_targets(
+                                "{T}: This land deals 1 damage to any target.",
+                                &[CostDef::TapSource],
+                                &const {
+                                    [AbilityTargetDef::exactly_one(
+                                        AbilityTargetPredicate::AnyTarget,
+                                    )]
+                                },
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    amount: ValueDef::Constant(1),
+                                },
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // PCY 84 — Branded Brawlers
@@ -1741,13 +1828,45 @@ pub(in crate::card::sets) static THRIVE: CardRecord = CardRecord::new(
 );
 
 // PCY 130 — Verdant Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VERDANT_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d123da53-9fd3-492b-beb7-76d1c0f5e4f6"),
     "Verdant Field",
-    crate::card::CardArt::new("d123da53-9fd3-492b-beb7-76d1c0f5e4f6", "Ron Spears"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d123da53-9fd3-492b-beb7-76d1c0f5e4f6", "Ron Spears"),
+    CardSet::Prophecy,
+    // A pump that costs no mana at all, which is what makes an otherwise
+    // unremarkable land a combat trick every turn.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: Target creature gets +1/+1 until end of turn.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::activated_with_targets(
+                                "{T}: Target creature gets +1/+1 until end of turn.",
+                                &[CostDef::TapSource],
+                                &const {
+                                    [AbilityTargetDef::exactly_one_permanent(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                    )]
+                                },
+                                EffectDef::Apply {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    effect: AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::Constant(1),
+                                        ValueDef::Constant(1),
+                                    ),
+                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                },
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // PCY 131 — Vintara Elephant

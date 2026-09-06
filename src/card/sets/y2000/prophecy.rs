@@ -755,13 +755,29 @@ pub(in crate::card::sets) static DEATH_CHARMER: CardRecord = CardRecord::new(
 );
 
 // PCY 62 — Despoil
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DESPOIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06bb6ff7-2cd6-430e-a618-0b83d9c1d044"),
     "Despoil",
-    crate::card::CardArt::new("06bb6ff7-2cd6-430e-a618-0b83d9c1d044", "Scott M. Fischer"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("06bb6ff7-2cd6-430e-a618-0b83d9c1d044", "Scott M. Fischer"),
+    CardSet::Prophecy,
+    // Land destruction with two points attached, which only matters in the
+    // deck that was already burning.
+    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land. Its controller loses 2 life.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )),
 );
 
 // PCY 63 — Endbringer's Revel

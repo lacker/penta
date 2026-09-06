@@ -133,13 +133,32 @@ pub(in crate::card::sets) static CAGEMAIL: CardRecord = CardRecord::new(
 );
 
 // JUD 8 — Chastise
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHASTISE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1169dab7-8f4c-474d-9289-42765a275376"),
     "Chastise",
-    crate::card::CardArt::new("1169dab7-8f4c-474d-9289-42765a275376", "Carl Critchlow"),
-    crate::card::CardSet::Judgment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1169dab7-8f4c-474d-9289-42765a275376", "Carl Critchlow"),
+    CardSet::Judgment,
+    // Removal that only answers an attacker, and pays for the turn it cost
+    // to hold up.
+    CardRules::new_instant(mana_cost!("{3}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target attacking creature. You gain life equal to its power.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Attacking,
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+            },
+        ]),
+    )),
 );
 
 // JUD 9 — Commander Eesha

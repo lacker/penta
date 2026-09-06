@@ -2602,13 +2602,30 @@ pub(in crate::card::sets) static ELECTRYTE: CardRecord = CardRecord::new(
 );
 
 // USG 184 — Falter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FALTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e279126c-0512-4ee6-ad83-6fdfc7ae46c5"),
     "Falter",
-    crate::card::CardArt::new("e279126c-0512-4ee6-ad83-6fdfc7ae46c5", "Mike Raabe"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e279126c-0512-4ee6-ad83-6fdfc7ae46c5", "Mike Raabe"),
+    CardSet::UrzasSaga,
+    // Two mana that ends the game from a board stall, which is what red had
+    // instead of a real finisher.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Creatures without flying can't block this turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        KeywordAbility::Flying,
+                    )),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // USG 185 — Fault Line
@@ -2734,13 +2751,18 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new_wit
 );
 
 // USG 192 — Goblin Offensive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_OFFENSIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9813857-5527-4499-af86-758a5971e21a"),
     "Goblin Offensive",
-    crate::card::CardArt::new("e9813857-5527-4499-af86-758a5971e21a", "Carl Critchlow"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e9813857-5527-4499-af86-758a5971e21a", "Carl Critchlow"),
+    CardSet::UrzasSaga,
+    // X bodies for X plus three, which is a rate only a deck that already
+    // cares about the count would pay.
+    CardRules::new_sorcery(mana_cost!("{X}{1}{R}{R}")).with_ability(AbilityDef::spell(
+        "Create X 1/1 red Goblin creature tokens.",
+        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+            .with_count(ValueDef::ChosenX),
+    )),
 );
 
 // USG 193 — Goblin Patrol
@@ -2795,13 +2817,28 @@ pub(in crate::card::sets) static GUMA: CardRecord = CardRecord::new(
 );
 
 // USG 198 — Headlong Rush
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEADLONG_RUSH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f0db04c-5101-4a43-9109-3964ac66bdab"),
     "Headlong Rush",
-    crate::card::CardArt::new("9f0db04c-5101-4a43-9109-3964ac66bdab", "Dermot Power"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9f0db04c-5101-4a43-9109-3964ac66bdab", "Dermot Power"),
+    CardSet::UrzasSaga,
+    // First strike across the attack, which turns every trade into a
+    // one-sided one.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Attacking creatures gain first strike until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // USG 199 — Heat Ray
@@ -2870,13 +2907,27 @@ pub(in crate::card::sets) static LIGHTNING_DRAGON: CardRecord = CardRecord::new(
 );
 
 // USG 203 — Meltdown
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MELTDOWN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e7a967a-35a0-4e5c-a32b-123a9cfdb79e"),
     "Meltdown",
-    crate::card::CardArt::new("9e7a967a-35a0-4e5c-a32b-123a9cfdb79e", "Donato Giancola"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9e7a967a-35a0-4e5c-a32b-123a9cfdb79e", "Donato Giancola"),
+    CardSet::UrzasSaga,
+    // An artifact sweeper that scales, so it answers the cheap half of a
+    // board and leaves the expensive half.
+    CardRules::new_sorcery(mana_cost!("{X}{R}")).with_ability(AbilityDef::spell(
+        "Destroy each artifact with mana value X or less.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            then: None,
+        },
+    )),
 );
 
 // USG 204 — Okk

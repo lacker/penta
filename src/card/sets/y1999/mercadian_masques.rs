@@ -1876,16 +1876,30 @@ pub(in crate::card::sets) static EXTORTION: CardRecord = CardRecord::new(
 );
 
 // MMQ 136 — Forced March
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORCED_MARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36eae0e1-7100-449d-a259-7abfcd429117"),
     "Forced March",
-    crate::card::CardArt::new(
+    CardArt::new(
         "36eae0e1-7100-449d-a259-7abfcd429117",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardSet::MercadianMasques,
+    // The same idea in black and aimed at creatures, which is a sweeper the
+    // caster can size to spare its own board.
+    CardRules::new_sorcery(mana_cost!("{X}{B}{B}{B}")).with_ability(AbilityDef::spell(
+        "Destroy all creatures with mana value X or less.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            then: None,
+        },
+    )),
 );
 
 // MMQ 137 — Ghoul's Feast

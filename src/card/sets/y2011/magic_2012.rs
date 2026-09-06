@@ -1952,13 +1952,31 @@ pub(in crate::card::sets) static LURKING_CROCODILE: CardRecord = CardRecord::new
 // M12 185 — Naturalize (reprint)
 
 // M12 186 — Overrun
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OVERRUN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ad7a961-d3a1-471a-8472-8407d1057de0"),
     "Overrun",
-    crate::card::CardArt::new("ae0559d4-0015-44e4-8ec4-08bb1c54eec5", "Carl Critchlow"),
-    crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ae0559d4-0015-44e4-8ec4-08bb1c54eec5", "Carl Critchlow"),
+    CardSet::Magic2012,
+    // Five mana that turns a stalled board into lethal, which is the reason
+    // green decks were allowed to have one.
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}{G}")).with_ability(AbilityDef::spell(
+        "Creatures you control get +3/+3 and gain trample until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                AppliedEffectDef::add_ability(&const { abilities::trample() }),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // M12 187 — Plummet (reprint)

@@ -1064,13 +1064,28 @@ pub(in crate::card::sets) static FLOWSTONE_OVERSEER: CardRecord = CardRecord::ne
 );
 
 // NEM 83 — Flowstone Slide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_SLIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec7b02e1-0a20-4247-ae2a-056c5356f168"),
     "Flowstone Slide",
-    crate::card::CardArt::new("ec7b02e1-0a20-4247-ae2a-056c5356f168", "Chippy"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ec7b02e1-0a20-4247-ae2a-056c5356f168", "Chippy"),
+    CardSet::Nemesis,
+    // Toughness for power on everything, which sweeps small boards and
+    // turns large ones lethal.
+    CardRules::new_sorcery(mana_cost!("{X}{2}{R}{R}")).with_ability(AbilityDef::spell(
+        "All creatures get +X/-X until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::ChosenX,
+                ValueDef::Negate(&ValueDef::ChosenX),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // NEM 84 — Flowstone Strike

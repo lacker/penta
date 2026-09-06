@@ -1982,13 +1982,31 @@ pub(in crate::card::sets) static SKYSHROUD_BEHEMOTH: CardRecord = CardRecord::ne
 );
 
 // NEM 117 — Skyshroud Claim
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYSHROUD_CLAIM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf3e09ff-c917-4c0c-8ddb-e152b4b0b82c"),
     "Skyshroud Claim",
-    crate::card::CardArt::new("cf3e09ff-c917-4c0c-8ddb-e152b4b0b82c", "Mark Romanoski"),
-    crate::card::CardSet::Nemesis,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cf3e09ff-c917-4c0c-8ddb-e152b4b0b82c", "Mark Romanoski"),
+    CardSet::Nemesis,
+    // Two lands untapped for four mana, which is more mana than it cost on
+    // the turn it resolves.
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for up to two Forest cards, put them onto the battlefield, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::Subtype("Forest"),
+            minimum: 0,
+            maximum: ValueDef::Constant(2),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // NEM 118 — Skyshroud Cutter

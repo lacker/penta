@@ -5,9 +5,10 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CounterKind,
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, abilities,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -164,13 +165,39 @@ pub(in crate::card::sets) static ENTANGLER: CardRecord = CardRecord::new(
 );
 
 // PCY 8 — Excise
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXCISE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d4f97dd-434b-4156-8e9d-253a943784e3"),
     "Excise",
-    crate::card::CardArt::new("8d4f97dd-434b-4156-8e9d-253a943784e3", "Joel Biske"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d4f97dd-434b-4156-8e9d-253a943784e3", "Joel Biske"),
+    CardSet::Prophecy,
+    // The attacker's controller has already spent their turn's mana attacking,
+    // which is what makes a small X enough.
+    CardRules::new_instant(mana_cost!("{X}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target attacking creature unless its controller pays {X}.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+            )]
+        },
+        EffectDef::PayOr(PayOrDef::unless(
+            EffectPaymentDef::generic_mana(
+                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                ValueDef::ChosenX,
+            ),
+            &const {
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                }
+            },
+        )),
+    )),
 );
 
 // PCY 9 — Flowering Field
@@ -543,13 +570,36 @@ pub(in crate::card::sets) static COASTAL_HORNCLAW: CardRecord = CardRecord::new(
 );
 
 // PCY 32 — Denying Wind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DENYING_WIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15f236ce-41ad-4a49-a6f9-7853a2395a84"),
     "Denying Wind",
-    crate::card::CardArt::new("15f236ce-41ad-4a49-a6f9-7853a2395a84", "Tony Szczudlo"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("15f236ce-41ad-4a49-a6f9-7853a2395a84", "Tony Szczudlo"),
+    CardSet::Prophecy,
+    // Nine mana to take the seven cards the opponent's deck is built around,
+    // which is a win condition rather than a spell.
+    CardRules::new_sorcery(mana_cost!("{7}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Search target player's library for up to seven cards and exile them. Then that player shuffles.",
+        &const {
+            [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))]
+        },
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::Any,
+            minimum: 0,
+            maximum: ValueDef::Constant(7),
+            reveal: true,
+            destination: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // PCY 33 — Excavation
@@ -674,13 +724,41 @@ pub(in crate::card::sets) static QUICKSILVER_WALL: CardRecord = CardRecord::new(
 );
 
 // PCY 42 — Rethink
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RETHINK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("915ae03f-22f3-4ecc-a875-5226d8dec384"),
     "Rethink",
-    crate::card::CardArt::new("915ae03f-22f3-4ecc-a875-5226d8dec384", "Matt Cavotta"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("915ae03f-22f3-4ecc-a875-5226d8dec384", "Matt Cavotta"),
+    CardSet::Prophecy,
+    // Three mana that taxes the whole cost again, so it answers a cheap spell
+    // for free and an expensive one never.
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell unless its controller pays {X}, where X is its mana value.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )]
+        },
+        EffectDef::PayOr(PayOrDef::unless(
+            EffectPaymentDef::generic_mana(
+                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            ),
+            &const {
+                EffectDef::Counter {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                }
+            },
+        )),
+    )),
 );
 
 // PCY 43 — Rhystic Deluge
@@ -1260,13 +1338,43 @@ pub(in crate::card::sets) static REBEL_INFORMER: CardRecord = CardRecord::new(
 );
 
 // PCY 76 — Rhystic Syphon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RHYSTIC_SYPHON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("750c5df2-e299-4bf3-8018-725893702314"),
     "Rhystic Syphon",
-    crate::card::CardArt::new("750c5df2-e299-4bf3-8018-725893702314", "Ron Spencer"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("750c5df2-e299-4bf3-8018-725893702314", "Ron Spencer"),
+    CardSet::Prophecy,
+    // A ten-point swing or three of the opponent's mana, and on the turn they
+    // are tapped out it is not a choice at all.
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Unless target player pays {3}, that player loses 5 life and you gain 5 life.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::PayOr(PayOrDef::unless(
+            EffectPaymentDef::mana(
+                PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                mana_cost!("{3}"),
+            ),
+            &const {
+                EffectDef::Sequence(
+                    &const {
+                        [
+                            EffectDef::LoseLife {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(5),
+                            },
+                            EffectDef::GainLife {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(5),
+                            },
+                        ]
+                    },
+                )
+            },
+        )),
+    )),
 );
 
 // PCY 77 — Rhystic Tutor
@@ -1446,13 +1554,43 @@ pub(in crate::card::sets) static CITADEL_OF_PAIN: CardRecord = CardRecord::new(
 );
 
 // PCY 87 — Devastate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEVASTATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfe7c990-a34b-475e-a612-447c22f998d3"),
     "Devastate",
-    crate::card::CardArt::new("bfe7c990-a34b-475e-a612-447c22f998d3", "Greg Staples"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bfe7c990-a34b-475e-a612-447c22f998d3", "Greg Staples"),
+    CardSet::Prophecy,
+    // A land and a sweep for five mana, which only a deck with no
+    // one-toughness creatures of its own can afford.
+    CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land. Devastate deals 1 damage to each creature and each player.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // PCY 88 — Fault Riders
@@ -1486,13 +1624,27 @@ pub(in crate::card::sets) static FLAMESHOT: CardRecord = CardRecord::new(
 );
 
 // PCY 91 — Inflame
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INFLAME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd7bc4c0-9bfd-444b-b22c-f1b7e1426807"),
     "Inflame",
-    crate::card::CardArt::new("cd7bc4c0-9bfd-444b-b22c-f1b7e1426807", "Eric Peterson"),
-    crate::card::CardSet::Prophecy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cd7bc4c0-9bfd-444b-b22c-f1b7e1426807", "Eric Peterson"),
+    CardSet::Prophecy,
+    // One mana that finishes off whatever combat already softened, which is
+    // a sweeper only after the attack has happened.
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spell(
+        "Inflame deals 2 damage to each creature dealt damage this turn.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::WasDealtDamageThisTurn,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            amount: ValueDef::Constant(2),
+        },
+    )),
 );
 
 // PCY 92 — Keldon Arsonist

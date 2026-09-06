@@ -389,6 +389,7 @@ mod sentinel;
 mod shroud_grants;
 mod silence_and_sturmgeist;
 mod silenced_sources;
+mod sized_payments;
 mod sized_searches;
 mod skaab_casting;
 mod skewer_the_critics;

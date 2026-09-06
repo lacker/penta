@@ -4959,16 +4959,48 @@ pub(in crate::card::sets) static ATOGATOG: CardRecord = CardRecord::new(
 );
 
 // ODY 287 — Decimate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DECIMATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("912c398a-e49a-4399-ac41-7b1d4328a59d"),
     "Decimate",
-    crate::card::CardArt::new(
+    CardArt::new(
         "912c398a-e49a-4399-ac41-7b1d4328a59d",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardSet::Odyssey,
+    // Four permanents for four mana, on the condition that all four kinds are
+    // on the board -- which is what stops it being a four-for-one.
+    CardRules::new_sorcery(mana_cost!("{2}{R}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target artifact, target creature, target enchantment, and target land.",
+        &const {
+            [
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Artifact,
+                )),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Enchantment,
+                )),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Land,
+                )),
+            ]
+        },
+        EffectDef::Destroy {
+            object: EffectRecipientDef::objects(ObjectSetDef::Union(
+                &const {
+                    [
+                        ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                        ObjectSetDef::LegalTargets(TargetIndex(1)),
+                        ObjectSetDef::LegalTargets(TargetIndex(2)),
+                        ObjectSetDef::LegalTargets(TargetIndex(3)),
+                    ]
+                },
+            )),
+            then: None,
+        },
+    )),
 );
 
 // ODY 288 — Iridescent Angel

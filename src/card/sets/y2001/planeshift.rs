@@ -4,11 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DrawEventMatcherDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DiscardSelectionDef, DrawEventMatcherDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -226,13 +227,25 @@ pub(in crate::card::sets) static VOICE_OF_ALL: CardRecord = CardRecord::new(
 );
 
 // PLS 20 — Allied Strategies
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALLIED_STRATEGIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("51d4f211-10e8-486d-b982-287ab0c060c9"),
     "Allied Strategies",
-    crate::card::CardArt::new("51d4f211-10e8-486d-b982-287ab0c060c9", "Paolo Parente"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("51d4f211-10e8-486d-b982-287ab0c060c9", "Paolo Parente"),
+    CardSet::Planeshift,
+    // Five cards in a five-colour deck and one in anything else, which is the
+    // whole reason to play a mana base that bad.
+    CardRules::new_sorcery(mana_cost!("{4}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Domain — Target player draws a card for each basic land type among lands they control.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )]
+        },
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+        },
+    )),
 );
 
 // PLS 21 — Arctic Merfolk
@@ -2062,13 +2075,36 @@ pub(in crate::card::sets) static TREVA_S_CHARM: CardRecord = CardRecord::new(
 );
 
 // PLS 130 — Urza's Guilt
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URZA_S_GUILT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d429233e-1cf9-4f87-b191-894a73e7a876"),
     "Urza's Guilt",
-    crate::card::CardArt::new("d429233e-1cf9-4f87-b191-894a73e7a876", "Paolo Parente"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d429233e-1cf9-4f87-b191-894a73e7a876", "Paolo Parente"),
+    CardSet::Planeshift,
+    // Symmetrical on the card and never in the game: the player who cast it
+    // chose the turn, and the other one did not.
+    CardRules::new_sorcery(mana_cost!("{2}{U}{B}")).with_ability(AbilityDef::spell(
+        "Each player draws two cards, then discards three cards, then loses 4 life.",
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(3),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(4),
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // PLS 131 — Draco

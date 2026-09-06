@@ -3181,13 +3181,53 @@ pub(in crate::card::sets) static QUIRION_TRAILBLAZER: CardRecord = CardRecord::n
 );
 
 // INV 206 — Restock
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESTOCK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11a013ff-7c99-445a-b9e0-0fc45036f068"),
     "Restock",
-    crate::card::CardArt::new("11a013ff-7c99-445a-b9e0-0fc45036f068", "Daren Bader"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("11a013ff-7c99-445a-b9e0-0fc45036f068", "Daren Bader"),
+    CardSet::Invasion,
+    // Two cards back for five mana, and it exiles itself so the loop never
+    // closes -- which is the only reason it is legal.
+    CardRules::new_sorcery(mana_cost!("{3}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Return two target cards from your graveyard to your hand. Exile Restock.",
+        &const {
+            [
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                }),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                }),
+            ]
+        },
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex(1)),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                ]
+            },
+        ),
+    )),
 );
 
 // INV 207 — Rooting Kavu
@@ -3994,13 +4034,43 @@ pub(in crate::card::sets) static OVERABUNDANCE: CardRecord = CardRecord::new(
 );
 
 // INV 260 — Plague Spores
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLAGUE_SPORES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0d106d56-a688-49cc-8d5d-0279a5a7c0a7"),
     "Plague Spores",
-    crate::card::CardArt::new("0d106d56-a688-49cc-8d5d-0279a5a7c0a7", "Randy Gallegos"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0d106d56-a688-49cc-8d5d-0279a5a7c0a7", "Randy Gallegos"),
+    CardSet::Invasion,
+    // Six mana for two cards' worth of removal, which is what a two-colour
+    // deck pays to answer both halves of a board at once.
+    CardRules::new_sorcery(mana_cost!("{4}{B}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target nonblack creature and target land. They can't be regenerated.",
+        &const {
+            [
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ])),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Land,
+                )),
+            ]
+        },
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &const {
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Union(
+                        &const {
+                            [
+                                ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
+                                ObjectSetDef::LegalTargets(TargetIndex(1)),
+                            ]
+                        },
+                    )),
+                    then: None,
+                }
+            },
+        },
+    )),
 );
 
 // INV 261 — Pyre Zombie

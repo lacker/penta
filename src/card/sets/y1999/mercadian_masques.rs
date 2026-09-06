@@ -21,9 +21,9 @@ use crate::card::{
     BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef,
     KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
 
@@ -1777,13 +1777,38 @@ pub(in crate::card::sets) static FORCED_MARCH: CardRecord = CardRecord::new(
 );
 
 // MMQ 137 — Ghoul's Feast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHOUL_S_FEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a0054c1-6510-41dd-8695-9bf50296b615"),
     "Ghoul's Feast",
-    crate::card::CardArt::new("6a0054c1-6510-41dd-8695-9bf50296b615", "Alan Pollack"),
-    crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6a0054c1-6510-41dd-8695-9bf50296b615", "Alan Pollack"),
+    CardSet::MercadianMasques,
+    // Two mana for a pump that grows all game, which is what a graveyard
+    // deck plays instead of a bigger creature.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +X/+0 until end of turn, where X is the number of creature cards \
+         in your graveyard.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            // Counted as the spell resolves, so a creature that died in
+            // response is already there to be counted.
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::CountMatchingObjects(
+                    &const {
+                        ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Graveyard],
+                            PlayerSetDef::Related(PlayerRelation::You),
+                        )
+                    },
+                ),
+                ValueDef::Constant(0),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // MMQ 138 — Haunted Crossroads

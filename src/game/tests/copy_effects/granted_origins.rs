@@ -14,10 +14,7 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
     )];
     static GRANTED_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
         "Sacrifice an artifact: This creature deals 2 damage to any target.",
-        &[CostDef::SacrificePermanent {
-            object: ObjectPredicateDef::HasType(CardType::Artifact),
-            controller: PlayerRelation::You,
-        }],
+        &[CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Artifact) }],
         &TARGETS,
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

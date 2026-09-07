@@ -1944,9 +1944,9 @@ pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{3}{W}{B}"), &["Thrull"], 3, 3).with_ability(
         AbilityDef::activated(
             "Sacrifice a creature: Creatures you control get +1/+1 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(

@@ -665,7 +665,10 @@ pub(in crate::card::sets) static PATROL_HOUND: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Dog"], 2, 2).with_ability(
         AbilityDef::activated(
             "Discard a card: This creature gains first strike until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
@@ -956,7 +959,10 @@ pub(in crate::card::sets) static TIRELESS_TRIBE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Nomad"], 1, 1).with_ability(
         AbilityDef::activated(
             "Discard a card: This creature gets +0/+4 until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1065,7 +1071,10 @@ pub(in crate::card::sets) static AMUGABA: CardRecord = CardRecord::new(
             "{2}{U}, Discard a card: Return this creature to its owner's hand.",
             &[
                 CostDef::Mana(mana_cost!("{2}{U}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
@@ -1161,7 +1170,10 @@ pub(in crate::card::sets) static BALSHAN_GRIFFIN: CardRecord = CardRecord::new(
             "{1}{U}, Discard a card: Return this creature to its owner's hand.",
             &[
                 CostDef::Mana(mana_cost!("{1}{U}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
@@ -1329,9 +1341,9 @@ pub(in crate::card::sets) static CEPHALID_SCOUT: CardRecord = CardRecord::new(
                 "{2}{U}, Sacrifice a land: Draw a card.",
                 &[
                     CostDef::Mana(mana_cost!("{2}{U}")),
-                    CostDef::SacrificePermanent {
+                    CostDef::Sacrifice {
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
                         object: ObjectPredicateDef::HasType(CardType::Land),
-                        controller: PlayerRelation::You,
                     },
                 ],
                 EffectDef::DrawCards {
@@ -2436,7 +2448,10 @@ pub(in crate::card::sets) static FACE_OF_FEAR: CardRecord = CardRecord::new(
             "{2}{B}, Discard a card: This creature gains fear until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{2}{B}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2494,7 +2509,10 @@ pub(in crate::card::sets) static FLEDGLING_IMP: CardRecord = CardRecord::new(
             "{B}, Discard a card: This creature gains flying until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{B}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2668,10 +2686,7 @@ pub(in crate::card::sets) static MALEVOLENT_AWAKENING: CardRecord = CardRecord::
             "{1}{B}{B}, Sacrifice a creature: Return target creature card from your graveyard to your hand.",
             &[
                 CostDef::Mana(mana_cost!("{1}{B}{B}")),
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Creature) },
             ],
             &const {
                 [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
@@ -2808,7 +2823,7 @@ pub(in crate::card::sets) static NEFARIOUS_LICH: CardRecord = CardRecord::new(
 );
 
 // ODY 154 — Overeager Apprentice
-// Audit: unsupported — Needs a chosen discard as a mana-ability cost. The mana path pays costs with no window in which to choose, so it accepts CostDef::DiscardHand but not DiscardCardMatching, whose choice of card the activation cannot carry.
+// Audit: unsupported — Needs a selected discard as a mana-ability cost. Nonmana activations and resolving payments support CostDef::Discard, but the mana path does not yet plan and commit that selection.
 pub(in crate::card::sets) static OVEREAGER_APPRENTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b886292-5937-44ee-bc2a-f316791c91ae"),
     "Overeager Apprentice",
@@ -2979,7 +2994,10 @@ pub(in crate::card::sets) static STALKING_BLOODSUCKER: CardRecord = CardRecord::
             "{1}{B}, Discard a card: This creature gets +2/+2 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{1}{B}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -3577,9 +3595,9 @@ pub(in crate::card::sets) static MAGMA_VEIN: CardRecord = CardRecord::new(
         "{R}, Sacrifice a land: This enchantment deals 1 damage to each creature without flying.",
         &[
             CostDef::Mana(mana_cost!("{R}")),
-            CostDef::SacrificePermanent {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Land),
-                controller: PlayerRelation::You,
             },
         ],
         EffectDef::DealDamage {
@@ -3641,7 +3659,7 @@ pub(in crate::card::sets) static MINE_LAYER: CardRecord = CardRecord::new(
 );
 
 // ODY 206 — Minotaur Explorer
-// Audit: unsupported — Needs a random discard as a resolving payment. The shared runtime's payment costs include DiscardCards and DiscardMatching, both of which let the payer choose, and "discard a card at random" is a different cost.
+// Audit: unsupported — Needs a random discard as a resolving payment. The CostDef::Discard window collects player selections; random action costs need separate execution and information-safety handling.
 pub(in crate::card::sets) static MINOTAUR_EXPLORER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55725e38-d60a-41a2-93b0-2eefe6d2cc59"),
     "Minotaur Explorer",
@@ -3700,9 +3718,9 @@ pub(in crate::card::sets) static NEED_FOR_SPEED: CardRecord = CardRecord::new(
     // the whole reason a deck flooding out plays it.
     CardRules::new_enchantment(mana_cost!("{R}")).with_ability(AbilityDef::activated_with_targets(
         "Sacrifice a land: Target creature gains haste until end of turn.",
-        &[CostDef::SacrificePermanent {
+        &[CostDef::Sacrifice {
+            quantity: crate::card::CostQuantityDef::Fixed(1),
             object: ObjectPredicateDef::HasType(CardType::Land),
-            controller: PlayerRelation::You,
         }],
         &const {
             [AbilityTargetDef::exactly_one_permanent(
@@ -4271,7 +4289,10 @@ pub(in crate::card::sets) static KROSAN_ARCHER: CardRecord = CardRecord::new(
             "{G}, Discard a card: This creature gets +0/+2 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{G}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -5122,7 +5143,10 @@ pub(in crate::card::sets) static PSYCHATOG: CardRecord = CardRecord::new_with_le
     CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Atog"], 1, 2).with_abilities(&[
         AbilityDef::activated(
             "Discard a card: This creature gets +1/+1 until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             ATOG_PUMP,
         ),
         AbilityDef::activated(
@@ -5317,10 +5341,9 @@ pub(in crate::card::sets) static SANDSTONE_DEADFALL: CardRecord = CardRecord::ne
         "{T}, Sacrifice two lands and this artifact: Destroy target attacking creature.",
         &[
             CostDef::TapSource,
-            CostDef::SacrificePermanents {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(2),
                 object: ObjectPredicateDef::HasType(CardType::Land),
-                controller: PlayerRelation::You,
-                count: 2,
             },
             CostDef::SacrificeSource,
         ],

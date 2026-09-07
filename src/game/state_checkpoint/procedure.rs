@@ -11,6 +11,8 @@ use super::stack::{
 };
 use super::*;
 
+mod payment;
+
 pub(super) fn draw_replacement_snapshot(
     game: &Game,
     viewer: PlayerId,
@@ -64,6 +66,14 @@ pub(super) fn pending_procedure_snapshot(
     visible_rebindings: &[GameObjectId],
 ) -> Option<PendingProcedureSnapshot> {
     Some(match procedure {
+        super::super::PendingProcedure::CommitPayment(window) => {
+            PendingProcedureSnapshot::CommitPayment(Box::new(payment::snapshot(
+                game,
+                viewer,
+                window,
+                visible_rebindings,
+            )?))
+        }
         super::super::PendingProcedure::DrawCards { player, remaining } => {
             PendingProcedureSnapshot::DrawCards {
                 player: player.index(),
@@ -161,6 +171,11 @@ pub(super) fn parse_pending_procedure(
     game: &Game,
 ) -> Result<super::super::PendingProcedure, String> {
     Ok(match snapshot {
+        PendingProcedureSnapshot::CommitPayment(snapshot) => {
+            super::super::PendingProcedure::CommitPayment(Box::new(payment::restore(
+                game, snapshot,
+            )?))
+        }
         PendingProcedureSnapshot::DrawCards { player, remaining } => {
             super::super::PendingProcedure::DrawCards {
                 player: player_from_index(*player)?,
@@ -253,6 +268,27 @@ pub(super) fn pending_procedure_referenced_object_ids(
     procedure: &super::super::PendingProcedure,
 ) -> Vec<GameObjectId> {
     match procedure {
+        super::super::PendingProcedure::CommitPayment(window) => {
+            let mut ids = continuation_referenced_object_ids(&window.object, &window.context);
+            for answer in &window.answers {
+                if let crate::game::cost_payment::PaymentAnswer::Objects(objects) = answer {
+                    ids.extend(objects);
+                }
+            }
+            if let Some(plan) = &window.committing {
+                ids.extend(
+                    plan.parts
+                        .iter()
+                        .flat_map(|part| part.objects.iter().copied()),
+                );
+                ids.extend(
+                    plan.mana_spent
+                        .iter()
+                        .filter_map(|mana| mana.source.map(|source| source.object)),
+                );
+            }
+            ids
+        }
         super::super::PendingProcedure::ResolveEffects {
             object, context, ..
         }

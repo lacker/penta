@@ -487,19 +487,35 @@ fn validate_triggered_ability_shape(
 /// Whether a shared trigger's zone claim is one some capture walk can
 /// actually find it from.
 ///
-/// One zone is the ordinary case: a card is in one place, and the walk over
-/// that place finds it. Both zones is admitted for exactly one clause --
-/// "when this is put into a graveyard from anywhere" -- because that event
-/// is the one no single walk sees: a permanent dying is captured off a
-/// snapshot taken before it left the battlefield, when the graveyard walk
-/// cannot see it yet, and a card discarded or milled is captured after it
-/// lands, when the battlefield walk never held it. Every other event would
-/// simply be found from whichever zone the card happened to be in, which
-/// makes claiming both an authoring mistake rather than a listener.
+/// Ordinary listeners use one zone. Graveyard-from-anywhere clauses also
+/// need the battlefield look-back snapshot. A self-scoped named action can
+/// instead discover its listener on the affected card after it moves.
 fn trigger_source_zones_are_discoverable(
     source_zones: &[ZoneKind],
     event: crate::card::TriggerEventDef,
 ) -> bool {
+    // A named action carrying this object discovers its own listener after
+    // the action, including a replacement that moves it into hand/library.
+    // This does not authorize a general scan of hidden-zone global watchers.
+    if matches!(
+        event,
+        crate::card::TriggerEventDef::MechanicPerformed {
+            object: Some(crate::card::ObjectPredicateDef::Source),
+            ..
+        }
+    ) {
+        return !source_zones.is_empty()
+            && source_zones.iter().all(|zone| {
+                matches!(
+                    zone,
+                    ZoneKind::Battlefield
+                        | ZoneKind::Graveyard
+                        | ZoneKind::Exile
+                        | ZoneKind::Hand
+                        | ZoneKind::Library
+                )
+            });
+    }
     match source_zones {
         [ZoneKind::Battlefield | ZoneKind::Graveyard | ZoneKind::Exile] => true,
         [ZoneKind::Battlefield, ZoneKind::Graveyard] => matches!(

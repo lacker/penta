@@ -27,6 +27,7 @@ const fn default_true() -> bool {
 )]
 #[allow(clippy::large_enum_variant)]
 pub(super) enum PendingProcedureSnapshot {
+    CommitPayment(Box<CommittedPaymentSnapshot>),
     DrawCards {
         player: usize,
         remaining: u16,
@@ -56,4 +57,29 @@ pub(super) enum PendingProcedureSnapshot {
         resolved: bool,
     },
     FinishStepAdvance,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct CommittedPaymentSnapshot {
+    pub player: usize,
+    pub continuation: EffectContinuationSnapshot,
+    pub answers: Vec<super::model::PaymentAnswerSnapshot>,
+    pub remaining: Vec<PaymentPartSnapshot>,
+    pub named: Vec<NamedPaymentSnapshot>,
+    pub mana_spent: Vec<super::model::ManaSnapshot>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub(super) struct PaymentPartSnapshot {
+    /// A node in the authored cost tree, never serialized executable code.
+    pub cost: usize,
+    pub times: u16,
+    pub objects: Vec<u32>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub(super) struct NamedPaymentSnapshot {
+    pub cost: usize,
+    pub repetitions: u16,
 }

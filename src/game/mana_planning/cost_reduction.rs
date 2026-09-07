@@ -365,7 +365,7 @@ impl Game {
     /// spell (CR 601.2f): a discount that ran first could take a cost to its
     /// floor and leave an increase to push it back up, which is not what
     /// either printed clause means.
-    pub(super) fn ability_mana_cost(&self, permanent: &Permanent, cost: ManaCost) -> ManaCost {
+    pub(super) fn ability_mana_cost(&self, permanent: &Permanent, activated: &crate::card::AbilityDef, cost: ManaCost) -> ManaCost {
         let mut total = cost;
         let mut discounts = Vec::new();
         for other in &self.battlefield {
@@ -390,9 +390,10 @@ impl Game {
                     }
                     Some(EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
                         permanent: matcher,
+                        ability: predicate,
                         amount,
                         minimum,
-                    })) if self.ability_cost_effect_applies(matcher, permanent, other) => {
+                    })) if predicate.matches(activated) && self.ability_cost_effect_applies(matcher, permanent, other) => {
                         let amount =
                             self.cost_reduction_value(amount, other.controller, other.card.id);
                         discounts.push((amount, minimum));
@@ -410,6 +411,7 @@ impl Game {
     pub(super) fn nonbattlefield_ability_mana_cost(
         &self,
         object: &crate::game::TriggerEventObject,
+        activated: &crate::card::AbilityDef,
         cost: ManaCost,
     ) -> ManaCost {
         let mut total = cost;
@@ -435,9 +437,10 @@ impl Game {
                     // the same predicate a permanent would.
                     EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
                         permanent: matcher,
+                        ability: predicate,
                         amount,
                         minimum,
-                    }) if self.trigger_object_matches(matcher, object, permanent.card.id, false) => {
+                    }) if predicate.matches(activated) && self.trigger_object_matches(matcher, object, permanent.card.id, false) => {
                         let amount =
                             self.cost_reduction_value(amount, permanent.controller, permanent.card.id);
                         discounts.push((amount, minimum));
@@ -455,6 +458,7 @@ impl Game {
     pub(super) fn ability_mana_cost_for_source(
         &self,
         source: crate::ids::GameObjectId,
+        ability: &crate::card::AbilityDef,
         cost: ManaCost,
     ) -> ManaCost {
         if let Some(permanent) = self
@@ -462,7 +466,7 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == source)
         {
-            return self.ability_mana_cost(permanent, cost);
+            return self.ability_mana_cost(permanent, ability, cost);
         }
         let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
             return cost;
@@ -483,15 +487,16 @@ impl Game {
             &context,
         )
         .map_or(cost, |object| {
-            self.nonbattlefield_ability_mana_cost(&object, cost)
+            self.nonbattlefield_ability_mana_cost(&object, ability, cost)
         })
     }
 
     pub(super) fn priced_ability_mana_cost(
         &self,
         source: GameObjectId,
-        definition: &ActivatedAbilityDef,
+        ability: &crate::card::AbilityDef,
     ) -> Option<ManaCost> {
+        let DeclarativeAbilityDef::Activated(definition) = ability.definition else { return None; };
         definition
             .costs
             .as_slice()
@@ -500,7 +505,7 @@ impl Game {
                 CostDef::Mana(cost) => Some(*cost),
                 _ => None,
             })
-            .map(|cost| self.activation_mana_cost(definition, source, cost))
+            .map(|cost| self.activation_mana_cost(ability, source, cost))
     }
 
     /// What activating this ability costs in mana: the increases and
@@ -512,11 +517,12 @@ impl Game {
     /// cost, not on some intermediate one.
     pub(super) fn activation_mana_cost(
         &self,
-        definition: &ActivatedAbilityDef,
+        ability: &crate::card::AbilityDef,
         source: GameObjectId,
         cost: ManaCost,
     ) -> ManaCost {
-        let cost = self.ability_mana_cost_for_source(source, cost);
+        let cost = self.ability_mana_cost_for_source(source, ability, cost);
+        let DeclarativeAbilityDef::Activated(definition) = ability.definition else { return cost; };
         let Some(reduction) = definition.cost_reduction else {
             return cost;
         };

@@ -11,7 +11,7 @@ impl Game {
         let mut payments = Vec::new();
         for size in 1..=candidates.len() {
             for combination in Self::object_combinations(candidates, size) {
-                if self.object_set_value(&combination, requirement.value) < requirement.minimum {
+                if self.object_set_value(&combination, requirement.value) < i32::from(requirement.minimum) {
                     continue;
                 }
                 let minimal = combination.iter().all(|dropped| {
@@ -20,7 +20,7 @@ impl Game {
                         .copied()
                         .filter(|id| id != dropped)
                         .collect::<Vec<_>>();
-                    self.object_set_value(&without, requirement.value) < requirement.minimum
+                    self.object_set_value(&without, requirement.value) < i32::from(requirement.minimum)
                 });
                 if minimal {
                     payments.push(combination);
@@ -30,44 +30,43 @@ impl Game {
         payments
     }
 
-    fn object_set_value(
+    pub(in crate::game) fn object_set_value(
         &self,
         objects: &[GameObjectId],
         value: crate::card::ObjectSetValueDef,
-    ) -> u16 {
+    ) -> i32 {
         match value {
             crate::card::ObjectSetValueDef::CardTypeCount => objects
                 .iter()
-                .filter_map(|id| self.card_in_nonbattlefield_zone(*id))
-                .filter_map(|(_, card)| self.catalog.get(card.definition))
-                .fold(crate::card::CardTypeSet::empty(), |seen, definition| {
-                    seen.union(definition.rules.types())
+                .filter_map(|id| self.battlefield.iter().find(|permanent| permanent.card.id == *id)
+                    .map(|permanent| self.trigger_event_object(permanent).types)
+                    .or_else(|| self.card_in_nonbattlefield_zone(*id)
+                        .and_then(|(_, card)| self.catalog.get(card.definition))
+                        .map(|definition| definition.rules.types())))
+                .fold(crate::card::CardTypeSet::empty(), |seen, types| {
+                    seen.union(types)
                 })
-                .count(),
+                .count().into(),
             crate::card::ObjectSetValueDef::Aggregate { select, operation } => {
                 let values = objects.iter().map(|id| match select {
                     crate::card::ObjectValueDef::ManaValue => {
-                        self.current_or_last_known_mana_value(*id).unwrap_or(0)
+                        i32::from(self.current_or_last_known_mana_value(*id).unwrap_or(0))
                     }
                     crate::card::ObjectValueDef::Power => self
                         .current_or_last_known_power(*id)
-                        .unwrap_or(0)
-                        .max(0)
-                        .cast_unsigned(),
+                        .unwrap_or(0).into(),
                     crate::card::ObjectValueDef::Toughness => self
                         .current_or_last_known_toughness(*id)
-                        .unwrap_or(0)
-                        .max(0)
-                        .cast_unsigned(),
+                        .unwrap_or(0).into(),
                     crate::card::ObjectValueDef::Counters(kind) => {
-                        self.current_or_last_known_counters(*id, kind)
+                        self.current_or_last_known_counters(*id, kind).into()
                     }
                 });
                 match operation {
                     crate::card::AggregateOperationDef::Minimum => values.min().unwrap_or(0),
                     crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
                     crate::card::AggregateOperationDef::Sum => {
-                        values.fold(0_u16, u16::saturating_add)
+                        values.fold(0_i32, i32::saturating_add)
                     }
                 }
             }

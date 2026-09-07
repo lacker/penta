@@ -9,7 +9,6 @@ use crate::card::{AppliedRuleDef, ArrivalAttachmentDef};
 mod attachment;
 mod bound_outputs;
 mod copy;
-mod cumulative_upkeep;
 mod damage;
 mod exile_to_play;
 mod hand_and_library;
@@ -168,12 +167,23 @@ impl Game {
                     }
                     return;
                 };
+                if crate::game::cost_payment::uses_cost_payment_window(definition.payment.cost) {
+                    self.queue_cost_payment_window(crate::game::cost_payment::CostPaymentWindow {
+                        player: *player,
+                        definition: scoped,
+                        object: Box::new(object.clone()),
+                        context,
+                        answers: Vec::new(),
+                        chosen: Vec::new(),
+                        committing: None,
+                    });
+                    return;
+                }
                 let payment =
                     self.resolved_effect_payment(definition.payment.cost, object, &context, scoped);
                 self.queue_pay_or(
                     *player,
                     payment,
-                    None,
                     definition.visibility,
                     scoped,
                     object,
@@ -183,9 +193,6 @@ impl Game {
                         .otherwise
                         .map(|effect| scoped.with_effect(*effect)),
                 );
-            }
-            EffectDef::CumulativeUpkeep(cost) => {
-                self.resolve_cumulative_upkeep(cost, scoped, object, context);
             }
             EffectDef::AddMana(_) | EffectDef::AddManaEqualTo { .. } => {
                 self.resolve_mana_effect(scoped, object, &context);
@@ -279,7 +286,6 @@ impl Game {
             }
             EffectDef::DrawCards { .. }
             | EffectDef::ShuffleLibrary { .. }
-            | EffectDef::BuryGraveyard { .. }
             | EffectDef::Discard { .. }
             | EffectDef::DiscardCards { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }

@@ -39,6 +39,7 @@ impl Game {
         };
         let reserved = match action {
             Action::CastSpell { sacrifices, .. } => sacrifices.as_slice(),
+            Action::ActivateAbility { cost_objects, .. } => cost_objects.as_slice(),
             _ => &[],
         };
         let life_available = match action {
@@ -246,7 +247,7 @@ impl Game {
             .hand
             .iter()
             .find(|card| card.id == source)
-            && let Some(definition) = self
+            && let Some((definition, activated)) = self
                 .find_printed_card_ability(card, &CharacteristicContext::Hand, |effective| {
                     effective.origin == ability
                         && matches!(
@@ -259,7 +260,7 @@ impl Game {
                     DeclarativeAbilityDef::Activated(definition)
                         if definition.source_zones.contains(&ZoneKind::Hand) =>
                     {
-                        Some(definition)
+                        Some((definition, effective.ability))
                     }
                     _ => None,
                 })
@@ -267,7 +268,7 @@ impl Game {
             return Self::activated_ability_mana_cost(&definition).map(|cost| {
                 (
                     Self::announced_mana_cost(
-                        self.activation_mana_cost(&definition, source, cost),
+                        self.activation_mana_cost(&activated, source, cost),
                         mana_payment,
                     ),
                     x,
@@ -285,11 +286,12 @@ impl Game {
             .battlefield
             .iter()
             .find(|permanent| permanent.card.id == source)?;
-        if let Some((definition, animates_source)) = self
+        if let Some((definition, activated, animates_source)) = self
             .find_effective_ability(permanent, |effective| effective.origin == ability)
             .and_then(|effective| match effective.ability.definition {
                 DeclarativeAbilityDef::Activated(definition) => Some((
                     definition,
+                    effective.ability,
                     Self::effect_animates_source(effective.ability.declarative_effect()),
                 )),
                 DeclarativeAbilityDef::Spell(_)
@@ -317,7 +319,7 @@ impl Game {
                 .map(|cost| {
                     (
                         Self::announced_mana_cost(
-                            self.activation_mana_cost(&definition, source, cost),
+                            self.activation_mana_cost(&activated, source, cost),
                             mana_payment,
                         ),
                         x,
@@ -378,10 +380,12 @@ impl Game {
             ManaPaymentPurpose::Spell {
                 reserved_life_payment,
                 ..
+            }
+            | ManaPaymentPurpose::Resolving {
+                reserved_life_payment,
+                ..
             } => *reserved_life_payment,
-            ManaPaymentPurpose::Ability { .. }
-            | ManaPaymentPurpose::CumulativeUpkeep { .. }
-            | ManaPaymentPurpose::Other => 0,
+            ManaPaymentPurpose::Ability { .. } | ManaPaymentPurpose::Other => 0,
         };
         let reserved = i16::try_from(reserved).unwrap_or(i16::MAX);
         u16::try_from(self.players[player.index()].life.saturating_sub(reserved)).unwrap_or(0)
@@ -529,8 +533,7 @@ impl Game {
         purpose: &ManaPaymentPurpose,
         reserved: &[GameObjectId],
     ) -> Option<Vec<PlannedManaActivation>> {
-        let life_available =
-            u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
+        let life_available = self.mana_ability_life_budget(player, purpose);
         self.plan_mana_activations(ManaPlanningRequest {
             player,
             cost,
@@ -732,7 +735,7 @@ impl Game {
         )
     }
 
-    fn activate_mana_for_cost_with_options_reserving_for(
+    pub(super) fn activate_mana_for_cost_with_options_reserving_for(
         &mut self,
         player: PlayerId,
         cost: ManaCost,
@@ -741,8 +744,7 @@ impl Game {
         purpose: &ManaPaymentPurpose,
         reserved: &[GameObjectId],
     ) -> (ManaCost, u16) {
-        let life_available =
-            u16::try_from(self.players[player.index()].life.max(0)).unwrap_or(u16::MAX);
+        let life_available = self.mana_ability_life_budget(player, purpose);
         let Some(plan) = self.plan_mana_activations(ManaPlanningRequest {
             player,
             cost,

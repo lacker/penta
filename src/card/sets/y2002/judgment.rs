@@ -986,7 +986,10 @@ pub(in crate::card::sets) static EARSPLITTING_RATS: CardRecord = CardRecord::new
         ),
         abilities::regenerate_self(
             "Discard a card: Regenerate this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
         ),
     ]),
 );
@@ -2104,9 +2107,9 @@ pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{G}"), &["Human", "Wizard"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice a land: Target creature you control gains shroud until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Land),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
@@ -2161,7 +2164,10 @@ pub(in crate::card::sets) static TUNNELER_WURM: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Wurm"], 6, 6).with_ability(
         abilities::regenerate_self(
             "Discard a card: Regenerate this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
         ),
     ),
 );

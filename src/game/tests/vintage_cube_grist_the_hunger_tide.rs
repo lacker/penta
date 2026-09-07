@@ -367,17 +367,11 @@ fn declining_the_sacrifice_destroys_nothing() {
         .first()
         .map(|pending| pending.observation.clone())
         .expect("the optional sacrifice asks");
-    let decline = decision
-        .options
-        .iter()
-        .find(|option| option.label == "Decline")
-        .expect("declining is one of the answers")
-        .id;
+    assert!(decision.cancellable);
     game.apply(
         PlayerId::One,
-        Action::ChooseDecision {
+        Action::CancelDecision {
             decision: decision.id,
-            options: vec![decline],
         },
     )
     .expect("declining is legal");

@@ -145,6 +145,13 @@ The compiler recognizes the structure they produce rather than the name of the
 helper that produced it. This lets hand-authored equivalent declarations gain
 the same optimization automatically.
 
+The same applies to [set-owned and card-local programs](effect-programs.md).
+Helper ownership and ordinary Rust construction syntax do not affect lowering.
+Do not keep a card-shaped operation in the core solely to preserve a convenient
+prepared instruction: recognize its underlying composition when a lowering is
+justified. Runtime payment planning, when introduced, is semantic infrastructure
+and must also work when this optional optimization layer is disabled.
+
 For static programs, differential coverage must compare lane output as well as
 the final visible characteristic. Component order, timestamps, ability origins,
 and grant identifiers are observable inputs to later continuous-effect work

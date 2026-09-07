@@ -610,12 +610,7 @@ fn cumulative_upkeep_payment_reconstructs_from_its_authored_cost() {
         game.pending_decisions
             .first()
             .map(|pending| &pending.continuation),
-        Some(DecisionContinuation::PayOr {
-            player: PlayerId::One,
-            payment: ResolvedEffectPayment::CumulativeMana { .. },
-            cumulative_upkeep_age: Some(1),
-            ..
-        })
+        Some(DecisionContinuation::CostPayment(window)) if window.player == PlayerId::One
     ));
     assert_reconstructs(&game, "a cumulative-upkeep payment");
 
@@ -635,11 +630,7 @@ fn cumulative_upkeep_payment_reconstructs_from_its_authored_cost() {
             game.pending_decisions
                 .first()
                 .map(|pending| &pending.continuation),
-            Some(DecisionContinuation::PayOr {
-                player: PlayerId::One,
-                cumulative_upkeep_age: Some(1),
-                ..
-            })
+            Some(DecisionContinuation::CostPayment(window)) if window.player == PlayerId::One
         ));
         assert_reconstructs(&game, &format!("a cumulative-upkeep {label} payment"));
     }

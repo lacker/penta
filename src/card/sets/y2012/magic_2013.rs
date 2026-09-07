@@ -1714,9 +1714,9 @@ pub(in crate::card::sets) static BLOODTHRONE_VAMPIRE: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire"], 1, 1).with_ability(
         AbilityDef::activated(
             "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2602,9 +2602,9 @@ pub(in crate::card::sets) static ARMS_DEALER: CardRecord = CardRecord::new_with_
             "{1}{R}, Sacrifice a Goblin: This creature deals 4 damage to target creature.",
             &[
                 CostDef::Mana(mana_cost!("{1}{R}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Subtype("Goblin"),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -3156,7 +3156,10 @@ pub(in crate::card::sets) static RUMMAGING_GOBLIN: CardRecord = CardRecord::new_
             "{T}, Discard a card: Draw a card.",
             &[
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -4792,7 +4795,7 @@ pub(in crate::card::sets) static TRADING_POST: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard { object: ObjectPredicateDef::Any, quantity: crate::card::CostQuantityDef::Fixed(1) },
             ],
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -4813,10 +4816,7 @@ pub(in crate::card::sets) static TRADING_POST: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Creature) },
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
@@ -4835,10 +4835,7 @@ pub(in crate::card::sets) static TRADING_POST: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Artifact) },
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

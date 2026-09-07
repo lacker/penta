@@ -448,13 +448,24 @@ mod channel_is_not_cycling {
         .with_source_zones(&[ZoneKind::Hand]),
         AbilityDef::triggered(
             "When you cycle this card, you gain 3 life.",
-            TriggerEventDef::Cycled,
+            TriggerEventDef::mechanic_performed_on(
+                abilities::CYCLING,
+                ObjectPredicateDef::Source,
+                PlayerRelation::You,
+            ),
             WHEN_CYCLED,
-        ),
+        )
+        .with_source_zones(abilities::CYCLED_CARD_ZONES),
     ];
 
     /// The test card, and the game holding one in hand with two mana up.
     fn staged() -> (Game, GameObjectId, CardDefinitionId) {
+        staged_with_abilities(&BOTH_ABILITIES)
+    }
+
+    fn staged_with_abilities(
+        abilities: &'static [AbilityDef],
+    ) -> (Game, GameObjectId, CardDefinitionId) {
         let definition_id = CardDefinitionId::new(10_071);
         let mut definition = CardDefinition::new(
             definition_id,
@@ -462,8 +473,7 @@ mod channel_is_not_cycling {
             CardSet::Magic2014,
             crate::card::CardRules::unsupported(),
         );
-        definition.rules =
-            CardRules::new_sorcery(ManaCost::new(2, 0)).with_abilities(&BOTH_ABILITIES);
+        definition.rules = CardRules::new_sorcery(ManaCost::new(2, 0)).with_abilities(abilities);
         synchronize_single_part_definition(&mut definition);
 
         let mut game = ready();
@@ -476,6 +486,197 @@ mod channel_is_not_cycling {
         game.players[PlayerId::One.index()].hand.push(held);
         game.players[PlayerId::One.index()].mana_pool.colorless = 2;
         (game, held_id, definition_id)
+    }
+
+    #[test]
+    fn cycling_identity_filters_the_ability_not_its_source_card() {
+        use crate::card::AbilityPredicateDef;
+        let (mut game, held, _) = staged();
+        game.put_onto_battlefield(PlayerId::One, cards::FLUCTUATOR)
+            .unwrap();
+        game.players[0].mana_pool = ManaPool::default();
+        assert!(AbilityPredicateDef::Mechanic(abilities::CYCLING).matches(&BOTH_ABILITIES[0]));
+        assert!(!AbilityPredicateDef::Mechanic(abilities::CYCLING).matches(&BOTH_ABILITIES[1]));
+        assert!(game.object_has_ability(held, AbilityPredicateDef::Mechanic(abilities::CYCLING)));
+        let activations: Vec<_> = game
+            .legal_actions(PlayerId::One)
+            .into_iter()
+            .filter(|action| {
+                matches!(
+                    action, Action::ActivateAbility { source, .. } if *source == held
+                )
+            })
+            .collect();
+        assert_eq!(
+            activations.len(),
+            1,
+            "only cycling is free, not channel on that same card"
+        );
+        game.apply(PlayerId::One, activations[0].clone()).unwrap();
+        settle(&mut game);
+        assert_eq!(game.players[0].life, 23);
+    }
+
+    #[test]
+    fn cycling_self_trigger_follows_a_discard_into_the_library() {
+        static ABILITIES: [AbilityDef; 4] = [
+            BOTH_ABILITIES[0],
+            BOTH_ABILITIES[1],
+            BOTH_ABILITIES[2],
+            AbilityDef::replacement_for(
+                "If this card would go to the graveyard, shuffle it into your library instead.",
+                ReplacementEventDef::WouldMove {
+                    from: None,
+                    to: ZoneKind::Graveyard,
+                    cause: crate::card::ZoneMoveCauseDef::Any,
+                },
+                ReplacementEffectDef::Sequence(&[
+                    ReplacementEffectDef::MoveToZone(ZoneKind::Library),
+                    ReplacementEffectDef::Perform(&EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::Controller,
+                    }),
+                ]),
+            )
+            .with_source_zones(&[ZoneKind::Hand]),
+        ];
+        let (mut game, held, definition) = staged_with_abilities(&ABILITIES);
+        game.apply(PlayerId::One, cycle_action(&game, held).unwrap())
+            .unwrap();
+        assert!(game.players[0].graveyard.is_empty());
+        assert!(
+            game.players[0]
+                .library
+                .iter()
+                .any(|card| card.definition == definition)
+        );
+        assert_eq!(game.stack.len(), 2);
+        settle(&mut game);
+        assert_eq!(game.players[0].life, 23);
+    }
+
+    #[test]
+    fn cycling_discard_predicates_read_the_replacement_destination() {
+        static ABILITIES: [AbilityDef; 3] = [
+            BOTH_ABILITIES[0],
+            AbilityDef::static_ability(
+                "While this card is in exile, it is also a creature.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(
+                        CardType::Creature,
+                    )),
+                },
+            )
+            .with_source_zones(&[ZoneKind::Exile]),
+            AbilityDef::triggered(
+                "Whenever you cycle a creature card, gain 3 life.",
+                TriggerEventDef::mechanic_performed_on(
+                    abilities::CYCLING,
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    PlayerRelation::You,
+                ),
+                WHEN_CYCLED,
+            )
+            .with_source_zones(&[ZoneKind::Exile]),
+        ];
+        for prepared in [false, true] {
+            let (mut game, held, _) = staged_with_abilities(&ABILITIES);
+            game.set_prepared_engine_enabled(prepared);
+            game.put_onto_battlefield(PlayerId::One, cards::REST_IN_PEACE)
+                .unwrap();
+            drain_pending(&mut game);
+            game.apply(PlayerId::One, cycle_action(&game, held).unwrap())
+                .unwrap();
+            assert_eq!(
+                game.stack.len(),
+                2,
+                "the event reads the card as it actually exists in exile"
+            );
+            settle(&mut game);
+            assert_eq!(game.players[0].life, 23);
+        }
+    }
+
+    #[test]
+    fn cycling_named_discard_cannot_spend_the_source_twice() {
+        static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
+            "Discard this card twice: Draw a card.",
+            &[
+                CostDef::DiscardSource,
+                CostDef::named(abilities::CYCLING, &CostDef::DiscardSource),
+            ],
+            CHANNEL_DRAWS,
+        )
+        .with_source_zones(&[ZoneKind::Hand])];
+        let (game, held, _) = staged_with_abilities(&ABILITIES);
+        assert!(cycle_action(&game, held).is_none());
+        assert_eq!(game.players[0].hand.len(), 1);
+    }
+
+    #[test]
+    fn cycling_self_trigger_survives_replaced_discard_checkpoint_and_copy() {
+        for prepared in [false, true] {
+            let (mut game, held, definition) = staged();
+            game.set_prepared_engine_enabled(prepared);
+            game.put_onto_battlefield(PlayerId::One, cards::REST_IN_PEACE)
+                .unwrap();
+            drain_pending(&mut game);
+            game.players[0].mana_pool = ManaPool::default();
+            game.players[0].mana.clear();
+            game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
+            let action = cycle_action(&game, held).unwrap();
+            game.apply(PlayerId::One, action).unwrap();
+            assert!(
+                game.players[0]
+                    .exile
+                    .iter()
+                    .any(|card| card.definition == definition)
+            );
+            assert_eq!(
+                game.stack.len(),
+                2,
+                "self-trigger is above the draw even in exile"
+            );
+            let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+            let mut rebuilt = Game::from_observation_checkpoint(
+                game.catalog.clone(),
+                game.format,
+                &wire,
+                &hidden,
+                171_000,
+            )
+            .unwrap();
+            let cycling = rebuilt
+                .stack
+                .iter()
+                .find(|object| object.kind == StackObjectKind::ActivatedAbility)
+                .unwrap()
+                .clone();
+            assert!(
+                cycling
+                    .ability
+                    .as_ref()
+                    .unwrap()
+                    .definition
+                    .as_ref()
+                    .unwrap()
+                    .mechanics
+                    .contains(&abilities::CYCLING)
+            );
+            rebuilt.push_copy(cycling, PlayerId::One, Vec::new());
+            assert_eq!(rebuilt.stack.len(), 3);
+            assert!(
+                rebuilt.pending_triggers.is_empty(),
+                "copying the ability does not pay its cost again"
+            );
+            let before = rebuilt.players[0].library.len();
+            settle(&mut rebuilt);
+            assert_eq!(
+                rebuilt.players[0].life, 23,
+                "one self-trigger, not another for the copy"
+            );
+            assert_eq!(rebuilt.players[0].library.len(), before - 2);
+        }
     }
 
     /// Both abilities are offered from hand, and they cost the same.

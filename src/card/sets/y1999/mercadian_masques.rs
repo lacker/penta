@@ -311,7 +311,10 @@ pub(in crate::card::sets) static DEVOUT_WITNESS: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}{W}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -908,7 +911,10 @@ pub(in crate::card::sets) static TONIC_PEDDLER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{W}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one(
@@ -977,7 +983,10 @@ pub(in crate::card::sets) static BALLOON_PEDDLER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{U}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -1785,7 +1794,10 @@ pub(in crate::card::sets) static WATERFRONT_BOUNCER: CardRecord = CardRecord::ne
             &[
                 CostDef::Mana(mana_cost!("{U}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -1871,7 +1883,10 @@ pub(in crate::card::sets) static CACKLING_WITCH: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{X}{B}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -2853,7 +2868,10 @@ pub(in crate::card::sets) static BLASTER_MAGE: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{R}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -3106,7 +3124,10 @@ pub(in crate::card::sets) static KRIS_MAGE: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{R}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
@@ -3251,7 +3272,7 @@ pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain])),
+                    cost: CostDef::Sacrifice { object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]), quantity: crate::card::CostQuantityDef::Fixed(1) },
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -3373,7 +3394,10 @@ pub(in crate::card::sets) static SEISMIC_MAGE: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{2}{R}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -3760,7 +3784,10 @@ pub(in crate::card::sets) static DEEPWOOD_DRUMMER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{G}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -4140,7 +4167,10 @@ pub(in crate::card::sets) static RUSHWOOD_HERBALIST: CardRecord = CardRecord::ne
             &[
                 CostDef::Mana(mana_cost!("{G}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -4823,9 +4853,9 @@ pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_le
             &[
                 CostDef::Mana(mana_cost!("{3}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Land),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -4932,9 +4962,9 @@ pub(in crate::card::sets) static HIGH_MARKET: CardRecord = CardRecord::new(
             "{T}, Sacrifice a creature: You gain 1 life.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::GainLife {

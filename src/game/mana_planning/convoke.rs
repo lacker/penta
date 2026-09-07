@@ -151,8 +151,8 @@ impl Game {
                     .filter(|cost| {
                         matches!(
                             cost,
-                            CostDef::SacrificePermanent { .. }
-                                | CostDef::ExileCardFromHand(_)
+                            CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), .. }
+                                | CostDef::Exile { object: _, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }
                         )
                     })
                     .count()
@@ -160,8 +160,8 @@ impl Game {
                 && activation.costs.iter().all(|cost| {
                     matches!(
                         cost,
-                        CostDef::SacrificePermanent { .. }
-                            | CostDef::ExileCardFromHand(_)
+                        CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), .. }
+                            | CostDef::Exile { object: _, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }
                             | CostDef::PayLife(_)
                     )
                 })

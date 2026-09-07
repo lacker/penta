@@ -196,19 +196,29 @@ impl Game {
         let Some(cost) = definition.costs.iter().find(|cost| {
             matches!(
                 cost,
-                CostDef::SacrificePermanent { .. } | CostDef::ExileCardFromHand(_)
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                    ..
+                } | CostDef::Exile {
+                    object: _,
+                    from: crate::card::ZoneKind::Hand,
+                    quantity: crate::card::CostQuantityDef::Fixed(1)
+                }
             )
         }) else {
             return vec![None];
         };
         match cost {
-            CostDef::SacrificePermanent { object, controller } => self
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+                object,
+            } => self
                 .battlefield
                 .iter()
                 .filter(|candidate| {
                     self.player_relation_matches(
                         candidate.controller,
-                        *controller,
+                        crate::card::PlayerRelation::You,
                         permanent.controller,
                         TriggerContext::empty(),
                     ) && self.trigger_object_matches(
@@ -220,7 +230,11 @@ impl Game {
                 })
                 .map(|candidate| Some(candidate.card.id))
                 .collect(),
-            CostDef::ExileCardFromHand(object) => self.players[permanent.controller.index()]
+            CostDef::Exile {
+                object,
+                from: crate::card::ZoneKind::Hand,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            } => self.players[permanent.controller.index()]
                 .hand
                 .iter()
                 .filter(|card| {

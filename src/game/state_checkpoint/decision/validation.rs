@@ -25,6 +25,7 @@ fn resolved_effect_payment(
         return None;
     };
     let payment = match payment.cost {
+        cost @ (CostDef::Discard { .. } | CostDef::Exile { .. }) => super::super::ResolvedEffectPayment::ObjectCost { source: object.source.unwrap_or(object.id), cost },
         CostDef::Mana(cost) => super::super::ResolvedEffectPayment::Mana(cost),
         CostDef::ObjectManaCostReducedBy {
             object: reference,
@@ -51,9 +52,6 @@ fn resolved_effect_payment(
         CostDef::PayLife(amount) => super::super::ResolvedEffectPayment::Life(amount),
         CostDef::Energy(amount) => super::super::ResolvedEffectPayment::Energy(amount),
         CostDef::MillCards(amount) => super::super::ResolvedEffectPayment::Mill(amount),
-        CostDef::DiscardCards(amount) => {
-            super::super::ResolvedEffectPayment::Discard(amount)
-        }
         CostDef::ChosenGenericMana => {
             super::super::ResolvedEffectPayment::ChosenGenericMana
         }
@@ -79,17 +77,8 @@ fn resolved_effect_payment(
                 object: crate::GameObjectId(0),
                 kind,
             }),
-        CostDef::SacrificePermanentMatching(predicate) => {
-            super::super::ResolvedEffectPayment::SacrificePermanentMatching(predicate)
-        }
-        CostDef::SacrificeCreaturesWithTotalPower(total) => {
-            super::super::ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(total)
-        }
         CostDef::MovePermanentMatching { object, zone } => {
             super::super::ResolvedEffectPayment::MovePermanentMatching { object, zone }
-        }
-        CostDef::DiscardMatching(predicate) => {
-            super::super::ResolvedEffectPayment::DiscardMatching(predicate)
         }
         _ => return None,
     };

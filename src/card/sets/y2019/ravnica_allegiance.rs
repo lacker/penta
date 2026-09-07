@@ -129,9 +129,10 @@ pub(in crate::card::sets) static FIREBLADE_ARTIST: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                        CardType::Creature,
-                    )),
+                    cost: CostDef::Sacrifice {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
+                    },
                 },
                 &EffectDef::None,
             )),

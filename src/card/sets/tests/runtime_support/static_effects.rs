@@ -353,7 +353,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::ForEachInBinding { .. }
         | EffectDef::PayOr(_)
-        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::PreventDamage { .. }
         | EffectDef::Apply { .. }
         | EffectDef::May { .. }
@@ -381,7 +380,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::Discard { .. }
         | EffectDef::DiscardCards { .. }
         | EffectDef::ShuffleLibrary { .. }
-        | EffectDef::BuryGraveyard { .. }
         | EffectDef::EmptyManaPool { .. }
         | EffectDef::LoseLife { .. }
         | EffectDef::LoseTheGame { .. }

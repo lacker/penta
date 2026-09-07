@@ -239,7 +239,7 @@ fn chain_of_vapor_bounces_and_offers_the_chain_onward() {
         decision
             .options
             .iter()
-            .any(|option| option.label.starts_with("Sacrifice")),
+            .any(|option| option.card.is_some() && option.zone == DecisionZone::Battlefield),
         "the sacrifice names the land it would spend",
     );
 }

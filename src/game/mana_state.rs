@@ -42,8 +42,10 @@ pub(super) enum ManaPaymentPurpose {
         /// not legal ways to pay this cost.
         leaves_source: bool,
     },
-    CumulativeUpkeep {
+    Resolving {
         source: GameObjectId,
+        mechanics: Vec<crate::MechanicId>,
+        reserved_life_payment: u16,
         snow: bool,
     },
     Other,

@@ -12,8 +12,8 @@ use super::{
     CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DrawReplacement,
     EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
     PendingActivationTargeting, PendingBattlefieldExitBatch, PendingProcedure, PendingTrigger,
-    ReplacementEffectContext, ResolvedEffectDurationDef, RuntimeBinding, SacrificeQuota,
-    SacrificedAmountDef, ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
+    ReplacementEffectContext, ResolvedEffectDurationDef, RuntimeBinding, SacrificedAmountDef,
+    ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
 };
 
 /// What runs once a demanded sacrifice has been chosen and made. The
@@ -43,11 +43,13 @@ pub(super) struct SacrificeDeclined {
 /// resolving effect suspends behind a decision.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum ResolvedEffectPayment {
-    Mana(ManaCost),
-    CumulativeMana {
+    /// Entry-replacement payments reuse the authored object cost instead of
+    /// maintaining another predicate/selection/payment implementation.
+    ObjectCost {
         source: GameObjectId,
-        cost: ManaCost,
+        cost: crate::card::CostDef,
     },
+    Mana(ManaCost),
     SnowMana {
         source: GameObjectId,
         amount: u16,
@@ -56,7 +58,6 @@ pub(super) enum ResolvedEffectPayment {
     /// Draws made as a cost. A short library does not make this unpayable,
     /// and replacement effects still replace the individual draws normally.
     DrawCards(u16),
-    DiscardCards(u16),
     /// Counters put on the exact source permanent as a cost.
     PutCounters {
         object: GameObjectId,
@@ -65,10 +66,6 @@ pub(super) enum ResolvedEffectPayment {
         amount: u16,
         /// How many age counters repeat that cost.
         times: u16,
-    },
-    SacrificePermanents {
-        object: ObjectPredicateDef,
-        amount: u16,
     },
     ExileTopCards(u16),
     AddMana {
@@ -80,19 +77,10 @@ pub(super) enum ResolvedEffectPayment {
         token: crate::card::TokenCharacteristics,
         amount: u16,
     },
-    GainControlPermanents {
-        source: GameObjectId,
-        object: ObjectPredicateDef,
-        amount: u16,
-    },
     FlipCoins(u16),
     /// Energy, spent in full or not at all.
     Energy(u16),
     Mill(u16),
-    Discard(u16),
-    /// One card matching the predicate, named as part of the payment
-    /// decision rather than after it.
-    DiscardMatching(ObjectPredicateDef),
     /// Generic mana in an amount the payer chooses, named the same way.
     ChosenGenericMana,
     /// Energy in an amount the payer chooses.
@@ -109,25 +97,16 @@ pub(super) enum ResolvedEffectPayment {
         object: ObjectPredicateDef,
         zone: ZoneKind,
     },
-    /// One matching permanent, sacrificed.
-    SacrificePermanentMatching(ObjectPredicateDef),
-    /// Creatures sacrificed one at a time until their power reaches this
-    /// total.
-    SacrificeCreaturesWithTotalPower(u16),
 }
 
 #[derive(Clone, Debug)]
 pub(super) struct SettledEffectPayment {
     pub(super) paid_amount: u16,
-    pub(super) mana_spent: Vec<Mana>,
 }
 
 impl SettledEffectPayment {
-    pub(super) const fn without_mana(paid_amount: u16) -> Self {
-        Self {
-            paid_amount,
-            mana_spent: Vec::new(),
-        }
+    pub(super) const fn amount(paid_amount: u16) -> Self {
+        Self { paid_amount }
     }
 }
 
@@ -307,30 +286,12 @@ pub(super) enum DecisionContinuation {
         card: GameObjectId,
         exiled: Vec<GameObjectId>,
     },
-    /// An activation cost paid by sacrificing a printed number of
-    /// permanents, asked one at a time. The activation itself waits: its
-    /// costs are not finished, so nothing is on the stack yet.
-    ActivationCostSacrifice {
+    /// The unpaid activation and its whole object selection. No mana,
+    /// life, tap, or object cost has been committed while this is pending.
+    ActivationObjectCost {
         player: PlayerId,
-        /// What is still owed and what may pay it.
-        quota: SacrificeQuota,
-        /// Everything the activation already chose, boxed for the same
-        /// reason every other suspended procedure boxes it.
-        pending: Box<PendingActivation>,
-        /// What has been named so far, sacrificed together once the last one
-        /// is chosen.
-        chosen: Vec<GameObjectId>,
-    },
-    /// A cost paid by sacrificing creatures until their power reaches a
-    /// total, asked one creature at a time.
-    SacrificeToTotalPower {
-        player: PlayerId,
-        /// How much power is still owed. Zero or less means the payer may
-        /// stop, and the offer includes a way to.
-        remaining: i32,
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-        if_paid: Option<ScopedEffect>,
+        cost: crate::card::CostDef,
+        action: Box<crate::Action>,
     },
     /// Crew's and saddle's cost, paid one creature at a time while the
     /// activation waits.
@@ -606,16 +567,13 @@ pub(super) enum DecisionContinuation {
     PayOr {
         player: PlayerId,
         payment: ResolvedEffectPayment,
-        /// The age-counter count whose cumulative-upkeep payment this is.
-        /// Present only for the shared keyword procedure, so declining can
-        /// publish its own rules event before the source is sacrificed.
-        cumulative_upkeep_age: Option<u16>,
         definition: ScopedEffect,
         object: Box<StackObject>,
         context: EffectResolutionContext,
         if_paid: Option<ScopedEffect>,
         otherwise: Option<ScopedEffect>,
     },
+    CostPayment(Box<super::cost_payment::CostPaymentWindow>),
     /// A card name chosen while an effect resolves, with the remaining
     /// sequence waiting on the answer.
     CardNameChoice {

@@ -23,9 +23,9 @@ the linked guide or skill so agents load it only when the task requires it.
 
 - **Cards, sets, decks, and mechanics:** read
   [implementing cards](docs/implementing-cards.md), including its mandatory
-  inline-definition rule, source-order, coverage, and extension-boundary
-  rules. Use `$query-magic-references` when exact printing or card data
-  matters.
+  inline-by-default readability rule, source-order, coverage, and
+  extension-boundary rules. Use `$query-magic-references` when exact printing or
+  card data matters.
 - **Protocol, WASM contracts, bindings, replay, or checkpoints:** read
   [compatibility boundaries](docs/interfaces.md#compatibility-boundaries), the
   relevant [bot versioning section](docs/bots.md#determinism-and-versioning),

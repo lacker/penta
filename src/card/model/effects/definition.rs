@@ -1,7 +1,6 @@
 /// Declarative effect primitives interpreted by the rules engine.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum EffectDef {
-    CumulativeUpkeep(CostDef),
     AddCounters {
         object: EffectRecipientDef,
         kind: CounterKind,
@@ -940,12 +939,6 @@ pub enum EffectDef {
     /// cards from other zones into a library first express those zone moves
     /// with [`Self::MoveToZone`], then use this shared operation.
     ShuffleLibrary {
-        player: EffectRecipientDef,
-    },
-    /// "Puts all the cards from their graveyard on the bottom of their
-    /// library in a random order." One effect rather than a queried move
-    /// plus a shuffle: the randomization is what the clause is for.
-    BuryGraveyard {
         player: EffectRecipientDef,
     },
     /// "This Mount becomes saddled until end of turn" (CR 702.166a). A fact

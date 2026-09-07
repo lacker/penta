@@ -12,15 +12,13 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         TriggerEventDef::While { event, .. } => trigger_event_object_zone(*event),
         TriggerEventDef::ZoneChanged(matcher) => matcher.to,
         TriggerEventDef::Tapped(_)
-        | TriggerEventDef::CumulativeUpkeepPaid { .. }
-        | TriggerEventDef::CumulativeUpkeepNotPaid
+        | TriggerEventDef::MechanicPayment { .. }
         | TriggerEventDef::Attacks(_)
         | TriggerEventDef::Exerted(_)
         | TriggerEventDef::OptionalEffectTaken(_)
         // The predicate names the source of the clause, which is still where
         // it was when it sacrificed something.
         | TriggerEventDef::SacrificePerformed(_)
-        | TriggerEventDef::Sacrificed { .. }
         | TriggerEventDef::AttackDeclared { .. }
         | TriggerEventDef::CardsExiled { .. }
         | TriggerEventDef::AttacksAndIsNotBlocked { .. }
@@ -41,14 +39,13 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         // The named object is the spell or ability rather than what it
         // points at.
         TriggerEventDef::StackObject(_) => Some(ZoneKind::Stack),
-        // The cycled card is in the graveyard by the time the trigger goes
-        // on the stack, but nothing reads it as an object, so it names no
-        // zone at all.
+        // A named action may carry before- or after-move characteristics;
+        // its identity alone does not establish the affected object's zone.
         TriggerEventDef::CommittedCrime(_)
+        | TriggerEventDef::MechanicPerformed { .. }
         | TriggerEventDef::CoinFlipWon(_)
         | TriggerEventDef::CoinFlipLost(_)
         | TriggerEventDef::BecomesLevel(_)
-        | TriggerEventDef::Cycled
         | TriggerEventDef::DoorUnlocked
         | TriggerEventDef::StepBegins { .. }
         | TriggerEventDef::LandPlayed { .. }
@@ -61,7 +58,6 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         | TriggerEventDef::DrewCard(_)
         // The card is already in a graveyard and nothing reads it, so the
         // event names no object at all.
-        | TriggerEventDef::Discarded(_)
         | TriggerEventDef::DiscardedCards(_) => None,
     }
 }

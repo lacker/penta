@@ -16,7 +16,7 @@ impl Game {
         &mut self,
         player: PlayerId,
         source: GameObjectId,
-        definition: &crate::card::ActivatedAbilityDef,
+        ability: &crate::card::AbilityDef,
         announced: AnnouncedActivationCost<'_>,
     ) {
         let AnnouncedActivationCost {
@@ -25,7 +25,10 @@ impl Game {
             payment_purpose,
             mana_payment,
         } = announced;
-        let priced_mana_cost = self.priced_ability_mana_cost(source, definition);
+        let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
+            return;
+        };
+        let priced_mana_cost = self.priced_ability_mana_cost(source, ability);
         if definition
             .costs
             .iter()

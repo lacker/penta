@@ -58,7 +58,10 @@ impl EffectPaymentDef {
     pub const fn discard(payer: PlayerSetDef, amount: u16) -> Self {
         Self {
             payer,
-            cost: CostDef::DiscardCards(amount),
+            cost: CostDef::Discard {
+                object: crate::card::ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(amount),
+            },
         }
     }
 }

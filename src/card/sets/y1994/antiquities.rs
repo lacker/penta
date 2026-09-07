@@ -301,9 +301,9 @@ pub(in crate::card::sets) static SAGE_OF_LAT_NAM: CardRecord = CardRecord::new_w
             "{T}, Sacrifice an artifact: Draw a card.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::DrawCards {
@@ -344,9 +344,9 @@ pub(in crate::card::sets) static GATE_TO_PHYREXIA: CardRecord = CardRecord::new_
         AbilityDef::activated_with_targets(
             "Sacrifice a creature: Destroy target artifact. Activate only during your upkeep and \
              only once each turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Artifact),
@@ -492,9 +492,9 @@ pub(in crate::card::sets) static ATOG: CardRecord = CardRecord::new_with_legacy_
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Atog"], 1, 2).with_abilities(&[
         AbilityDef::activated(
             "Sacrifice an artifact: This creature gets +2/+2 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -561,9 +561,9 @@ pub(in crate::card::sets) static DWARVEN_WEAPONSMITH: CardRecord = CardRecord::n
              during your upkeep.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -600,9 +600,9 @@ pub(in crate::card::sets) static ORCISH_MECHANICS: CardRecord = CardRecord::new_
             "{T}, Sacrifice an artifact: This creature deals 2 damage to any target.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one(

@@ -37,10 +37,10 @@ impl Game {
                 let mut sacrifice = None;
                 for cost in &definition.costs {
                     match cost {
-                        CostDef::SacrificePermanent { object, controller }
+                        CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object }
                             if sacrifice.is_none() =>
                         {
-                            sacrifice = Some((*object, *controller));
+                            sacrifice = Some((*object, PlayerRelation::You));
                         }
                         _ => return,
                     }
@@ -93,6 +93,9 @@ impl Game {
     /// What an activation from hand costs in mana, or nothing at all when
     /// the ability's cost names something a card in a hand cannot spend.
     fn hand_activation_mana_cost(definition: &ActivatedAbilityDef) -> Option<ManaCost> {
+        if definition.costs.iter().filter(|cost| cost.unnamed() == CostDef::DiscardSource).count() > 1 {
+            return None;
+        }
         let mut mana_cost = ManaCost::default();
         for cost in definition.costs.as_slice() {
             match cost {
@@ -100,6 +103,7 @@ impl Game {
                     mana_cost = add_mana_cost(mana_cost, *cost);
                 }
                 CostDef::DiscardSource | CostDef::ReturnUnblockedAttackerToHand => {}
+                CostDef::Named { .. } if cost.unnamed() == CostDef::DiscardSource => {}
                 // Nothing else is supported for an ability activated from a
                 // hand; in particular, the source cannot pay by also being
                 // one card in a larger hand payment.
@@ -132,7 +136,7 @@ impl Game {
                 let Some(mana_cost) = Self::hand_activation_mana_cost(&definition) else {
                     return;
                 };
-                let mana_cost = self.activation_mana_cost(&definition, card.id, mana_cost);
+                let mana_cost = self.activation_mana_cost(&ability, card.id, mana_cost);
                 let payment_purpose = ManaPaymentPurpose::Ability {
                     source: card.id,
                     taps_source: false,
@@ -252,7 +256,7 @@ impl Game {
                     };
                     // Nothing offers a graveyard activation more than once, so
                     // a variable X would silently be chosen as zero.
-                    mana_cost = self.activation_mana_cost(&definition, card.id, mana_cost);
+                    mana_cost = self.activation_mana_cost(&ability, card.id, mana_cost);
                     if mana_cost.variable_x
                         || !self.can_pay_cost_for(player, mana_cost, 0, &payment_purpose)
                     {

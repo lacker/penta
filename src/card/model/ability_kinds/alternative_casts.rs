@@ -262,7 +262,7 @@ impl AlternativeCastKindDef {
 }
 
 impl AlternativeCastAbilityDef {
-    fn count_word(count: u8) -> String {
+    fn count_word(count: u16) -> String {
         match count {
             0 => "zero".into(),
             1 => "one".into(),

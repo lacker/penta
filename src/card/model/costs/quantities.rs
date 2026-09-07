@@ -6,7 +6,7 @@
 /// cards or permanents.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostQuantityDef {
-    Fixed(u8),
+    Fixed(u16),
     /// The X announced for the spell or ability.
     ChosenX,
     /// How many modes were selected for the spell being cast.
@@ -18,7 +18,8 @@ pub enum CostQuantityDef {
     /// The left quantity minus the right, floored at zero because a cost
     /// cannot ask for a negative quantity.
     Subtract(&'static Self, &'static Self),
-    /// Choose a minimal set whose composed value reaches a threshold.
+    /// Choose a set whose composed value reaches a threshold. The
+    /// constraint itself does not require a minimal selection.
     ObjectSetValueAtLeast(&'static ObjectSetValueAtLeastDef),
 }
 
@@ -57,7 +58,7 @@ pub struct MoveToZoneCostDef {
 impl MoveToZoneCostDef {
     #[must_use]
     pub const fn new(object: ObjectPredicateDef, from: ZoneKind, to: ZoneKind, count: u8) -> Self {
-        Self::with_quantity(object, from, to, CostQuantityDef::Fixed(count))
+        Self::with_quantity(object, from, to, CostQuantityDef::Fixed(count as u16))
     }
 
     #[must_use]
@@ -82,7 +83,7 @@ impl MoveToZoneCostDef {
     }
 
     #[must_use]
-    pub const fn fixed_count(self) -> Option<u8> {
+    pub const fn fixed_count(self) -> Option<u16> {
         self.quantity.fixed_value()
     }
 
@@ -96,7 +97,7 @@ impl MoveToZoneCostDef {
 impl CostQuantityDef {
     /// Resolves an expression made entirely from fixed quantities.
     #[must_use]
-    pub const fn fixed_value(self) -> Option<u8> {
+    pub const fn fixed_value(self) -> Option<u16> {
         match self {
             Self::Fixed(value) => Some(value),
             Self::Subtract(left, right) => {

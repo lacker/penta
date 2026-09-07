@@ -4,7 +4,6 @@ impl Game {
         &mut self,
         player: PlayerId,
         payment: ResolvedEffectPayment,
-        cumulative_upkeep_age: Option<u16>,
         visibility: ChoiceVisibilityDef,
         definition: ScopedEffect,
         object: &StackObject,
@@ -17,9 +16,6 @@ impl Game {
         }
         let can_pay = self.can_pay_effect_payment(player, payment);
         if !can_pay && let Some(effect) = otherwise {
-            if let Some(age) = cumulative_upkeep_age {
-                self.capture_cumulative_upkeep_not_paid(object, player, age);
-            }
             self.resolve_effect_def(effect, object, context);
             return;
         }
@@ -35,7 +31,6 @@ impl Game {
             DecisionContinuation::PayOr {
                 player,
                 payment,
-                cumulative_upkeep_age,
                 definition,
                 object: Box::new(object.clone()),
                 context,

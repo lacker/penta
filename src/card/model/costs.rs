@@ -12,6 +12,23 @@ include!("costs/quantities.rs");
 /// is its source, and whether it supports the expression's required choices.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostDef {
+    /// Repeat a unit cost inside one indivisible payment. Each repetition
+    /// makes its own choices; none of its actions run during selection.
+    Repeat {
+        cost: &'static CostDef,
+        times: ValueDef,
+    },
+    /// An ordinary, locally authored effect program used as a cost. The
+    /// payment planner must support and validate the entire program before
+    /// committing it; this is not an unrestricted runtime callback.
+    Action(&'static super::EffectDef),
+    /// Perform the inner cost as one named action. Its occurrence is
+    /// published once after the selected payment completes, never on an
+    /// attempted, declined, or merely selected payment.
+    Named {
+        mechanic: crate::ids::MechanicId,
+        cost: &'static CostDef,
+    },
     Mana(ManaCost),
     /// Pay the same mana cost a computed number of times. Fixed single
     /// payments should use [`Self::Mana`]; this form preserves quantities
@@ -52,7 +69,7 @@ pub enum CostDef {
     SacrificeSource,
     /// Sacrifice the exact permanent named by an ability-context reference.
     ///
-    /// Unlike [`Self::SacrificePermanent`], this is not a choice among
+    /// Unlike [`Self::Sacrifice`], this is not a choice among
     /// matching permanents. It supports granted abilities whose cost names
     /// the object that granted them, while preserving split-control rules:
     /// the activating player must control the referenced permanent.
@@ -75,7 +92,7 @@ pub enum CostDef {
     /// Discard the card that carries this ability from its owner's hand.
     DiscardSource,
     /// "Discard your hand." Every card at once and no choice about which, so
-    /// unlike [`Self::DiscardCards`] it needs no window to ask in -- and a
+    /// unlike [`Self::Discard`] it needs no window to ask in -- and a
     /// player with nothing in hand pays it by discarding nothing.
     DiscardHand,
     PayLife(u16),
@@ -91,9 +108,8 @@ pub enum CostDef {
     /// Exile exactly this many cards from the top of the payer's library.
     /// As a cost it is payable only when the full number is present.
     ExileTopCards(u16),
-    DiscardCards(u16),
     /// Discard that many cards chosen at random from the payer's hand. Unlike
-    /// [`Self::DiscardCards`] nobody chooses, so paying it needs no decision:
+    /// [`Self::Discard`] nobody chooses, so paying it needs no decision:
     /// the cards leave as the cost is paid.
     DiscardCardsAtRandom(u8),
     /// Draw cards as a cost. Some resolving costs, notably cumulative
@@ -104,24 +120,9 @@ pub enum CostDef {
         kind: CounterKind,
         amount: u16,
     },
-    SacrificePermanent {
-        object: ObjectPredicateDef,
-        controller: PlayerRelation,
-    },
-    /// Sacrifice that many matching permanents, chosen one at a time as the
-    /// ability is activated.
-    ///
-    /// Unlike [`Self::SacrificePermanent`] the choices are not enumerated
-    /// into the action: Bolas's Citadel asks for ten of them, and a board of
-    /// twenty would name nearly two hundred thousand ways to pay one cost.
-    /// A decision bounds the same selection the way the decision model
-    /// already bounds every other large one.
-    SacrificePermanents {
-        object: ObjectPredicateDef,
-        controller: PlayerRelation,
-        count: u8,
-    },
-    /// Sacrifice a computed number of matching permanents.
+    /// Sacrifice a selection of matching permanents the payer controls.
+    /// The quantity constrains either their count or a value of the whole
+    /// selection. Payment planning, not the cost, chooses how to offer it.
     Sacrifice {
         object: ObjectPredicateDef,
         quantity: CostQuantityDef,
@@ -175,19 +176,10 @@ pub enum CostDef {
     /// it comes back to be cast again, which is the whole shape of
     /// Attunement: the card is the cost and the card is reusable.
     ReturnSourceToHand,
-    /// Discard a matching card from the payer's own hand, chosen as the
-    /// ability is activated. Unlike [`Self::DiscardCards`] the card travels
-    /// with the activation rather than being counted, which is what "discard
-    /// a card" and "discard a land card" both need.
-    DiscardCardMatching(ObjectPredicateDef),
     /// Reveal one matching card from the payer's hand as the ability is
     /// activated, without moving it. The chosen object travels with the
     /// activation so its name can be read during resolution.
     RevealCardFromHand(ObjectPredicateDef),
-    /// Exile a matching card from the payer's own hand. Unlike discarding,
-    /// the card never enters a graveyard; Cadaverous Bloom is the canonical
-    /// mana-ability use.
-    ExileCardFromHand(ObjectPredicateDef),
     /// Choose matching objects and move them as the cost is paid.
     MoveToZone(MoveToZoneCostDef),
     /// Crew's and saddle's cost: tap any number of other untapped creatures
@@ -198,8 +190,6 @@ pub enum CostDef {
     TapCreaturesWithTotalPower {
         minimum: u8,
     },
-    /// Sacrifice creatures until their combined power reaches this minimum.
-    SacrificeCreaturesWithTotalPower(u16),
     /// Add or remove that many loyalty counters. A planeswalker's abilities
     /// are the only costs paid this way, and paying one is what makes them
     /// once per turn at sorcery speed.
@@ -215,12 +205,6 @@ pub enum CostDef {
     CreateTokens {
         player: PlayerRelation,
         token: &'static TokenCharacteristics,
-        amount: u16,
-    },
-    /// Gain control of matching permanents not already controlled by the
-    /// payer.
-    GainControlPermanents {
-        object: ObjectPredicateDef,
         amount: u16,
     },
     /// Have the payer flip this many coins.
@@ -239,13 +223,6 @@ pub enum CostDef {
         object: ObjectPredicateDef,
         zone: ZoneKind,
     },
-    /// Discard one matching card as part of a resolving payment.
-    DiscardMatching(ObjectPredicateDef),
-    /// Sacrifice one matching permanent as part of a resolving payment.
-    SacrificePermanentMatching(ObjectPredicateDef),
-    /// Forage (CR 701.59): exile three cards from the graveyard or sacrifice
-    /// a Food.
-    Forage,
     /// Pay every child cost as one cost expression.
     All(&'static [CostDef]),
     /// Choose exactly one child cost to pay.
@@ -254,6 +231,53 @@ pub enum CostDef {
 }
 
 impl CostDef {
+    /// Inspect a named action's payment shape without erasing its authored
+    /// completion labels from the executable cost.
+    pub(crate) const fn unnamed(mut self) -> Self {
+        while let Self::Named { cost, .. } = self {
+            self = *cost;
+        }
+        self
+    }
+
+    /// Traverse authored composition, including the root. Catalog visitors
+    /// use the same tree that payment planning interprets.
+    pub(crate) fn subcosts(self) -> Vec<Self> {
+        let mut costs = vec![self];
+        match self {
+            Self::Named { cost, .. } | Self::Repeat { cost, .. } => costs.extend(cost.subcosts()),
+            Self::All(children) | Self::Choice(children) => {
+                for child in children {
+                    costs.extend(child.subcosts());
+                }
+            }
+            _ => {}
+        }
+        costs
+    }
+
+    /// The semantic object selection shared by cost-paying procedures.
+    #[must_use]
+    pub const fn object_selection(self) -> Option<(ObjectPredicateDef, ZoneKind, CostQuantityDef)> {
+        match self {
+            Self::Sacrifice { object, quantity }
+            | Self::ReturnToHand { object, quantity }
+            | Self::Tap { object, quantity } => Some((object, ZoneKind::Battlefield, quantity)),
+            Self::Discard { object, quantity } => Some((object, ZoneKind::Hand, quantity)),
+            Self::Exile {
+                object,
+                from,
+                quantity,
+            } => Some((object, from, quantity)),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn named(mechanic: crate::ids::MechanicId, cost: &'static Self) -> Self {
+        Self::Named { mechanic, cost }
+    }
+
     #[must_use]
     pub const fn mana(cost: ManaCost) -> Self {
         Self::Mana(cost)
@@ -276,7 +300,10 @@ impl CostDef {
 
     #[must_use]
     pub const fn discard_cards(amount: u16) -> Self {
-        Self::DiscardCards(amount)
+        Self::Discard {
+            object: ObjectPredicateDef::Any,
+            quantity: CostQuantityDef::Fixed(amount),
+        }
     }
 
     #[must_use]
@@ -285,16 +312,8 @@ impl CostDef {
     }
 
     #[must_use]
-    pub const fn sacrifice_permanents(
-        object: ObjectPredicateDef,
-        controller: PlayerRelation,
-        count: u8,
-    ) -> Self {
-        Self::SacrificePermanents {
-            object,
-            controller,
-            count,
-        }
+    pub const fn sacrifice_permanents(object: ObjectPredicateDef, count: u8) -> Self {
+        Self::sacrifice(object, CostQuantityDef::Fixed(count as u16))
     }
 
     #[must_use]
@@ -326,11 +345,6 @@ impl CostDef {
     }
 
     #[must_use]
-    pub const fn gain_control_permanents(object: ObjectPredicateDef, amount: u16) -> Self {
-        Self::GainControlPermanents { object, amount }
-    }
-
-    #[must_use]
     pub const fn flip_coins(amount: u16) -> Self {
         Self::FlipCoins(amount)
     }
@@ -351,7 +365,7 @@ impl CostDef {
     #[must_use]
     pub const fn pay_life(quantity: CostQuantityDef) -> Self {
         match quantity {
-            CostQuantityDef::Fixed(amount) => Self::PayLife(amount as u16),
+            CostQuantityDef::Fixed(amount) => Self::PayLife(amount),
             _ => Self::PayLifeTimes(quantity),
         }
     }
@@ -387,11 +401,6 @@ impl CostDef {
     #[must_use]
     pub const fn tap(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
         Self::Tap { object, quantity }
-    }
-
-    #[must_use]
-    pub const fn forage() -> Self {
-        Self::Forage
     }
 
     #[must_use]
@@ -714,8 +723,8 @@ pub enum ManaRestrictionDef {
     CannotCastSpell(ObjectPredicateDef),
     CastCreatureSpellOfChosenType,
     ActivateAbility(ObjectPredicateDef),
-    /// This mana can be spent only on a cumulative-upkeep payment.
-    CumulativeUpkeep,
+    /// This mana can be spent only on a payment carrying the named identity.
+    NamedPayment(crate::MechanicId),
     Special(&'static str),
 }
 

@@ -161,9 +161,9 @@ pub(in crate::card::sets) static AURATOG: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Atog"], 1, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice an enchantment: This creature gets +2/+2 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Enchantment),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2095,9 +2095,9 @@ pub(in crate::card::sets) static MARSH_LURKER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Beast"], 3, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice a Swamp: This creature gains fear until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2742,9 +2742,9 @@ pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::ne
     CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice a creature: This enchantment deals 1 damage to any target.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
@@ -2931,9 +2931,9 @@ pub(in crate::card::sets) static MOGG_RAIDER: CardRecord = CardRecord::new(
             "Sacrifice a Goblin: Target creature gets +1/+1 until end of turn.",
             // "A Goblin", so it can eat itself, which is what makes it a
             // free sacrifice outlet as well as a combat trick.
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Goblin"),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -4586,7 +4586,10 @@ pub(in crate::card::sets) static PATCHWORK_GNOMES: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Gnome"], 2, 1).with_ability(
         abilities::regenerate_self(
             "Discard a card: Regenerate this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
         ),
     ),
 );

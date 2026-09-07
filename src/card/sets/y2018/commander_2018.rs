@@ -144,9 +144,9 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Subtype("Servo"),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
@@ -156,9 +156,9 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
             "{T}, Sacrifice a Thopter: Create a 4/4 colorless Construct artifact creature token.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Subtype("Thopter"),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::create_artifact_creature_token(&["Construct"], &[], 4, 4),

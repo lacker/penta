@@ -1,5 +1,5 @@
 //! Endurance: a flash blocker that puts a graveyard back where it came from,
-//! shuffled into the dark.
+//! in random order below the existing library, without shuffling that library.
 
 use super::*;
 
@@ -164,6 +164,60 @@ fn it_puts_a_graveyard_under_a_library() {
     ];
     expected.sort_unstable();
     assert_eq!(buried, expected, "the same three cards, in some order");
+}
+
+#[test]
+fn local_graveyard_program_preserves_reference_results_and_zone_identities() {
+    for graveyard in [
+        Vec::new(),
+        vec![
+            cards::LIGHTNING_BOLT,
+            cards::GRIZZLY_BEARS,
+            cards::DARK_RITUAL,
+        ],
+    ] {
+        for target in [None, Some(PlayerId::One), Some(PlayerId::Two)] {
+            let (mut reference, _) = staged(&graveyard, &[cards::SAVANNAH_LIONS]);
+            let old_ids = reference.players[PlayerId::Two.index()]
+                .graveyard
+                .iter()
+                .map(|card| card.id)
+                .collect::<Vec<_>>();
+            let mut prepared = reference.clone();
+            reference.set_prepared_engine_enabled(false);
+            prepared.set_prepared_engine_enabled(true);
+
+            answer_trigger(&mut reference, target);
+            answer_trigger(&mut prepared, target);
+
+            assert_eq!(prepared.players, reference.players);
+            assert_eq!(prepared.battlefield, reference.battlefield);
+            assert_eq!(prepared.events, reference.events);
+            assert_eq!(prepared.pending_events, reference.pending_events);
+            assert_eq!(prepared.pending_procedures, reference.pending_procedures);
+            assert_eq!(
+                prepared.card_left_graveyard_this_turn,
+                reference.card_left_graveyard_this_turn
+            );
+            assert!(prepared.stack.is_empty() && reference.stack.is_empty());
+            assert!(
+                prepared.pending_decisions.is_empty() && reference.pending_decisions.is_empty()
+            );
+            if target == Some(PlayerId::Two) {
+                assert_eq!(
+                    reference.card_left_graveyard_this_turn[PlayerId::Two.index()],
+                    !graveyard.is_empty()
+                );
+                assert!(
+                    reference.players[PlayerId::Two.index()]
+                        .library
+                        .iter()
+                        .all(|card| !old_ids.contains(&card.id)),
+                    "moving to the library creates new zone identities"
+                );
+            }
+        }
+    }
 }
 
 /// "Up to one target player" is satisfied by naming nobody.

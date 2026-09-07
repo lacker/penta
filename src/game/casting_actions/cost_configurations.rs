@@ -9,7 +9,7 @@ use super::super::{
     AbilityDef, AbilityOrigin, AdditionalCostId, AlternativeCastAbilityDef, AlternativeCastKindDef,
     AlternativeCostId, CardDefinition, CardInstance, CastCostContext, CastOfferCost,
     CastSourceZone, ControlFlow, CostConfiguration, DeclarativeAbilityDef, ExilePlayCost, Game,
-    GameObjectId, ManaCost, PlayOptionDef, PlayerId, TriggerContext, ZoneKind, add_mana_cost,
+    GameObjectId, ManaCost, PlayOptionDef, PlayerId, TriggerContext, add_mana_cost,
     configured_base_mana_cost,
 };
 use crate::ModeId;
@@ -32,7 +32,7 @@ pub(in crate::game) struct CastScale {
 impl CastScale {
     fn quantity(self, quantity: crate::card::CostQuantityDef) -> Option<u16> {
         match quantity {
-            crate::card::CostQuantityDef::Fixed(amount) => Some(u16::from(amount)),
+            crate::card::CostQuantityDef::Fixed(amount) => Some(amount),
             crate::card::CostQuantityDef::ChosenX => Some(self.x),
             crate::card::CostQuantityDef::ModeCount => {
                 Some(u16::try_from(self.modes).unwrap_or(u16::MAX))
@@ -61,7 +61,7 @@ pub(in crate::game) struct SpellAdditionalCostRequest<'a> {
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub(in crate::game) struct SpellAdditionalCostPayment {
-    pub(in crate::game) objects: Vec<(GameObjectId, CostDef)>,
+    pub(in crate::game) steps: Vec<crate::game::cost_payment::CostPaymentStep>,
     pub(in crate::game) mana: ManaCost,
     pub(in crate::game) life: u16,
 }
@@ -69,7 +69,7 @@ pub(in crate::game) struct SpellAdditionalCostPayment {
 impl SpellAdditionalCostPayment {
     fn free() -> Self {
         Self {
-            objects: Vec::new(),
+            steps: Vec::new(),
             mana: ManaCost::default(),
             life: 0,
         }
@@ -77,23 +77,24 @@ impl SpellAdditionalCostPayment {
 
     fn combine(&self, other: &Self) -> Option<Self> {
         if other
-            .objects
+            .steps
             .iter()
-            .any(|(object, _)| self.objects.iter().any(|(paid, _)| paid == object))
+            .filter_map(|step| step.object())
+            .any(|object| self.steps.iter().any(|paid| paid.object() == Some(object)))
         {
             return None;
         }
-        let mut objects = self.objects.clone();
-        objects.extend(other.objects.iter().copied());
+        let mut steps = self.steps.clone();
+        steps.extend(other.steps.iter().copied());
         Some(Self {
-            objects,
+            steps,
             mana: add_mana_cost(self.mana, other.mana),
             life: self.life.saturating_add(other.life),
         })
     }
 
     pub(in crate::game) fn object_ids(&self) -> Vec<GameObjectId> {
-        self.objects.iter().map(|(object, _)| *object).collect()
+        self.steps.iter().filter_map(|step| step.object()).collect()
     }
 }
 
@@ -229,6 +230,9 @@ impl Game {
         player: PlayerId,
     ) -> Option<u16> {
         match cost {
+            CostDef::Named { cost, .. } => {
+                self.maximum_x_for_spell_additional_cost(*cost, card, player)
+            }
             CostDef::PayLifeTimes(crate::card::CostQuantityDef::ChosenX) => {
                 Some(self.maximum_x_for_life(player))
             }
@@ -347,7 +351,15 @@ impl Game {
                 .object_set_value_combinations(&candidates, *requirement)
                 .into_iter()
                 .map(|objects| SpellAdditionalCostPayment {
-                    objects: objects.into_iter().map(|object| (object, cost)).collect(),
+                    steps: objects
+                        .into_iter()
+                        .map(|object| {
+                            crate::game::cost_payment::CostPaymentStep::Object(object, cost)
+                        })
+                        .chain(std::iter::once(
+                            crate::game::cost_payment::CostPaymentStep::EndAction,
+                        ))
+                        .collect(),
                     mana: ManaCost::default(),
                     life: 0,
                 })
@@ -372,7 +384,13 @@ impl Game {
         Self::object_combinations(&candidates, required)
             .into_iter()
             .map(|objects| SpellAdditionalCostPayment {
-                objects: objects.into_iter().map(|object| (object, cost)).collect(),
+                steps: objects
+                    .into_iter()
+                    .map(|object| crate::game::cost_payment::CostPaymentStep::Object(object, cost))
+                    .chain(std::iter::once(
+                        crate::game::cost_payment::CostPaymentStep::EndAction,
+                    ))
+                    .collect(),
                 mana: ManaCost::default(),
                 life: 0,
             })
@@ -385,57 +403,10 @@ impl Game {
         card: &CardInstance,
         player: PlayerId,
     ) -> Vec<GameObjectId> {
-        let (object, from) = match cost {
-            CostDef::Sacrifice { object, .. } | CostDef::ReturnToHand { object, .. } => {
-                (object, ZoneKind::Battlefield)
-            }
-            CostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
-            CostDef::Discard { object, .. } => (object, ZoneKind::Hand),
-            CostDef::Exile { object, from, .. } => (object, from),
-            _ => return Vec::new(),
-        };
-        match from {
-            ZoneKind::Battlefield => self
-                .battlefield
-                .iter()
-                .filter(|permanent| {
-                    permanent.controller == player
-                        && (!matches!(cost, CostDef::Tap { .. }) || !permanent.tapped)
-                        && self.trigger_object_matches(
-                            object,
-                            &self.trigger_event_object(permanent),
-                            permanent.card.id,
-                            false,
-                        )
-                })
-                .map(|permanent| permanent.card.id)
-                .collect(),
-            // The same exclusion as hand below, for the same reason: escape
-            // and flashback are cast from the graveyard, so by the time the
-            // cost is paid the card is on the stack and not there to spend.
-            // This is what "exile five other cards" means.
-            ZoneKind::Graveyard => self.players[player.index()]
-                .graveyard
-                .iter()
-                .filter(|held| {
-                    held.id != card.id
-                        && self.card_object_matches(object, held, ZoneKind::Graveyard, held.id)
-                })
-                .map(|held| held.id)
-                .collect(),
-            // The card paying the cost cannot be the spell itself: it has
-            // already left hand by the time the cost is paid.
-            ZoneKind::Hand => self.players[player.index()]
-                .hand
-                .iter()
-                .filter(|held| {
-                    held.id != card.id
-                        && self.card_object_matches(object, held, ZoneKind::Hand, held.id)
-                })
-                .map(|held| held.id)
-                .collect(),
-            _ => Vec::new(),
-        }
+        self.object_cost_candidates(player, card.id, cost)
+            .into_iter()
+            .filter(|id| *id != card.id)
+            .collect()
     }
 
     /// Whether the card's own printed cost is one of the ways to cast it

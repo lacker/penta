@@ -2132,7 +2132,7 @@ const fn exile_creature_cards_from_graveyard(count: u8) -> CostDef {
     CostDef::exile(
         ObjectPredicateDef::HasType(CardType::Creature),
         ZoneKind::Graveyard,
-        CostQuantityDef::Fixed(count),
+        CostQuantityDef::Fixed(count as u16),
     )
 }
 
@@ -4507,9 +4507,9 @@ pub(in crate::card::sets) static SKIRSDAG_CULTIST: CardRecord = CardRecord::new_
             &[
                 CostDef::Mana(mana_cost!("{R}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one(
@@ -6103,9 +6103,9 @@ pub(in crate::card::sets) static DEMONMAIL_HAUBERK: CardRecord = CardRecord::new
                 },
             ),
             abilities::equip(
-                &[CostDef::SacrificePermanent {
+                &[CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 }],
                 "Equip—Sacrifice a creature.",
             ),
@@ -6209,7 +6209,7 @@ pub(in crate::card::sets) static GRIMOIRE_OF_THE_DEAD: CardRecord = CardRecord::
                 &[
                     CostDef::Mana(mana_cost!("{1}")),
                     CostDef::TapSource,
-                    CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                    CostDef::Discard { object: ObjectPredicateDef::Any, quantity: crate::card::CostQuantityDef::Fixed(1) },
                 ],
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,

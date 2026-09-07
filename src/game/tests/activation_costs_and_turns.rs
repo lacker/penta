@@ -272,9 +272,9 @@ fn source_counters_are_removed_before_a_source_sacrifice_cost_regardless_of_prin
 #[test]
 fn a_generic_source_sacrifice_waits_for_its_tap_and_counter_costs() {
     static COSTS: [CostDef; 3] = [
-        CostDef::SacrificePermanent {
+        CostDef::Sacrifice {
+            quantity: crate::card::CostQuantityDef::Fixed(1),
             object: ObjectPredicateDef::Source,
-            controller: PlayerRelation::You,
         },
         CostDef::TapSource,
         CostDef::RemoveCountersFromSource {
@@ -344,9 +344,9 @@ fn a_generic_source_sacrifice_waits_for_its_tap_and_counter_costs() {
 fn separate_source_sacrifice_costs_require_separate_permanents() {
     static COSTS: [CostDef; 2] = [
         CostDef::SacrificeSource,
-        CostDef::SacrificePermanent {
+        CostDef::Sacrifice {
+            quantity: crate::card::CostQuantityDef::Fixed(1),
             object: ObjectPredicateDef::HasType(CardType::Artifact),
-            controller: PlayerRelation::You,
         },
     ];
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(

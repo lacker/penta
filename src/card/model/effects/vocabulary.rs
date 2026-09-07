@@ -23,6 +23,8 @@ pub enum SacrificedAmountDef {
 pub enum AbilityPredicateDef {
     Any,
     Keyword(KeywordAbility),
+    /// The identity of this ability, not other abilities its source has.
+    Mechanic(crate::MechanicId),
     /// An ability belonging to one structural family, whatever parameters
     /// that instance carries. This is the reusable form for wording such as
     /// "loses all landwalk abilities" and for predicates that ask whether a
@@ -55,6 +57,7 @@ impl AbilityPredicateDef {
     pub(crate) fn matches(self, ability: &AbilityDef) -> bool {
         match self {
             Self::Any => true,
+            Self::Mechanic(mechanic) => ability.mechanics.contains(&mechanic),
             Self::Keyword(expected) => matches!(
                 ability.definition,
                 DeclarativeAbilityDef::Keyword(actual) if actual == expected
@@ -214,6 +217,7 @@ pub enum CostModificationDef {
     /// mana" is what keeps a free ability from becoming free twice over.
     AbilityReduction {
         permanent: ObjectPredicateDef,
+        ability: AbilityPredicateDef,
         amount: ValueDef,
         /// The least mana the cost may be left with. An ability whose cost
         /// already holds no more than this is untouched.

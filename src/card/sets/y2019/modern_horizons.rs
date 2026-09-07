@@ -2,6 +2,7 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
+use crate::card::sets::y2011::mirrodin_besieged::battle_cry;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules,
@@ -109,7 +110,7 @@ pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
     // A 2/4 that attacks profitably because everything beside it gets
     // bigger and the best blocker is tapped out of the way first.
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Rhino", "Soldier"], 2, 4).with_abilities(&[
-        abilities::battle_cry(),
+        battle_cry(),
         AbilityDef::triggered_with_targets(
             "Whenever this creature attacks, tap target creature an opponent controls.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
@@ -497,9 +498,9 @@ pub(in crate::card::sets) static CARRION_FEEDER: CardRecord = CardRecord::new(
             "Sacrifice a creature: Put a +1/+1 counter on this creature.",
             // Any creature you control, the Feeder included -- which is the
             // out when it is the last thing on the board.
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
@@ -543,13 +544,10 @@ pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Shaman"], 2, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice another creature: Until end of turn, this creature becomes a Dragon with base power and toughness 4/4, flying, and haste.",
-            &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::All(&[
+            &[CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                ]),
-                controller: PlayerRelation::You,
-            }],
+                ]) }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 // "Becomes a Dragon" repaints the whole creature-type line
@@ -851,7 +849,11 @@ pub(in crate::card::sets) static KROSAN_TUSKER: CardRecord = CardRecord::new(
              that card, put it into your hand, then shuffle. (Do this before you draw.)",
             // The trigger goes on the stack above the cycling draw, which is
             // what the reminder text means by "before you draw".
-            TriggerEventDef::Cycled,
+            TriggerEventDef::mechanic_performed_on(
+                abilities::CYCLING,
+                ObjectPredicateDef::Source,
+                PlayerRelation::You,
+            ),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::SearchZone {
@@ -873,7 +875,8 @@ pub(in crate::card::sets) static KROSAN_TUSKER: CardRecord = CardRecord::new(
                     then: None,
                 },
             },
-        ),
+        )
+        .with_source_zones(abilities::CYCLED_CARD_ZONES),
     ]),
 );
 

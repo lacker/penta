@@ -145,13 +145,22 @@ impl Game {
     ) -> bool {
         match (definition, event) {
             (
-                TriggerEventDef::CumulativeUpkeepPaid { .. },
-                CommittedTriggerEvent::CumulativeUpkeepPaid { object, .. },
-            )
-            | (
-                TriggerEventDef::CumulativeUpkeepNotPaid,
-                CommittedTriggerEvent::CumulativeUpkeepNotPaid { object, .. },
-            ) => object.id == source,
+                TriggerEventDef::MechanicPerformed { mechanic, player, object: predicate, .. },
+                CommittedTriggerEvent::MechanicPerformed {
+                    mechanics,
+                    player: actor,
+                    object,
+                },
+            ) => mechanics.contains(&mechanic) && controller.is_some_and(|controller| {
+                self.player_relation_matches(*actor, player, controller, event.context())
+                    && predicate.is_none_or(|predicate| object.as_ref().is_some_and(|object| {
+                        self.trigger_object_matches_for_controller(predicate, object, source, false, Some(controller))
+                    }))
+            }),
+            (
+                TriggerEventDef::MechanicPayment { mechanic, paid, .. },
+                CommittedTriggerEvent::MechanicPayment { mechanic: actual, paid: outcome, object, .. },
+            ) => object.id == source && mechanic == *actual && paid == *outcome,
             (
                 TriggerEventDef::CoinFlipWon(relation),
                 CommittedTriggerEvent::CoinFlipped { player, won: true },
@@ -549,10 +558,6 @@ impl Game {
             // the clause that goes on to name it; which card it was does not
             // narrow the trigger, which asks only whose discard it was.
             (
-                TriggerEventDef::Discarded(relation),
-                CommittedTriggerEvent::Discarded { player, .. },
-            )
-            | (
                 TriggerEventDef::DiscardedCards(relation),
                 CommittedTriggerEvent::CardsDiscarded { player },
             )
@@ -570,28 +575,6 @@ impl Game {
             ) => {
                 let controller = controller.unwrap_or(*player);
                 self.player_relation_matches(*player, relation, controller, event.context())
-            }
-            // The listener list for a cycled card holds only that card's own
-            // clauses, so there is nothing further to match on: any card
-            // whose ability reached here is the card that was cycled.
-            (TriggerEventDef::Cycled, CommittedTriggerEvent::Cycled { object }) => {
-                object.id == source
-            }
-            (
-                TriggerEventDef::Sacrificed {
-                    object: predicate,
-                    player: relation,
-                },
-                CommittedTriggerEvent::Sacrificed { object, player },
-            ) => {
-                self.player_relation_matches(
-                    *player,
-                    relation,
-                    controller.unwrap_or(*player),
-                    TriggerContext::empty(),
-                ) && self.trigger_object_matches_for_controller(
-                    predicate, object, source, false, controller,
-                )
             }
             (
                 TriggerEventDef::StepBegins { step, player },

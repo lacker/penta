@@ -142,7 +142,6 @@ impl Game {
                 .chain(payment.otherwise.iter())
                 .any(|effect| Self::effect_applies_to_source(**effect, expected)),
             EffectDef::None
-            | EffectDef::CumulativeUpkeep(_)
             | EffectDef::ContinueReplacedDraw
             | EffectDef::Randomized { .. }
             | EffectDef::FlipCoin { .. }
@@ -161,7 +160,6 @@ impl Game {
             | EffectDef::Discard { .. }
             | EffectDef::DiscardCards { .. }
             | EffectDef::ShuffleLibrary { .. }
-            | EffectDef::BuryGraveyard { .. }
             | EffectDef::EmptyManaPool { .. }
             | EffectDef::LoseLife { .. }
             | EffectDef::LoseTheGame { .. }

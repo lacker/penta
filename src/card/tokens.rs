@@ -119,7 +119,10 @@ static BLOOD_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
     &[
         CostDef::Mana(mana_cost!("{1}")),
         CostDef::TapSource,
-        CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+        CostDef::Discard {
+            object: ObjectPredicateDef::Any,
+            quantity: crate::card::CostQuantityDef::Fixed(1),
+        },
         CostDef::SacrificeSource,
     ],
     EffectDef::DrawCards {

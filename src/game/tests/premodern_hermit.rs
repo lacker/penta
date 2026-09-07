@@ -573,7 +573,7 @@ fn phyrexian_dreadnought_eats_itself_on_an_empty_board() {
 
 /// Given enough creatures, the payer feeds it one at a time and keeps it.
 #[test]
-fn phyrexian_dreadnought_can_be_paid_for_one_creature_at_a_time() {
+fn phyrexian_dreadnought_selects_creatures_before_committing_the_payment() {
     let mut game = ready_game();
     // Two Serra Angels are eight power; a third makes twelve.
     for index in 0..3 {
@@ -592,42 +592,28 @@ fn phyrexian_dreadnought_can_be_paid_for_one_creature_at_a_time() {
     .expect("one mana casts it");
     pass_until_decision(&mut game);
 
-    // Accept the cost, then feed it Angels until it is satisfied.
-    let offer = game
-        .observe(PlayerId::One)
-        .decision
-        .expect("the payer is asked whether to pay");
-    let pay = offer
-        .options
-        .iter()
-        .find(|option| option.id != 0)
-        .expect("paying is on offer")
-        .id;
-    game.apply(
-        PlayerId::One,
-        Action::ChooseDecision {
-            decision: offer.id,
-            options: vec![pay],
-        },
-    )
-    .expect("paying is legal");
-
-    for _ in 0..3 {
-        let Some(step) = game.observe(PlayerId::One).decision else {
-            break;
-        };
-        let Some(angel) = step.options.iter().find(|option| option.id != 0) else {
-            break;
-        };
-        let angel = angel.id;
+    // Select all three Angels without changing the battlefield.
+    for index in 0..3 {
+        let step = game.observe(PlayerId::One).decision.unwrap();
+        let selected = step
+            .options
+            .iter()
+            .find(|option| {
+                option
+                    .card
+                    .is_some_and(|(id, _)| id == GameObjectId(10_010 + index))
+            })
+            .unwrap()
+            .id;
         game.apply(
             PlayerId::One,
             Action::ChooseDecision {
                 decision: step.id,
-                options: vec![angel],
+                options: vec![selected],
             },
         )
-        .expect("each Angel is a legal way to pay");
+        .unwrap();
+        assert_eq!(game.battlefield.len(), 4, "selection is not sacrifice");
     }
     // Twelve is a floor rather than a quota, so once it is met the payer is
     // offered the chance to stop.
@@ -636,7 +622,9 @@ fn phyrexian_dreadnought_can_be_paid_for_one_creature_at_a_time() {
         .decision
         .expect("the total is met, and stopping is on offer");
     assert!(
-        stop.options.iter().any(|option| option.label == "Stop"),
+        stop.options
+            .iter()
+            .any(|option| option.label == "Pay selected objects"),
         "reaching the total offers a way out of paying more",
     );
     game.apply(

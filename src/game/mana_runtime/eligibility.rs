@@ -49,13 +49,13 @@ impl Game {
                 | CostDef::SacrificeObject(_)
                 | CostDef::ReturnSourceToHand
                 | CostDef::DiscardSource
-                | CostDef::DiscardCards(_)
-                | CostDef::DiscardCardMatching(_)
+                | CostDef::Discard { object: crate::card::ObjectPredicateDef::Any, quantity: crate::card::CostQuantityDef::Fixed(_) }
+                | CostDef::Discard { object: _, quantity: crate::card::CostQuantityDef::Fixed(1) }
                 | CostDef::RevealCardFromHand(_)
-                | CostDef::ExileCardFromHand(_)
+                | CostDef::Exile { object: _, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }
                 | CostDef::DiscardCardsAtRandom(_)
-                | CostDef::SacrificePermanent { .. }
-                | CostDef::SacrificePermanents { .. }
+                | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), .. }
+                | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(_), .. }
                 | CostDef::ReturnUnblockedAttackerToHand
                 | CostDef::TapPermanents { .. }
                 | CostDef::TapCreaturesWithTotalPower { .. }
@@ -115,9 +115,9 @@ impl Game {
             // consumes a finite object, so it bounds the ability. Which
             // object is spent is answered by enumerating one activation per
             // candidate.
-            | CostDef::SacrificePermanent { .. }
-            | CostDef::ExileCardFromHand(_)
-            | CostDef::SacrificePermanents { .. }
+            | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), .. }
+            | CostDef::Exile { object: _, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }
+            | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(_), .. }
             // A loyalty cost is bounded by the rule rather than by the
             // board: one loyalty ability per planeswalker per turn, and
             // that is what stops it looping.
@@ -138,9 +138,9 @@ impl Game {
                                 | CostDef::SacrificeSource
                                 | CostDef::ReturnSourceToHand
                                 | CostDef::ExileSource
-                                | CostDef::SacrificePermanent { .. }
-                                | CostDef::ExileCardFromHand(_)
-                                | CostDef::SacrificePermanents { .. }
+                                | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), .. }
+                                | CostDef::Exile { object: _, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }
+                                | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(_), .. }
                         )
                     });
                 !mana.variable_x && mana.hybrid_total() == 0 && bounded

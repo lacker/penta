@@ -40,6 +40,7 @@ fn is_uuid(value: &str) -> bool {
 
 mod catalog_report;
 mod isd_m14_coverage;
+mod mechanic_identity;
 mod old_school_coverage;
 mod registry_integrity;
 mod runtime_boundary;

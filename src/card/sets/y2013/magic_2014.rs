@@ -1202,12 +1202,12 @@ pub(in crate::card::sets) static BLOOD_BAIRN: CardRecord = CardRecord::new_with_
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire"], 2, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice another creature: This creature gets +2/+2 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -1376,9 +1376,9 @@ pub(in crate::card::sets) static GNAWING_ZOMBIE: CardRecord = CardRecord::new_wi
             "{1}{B}, Sacrifice a creature: Target player loses 1 life and you gain 1 life.",
             &[
                 CostDef::Mana(mana_cost!("{1}{B}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one(
@@ -1735,12 +1735,12 @@ pub(in crate::card::sets) static VAMPIRE_WARLORD: CardRecord = CardRecord::new_w
     CardRules::new_creature(mana_cost!("{4}{B}"), &["Vampire", "Warrior"], 4, 2).with_ability(
         abilities::regenerate_self(
             "Sacrifice another creature: Regenerate this creature.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
-                controller: PlayerRelation::You,
             }],
         ),
     ),
@@ -1860,9 +1860,9 @@ pub(in crate::card::sets) static BARRAGE_OF_EXPENDABLES: CardRecord =
                 "{R}, Sacrifice a creature: This enchantment deals 1 damage to any target.",
                 &[
                     CostDef::Mana(mana_cost!("{R}")),
-                    CostDef::SacrificePermanent {
+                    CostDef::Sacrifice {
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
                         object: ObjectPredicateDef::HasType(CardType::Creature),
-                        controller: PlayerRelation::You,
                     },
                 ],
                 &[AbilityTargetDef::exactly_one(

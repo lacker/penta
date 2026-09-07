@@ -18,6 +18,7 @@ use crate::card::{
 use crate::{Binding, TargetIndex};
 
 include!("targeting/references.rs");
+include!("targeting/payments.rs");
 include!("targeting/resolving_applied_effect.rs");
 // What a trigger event itself may name, split from the references above for
 // the source-size budget: the questions an event asks about its own object,

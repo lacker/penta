@@ -248,8 +248,7 @@ fn the_second_card_down_stays_where_it_is() {
     );
 }
 
-/// The finish. Ten permanents named one at a time, then ten life off each
-/// opponent.
+/// Select the whole payment, then sacrifice ten and drain each opponent.
 #[test]
 fn the_sacrifice_ability_eats_ten_and_drains_ten() {
     let (mut game, citadel) = staged(&[]);
@@ -262,7 +261,6 @@ fn the_sacrifice_ability_eats_ten_and_drains_ten() {
     }
     drain_pending(&mut game);
     game.priority = PlayerId::One;
-
     let action = game
         .legal_actions(PlayerId::One)
         .into_iter()
@@ -270,34 +268,38 @@ fn the_sacrifice_ability_eats_ten_and_drains_ten() {
             |action| matches!(action, Action::ActivateAbility { source, .. } if *source == citadel),
         )
         .expect("ten nonland permanents pay for it");
-    game.apply(PlayerId::One, action).expect("it activates");
-
-    for _ in 0..10 {
-        let decision = game
-            .observe(PlayerId::One)
-            .decision
-            .expect("one permanent is asked for at a time");
-        // The Citadel is a nonland permanent too and is offered alongside
-        // the Lions; this feeds it the ten it was meant to eat.
-        let option = decision
-            .options
+    game.apply(PlayerId::One, action)
+        .expect("it opens the payment window");
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!(decision.minimum, 10);
+    assert_eq!(decision.maximum, 10);
+    assert!(
+        !game
+            .battlefield
             .iter()
-            .find(|option| {
-                option.card.is_some_and(|(_, characteristics)| {
-                    characteristics.card_definition() == Some(cards::SAVANNAH_LIONS)
-                })
+            .find(|permanent| permanent.card.id == citadel)
+            .unwrap()
+            .tapped,
+        "choosing the payment did not pay the tap cost"
+    );
+    let options = decision
+        .options
+        .iter()
+        .filter(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(cards::SAVANNAH_LIONS)
             })
-            .expect("a Lions remains")
-            .id;
-        game.apply(
-            PlayerId::One,
-            Action::ChooseDecision {
-                decision: decision.id,
-                options: vec![option],
-            },
-        )
-        .expect("the answer is legal");
-    }
+        })
+        .map(|option| option.id)
+        .collect();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options,
+        },
+    )
+    .unwrap();
     resolve(&mut game);
 
     assert_eq!(game.players[1].life, 10, "each opponent lost ten");
@@ -391,21 +393,27 @@ fn the_citadel_may_eat_itself() {
         .expect("nine Lions and the Citadel are ten nonland permanents");
     game.apply(PlayerId::One, action).expect("it activates");
 
-    for _ in 0..10 {
-        let decision = game
-            .observe(PlayerId::One)
-            .decision
-            .expect("one permanent is asked for at a time");
-        let option = decision.options.first().expect("something is offered").id;
-        game.apply(
-            PlayerId::One,
-            Action::ChooseDecision {
-                decision: decision.id,
-                options: vec![option],
-            },
-        )
-        .expect("the answer is legal");
-    }
+    let decision = game.observe(PlayerId::One).decision.unwrap();
+    assert_eq!(decision.minimum, 10);
+    assert_eq!(decision.maximum, 10);
+    assert!(
+        !game
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == citadel)
+            .unwrap()
+            .tapped,
+        "choosing the payment did not pay the tap cost"
+    );
+    let options = decision.options.iter().map(|option| option.id).collect();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options,
+        },
+    )
+    .unwrap();
     resolve(&mut game);
 
     assert_eq!(game.players[1].life, 10, "the drain happened all the same");

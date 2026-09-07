@@ -26,10 +26,15 @@ impl Game {
         if !can_pay {
             return options;
         }
-        if self.append_exact_group_payment_options(&mut options, player, payment) {
-            return options;
-        }
         match payment {
+            ResolvedEffectPayment::ObjectCost { source, cost } => {
+                let (_, zone, _) = cost.object_selection().expect("an object cost");
+                let verb = if matches!(cost, crate::card::CostDef::Discard { .. }) { "Discard" } else { "Exile" };
+                options.extend(self.object_cost_options(&self.object_cost_candidates(player, source, cost), zone).into_iter().map(|mut option| {
+                    option.label = format!("{verb} {}", option.label);
+                    option
+                }));
+            }
             // One option per amount the payer can actually afford, with the
             // amount as the option id.
             ResolvedEffectPayment::ChosenGenericMana => {
@@ -73,32 +78,6 @@ impl Game {
                 };
                 options.extend(self.permanent_payment_options(player, predicate, verb));
             }
-            ResolvedEffectPayment::SacrificePermanentMatching(predicate) => {
-                options.extend(self.permanent_payment_options(player, predicate, "Sacrifice"));
-            }
-            ResolvedEffectPayment::DiscardMatching(predicate) => {
-                for (index, card) in self
-                    .matching_cards_in_hand(player, predicate)
-                    .into_iter()
-                    .enumerate()
-                {
-                    let name = self
-                        .catalog
-                        .get(card.definition)
-                        .map_or_else(|| "a card".to_string(), |card| card.name.clone());
-                    options.push(DecisionOption {
-                        id: u32::try_from(index + 1).unwrap_or(u32::MAX),
-                        label: format!("Discard {name}"),
-                        card: Some((
-                            card.id,
-                            ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
-                        )),
-                        members: Vec::new(),
-                        ability_text: None,
-                        zone: DecisionZone::Hand,
-                    });
-                }
-            }
             payment => options.push(DecisionOption {
                 id: 1,
                 label: Self::effect_payment_label(payment),
@@ -109,77 +88,6 @@ impl Game {
             }),
         }
         options
-    }
-
-    fn append_exact_group_payment_options(
-        &self,
-        options: &mut Vec<DecisionOption>,
-        player: PlayerId,
-        payment: ResolvedEffectPayment,
-    ) -> bool {
-        let (candidates, count, verb, zone) = match payment {
-            ResolvedEffectPayment::DiscardCards(amount) => (
-                self.players[player.index()]
-                    .hand
-                    .iter()
-                    .map(|card| {
-                        (
-                            card.id,
-                            ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
-                        )
-                    })
-                    .collect::<Vec<_>>(),
-                amount,
-                "Discard",
-                DecisionZone::Hand,
-            ),
-            ResolvedEffectPayment::SacrificePermanents {
-                object: predicate,
-                amount,
-            } => (
-                self.group_payment_permanents(
-                    self.matching_permanents_controlled(player, predicate),
-                ),
-                amount,
-                "Sacrifice",
-                DecisionZone::Battlefield,
-            ),
-            ResolvedEffectPayment::GainControlPermanents {
-                object: predicate,
-                amount,
-                ..
-            } => (
-                self.group_payment_permanents(
-                    self.matching_permanents_not_controlled(player, predicate),
-                ),
-                amount,
-                "Gain control of",
-                DecisionZone::Battlefield,
-            ),
-            _ => return false,
-        };
-        self.append_group_payment_options(
-            options,
-            &candidates,
-            usize::from(count),
-            verb,
-            zone,
-        );
-        true
-    }
-
-    fn group_payment_permanents(
-        &self,
-        ids: Vec<GameObjectId>,
-    ) -> Vec<(GameObjectId, ObjectCharacteristics)> {
-        ids.into_iter()
-            .filter_map(|id| {
-                self.battlefield
-                    .iter()
-                    .find(|permanent| permanent.card.id == id)
-                    .map(|permanent| (id, Self::effective_rules_source(permanent)))
-            })
-            .collect()
     }
 
     fn counter_removal_payment_options(
@@ -225,51 +133,4 @@ impl Game {
         Some(amount)
     }
 
-    fn append_group_payment_options(
-        &self,
-        options: &mut Vec<DecisionOption>,
-        candidates: &[(GameObjectId, ObjectCharacteristics)],
-        count: usize,
-        verb: &str,
-        zone: DecisionZone,
-    ) {
-        fn combinations(
-            candidates: &[(GameObjectId, ObjectCharacteristics)],
-            count: usize,
-            start: usize,
-            chosen: &mut Vec<(GameObjectId, ObjectCharacteristics)>,
-            result: &mut Vec<Vec<(GameObjectId, ObjectCharacteristics)>>,
-        ) {
-            if chosen.len() == count {
-                result.push(chosen.clone());
-                return;
-            }
-            for index in start..candidates.len() {
-                chosen.push(candidates[index]);
-                combinations(candidates, count, index + 1, chosen, result);
-                chosen.pop();
-            }
-        }
-
-        let mut groups = Vec::new();
-        combinations(candidates, count, 0, &mut Vec::new(), &mut groups);
-        for members in groups {
-            let names = members
-                .iter()
-                .map(|(_, characteristics)| {
-                    self.characteristics_name(*characteristics)
-                        .map_or_else(|| "a permanent".to_owned(), Cow::into_owned)
-                })
-                .collect::<Vec<_>>()
-                .join(", ");
-            options.push(DecisionOption {
-                id: u32::try_from(options.len()).unwrap_or(u32::MAX),
-                label: format!("{verb} {names}"),
-                card: None,
-                members,
-                ability_text: None,
-                zone,
-            });
-        }
-    }
 }

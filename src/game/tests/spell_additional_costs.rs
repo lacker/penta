@@ -72,7 +72,23 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
     ));
     assert!(matches!(
         spell_cost(cards::FEED_THE_CYCLE),
-        CostDef::Choice([CostDef::Forage, CostDef::Mana(_)])
+        CostDef::Choice([
+            CostDef::Named {
+                cost: CostDef::Choice([
+                    CostDef::Exile {
+                        from: ZoneKind::Graveyard,
+                        quantity: CostQuantityDef::Fixed(3),
+                        ..
+                    },
+                    CostDef::Sacrifice {
+                        object: ObjectPredicateDef::Subtype("Food"),
+                        quantity: CostQuantityDef::Fixed(1),
+                    },
+                ]),
+                ..
+            },
+            CostDef::Mana(_),
+        ])
     ));
     assert!(matches!(
         spell_cost(cards::VICIOUS_RIVALRY),

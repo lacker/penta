@@ -184,12 +184,12 @@ pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new
                         CostDef::Mana(mana_cost!("{2}{B}")),
                         // "Another creature": this one is transforming rather
                         // than dying, so it cannot pay for its own ability.
-                        CostDef::SacrificePermanent {
+                        CostDef::Sacrifice {
+                            quantity: crate::card::CostQuantityDef::Fixed(1),
                             object: ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                             ]),
-                            controller: PlayerRelation::You,
                         },
                     ],
                     EffectDef::Sequence(&[

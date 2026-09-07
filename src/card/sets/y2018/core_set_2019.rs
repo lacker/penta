@@ -130,10 +130,7 @@ pub(in crate::card::sets) static DARK_DWELLER_ORACLE: CardRecord = CardRecord::n
             "{1}, Sacrifice a creature: Exile the top card of your library. You may play that card this turn.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Creature) },
             ],
             EffectDef::ExileTopOfLibraryToPlay {
                 player: EffectRecipientDef::Controller,

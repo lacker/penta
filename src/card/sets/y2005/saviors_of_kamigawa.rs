@@ -107,10 +107,7 @@ pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::n
                 "{2}{R}, Sacrifice a Samurai: Samurai creatures you control gain double strike until end of turn.",
                 &[
                     CostDef::Mana(mana_cost!("{2}{R}")),
-                    CostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::Subtype("Samurai"),
-                        controller: PlayerRelation::You,
-                    },
+                    CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::Subtype("Samurai") },
                 ],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::matching_objects(

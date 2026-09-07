@@ -481,32 +481,6 @@ fn validate_player_reference(
     }
 }
 
-fn validate_payment_references(
-    payment: EffectPaymentDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-) -> Result<(), GrantedAbilityValidationError> {
-    validate_single_payment_payer(payment.payer)?;
-    validate_player_set(payment.payer, target_count, scope)?;
-    if let CostDef::GenericMana(amount) = payment.cost {
-        validate_value_target_references(amount, target_count, scope)?;
-    }
-    Ok(())
-}
-
-fn validate_single_payment_payer(
-    players: PlayerSetDef,
-) -> Result<(), GrantedAbilityValidationError> {
-    if matches!(
-        players,
-        PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
-    ) {
-        Err(GrantedAbilityValidationError::InvalidPaymentPayer { players })
-    } else {
-        Ok(())
-    }
-}
-
 fn validate_damage_matcher_references(
     matcher: DamageEventMatcherDef,
     target_count: usize,

@@ -281,12 +281,18 @@ impl Game {
             .filter(|permanent| ids.contains(&permanent.card.id))
             .map(|permanent| (self.trigger_event_object(permanent), permanent.controller))
             .collect::<Vec<_>>();
-        for (object, player) in sacrificed {
-            self.capture_battlefield_triggers(&CommittedTriggerEvent::Sacrificed {
-                object,
-                player,
-            });
-        }
+        let events = sacrificed
+            .into_iter()
+            .map(
+                |(object, player)| CommittedTriggerEvent::MechanicPerformed {
+                    mechanics: vec![crate::card::abilities::SACRIFICE],
+                    object: Some(object),
+                    player,
+                },
+            )
+            .collect::<Vec<_>>();
+        let listeners = self.battlefield_trigger_listeners();
+        self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
     }
 
     /// The compulsory "when you do": a clause that sacrificed a permanent

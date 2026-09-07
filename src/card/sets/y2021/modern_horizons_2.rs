@@ -18,6 +18,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
     abilities, tokens,
 };
+use crate::card::{MoveObjectsDef, RandomizeObjectOrderDef};
 use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
 // MH2 25 — Prismatic Ending
@@ -513,12 +514,12 @@ pub(in crate::card::sets) static VERMIN_GORGER: CardRecord = CardRecord::new(
             "{T}, Sacrifice another creature: Each opponent loses 2 life and you gain 2 life.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::Sequence(&[
@@ -904,9 +905,22 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                     1,
                 )],
-                EffectDef::BuryGraveyard {
-                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
+                EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                    input: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    )),
+                    randomized: ParentBinding,
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
+                        from: Some(ZoneKind::Graveyard),
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Bottom,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                }),
             ),
             AbilityDef::alternative_cast(
                 mana_cost!("{0}"),
@@ -1056,9 +1070,9 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                 EffectDef::PayOr(PayOrDef::optional(
                     EffectPaymentDef {
                         payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                        cost: CostDef::Sacrifice { object: ObjectPredicateDef::HasType(
                                 CardType::Creature,
-                            )),
+                            ), quantity: crate::card::CostQuantityDef::Fixed(1) },
                     },
                     &EffectDef::None,
                 )),

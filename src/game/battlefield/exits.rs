@@ -892,6 +892,9 @@ impl Game {
                 targets,
                 remaining_sacrifices,
             } => self.continue_spell_cast(*object, targets, remaining_sacrifices),
+            BattlefieldExitCompletion::CompleteResolvingCost(window) => {
+                self.continue_payment_commit(*window);
+            }
             BattlefieldExitCompletion::CompleteActivatedAbility {
                 source,
                 source_card,

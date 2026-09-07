@@ -35,6 +35,15 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
 ) -> Vec<GameObjectId> {
     let mut ids = Vec::new();
     match continuation {
+        DecisionContinuation::CostPayment(window) => {
+            extend_stack_continuation_ids(&mut ids, &window.object, &window.context);
+            ids.extend(window.chosen.iter().copied());
+            for answer in &window.answers {
+                if let crate::game::cost_payment::PaymentAnswer::Objects(objects) = answer {
+                    ids.extend(objects);
+                }
+            }
+        }
         DecisionContinuation::LegendRule { candidates, .. } => {
             ids.extend(candidates.iter().copied());
         }
@@ -215,10 +224,14 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         DecisionContinuation::BattlefieldExitOrder { batch, .. } => {
             extend_battlefield_exit_ids(&mut ids, batch, &[]);
         }
-        DecisionContinuation::ActivationCostSacrifice {
-            pending, chosen, ..
+        DecisionContinuation::ActivationObjectCost { action, .. } => {
+            if let crate::Action::ActivateAbility { source, targets, cost_objects, .. } = action.as_ref() {
+                ids.push(*source);
+                ids.extend(cost_objects.iter().copied());
+                ids.extend(targets.iter().flat_map(crate::TargetSelection::targets).filter_map(|target| target_object_id(*target)));
+            }
         }
-        | DecisionContinuation::ActivationCostTap {
+        DecisionContinuation::ActivationCostTap {
             pending, chosen, ..
         }
         | DecisionContinuation::ActivationCostTapPermanents {
@@ -275,8 +288,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             remaining,
             ..
         } => extend_trigger_placement_ids(&mut ids, trigger, pending, remaining),
-        DecisionContinuation::SacrificeToTotalPower { object, context, .. }
-        | DecisionContinuation::BasicLandTypeSubstitution { object, context, .. } => {
+        DecisionContinuation::BasicLandTypeSubstitution { object, context, .. } => {
             extend_stack_continuation_ids(&mut ids, object, context);
         }
         DecisionContinuation::BattlefieldEntryExile {
@@ -691,14 +703,11 @@ pub(super) fn resolved_effect_payment_snapshot(
     payment: ResolvedEffectPayment,
 ) -> ResolvedEffectPaymentSnapshot {
     match payment {
+        ResolvedEffectPayment::ObjectCost { source, .. } => {
+            ResolvedEffectPaymentSnapshot::ObjectCost { source: source.0 }
+        }
         ResolvedEffectPayment::Mana(cost) => {
             ResolvedEffectPaymentSnapshot::Mana(mana_cost_snapshot(cost))
-        }
-        ResolvedEffectPayment::CumulativeMana { source, cost } => {
-            ResolvedEffectPaymentSnapshot::CumulativeMana {
-                source: source.0,
-                cost: mana_cost_snapshot(cost),
-            }
         }
         ResolvedEffectPayment::SnowMana { source, amount } => {
             ResolvedEffectPaymentSnapshot::SnowMana {
@@ -709,9 +718,6 @@ pub(super) fn resolved_effect_payment_snapshot(
         ResolvedEffectPayment::Life(amount) => ResolvedEffectPaymentSnapshot::Life(amount),
         ResolvedEffectPayment::DrawCards(amount) => {
             ResolvedEffectPaymentSnapshot::DrawCards(amount)
-        }
-        ResolvedEffectPayment::DiscardCards(amount) => {
-            ResolvedEffectPaymentSnapshot::DiscardCards(amount)
         }
         ResolvedEffectPayment::PutCounters {
             object,
@@ -724,9 +730,6 @@ pub(super) fn resolved_effect_payment_snapshot(
             amount,
             times,
         },
-        ResolvedEffectPayment::SacrificePermanents { amount, .. } => {
-            ResolvedEffectPaymentSnapshot::SacrificePermanents(amount)
-        }
         ResolvedEffectPayment::ExileTopCards(amount) => {
             ResolvedEffectPaymentSnapshot::ExileTopCards(amount)
         }
@@ -742,19 +745,11 @@ pub(super) fn resolved_effect_payment_snapshot(
         ResolvedEffectPayment::OpponentCreatesTokens { amount, .. } => {
             ResolvedEffectPaymentSnapshot::OpponentCreatesTokens(amount)
         }
-        ResolvedEffectPayment::GainControlPermanents { source, amount, .. } => {
-            ResolvedEffectPaymentSnapshot::GainControlPermanents {
-                source: source.0,
-                amount,
-            }
-        }
         ResolvedEffectPayment::FlipCoins(amount) => {
             ResolvedEffectPaymentSnapshot::FlipCoins(amount)
         }
         ResolvedEffectPayment::Energy(amount) => ResolvedEffectPaymentSnapshot::Energy(amount),
         ResolvedEffectPayment::Mill(amount) => ResolvedEffectPaymentSnapshot::Mill(amount),
-        ResolvedEffectPayment::Discard(amount) => ResolvedEffectPaymentSnapshot::Discard(amount),
-        ResolvedEffectPayment::DiscardMatching(_) => ResolvedEffectPaymentSnapshot::DiscardMatching,
         ResolvedEffectPayment::ChosenEnergy => ResolvedEffectPaymentSnapshot::ChosenEnergy,
         ResolvedEffectPayment::ChosenGenericMana => {
             ResolvedEffectPaymentSnapshot::ChosenGenericMana
@@ -767,12 +762,6 @@ pub(super) fn resolved_effect_payment_snapshot(
         }
         ResolvedEffectPayment::MovePermanentMatching { .. } => {
             ResolvedEffectPaymentSnapshot::ReturnPermanentMatching
-        }
-        ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(total) => {
-            ResolvedEffectPaymentSnapshot::SacrificeCreaturesWithTotalPower(total)
-        }
-        ResolvedEffectPayment::SacrificePermanentMatching(_) => {
-            ResolvedEffectPaymentSnapshot::SacrificePermanentMatching
         }
     }
 }

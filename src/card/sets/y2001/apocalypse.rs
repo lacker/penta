@@ -870,9 +870,9 @@ pub(in crate::card::sets) static QUAGMIRE_DRUID: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{G}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -1992,9 +1992,9 @@ pub(in crate::card::sets) static GOBLIN_TRENCHES: CardRecord = CardRecord::new(
         "{2}, Sacrifice a land: Create two 1/1 red and white Goblin Soldier creature tokens.",
         &[
             CostDef::Mana(mana_cost!("{2}")),
-            CostDef::SacrificePermanent {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Land),
-                controller: PlayerRelation::You,
             },
         ],
         EffectDef::create_creature_token(
@@ -2157,9 +2157,9 @@ pub(in crate::card::sets) static OVERGROWN_ESTATE: CardRecord = CardRecord::new(
     // needing lands can use, which is exactly the deck it was printed for.
     CardRules::new_enchantment(mana_cost!("{W}{B}{G}")).with_ability(AbilityDef::activated(
         "Sacrifice a land: You gain 3 life.",
-        &[CostDef::SacrificePermanent {
+        &[CostDef::Sacrifice {
+            quantity: crate::card::CostQuantityDef::Fixed(1),
             object: ObjectPredicateDef::HasType(CardType::Land),
-            controller: PlayerRelation::You,
         }],
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,

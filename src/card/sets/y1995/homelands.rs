@@ -547,12 +547,9 @@ pub(in crate::card::sets) static CORAL_REEF: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "Sacrifice an Island: Put two polyp counters on this enchantment.",
-            &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::HasAnyBasicLandType(&[
+            &[CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasAnyBasicLandType(&[
                     crate::card::BasicLandType::Island,
-                ]),
-                controller: PlayerRelation::You,
-            }],
+                ]) }],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("polyp"),
@@ -723,10 +720,7 @@ pub(in crate::card::sets) static MARJHAN: CardRecord = CardRecord::new(
             "{U}{U}, Sacrifice a creature: Untap this creature. Activate only during your upkeep.",
             &[
                 CostDef::Mana(mana_cost!("{U}{U}")),
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Creature) },
             ],
             EffectDef::Untap {
                 object: EffectRecipientDef::Source,
@@ -1024,9 +1018,9 @@ pub(in crate::card::sets) static BLACK_CARRIAGE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "Sacrifice a creature: Untap this creature. Activate only during your upkeep.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Untap {
                 object: EffectRecipientDef::Source,

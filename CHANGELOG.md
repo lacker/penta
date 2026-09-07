@@ -35,6 +35,61 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Cycling uses named abilities and semantic discard actions.** Cycling and
+  typecycling declare a numeric ability identity and a named discard cost,
+  replacing the dedicated engine marker and trigger event. A discard can carry
+  multiple labels without duplicating "cycle or discard" triggers. Self-trigger
+  discovery follows replacement destinations; copied abilities do not repeat
+  their costs. Fluctuator filters the specific ability through the shared
+  ability-query grammar, and Lightning Rift observes cycling with ordinary
+  targeting and optional-payment effects. Existing checkpoint 14, protocol 30,
+  and replay 2 formats are unchanged.
+
+- **Cumulative upkeep is an ordinary, labeled effect program.** The shared
+  constructor expands into an upkeep trigger, battlefield guard, age counter,
+  and named repeated payment with an unpaid sacrifice branch. Resolving costs
+  share selection, whole-plan validation, and commitment for supported bundles
+  and repetitions, preserving individual action events without visible rewind.
+  Herald of Leshrac's land selection and control change live in Coldsnap as an
+  ordinary action program; its actual leaves-the-battlefield trigger now
+  returns all relevant lands when that trigger resolves, not automatically
+  when Herald leaves. Generic mechanic payment results and named-mana scopes
+  replace upkeep-specific engine variants. The checkpoint-14 migration
+  includes ordered payment answers and resumable committed-action suffixes;
+  protocol 30 and replay 2 are unchanged.
+
+- **Object costs share semantic definitions and payment selection rules.**
+  Sacrifice, discard, and exile costs no longer have separate variants for
+  activation versus resolving payment, matching one object versus many, or
+  sacrificing to a total-power threshold. Resolving choices and multi-object
+  activation selections are collected before cost mutation; aggregate payments
+  retain signed power and allow larger selections. Cumulative-upkeep object
+  payments use the same window without undoing their age counter on decline.
+  Checkpoint format and capability advance to `reconstruction.checkpoint.v14`
+  because the old payment continuations were removed; bot-wire protocol and
+  replay format versions are unchanged. Local procedures no longer require
+  boilerplate comment markers; inline-by-default readability still applies.
+
+- **Named mechanics have numeric identities and a shared action-event path.**
+  Corpseberry Cultivator demonstrates Bloomburrow-owned forage as both an
+  optional resolving action and a spell cost. Sacrifice uses the same event
+  model with a globally shared identity and preserved object snapshots and
+  batch boundaries. Resolving forage collects and validates selections before
+  commitment and can be cancelled without mutation. Its new checkpoint
+  continuation is additive and guarded by the exact simulation fingerprint;
+  existing checkpoint shapes, bot-wire and replay versions are unchanged.
+
+- **Effect and cost compositions live with their consumers.** Forage is now a
+  Bloomburrow-owned choice of ordinary exile and sacrifice costs. Endurance's
+  graveyard instruction uses the shared collection randomization and movement
+  operations instead of a dedicated engine procedure. Battle cry lives in
+  Mirrodin Besieged and is imported by Modern Horizons; battalion and mobilize
+  live in Gatecrash and Tarkir: Dragonstorm. The ownership guide preserves
+  inline-by-default readability while documenting a narrow local-program
+  exception and the requirements for future runtime exceptions and payment
+  windows. No runtime callback interface or new payment window is introduced;
+  bot-wire, replay, and checkpoint format versions are unchanged.
+
 - **Fear is grantable, as the restriction rather than the ability.**
   `abilities::FEAR_RESTRICTION` is the applied effect `abilities::fear()`
   hands to its own source, exposed so a card that grants fear can apply the

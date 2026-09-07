@@ -4,7 +4,7 @@ use super::{
     AbilityOrigin, AppliedEffectDef, CardDefinitionId, CharacteristicOperationDef, CostDef,
     DeclarativeAbilityDef, DeclarativeSpellProfile, EffectDef, EffectRecipientDef, GameObjectId,
     HandcraftedPolicy, ObjectCharacteristics, ObjectPredicateDef, PlayerObservation,
-    PlayerRelation, PowerToughnessOperationDef, SetOperationDef, Step, Target, ValueDef,
+    PowerToughnessOperationDef, SetOperationDef, Step, Target, ValueDef,
 };
 
 impl HandcraftedPolicy {
@@ -189,9 +189,9 @@ impl HandcraftedPolicy {
             .as_slice()
             .iter()
             .find_map(|cost| match cost {
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object,
-                    controller: PlayerRelation::You,
                 } => Some(*object),
                 _ => None,
             })?;

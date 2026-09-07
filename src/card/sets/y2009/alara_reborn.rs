@@ -98,14 +98,14 @@ pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
          with flying. You gain 1 life.",
         &[
             CostDef::Mana(mana_cost!("{1}")),
-            CostDef::SacrificePermanent {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 // "A nontoken artifact": the Thopters it makes are artifacts too, so
                 // without that word the Foundry would eat its own output forever.
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                 ]),
-                controller: PlayerRelation::You,
             },
         ],
         EffectDef::Sequence(&[

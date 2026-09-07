@@ -110,11 +110,7 @@ fn cumulative_upkeep_draw_cost_repeats_each_draw() {
     resolve_upkeep_ability(&mut game);
     assert!(matches!(
         game.pending_decisions[0].continuation,
-        DecisionContinuation::PayOr {
-            payment: ResolvedEffectPayment::DrawCards(1),
-            cumulative_upkeep_age: Some(1),
-            ..
-        }
+        DecisionContinuation::CostPayment(_)
     ));
     choose_decision_by_label(&mut game, PlayerId::One, "Draw 1 card(s)");
     super::delayed_triggers::drain_pending(&mut game);
@@ -122,11 +118,7 @@ fn cumulative_upkeep_draw_cost_repeats_each_draw() {
     resolve_upkeep_ability(&mut game);
     assert!(matches!(
         game.pending_decisions[0].continuation,
-        DecisionContinuation::PayOr {
-            payment: ResolvedEffectPayment::DrawCards(2),
-            cumulative_upkeep_age: Some(2),
-            ..
-        }
+        DecisionContinuation::CostPayment(_)
     ));
     choose_decision_by_label(&mut game, PlayerId::One, "Draw 2 card(s)");
     super::delayed_triggers::drain_pending(&mut game);
@@ -287,7 +279,9 @@ fn adarkar_unicorn_offers_both_outputs_and_its_mana_only_pays_cumulative_upkeep(
         !game.mana_can_pay_for(*mana, &ManaPaymentPurpose::Other)
             && game.mana_can_pay_for(
                 *mana,
-                &ManaPaymentPurpose::CumulativeUpkeep {
+                &ManaPaymentPurpose::Resolving {
+                    mechanics: vec![abilities::CUMULATIVE_UPKEEP],
+                    reserved_life_payment: 0,
                     source: unicorn_id,
                     snow: false,
                 },
@@ -311,14 +305,23 @@ fn cumulative_upkeep_discard_and_sacrifice_costs_are_atomic_at_age_two() {
 
     resolve_upkeep_ability(&mut discard_game);
     let decision = discard_game.observe(PlayerId::One).decision.unwrap();
-    assert!(
-        decision
-            .options
-            .iter()
-            .skip(1)
-            .all(|option| option.members.len() == 2)
-    );
-    choose_decision_by_label(&mut discard_game, PlayerId::One, "Discard Island, Forest");
+    assert_eq!((decision.minimum, decision.maximum), (2, 2));
+    assert_eq!(discard_game.players[PlayerId::One.index()].hand.len(), 3);
+    let options = decision
+        .options
+        .iter()
+        .filter(|option| matches!(option.label.as_str(), "Island" | "Forest"))
+        .map(|option| option.id)
+        .collect();
+    discard_game
+        .apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options,
+            },
+        )
+        .unwrap();
     assert_eq!(discard_game.players[PlayerId::One.index()].hand.len(), 1);
     assert!(
         discard_game
@@ -341,18 +344,23 @@ fn cumulative_upkeep_discard_and_sacrifice_costs_are_atomic_at_age_two() {
 
     resolve_upkeep_ability(&mut sacrifice_game);
     let decision = sacrifice_game.observe(PlayerId::One).decision.unwrap();
-    assert!(
-        decision
-            .options
-            .iter()
-            .skip(1)
-            .all(|option| option.members.len() == 2)
-    );
-    choose_decision_by_label(
-        &mut sacrifice_game,
-        PlayerId::One,
-        "Sacrifice Island, Island",
-    );
+    assert_eq!((decision.minimum, decision.maximum), (2, 2));
+    assert_eq!(sacrifice_game.battlefield.len(), 4);
+    let options = decision
+        .options
+        .iter()
+        .take(2)
+        .map(|option| option.id)
+        .collect();
+    sacrifice_game
+        .apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options,
+            },
+        )
+        .unwrap();
     assert_eq!(
         sacrifice_game
             .battlefield
@@ -370,17 +378,20 @@ fn cumulative_upkeep_discard_and_sacrifice_costs_are_atomic_at_age_two() {
 }
 
 #[test]
-fn herald_upkeep_control_lasts_exactly_while_herald_remains() {
+fn herald_returns_lands_only_when_its_leave_trigger_resolves() {
     let mut game = ready_game();
     game.step = Step::Upkeep;
     let herald = creature(12_090, cards::HERALD_OF_LESHRAC, PlayerId::One);
     let herald_id = herald.card.id;
     let land = creature(12_091, cards::ISLAND, PlayerId::Two);
     let land_id = land.card.id;
-    game.battlefield.extend([herald, land]);
+    let mut other_land = creature(12_092, cards::FOREST, PlayerId::Two);
+    let other_land_id = other_land.card.id;
+    other_land.controller = PlayerId::One;
+    game.battlefield.extend([herald, land, other_land]);
 
     resolve_upkeep_ability(&mut game);
-    choose_decision_by_label(&mut game, PlayerId::One, "Gain control of Island");
+    choose_decision_by_label(&mut game, PlayerId::One, "Island");
     assert_eq!(
         game.battlefield
             .iter()
@@ -392,6 +403,25 @@ fn herald_upkeep_control_lasts_exactly_while_herald_remains() {
 
     game.sacrifice_permanents(&[herald_id]);
     game.check_state_based_actions();
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == land_id)
+            .unwrap()
+            .controller,
+        PlayerId::One
+    );
+    game.finish_rules_procedure();
+    super::delayed_triggers::drain_pending(&mut game);
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == other_land_id)
+            .unwrap()
+            .controller,
+        PlayerId::Two,
+        "the printed trigger also returns lands acquired elsewhere"
+    );
     assert_eq!(
         game.battlefield
             .iter()
@@ -468,7 +498,7 @@ fn cumulative_upkeep_can_add_mana_or_benefit_an_opponent() {
 
 #[test]
 fn cumulative_upkeep_snow_mana_requires_a_snow_source() {
-    static ABILITIES: [AbilityDef; 1] = [abilities::cumulative_upkeep(CostDef::snow_mana(1))];
+    static ABILITIES: [AbilityDef; 1] = [abilities::cumulative_upkeep!(CostDef::snow_mana(1))];
     let definition_id = CardDefinitionId::new(120_112);
     let mut definition = CardDefinition::new(
         definition_id,

@@ -41,7 +41,11 @@ impl Game {
                 let mut object_cost = None;
                 for cost in definition.costs {
                     match cost {
-                        CostDef::ExileCardFromHand(predicate) if object_cost.is_none() => {
+                        CostDef::Exile {
+                            object: predicate,
+                            from: crate::card::ZoneKind::Hand,
+                            quantity: crate::card::CostQuantityDef::Fixed(1),
+                        } if object_cost.is_none() => {
                             object_cost = Some(*predicate);
                         }
                         _ => return,

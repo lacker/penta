@@ -26,9 +26,17 @@ pub struct AbilityDef {
     pub text: &'static str,
     pub definition: DeclarativeAbilityDef,
     pub effect: AbilityEffectDef,
+    /// Rules identities of this clause, independent of its implementation.
+    pub mechanics: &'static [crate::MechanicId],
 }
 
 impl AbilityDef {
+    #[must_use]
+    pub const fn with_mechanics(mut self, mechanics: &'static [crate::MechanicId]) -> Self {
+        self.mechanics = mechanics;
+        self
+    }
+
     /// Replaces a reusable constructor's default printed text without changing
     /// the clause's category, targets, costs, or effect.
     ///
@@ -326,22 +334,6 @@ impl AbilityDef {
         )
     }
 
-    /// The same as above, marked as cycling: the discard it pays with is
-    /// what raises the cycling event, and every other ability paying the
-    /// same way is not cycling.
-    #[must_use]
-    pub(crate) const fn cycling_ability(
-        text: &'static str,
-        costs: AbilityCostList,
-        effect: EffectDef,
-    ) -> Self {
-        Self::defined(
-            text,
-            DeclarativeAbilityDef::Activated(ActivatedAbilityDef::with_costs(costs).cycling()),
-            effect,
-        )
-    }
-
     /// "Choose one --" on an activated ability, which chooses its modes as
     /// it is activated (CR 601.2b) rather than as it resolves. The ability
     /// does nothing of its own beyond the modes it prints.
@@ -486,6 +478,7 @@ impl AbilityDef {
             text,
             definition: DeclarativeAbilityDef::Static(StaticAbilityDef::new()),
             effect: AbilityEffectDef::declarative(EffectDef::None),
+            mechanics: &[],
         }
     }
 
@@ -510,6 +503,7 @@ impl AbilityDef {
             text,
             definition: DeclarativeAbilityDef::DeckConstruction(permission),
             effect: AbilityEffectDef::declarative(EffectDef::None),
+            mechanics: &[],
         }
     }
 
@@ -539,6 +533,7 @@ impl AbilityDef {
             text,
             definition: DeclarativeAbilityDef::Replacement(definition),
             effect: AbilityEffectDef::replacement_program(effect),
+            mechanics: &[],
         }
     }
 
@@ -605,6 +600,7 @@ impl AbilityDef {
             text,
             definition,
             effect: AbilityEffectDef::declarative(effect),
+            mechanics: &[],
         }
     }
 

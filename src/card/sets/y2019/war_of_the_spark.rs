@@ -143,11 +143,7 @@ pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new_wi
                 "{T}, Sacrifice ten nonland permanents: Each opponent loses 10 life.",
                 &[
                     CostDef::TapSource,
-                    CostDef::SacrificePermanents {
-                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                        controller: PlayerRelation::You,
-                        count: 10,
-                    },
+                    CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(10), object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)) },
                 ],
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Opponent,

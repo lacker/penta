@@ -419,7 +419,7 @@ fn validate_trigger_event_references(
         TriggerEventDef::Exerted(object)
         | TriggerEventDef::OptionalEffectTaken(object)
         | TriggerEventDef::SacrificePerformed(object)
-        | TriggerEventDef::Sacrificed { object, .. } => {
+        | TriggerEventDef::MechanicPerformed { object: Some(object), .. } => {
             validate_trigger_object_predicate(object, event, target_count, scope)
         }
         TriggerEventDef::Attacks(matcher) => {
@@ -485,19 +485,17 @@ fn validate_trigger_event_references(
         TriggerEventDef::LifeGained(PlayerRelation::ChosenPlayer)
         | TriggerEventDef::CardsExiled { zones: &[], .. } => Err(unsupported_trigger_event(event)),
         TriggerEventDef::CommittedCrime(_)
-        | TriggerEventDef::CumulativeUpkeepPaid { .. }
-        | TriggerEventDef::CumulativeUpkeepNotPaid
+        | TriggerEventDef::MechanicPerformed { object: None, .. }
+        | TriggerEventDef::MechanicPayment { .. }
         | TriggerEventDef::CoinFlipWon(_)
         | TriggerEventDef::CoinFlipLost(_)
         | TriggerEventDef::BecomesLevel(_)
-        | TriggerEventDef::Cycled
         | TriggerEventDef::DoorUnlocked
         | TriggerEventDef::StepBegins { .. }
         | TriggerEventDef::LandPlayed { .. }
         | TriggerEventDef::LifeGained(_)
         | TriggerEventDef::BecomesMonarch(_)
         | TriggerEventDef::DrewCard(_)
-        | TriggerEventDef::Discarded(_)
         | TriggerEventDef::DiscardedCards(_)
         | TriggerEventDef::CardsExiled { .. }
         | TriggerEventDef::StateCondition => Ok(()),

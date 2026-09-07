@@ -1329,9 +1329,9 @@ pub(in crate::card::sets) static CORRUPTED_HARVESTER: CardRecord = CardRecord::n
             "{B}, Sacrifice a creature: Regenerate this creature.",
             &[
                 CostDef::Mana(mana_cost!("{B}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::Regenerate {
@@ -1355,9 +1355,9 @@ pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
     )
     .with_ability(abilities::gain_ability_until_end_of_turn(
         "Sacrifice a creature: This creature gains flying until end of turn.",
-        &[CostDef::SacrificePermanent {
+        &[CostDef::Sacrifice {
+            quantity: crate::card::CostQuantityDef::Fixed(1),
             object: ObjectPredicateDef::HasType(CardType::Creature),
-            controller: PlayerRelation::You,
         }],
         &abilities::flying(),
     )),
@@ -1871,9 +1871,9 @@ pub(in crate::card::sets) static BARRAGE_OGRE: CardRecord = CardRecord::new(
             "{T}, Sacrifice an artifact: This creature deals 2 damage to any target.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one(
@@ -1992,9 +1992,9 @@ pub(in crate::card::sets) static FERROVORE: CardRecord = CardRecord::new(
             "{R}, Sacrifice an artifact: This creature gets +3/+0 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{R}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::Apply {
@@ -2028,10 +2028,11 @@ pub(in crate::card::sets) static FURNACE_CELEBRATION: CardRecord = CardRecord::n
     CardRules::new_enchantment(mana_cost!("{1}{R}{R}")).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you sacrifice another permanent, you may pay {2}. If you do, this enchantment deals 2 damage to any target.",
-            TriggerEventDef::Sacrificed {
-                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                player: PlayerRelation::You,
-            },
+            TriggerEventDef::mechanic_performed_on(
+                crate::card::abilities::SACRIFICE,
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                PlayerRelation::You,
+            ),
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -2319,9 +2320,9 @@ pub(in crate::card::sets) static OXIDDA_DAREDEVIL: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 2, 1).with_ability(
         abilities::gain_ability_until_end_of_turn(
             "Sacrifice an artifact: This creature gains haste until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
-                controller: PlayerRelation::You,
             }],
             &abilities::haste(),
         ),
@@ -3344,9 +3345,9 @@ pub(in crate::card::sets) static CULLING_DAIS: CardRecord = CardRecord::new(
             "{T}, Sacrifice a creature: Put a charge counter on this artifact.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::AddCounters {
@@ -3935,11 +3936,7 @@ pub(in crate::card::sets) static KULDOTHA_FORGEMASTER: CardRecord = CardRecord::
             "{T}, Sacrifice three artifacts: Search your library for an artifact card, put it onto the battlefield, then shuffle.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanents {
-                    object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
-                    count: 3,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(3), object: ObjectPredicateDef::HasType(CardType::Artifact) },
             ],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
@@ -4941,9 +4938,9 @@ pub(in crate::card::sets) static THRONE_OF_GETH: CardRecord = CardRecord::new(
         "{T}, Sacrifice an artifact: Proliferate.",
         &[
             CostDef::TapSource,
-            CostDef::SacrificePermanent {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
-                controller: PlayerRelation::You,
             },
         ],
         EffectDef::Proliferate,

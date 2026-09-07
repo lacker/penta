@@ -33,7 +33,11 @@ pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardReco
         ),
         AbilityDef::triggered_with_targets(
             "When you cycle this card, untap target permanent.",
-            TriggerEventDef::Cycled,
+            TriggerEventDef::mechanic_performed_on(
+                abilities::CYCLING,
+                ObjectPredicateDef::Source,
+                PlayerRelation::You,
+            ),
             // No "another" here: the Vizier is in the graveyard by now, so
             // any permanent is a legal choice.
             &[AbilityTargetDef::exactly_one_permanent(
@@ -42,7 +46,8 @@ pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardReco
             EffectDef::Untap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
-        ),
+        )
+        .with_source_zones(abilities::CYCLED_CARD_ZONES),
     ]),
 );
 

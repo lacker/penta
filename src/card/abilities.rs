@@ -1,7 +1,8 @@
 //! Reusable constructors for common ability clauses.
 //!
-//! The functions here return identity-free [`AbilityDef`] values. A card part,
-//! intrinsic rule, or grant site assigns identity when it attaches the clause.
+//! The functions here return [`AbilityDef`] values without instance identity.
+//! A card part, intrinsic rule, or grant site assigns that identity when it
+//! attaches the clause; named mechanics may also carry shared rules labels.
 
 use super::model::{
     AbilityCostList, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
@@ -12,17 +13,17 @@ use super::model::{
     ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseObjectOrderDef,
     CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef, CopyExceptionsDef,
     CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef, CostModificationDef,
-    CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
-    InstalledTriggerLifetimeDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost,
-    MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCountConditionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef,
-    ObjectValueDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef,
-    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef,
-    ScaledValueDef, SpellCostConditionDef, SpellCostModificationDef, SpellResolutionDestinationDef,
+    CounterKind, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
+    KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectCollectionSourceDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef,
+    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef, ScaledValueDef,
+    SpellCostConditionDef, SpellCostModificationDef, SpellResolutionDestinationDef,
     SuspendAbilityDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
@@ -743,57 +744,7 @@ pub const fn enters_tapped(printed_subject: CardType) -> AbilityDef {
     AbilityDef::as_enters(text, ENTER_TAPPED[0])
 }
 
-/// "Cycling {cost} ({cost}, Discard this card: Draw a card.)"
-///
-/// Cycling is an activated ability that exists only while the card is in
-/// hand, which is what keeps it off the battlefield version of the same
-/// permanent. Nothing else about it is special: the discard is a cost, so it
-/// happens on activation rather than on resolution, and the draw is what goes
-/// on the stack. The caller supplies the printed text because the reminder
-/// repeats the cost.
-#[must_use]
-pub const fn cycling(text: &'static str, cost: ManaCost) -> AbilityDef {
-    AbilityDef::cycling_ability(
-        text,
-        AbilityCostList::two(CostDef::Mana(cost), CostDef::DiscardSource),
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    )
-    .with_source_zones(&[ZoneKind::Hand])
-}
-
-/// "<Type>cycling {cost}" -- the same ability as [`cycling`], except that
-/// what it buys is a search rather than a draw. Failing to find is allowed,
-/// so the minimum is zero: the discard has already been paid either way.
-#[must_use]
-pub const fn typecycling(
-    text: &'static str,
-    cost: ManaCost,
-    object: ObjectPredicateDef,
-) -> AbilityDef {
-    AbilityDef::cycling_ability(
-        text,
-        AbilityCostList::two(CostDef::Mana(cost), CostDef::DiscardSource),
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object,
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: true,
-            destination: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-            shuffle: true,
-            enters_tapped: false,
-            attachment: None,
-            binding: None,
-            then: None,
-        },
-    )
-    .with_source_zones(&[ZoneKind::Hand])
-}
+include!("abilities/cycling.rs");
 
 /// "{cost}: Regenerate this creature." -- by far the most common printed
 /// regeneration clause, and the one every self-regenerating creature shares.

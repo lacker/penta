@@ -2532,10 +2532,7 @@ pub(in crate::card::sets) static BIRTHING_POD: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}{G/P}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Creature) },
             ],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
@@ -3965,9 +3962,9 @@ pub(in crate::card::sets) static PHYREXIA_S_CORE: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::GainLife {

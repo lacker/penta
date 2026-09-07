@@ -2032,9 +2032,9 @@ pub(in crate::card::sets) static FALLEN_ANGEL: CardRecord = CardRecord::new_with
         abilities::flying(),
         AbilityDef::activated(
             "Sacrifice a creature: This creature gets +2/+1 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -2156,9 +2156,9 @@ pub(in crate::card::sets) static HELLS_CARETAKER: CardRecord = CardRecord::new_w
              battlefield. Activate only during your upkeep.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one(
@@ -2198,9 +2198,9 @@ pub(in crate::card::sets) static HORROR_OF_HORRORS: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "Sacrifice a Swamp: Regenerate target black creature.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Swamp"),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[

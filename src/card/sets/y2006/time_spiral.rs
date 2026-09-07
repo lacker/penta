@@ -336,14 +336,11 @@ pub(in crate::card::sets) static GREATER_GARGADON: CardRecord = CardRecord::new(
         abilities::suspend("Suspend 10—{R}", 10, &mana_cost!("{R}")),
         AbilityDef::activated(
             "Sacrifice an artifact, creature, or land: Remove a time counter from this card. Activate only if this card is suspended.",
-            &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::AnyOf(&[
+            &[CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::HasType(CardType::Land),
-                ]),
-                controller: PlayerRelation::You,
-            }],
+                ]) }],
             EffectDef::RemoveCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("time"),
@@ -519,7 +516,7 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
             AbilityDef::opening_hand_with(
                 "If this card is in your opening hand and you're not the starting player, you may begin the game with Gemstone Caverns on the battlefield with a luck counter on it. If you do, exile a card from your hand.",
                 PregameConditionDef::NotStartingPlayer,
-                &[CostDef::ExileCardFromHand(ObjectPredicateDef::Any)],
+                &[CostDef::Exile { object: ObjectPredicateDef::Any, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }],
                 EffectDef::WithBattlefieldArrival {
                     effect: &const {
                         EffectDef::MoveToZone {

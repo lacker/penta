@@ -500,12 +500,6 @@ pub struct ActivatedAbilityDef {
     /// channel ability is activated from hand, where its own card has no
     /// static abilities at all.
     pub cost_reduction: Option<AbilityCostReductionDef>,
-    /// Whether this ability is cycling (CR 702.29), typecycling included.
-    /// Cycling raises its own event as it is activated, and a clause
-    /// watching for one has to be able to tell it from every other ability
-    /// that pays by discarding its own card from hand -- channel prints
-    /// exactly that cost and is not cycling.
-    pub cycling: bool,
 }
 
 /// What an ability's own printed discount takes off its activation cost.
@@ -523,14 +517,6 @@ pub struct AbilityCostReductionDef {
 }
 
 impl ActivatedAbilityDef {
-    /// The same ability, marked as the cycling it is. Only the cycling
-    /// constructors call this: it is what the discard raises its event on.
-    #[must_use]
-    pub const fn cycling(mut self) -> Self {
-        self.cycling = true;
-        self
-    }
-
     #[must_use]
     pub const fn new(costs: &'static [CostDef]) -> Self {
         Self::with_costs(AbilityCostList::borrowed(costs))
@@ -551,7 +537,6 @@ impl ActivatedAbilityDef {
             condition: None,
             modes: None,
             cost_reduction: None,
-            cycling: false,
         }
     }
 

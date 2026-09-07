@@ -97,15 +97,6 @@ impl Game {
         self.pending_procedures.push_front(*resume);
     }
 
-    pub(super) fn queue_effect_discards(
-        &mut self,
-        players: Vec<PlayerId>,
-        amount: i32,
-        cause: ZoneMoveCause,
-    ) {
-        self.queue_effect_discards_then(players, amount, cause, None);
-    }
-
     /// The same, with something to do once the cards are gone. The follow-up
     /// reads how many of them matched, which is not knowable until the player
     /// has chosen.

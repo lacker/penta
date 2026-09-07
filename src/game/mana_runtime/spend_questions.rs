@@ -54,7 +54,7 @@ impl Game {
                     )
                     .map(|object| (object, false))
                 }),
-            ManaPaymentPurpose::CumulativeUpkeep { source, .. } => self
+            ManaPaymentPurpose::Resolving { source, .. } => self
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == *source)
@@ -118,13 +118,13 @@ impl Game {
                         !is_spell
                             && self.trigger_object_matches(*predicate, &object, object.id, false)
                     }),
-                ManaRestrictionDef::CumulativeUpkeep => {
-                    matches!(purpose, ManaPaymentPurpose::CumulativeUpkeep { .. })
+                ManaRestrictionDef::NamedPayment(mechanic) => {
+                    matches!(purpose, ManaPaymentPurpose::Resolving { mechanics, .. } if mechanics.contains(mechanic))
                 }
                 ManaRestrictionDef::Special(_) => false,
             })
             && match purpose {
-                ManaPaymentPurpose::CumulativeUpkeep { snow: true, .. } => mana
+                ManaPaymentPurpose::Resolving { snow: true, .. } => mana
                     .source
                     .and_then(|source| {
                         self.battlefield

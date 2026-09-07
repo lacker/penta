@@ -13,6 +13,7 @@ mod adversarial;
 mod broad_audit;
 mod effect_walkers;
 mod face_down_characteristics;
+mod named_mechanics;
 mod rare_reconstructions;
 mod rare_states;
 mod semantics_coverage;

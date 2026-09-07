@@ -737,6 +737,7 @@ impl Game {
             };
             let mut later_procedures = std::mem::take(&mut self.pending_procedures);
             match procedure {
+                PendingProcedure::CommitPayment(window) => self.continue_payment_commit(*window),
                 PendingProcedure::DrawCards { player, remaining } => {
                     self.draw_cards(player, remaining);
                 }

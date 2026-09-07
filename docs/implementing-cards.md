@@ -30,16 +30,25 @@ deck-list lookup alias. Define both modeled faces together with
 `CardRecord::new_dfc` for a transforming card or `CardRecord::new_mdfc` for a
 modal double-faced card; pass their named face rules directly to those
 constructors so they can derive the parts, topology, and play options.
-The header immediately starts the declaration block. Inline every card-local
+The header immediately starts the declaration block. Inline card-local
 cost, target, effect, ability, predicate, query, value, and collection directly
-in the `CardRecord` and its ordered `CardRules` clauses. A named card-local
-component is allowed only when the definition references it more than once or
-when it is genuinely recursive or self-referential. Shortening or visually
-decomposing a declaration is not a reason to extract a component. A shared
-power/toughness value qualifies because both characteristics reference it;
-power/toughness values are not otherwise a special exception. Keep every
+in the `CardRecord` and its ordered `CardRules` clauses by default. A named
+card-local component is appropriate when reused, recursive, or when a coherent
+local procedure materially improves understanding of genuinely complicated
+behavior. Line count, indentation, and naming every predicate are not reasons
+to extract components. Do not make a reader chase a chain of small helpers to
+understand one ability. A shared power/toughness value qualifies because both
+characteristics reference it; power/toughness values are not otherwise a special
+exception. Keep every
 allowed extracted component after the header and before the `CardRecord`,
-adjacent to the clause it supports and in printed-clause order.
+adjacent to the clause it supports and in printed-clause order. Judge a one-use
+local procedure by whether it keeps a coherent operation understandable, not
+by a mandatory comment marker. Explain non-obvious constraints with ordinary
+comments; do not repeat what the surrounding declaration already says. This
+is not a blanket exemption for one-use constants or trivial wrappers.
+Ordinary Rust functions, local variables, loops, and branches
+are acceptable authoring syntax; keep timing, costs, targets, and the ordered
+ability clauses apparent at the card.
 
 An incomplete identity uses `blocked` when it has no declaration or
 `unsupported` when it has a whole-card `CardRules::unsupported()` declaration.
@@ -51,9 +60,13 @@ from another printing.
 
 Helpers used by more than one card are set-level vocabulary rather than part of
 one declaration block. Keep them at the top of the set module before the first
-identity header, or promote generally reusable behavior to `card::abilities` as
-appropriate. Do not leave card-local helpers in the shared preamble or between
-other cards' blocks.
+identity header. Limited-scope named set mechanics can also live there before
+a second card is implemented; their rules-defined identity is the boundary.
+Import a mechanic from its originating set when a few later sets reuse it.
+Use `card::abilities` for broadly shared vocabulary and widely reused mechanic
+programs. See the [ownership hierarchy](design-doctrine.md#ownership-of-behavior).
+Do not leave card-local helpers in the shared preamble or between other cards'
+blocks.
 
 Existing definitions use `CardRecord::new_with_legacy_id`, with their historic
 numeric value written beside the record. Never allocate another sequential
@@ -95,7 +108,9 @@ implementation status is the whole-card choice `Complete` or `Unsupported`.
 
 Reuse constructors from `card::abilities` and declarative rules primitives
 where they fit. Keep rules text and execution tied to the same clause.
-Card-specific execution is not an extension boundary.
+Card-local composition and contained exceptions are valid ownership boundaries;
+the [effect-program guide](effect-programs.md) distinguishes current authoring
+support from the requirements for a future local runtime interface.
 
 Card declarations are oblivious to the
 [prepared engine](prepared-engine.md). Do not add preparation flags, prepared
@@ -108,37 +123,47 @@ unsupported structures continue through the reference implementation.
 
 Use the smallest boundary that truthfully implements the behavior:
 
-- A recurring mechanic or general Magic rules concept belongs in a reusable,
-  card-agnostic primitive that ability definitions can invoke.
-- Genuinely card-specific composition belongs directly in the relevant card's
-  declarative ability clause. When the required semantic shape is reusable,
-  add a shared primitive rather than a card-scoped resolver.
-- If neither the definition nor a reasonably scoped shared primitive can
-  express the complete card, make the whole card `CardRules::unsupported()`.
-  Do not add a direct card-identity branch in generic `Game` or state-machine
-  flow, and do not expose a working subset of the card.
+- A genuine primitive belongs in the core, even with one consumer. A recurring
+  composition belongs in shared vocabulary at the appropriate ownership level.
+- Card-specific composition belongs in the card's ordered clauses or a
+  justified adjacent procedure. Do not invent a general-looking engine variant
+  whose fields merely describe one exceptional card's entire program.
+- A bounded local exception is legitimate when the available execution
+  interface can integrate it correctly. Do not introduce scattered
+  card-identity branches in generic `Game` or state-machine flow.
+- If no available integration boundary can implement the complete behavior,
+  use `CardRules::unsupported()` and document the exact gap. Never expose a
+  working subset or bypass an execution guarantee to claim support.
 
 Resolution must not silently change an explicit ability category or let a
 supported activated or triggered non-mana ability bypass the shared stack.
 
 ## Coverage
 
-Executable clauses use declarative effects and carry no separate behavior
-identity. Unsupported cards may exist in catalogs and hidden zones, but the engine does not offer play options that
-would resolve as silent no-ops.
+Currently executable clauses use declarative effects, including when ordinary
+Rust constructs those effects. `MechanicId` labels identify observable rules
+concepts, not card-specific execution handlers; define them beside the owning
+mechanic and import the constants wherever they are referenced.
+There is not yet a local runtime-callback interface. A future local runtime
+interface must integrate validation, persistence, and coverage before it can
+make a card executable. Unsupported cards may exist in catalogs and hidden
+zones, but the engine does not offer play options that resolve as silent no-ops.
 
 When complete fidelity is too large for the current increment, leave the card
 unsupported and state the missing shared capability in its audit comment. A
-reusable primitive may land independently, but the card becomes executable
-only when its complete printed behavior is declarative.
+reusable capability may land independently, but the card becomes executable
+only when its complete printed behavior is supported by the runtime and its
+validation boundaries.
 
 ## Implementation workflow
 
 1. Confirm the printed clauses and the format or card interaction being added.
 2. Represent the clauses, categories, costs, targets, and effects in
    the card definition.
-3. Reuse an existing primitive or add a shared primitive according to the
-   preference ladder above; otherwise retain a whole-card unsupported declaration.
+3. Compose existing operations, add a genuine missing primitive, or use a
+   contained local procedure through a supported integration boundary. Follow
+   the ownership hierarchy and retain whole-card unsupported status when the
+   complete behavior cannot yet be integrated faithfully.
 4. Test new shared rule behavior once at the narrowest useful boundary. Add a
    card-level test only for text-sensitive composition, a legality boundary,
    or an interaction that could fail while the shared primitive still passes.

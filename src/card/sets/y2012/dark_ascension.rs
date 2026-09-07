@@ -1664,12 +1664,12 @@ pub(in crate::card::sets) static SKIRSDAG_FLAYER: CardRecord = CardRecord::new_w
             &[
                 CostDef::Mana(mana_cost!("{3}{B}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Subtype("Human"),
                     ]),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -2670,12 +2670,12 @@ pub(in crate::card::sets) static DERANGED_OUTCAST: CardRecord = CardRecord::new_
             "{1}{G}, Sacrifice a Human: Put two +1/+1 counters on target creature.",
             &[
                 CostDef::Mana(mana_cost!("{1}{G}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Subtype("Human"),
                     ]),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -3749,9 +3749,9 @@ pub(in crate::card::sets) static GRIM_BACKWOODS: CardRecord = CardRecord::new_wi
             &[
                 CostDef::Mana(mana_cost!("{2}{B}{G}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::DrawCards {

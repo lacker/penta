@@ -38,7 +38,10 @@ impl Game {
                     | CostDef::SacrificeSource
                     | CostDef::ExileSource
                     | CostDef::ReturnSourceToHand
-                    | CostDef::SacrificePermanents { .. }
+                    | CostDef::Sacrifice {
+                        quantity: crate::card::CostQuantityDef::Fixed(_),
+                        ..
+                    }
             )
         }) {
             return false;

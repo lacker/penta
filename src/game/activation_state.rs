@@ -59,5 +59,5 @@ pub(super) struct PendingActivation {
     pub(super) chosen_permanents: Vec<GameObjectId>,
     /// Permanents an earlier cost already committed to sacrifice, which go
     /// with whatever the paused cost names.
-    pub(super) remaining_sacrifices: Vec<GameObjectId>,
+    pub(super) remaining_sacrifices: Vec<Vec<GameObjectId>>,
 }

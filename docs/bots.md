@@ -217,7 +217,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v13` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v14` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -348,6 +348,18 @@ rooms instead serve the opponent their last complete safe state until the
 choice settles. They do not add a cover delay, however: an interactive Miracle
 choice can take longer than an ordinary draw, so elapsed response time is not
 a privacy claim.
+Named action-cost choices use ordinary `Choice`, `ChooseDecision`, and
+`CancelDecision` vocabulary. Their additive `costPayment` checkpoint
+continuation records the payer, authored effect locator, ordered `answers`, and
+tentative aggregate `chosen` objects. Import validates the exact branch and object-selection offer against the
+catalog. Selecting a branch does not spend resources. The existing private
+decision visibility rules apply; mechanic names and executable code are not
+serialized in the continuation. A suspended committed payment uses a
+`commitPayment` procedure containing authored cost-node locators, frozen unit
+counts, remaining selected objects, named completion locators, and actual mana
+spent. Reconstruction checks that the remaining actions form a valid suffix;
+continuing it does not collect payment or activate mana a second time.
+
 An installed, pending, or stacked trigger likewise fails closed when its source,
 retained lexical targets, or bindings name a card in a hidden zone that has no
 stable public object ID; the checkpoint omits that executable state rather than
@@ -419,7 +431,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 30 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v13`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v14`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
@@ -1101,6 +1113,21 @@ colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
 
+### Migrating checkpoint format 13 to 14
+
+Protocol 30 and replay format 2 are unchanged. Checkpoint format 14 replaces
+the older resolving discard, sacrifice, and total-power payment continuations
+with a shared `costPayment` window. It preserves ordered `answers` and tentative
+`chosen` objects without moving them. Cumulative upkeep is an ordinary tagged
+effect program; its age counters live on the permanent, not in a bespoke
+continuation. The obsolete upkeep-specific payment and mana-purpose payloads
+are removed. `commitPayment` represents remaining ordinary actions when a
+committed payment suspends for a replacement. Reconstruction validates choices
+against the authored cost and current offer, and committed action suffixes
+against the selected program. Activation payment windows remain
+explicitly unsupported for checkpoint reconstruction. Consumers should require
+`reconstruction.checkpoint.v14` and regenerate older checkpoints.
+
 ### Migrating checkpoint format 12 to 13
 
 Protocol 30 and replay format 2 remain in place. Checkpoint format 13 makes a
@@ -1236,7 +1263,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v13`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v14`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

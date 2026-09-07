@@ -1211,7 +1211,7 @@ pub(in crate::card::sets) static MIND_HARNESS: CardRecord = CardRecord::new(
                     )]
                 },
             ),
-            abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+            abilities::cumulative_upkeep!(CostDef::mana(mana_cost!("{1}"))),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
                 EffectDef::GainControl {
@@ -2052,12 +2052,9 @@ pub(in crate::card::sets) static MIRE_SHADE: CardRecord = CardRecord::new(
             "{B}, Sacrifice a Swamp: Put a +1/+1 counter on this creature. Activate only as a sorcery.",
             &[
                 CostDef::Mana(mana_cost!("{B}")),
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasAnyBasicLandType(&[
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasAnyBasicLandType(&[
                         crate::card::BasicLandType::Swamp,
-                    ]),
-                    controller: PlayerRelation::You,
-                },
+                    ]) },
             ],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
@@ -3338,11 +3335,11 @@ pub(in crate::card::sets) static FORATOG: CardRecord = CardRecord::new(
             "{G}, Sacrifice a Forest: This creature gets +2/+2 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{G}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasAnyBasicLandType(&[
                         crate::card::BasicLandType::Forest,
                     ]),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::Apply {
@@ -3867,9 +3864,9 @@ pub(in crate::card::sets) static VILLAGE_ELDER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{G}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -3978,7 +3975,11 @@ pub(in crate::card::sets) static CADAVEROUS_BLOOM: CardRecord = CardRecord::new(
     CardSet::Mirage,
     CardRules::new_enchantment(mana_cost!("{3}{B}{G}")).with_ability(AbilityDef::activated_mana(
         "Exile a card from your hand: Add {B}{B} or {G}{G}.",
-        &[CostDef::ExileCardFromHand(ObjectPredicateDef::Any)],
+        &[CostDef::Exile {
+            object: ObjectPredicateDef::Any,
+            from: crate::card::ZoneKind::Hand,
+            quantity: crate::card::CostQuantityDef::Fixed(1),
+        }],
         EffectDef::AddMana(
             AddManaEffectDef::choice(&[ManaColor::Black, ManaColor::Green]).with_amount(2),
         ),
@@ -4802,7 +4803,16 @@ pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord:
             abilities::enters_trigger("When this creature enters, sacrifice it unless you sacrifice any number of creatures with total power 12 or greater.", EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::SacrificeCreaturesWithTotalPower(12),
+                    cost: CostDef::sacrifice(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        crate::card::CostQuantityDef::ObjectSetValueAtLeast(&crate::card::ObjectSetValueAtLeastDef {
+                            value: crate::card::ObjectSetValueDef::Aggregate {
+                                select: ObjectValueDef::Power,
+                                operation: crate::card::AggregateOperationDef::Sum,
+                            },
+                            minimum: 12,
+                        }),
+                    ),
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -4822,9 +4832,9 @@ pub(in crate::card::sets) static PHYREXIAN_VAULT: CardRecord = CardRecord::new(
         &[
             CostDef::Mana(mana_cost!("{2}")),
             CostDef::TapSource,
-            CostDef::SacrificePermanent {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             },
         ],
         EffectDef::DrawCards {

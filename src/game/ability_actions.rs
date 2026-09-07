@@ -329,7 +329,7 @@ impl Game {
                         CostDef::Mana(cost) => self
                             .affordable_activation_payments(
                                 player,
-                                self.activation_mana_cost(&definition, permanent.card.id, *cost),
+                                self.activation_mana_cost(&ability, permanent.card.id, *cost),
                                 0,
                                 &payment_purpose,
                             )
@@ -386,15 +386,14 @@ impl Game {
                         | CostDef::SacrificeObject(_)
                         | CostDef::ReturnSourceToHand
                         | CostDef::ExileSource
-                        | CostDef::SacrificePermanent { .. }
-                        | CostDef::SacrificePermanents { .. }
+                        | CostDef::Sacrifice { .. }
                         | CostDef::ReturnUnblockedAttackerToHand
                         // Payability is decided by whether any card qualifies,
                         // which the choice list below answers.
                         | CostDef::MoveToZone(_)
-                        | CostDef::DiscardCardMatching(_)
+                        | CostDef::Discard { .. }
                         | CostDef::RevealCardFromHand(_)
-                        | CostDef::ExileCardFromHand(_) => false,
+                        | CostDef::Exile { .. } => false,
                         _ => true,
                     })
                 {
@@ -421,14 +420,13 @@ impl Game {
                 let mut object_costs = definition.costs.iter().filter(|cost| {
                     matches!(
                         cost,
-                        CostDef::SacrificePermanent { .. }
-                            | CostDef::SacrificePermanents { .. }
+                        CostDef::Sacrifice { .. }
                             | CostDef::ReturnUnblockedAttackerToHand
                             | CostDef::TapPermanents { .. }
                             | CostDef::MoveToZone(_)
-                            | CostDef::DiscardCardMatching(_)
+                            | CostDef::Discard { .. }
                             | CostDef::RevealCardFromHand(_)
-                            | CostDef::ExileCardFromHand(_)
+                            | CostDef::Exile { .. }
                     )
                 });
                 let object_cost = object_costs.next();
@@ -438,27 +436,17 @@ impl Game {
                 let taps_chosen_permanent =
                     matches!(object_cost, Some(CostDef::TapPermanents { count: 1, .. }));
                 let cost_object_choices = match object_cost {
-                    Some(CostDef::SacrificePermanent { object, controller }) => self
-                        .battlefield
-                        .iter()
-                        .filter(|candidate| {
-                            (source_exit_costs != 1 || candidate.card.id != permanent.card.id)
-                                && !fixed_sacrifices.contains(&candidate.card.id)
-                                && self.player_relation_matches(
-                                    candidate.controller,
-                                    *controller,
-                                    player,
-                                    TriggerContext::empty(),
-                                )
-                                && self.trigger_object_matches(
-                                    *object,
-                                    &self.trigger_event_object(candidate),
-                                    permanent.card.id,
-                                    false,
-                                )
-                        })
-                        .map(|candidate| vec![candidate.card.id])
-                        .collect(),
+                    Some(
+                        cost @ (CostDef::Sacrifice { .. }
+                        | CostDef::Discard { .. }
+                        | CostDef::Exile { .. }),
+                    ) => self.activation_object_cost_choices(
+                        player,
+                        permanent.card.id,
+                        *cost,
+                        &fixed_sacrifices,
+                        source_exit_costs != 0,
+                    ),
                     // One payer travels with the activation so mana planning
                     // can reserve it. The source may pay unless another cost
                     // has already committed it to tap or leave play.
@@ -506,19 +494,6 @@ impl Game {
                         };
                         Self::object_combinations(&candidates, usize::from(count))
                     }
-                    Some(CostDef::DiscardCardMatching(object)) => self.players[player.index()]
-                        .hand
-                        .iter()
-                        .filter(|card| {
-                            self.card_object_matches(
-                                *object,
-                                card,
-                                ZoneKind::Hand,
-                                permanent.card.id,
-                            )
-                        })
-                        .map(|card| vec![card.id])
-                        .collect(),
                     Some(CostDef::RevealCardFromHand(object)) => self.players[player.index()]
                         .hand
                         .iter()
@@ -532,52 +507,6 @@ impl Game {
                         })
                         .map(|card| vec![card.id])
                         .collect(),
-                    Some(CostDef::ExileCardFromHand(object)) => self.players[player.index()]
-                        .hand
-                        .iter()
-                        .filter(|card| {
-                            self.card_object_matches(
-                                *object,
-                                card,
-                                ZoneKind::Hand,
-                                permanent.card.id,
-                            )
-                        })
-                        .map(|card| vec![card.id])
-                        .collect(),
-                    // Paid by a decision rather than by enumeration, so the
-                    // activation names none of them: one offer stands for
-                    // however many ways there are to pay it.
-                    Some(CostDef::SacrificePermanents {
-                        object,
-                        controller,
-                        count,
-                    }) => {
-                        let available = self
-                            .battlefield
-                            .iter()
-                            .filter(|candidate| {
-                                !fixed_sacrifices.contains(&candidate.card.id)
-                                    && self.player_relation_matches(
-                                        candidate.controller,
-                                        *controller,
-                                        player,
-                                        TriggerContext::empty(),
-                                    )
-                                    && self.trigger_object_matches(
-                                        *object,
-                                        &self.trigger_event_object(candidate),
-                                        permanent.card.id,
-                                        false,
-                                    )
-                            })
-                            .count();
-                        if available >= usize::from(*count) {
-                            vec![Vec::new()]
-                        } else {
-                            Vec::new()
-                        }
-                    }
                     Some(_) => unreachable!("the filter admits only object costs"),
                 };
                 if cost_object_choices.is_empty() {
@@ -592,7 +521,7 @@ impl Game {
                     .find_map(|cost| match cost {
                         CostDef::Mana(cost) if cost.variable_x => Some(self.maximum_x_for(
                             player,
-                            self.activation_mana_cost(&definition, permanent.card.id, *cost),
+                            self.activation_mana_cost(&ability, permanent.card.id, *cost),
                             &payment_purpose,
                         )),
                         _ => None,
@@ -637,11 +566,7 @@ impl Game {
                                         cost_objects,
                                     )
                                     .map(|cost| {
-                                        self.activation_mana_cost(
-                                            &definition,
-                                            permanent.card.id,
-                                            cost,
-                                        )
+                                        self.activation_mana_cost(&ability, permanent.card.id, cost)
                                     });
                                 if definition.costs.iter().any(|cost| {
                                     matches!(
@@ -690,7 +615,7 @@ impl Game {
                                         )
                                     },
                                 ) {
-                                    actions.push(Action::ActivateAbility {
+                                    let action = Action::ActivateAbility {
                                         source: permanent.card.id,
                                         ability: effective.origin,
                                         targets: selections.clone(),
@@ -698,7 +623,21 @@ impl Game {
                                         x,
                                         modes: selected_modes.clone(),
                                         mana_payment: payment.map(Box::new),
-                                    });
+                                    };
+                                    if object_cost.is_some_and(|cost| {
+                                        matches!(
+                                            cost,
+                                            CostDef::Sacrifice { .. }
+                                                | CostDef::Discard { .. }
+                                                | CostDef::Exile { .. }
+                                        )
+                                    }) && !cost_objects.is_empty()
+                                        && !self
+                                            .activation_selected_mana_is_payable(player, &action)
+                                    {
+                                        continue;
+                                    }
+                                    actions.push(action);
                                 }
                             }
                         }

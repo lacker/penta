@@ -112,7 +112,7 @@ fn the_force_makes_a_token_on_both_upkeeps() {
 #[test]
 fn the_elemental_eats_a_land_or_itself() {
     let mut game = upkeep(cards::BOG_ELEMENTAL, PlayerId::One, 2);
-    choose_decision_by_label(&mut game, PlayerId::One, "Sacrifice Forest");
+    choose_decision_by_label(&mut game, PlayerId::One, "Forest");
     drain_pending(&mut game);
     assert!(
         game.battlefield

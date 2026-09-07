@@ -7,27 +7,51 @@ neighboring rule first.
 
 ## Incremental development
 
-The preferred implementation order is:
+Start by composing existing operations. Add a core primitive when a genuine
+fundamental capability is missing, not merely because a card's composition is
+awkward to write. A primitive may have only one or two consumers; frequency
+alone neither qualifies nor disqualifies it.
 
-1. Reuse or extend a shared, card-agnostic primitive when the behavior has a
-   clear general shape.
-2. Compose unusual behavior in the card's declarative ability clauses while
-   shared timing, targeting, and stack rules remain in force.
-3. If the shared model cannot yet express the complete behavior, keep the
-   whole card unsupported until a reusable primitive exists.
-4. Shared primitives may land in useful increments, but a card becomes
-   executable only when its complete printed behavior is declarative.
+Magic is a game of exceptions. A complete, contained card-local implementation
+is a legitimate destination, even if it will never be generalized. Ordinary
+Rust syntax in a set file is acceptable when it makes local behavior clearer.
+Keep the card understandable in one place; this is not permission to fragment
+each declaration into tiny helpers or scatter card-identity checks through the
+engine. Local exceptions must participate in the engine's execution contracts.
+If the available integration boundary cannot do that faithfully, keep the
+whole card unsupported and identify the missing capability.
 
-Do not add a card-specific resolver or direct card-identity branch to make a
-card executable.
+## Ownership of behavior
 
-This order is a preference ladder, not a purity gate. Prefer an elegant shared
-abstraction to a hack, a contained hack to a diffuse mess, and a working honest
+Place behavior at the narrowest useful ownership level:
+
+1. **Core primitives and structures:** fundamental rules operations, data,
+   combination, binding, and control flow.
+2. **Broadly shared vocabulary:** recurring compositions bordering on
+   primitives, such as enters/dies triggers and scry.
+3. **Mechanics shared across many sets:** reusable mechanic programs with a
+   clearly named common home.
+4. **Mechanics shared across a few sets:** owned by their originating set and
+   imported by later sets, as Metalcraft is.
+5. **Several cards in one set:** a coherent helper in that set's preamble.
+6. **One card:** its ordered clauses and, when justified, an adjacent local
+   procedure.
+
+These are ownership levels, not six mandatory module directories. Reuse can
+justify moving a composition outward without turning it into a core primitive.
+The [effect-program guide](effect-programs.md) records the execution contracts
+and the incremental migration plan.
+
+## Scope and correctness
+
+These boundaries guide incremental work rather than imposing a purity gate.
+Prefer an elegant shared abstraction to a hack, a contained hack to a diffuse
+mess, and a working honest
 increment to waiting indefinitely for perfect architecture. Every rung has the
 same floor: accurate advertised behavior, honest implementation coverage, a
 bounded blast radius, and tests.
 
-Repetition is evidence for extracting a shared primitive; one difficult card
+Repetition is evidence for sharing a composition; one difficult card
 is not automatically evidence for a framework. A working exception does not
 need immediate migration merely for architectural purity. Refactor when a
 stable semantic boundary emerges, or when the relevant code is already being

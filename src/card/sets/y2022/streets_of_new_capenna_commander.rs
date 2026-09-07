@@ -30,7 +30,7 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever you discard a card, you may exile that card from your graveyard.",
-            TriggerEventDef::Discarded(PlayerRelation::You),
+            TriggerEventDef::mechanic_performed(crate::card::abilities::DISCARD, PlayerRelation::You),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 // "That card", which is the card as it now lies in the graveyard: the

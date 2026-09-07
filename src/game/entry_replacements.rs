@@ -372,7 +372,7 @@ impl Game {
         self.queue_decision(
             player,
             format!("{payment_label} as {name} enters the battlefield?"),
-            DecisionVisibility::Public,
+            Self::effect_payment_visibility(resolved),
             DecisionPreference::Neutral,
             1..=1,
             false,

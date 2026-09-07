@@ -3,6 +3,42 @@ use std::num::NonZeroU64;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
+/// Stable, numeric identity of a named mechanic, independent of its owner,
+/// implementation, and any particular ability instance. Define one constant
+/// beside the mechanic and import it; names are not runtime dispatch keys.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct MechanicId(u64);
+
+impl MechanicId {
+    /// Hash a namespaced spelling at compile time when defining a constant.
+    /// This fixed FNV-1a encoding is an identity contract, not Rust's
+    /// process-dependent Hash machinery. Catalog tests reject collisions.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the name has no nonempty namespace and local spelling
+    /// separated by a colon.
+    #[must_use]
+    pub const fn from_name(name: &str) -> Self {
+        let bytes = name.as_bytes();
+        let mut hash = 0xcbf2_9ce4_8422_2325_u64;
+        let mut index = 0;
+        let mut namespaced = false;
+        while index < bytes.len() {
+            namespaced |= bytes[index] == b':' && index > 0 && index + 1 < bytes.len();
+            hash = (hash ^ bytes[index] as u64).wrapping_mul(0x0000_0100_0000_01b3);
+            index += 1;
+        }
+        assert!(namespaced, "mechanic names must be namespaced");
+        Self(hash)
+    }
+
+    #[must_use]
+    pub const fn get(self) -> u64 {
+        self.0
+    }
+}
+
 /// Stable identity of a card in the card catalog.
 ///
 /// Values are positive integers no greater than [`Self::MAX`], so every ID is

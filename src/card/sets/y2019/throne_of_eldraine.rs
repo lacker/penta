@@ -434,10 +434,14 @@ pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new
 .with_composition(bonecrusher_composition);
 
 // ELD 122 — Embereth Shieldbreaker
-/// The adventure half. Answering an artifact for one red leaves the body
-/// waiting in exile, which is the whole bargain of the mechanic.
-fn battle_display_rules() -> CardRules {
-    CardRules::new_sorcery(mana_cost!("{R}"))
+const fn embereth_shieldbreaker_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Knight"], 2, 1)
+}
+
+fn embereth_shieldbreaker_composition() -> CardComposition {
+    let knight = embereth_shieldbreaker_rules();
+    // The Adventure answers an artifact, leaving the creature available in exile.
+    let display = CardRules::new_sorcery(mana_cost!("{R}"))
         .with_subtypes(&["Adventure"])
         .with_ability(
             AbilityDef::spell_with_targets(
@@ -453,16 +457,7 @@ fn battle_display_rules() -> CardRules {
                 },
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
-        )
-}
-
-const fn embereth_shieldbreaker_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Knight"], 2, 1)
-}
-
-fn embereth_shieldbreaker_composition() -> CardComposition {
-    let knight = embereth_shieldbreaker_rules();
-    let display = battle_display_rules();
+        );
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, "Embereth Shieldbreaker", knight),

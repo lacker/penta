@@ -1874,7 +1874,10 @@ pub(in crate::card::sets) static PACK_RAT: CardRecord = CardRecord::new(
             "{2}{B}, Discard a card: Create a token that's a copy of this creature.",
             &[
                 CostDef::Mana(mana_cost!("{2}{B}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
                 object: &EffectRecipientDef::Source,
@@ -3174,12 +3177,12 @@ pub(in crate::card::sets) static GOBBLING_OOZE: CardRecord = CardRecord::new_wit
             "{G}, Sacrifice another creature: Put a +1/+1 counter on this creature.",
             &[
                 CostDef::Mana(mana_cost!("{G}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::AddCounters {
@@ -4618,9 +4621,10 @@ pub(in crate::card::sets) static LOTLETH_TROLL: CardRecord = CardRecord::new(
         abilities::trample(),
         AbilityDef::activated(
             "Discard a creature card: Put a +1/+1 counter on this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
-                CardType::Creature,
-            ))],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,

@@ -497,6 +497,36 @@ fn mox_diamond_offers_each_land_in_hand_and_nothing_else() {
         vec![island_id],
         "the land can pay and the burn spell cannot",
     );
+    assert_eq!(decision.visibility, DecisionVisibility::Private);
+    assert!(game.observe(PlayerId::Two).decision.is_none());
+    let (snapshot, hidden) = checkpoint_fixture(&game, PlayerId::One);
+    let mut rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &snapshot,
+        &hidden,
+        17,
+    )
+    .unwrap();
+    let payment = rebuilt.pending_decisions[0].observation.clone();
+    let option = payment
+        .options
+        .iter()
+        .find(|option| option.card.is_some_and(|(id, _)| id == island_id))
+        .unwrap()
+        .id;
+    rebuilt
+        .apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: payment.id,
+                options: vec![option],
+            },
+        )
+        .unwrap();
+    drain_pending(&mut rebuilt);
+    assert!(on_battlefield(&rebuilt, cards::MOX_DIAMOND));
+    assert_eq!(rebuilt.players[0].hand.len(), 1);
 }
 
 #[test]

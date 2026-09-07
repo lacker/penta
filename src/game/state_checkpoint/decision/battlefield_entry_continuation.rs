@@ -62,7 +62,7 @@ fn parse_battlefield_entry_continuation(
                 observation,
                 payer,
                 &format!("{payment_label} as {name} enters the battlefield?"),
-                DecisionVisibility::Public,
+                Game::effect_payment_visibility(payment),
                 DecisionPreference::Neutral,
                 1,
                 1,

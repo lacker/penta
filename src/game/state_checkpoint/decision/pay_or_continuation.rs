@@ -3,7 +3,6 @@ fn parse_authored_pay_or_continuation(
     object: &super::super::StackObject,
     context: &super::super::EffectResolutionContext,
     payer: PlayerId,
-    cumulative_upkeep_age: Option<u16>,
     scoped: ScopedEffect,
     authored: crate::card::PayOrDef,
 ) -> Result<
@@ -15,9 +14,6 @@ fn parse_authored_pay_or_continuation(
     ),
     String,
 > {
-    if cumulative_upkeep_age.is_some() {
-        return Err("ordinary pay-or checkpoint carries cumulative upkeep state".into());
-    }
     // The payer was settled when the decision was queued, and the state it
     // was read from can have moved since: Chain of Vapor asks the controller
     // of a permanent it has already returned to hand. A payer that can no

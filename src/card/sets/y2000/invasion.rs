@@ -733,9 +733,9 @@ pub(in crate::card::sets) static TEFERI_S_CARE: CardRecord = CardRecord::new(
             "{W}, Sacrifice an enchantment: Destroy target enchantment.",
             &[
                 CostDef::Mana(mana_cost!("{W}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Enchantment),
-                    controller: PlayerRelation::You,
                 },
             ],
             &const {
@@ -3020,9 +3020,9 @@ pub(in crate::card::sets) static SHIVAN_HARVEST: CardRecord = CardRecord::new(
             "{1}{R}, Sacrifice a creature: Destroy target nonbasic land.",
             &[
                 CostDef::Mana(mana_cost!("{1}{R}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             &const {
@@ -5385,9 +5385,9 @@ pub(in crate::card::sets) static PHYREXIAN_ALTAR: CardRecord = CardRecord::new(
     // a board full of tokens is a board full of mana.
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
         "Sacrifice a creature: Add one mana of any color.",
-        &[CostDef::SacrificePermanent {
+        &[CostDef::Sacrifice {
+            quantity: crate::card::CostQuantityDef::Fixed(1),
             object: ObjectPredicateDef::HasType(CardType::Creature),
-            controller: PlayerRelation::You,
         }],
         EffectDef::AddMana(AddManaEffectDef::any_color()),
     )),
@@ -5810,9 +5810,9 @@ pub(in crate::card::sets) static KELDON_NECROPOLIS: CardRecord = CardRecord::new
             &[
                 CostDef::Mana(mana_cost!("{4}{R}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             &const {

@@ -36,10 +36,24 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::MoveObjects(definition) => vec![*definition.then],
         EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => vec![*definition.then],
         EffectDef::PayOr(payment) => payment
-            .if_paid
+            .payment
+            .cost
+            .subcosts()
             .into_iter()
-            .chain(payment.otherwise)
-            .copied()
+            .filter_map(|cost| {
+                if let crate::card::CostDef::Action(effect) = cost {
+                    Some(*effect)
+                } else {
+                    None
+                }
+            })
+            .chain(
+                payment
+                    .if_paid
+                    .into_iter()
+                    .chain(payment.otherwise)
+                    .copied(),
+            )
             .collect(),
         EffectDef::BindOutput { effect, .. }
         | EffectDef::WithRule { effect, .. }
@@ -95,7 +109,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         // A distributed look runs nothing after a card lands, so like every
         // other leaf below it has no child effect to walk.
         EffectDef::AddCounters { .. }
-        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::SelectAtRandomFromZone { .. }
@@ -185,7 +198,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Sacrifice { .. }
         | EffectDef::SacrificeYours { .. }
         | EffectDef::ScheduleTurnPhases(_)
-        | EffectDef::BuryGraveyard { .. }
         | EffectDef::ShuffleLibrary { .. }
         | EffectDef::SkipNextUntapSteps { .. }
         | EffectDef::Special(_)

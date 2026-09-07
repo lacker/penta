@@ -2228,9 +2228,9 @@ pub(in crate::card::sets) static BLOODFLOW_CONNOISSEUR: CardRecord = CardRecord:
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire"], 1, 1).with_ability(
         AbilityDef::activated(
             "Sacrifice a creature: Put a +1/+1 counter on this creature.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
@@ -2291,10 +2291,7 @@ pub(in crate::card::sets) static CORPSE_TRADERS: CardRecord = CardRecord::new(
             "{2}{B}, Sacrifice a creature: Target opponent reveals their hand. You choose a card from it. That player discards that card. Activate only as a sorcery.",
             &[
                 CostDef::Mana(mana_cost!("{2}{B}")),
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Creature) },
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Opponent,
@@ -2489,12 +2486,13 @@ pub(in crate::card::sets) static DEMONLORD_OF_ASHMOUTH: CardRecord = CardRecord:
             EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: crate::card::CostDef::SacrificePermanentMatching(
-                        ObjectPredicateDef::All(&[
+                    cost: crate::card::CostDef::Sacrifice {
+                        object: ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
-                    ),
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
+                    },
                 },
                 &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
@@ -3696,7 +3694,10 @@ pub(in crate::card::sets) static MAD_PROPHET: CardRecord = CardRecord::new_with_
             "{T}, Discard a card: Draw a card.",
             &[
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

@@ -15,9 +15,9 @@ static TRUE_COLORLESS_CONVOKE_ABILITIES: [AbilityDef; 2] = [
 
 static SACRIFICE_CREATURE_FOR_TWO_GREEN: [AbilityDef; 1] = [AbilityDef::activated_mana(
     "Sacrifice a creature: Add {G}{G}.",
-    &[CostDef::SacrificePermanent {
+    &[CostDef::Sacrifice {
+        quantity: crate::card::CostQuantityDef::Fixed(1),
         object: ObjectPredicateDef::HasType(CardType::Creature),
-        controller: PlayerRelation::You,
     }],
     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(2)),
 )];

@@ -33,18 +33,18 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[CostDef]) -> boo
         .filter(|cost| {
             matches!(
                 cost,
-                CostDef::SacrificePermanent { .. }
-                    | CostDef::SacrificePermanents { .. }
+                CostDef::Sacrifice { .. }
                     | CostDef::ReturnUnblockedAttackerToHand
                     | CostDef::TapPermanents { .. }
                     | CostDef::MoveToZone(_)
-                    | CostDef::DiscardCardMatching(_)
+                    | CostDef::Discard { .. }
                     | CostDef::RevealCardFromHand(_)
-                    | CostDef::ExileCardFromHand(_)
+                    | CostDef::Exile { .. }
             )
         })
         .count();
-    priced_bindings.len() <= 1
+    chosen_object_costs <= 1
+        && priced_bindings.len() <= 1
         && (priced_bindings.is_empty()
             || (battlefield && moved_bindings == priced_bindings && chosen_object_costs == 1))
 }
@@ -55,7 +55,9 @@ fn at_most_one_deferred_activation_cost(costs: &[CostDef]) -> bool {
         .filter(|cost| {
             matches!(
                 cost,
-                CostDef::SacrificePermanents { .. }
+                CostDef::Sacrifice { .. }
+                    | CostDef::Discard { .. }
+                    | CostDef::Exile { .. }
                     | CostDef::TapPermanents { .. }
                     | CostDef::TapCreaturesWithTotalPower { .. }
             )
@@ -84,8 +86,11 @@ fn at_most_one_source_exit_cost(costs: &[CostDef]) -> bool {
         .iter()
         .filter(|cost| {
             matches!(
-                cost,
-                CostDef::SacrificeSource | CostDef::ExileSource | CostDef::ReturnSourceToHand
+                cost.unnamed(),
+                CostDef::SacrificeSource
+                    | CostDef::ExileSource
+                    | CostDef::ReturnSourceToHand
+                    | CostDef::DiscardSource
             )
         })
         .count()
@@ -95,7 +100,7 @@ fn at_most_one_source_exit_cost(costs: &[CostDef]) -> bool {
 fn at_most_one_sacrifice_of_each_kind(costs: &[CostDef]) -> bool {
     let choices = costs
         .iter()
-        .filter(|cost| matches!(cost, CostDef::SacrificePermanent { .. }))
+        .filter(|cost| matches!(cost, CostDef::Sacrifice { .. }))
         .count();
     let fixed = costs
         .iter()
@@ -129,13 +134,13 @@ pub(in super::super) fn shared_activated_costs(zones: &[ZoneKind], costs: &[Cost
             // from and a predicate the shared walk can read.
             // The many-at-once form is paid by a decision rather than by
             // enumeration, which asks the same question of the same walk.
-            CostDef::SacrificePermanent { object, .. } => {
+            CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object, .. } => {
                 (battlefield || exile) && shared_object_predicate(*object)
             }
-            CostDef::SacrificePermanents { object, .. }
-            | CostDef::DiscardCardMatching(object)
-            | CostDef::RevealCardFromHand(object)
-            | CostDef::ExileCardFromHand(object) => {
+            CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1..), object }
+            | CostDef::Discard { object, quantity: crate::card::CostQuantityDef::Fixed(1..) }
+            | CostDef::Exile { object, from: ZoneKind::Hand | ZoneKind::Graveyard, quantity: crate::card::CostQuantityDef::Fixed(1..) }
+            | CostDef::RevealCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
             }
             CostDef::MoveToZone(movement) => {
@@ -202,6 +207,7 @@ pub(in super::super) fn shared_activated_costs(zones: &[ZoneKind], costs: &[Cost
             // card in hand.
             CostDef::DiscardSource
             | CostDef::ReturnUnblockedAttackerToHand => hand,
+            CostDef::Named { .. } => hand && cost.unnamed() == CostDef::DiscardSource,
             _ => false,
         })
 }
@@ -212,7 +218,7 @@ pub(in super::super) fn shared_spell_additional_cost(cost: Option<CostDef>) -> b
 
 fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
     match cost {
-        CostDef::Forage | CostDef::Mana(_) | CostDef::PayLife(_) => true,
+        CostDef::Mana(_) | CostDef::PayLife(_) => true,
         CostDef::ManaTimes { quantity, .. } | CostDef::PayLifeTimes(quantity) => {
             shared_scalar_cost_quantity(quantity)
         }
@@ -236,6 +242,7 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
         CostDef::All(costs) => {
             !costs.is_empty() && costs.iter().copied().all(shared_spell_additional_cost_def)
         }
+        CostDef::Named { cost, .. } => shared_spell_additional_cost_def(*cost),
         CostDef::Choice(costs) => {
             !costs.is_empty()
                 && costs.iter().copied().all(shared_spell_additional_cost_def)
@@ -256,6 +263,7 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
 
 fn spell_cost_can_be_objectless(cost: CostDef) -> bool {
     match cost {
+        CostDef::Named { cost, .. } => spell_cost_can_be_objectless(*cost),
         CostDef::Mana(_)
         | CostDef::PayLife(_)
         | CostDef::ManaTimes { .. }

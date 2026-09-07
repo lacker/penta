@@ -575,7 +575,6 @@ fn validate_effect_references(
         | EffectDef::LoseTheGame { player: object }
         | EffectDef::WinTheGame { player: object }
         | EffectDef::ShuffleLibrary { player: object }
-        | EffectDef::BuryGraveyard { player: object }
         | EffectDef::EmptyManaPool { player: object }
         | EffectDef::Regenerate { object }
         | EffectDef::Tap { object }
@@ -925,26 +924,12 @@ fn validate_effect_references(
         // The chosen player is recorded on the permanent, not read from a
         // target slot.
         // A prohibition names a card shape, never a target.
-        EffectDef::CumulativeUpkeep(
-            crate::card::CostDef::SacrificePermanents { object, .. }
-            | crate::card::CostDef::GainControlPermanents { object, .. },
-        ) => validate_object_predicate_references(object, target_count, scope),
-        EffectDef::CumulativeUpkeep(
-            crate::card::CostDef::CreateTokens { token, .. },
-        ) => match token.variable_stats {
-            Some(stats) => {
-                validate_value_target_references(stats.power, target_count, scope)?;
-                validate_value_target_references(stats.toughness, target_count, scope)
-            }
-            None => Ok(()),
-        },
         EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
-        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::DamageCannotBePreventedThisTurn

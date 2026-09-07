@@ -1314,9 +1314,9 @@ pub(in crate::card::sets) static GOBLIN_CHIRURGEON: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Shaman"], 0, 2).with_abilities(&[
         AbilityDef::activated_with_targets(
             "Sacrifice a Goblin: Regenerate target creature.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Goblin"),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -1673,10 +1673,7 @@ pub(in crate::card::sets) static ELVISH_FARMER: CardRecord = CardRecord::new_wit
             ),
             AbilityDef::activated(
                 "Sacrifice a Saproling: You gain 2 life.",
-            &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Saproling"),
-                controller: PlayerRelation::You,
-            }],
+            &[CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::Subtype("Saproling") }],
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(2),
@@ -1990,10 +1987,7 @@ pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new_
             ),
             AbilityDef::activated(
                 "Sacrifice a Saproling: This creature gets +1/+2 until end of turn.",
-            &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Saproling"),
-                controller: PlayerRelation::You,
-            }],
+            &[CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::Subtype("Saproling") }],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(2)),
@@ -2043,10 +2037,7 @@ pub(in crate::card::sets) static THELONITE_DRUID: CardRecord = CardRecord::new_w
         &[
             CostDef::Mana(mana_cost!("{1}{G}")),
             CostDef::TapSource,
-            CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
-            },
+            CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Creature) },
         ],
         EffectDef::Apply {
             recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]), &[ZoneKind::Battlefield], PlayerRelation::You),

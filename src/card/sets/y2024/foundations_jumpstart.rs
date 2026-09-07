@@ -193,7 +193,7 @@ pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord:
             // token feeds her.
             AbilityDef::triggered(
                 "Whenever you discard a card, put a +1/+1 counter on Ivora.",
-                TriggerEventDef::Discarded(PlayerRelation::You),
+                TriggerEventDef::mechanic_performed(crate::card::abilities::DISCARD, PlayerRelation::You),
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
                     kind: CounterKind::PlusOnePlusOne,

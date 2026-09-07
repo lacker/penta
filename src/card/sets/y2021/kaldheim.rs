@@ -153,11 +153,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
             AbilityDef::activated(
                 "Sacrifice five Treasures: Search your library for an artifact or Dragon card, put that \
                  card onto the battlefield, then shuffle.",
-                &[CostDef::SacrificePermanents {
-                    object: ObjectPredicateDef::Subtype("Treasure"),
-                    controller: PlayerRelation::You,
-                    count: 5,
-                }],
+                &[CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(5), object: ObjectPredicateDef::Subtype("Treasure") }],
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,

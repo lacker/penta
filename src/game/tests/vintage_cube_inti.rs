@@ -73,18 +73,14 @@ fn attack_and_answer(game: &mut Game, bears: GameObjectId, discard: bool) {
         .observe(PlayerId::One)
         .decision
         .expect("the attack trigger offers the discard");
-    let chosen = if discard {
-        vec![
-            offer
-                .options
-                .iter()
-                .find(|option| option.label != "Decline")
-                .expect("discarding is on offer")
-                .id,
-        ]
-    } else {
-        vec![0]
-    };
+    if !discard {
+        assert!(offer.cancellable);
+        game.apply(PlayerId::One, Action::CancelDecision { decision: offer.id })
+            .unwrap();
+        drain_pending(game);
+        return;
+    }
+    let chosen = vec![offer.options.first().expect("discarding is on offer").id];
     game.apply(
         PlayerId::One,
         Action::ChooseDecision {

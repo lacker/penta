@@ -15,13 +15,13 @@ impl Game {
         frozen: FrozenActivatedAbility,
         targets: Vec<TargetSelection>,
         chosen_permanents: Vec<GameObjectId>,
-        mut remaining_sacrifices: Vec<GameObjectId>,
+        mut remaining_sacrifices: Vec<Vec<GameObjectId>>,
     ) {
         if !remaining_sacrifices.is_empty() {
             let sacrificed = remaining_sacrifices.remove(0);
-            self.capture_sacrifices(&[sacrificed]);
+            self.capture_sacrifices(&sacrificed);
             self.move_permanents_to_graveyard_then(
-                &[sacrificed],
+                &sacrificed,
                 Some(BattlefieldExitCompletion::CompleteActivatedAbility {
                     source,
                     source_card,

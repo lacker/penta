@@ -973,9 +973,9 @@ pub(in crate::card::sets) static PHYREXIAN_BROODLINGS: CardRecord = CardRecord::
             "{1}, Sacrifice a creature: Put a +1/+1 counter on this creature.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::AddCounters {
@@ -1102,9 +1102,9 @@ pub(in crate::card::sets) static PHYREXIAN_PLAGUELORD: CardRecord = CardRecord::
             ),
             AbilityDef::activated_with_targets(
                 "Sacrifice a creature: Target creature gets -1/-1 until end of turn.",
-                &[CostDef::SacrificePermanent {
+                &[CostDef::Sacrifice {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
+                    quantity: CostQuantityDef::Fixed(1),
                 }],
                 &const {
                     [AbilityTargetDef::exactly_one_permanent(

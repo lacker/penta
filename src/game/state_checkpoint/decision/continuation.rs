@@ -3,7 +3,6 @@ include!("counter_choice_continuation.rs");
 include!("trigger_continuation.rs");
 include!("object_collection_continuation.rs");
 include!("pay_or_continuation.rs");
-include!("cumulative_upkeep_continuation.rs");
 
 #[allow(clippy::too_many_lines)]
 fn parse_continuation(
@@ -192,22 +191,6 @@ fn parse_continuation(
                 target: parse_target(*target),
             }
         }
-        DecisionContinuationSnapshot::SacrificeToTotalPower {
-            player: payer,
-            remaining,
-            object,
-            context,
-            if_paid,
-        } => DecisionContinuation::SacrificeToTotalPower {
-            player: player(*payer)?,
-            remaining: *remaining,
-            object: Box::new(parse_detached_stack(object, game)?),
-            context: parse_effect_resolution_context(context.clone())?,
-            if_paid: match if_paid {
-                Some(snapshot) => Some(parse_effect_continuation(snapshot, game)?.effect),
-                None => None,
-            },
-        },
         DecisionContinuationSnapshot::CardNameChoice {
             choices,
             binding,
@@ -751,10 +734,12 @@ fn parse_continuation(
                 candidates: state.candidates,
             }
         }
+        DecisionContinuationSnapshot::CostPayment { player: payer, continuation, answers, chosen } => {
+            parse_cost_payment_continuation(game, observation, player(*payer)?, continuation, answers, chosen)?
+        }
         DecisionContinuationSnapshot::PayOr {
             player: payer,
             payment: payment_snapshot,
-            cumulative_upkeep_age,
             object,
             ability,
             context,
@@ -778,19 +763,8 @@ fn parse_continuation(
                         &object,
                         &context,
                         payer,
-                        *cumulative_upkeep_age,
                         scoped,
                         authored,
-                    )?
-                }
-                EffectDef::CumulativeUpkeep(cost) => {
-                    parse_cumulative_upkeep_continuation(
-                        game,
-                        &object,
-                        payer,
-                        *cumulative_upkeep_age,
-                        scoped,
-                        cost,
                     )?
                 }
                 _ => {
@@ -825,7 +799,6 @@ fn parse_continuation(
             DecisionContinuation::PayOr {
                 player: payer,
                 payment,
-                cumulative_upkeep_age: *cumulative_upkeep_age,
                 definition: scoped,
                 object,
                 context,

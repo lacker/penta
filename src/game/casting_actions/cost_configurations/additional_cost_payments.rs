@@ -9,8 +9,16 @@ impl Game {
         scale: CastScale,
     ) -> Vec<SpellAdditionalCostPayment> {
         match cost {
+            CostDef::Named { mechanic, cost } => self
+                .spell_additional_cost_payment_options(*cost, card, player, scale)
+                .into_iter()
+                .map(|mut payment| {
+                    payment.steps.push(crate::game::cost_payment::CostPaymentStep::CompleteMechanic(mechanic));
+                    payment
+                })
+                .collect(),
             CostDef::Mana(cost) => vec![SpellAdditionalCostPayment {
-                objects: Vec::new(),
+                steps: Vec::new(),
                 mana: cost,
                 life: 0,
             }],
@@ -21,7 +29,7 @@ impl Game {
                 let mana =
                     (0..repetitions).fold(ManaCost::default(), |total, _| add_mana_cost(total, cost));
                 vec![SpellAdditionalCostPayment {
-                    objects: Vec::new(),
+                    steps: Vec::new(),
                     mana,
                     life: 0,
                 }]
@@ -29,7 +37,7 @@ impl Game {
             CostDef::PayLife(amount) => {
                 (i64::from(amount) <= i64::from(self.players[player.index()].life))
                     .then_some(SpellAdditionalCostPayment {
-                        objects: Vec::new(),
+                        steps: Vec::new(),
                         mana: ManaCost::default(),
                         life: amount,
                     })
@@ -42,30 +50,11 @@ impl Game {
                     .expect("object thresholds cannot quantify a life payment");
                 (i64::from(amount) <= i64::from(self.players[player.index()].life))
                     .then_some(SpellAdditionalCostPayment {
-                        objects: Vec::new(),
+                        steps: Vec::new(),
                         mana: ManaCost::default(),
                         life: amount,
                     })
                     .into_iter()
-                    .collect()
-            }
-            CostDef::Forage => {
-                let forage = [
-                    CostDef::exile(
-                        crate::card::ObjectPredicateDef::Any,
-                        ZoneKind::Graveyard,
-                        crate::card::CostQuantityDef::Fixed(3),
-                    ),
-                    CostDef::sacrifice(
-                        crate::card::ObjectPredicateDef::Subtype("Food"),
-                        crate::card::CostQuantityDef::Fixed(1),
-                    ),
-                ];
-                forage
-                    .into_iter()
-                    .flat_map(|cost| {
-                        self.spell_additional_cost_payment_options(cost, card, player, scale)
-                    })
                     .collect()
             }
             CostDef::Choice(costs) => costs
@@ -123,7 +112,7 @@ impl Game {
             let repeated = (0..total_repetitions)
                 .fold(ManaCost::default(), |total, _| add_mana_cost(total, cost));
             return vec![SpellAdditionalCostPayment {
-                objects: Vec::new(),
+                steps: Vec::new(),
                 mana: repeated,
                 life: 0,
             }];
@@ -132,7 +121,7 @@ impl Game {
             let repeated = (0..repetitions)
                 .fold(ManaCost::default(), |total, _| add_mana_cost(total, cost));
             return vec![SpellAdditionalCostPayment {
-                objects: Vec::new(),
+                steps: Vec::new(),
                 mana: repeated,
                 life: 0,
             }];
@@ -144,7 +133,7 @@ impl Game {
                 .saturating_mul(repetitions);
             return (i64::from(amount) <= i64::from(self.players[player.index()].life))
                 .then_some(SpellAdditionalCostPayment {
-                    objects: Vec::new(),
+                    steps: Vec::new(),
                     mana: ManaCost::default(),
                     life: amount,
                 })
@@ -155,7 +144,7 @@ impl Game {
             let amount = amount.saturating_mul(repetitions);
             return (i64::from(amount) <= i64::from(self.players[player.index()].life))
                 .then_some(SpellAdditionalCostPayment {
-                    objects: Vec::new(),
+                    steps: Vec::new(),
                     mana: ManaCost::default(),
                     life: amount,
                 })

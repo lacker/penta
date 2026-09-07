@@ -115,9 +115,7 @@ pub(in crate::card::sets) static ANGELIC_RENEWAL: CardRecord = CardRecord::new(
         EffectDef::PayOr(PayOrDef::optional(
             crate::card::EffectPaymentDef {
                 payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                cost: crate::card::CostDef::SacrificePermanentMatching(
-                    ObjectPredicateDef::Source,
-                ),
+                cost: crate::card::CostDef::Sacrifice { object: ObjectPredicateDef::Source, quantity: crate::card::CostQuantityDef::Fixed(1) },
             },
             &EffectDef::MoveToZone {
                 object: EffectRecipientDef::TriggeringZoneChangeResult,
@@ -389,7 +387,7 @@ pub(in crate::card::sets) static INNER_SANCTUM: CardRecord = CardRecord::new(
     ),
     crate::card::CardSet::Weatherlight,
     CardRules::new_enchantment(mana_cost!("{1}{W}{W}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::life(2)),
+        abilities::cumulative_upkeep!(CostDef::life(2)),
         AbilityDef::static_ability(
             "Prevent all damage that would be dealt to creatures you control.",
             EffectDef::StaticApply {
@@ -626,7 +624,7 @@ pub(in crate::card::sets) static VOLUNTEER_RESERVES: CardRecord = CardRecord::ne
     crate::card::CardSet::Weatherlight,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 2, 4).with_abilities(&[
         abilities::banding(),
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        abilities::cumulative_upkeep!(CostDef::mana(mana_cost!("{1}"))),
     ]),
 );
 
@@ -818,7 +816,7 @@ pub(in crate::card::sets) static MANA_CHAINS: CardRecord = CardRecord::new(
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::add_ability(
-                        &abilities::cumulative_upkeep(CostDef::mana(mana_cost!(
+                        &abilities::cumulative_upkeep!(CostDef::mana(mana_cost!(
                             "{1}"
                         )))
                         .override_text("Cumulative upkeep {1}."),
@@ -986,7 +984,7 @@ pub(in crate::card::sets) static PSYCHIC_VORTEX: CardRecord = CardRecord::new(
     crate::card::CardArt::new("3bc2a419-7122-4eeb-bb64-738a647cfd82", "Steve Luke"),
     crate::card::CardSet::Weatherlight,
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::draw_cards(1)),
+        abilities::cumulative_upkeep!(CostDef::draw_cards(1)),
         AbilityDef::triggered(
             "At the beginning of your end step, sacrifice a land and discard your hand.",
             TriggerEventDef::StepBegins {
@@ -1385,7 +1383,7 @@ pub(in crate::card::sets) static GALLOWBRAID: CardRecord = CardRecord::new(
         .with_supertype(crate::card::CardSupertype::Legendary)
         .with_abilities(&[
             abilities::trample(),
-            abilities::cumulative_upkeep(CostDef::life(1)),
+            abilities::cumulative_upkeep!(CostDef::life(1)),
         ]),
 );
 
@@ -1426,9 +1424,10 @@ pub(in crate::card::sets) static HIDDEN_HORROR: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::unless(
                 crate::card::EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: crate::card::CostDef::DiscardMatching(ObjectPredicateDef::HasType(
-                        CardType::Creature,
-                    )),
+                    cost: crate::card::CostDef::Discard {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
+                    },
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -1448,9 +1447,9 @@ pub(in crate::card::sets) static INFERNAL_TRIBUTE: CardRecord = CardRecord::new(
         "{2}, Sacrifice a nontoken permanent: Draw a card.",
         &[
             CostDef::Mana(mana_cost!("{2}")),
-            CostDef::SacrificePermanent {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                controller: PlayerRelation::You,
             },
         ],
         EffectDef::DrawCards {
@@ -1485,7 +1484,7 @@ pub(in crate::card::sets) static MORINFEN: CardRecord = CardRecord::new(
         .with_supertype(crate::card::CardSupertype::Legendary)
         .with_abilities(&[
             abilities::flying(),
-            abilities::cumulative_upkeep(CostDef::life(1)),
+            abilities::cumulative_upkeep!(CostDef::life(1)),
         ]),
 );
 
@@ -1595,10 +1594,7 @@ pub(in crate::card::sets) static STRANDS_OF_NIGHT: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{B}{B}")),
                 CostDef::PayLife(2),
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]) },
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -1668,7 +1664,7 @@ pub(in crate::card::sets) static WAVE_OF_TERROR: CardRecord = CardRecord::new(
     crate::card::CardArt::new("d40ab3e7-9abb-4acc-9932-de03b533722f", "Adrian Smith"),
     crate::card::CardSet::Weatherlight,
     CardRules::new_enchantment(mana_cost!("{2}{B}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        abilities::cumulative_upkeep!(CostDef::mana(mana_cost!("{1}"))),
         AbilityDef::triggered(
             "At the beginning of your draw step, destroy each creature with mana value equal to the number of age counters on this enchantment. They can't be regenerated.",
             TriggerEventDef::StepBegins {
@@ -1737,12 +1733,12 @@ pub(in crate::card::sets) static BETROTHED_OF_FIRE: CardRecord = CardRecord::new
             abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
             AbilityDef::activated(
                 "Sacrifice an untapped creature: Enchanted creature gets +2/+0 until end of turn.",
-                &[CostDef::SacrificePermanent {
+                &[CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
                     ]),
-                    controller: PlayerRelation::You,
                 }],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::AttachedPermanent,
@@ -1755,9 +1751,9 @@ pub(in crate::card::sets) static BETROTHED_OF_FIRE: CardRecord = CardRecord::new
             ),
             AbilityDef::activated(
                 "Sacrifice enchanted creature: Creatures you control get +2/+0 until end of turn.",
-                &[CostDef::SacrificePermanent {
+                &[CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::AttachedToSource,
-                    controller: PlayerRelation::You,
                 }],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::matching_objects(
@@ -2134,10 +2130,10 @@ pub(in crate::card::sets) static HEART_OF_BOGARDAN: CardRecord = CardRecord::new
     crate::card::CardArt::new("4e30d025-1df9-4a08-b686-037e9cbf23a6", "Terese Nielsen"),
     crate::card::CardSet::Weatherlight,
     CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{2}"))),
+        abilities::cumulative_upkeep!(CostDef::mana(mana_cost!("{2}"))),
         AbilityDef::triggered_with_targets(
             "When a player doesn't pay this enchantment's cumulative upkeep, this enchantment deals X damage to target player or planeswalker and each creature that player or that planeswalker's controller controls, where X is twice the number of age counters on this enchantment minus 2.",
-            TriggerEventDef::CumulativeUpkeepNotPaid,
+            TriggerEventDef::MechanicPayment { mechanic: abilities::CUMULATIVE_UPKEEP, paid: false, mana_colors: None },
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
@@ -2373,7 +2369,7 @@ pub(in crate::card::sets) static ABOROTH: CardRecord = CardRecord::new(
     crate::card::CardArt::new("8c72ac67-e4fb-49a1-b1e5-cd2e414bec28", "Brom"),
     crate::card::CardSet::Weatherlight,
     CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Elemental"], 9, 9).with_ability(
-        abilities::cumulative_upkeep(CostDef::put_counters_on_source(
+        abilities::cumulative_upkeep!(CostDef::put_counters_on_source(
             CounterKind::MinusOneMinusOne,
             1,
         )),
@@ -2387,7 +2383,7 @@ pub(in crate::card::sets) static ARCTIC_WOLVES: CardRecord = CardRecord::new(
     crate::card::CardArt::new("b5fb56a2-5138-4c31-aa4b-0824a1a24573", "Steve White"),
     crate::card::CardSet::Weatherlight,
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Wolf"], 4, 5).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{2}"))),
+        abilities::cumulative_upkeep!(CostDef::mana(mana_cost!("{2}"))),
         abilities::enters_trigger(
             "When this creature enters, draw a card.",
             EffectDef::DrawCards {
@@ -2596,9 +2592,10 @@ pub(in crate::card::sets) static FALLOW_WURM: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::unless(
                 crate::card::EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: crate::card::CostDef::DiscardMatching(ObjectPredicateDef::HasType(
-                        CardType::Land,
-                    )),
+                    cost: crate::card::CostDef::Discard {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
+                    },
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -2629,10 +2626,7 @@ pub(in crate::card::sets) static FUNGUS_ELEMENTAL: CardRecord = CardRecord::new(
             "{G}, Sacrifice a Forest: Put a +2/+2 counter on this creature. Activate only if this creature entered this turn.",
             &[
                 CostDef::Mana(mana_cost!("{G}")),
-                CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                    controller: PlayerRelation::You,
-                },
+                CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]) },
             ],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
@@ -2766,7 +2760,7 @@ pub(in crate::card::sets) static MWONVULI_OOZE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("aa9c6f65-93a1-4913-87e7-a17ebfcc7780", "Zina Saunders"),
     crate::card::CardSet::Weatherlight,
     CardRules::new_creature(mana_cost!("{G}"), &["Ooze"], 0, 0).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{2}")))
+        abilities::cumulative_upkeep!(CostDef::mana(mana_cost!("{2}")))
             .override_text(
                 "Cumulative upkeep {2} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay {2} for each age counter on it.)",
             ),
@@ -2836,9 +2830,10 @@ pub(in crate::card::sets) static ROGUE_ELEPHANT: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::unless(
                 crate::card::EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: crate::card::CostDef::SacrificePermanentMatching(
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                    ),
+                    cost: crate::card::CostDef::Sacrifice {
+                        object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
+                    },
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -2905,7 +2900,7 @@ pub(in crate::card::sets) static UKTABI_EFREET: CardRecord = CardRecord::new(
     crate::card::CardArt::new("3678a224-d314-4108-8a39-de0c1b635b5c", "Alan Rabinowitz"),
     crate::card::CardSet::Weatherlight,
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Efreet"], 5, 4).with_ability(
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{G}"))),
+        abilities::cumulative_upkeep!(CostDef::mana(mana_cost!("{G}"))),
     ),
 );
 

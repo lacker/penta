@@ -325,7 +325,7 @@ pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRec
                 EffectDef::PayOr(PayOrDef::optional(
                     EffectPaymentDef {
                         payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: CostDef::DiscardCards(1),
+                        cost: CostDef::Discard { object: crate::card::ObjectPredicateDef::Any, quantity: crate::card::CostQuantityDef::Fixed(1) },
                     },
                     // "It gains trample until end of turn" -- the creature that took the
                     // counter, which is the one the trigger targeted.

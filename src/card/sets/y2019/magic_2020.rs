@@ -165,9 +165,9 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{2}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Land),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::SearchZone {

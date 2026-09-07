@@ -1,7 +1,7 @@
 use super::{
     AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, AppliedEffectDef, AppliedStackEffect,
     BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardDefinition, CardInstance, CardType,
-    CastChoices, CastContext, CastOfferCost, CastSignature, CastSourceZone, CharacteristicContext,
+    CastChoices, CastContext, CastOfferCost, CastSignature, CastSourceZone,
     CommittedStackObjectEvent, CommittedTriggerEvent, CostConfiguration, CostDef,
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
@@ -430,7 +430,9 @@ impl Game {
                 .expect("a spell has a cast signature")
                 .form()
                 .clone(),
-            reserved_life_payment: life,
+            // The cast's life is paid immediately below, before this purpose
+            // is used to plan mana. Only still-unpaid life is reserved.
+            reserved_life_payment: 0,
         };
         self.pay_cast_life_and_energy(player, life, opponent_life_gain, energy);
         let Some(plan) = self.plan_mana_activations_for_reserving(
@@ -558,7 +560,7 @@ impl Game {
         &mut self,
         mut stack_object: StackObject,
         targets: Vec<Target>,
-        object_payments: Vec<(GameObjectId, CostDef)>,
+        object_payments: Vec<crate::game::cost_payment::CostPaymentStep>,
         cost: ManaCost,
         x: u16,
         purpose: ManaPaymentPurpose,
@@ -668,7 +670,7 @@ impl Game {
                 reserved_life_payment: 0,
             },
             ManaPaymentPurpose::Ability { .. }
-            | ManaPaymentPurpose::CumulativeUpkeep { .. }
+            | ManaPaymentPurpose::Resolving { .. }
             | ManaPaymentPurpose::Other => purpose.clone(),
         };
         let spent_mana =

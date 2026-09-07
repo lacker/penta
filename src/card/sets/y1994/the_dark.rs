@@ -1593,16 +1593,13 @@ pub(in crate::card::sets) static ORC_GENERAL: CardRecord = CardRecord::new_with_
         "{T}, Sacrifice another Orc or Goblin: Other Orc creatures get +1/+1 until end of turn.",
         &[
             CostDef::TapSource,
-            CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::All(&[
+            CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::Subtype("Orc"),
                         ObjectPredicateDef::Subtype("Goblin"),
                     ]),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                ]),
-                controller: PlayerRelation::You,
-            },
+                ]) },
         ],
         EffectDef::Apply {
             recipient: EffectRecipientDef::matching_objects(
@@ -2093,9 +2090,9 @@ pub(in crate::card::sets) static DARK_HEART_OF_THE_WOOD: CardRecord =
         CardSet::TheDark,
         CardRules::new_enchantment(mana_cost!("{B}{G}")).with_abilities(&[AbilityDef::activated(
             "Sacrifice a Forest: You gain 3 life.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Forest"),
-                controller: PlayerRelation::You,
             }],
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,

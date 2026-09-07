@@ -33,9 +33,9 @@ impl Game {
                 CostDef::SacrificeSource
                 | CostDef::ReturnSourceToHand
                 | CostDef::ExileSource
-                | CostDef::SacrificePermanent { .. }
-                | CostDef::ExileCardFromHand(_)
-                | CostDef::SacrificePermanents { .. }
+                | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), .. }
+                | CostDef::Exile { object: _, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }
+                | CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(_), .. }
                 | CostDef::RemoveAnyNumberOfCountersFromSource(_) => {}
                 CostDef::RemoveCountersFromSource { kind, amount } => {
                     self.battlefield
@@ -72,8 +72,8 @@ impl Game {
                 | CostDef::UntapSource
                 | CostDef::SacrificeObject(_)
                 | CostDef::MoveToZone(_)
-                | CostDef::DiscardCards(_)
-                | CostDef::DiscardCardMatching(_)
+                | CostDef::Discard { object: crate::card::ObjectPredicateDef::Any, quantity: crate::card::CostQuantityDef::Fixed(_) }
+                | CostDef::Discard { object: _, quantity: crate::card::CostQuantityDef::Fixed(1) }
                 | CostDef::RevealCardFromHand(_)
                 | CostDef::DiscardCardsAtRandom(_)
                 | CostDef::MillCards(_)
@@ -102,7 +102,7 @@ impl Game {
         if activation
             .costs
             .iter()
-            .any(|cost| matches!(cost, CostDef::ExileCardFromHand(_)))
+            .any(|cost| matches!(cost, CostDef::Exile { object: _, from: crate::card::ZoneKind::Hand, quantity: crate::card::CostQuantityDef::Fixed(1) }))
         {
             let chosen = activation
                 .cost_object
@@ -143,7 +143,7 @@ impl Game {
                 && activation
                     .costs
                     .iter()
-                    .any(|cost| matches!(cost, CostDef::SacrificePermanent { .. }))
+                    .any(|cost| matches!(cost, CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), .. }))
                 && !sacrificed.contains(&chosen)
             {
                 sacrificed.push(chosen);

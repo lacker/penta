@@ -122,16 +122,12 @@ impl Game {
             } => Resolved::Mana(
                 self.object_mana_cost_reduced_by(*recipient, generic, object, context, scoped),
             ),
+            cost @ (Cost::Discard { .. } | Cost::Exile { .. }) => Resolved::ObjectCost {
+                source: object.source.unwrap_or(object.id), cost,
+            },
             Cost::PayLife(amount) => Resolved::Life(amount),
             Cost::Energy(amount) => Resolved::Energy(amount),
             Cost::MillCards(amount) => Resolved::Mill(amount),
-            Cost::DiscardCards(amount) => Resolved::Discard(amount),
-            Cost::SacrificePermanentMatching(predicate) => {
-                Resolved::SacrificePermanentMatching(predicate)
-            }
-            Cost::SacrificeCreaturesWithTotalPower(total) => {
-                Resolved::SacrificeCreaturesWithTotalPower(total)
-            }
             Cost::MovePermanentMatching { object, zone } => {
                 Resolved::MovePermanentMatching { object, zone }
             }
@@ -153,7 +149,6 @@ impl Game {
                     object: crate::GameObjectId(0),
                     kind,
                 }),
-            Cost::DiscardMatching(predicate) => Resolved::DiscardMatching(predicate),
             _ => unreachable!("unsupported resolving payment cost reached execution"),
         }
     }

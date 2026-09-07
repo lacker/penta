@@ -986,9 +986,9 @@ pub(in crate::card::sets) static DEADAPULT: CardRecord = CardRecord::new(
             "{R}, Sacrifice a Zombie: This enchantment deals 2 damage to any target.",
             &[
                 CostDef::Mana(mana_cost!("{R}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Subtype("Zombie"),
-                    controller: PlayerRelation::You,
                 },
             ],
             &[AbilityTargetDef::exactly_one(

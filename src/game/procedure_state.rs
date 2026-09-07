@@ -24,6 +24,7 @@ pub(super) struct DrawReplacement {
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::large_enum_variant)]
 pub(super) enum PendingProcedure {
+    CommitPayment(Box<super::cost_payment::CostPaymentWindow>),
     DrawCards {
         player: PlayerId,
         remaining: u16,

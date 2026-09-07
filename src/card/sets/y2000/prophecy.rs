@@ -83,9 +83,9 @@ pub(in crate::card::sets) static AURA_FRACTURE: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice a land: Destroy target enchantment.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Land),
-                controller: PlayerRelation::You,
             }],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -477,9 +477,9 @@ pub(in crate::card::sets) static TRENCHING_STEED: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Horse", "Rebel"], 2, 3).with_ability(
         AbilityDef::activated(
             "Sacrifice a land: This creature gets +0/+3 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Land),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -557,9 +557,9 @@ pub(in crate::card::sets) static COASTAL_HORNCLAW: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{4}{U}"), &["Bird"], 3, 3).with_ability(
         AbilityDef::activated(
             "Sacrifice a land: This creature gains flying until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Land),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -957,9 +957,9 @@ pub(in crate::card::sets) static AGENT_OF_SHAUKU: CardRecord = CardRecord::new(
             "{1}{B}, Sacrifice a land: Target creature gets +2/+0 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{1}{B}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Land),
-                    controller: PlayerRelation::You,
                 },
             ],
             &const {
@@ -1008,9 +1008,10 @@ pub(in crate::card::sets) static BOG_ELEMENTAL: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::unless(
                 EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                        CardType::Land,
-                    )),
+                    cost: CostDef::Sacrifice {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
+                    },
                 },
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -1661,10 +1662,9 @@ pub(in crate::card::sets) static KELDON_ARSONIST: CardRecord = CardRecord::new(
             "{1}, Sacrifice two lands: Destroy target land.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
-                CostDef::SacrificePermanents {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(2),
                     object: ObjectPredicateDef::HasType(CardType::Land),
-                    controller: PlayerRelation::You,
-                    count: 2,
                 },
             ],
             &const {

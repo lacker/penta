@@ -288,9 +288,9 @@ pub(in crate::card::sets) static CHAIN_OF_SILENCE: CardRecord = CardRecord::new(
                     payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
                         TargetIndex::PRIMARY,
                     ))),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                    cost: CostDef::Sacrifice { object: ObjectPredicateDef::HasType(
                         CardType::Land,
-                    )),
+                    ), quantity: crate::card::CostQuantityDef::Fixed(1) },
                 },
                 &EffectDef::May {
                     player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1352,9 +1352,9 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_wi
                     payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
                         TargetIndex::PRIMARY,
                     ))),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                    cost: CostDef::Sacrifice { object: ObjectPredicateDef::HasType(
                         CardType::Land,
-                    )),
+                    ), quantity: crate::card::CostQuantityDef::Fixed(1) },
                 },
                 &EffectDef::May {
                     player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -2669,9 +2669,9 @@ pub(in crate::card::sets) static NANTUKO_HUSK: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Insect"], 2, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -3445,9 +3445,9 @@ pub(in crate::card::sets) static GOBLIN_SLEDDER: CardRecord = CardRecord::new(
             "Sacrifice a Goblin: Target creature gets +1/+1 until end of turn.",
             // "A Goblin", so it can eat itself, which is what makes it a
             // free sacrifice outlet as well as a combat trick.
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Goblin"),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -3566,13 +3566,26 @@ pub(in crate::card::sets) static LAVAMANCER_S_SKILL: CardRecord = CardRecord::ne
 // ONS 216 — Lay Waste (reprint)
 
 // ONS 217 — Lightning Rift
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_RIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d775d729-0ad9-4b14-9d44-6282f6936e07"),
     "Lightning Rift",
     crate::card::CardArt::new("d775d729-0ad9-4b14-9d44-6282f6936e07", "Eric Peterson"),
     crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(AbilityDef::triggered_with_targets(
+        "Whenever a player cycles a card, you may pay {1}. If you do, this enchantment deals 2 damage to any target.",
+        TriggerEventDef::mechanic_performed(abilities::CYCLING, PlayerRelation::Any),
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+        EffectDef::PayOr(PayOrDef::optional(
+            EffectPaymentDef {
+                payer: PlayerSetDef::Related(PlayerRelation::You),
+                cost: CostDef::Mana(mana_cost!("{1}")),
+            },
+            &EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        )),
+    )),
 );
 
 // ONS 218 — Mana Echoes
@@ -3772,9 +3785,9 @@ pub(in crate::card::sets) static SKIRK_PROSPECTOR: CardRecord = CardRecord::new_
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
         AbilityDef::activated_mana(
             "Sacrifice a Goblin: Add {R}.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Goblin"),
-                controller: PlayerRelation::You,
             }],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
         ),
@@ -4472,9 +4485,9 @@ pub(in crate::card::sets) static RAVENOUS_BALOTH: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 4, 4).with_ability(
         AbilityDef::activated(
             "Sacrifice a Beast: You gain 4 life.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Beast"),
-                controller: PlayerRelation::You,
             }],
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -5252,9 +5265,9 @@ pub(in crate::card::sets) static SEASIDE_HAVEN: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{W}{U}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Subtype("Bird"),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::DrawCards {

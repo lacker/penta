@@ -122,12 +122,13 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Phyrexian", "Human"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you sacrifice another permanent, put a +1/+1 counter on this creature.",
-            TriggerEventDef::Sacrificed {
+            TriggerEventDef::mechanic_performed_on(
+                crate::card::abilities::SACRIFICE,
                 // "Another" excludes this creature, so sacrificing it to its
                 // own outlet never grows a body that has already left.
-                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                player: PlayerRelation::You,
-            },
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                PlayerRelation::You,
+            ),
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,

@@ -43,6 +43,16 @@ fn drain_choosing(game: &mut Game, index: usize) {
             .map(|pending| pending.observation.clone())
         {
             let pick = index.min(decision.options.len().saturating_sub(1));
+            if index == 0 && decision.cancellable {
+                game.apply(
+                    decision.player,
+                    Action::CancelDecision {
+                        decision: decision.id,
+                    },
+                )
+                .unwrap();
+                continue;
+            }
             game.apply(
                 decision.player,
                 Action::ChooseDecision {

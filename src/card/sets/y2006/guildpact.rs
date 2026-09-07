@@ -95,9 +95,9 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_VOID: CardRecord = CardRecord::n
 const fn rusalka_sacrifice(mana: ManaCost) -> AbilityCostList {
     AbilityCostList::two(
         CostDef::Mana(mana),
-        CostDef::SacrificePermanent {
+        CostDef::Sacrifice {
+            quantity: crate::card::CostQuantityDef::Fixed(1),
             object: ObjectPredicateDef::HasType(CardType::Creature),
-            controller: PlayerRelation::You,
         },
     )
 }

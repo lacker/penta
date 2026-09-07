@@ -57,14 +57,24 @@ pub struct StackObjectEventMatcherDef {
 /// The committed event observed by a triggered ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerEventDef {
-    /// This source's cumulative-upkeep cost was paid. The trigger amount is
-    /// how many mana spent on that payment had one of the named colors.
-    CumulativeUpkeepPaid {
-        mana_colors: ColorSet,
+    /// A named action was actually performed by the related player. The
+    /// owning mechanic defines its occurrence boundary, not its effect shape.
+    MechanicPerformed {
+        mechanic: crate::ids::MechanicId,
+        player: PlayerRelation,
+        /// Optionally match the affected object's event-time characteristics.
+        object: Option<ObjectPredicateDef>,
+        /// Match once per actor's atomic batch rather than once per object.
+        one_or_more: bool,
     },
-    /// The controller declined or could not make this source's cumulative
-    /// upkeep payment. The captured amount is its age-counter count.
-    CumulativeUpkeepNotPaid,
+    /// A named payment on this source finished. With a color filter, the
+    /// event amount counts matching mana actually spent; otherwise it is
+    /// the payment's frozen repetition count, including an unpaid offer.
+    MechanicPayment {
+        mechanic: crate::ids::MechanicId,
+        paid: bool,
+        mana_colors: Option<ColorSet>,
+    },
     CoinFlipWon(PlayerRelation),
     CoinFlipLost(PlayerRelation),
     /// Any one of several events, for a printed ability that names more than
@@ -217,13 +227,9 @@ pub enum TriggerEventDef {
     /// A matching player became the monarch (CR 720). The crown passing
     /// from one player to another raises this once, for whoever received it.
     BecomesMonarch(PlayerRelation),
-    /// A card was put into a graveyard from a matching player's hand. One
-    /// trigger per card, so "whenever you discard a card" fires twice for a
-    /// discard of two -- and a discard paid as a cost is still a discard.
-    Discarded(PlayerRelation),
     /// "Whenever you discard one or more cards." One trigger for the whole
     /// discard however many cards it took, which is what separates it from
-    /// [`Self::Discarded`]: a discard of two fires that one twice and this
+    /// a per-card discard mechanic event: a discard of two fires that twice and this
     /// one once.
     DiscardedCards(PlayerRelation),
     /// "When you do", for the reflexive half of exert (CR 701.38a).
@@ -262,15 +268,6 @@ pub enum TriggerEventDef {
     /// last-known information, because the permanent is already gone by the
     /// time the ability goes on the stack.
     SacrificePerformed(ObjectPredicateDef),
-    /// "Whenever you sacrifice a Clue." A sacrifice is a way of putting a
-    /// permanent into a graveyard rather than a thing that happens to it
-    /// there, so it is its own event: a Clue somebody destroyed went to the
-    /// same place and is not what this asks about. The relation is to the
-    /// player who sacrificed it, which is who "you sacrifice" names.
-    Sacrificed {
-        object: ObjectPredicateDef,
-        player: PlayerRelation,
-    },
     /// "When you unlock this door" (CR 714.4c). A door becomes unlocked
     /// either on the battlefield, for the unlock special action, or as the
     /// Room enters because you cast that half.
@@ -302,11 +299,6 @@ pub enum TriggerEventDef {
         object: ObjectPredicateDef,
         kind: crate::card::CounterKind,
     },
-    /// "When you cycle this card" (CR 702.29b). Cycling is an activation, so
-    /// this fires when the ability is activated rather than when it resolves,
-    /// and the card is already in the graveyard by then. Only the cycled card
-    /// carries the clause, so the event names nothing else.
-    Cycled,
     /// "Whenever you commit a crime" (CR 701.51a). A player commits a crime
     /// as they cast a spell, activate an ability, or put a triggered ability
     /// onto the stack that targets an opponent, anything an opponent
@@ -316,6 +308,33 @@ pub enum TriggerEventDef {
 }
 
 impl TriggerEventDef {
+    #[must_use]
+    pub const fn mechanic_performed(
+        mechanic: crate::ids::MechanicId,
+        player: PlayerRelation,
+    ) -> Self {
+        Self::MechanicPerformed {
+            mechanic,
+            player,
+            object: None,
+            one_or_more: false,
+        }
+    }
+
+    #[must_use]
+    pub const fn mechanic_performed_on(
+        mechanic: crate::ids::MechanicId,
+        object: ObjectPredicateDef,
+        player: PlayerRelation,
+    ) -> Self {
+        Self::MechanicPerformed {
+            mechanic,
+            player,
+            object: Some(object),
+            one_or_more: false,
+        }
+    }
+
     const fn damage_source(source: ObjectPredicateDef) -> DamageSourceMatcherDef {
         match source {
             ObjectPredicateDef::Source => DamageSourceMatcherDef::Object(ObjectRefDef::Source),

@@ -573,21 +573,6 @@ fn validate_trigger_condition_shape(
     }
 }
 
-fn validate_payment_shape(
-    payment: EffectPaymentDef,
-    targets: &[AbilityTargetDef],
-) -> Result<(), GrantedAbilityValidationError> {
-    validate_player_set_shape(payment.payer, targets)?;
-    if let PlayerSetDef::LegalTargets(target) = payment.payer {
-        validate_target_shape(target, targets, RecipientExpectation::Any, true)?;
-        validate_target_projection(target, targets, RecipientExpectation::Player)?;
-    }
-    if let CostDef::GenericMana(amount) = payment.cost {
-        validate_value_shape(amount, targets)?;
-    }
-    Ok(())
-}
-
 fn applied_effect_adds_ability(effect: AppliedEffectDef) -> bool {
     match effect {
         AppliedEffectDef::Composite(effects) => {

@@ -594,67 +594,6 @@ fn a_phased_out_permanent_reconstructs_as_phased_out() {
     );
 }
 
-/// A Dreadnought's entry cost is answered one creature at a time, and the
-/// resolution that wants it is still in flight while it is asked -- so the
-/// checkpoint has to carry that resolution along with how much is owed.
-#[test]
-fn a_run_of_sacrifices_reconstructs_mid_payment() {
-    let mut game = ready_game();
-    for index in 0..3 {
-        game.battlefield.push(creature(
-            10_010 + index,
-            crate::card::cards::SERRA_ANGEL,
-            PlayerId::One,
-        ));
-    }
-    let dreadnought = card(
-        10_000,
-        crate::card::cards::PHYREXIAN_DREADNOUGHT,
-        PlayerId::One,
-    );
-    let dreadnought_id = dreadnought.id;
-    game.players[PlayerId::One.index()].hand.push(dreadnought);
-    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
-    game.priority = PlayerId::One;
-    game.apply(
-        PlayerId::One,
-        crate::game::tests::cast_action(dreadnought_id, Vec::new(), Vec::new(), 0),
-    )
-    .expect("one mana casts it");
-    crate::game::tests::pass_until_decision(&mut game);
-
-    let offer = game
-        .observe(PlayerId::One)
-        .decision
-        .expect("the payer is asked whether to pay");
-    let pay = offer
-        .options
-        .iter()
-        .find(|option| option.id != 0)
-        .expect("paying is on offer")
-        .id;
-    game.apply(
-        PlayerId::One,
-        Action::ChooseDecision {
-            decision: offer.id,
-            options: vec![pay],
-        },
-    )
-    .expect("paying is legal");
-
-    let (_wire, rebuilt) =
-        super::super::tests::rebuild_current_checkpoint(&game, PlayerId::One, 11);
-    let remaining = match rebuilt
-        .pending_decisions
-        .first()
-        .map(|pending| &pending.continuation)
-    {
-        Some(DecisionContinuation::SacrificeToTotalPower { remaining, .. }) => *remaining,
-        other => panic!("the run of sacrifices came back as {other:?}"),
-    };
-    assert_eq!(remaining, 12, "and it still owes the whole twelve");
-}
-
 /// A trigger that divides a fixed total asks twice: which targets, and then
 /// how much each takes. A game saved between those two questions has to come
 /// back asking the second one, with the same splits on offer.

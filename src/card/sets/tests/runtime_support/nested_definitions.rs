@@ -106,7 +106,7 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
         TriggerEventDef::OptionalEffectTaken(taker) => shared_object_predicate(taker),
         // Published from every site that sacrifices, before the permanent
         // leaves, so what it was is still readable.
-        TriggerEventDef::Sacrificed { object, .. } => shared_object_predicate(object),
+        TriggerEventDef::MechanicPerformed { object: Some(object), .. } => shared_object_predicate(object),
         TriggerEventDef::Attacks(matcher) => {
             shared_object_predicate(matcher.attacker)
                 && matcher.declaration.minimum > 0
@@ -135,23 +135,19 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
                     StackObjectEventDef::Cast { .. } | StackObjectEventDef::Copied => true,
                 }
         }
-        // A crime names only the player who committed it; what was targeted
-        // is not part of the event. Cycling names no object of its own: the
-        // card that was cycled is the only thing that can be listening.
+        // These events do not constrain an affected object predicate.
         TriggerEventDef::CommittedCrime(_)
-        | TriggerEventDef::CumulativeUpkeepPaid { .. }
-        | TriggerEventDef::CumulativeUpkeepNotPaid
+        | TriggerEventDef::MechanicPerformed { object: None, .. }
+        | TriggerEventDef::MechanicPayment { .. }
         | TriggerEventDef::CoinFlipWon(_)
         | TriggerEventDef::CoinFlipLost(_)
         | TriggerEventDef::BecomesLevel(_)
-        | TriggerEventDef::Cycled
         | TriggerEventDef::DoorUnlocked
         // The land that was played is on the battlefield by the time the
         // trigger is captured, so an ordinary predicate may read it.
         | TriggerEventDef::LandPlayed { .. }
         | TriggerEventDef::StepBegins { .. }
         | TriggerEventDef::LifeGained(_)
-        | TriggerEventDef::Discarded(_)
         | TriggerEventDef::DiscardedCards(_)
         // The crown names only the player who received it, and there is
         // nothing else for a predicate to read.
@@ -293,7 +289,17 @@ pub(super) fn shared_entry_replacement_effect(effect: ReplacementEffectDef) -> b
             if_paid,
             if_declined,
         } => {
-            !matches!(
+            // The entry adapter currently accepts a single selected card;
+            // larger/composite action costs use resolving payment windows.
+            let object_cost_supported = match payment.cost {
+                CostDef::Discard { object, quantity }
+                | CostDef::Exile { object, quantity, from: ZoneKind::Hand | ZoneKind::Graveyard } =>
+                    quantity.fixed_value() == Some(1) && shared_object_predicate(object),
+                CostDef::Sacrifice { .. } | CostDef::Exile { .. } | CostDef::Named { .. }
+                | CostDef::All(_) | CostDef::Choice(_) => false,
+                _ => true,
+            };
+            object_cost_supported && !matches!(
                 payment.payer,
                 PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
             ) && if_paid.iter().copied().all(shared_entry_replacement_effect)

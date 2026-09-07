@@ -68,7 +68,7 @@ EffectDef::RevealObjects(_) | EffectDef::MoveObjects(_) |
 EffectDef::PutObjectsOntoBattlefieldFaceDown(_) |
 EffectDef::ChooseForEachPlayer(_) | EffectDef::ChooseCardName { .. } |
 EffectDef::SelectAtRandomFromZone { .. } |
-EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) | EffectDef::CumulativeUpkeep(_) |
+EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) |
 EffectDef::PreventDamage { .. } |
 EffectDef::DealDamage { .. } | EffectDef::DealDamageSimultaneously(_) |
 EffectDef::DealDamageFrom { .. } | EffectDef::DealDamageAndApply { .. } |
@@ -76,7 +76,7 @@ EffectDef::Fight { .. } | EffectDef::DrainLife { .. } |
 EffectDef::GainLife { .. } | EffectDef::AddPlayerCounters { .. } |
 EffectDef::DrawCards { .. } | EffectDef::Discard { .. } |
 EffectDef::DiscardCards { .. } | EffectDef::ShuffleLibrary { .. } |
-EffectDef::BuryGraveyard { .. } | EffectDef::EmptyManaPool { .. } |
+EffectDef::EmptyManaPool { .. } |
 EffectDef::LoseLife { .. } | EffectDef::LoseTheGame { .. } |
 EffectDef::WinTheGame { .. } | EffectDef::AddManaEqualTo { .. } |
 EffectDef::Regenerate { .. } | EffectDef::Tap { .. } |

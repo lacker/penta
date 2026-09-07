@@ -36,10 +36,11 @@ pub(in crate::card::sets) static BALOTH_PRIME: CardRecord = CardRecord::new(
             AbilityDef::triggered(
                 "Whenever you sacrifice a land, create a tapped 4/4 green Beast creature token and untap \
                  this creature.",
-                TriggerEventDef::Sacrificed {
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    player: PlayerRelation::You,
-                },
+                TriggerEventDef::mechanic_performed_on(
+                    crate::card::abilities::SACRIFICE,
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    PlayerRelation::You,
+                ),
                 // The untap is what pays the counters off: while any are left the clause
                 // removes one instead of untapping him, so the lands are what wake him up.
                 EffectDef::Sequence(&[
@@ -62,10 +63,7 @@ pub(in crate::card::sets) static BALOTH_PRIME: CardRecord = CardRecord::new(
                 "{4}, Sacrifice a land: You gain 2 life.",
                 &[
                     CostDef::Mana(mana_cost!("{4}")),
-                    CostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::HasType(CardType::Land),
-                        controller: PlayerRelation::You,
-                    },
+                    CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(1), object: ObjectPredicateDef::HasType(CardType::Land) },
                 ],
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,

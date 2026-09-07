@@ -154,10 +154,12 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
                     // "Abilities you activate", which is wider than the permanents you
                     // control: cycling and the rest of what a card in a hand or a
                     // graveyard prints is an ability you activate too, and the shared
-                    // vocabulary reaches those objects with the same predicate. Mana
-                    // abilities are outside it, and are excluded structurally rather
-                    // than here: their activation never reaches this reduction.
+                    // vocabulary reaches those objects with the same predicate. The
+                    // ability selector independently excludes mana abilities.
                     permanent: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ability: crate::card::AbilityPredicateDef::Is(
+                        crate::card::AbilityKindDef::NonManaActivated,
+                    ),
                     amount: ValueDef::Constant(2),
                     minimum: 1,
                 }),

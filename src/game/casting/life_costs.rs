@@ -215,7 +215,7 @@ impl Game {
         signature: &CastSignature,
         context: super::CastCostContext,
         sacrifices: &[GameObjectId],
-    ) -> (Vec<(GameObjectId, CostDef)>, u16) {
+    ) -> (Vec<crate::game::cost_payment::CostPaymentStep>, u16) {
         let super::CastCostContext { source_zone, offer } = context;
         let held = match source_zone {
             CastSourceZone::Hand => self.players[player.index()]
@@ -278,6 +278,6 @@ impl Game {
                 offer,
             )
             .saturating_add(payment.life);
-        (payment.objects, life)
+        (payment.steps, life)
     }
 }

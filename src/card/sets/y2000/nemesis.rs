@@ -101,9 +101,9 @@ pub(in crate::card::sets) static FANATICAL_DEVOTION: CardRecord = CardRecord::ne
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice a creature: Regenerate target creature.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -188,7 +188,10 @@ pub(in crate::card::sets) static NETTER_EN_DAL: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{W}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -765,7 +768,10 @@ pub(in crate::card::sets) static STRONGHOLD_BIOLOGIST: CardRecord = CardRecord::
             &[
                 CostDef::Mana(mana_cost!("{U}{U}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one(
@@ -803,7 +809,10 @@ pub(in crate::card::sets) static STRONGHOLD_MACHINIST: CardRecord = CardRecord::
             &[
                 CostDef::Mana(mana_cost!("{U}{U}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one(
@@ -1142,7 +1151,10 @@ pub(in crate::card::sets) static PLAGUE_WITCH: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{B}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -1357,7 +1369,10 @@ pub(in crate::card::sets) static BOLA_WARRIOR: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{R}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -2406,9 +2421,9 @@ pub(in crate::card::sets) static RATH_S_EDGE: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{4}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Land),
-                    controller: PlayerRelation::You,
                 },
             ],
             &const {

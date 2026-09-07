@@ -1,6 +1,4 @@
-use crate::card::{
-    CostDef, ManaCost, ReplacementAbilityDef, ReplacementEffectDef, ZoneKind, ZonePlacement,
-};
+use crate::card::{ManaCost, ReplacementAbilityDef, ReplacementEffectDef, ZoneKind, ZonePlacement};
 use crate::ids::{Binding, CardDefinitionId, GameObjectId, PlayerId};
 
 use super::{
@@ -115,6 +113,7 @@ pub(super) struct PendingBattlefieldExitBatch {
 /// the optional box.
 #[derive(Clone, Debug)]
 pub(super) enum BattlefieldExitCompletion {
+    CompleteResolvingCost(Box<super::cost_payment::CostPaymentWindow>),
     Completions(Vec<BattlefieldExitCompletion>),
     ContinueBattlefieldExitReplacements {
         batch: PendingBattlefieldExitBatch,
@@ -142,7 +141,7 @@ pub(super) enum BattlefieldExitCompletion {
     CompleteSpellCast {
         object: Box<StackObject>,
         targets: Vec<Target>,
-        remaining_sacrifices: Vec<(GameObjectId, CostDef)>,
+        remaining_sacrifices: Vec<crate::game::cost_payment::CostPaymentStep>,
     },
     CompleteActivatedAbility {
         source: GameObjectId,
@@ -151,7 +150,7 @@ pub(super) enum BattlefieldExitCompletion {
         frozen: Box<FrozenActivatedAbility>,
         targets: Vec<TargetSelection>,
         chosen_permanents: Vec<GameObjectId>,
-        remaining_sacrifices: Vec<GameObjectId>,
+        remaining_sacrifices: Vec<Vec<GameObjectId>>,
     },
     CompleteManaAbility {
         player: PlayerId,
@@ -161,7 +160,7 @@ pub(super) enum BattlefieldExitCompletion {
     ContinueSpellManaPayment {
         object: Box<StackObject>,
         targets: Vec<Target>,
-        object_payments: Vec<(GameObjectId, CostDef)>,
+        object_payments: Vec<crate::game::cost_payment::CostPaymentStep>,
         cost: ManaCost,
         x: u16,
         purpose: ManaPaymentPurpose,

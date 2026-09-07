@@ -490,7 +490,7 @@ impl Game {
                 && activation
                     .costs
                     .iter()
-                    .any(|cost| matches!(cost, CostDef::SacrificePermanents { .. })))
+                    .any(|cost| matches!(cost, CostDef::Sacrifice { quantity: crate::card::CostQuantityDef::Fixed(2..), .. })))
     }
 }
 

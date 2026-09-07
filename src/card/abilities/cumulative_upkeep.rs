@@ -1,10 +1,47 @@
-/// Cumulative upkeep (CR 702.24): one age counter, then one indivisible
-/// payment containing the unit cost once for each age counter on the source.
-///
-/// Common printed costs receive their Oracle reminder text here. A card with
-/// different wording can call [`AbilityDef::override_text`] on the result.
+/// The shared rules identity, independent of this program's source location.
+pub const CUMULATIVE_UPKEEP: crate::MechanicId =
+    crate::MechanicId::from_name("mtg:cumulative-upkeep");
+
+/// Construct the static program at its declaration site. A macro permits
+/// Rust to promote the parameterized sequence without adding a special
+/// effect variant or allocating runtime definitions.
+macro_rules! cumulative_upkeep {
+    ($cost:expr $(,)?) => {{
+        const UNIT: $crate::card::CostDef = $cost;
+        const REPEATED: $crate::card::CostDef = $crate::card::CostDef::Repeat {
+            cost: &UNIT,
+            times: $crate::card::ValueDef::CountersOnSource($crate::CounterKind::named("age")),
+        };
+        const STEPS: [$crate::card::EffectDef; 2] = [
+            $crate::card::EffectDef::AddCounters {
+                object: $crate::card::EffectRecipientDef::Source,
+                kind: $crate::CounterKind::named("age"),
+                amount: $crate::card::ValueDef::Constant(1),
+            },
+            $crate::card::EffectDef::PayOr($crate::card::PayOrDef::unless(
+                $crate::card::EffectPaymentDef {
+                    payer: $crate::card::PlayerSetDef::One($crate::card::PlayerRefDef::EffectController),
+                    cost: $crate::card::CostDef::Named {
+                        mechanic: $crate::card::abilities::CUMULATIVE_UPKEEP,
+                        cost: &REPEATED,
+                    },
+                },
+                &$crate::card::EffectDef::Sacrifice {
+                    object: $crate::card::EffectRecipientDef::Source,
+                },
+            )),
+        ];
+        $crate::card::abilities::cumulative_upkeep_ability(
+            UNIT,
+            &$crate::card::EffectDef::Sequence(&STEPS),
+        )
+    }};
+}
+pub(crate) use cumulative_upkeep;
+
+/// The clauses remain ordinary effects; wording stays in shared vocabulary.
 #[must_use]
-pub const fn cumulative_upkeep(cost: CostDef) -> AbilityDef {
+pub const fn cumulative_upkeep_ability(cost: CostDef, program: &'static EffectDef) -> AbilityDef {
     let text = match cost {
         CostDef::Mana(cost) if mana_cost_is_generic(cost, 1) => {
             "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
@@ -24,7 +61,7 @@ pub const fn cumulative_upkeep(cost: CostDef) -> AbilityDef {
         CostDef::DrawCards(1) => {
             "Cumulative upkeep—Draw a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
         }
-        CostDef::DiscardCards(1) => {
+        CostDef::Discard { object: crate::card::ObjectPredicateDef::Any, quantity: crate::card::CostQuantityDef::Fixed(1) } => {
             "Cumulative upkeep—Discard a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
         }
         CostDef::PutCountersOnSource {
@@ -41,8 +78,11 @@ pub const fn cumulative_upkeep(cost: CostDef) -> AbilityDef {
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        EffectDef::CumulativeUpkeep(cost),
-    )
+        EffectDef::IfCondition {
+            condition: &TriggerConditionDef::SourceOnBattlefield,
+            then: program,
+        },
+    ).with_mechanics(&[CUMULATIVE_UPKEEP])
 }
 
 const fn mana_cost_is_generic(cost: ManaCost, amount: u16) -> bool {

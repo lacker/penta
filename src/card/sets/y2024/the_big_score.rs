@@ -89,14 +89,14 @@ pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new_w
             &[
                 CostDef::Mana(mana_cost!("{2}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     // Another one: the Extruder is an artifact itself and may not eat itself,
                     // which is what stops a two-mana artifact from being a Golem on its own.
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::create_artifact_creature_token(&["Golem"], &[], 3, 3).with_art(

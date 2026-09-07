@@ -424,7 +424,10 @@ pub(in crate::card::sets) static EPHEMERON: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
@@ -644,7 +647,10 @@ pub(in crate::card::sets) static THALAKOS_DRIFTERS: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Thalakos"], 3, 3).with_ability(
         AbilityDef::activated(
             "Discard a card: This creature gains shadow until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::shadow() }),
@@ -1097,9 +1103,9 @@ pub(in crate::card::sets) static RECURRING_NIGHTMARE: CardRecord = CardRecord::n
             // return rather than a sacrifice: it comes back to hand to be cast again,
             // which is the whole of why the card is banned wherever it is.
             &[
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
                 },
                 CostDef::ReturnSourceToHand,
             ],
@@ -1187,9 +1193,10 @@ pub(in crate::card::sets) static VAMPIRE_HOUNDS: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Dog"], 2, 2).with_ability(
         AbilityDef::activated(
             "Discard a creature card: This creature gets +2/+2 until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
-                CardType::Creature,
-            ))],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1540,9 +1547,10 @@ pub(in crate::card::sets) static SEISMIC_ASSAULT: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{R}{R}{R}")).with_ability(
         AbilityDef::activated_with_targets(
             "Discard a land card: This enchantment deals 2 damage to any target.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
-                CardType::Land,
-            ))],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -1877,9 +1885,9 @@ pub(in crate::card::sets) static ROOTWATER_ALLIGATOR: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Crocodile"], 3, 2).with_ability(
         abilities::regenerate_self(
             "Sacrifice a Forest: Regenerate this creature.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                controller: PlayerRelation::You,
             }],
         ),
     ),
@@ -1998,7 +2006,10 @@ pub(in crate::card::sets) static MEDICINE_BAG: CardRecord = CardRecord::new(
         &[
             CostDef::Mana(mana_cost!("{1}")),
             CostDef::TapSource,
-            CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            },
         ],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),

@@ -8,7 +8,7 @@
 use super::{
     AbilityProcedureDef, AbilitySourceRef, BattlefieldTriggerListener, CardPartId,
     CharacteristicContext, CommittedTriggerEvent, DeclarativeAbilityDef, EffectDef, Game,
-    ObjectCharacteristics, PlayerId, TriggerCapture, TriggerContext, ZoneKind,
+    ObjectCharacteristics, PlayerId, TriggerCapture, TriggerContext,
 };
 use crate::game::CardInstance;
 
@@ -18,13 +18,25 @@ impl Game {
         listeners: &mut Vec<BattlefieldTriggerListener>,
         card: &CardInstance,
     ) {
-        self.for_each_printed_card_ability(card, &CharacteristicContext::Graveyard, |effective| {
+        self.extend_with_card_trigger_listeners(listeners, card, &CharacteristicContext::Graveyard);
+    }
+
+    pub(in crate::game) fn extend_with_card_trigger_listeners(
+        &self,
+        listeners: &mut Vec<BattlefieldTriggerListener>,
+        card: &CardInstance,
+        context: &CharacteristicContext,
+    ) {
+        let Some(zone) = context.zone() else {
+            return;
+        };
+        self.for_each_printed_card_ability(card, context, |effective| {
             let ability = effective.ability;
             let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
                 return;
             };
             if definition.procedure != AbilityProcedureDef::Shared
-                || !definition.source_zones.contains(&ZoneKind::Graveyard)
+                || !definition.source_zones.contains(&zone)
             {
                 return;
             }

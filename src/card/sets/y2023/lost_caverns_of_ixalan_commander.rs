@@ -3,8 +3,7 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, SumValueDef,
-    ValueDef, abilities,
+    CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, SumValueDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -22,7 +21,8 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
             "Boast — Sacrifice another creature or artifact: This creature deals damage equal to 2 \
                  plus the sacrificed permanent\'s mana value to any target. (Activate only if this \
                  creature attacked this turn and only once each turn.)",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 // "Another creature or artifact": the Goblin cannot throw itself, which is
                 // what keeps the ability from being a one-shot Shock.
                 object: ObjectPredicateDef::All(&[
@@ -32,7 +32,6 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
                     ]),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
-                controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,

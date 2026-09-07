@@ -108,12 +108,11 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecor
                  battlefield, then shuffle.",
                 &[
                     CostDef::TapSource,
-                    CostDef::SacrificePermanent {
+                    CostDef::Sacrifice {
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
                         // A Forest or a Plains by basic land type rather than by name, so a dual
                         // with either type pays for her too.
-                        object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest, BasicLandType::Plains]),
-                        controller: PlayerRelation::You,
-                    },
+                        object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest, BasicLandType::Plains]) },
                 ],
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,

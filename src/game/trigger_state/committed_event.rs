@@ -22,16 +22,20 @@ pub(super) enum CommittedStackObjectEvent {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum CommittedTriggerEvent {
-    CumulativeUpkeepPaid {
-        object: TriggerEventObject,
+    MechanicPerformed {
+        /// Several labels may describe one occurrence. An OR listener still
+        /// sees one event, as with "whenever you cycle or discard a card".
+        mechanics: Vec<crate::ids::MechanicId>,
         player: PlayerId,
-        age_counters: u16,
-        mana_spent: Vec<crate::ManaColor>,
+        object: Option<TriggerEventObject>,
     },
-    CumulativeUpkeepNotPaid {
+    MechanicPayment {
+        mechanic: crate::ids::MechanicId,
+        paid: bool,
         object: TriggerEventObject,
         player: PlayerId,
-        age_counters: u16,
+        repetitions: u16,
+        mana_spent: Vec<crate::ManaColor>,
     },
     CoinFlipped {
         player: PlayerId,
@@ -57,16 +61,6 @@ pub(super) enum CommittedTriggerEvent {
     LifeGained {
         player: PlayerId,
         amount: u16,
-    },
-    /// One card left a hand for a graveyard. The card is read where it now
-    /// lies, which is what "whenever you discard a card, you may exile that
-    /// card from your graveyard" names: the discard is over by the time the
-    /// trigger fires, so the object it points at is the graveyard card
-    /// rather than the one that was in hand. `None` where the card left no
-    /// readable object behind.
-    Discarded {
-        player: PlayerId,
-        card: Option<TriggerEventObject>,
     },
     /// One discard, however many cards it moved. Raised beside the per-card
     /// event above rather than instead of it: the two wordings are both
@@ -230,11 +224,6 @@ pub(super) enum CommittedTriggerEvent {
         step: TurnStepDef,
         player: PlayerId,
     },
-    /// A card was cycled. The object is the card in the graveyard, which is
-    /// where the discard cost has already put it.
-    Cycled {
-        object: TriggerEventObject,
-    },
     /// A creature was exerted as it was declared as an attacker
     /// (CR 701.38a).
     Exerted {
@@ -244,12 +233,6 @@ pub(super) enum CommittedTriggerEvent {
     /// the reflexive "when you do" half watches.
     OptionalEffectTaken {
         object: TriggerEventObject,
-    },
-    /// A permanent was sacrificed, captured before it left so what it was
-    /// is still readable.
-    Sacrificed {
-        object: TriggerEventObject,
-        player: PlayerId,
     },
     /// A resolution sacrificed a permanent as part of its own clause, which
     /// is what the compulsory "when you do" watches. The object is the
@@ -269,23 +252,23 @@ impl CommittedTriggerEvent {
     #[allow(clippy::too_many_lines)]
     pub(super) fn context(&self) -> TriggerContext {
         match self {
-            Self::CumulativeUpkeepPaid {
+            Self::MechanicPerformed { player, object, .. } => TriggerContext {
+                event_player: Some(*player),
+                object: object.as_ref().map(|object| object.id),
+                object_controller: object.as_ref().map(|object| object.controller),
+                ..TriggerContext::empty()
+            },
+            Self::MechanicPayment {
                 object,
                 player,
-                age_counters,
-                ..
-            }
-            | Self::CumulativeUpkeepNotPaid {
-                object,
-                player,
-                age_counters,
+                repetitions,
                 ..
             } => TriggerContext {
                 object: Some(object.id),
                 zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: Some(*player),
-                amount: Some(i32::from(*age_counters)),
+                amount: Some(i32::from(*repetitions)),
                 damaged_object: None,
                 sacrificed_object: None,
                 cast_from_zone: None,
@@ -318,7 +301,6 @@ impl CommittedTriggerEvent {
                 cast_from_zone: None,
             },
             Self::Transformed { object }
-            | Self::Cycled { object }
             | Self::Exerted { object }
             | Self::OptionalEffectTaken { object }
             | Self::AttacksAndIsNotBlocked { object } => TriggerContext {
@@ -334,7 +316,7 @@ impl CommittedTriggerEvent {
             // Who did it is the half that "whenever you sacrifice" and "when
             // you play another land" read, and what it was done to is the
             // other.
-            Self::Sacrificed { object, player } | Self::LandPlayed { object, player } => {
+            Self::LandPlayed { object, player } => {
                 TriggerContext {
                     object: Some(object.id),
                     zone_change_result: None,
@@ -542,16 +524,6 @@ impl CommittedTriggerEvent {
                 zone_change_result: None,
                 object_controller: None,
                 event_player: None,
-                amount: None,
-                damaged_object: None,
-                sacrificed_object: None,
-                cast_from_zone: None,
-            },
-            Self::Discarded { player, card } => TriggerContext {
-                object: card.as_ref().map(|card| card.id),
-                zone_change_result: None,
-                object_controller: card.as_ref().map(|card| card.controller),
-                event_player: Some(*player),
                 amount: None,
                 damaged_object: None,
                 sacrificed_object: None,

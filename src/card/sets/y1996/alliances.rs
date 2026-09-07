@@ -794,11 +794,11 @@ pub(in crate::card::sets) static THOUGHT_LASH: CardRecord = CardRecord::new(
     crate::card::CardArt::new("d59bbac1-ca51-4c72-9f1f-5fc6c82a4a27", "Mark Tedin"),
     crate::card::CardSet::Alliances,
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::exile_top_cards(1))
+        abilities::cumulative_upkeep!(CostDef::exile_top_cards(1))
             .override_text("Cumulative upkeep—Exile the top card of your library."),
         AbilityDef::triggered(
             "When this enchantment's cumulative upkeep isn't paid, exile all cards from your library.",
-            TriggerEventDef::CumulativeUpkeepNotPaid,
+            TriggerEventDef::MechanicPayment { mechanic: abilities::CUMULATIVE_UPKEEP, paid: false, mana_colors: None },
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::objects(ObjectSetDef::Query(
                     crate::card::ObjectQueryDef::owned_by(
@@ -964,7 +964,7 @@ pub(in crate::card::sets) static DYSTOPIA: CardRecord = CardRecord::new(
     crate::card::CardArt::new("5f8bb451-706d-44ff-bbad-9ddc6f9f786a", "Ruth Thompson"),
     crate::card::CardSet::Alliances,
     CardRules::new_enchantment(mana_cost!("{1}{B}{B}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::life(1)),
+        abilities::cumulative_upkeep!(CostDef::life(1)),
         AbilityDef::triggered(
             "At the beginning of each player's upkeep, that player sacrifices a green or white permanent of their choice.",
             TriggerEventDef::StepBegins {
@@ -1350,7 +1350,7 @@ pub(in crate::card::sets) static AGENT_OF_STROMGALD: CardRecord = CardRecord::ne
 // ALL 64b — Agent of Stromgald (alternate printing)
 
 // ALL 65 — Balduvian Horde
-// Audit: unsupported — Needs a random discard as a resolving payment. The shared runtime's payment costs include DiscardCards and DiscardMatching, both of which let the payer choose, and "discard a card at random" is a different cost.
+// Audit: unsupported — Needs a random discard as a resolving payment. The CostDef::Discard window collects player selections; random action costs need separate execution and information-safety handling.
 pub(in crate::card::sets) static BALDUVIAN_HORDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e167a6c-05f8-4d90-9f6b-eb0f1046d54a"),
     "Balduvian Horde",
@@ -1794,7 +1794,7 @@ pub(in crate::card::sets) static VARCHILD_S_WAR_RIDERS: CardRecord = CardRecord:
     crate::card::CardArt::new("ee1d41da-aa72-434b-811f-95d4bae4ba5c", "Susan Van Camp"),
     crate::card::CardSet::Alliances,
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Warrior"], 3, 4).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::create_tokens(
+        abilities::cumulative_upkeep!(CostDef::create_tokens(
             PlayerRelation::Opponent,
             &TokenCharacteristics::creature(&["Survivor"], &[ManaColor::Red], 1, 1),
             1,
@@ -2090,7 +2090,7 @@ pub(in crate::card::sets) static SPLINTERING_WIND: CardRecord = CardRecord::new(
                     TokenCharacteristics::creature(&["Splinter"], &[ManaColor::Green], 1, 1)
                         .with_abilities(&[
                             abilities::flying(),
-                            abilities::cumulative_upkeep(CostDef::mana(
+                            abilities::cumulative_upkeep!(CostDef::mana(
                                 mana_cost!("{G}"),
                             )),
                             AbilityDef::triggered(
@@ -2221,7 +2221,7 @@ pub(in crate::card::sets) static YAVIMAYA_ANTS: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Insect"], 5, 1).with_abilities(&[
         abilities::trample(),
         abilities::haste(),
-        abilities::cumulative_upkeep(CostDef::Mana(mana_cost!("{G}{G}"))).override_text(
+        abilities::cumulative_upkeep!(CostDef::Mana(mana_cost!("{G}{G}"))).override_text(
                 "Cumulative upkeep {G}{G} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
             ),
     ]),

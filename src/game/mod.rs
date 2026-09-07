@@ -1,3 +1,5 @@
+#[cfg(test)]
+pub(crate) use cost_payment::supported_action_program;
 use std::borrow::Cow;
 use std::collections::{BTreeMap, VecDeque};
 use std::ops::ControlFlow;
@@ -50,7 +52,6 @@ mod ability_layers;
 mod ability_targeting;
 mod activation;
 mod activation_completion;
-mod activation_sacrifice;
 mod activation_saddle;
 mod activation_state;
 mod activation_tap;
@@ -72,6 +73,7 @@ mod companion;
 mod continuous_effects;
 mod continuous_state;
 mod control_changes;
+mod cost_payment;
 mod counters;
 mod creature_characteristics;
 mod crime;
@@ -124,7 +126,6 @@ mod proliferate;
 mod prospective_x;
 mod replacement_state;
 mod rooms;
-mod sacrifice_to_total;
 mod sagas;
 mod scry;
 mod stack_resolution;
@@ -167,7 +168,6 @@ pub use observation::{
 
 use observation::{LastSeenHand, PublicCard};
 
-use activation_sacrifice::SacrificeQuota;
 use activation_state::{ActivationChoices, FrozenActivatedAbility, PendingActivation};
 use activation_tap::TapQuota;
 use activation_targeting::PendingActivationTargeting;

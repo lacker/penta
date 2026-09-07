@@ -862,9 +862,9 @@ pub(in crate::card::sets) static BARRIN_MASTER_WIZARD: CardRecord = CardRecord::
             "{2}, Sacrifice a permanent: Return target creature to its owner's hand.",
             &[
                 CostDef::Mana(mana_cost!("{2}")),
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Any,
-                    controller: PlayerRelation::You,
                 },
             ],
             &const {
@@ -2152,9 +2152,9 @@ pub(in crate::card::sets) static PHYREXIAN_GHOUL: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Zombie"], 2, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                controller: PlayerRelation::You,
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -4392,9 +4392,9 @@ pub(in crate::card::sets) static CLAWS_OF_GIX: CardRecord = CardRecord::new_with
         "{1}, Sacrifice a permanent: You gain 1 life.",
         &[
             CostDef::Mana(mana_cost!("{1}")),
-            CostDef::SacrificePermanent {
+            CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Any,
-                controller: PlayerRelation::You,
             },
         ],
         EffectDef::GainLife {
@@ -4455,13 +4455,20 @@ pub(in crate::card::sets) static ENDOSKELETON: CardRecord = CardRecord::new(
 );
 
 // USG 295 — Fluctuator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLUCTUATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("92078408-e0e4-443e-b0fd-aac0ac651f46"),
     "Fluctuator",
     crate::card::CardArt::new("92078408-e0e4-443e-b0fd-aac0ac651f46", "John Matson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::static_ability(
+        "Cycling abilities you activate cost {2} less to activate.",
+        EffectDef::ModifyCost(crate::card::CostModificationDef::AbilityReduction {
+            permanent: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ability: crate::card::AbilityPredicateDef::Mechanic(abilities::CYCLING),
+            amount: ValueDef::Constant(2),
+            minimum: 0,
+        }),
+    )),
 );
 
 // USG 296 — Grafted Skullcap
@@ -4799,9 +4806,9 @@ pub(in crate::card::sets) static PHYREXIAN_TOWER: CardRecord = CardRecord::new(
                 "{T}, Sacrifice a creature: Add {B}{B}.",
                 &[
                     CostDef::TapSource,
-                    CostDef::SacrificePermanent {
+                    CostDef::Sacrifice {
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
                         object: ObjectPredicateDef::HasType(CardType::Creature),
-                        controller: PlayerRelation::You,
                     },
                 ],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(2)),

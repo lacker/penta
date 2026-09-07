@@ -264,26 +264,6 @@ impl Game {
         }
     }
 
-    /// "Puts all the cards from their graveyard on the bottom of their
-    /// library in a random order." The order is randomized before anything
-    /// moves, so what lands where is decided once for the whole pile rather
-    /// than card by card.
-    fn bury_graveyard(&mut self, player: PlayerId) {
-        let graveyard = std::mem::take(&mut self.players[player.index()].graveyard);
-        if graveyard.is_empty() {
-            return;
-        }
-        self.note_card_left_graveyard(player);
-        let mut returning = graveyard
-            .into_iter()
-            .map(|card| self.zone_change_card(card).0)
-            .collect::<Vec<_>>();
-        self.rng.shuffle(&mut returning);
-        for card in returning.into_iter().rev() {
-            self.players[player.index()].library.insert(0, card);
-        }
-    }
-
     #[allow(clippy::too_many_lines)]
     pub(super) fn resolve_hand_and_library_effect(
         &mut self,
@@ -341,19 +321,6 @@ impl Game {
                 players.sort_by_key(|player| (*player != self.active_player, player.index()));
                 for player in players {
                     self.rng.shuffle(&mut self.players[player.index()].library);
-                }
-            }
-            EffectDef::BuryGraveyard { player: recipient } => {
-                let players = self
-                    .effect_recipients(recipient, object, context, scoped)
-                    .into_iter()
-                    .filter_map(|target| match target {
-                        Target::Player(player) => Some(player),
-                        Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
-                    })
-                    .collect::<Vec<_>>();
-                for player in players {
-                    self.bury_graveyard(player);
                 }
             }
             EffectDef::Discard {

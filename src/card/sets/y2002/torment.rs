@@ -43,7 +43,10 @@ pub(in crate::card::sets) static AVEN_TROOPER: CardRecord = CardRecord::new(
             "{2}{W}, Discard a card: This creature gets +1/+2 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{2}{W}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                },
             ],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -528,7 +531,10 @@ pub(in crate::card::sets) static GHOSTLY_WINGS: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "Discard a card: Return enchanted creature to its owner's hand.",
-                &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+                &[CostDef::Discard {
+                    object: ObjectPredicateDef::Any,
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
+                }],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::AttachedPermanent,
                     zone: ZoneKind::Hand,
@@ -630,7 +636,10 @@ pub(in crate::card::sets) static SKYWING_AVEN: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::Discard {
+                object: ObjectPredicateDef::Any,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,

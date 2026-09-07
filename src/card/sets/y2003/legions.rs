@@ -974,9 +974,9 @@ pub(in crate::card::sets) static EARTHBLIGHTER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{2}{B}")),
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Subtype("Goblin"),
-                    controller: PlayerRelation::You,
                 },
             ],
             &const {
@@ -1036,9 +1036,9 @@ pub(in crate::card::sets) static GOBLIN_TURNCOAT: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Goblin", "Mercenary"], 2, 1).with_ability(
         abilities::regenerate_self(
             "Sacrifice a Goblin: Regenerate this creature.",
-            &[CostDef::SacrificePermanent {
+            &[CostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::Fixed(1),
                 object: ObjectPredicateDef::Subtype("Goblin"),
-                controller: PlayerRelation::You,
             }],
         ),
     ),
@@ -1487,7 +1487,7 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
         ),
         AbilityDef::triggered_with_targets(
             "When you cycle this card, you may have it deal X damage to target creature, where X is the number of Goblins on the battlefield.",
-            TriggerEventDef::Cycled,
+            TriggerEventDef::mechanic_performed_on(abilities::CYCLING, ObjectPredicateDef::Source, PlayerRelation::You),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1504,7 +1504,7 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
                     )),
                 },
             },
-        ),
+        ).with_source_zones(abilities::CYCLED_CARD_ZONES),
     ]),
 );
 
@@ -1587,9 +1587,9 @@ pub(in crate::card::sets) static GOBLIN_LOOKOUT: CardRecord = CardRecord::new(
             "{T}, Sacrifice a Goblin: Goblin creatures get +2/+0 until end of turn.",
             &[
                 CostDef::TapSource,
-                CostDef::SacrificePermanent {
+                CostDef::Sacrifice {
+                    quantity: crate::card::CostQuantityDef::Fixed(1),
                     object: ObjectPredicateDef::Subtype("Goblin"),
-                    controller: PlayerRelation::You,
                 },
             ],
             EffectDef::Apply {

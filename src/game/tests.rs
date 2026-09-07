@@ -254,6 +254,7 @@ mod jade_statue;
 mod karoo_lands;
 mod keymaster_rogue;
 mod kicker;
+mod kicker_riders;
 mod killing_glare;
 mod laces;
 mod lair_return_cost;

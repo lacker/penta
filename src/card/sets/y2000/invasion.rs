@@ -83,13 +83,39 @@ pub(in crate::card::sets) static ATALYA_SAMITE_MASTER: CardRecord = CardRecord::
 );
 
 // INV 5 — Benalish Emissary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BENALISH_EMISSARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b82d56e-80d7-4be9-ac22-de3257efc458"),
     "Benalish Emissary",
-    crate::card::CardArt::new("6b82d56e-80d7-4be9-ac22-de3257efc458", "Randy Gallegos"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6b82d56e-80d7-4be9-ac22-de3257efc458", "Randy Gallegos"),
+    CardSet::Invasion,
+    // A 1/4 wall early or a Stone Rain with a body later, which is a lot of
+    // mileage for a common.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Wizard"], 1, 4).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{W}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {1}{G} (You may pay an additional {1}{G} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, destroy target land.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &const { TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked) },
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // INV 6 — Benalish Heralds
@@ -113,13 +139,41 @@ pub(in crate::card::sets) static BENALISH_HERALDS: CardRecord = CardRecord::new(
 );
 
 // INV 7 — Benalish Lancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BENALISH_LANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a38d40a-e745-4fee-b179-f8c27e9b2fbd"),
     "Benalish Lancer",
-    crate::card::CardArt::new("3a38d40a-e745-4fee-b179-f8c27e9b2fbd", "Paolo Parente"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3a38d40a-e745-4fee-b179-f8c27e9b2fbd", "Paolo Parente"),
+    CardSet::Invasion,
+    // A 2/2 on turn three or a 4/4 first striker on turn six, and white decks
+    // that flooded out finally had somewhere to put the mana.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{4}{W}{W}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2}{W} (You may pay an additional {2}{W} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with 2 +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "If this creature was kicked, it has first strike.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 8 — Benalish Trapper
@@ -228,13 +282,51 @@ pub(in crate::card::sets) static DEATH_OR_GLORY: CardRecord = CardRecord::new(
 );
 
 // INV 14 — Dismantling Blow
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISMANTLING_BLOW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39514d54-cb6c-4b3b-a3be-46db991be4d4"),
     "Dismantling Blow",
-    crate::card::CardArt::new("39514d54-cb6c-4b3b-a3be-46db991be4d4", "Mark Tedin"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("39514d54-cb6c-4b3b-a3be-46db991be4d4", "Mark Tedin"),
+    CardSet::Invasion,
+    // Disenchant that replaces itself, which is what makes a maindeck slot for
+    // artifact removal defensible at all.
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{4}{W}{U}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2}{U} (You may pay an additional {2}{U} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell_with_targets(
+            "Destroy target artifact or enchantment. If this spell was kicked, draw two cards.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                )]
+            },
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::SourceCastWith(
+                                AlternativeCastKindDef::Kicked,
+                            ),
+                            then: &EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(2),
+                            },
+                        },
+                    ]
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 15 — Divine Presence
@@ -884,13 +976,41 @@ pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_w
 );
 
 // INV 58 — Faerie Squadron
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAERIE_SQUADRON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4c707c81-dbbd-43be-a79a-7bc92a584839"),
     "Faerie Squadron",
-    crate::card::CardArt::new("4c707c81-dbbd-43be-a79a-7bc92a584839", "rk post"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4c707c81-dbbd-43be-a79a-7bc92a584839", "rk post"),
+    CardSet::Invasion,
+    // One mana on turn one or a 3/3 flier later: the same card is the play in
+    // both halves of the game, which is the whole point of kicker.
+    CardRules::new_creature(mana_cost!("{U}"), &["Faerie"], 1, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{U}{U}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {3}{U} (You may pay an additional {3}{U} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with 2 +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "If this creature was kicked, it has flying.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 59 — Mana Maze
@@ -1267,13 +1387,40 @@ pub(in crate::card::sets) static TIDAL_VISIONARY: CardRecord = CardRecord::new(
 );
 
 // INV 81 — Tolarian Emissary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOLARIAN_EMISSARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1cbc55e5-b84c-4449-a288-ec26cdd3997c"),
     "Tolarian Emissary",
-    crate::card::CardArt::new("1cbc55e5-b84c-4449-a288-ec26cdd3997c", "Ron Spencer"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1cbc55e5-b84c-4449-a288-ec26cdd3997c", "Ron Spencer"),
+    CardSet::Invasion,
+    // The blue half of the cycle answers an enchantment, which is the thing blue
+    // otherwise cannot touch at all.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{U}{W}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {1}{W} (You may pay an additional {1}{W} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::flying(),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, destroy target enchantment.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &const { TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked) },
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                )]
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // INV 82 — Tower Drake (reprint)
@@ -1326,16 +1473,46 @@ pub(in crate::card::sets) static VODALIAN_MERCHANT: CardRecord = CardRecord::new
 );
 
 // INV 86 — Vodalian Serpent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VODALIAN_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("92adcf6c-ab14-414c-a5cb-56feae048c84"),
     "Vodalian Serpent",
-    crate::card::CardArt::new(
+    CardArt::new(
         "92adcf6c-ab14-414c-a5cb-56feae048c84",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // A big body that only attacks into Islands, so the two extra mana buy a
+    // 6/6 that still needs the opponent's cooperation.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Serpent"], 2, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{5}{U}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::static_ability(
+            "This creature can't attack unless defending player controls an Island.",
+            EffectDef::CannotAttackUnless(
+                &const {
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )
+                },
+            ),
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with four +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 4,
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 87 — Wash Out
@@ -1552,13 +1729,41 @@ pub(in crate::card::sets) static DREDGE: CardRecord = CardRecord::new(
 );
 
 // INV 104 — Duskwalker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DUSKWALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39a4a026-f44e-40e1-9942-a3d8448aca70"),
     "Duskwalker",
-    crate::card::CardArt::new("39a4a026-f44e-40e1-9942-a3d8448aca70", "David Martin"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("39a4a026-f44e-40e1-9942-a3d8448aca70", "David Martin"),
+    CardSet::Invasion,
+    // A one-drop that becomes a 3/3 nearly nothing blocks, which is more than
+    // black usually gets out of its worst creature.
+    CardRules::new_creature(mana_cost!("{B}"), &["Human", "Minion"], 1, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{B}{B}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {3}{B} (You may pay an additional {3}{B} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with 2 +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "If this creature was kicked, it has fear.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: abilities::FEAR_RESTRICTION,
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 105 — Exotic Curse
@@ -1639,13 +1844,45 @@ pub(in crate::card::sets) static HATE_WEAVER: CardRecord = CardRecord::new(
 );
 
 // INV 109 — Hypnotic Cloud
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYPNOTIC_CLOUD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7502ea2-7555-449e-baee-6ecef5573a3b"),
     "Hypnotic Cloud",
-    crate::card::CardArt::new("a7502ea2-7555-449e-baee-6ecef5573a3b", "Randy Gallegos"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a7502ea2-7555-449e-baee-6ecef5573a3b", "Randy Gallegos"),
+    CardSet::Invasion,
+    // A two-mana Coercion that turns into a Mind Twist for three once the game
+    // has gone long enough for the hand to be worth taking.
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{5}{B}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {4} (You may pay an additional {4} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell_with_targets(
+            "Target player discards a card. If this spell was kicked, that player discards three \
+             cards instead.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                otherwise: &EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 110 — Marauding Knight
@@ -2014,13 +2251,36 @@ pub(in crate::card::sets) static TWILIGHT_S_CALL: CardRecord = CardRecord::new(
 );
 
 // INV 131 — Urborg Emissary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBORG_EMISSARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6912c71-1836-4e87-9a65-d577d903d03c"),
     "Urborg Emissary",
-    crate::card::CardArt::new("e6912c71-1836-4e87-9a65-d577d903d03c", "Eric Peterson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e6912c71-1836-4e87-9a65-d577d903d03c", "Eric Peterson"),
+    CardSet::Invasion,
+    // A 3/1 that bounces anything at all, which in a format of expensive gold
+    // cards is often better than killing it.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Wizard"], 3, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{B}{U}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {1}{U} (You may pay an additional {1}{U} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, return target permanent to its owner's hand.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &const { TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked) },
+            &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // INV 132 — Urborg Phantom
@@ -2410,13 +2670,42 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_leg
 );
 
 // INV 158 — Pouncing Kavu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POUNCING_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e6e2e49-7bde-43c1-8caf-43d237dfc052"),
     "Pouncing Kavu",
-    crate::card::CardArt::new("7e6e2e49-7bde-43c1-8caf-43d237dfc052", "Adam Rex"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7e6e2e49-7bde-43c1-8caf-43d237dfc052", "Adam Rex"),
+    CardSet::Invasion,
+    // First strike on a 3/3 that attacks the turn it lands is a real threat; the
+    // 1/1 it started as is a real turn-two play.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Kavu"], 1, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{R}{R}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2}{R} (You may pay an additional {2}{R} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::first_strike(),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with 2 +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "If this creature was kicked, it has haste.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 159 — Rage Weaver
@@ -2882,13 +3171,49 @@ pub(in crate::card::sets) static ELVISH_CHAMPION: CardRecord = CardRecord::new(
 );
 
 // INV 187 — Explosive Growth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXPLOSIVE_GROWTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eabc1e77-404c-436b-bde1-be1b21d00584"),
     "Explosive Growth",
-    crate::card::CardArt::new("eabc1e77-404c-436b-bde1-be1b21d00584", "Arnie Swekel"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("eabc1e77-404c-436b-bde1-be1b21d00584", "Arnie Swekel"),
+    CardSet::Invasion,
+    // One mana for a combat trick, six for a game-ending one, and the deck never
+    // has to decide which half it wanted when it drew the card.
+    CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{5}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {5} (You may pay an additional {5} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell_with_targets(
+            "Target creature gets +2/+2 until end of turn. If this spell was kicked, that \
+             creature gets +5/+5 until end of turn instead.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(5),
+                        ValueDef::Constant(5),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                otherwise: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 188 — Fertile Ground (reprint)
@@ -2966,13 +3291,41 @@ pub(in crate::card::sets) static KAVU_LAIR: CardRecord = CardRecord::new(
 );
 
 // INV 194 — Kavu Titan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAVU_TITAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2c5fb86d-1d9a-4da2-bb5b-4266faa20197"),
     "Kavu Titan",
-    crate::card::CardArt::new("2c5fb86d-1d9a-4da2-bb5b-4266faa20197", "Todd Lockwood"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2c5fb86d-1d9a-4da2-bb5b-4266faa20197", "Todd Lockwood"),
+    CardSet::Invasion,
+    // The card that defined the cycle: a two-mana 2/2 or a five-mana 5/5
+    // trampler, and never a dead draw at either end.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Kavu"], 2, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{G}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2}{G} (You may pay an additional {2}{G} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with 3 +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "If this creature was kicked, it has trample.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 195 — Llanowar Cavalry

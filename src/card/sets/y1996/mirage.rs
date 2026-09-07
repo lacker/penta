@@ -13,11 +13,11 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldArrivalDef,
     BattlefieldEntryScalarChoiceDef, BlockRestrictionDef, CardArt, CardNameSetDef, CardRules,
-    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet, CostDef,
-    CostQuantityDef, CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
-    DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor, ManaTypeDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet, ControlDurationDef,
+    CostDef, CostQuantityDef, CounterKind, CreatedTokensDef, DamageEventMatcherDef,
+    DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    ManaTypeDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
     ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, ScaledValueDef, SumValueDef,
@@ -1187,13 +1187,42 @@ pub(in crate::card::sets) static MIND_BEND: CardRecord = CardRecord::new(
 );
 
 // MIR 78 — Mind Harness
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIND_HARNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5bf17780-801d-4ab8-91f4-a803ede51395"),
     "Mind Harness",
-    crate::card::CardArt::new("5bf17780-801d-4ab8-91f4-a803ede51395", "John Malloy"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5bf17780-801d-4ab8-91f4-a803ede51395", "John Malloy"),
+    CardSet::Mirage,
+    // One blue mana steals the best creature in a red or green deck, and the
+    // rent is what keeps it from being simply better than Control Magic.
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant red or green creature",
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::Color(ManaColor::Red),
+                                ObjectPredicateDef::Color(ManaColor::Green),
+                            ]),
+                        ]),
+                    )]
+                },
+            ),
+            abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                    controller: PlayerRefDef::EffectController,
+                },
+            ),
+        ]),
 );
 
 // MIR 79 — Mist Dragon

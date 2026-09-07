@@ -704,13 +704,30 @@ pub(in crate::card::sets) static WHITE_SCARAB: CardRecord = CardRecord::new(
 );
 
 // ICE 57 — Arnjlot's Ascent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARNJLOT_S_ASCENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2307fb16-8b77-45b5-8a02-51a13214791d"),
     "Arnjlot's Ascent",
-    crate::card::CardArt::new("2307fb16-8b77-45b5-8a02-51a13214791d", "Drew Tucker"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2307fb16-8b77-45b5-8a02-51a13214791d", "Drew Tucker"),
+    CardSet::IceAge,
+    // Evasion by the mana rather than by the card: one mana a turn keeps the
+    // biggest creature on the board flying over everything.
+    CardRules::new_enchantment(mana_cost!("{1}{U}{U}")).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{U}"))),
+        AbilityDef::activated_with_targets(
+            "{1}: Target creature gains flying until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ICE 58 — Balduvian Conjurer
@@ -1108,13 +1125,27 @@ pub(in crate::card::sets) static MAGUS_OF_THE_UNSEEN: CardRecord = CardRecord::n
 );
 
 // ICE 83 — Mesmeric Trance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MESMERIC_TRANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae3df593-e9d5-479d-9a9a-1c7262dd9c6c"),
     "Mesmeric Trance",
-    crate::card::CardArt::new("ae3df593-e9d5-479d-9a9a-1c7262dd9c6c", "Dan Frazier"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ae3df593-e9d5-479d-9a9a-1c7262dd9c6c", "Dan Frazier"),
+    CardSet::IceAge,
+    // A looter that costs mana instead of a card, so the rent it charges is the
+    // only thing stopping it from filtering the whole deck.
+    CardRules::new_enchantment(mana_cost!("{1}{U}{U}")).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        AbilityDef::activated(
+            "{U}, Discard a card: Draw a card.",
+            &[
+                CostDef::Mana(mana_cost!("{U}")),
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ICE 84 — Mistfolk
@@ -1648,13 +1679,25 @@ pub(in crate::card::sets) static DRIFT_OF_THE_DEAD: CardRecord = CardRecord::new
 // ICE 124 — Fear (reprint)
 
 // ICE 125 — Flow of Maggots
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOW_OF_MAGGOTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6880a4d3-5cbc-4a01-9190-3565617efcc9"),
     "Flow of Maggots",
-    crate::card::CardArt::new("6880a4d3-5cbc-4a01-9190-3565617efcc9", "Ron Spencer"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6880a4d3-5cbc-4a01-9190-3565617efcc9", "Ron Spencer"),
+    CardSet::IceAge,
+    // Unblockable in practice, since a deck that kept Walls around to stop it
+    // has already given up the initiative -- and the rent is only one mana.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Insect"], 2, 2).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        AbilityDef::static_ability(
+            "This creature can't be blocked by non-Wall creatures.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                )),
+            },
+        ),
+    ]),
 );
 
 // ICE 126 — Foul Familiar
@@ -2436,13 +2479,17 @@ pub(in crate::card::sets) static BONE_SHAMAN: CardRecord = CardRecord::new(
 );
 
 // ICE 177 — Brand of Ill Omen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAND_OF_ILL_OMEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ceeb7bbc-2d41-4709-95be-1ceb952ed1fb"),
     "Brand of Ill Omen",
-    crate::card::CardArt::new("ceeb7bbc-2d41-4709-95be-1ceb952ed1fb", "Rob Alexander"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ceeb7bbc-2d41-4709-95be-1ceb952ed1fb", "Rob Alexander"),
+    CardSet::IceAge,
+    // Audit: unsupported — "enchanted creature's controller can't cast
+    // creature spells" needs a static play restriction aimed at the host's
+    // controller, and `static_player_relation_supported` admits no relation
+    // naming the attached permanent's controller, only the enchanted player
+    // of a player-Aura. Everything else on the card is expressible.
+    CardRules::unsupported(),
 );
 
 // ICE 178 — Chaos Lord
@@ -3579,13 +3626,46 @@ pub(in crate::card::sets) static FYNDHORN_ELVES: CardRecord = CardRecord::new(
 );
 
 // ICE 245 — Fyndhorn Pollen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FYNDHORN_POLLEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3efbe59d-bebc-40b1-85ac-2e4c1ff3731e"),
     "Fyndhorn Pollen",
-    crate::card::CardArt::new("3efbe59d-bebc-40b1-85ac-2e4c1ff3731e", "Phil Foglio"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3efbe59d-bebc-40b1-85ac-2e4c1ff3731e", "Phil Foglio"),
+    CardSet::IceAge,
+    // A standing tax on every attacker in the game, with a pump-in-reverse to
+    // finish the job on the turn it matters.
+    CardRules::new_enchantment(mana_cost!("{2}{G}")).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        AbilityDef::static_ability(
+            "All creatures get -1/-0.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(0),
+                ),
+            },
+        ),
+        AbilityDef::activated(
+            "{1}{G}: All creatures get -1/-0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ICE 246 — Giant Growth (reprint)
@@ -3673,13 +3753,29 @@ pub(in crate::card::sets) static LHURGOYF: CardRecord = CardRecord::new(
 // ICE 253 — Lure (reprint)
 
 // ICE 254 — Maddening Wind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MADDENING_WIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5277656c-70f5-4660-bd58-7d9261d53fb5"),
     "Maddening Wind",
-    crate::card::CardArt::new("5277656c-70f5-4660-bd58-7d9261d53fb5", "Dameon Willich"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5277656c-70f5-4660-bd58-7d9261d53fb5", "Dameon Willich"),
+    CardSet::IceAge,
+    // An Aura that does nothing to the creature it hangs on and everything to
+    // the player holding it, two life at a time.
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{G}"))),
+            abilities::enchanted_controller_upkeep(
+                "At the beginning of the upkeep of enchanted creature's controller, this Aura \
+                 deals 2 damage to that player.",
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::AttachedToSource,
+                    )),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // ICE 255 — Nature's Lore

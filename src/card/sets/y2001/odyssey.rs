@@ -3124,7 +3124,7 @@ pub(in crate::card::sets) static ZOMBIFY: CardRecord = CardRecord::new(
 );
 
 // ODY 172 — Acceptable Losses
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — "As an additional cost to cast this spell, discard a card at random" is CostDef::DiscardCardsAtRandom, which only the activated-ability payment path pays. The spell-casting path has no branch for it, so the cost would never be charged.
 pub(in crate::card::sets) static ACCEPTABLE_LOSSES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9082bfb8-0ab0-4378-976d-a2c9d3c35a5e"),
     "Acceptable Losses",

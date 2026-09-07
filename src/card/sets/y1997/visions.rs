@@ -1335,16 +1335,39 @@ pub(in crate::card::sets) static WAKE_OF_VULTURES: CardRecord = CardRecord::new(
 );
 
 // VIS 75 — Wicked Reward
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WICKED_REWARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e02aeae5-4918-42c6-872d-ffe1517de2ad"),
     "Wicked Reward",
-    crate::card::CardArt::new(
+    CardArt::new(
         "ee32f8ba-3547-4913-a555-d43ee2978ba9",
         "D. Alexander Gregory",
     ),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardSet::Visions,
+    // A combat trick that trades a spare creature for four power, so the block
+    // that looked safe kills the blocker instead.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nTarget creature \
+             gets +4/+2 until end of turn.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(4),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // VIS 76 — Bogardan Phoenix

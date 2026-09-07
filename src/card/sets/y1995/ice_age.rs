@@ -4280,13 +4280,44 @@ pub(in crate::card::sets) static FLOODED_WOODLANDS: CardRecord = CardRecord::new
 );
 
 // ICE 291 — Fumarole
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FUMAROLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("efa53e9a-0d7c-4d17-b2be-56930edfa2c2"),
     "Fumarole",
-    crate::card::CardArt::new("efa53e9a-0d7c-4d17-b2be-56930edfa2c2", "Drew Tucker"),
-    crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("efa53e9a-0d7c-4d17-b2be-56930edfa2c2", "Drew Tucker"),
+    CardSet::IceAge,
+    // Two permanents for five mana and three life, which is the sort of rate a
+    // gold card in a slow format could still ask for.
+    CardRules::new_sorcery(mana_cost!("{3}{B}{R}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, pay 3 life.\nDestroy target creature and \
+             target land.",
+            &const {
+                [
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    )),
+                ]
+            },
+            CostDef::pay_life(CostQuantityDef::Fixed(3)),
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            then: None,
+                        },
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex(1)),
+                            then: None,
+                        },
+                    ]
+                },
+            ),
+        ),
+    ),
 );
 
 // ICE 292 — Ghostly Flame

@@ -10,7 +10,7 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
     AttackRestrictionDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef,
-    CostModificationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
+    CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
     DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
     ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation, PlayerRuleDef,
     PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
@@ -1042,13 +1042,27 @@ pub(in crate::card::sets) static REAPING_THE_GRAVES: CardRecord = CardRecord::ne
 );
 
 // SCG 73 — Skulltap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKULLTAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("48a90779-008e-401f-9877-be0a935d2ccd"),
     "Skulltap",
-    crate::card::CardArt::new("48a90779-008e-401f-9877-be0a935d2ccd", "Adam Rex"),
-    crate::card::CardSet::Scourge,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("48a90779-008e-401f-9877-be0a935d2ccd", "Adam Rex"),
+    CardSet::Scourge,
+    // Two cards for two mana and a body, which is the rate a deck already
+    // sacrificing creatures for other reasons gets to draw at for free.
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nDraw two cards.",
+            &[],
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // SCG 74 — Soul Collector

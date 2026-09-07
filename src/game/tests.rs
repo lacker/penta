@@ -26,6 +26,7 @@ mod activated_x_values;
 mod activation_costs_and_turns;
 mod activation_prohibitions;
 mod activation_timing;
+mod additional_cast_costs;
 mod additional_costs;
 mod alternative_costs;
 mod alternative_mana;

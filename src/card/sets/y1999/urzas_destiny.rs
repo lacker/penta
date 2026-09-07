@@ -7,7 +7,7 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DamageEventMatcherDef,
+    ChoiceVisibilityDef, ChooseDef, CostDef, CostQuantityDef, CounterKind, DamageEventMatcherDef,
     DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef,
@@ -1437,13 +1437,30 @@ pub(in crate::card::sets) static MARK_OF_FURY: CardRecord = CardRecord::new(
 );
 
 // UDS 94 — Reckless Abandon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_ABANDON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f335d43-cacb-40ad-93c1-9a861e9f66c7"),
     "Reckless Abandon",
-    crate::card::CardArt::new("8f335d43-cacb-40ad-93c1-9a861e9f66c7", "Ron Spears"),
-    crate::card::CardSet::UrzasDestiny,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8f335d43-cacb-40ad-93c1-9a861e9f66c7", "Ron Spears"),
+    CardSet::UrzasDestiny,
+    // One red mana turns a token into four damage anywhere, which is the whole
+    // reason a sacrifice deck plays creatures it does not mind losing.
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_additional_cost(
+        "As an additional cost to cast this spell, sacrifice a creature.\nThis spell deals \
+             4 damage to any target.",
+        &const {
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )]
+        },
+        CostDef::sacrifice(
+            ObjectPredicateDef::HasType(CardType::Creature),
+            CostQuantityDef::Fixed(1),
+        ),
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(4),
+        },
+    )),
 );
 
 // UDS 95 — Repercussion

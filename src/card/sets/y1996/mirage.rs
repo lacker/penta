@@ -14,14 +14,15 @@ use crate::card::{
     AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldArrivalDef,
     BattlefieldEntryScalarChoiceDef, BlockRestrictionDef, CardArt, CardNameSetDef, CardRules,
     CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet, CostDef,
-    CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef, DestroyFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, ManaTypeDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RoundingDef, ScaledValueDef, SumValueDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CostQuantityDef, CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
+    DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor, ManaTypeDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
+    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, ScaledValueDef, SumValueDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -2076,13 +2077,32 @@ pub(in crate::card::sets) static PAINFUL_MEMORIES: CardRecord = CardRecord::new(
 );
 
 // MIR 134 — Phyrexian Tribute
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_TRIBUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfc55d48-6d6f-429d-8281-e66a9996d574"),
     "Phyrexian Tribute",
-    crate::card::CardArt::new("bfc55d48-6d6f-429d-8281-e66a9996d574", "John Matson"),
-    crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bfc55d48-6d6f-429d-8281-e66a9996d574", "John Matson"),
+    CardSet::Mirage,
+    // Two creatures for one artifact is a terrible rate, which is exactly what a
+    // colour with no other answer to artifacts has to pay.
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice two creatures.\nDestroy target \
+             artifact.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )]
+            },
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(2),
+            ),
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MIR 135 — Purraj of Urborg

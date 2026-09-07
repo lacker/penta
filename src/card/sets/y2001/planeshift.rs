@@ -5,12 +5,13 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DiscardSelectionDef, DrawEventMatcherDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChoiceVisibilityDef, ChooseDef, CostDef, CostQuantityDef, CounterKind, DiscardSelectionDef,
+    DrawEventMatcherDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ManaTypeDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -574,23 +575,86 @@ pub(in crate::card::sets) static DARK_SUSPICIONS: CardRecord = CardRecord::new(
 );
 
 // PLS 41 — Death Bomb
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATH_BOMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f8a84715-c5dc-4a19-af6a-796c6ee912c2"),
     "Death Bomb",
-    crate::card::CardArt::new("f8a84715-c5dc-4a19-af6a-796c6ee912c2", "Dan Frazier"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f8a84715-c5dc-4a19-af6a-796c6ee912c2", "Dan Frazier"),
+    CardSet::Planeshift,
+    // Unconditional removal at instant speed, paid for with a creature that was
+    // going to die anyway -- and the two life is what makes it a race card.
+    CardRules::new_instant(mana_cost!("{3}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nDestroy target \
+             nonblack creature. It can't be regenerated. Its controller loses 2 life.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]),
+                )]
+            },
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::WithRule {
+                            rule: AppliedRuleDef::CannotRegenerate,
+                            effect: &EffectDef::Destroy {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                then: None,
+                            },
+                        },
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                            )),
+                            amount: ValueDef::Constant(2),
+                        },
+                    ]
+                },
+            ),
+        ),
+    ),
 );
 
 // PLS 42 — Diabolic Intent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIABOLIC_INTENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76d1b5c5-cc47-465f-8549-4fd1ca4280df"),
     "Diabolic Intent",
-    crate::card::CardArt::new("76d1b5c5-cc47-465f-8549-4fd1ca4280df", "Dave Dorman"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("76d1b5c5-cc47-465f-8549-4fd1ca4280df", "Dave Dorman"),
+    CardSet::Planeshift,
+    // Demonic Tutor for one mana less, paid in a creature -- which a deck built
+    // around sacrificing them was going to spend anyway.
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nSearch your \
+             library for a card, put that card into your hand, then shuffle.",
+            &[],
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::Any,
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // PLS 43 — Exotic Disease

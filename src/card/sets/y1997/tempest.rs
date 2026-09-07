@@ -16,7 +16,7 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
     BlockRestrictionDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
     CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CostDef,
-    CostModificationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    CostModificationDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
     DamagePreventionDef, DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectChoiceDef,
     EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeSetDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
@@ -3460,16 +3460,49 @@ pub(in crate::card::sets) static FUGITIVE_DRUID: CardRecord = CardRecord::new(
 );
 
 // TMP 230 — Harrow
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HARROW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c207142-4880-4935-9827-b91bc7d9d643"),
     "Harrow",
-    crate::card::CardArt::new(
+    CardArt::new(
         "3c207142-4880-4935-9827-b91bc7d9d643",
         "Eric David Anderson",
     ),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardSet::Tempest,
+    // Two lands for one at instant speed: the land count stays level while the
+    // colours it can produce do not.
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a land.\nSearch your library \
+             for up to two basic land cards, put them onto the battlefield, then shuffle.",
+            &[],
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Land),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(
+                    &const {
+                        [
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]
+                    },
+                ),
+                minimum: 0,
+                maximum: ValueDef::Constant(2),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // TMP 231 — Heartwood Dryad
@@ -4088,13 +4121,32 @@ pub(in crate::card::sets) static SOLTARI_GUERRILLAS: CardRecord = CardRecord::ne
 );
 
 // TMP 273 — Spontaneous Combustion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPONTANEOUS_COMBUSTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("34e6c04f-9d1a-497b-bc96-a0e48a1c1904"),
     "Spontaneous Combustion",
-    crate::card::CardArt::new("34e6c04f-9d1a-497b-bc96-a0e48a1c1904", "Doug Chaffee"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("34e6c04f-9d1a-497b-bc96-a0e48a1c1904", "Doug Chaffee"),
+    CardSet::Tempest,
+    // A sweeper that costs a creature, so it is one-sided only for the deck
+    // whose creatures were already expendable.
+    CardRules::new_instant(mana_cost!("{1}{B}{R}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nThis spell deals \
+             3 damage to each creature.",
+            &[],
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // TMP 274 — Vhati il-Dal

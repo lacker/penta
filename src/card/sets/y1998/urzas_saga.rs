@@ -12,9 +12,9 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CostQuantityDef, CounterKind,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, GraveyardPlayPermissionDef, InstalledTriggerDef, KeywordAbility, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OngoingEffectDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
@@ -3077,13 +3077,29 @@ pub(in crate::card::sets) static RAIN_OF_SALT: CardRecord = CardRecord::new(
 );
 
 // USG 207 — Raze
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("56d51b3c-24e9-41b6-b7cd-c70329e498ca"),
     "Raze",
-    crate::card::CardArt::new("56d51b3c-24e9-41b6-b7cd-c70329e498ca", "Mike Raabe"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("56d51b3c-24e9-41b6-b7cd-c70329e498ca", "Mike Raabe"),
+    CardSet::UrzasSaga,
+    // One mana and a land for a land: a straight trade that only reads well when
+    // the land it kills is doing more work than the one it cost.
+    CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_additional_cost(
+        "As an additional cost to cast this spell, sacrifice a land.\nDestroy target land.",
+        &const {
+            [AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )]
+        },
+        CostDef::sacrifice(
+            ObjectPredicateDef::HasType(CardType::Land),
+            CostQuantityDef::Fixed(1),
+        ),
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
 );
 
 // USG 208 — Reflexes

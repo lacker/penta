@@ -7,9 +7,9 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, ConditionDef, CostDef, CostQuantityDef,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
     SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
@@ -1239,13 +1239,33 @@ pub(in crate::card::sets) static UNHINGE: CardRecord = CardRecord::new(
 );
 
 // TOR 88 — Waste Away
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WASTE_AWAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("78e859c2-3457-4c4c-9b1c-0db647dcf259"),
     "Waste Away",
-    crate::card::CardArt::new("78e859c2-3457-4c4c-9b1c-0db647dcf259", "Alan Pollack"),
-    crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("78e859c2-3457-4c4c-9b1c-0db647dcf259", "Alan Pollack"),
+    CardSet::Torment,
+    // Five mana and a card for one creature is a bad deal on rate and a fine one
+    // at instant speed against something that had to die now.
+    CardRules::new_instant(mana_cost!("{4}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, discard a card.\nTarget creature gets \
+             -5/-5 until end of turn.",
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )]
+            },
+            CostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-5),
+                    ValueDef::Constant(-5),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // TOR 89 — Zombie Trailblazer

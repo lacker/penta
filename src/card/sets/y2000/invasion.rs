@@ -24,7 +24,7 @@ use crate::card::{
     PartitionGroupDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     RevealObjectsDef, SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -2401,16 +2401,78 @@ pub(in crate::card::sets) static BEND_OR_BREAK: CardRecord = CardRecord::new(
 );
 
 // INV 138 — Breath of Darigaaz
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BREATH_OF_DARIGAAZ: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("480bb7e3-df03-454d-ada0-592ef8a4a6f0"),
     "Breath of Darigaaz",
-    crate::card::CardArt::new(
+    CardArt::new(
         "480bb7e3-df03-454d-ada0-592ef8a4a6f0",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // Two mana to sweep the ground early, five to sweep it late, and the four
+    // damage to the face is the reason the deck was red in the first place.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{R}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell(
+            "This spell deals 1 damage to each creature without flying and each player. If this \
+             spell was kicked, it deals 4 damage to each creature without flying and each player \
+             instead.",
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::Sequence(
+                    &const {
+                        [
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::All(&[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                            KeywordAbility::Flying,
+                                        )),
+                                    ]),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
+                                ),
+                                amount: ValueDef::Constant(4),
+                            },
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::EachPlayer,
+                                amount: ValueDef::Constant(4),
+                            },
+                        ]
+                    },
+                ),
+                otherwise: &EffectDef::Sequence(
+                    &const {
+                        [
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::All(&[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                            KeywordAbility::Flying,
+                                        )),
+                                    ]),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
+                                ),
+                                amount: ValueDef::Constant(1),
+                            },
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::EachPlayer,
+                                amount: ValueDef::Constant(1),
+                            },
+                        ]
+                    },
+                ),
+            },
+        ),
+    ]),
 );
 
 // INV 139 — Callous Giant
@@ -2780,16 +2842,62 @@ pub(in crate::card::sets) static RUBY_LEECH: CardRecord = CardRecord::new(
 );
 
 // INV 162 — Savage Offensive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAVAGE_OFFENSIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("356744f3-e444-4f4e-bf00-80bb6b2ef76f"),
     "Savage Offensive",
-    crate::card::CardArt::new(
+    CardArt::new(
         "356744f3-e444-4f4e-bf00-80bb6b2ef76f",
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardSet::Invasion,
+    // First strike across the board wins a race the attacker was already ahead
+    // in; the green mana turns it into the swing that ends the game.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{1}{R}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {G} (You may pay an additional {G} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell(
+            "Creatures you control gain first strike until end of turn. If this spell was \
+             kicked, they get +1/+1 until end of turn.",
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::add_ability(
+                                &const { abilities::first_strike() },
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::SourceCastWith(
+                                AlternativeCastKindDef::Kicked,
+                            ),
+                            then: &EffectDef::Apply {
+                                recipient: EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                ),
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(1),
+                                    ValueDef::Constant(1),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        },
+                    ]
+                },
+            ),
+        ),
+    ]),
 );
 
 // INV 163 — Scarred Puma
@@ -2823,13 +2931,42 @@ pub(in crate::card::sets) static SEARING_RAYS: CardRecord = CardRecord::new(
 );
 
 // INV 166 — Shivan Emissary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_EMISSARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("945c596e-492e-4cf5-857c-4ddbbdd78485"),
     "Shivan Emissary",
-    crate::card::CardArt::new("945c596e-492e-4cf5-857c-4ddbbdd78485", "Paolo Parente"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("945c596e-492e-4cf5-857c-4ddbbdd78485", "Paolo Parente"),
+    CardSet::Invasion,
+    // Red's only clean answer to a big creature in this block came stapled to a
+    // 1/1, and it cost two colours to get it.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Wizard"], 1, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{R}{B}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {1}{B} (You may pay an additional {1}{B} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, destroy target nonblack creature. It can't be \
+             regenerated.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &const { TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked) },
+            &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]))] },
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 167 — Shivan Harvest
@@ -2879,13 +3016,38 @@ pub(in crate::card::sets) static SKITTISH_KAVU: CardRecord = CardRecord::new(
 );
 
 // INV 169 — Skizzik
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKIZZIK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dc7732bc-e168-44d9-923a-db7e985bd6db"),
     "Skizzik",
-    crate::card::CardArt::new("dc7732bc-e168-44d9-923a-db7e985bd6db", "Ron Spencer"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dc7732bc-e168-44d9-923a-db7e985bd6db", "Ron Spencer"),
+    CardSet::Invasion,
+    // Five power with haste for four mana, rented for the turn unless the fifth
+    // mana was there -- a burn spell that sometimes stays.
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Elemental"], 5, 3).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{R}{R}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {R} (You may pay an additional {R} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::trample(),
+        abilities::haste(),
+        AbilityDef::triggered_if(
+            "At the beginning of the end step, if this creature wasn't kicked, sacrifice it.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            &const {
+                TriggerConditionDef::Not(&TriggerConditionDef::SourceCastWith(
+                    AlternativeCastKindDef::Kicked,
+                ))
+            },
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ]),
 );
 
 // INV 170 — Slimy Kavu
@@ -3115,13 +3277,71 @@ pub(in crate::card::sets) static BLURRED_MONGOOSE: CardRecord = CardRecord::new(
 );
 
 // INV 184 — Canopy Surge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANOPY_SURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e19d68e-7554-4627-a316-beb1f75fa494"),
     "Canopy Surge",
-    crate::card::CardArt::new("2e19d68e-7554-4627-a316-beb1f75fa494", "Matt Cavotta"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2e19d68e-7554-4627-a316-beb1f75fa494", "Matt Cavotta"),
+    CardSet::Invasion,
+    // Green's answer to fliers, which it otherwise has none of, and it charges
+    // the caster the same life it charges everyone else.
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell(
+            "This spell deals 1 damage to each creature with flying and each player. If this \
+             spell was kicked, it deals 4 damage to each creature with flying and each player \
+             instead.",
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::Sequence(
+                    &const {
+                        [
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::All(&[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                    ]),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
+                                ),
+                                amount: ValueDef::Constant(4),
+                            },
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::EachPlayer,
+                                amount: ValueDef::Constant(4),
+                            },
+                        ]
+                    },
+                ),
+                otherwise: &EffectDef::Sequence(
+                    &const {
+                        [
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::All(&[
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                    ]),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
+                                ),
+                                amount: ValueDef::Constant(1),
+                            },
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::EachPlayer,
+                                amount: ValueDef::Constant(1),
+                            },
+                        ]
+                    },
+                ),
+            },
+        ),
+    ]),
 );
 
 // INV 185 — Elfhame Sanctuary
@@ -3775,13 +3995,43 @@ pub(in crate::card::sets) static VERDELOTH_THE_ANCIENT: CardRecord = CardRecord:
 );
 
 // INV 221 — Verduran Emissary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VERDURAN_EMISSARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55f3361b-e2e7-4297-85c2-94323f90cc90"),
     "Verduran Emissary",
-    crate::card::CardArt::new("55f3361b-e2e7-4297-85c2-94323f90cc90", "Alton Lawson"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("55f3361b-e2e7-4297-85c2-94323f90cc90", "Alton Lawson"),
+    CardSet::Invasion,
+    // A 2/3 body with a Shatter attached, which is the rate green pays for
+    // answers it could otherwise only sideboard into.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Wizard"], 2, 3).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{G}{R}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {1}{R} (You may pay an additional {1}{R} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, destroy target artifact. It can't be \
+             regenerated.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &const { TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked) },
+            &const {
+                [AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )]
+            },
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // INV 222 — Vigorous Charge

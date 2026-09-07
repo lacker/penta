@@ -136,3 +136,93 @@ fn the_benalish_emissary_only_takes_a_land_when_it_was_kicked() {
         );
     }
 }
+
+/// Runs the game through player one's end step.
+/// Runs the game through player one's end step. The generous mana the cast
+/// was handed is dropped first: this format has mana burn, and thirty
+/// floating mana ends the game on the way out of the phase rather than
+/// reaching the end step at all.
+fn end_step(game: &mut Game) {
+    for player in [PlayerId::One, PlayerId::Two] {
+        game.players[player.index()].mana_pool = ManaPool::default();
+        game.players[player.index()].mana.clear();
+    }
+    game.active_player = PlayerId::One;
+    game.priority = PlayerId::One;
+    game.step = Step::PostcombatMain;
+    game.advance_step();
+    game.finish_rules_procedure();
+    for _ in 0..8 {
+        drain_pending(game);
+        if game.stack.is_empty() && game.pending_triggers.is_empty() {
+            break;
+        }
+        let holder = game.priority;
+        if game.apply(holder, Action::PassPriority).is_err() {
+            break;
+        }
+    }
+}
+
+fn count_on_board(game: &Game, definition: CardDefinitionId) -> usize {
+    game.battlefield
+        .iter()
+        .filter(|permanent| permanent.card.definition == ObjectKind::Card(definition))
+        .count()
+}
+
+/// The rented half of the cycle, and the one written as a negation: "if this
+/// creature wasn't kicked". A condition the end step cannot evaluate would
+/// read as true through the `Not` and eat the kicked Skizzik too.
+#[test]
+fn skizzik_stays_only_when_the_kicker_was_paid() {
+    let mut rented = ready();
+    cast(&mut rented, 80_300, cards::SKIZZIK, false);
+    assert_eq!(count_on_board(&rented, cards::SKIZZIK), 1, "it resolved");
+    end_step(&mut rented);
+    assert_eq!(
+        count_on_board(&rented, cards::SKIZZIK),
+        0,
+        "unkicked, the end step takes it back"
+    );
+
+    let mut bought = ready();
+    cast(&mut bought, 80_301, cards::SKIZZIK, true);
+    end_step(&mut bought);
+    assert_eq!(
+        count_on_board(&bought, cards::SKIZZIK),
+        1,
+        "and the fifth mana bought it outright"
+    );
+}
+
+/// The spell is gone by the time this trigger resolves, so the permanent has
+/// to remember what it was cast for -- and the two branches differ only in
+/// whose creatures they take.
+#[test]
+fn the_desolation_giant_sweeps_one_side_or_both() {
+    for (kicked, theirs_left) in [(false, 1), (true, 0)] {
+        let mut game = ready();
+        game.battlefield
+            .push(creature(80_400, cards::GRIZZLY_BEARS, PlayerId::One));
+        game.battlefield
+            .push(creature(80_401, cards::SAVANNAH_LIONS, PlayerId::Two));
+        cast(&mut game, 80_402, cards::DESOLATION_GIANT, kicked);
+
+        assert_eq!(
+            count_on_board(&game, cards::GRIZZLY_BEARS),
+            0,
+            "its controller's creature goes either way"
+        );
+        assert_eq!(
+            count_on_board(&game, cards::SAVANNAH_LIONS),
+            theirs_left,
+            "and the other side goes only when it was kicked"
+        );
+        assert_eq!(
+            count_on_board(&game, cards::DESOLATION_GIANT),
+            1,
+            "\"all other creatures\" spares the Giant itself"
+        );
+    }
+}

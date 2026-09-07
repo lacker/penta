@@ -6,12 +6,12 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
-    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, CardArt, CardRules, CardSet, CardType,
-    CostDef, DamageEventMatcherDef, DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    ScaledValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, CardArt,
+    CardRules, CardSet, CardType, CostDef, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
@@ -572,13 +572,45 @@ pub(in crate::card::sets) static DEAD_RINGERS: CardRecord = CardRecord::new(
 );
 
 // APC 38 — Desolation Angel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DESOLATION_ANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("445127d4-8afb-47cf-b2a1-564540b1fdae"),
     "Desolation Angel",
-    crate::card::CardArt::new("445127d4-8afb-47cf-b2a1-564540b1fdae", "Brom"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("445127d4-8afb-47cf-b2a1-564540b1fdae", "Brom"),
+    CardSet::Apocalypse,
+    // A 5/4 flier that always costs you your lands, and for two more takes
+    // everyone's -- the sort of card only a deck already ahead can cast.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Angel"], 5, 4).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{B}{B}{W}{W}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {W}{W} (You may pay an additional {W}{W} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, destroy all lands you control. If it was kicked, \
+             destroy all lands instead.",
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
+                otherwise: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // APC 39 — Foul Presence
@@ -1004,13 +1036,50 @@ pub(in crate::card::sets) static BLOODFIRE_KAVU: CardRecord = CardRecord::new(
 );
 
 // APC 59 — Desolation Giant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DESOLATION_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e7291da-1d14-4763-8691-c67136ab67c7"),
     "Desolation Giant",
-    crate::card::CardArt::new("2e7291da-1d14-4763-8691-c67136ab67c7", "Alan Pollack"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2e7291da-1d14-4763-8691-c67136ab67c7", "Alan Pollack"),
+    CardSet::Apocalypse,
+    // The same bargain one card type over: a 3/3 that eats your board, or for
+    // two white mana a sweeper that leaves itself standing.
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Giant"], 3, 3).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{2}{R}{R}{W}{W}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {W}{W} (You may pay an additional {W}{W} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        abilities::enters_trigger(
+            "When this creature enters, destroy all other creatures you control. If it was \
+             kicked, destroy all other creatures instead.",
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
+                otherwise: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // APC 60 — Dwarven Landslide
@@ -1537,13 +1606,60 @@ pub(in crate::card::sets) static SAVAGE_GORILLA: CardRecord = CardRecord::new(
 );
 
 // APC 86 — Strength of Night
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRENGTH_OF_NIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("87aab031-4e44-44cd-89a7-6cffc7288cd1"),
     "Strength of Night",
-    crate::card::CardArt::new("87aab031-4e44-44cd-89a7-6cffc7288cd1", "John Avon"),
-    crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("87aab031-4e44-44cd-89a7-6cffc7288cd1", "John Avon"),
+    CardSet::Apocalypse,
+    // An anthem for the turn, and a much bigger one if the board happens to be
+    // Zombies -- which in this block it often was.
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{2}{G}{B}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {B} (You may pay an additional {B} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell(
+            "Creatures you control get +1/+1 until end of turn. If this spell was kicked, \
+             Zombie creatures you control get an additional +2/+2 until end of turn.",
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(1),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::SourceCastWith(
+                                AlternativeCastKindDef::Kicked,
+                            ),
+                            then: &EffectDef::Apply {
+                                recipient: EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::Subtype("Zombie"),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                ),
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(2),
+                                    ValueDef::Constant(2),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        },
+                    ]
+                },
+            ),
+        ),
+    ]),
 );
 
 // APC 87 — Sylvan Messenger

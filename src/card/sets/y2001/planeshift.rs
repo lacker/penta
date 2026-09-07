@@ -2,16 +2,16 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, CostDef, CostQuantityDef, CounterKind, DiscardSelectionDef,
     DrawEventMatcherDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
     ManaColor, ManaTypeDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -139,13 +139,60 @@ pub(in crate::card::sets) static MARCH_OF_SOULS: CardRecord = CardRecord::new(
 );
 
 // PLS 11 — Orim's Chant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORIM_S_CHANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("055afa78-b969-498f-a3ad-c792426e5ee6"),
     "Orim's Chant",
-    crate::card::CardArt::new("055afa78-b969-498f-a3ad-c792426e5ee6", "Kev Walker"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("055afa78-b969-498f-a3ad-c792426e5ee6", "Kev Walker"),
+    CardSet::Planeshift,
+    // One white mana buys the turn the combo deck needed, and the second mana
+    // stops the swing back -- a Time Walk with a narrow enough door.
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{W}{W}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {W} (You may pay an additional {W} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell_with_targets(
+            "Target player can't cast spells this turn. If this spell was kicked, creatures \
+             can't attack this turn.",
+            &const {
+                [AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )]
+            },
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                                PlayRestrictionDef::new(
+                                    PlayActionMatcherDef::CastSpell,
+                                    ObjectPredicateDef::Any,
+                                ),
+                            )),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::SourceCastWith(
+                                AlternativeCastKindDef::Kicked,
+                            ),
+                            then: &EffectDef::Apply {
+                                recipient: EffectRecipientDef::matching_objects(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::Any,
+                                ),
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        },
+                    ]
+                },
+            ),
+        ),
+    ]),
 );
 
 // PLS 12 — Planeswalker's Mirth

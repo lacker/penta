@@ -279,9 +279,8 @@ fn face_down_privacy_masks_printed_spell_types_names_and_cast_triggers() {
         CastSourceZone::Hand,
         None,
         false,
-        0,
-        0,
-        Vec::new(),
+        &game.catalog.get(cards::BRAIN_FREEZE).unwrap().play_options[0],
+        masked.signature.as_ref().unwrap(),
         false,
     ));
     let id = masked.id;

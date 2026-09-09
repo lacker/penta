@@ -69,6 +69,14 @@ fn validate_ability_definition(
             },
         );
     }
+    validate_ability_definition_references(ability, targets, cost_bindings)
+}
+
+fn validate_ability_definition_references(
+    ability: &AbilityDef,
+    targets: &[crate::card::AbilityTargetDef],
+    cost_bindings: &[crate::Binding],
+) -> Result<(), GrantedAbilityValidationError> {
     let trigger_event = match ability.definition {
         DeclarativeAbilityDef::TriggeredMana(definition)
         | DeclarativeAbilityDef::Triggered(definition) => Some(definition.event),

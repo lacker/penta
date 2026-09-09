@@ -269,8 +269,7 @@ fn evoke_checkpoint_binding_falls_back_to_the_signature_and_rejects_unknown_name
         &hidden,
         231_200,
     )
-    .err()
-    .expect("unknown names must not silently discard the paid-cost choice");
+    .expect_err("unknown names must not silently discard the paid-cost choice");
     assert!(
         error.contains("unknown alternative-cost binding"),
         "{error}"

@@ -525,9 +525,8 @@ impl Game {
             source_zone,
             alternative,
             cast_at_instant_speed,
-            signature.x(),
-            Self::repeatable_additional_cost_payments_for(option, signature.costs()),
-            Self::additional_cost_payment_counts_for(option, signature.costs()),
+            option,
+            &signature,
             cast_via_flashback,
         );
         StackObject {

@@ -80,8 +80,8 @@ pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
     CardArt::new("a97cfefa-ade7-49f6-b2aa-1118b9db4935", "Eric Fortune"),
     CardSet::Lorwyn,
     // Five mana for a flier and two cards, or three mana for just the two
-    // cards: the evoke half is a Divination that leaves a body behind only
-    // if you paid full price.
+    // cards. Only choosing the evoke cost triggers the sacrifice; another
+    // alternative cost can also leave the creature on the battlefield.
     CardRules::new_creature(mana_cost!("{4}{U}"), &["Elemental"], 2, 2).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger(

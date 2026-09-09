@@ -641,6 +641,7 @@ fn validate_trigger_condition(
         | TriggerConditionDef::AttachedPermanentMatches { .. }
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::SourceCastWith(_)
+        | TriggerConditionDef::SourcePaidAlternativeCost(_)
         | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast

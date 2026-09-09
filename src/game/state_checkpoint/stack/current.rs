@@ -66,6 +66,11 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
             .as_ref()
             .and_then(|cast| cast.alternative)
             .map(|kind| kind.label().to_owned()),
+        cast_alternative_cost: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.alternative_cost)
+            .map(|cost| cost.0),
         cast_x: object.cast.as_ref().map_or(0, |cast| cast.x),
         cast_repeatable_additional_costs: object
             .cast

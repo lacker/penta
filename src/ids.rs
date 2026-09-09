@@ -215,6 +215,24 @@ impl AdditionalCostObjectIndex {
     }
 }
 
+/// Positional reference to one printed alternative-cost clause on a card.
+///
+/// Unlike [`AlternativeCostId`], this counts only alternative-cost clauses,
+/// so inserting an unrelated ability does not change the referenced cost.
+/// Costs supplied by other objects do not have a printed index on this card.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AlternativeCostIndex(pub u8);
+
+impl AlternativeCostIndex {
+    pub const PRIMARY: Self = Self(0);
+    pub const SECONDARY: Self = Self(1);
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+}
+
 /// Positional reference to one optional additional-cost clause on a card.
 ///
 /// Unlike [`AdditionalCostId`], this is authored against the ordered list of

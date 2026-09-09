@@ -201,6 +201,21 @@ impl Game {
             .unwrap_or(0)
     }
 
+    /// The selected clause's position among this card's printed alternatives.
+    /// Runtime cost IDs deliberately cannot collide with printed ones.
+    pub(in crate::game) fn printed_alternative_cost_for(
+        option: &PlayOptionDef,
+        costs: &CostConfiguration,
+    ) -> Option<crate::AlternativeCostIndex> {
+        let selected = costs.alternative()?;
+        option
+            .alternative_costs
+            .iter()
+            .position(|cost| cost.id == selected)
+            .and_then(|index| u8::try_from(index).ok())
+            .map(crate::AlternativeCostIndex)
+    }
+
     pub(super) fn temporary_alternative_cost_id(
         option: &PlayOptionDef,
     ) -> Option<AlternativeCostId> {

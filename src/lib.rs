@@ -95,8 +95,8 @@ pub use game::{
 };
 pub use ids::{
     AbilityId, AdditionalCostId, AdditionalCostIndex, AdditionalCostObjectIndex, AlternativeCostId,
-    Binding, CardDefinitionId, CardInstanceId, CardPartId, GameObjectId, GrantId, MeldRecipeId,
-    ModeId, ParentBinding, PhysicalCardId, PlayOptionId, PlayerId, StackObjectId, TargetIndex,
-    TargetSlotId,
+    AlternativeCostIndex, Binding, CardDefinitionId, CardInstanceId, CardPartId, GameObjectId,
+    GrantId, MeldRecipeId, ModeId, ParentBinding, PhysicalCardId, PlayOptionId, PlayerId,
+    StackObjectId, TargetIndex, TargetSlotId,
 };
 pub use policy::{HandcraftedPolicy, PlayError, Policy, RandomPolicy, play_game};

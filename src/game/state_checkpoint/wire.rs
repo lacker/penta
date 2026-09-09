@@ -760,6 +760,7 @@ fn parse_permanent(
     };
     let has_cast_context = source_zone.is_some()
         || alternative.is_some()
+        || state.cast_alternative_cost.is_some()
         || state.cast_x > 0
         || state.cast_kicks > 0
         || !state.cast_additional_costs.is_empty()
@@ -772,6 +773,7 @@ fn parse_permanent(
     permanent.cast = has_cast_context.then(|| CastContext {
         source_zone,
         alternative,
+        alternative_cost: state.cast_alternative_cost.map(crate::AlternativeCostIndex),
         at_instant_speed: state.cast_at_instant_speed,
         x: state.cast_x,
         repeatable_additional_costs: state.cast_kicks,

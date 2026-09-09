@@ -662,6 +662,9 @@ impl Game {
                 TriggerConditionDef::SourceCastWith(kind) => self
                     .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
                     .is_some_and(|cast| cast.alternative == Some(*kind)),
+                TriggerConditionDef::SourcePaidAlternativeCost(cost) => self
+                    .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
+                    .is_some_and(|cast| cast.alternative_cost == Some(*cost)),
                 TriggerConditionDef::SourcePaidAdditionalCost(cost) => {
                     self.source_additional_cost_payments(source, *cost) > 0
                 }

@@ -7,7 +7,7 @@
 //! casting permission from a copied signature.
 
 use super::{CastSourceZone, Game, GameObjectId, RetiredObject, StackObject};
-use crate::{AlternativeCastKindDef, ColorSet};
+use crate::{AlternativeCastKindDef, AlternativeCostIndex, CastSignature, ColorSet, PlayOptionDef};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct CastContext {
@@ -17,6 +17,9 @@ pub(super) struct CastContext {
     /// The selected alternative-cost family. This is a copied casting choice,
     /// even though [`Self::source_zone`] is cleared on a spell copy.
     pub(super) alternative: Option<AlternativeCastKindDef>,
+    /// Which printed alternative-cost clause was chosen, independently of
+    /// its family. External alternatives have no printed index here.
+    pub(super) alternative_cost: Option<AlternativeCostIndex>,
     /// Whether the actual cast happened outside an ordinary sorcery window.
     pub(super) at_instant_speed: bool,
     /// The announced X and optional additional-cost payments. These are cast
@@ -42,18 +45,21 @@ impl CastContext {
         source_zone: CastSourceZone,
         alternative: Option<AlternativeCastKindDef>,
         at_instant_speed: bool,
-        x: u16,
-        repeatable_additional_costs: u16,
-        additional_costs: Vec<u16>,
+        option: &PlayOptionDef,
+        signature: &CastSignature,
         via_flashback: bool,
     ) -> Self {
         Self {
             source_zone: Some(source_zone),
             alternative,
+            alternative_cost: Game::printed_alternative_cost_for(option, signature.costs()),
             at_instant_speed,
-            x,
-            repeatable_additional_costs,
-            additional_costs,
+            x: signature.x(),
+            repeatable_additional_costs: Game::repeatable_additional_cost_payments_for(
+                option,
+                signature.costs(),
+            ),
+            additional_costs: Game::additional_cost_payment_counts_for(option, signature.costs()),
             colors_of_mana_spent: ColorSet::empty(),
             phyrexian_symbols_paid_with_life: 0,
             exiled_payment_cards: Vec::new(),

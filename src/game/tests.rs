@@ -194,6 +194,7 @@ mod equipment_expansion_batch_two;
 mod erg_raiders;
 mod escalate;
 mod event_player_payments;
+mod evoke;
 mod evolve;
 mod evolve_scavenge_cards;
 mod exalted;

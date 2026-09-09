@@ -39,6 +39,18 @@ pub(super) fn stack_cast_context(
             let option = definition.play_option(signature.play_option())?;
             game.selected_alternative_kind(definition, option, id, signature.costs())
         });
+    let alternative_cost = state
+        .cast_alternative_cost
+        .map(crate::AlternativeCostIndex)
+        .or_else(|| {
+            let signature = signature?;
+            let definition = card.definition.card_definition()?;
+            let option = game
+                .catalog
+                .get(definition)?
+                .play_option(signature.play_option())?;
+            Game::printed_alternative_cost_for(option, signature.costs())
+        });
     let signature_cost_counts = signature.and_then(|signature| {
         let definition = card.definition.card_definition()?;
         let option = game
@@ -56,6 +68,7 @@ pub(super) fn stack_cast_context(
             .as_deref()
             .and_then(cast_source_zone_from_label),
         alternative,
+        alternative_cost,
         at_instant_speed: state.cast_at_instant_speed,
         x: if state.cast_x == 0 {
             signature.map_or(0, CastSignature::x)
@@ -117,6 +130,18 @@ pub(super) fn detached_cast_context(
             let option = definition.play_option(signature.play_option())?;
             game.selected_alternative_kind(definition, option, id, signature.costs())
         });
+    let alternative_cost = state
+        .cast_alternative_cost
+        .map(crate::AlternativeCostIndex)
+        .or_else(|| {
+            let signature = signature?;
+            let definition = card.definition.card_definition()?;
+            let option = game
+                .catalog
+                .get(definition)?
+                .play_option(signature.play_option())?;
+            Game::printed_alternative_cost_for(option, signature.costs())
+        });
     let signature_cost_counts = signature.and_then(|signature| {
         let definition = card.definition.card_definition()?;
         let option = game
@@ -135,6 +160,7 @@ pub(super) fn detached_cast_context(
                 .as_deref()
                 .and_then(cast_source_zone_from_label),
             alternative,
+            alternative_cost,
             at_instant_speed: state.cast_at_instant_speed,
             x: if state.cast_x == 0 {
                 signature.map_or(0, CastSignature::x)

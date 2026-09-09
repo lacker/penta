@@ -550,6 +550,7 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::SpellsCastThisTurn { .. }
         | TriggerConditionDef::SpellsCastLastTurn { .. }
         | TriggerConditionDef::SourceCastWith(_)
+        | TriggerConditionDef::SourcePaidAlternativeCost(_)
         | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast

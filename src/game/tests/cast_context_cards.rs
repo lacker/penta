@@ -7,6 +7,7 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
     let original = CastContext {
         source_zone: Some(CastSourceZone::Graveyard),
         alternative: Some(AlternativeCastKindDef::Escape),
+        alternative_cost: Some(crate::AlternativeCostIndex::PRIMARY),
         at_instant_speed: true,
         x: 3,
         repeatable_additional_costs: 2,
@@ -24,6 +25,7 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
 
     assert_eq!(copied.source_zone, None);
     assert_eq!(copied.alternative, original.alternative);
+    assert_eq!(copied.alternative_cost, original.alternative_cost);
     assert_eq!(copied.x, 3);
     assert_eq!(copied.repeatable_additional_costs, 2);
     assert_eq!(copied.additional_costs, [1, 0, 2]);

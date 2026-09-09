@@ -110,6 +110,7 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::SourceIsPaired
         | TriggerConditionDef::ActivePlayer(_)
         | TriggerConditionDef::SourceCastWith(_)
+        | TriggerConditionDef::SourcePaidAlternativeCost(_)
         | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast
@@ -202,6 +203,7 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
             // anything the layer being computed could change. Dash's haste
             // is one clause that asks; a paid kicker is recorded beside it.
             | TriggerConditionDef::SourceCastWith(_)
+            | TriggerConditionDef::SourcePaidAlternativeCost(_)
             | TriggerConditionDef::SourcePaidAdditionalCost(_)
     )
 }

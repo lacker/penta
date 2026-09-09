@@ -121,6 +121,14 @@ Use the smallest boundary that truthfully implements the behavior:
 Resolution must not silently change an explicit ability category or let a
 supported activated or triggered non-mana ability bypass the shared stack.
 
+A clause that asks whether a particular alternative cost was paid should use
+`TriggerConditionDef::SourcePaidAlternativeCost(AlternativeCostIndex)`. The
+index counts printed alternative costs, not all abilities; externally supplied
+costs have no index on that card. `SourceCastWith` instead asks about a cost
+family such as escape. The `evoke_sacrifice()` helper names the first printed
+alternative cost; author the condition directly if Evoke occupies another
+position.
+
 ## Coverage
 
 Executable clauses use declarative effects and carry no separate behavior

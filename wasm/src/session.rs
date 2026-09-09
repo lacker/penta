@@ -54,6 +54,10 @@ impl LocalSession {
         self.game.lose_on_time(seat);
     }
 
+    pub fn match_json(&self, seat: PlayerId) -> serde_json::Value {
+        self.game.match_json(seat)
+    }
+
     pub fn result(&self) -> Option<GameResult> {
         self.game.result()
     }

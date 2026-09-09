@@ -22,6 +22,7 @@ export type RemoteConfig = {
   botPolicy: string;
   humanFirst: boolean;
   seed: number;
+  matchMode?: string;
   /** Called after every pushed snapshot; the app re-reads `state_json`. */
   onUpdate: () => void;
   /** Room-reported failures, which a synchronous try/catch cannot see. */
@@ -78,6 +79,7 @@ export class RemoteEngineGame {
         botPolicy: config.botPolicy,
         humanFirst: config.humanFirst,
         seed: config.seed,
+        matchMode: config.matchMode,
       }),
     });
     const body = await response.text();

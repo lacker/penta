@@ -972,7 +972,7 @@ fn validate_effect_references(
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::Cascade
-        | EffectDef::Proliferate
+        | EffectDef::RestartGame(_) | EffectDef::Proliferate
         | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }

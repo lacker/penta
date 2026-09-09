@@ -10,6 +10,7 @@ pub(super) fn parse_pending_decision(
     hidden: &Value,
     game: &Game,
 ) -> Result<Option<PendingDecision>, String> {
+    if game.between_games() { return Ok(None); }
     let Some(visible) = observation.get("decision").filter(|value| !value.is_null()) else {
         if state.is_some() {
             return Err("checkpoint decision is not visible to its viewer".into());

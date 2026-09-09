@@ -253,7 +253,10 @@ export type MatchState = {
   wins: [number, number];
   game: number;
   finished: boolean;
-  humanChooses: boolean;
+  mode: "one-conclusion" | "first-to-two-wins";
+  draws: number;
+  stage: "playing" | "sideboarding" | "play-draw" | "complete";
+  canChoose: boolean;
   main: { id: number; name: string }[];
   sideboard: { id: number; name: string }[];
 };

@@ -87,6 +87,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::MillUntil { .. } => "MillUntil",
         EffectDef::ExileFromTopUntil { .. } => "ExileFromTopUntil",
         EffectDef::Cascade => "Cascade",
+        EffectDef::RestartGame(_) => "RestartGame",
         EffectDef::Proliferate => "Proliferate",
         EffectDef::Explore { .. } => "Explore",
         EffectDef::LookAtHand { .. } => "LookAtHand",

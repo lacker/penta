@@ -284,6 +284,9 @@ impl Game {
             | EffectDef::ReplaceNextDrawThisTurn { .. } => {
                 self.resolve_hand_and_library_effect(scoped, object, &context);
             }
+            EffectDef::RestartGame(definition) => {
+                self.request_restart(definition.retained_exiles, object);
+            }
             EffectDef::Proliferate => self.offer_proliferate(object),
             EffectDef::Explore { object: recipient } => {
                 for target in self.effect_recipients(recipient, object, &context, scoped) {

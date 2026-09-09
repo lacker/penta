@@ -34,7 +34,7 @@ impl Game {
                 if ability.declarative_effect().is_none()
                     || definition.timing != timing
                     || (definition.condition == PregameConditionDef::NotStartingPlayer
-                        && player == PlayerId::One)
+                        && player == self.starting_player)
                 {
                     return;
                 }
@@ -83,11 +83,11 @@ impl Game {
     pub(super) fn begin_opening_hand_actions(&mut self, player: PlayerId) {
         let actions = self.pregame_ability_actions(player, PregameTimingDef::OpeningHand);
         if actions.is_empty() {
-            if player == PlayerId::One {
-                self.begin_opening_hand_actions(PlayerId::Two);
+            if player == self.starting_player {
+                self.begin_opening_hand_actions(player.opponent());
             } else {
                 self.pregame = None;
-                self.priority = PlayerId::One;
+                self.priority = self.starting_player;
             }
             return;
         }
@@ -257,11 +257,11 @@ impl Game {
     }
 
     pub(super) fn finish_opening_hand_actions(&mut self, player: PlayerId) {
-        if player == PlayerId::One {
-            self.begin_opening_hand_actions(PlayerId::Two);
+        if player == self.starting_player {
+            self.begin_opening_hand_actions(player.opponent());
         } else {
             self.pregame = None;
-            self.priority = PlayerId::One;
+            self.priority = self.starting_player;
         }
     }
 }

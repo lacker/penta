@@ -181,6 +181,46 @@ A deck of `Random` (the default) rotates through the built-in list. For
 your own bot, the harness in `examples/python/first_bot.py` shows the
 pattern: a seed loop, one `penta.Game` per seed, win counting.
 
+### Tournament matches
+
+The default mode is `one-conclusion`: play until a win/loss/draw, even when
+Karn Liberated restarts the game. Select `first-to-two-wins` for a tournament
+match without time limits:
+
+```python
+game = penta.Game("Sligh", "The Deck", opponent="external",
+                  match_mode="first-to-two-wins", seed=7)
+```
+
+Rust uses `Game::set_match_mode(MatchMode::FirstToTwoWins)` before the first
+action or `BotGame::new_with_match`. C configuration JSON uses
+`"matchMode":"first-to-two-wins"`; WASM `HostedGame.fromConfigJson` accepts
+that same configuration. `penta-match --match-mode first-to-two-wins --matches 10`
+runs ten matches, keeping each chosen deck fixed within its match.
+
+Keep driving the ordinary decision loop until `result` is non-null. `match`
+reports absolute-seat `wins`, `draws`, `game`, `stage`, and only the viewer's
+current `main`/`sideboard`. Native callers use `Game::match_json(viewer)` and
+`Game::current_game_result()` to distinguish game and match outcomes.
+Play/draw and sideboarding use ordinary `ChooseDecision` selections. For
+sideboarding, select the main-deck option IDs; all other registered copies form
+the sideboard. The indexed default selects the first minimum options, while
+`choose_decision` supports any legal split. No card can be added or removed.
+The loser chooses play/draw, and draws retain the preceding chooser. First-game
+play/draw happens before hands are revealed; the configured first seat chooses.
+
+A socket bot may send `{"t":"choose","decision":42,"options":[0,1]}`;
+HTTP bots send the same payload with `t:"botChoose"`. Use the actual IDs and
+bounds from the observation. Hosted WASM `chooseDecision(optionsJson)` and
+`replayConfigJson(configJson, historyJson)` preserve explicit selections.
+
+Match checkpoint reconstruction additionally requires
+`hidden.matchDecks[opponentIndex] = {"registered": {"main": [...], "sideboard": [...]},
+"current": {"main": [...], "sideboard": [...]}}`. These are hypotheses, never
+an opponent list disclosed by the host. Both lists must conserve the registered
+pool and obey the format. The rollout seed supplies future match randomness.
+Karn startup checkpoints retain the pending arrivals and starting player.
+
 ## Self-play
 
 `opponent="external"` disables the built-in opponent entirely: the game
@@ -446,7 +486,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 30 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v15`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v15`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |

@@ -57,13 +57,13 @@ pub(super) enum TurnPhaseResume {
     NextTurn,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum GameResult {
     Winner { winner: PlayerId, reason: WinReason },
     Draw,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum WinReason {
     OpponentConceded,
     OpponentLostAllLife,

@@ -112,6 +112,7 @@ mod mana;
 mod mana_planning;
 mod mana_runtime;
 mod mana_state;
+mod match_flow;
 mod monarch;
 mod ninjutsu;
 mod observation;
@@ -125,6 +126,7 @@ mod procedure_state;
 mod proliferate;
 mod prospective_x;
 mod replacement_state;
+mod restart;
 mod rooms;
 mod sacrifice_to_total;
 mod sagas;
@@ -220,7 +222,6 @@ use trigger_state::{
     TriggerPlacementBatch,
 };
 
-#[cfg(test)]
 use lifecycle::backing_cards;
 use mana_planning::{
     add_mana_cost, configured_base_mana_cost, fold_restricted_x, mana_cost_value,
@@ -545,6 +546,11 @@ struct PlayerState {
 #[derive(Clone, Debug)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Game {
+    match_context: Option<Box<crate::match_play::MatchContext>>,
+    starting_player: PlayerId,
+    pending_restart: Option<restart::RestartRequest>,
+    restart_arrivals: Option<restart::RestartArrivals>,
+    restart_count: u32,
     /// The battlefield object the most recent entry committed, so a move can
     /// hand back the identity the permanent actually got rather than the one
     /// the card had in the zone it came from. Consumed immediately by that

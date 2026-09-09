@@ -21,13 +21,67 @@ use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
 
 // NPH 1 — Karn Liberated
-// Audit: unsupported — Needs a restart-game procedure that preserves the non-Aura permanent cards linked in exile and puts them onto the restarted battlefield.
 pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9287151-95df-4f5a-b32a-4b0aea825452"),
     "Karn Liberated",
     crate::card::CardArt::new("f9287151-95df-4f5a-b32a-4b0aea825452", "Jason Chan"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{7}"), &["Karn"], 6)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "+4: Target player exiles a card from their hand.",
+                &[CostDef::Loyalty(4)],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any))],
+                EffectDef::ChooseForEachPlayer(crate::card::ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    candidates: ObjectPredicateDef::Any,
+                    zone: ZoneKind::Hand,
+                    selection: crate::card::PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                    visibility: ChoiceVisibilityDef::Private,
+                    chosen: Binding!("karn_chosen"),
+                    unchosen: Binding!("karn_rest"),
+                    then: &EffectDef::ExileLinkedToSource {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("karn_chosen"))),
+                        face_down: false,
+                        until_source_leaves: false,
+                        then: None,
+                    },
+                }),
+            ),
+            AbilityDef::activated_with_targets(
+                "−3: Exile target permanent.",
+                &[CostDef::Loyalty(-3)],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                })],
+                EffectDef::ExileLinkedToSource {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    face_down: false,
+                    until_source_leaves: false,
+                    then: None,
+                },
+            ),
+            AbilityDef::activated(
+                "−14: Restart the game, leaving in exile all non-Aura permanent cards exiled with Karn. Then put those cards onto the battlefield under your control.",
+                &[CostDef::Loyalty(-14)],
+                EffectDef::RestartGame(crate::card::RestartGameDef {
+                    retained_exiles: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
+                    ]),
+                }),
+            ),
+        ]),
 );
 
 // NPH 2 — Apostle's Blessing

@@ -6,7 +6,7 @@ use crate::CardDefinitionId;
 use crate::Format;
 use crate::card::{CardCatalog, CardDefinition, CardType, CompanionConditionDef, ManaCost};
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Deck {
     pub main: Vec<CardDefinitionId>,
     pub sideboard: Vec<CardDefinitionId>,

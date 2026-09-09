@@ -37,25 +37,50 @@ impl Game {
         decks: [Deck; 2],
         seed: u64,
     ) -> Result<Self, GameError> {
+        Self::new_with_starting_player(format, catalog, decks, seed, PlayerId::One)
+    }
+
+    /// Creates a game with stable player identities and an explicit starting player.
+    /// # Errors
+    /// Returns an error for invalid decks or failed game construction.
+    #[allow(clippy::too_many_lines)]
+    pub fn new_with_starting_player(
+        format: Format,
+        catalog: CardCatalog,
+        decks: [Deck; 2],
+        seed: u64,
+        starting_player: PlayerId,
+    ) -> Result<Self, GameError> {
+        Self::new_from_decks(format, catalog, decks, seed, starting_player, true, 0)
+    }
+
+    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn new_from_decks(
+        format: Format,
+        catalog: CardCatalog,
+        decks: [Deck; 2],
+        seed: u64,
+        starting_player: PlayerId,
+        validate: bool,
+        first_object_id: u32,
+    ) -> Result<Self, GameError> {
         let mut rng = ReplayRng::new(seed);
         let mut next_physical_id = 0_u32;
-        let mut next_object_id = 0_u32;
+        let mut next_object_id = first_object_id;
         let mut physical_cards = Vec::new();
+        let unpack = |deck: Deck, player| {
+            if validate {
+                deck.validate_for_format(&catalog, format)
+                    .map(crate::deck::ValidatedDeck::into_parts)
+                    .map_err(|error| GameError::InvalidDeck { player, error })
+            } else {
+                Ok((deck.main, deck.sideboard))
+            }
+        };
         let [deck_one, deck_two] = decks;
-        let deck_one = deck_one
-            .validate_for_format(&catalog, format)
-            .map_err(|error| GameError::InvalidDeck {
-                player: PlayerId::One,
-                error,
-            })?;
-        let deck_two = deck_two
-            .validate_for_format(&catalog, format)
-            .map_err(|error| GameError::InvalidDeck {
-                player: PlayerId::Two,
-                error,
-            })?;
-        let (deck_one_main, deck_one_sideboard) = deck_one.into_parts();
-        let (deck_two_main, deck_two_sideboard) = deck_two.into_parts();
+        let (deck_one_main, deck_one_sideboard) = unpack(deck_one, PlayerId::One)?;
+        let (deck_two_main, deck_two_sideboard) = unpack(deck_two, PlayerId::Two)?;
         // "Your starting deck" is what a companion reads (CR 702.139a), and
         // the library stops being it the moment a card is drawn, so the
         // question is answered here and the answer kept.
@@ -94,7 +119,13 @@ impl Game {
                     });
                 }
                 rng.shuffle(&mut library);
-                let initial_hand = draw_opening_hand(&mut library, format_rules.opening_hand_size)?;
+                let short_hand = library.len() < format_rules.opening_hand_size;
+                let count = if validate {
+                    format_rules.opening_hand_size
+                } else {
+                    library.len().min(format_rules.opening_hand_size)
+                };
+                let initial_hand = draw_opening_hand(&mut library, count)?;
                 let mut hand = Vec::with_capacity(initial_hand.len());
                 for mut card in initial_hand {
                     card.id = GameObjectId(next_object_id);
@@ -106,7 +137,7 @@ impl Game {
                 Ok(PlayerState {
                     life: i16::from(format_rules.starting_life),
                     library,
-                    tried_to_draw_from_empty_library: false,
+                    tried_to_draw_from_empty_library: short_hand,
                     hand,
                     graveyard: Vec::new(),
                     exile: Vec::new(),
@@ -179,6 +210,11 @@ impl Game {
         }
 
         Ok(Self {
+            match_context: None,
+            pending_restart: None,
+            restart_arrivals: None,
+            restart_count: 0,
+            starting_player,
             format,
             arrived: None,
             enumerated: EnumeratedActions::default(),
@@ -199,12 +235,16 @@ impl Game {
             next_object_id,
             next_continuous_effect_timestamp: u64::from(next_object_id),
             turn: 1,
-            turns_started: [1, 0],
+            turns_started: if starting_player == PlayerId::One {
+                [1, 0]
+            } else {
+                [0, 1]
+            },
             damage_taken_this_turn: [0; 2],
             damage_taken_by_group_this_turn: [[0; DamageSourceGroupDef::COUNT]; 2],
             attacked_subtypes_this_turn: [Vec::new(), Vec::new()],
-            active_player: PlayerId::One,
-            priority: PlayerId::One,
+            active_player: starting_player,
+            priority: starting_player,
             consecutive_passes: 0,
             step: Step::Upkeep,
             attackers_declared: false,
@@ -246,7 +286,7 @@ impl Game {
             next_installed_trigger_id: 0,
             blockers_declared: false,
             untap_pending: false,
-            pregame: Some(Pregame::Mulligan(PlayerId::One)),
+            pregame: Some(Pregame::Mulligan(starting_player)),
             mulligans: [0, 0],
             cleanup_pending: false,
             pending_decisions: Vec::new(),
@@ -260,7 +300,7 @@ impl Game {
             pending_combat_assignments: Vec::new(),
             combat_damage_stage: CombatDamageStage::NotStarted,
             combat_blocked_attackers: Vec::new(),
-            next_regular_player: PlayerId::Two,
+            next_regular_player: starting_player.opponent(),
             extra_turns: Vec::new(),
             result: None,
             events: vec![GameEvent::GameStarted { seed }],
@@ -881,11 +921,13 @@ impl Game {
             self.players[player.index()].library.push(card);
         }
         self.rng.shuffle(&mut self.players[player.index()].library);
-        let initial_hand = draw_opening_hand(
-            &mut self.players[player.index()].library,
-            self.format.rules().opening_hand_size,
-        )
-        .expect("a validated deck always contains at least seven cards");
+        let count = self
+            .format
+            .rules()
+            .opening_hand_size
+            .min(self.players[player.index()].library.len());
+        let initial_hand = draw_opening_hand(&mut self.players[player.index()].library, count)
+            .expect("the requested hand fits the library");
         for card in initial_hand {
             let (card, _zone_change) = self.zone_change_card(card);
             self.players[player.index()].hand.push(card);
@@ -904,16 +946,15 @@ impl Game {
     }
 
     pub(super) fn advance_pregame(&mut self, player: PlayerId) {
-        if player == PlayerId::One {
-            self.pregame = Some(Pregame::Mulligan(PlayerId::Two));
-            self.priority = PlayerId::Two;
+        if player == self.starting_player {
+            self.pregame = Some(Pregame::Mulligan(player.opponent()));
+            self.priority = player.opponent();
         } else {
-            self.begin_opening_hand_actions(PlayerId::One);
+            self.begin_opening_hand_actions(self.starting_player);
         }
     }
 }
 
-#[cfg(test)]
 pub(super) fn backing_cards(backing: &ObjectBacking) -> Vec<PhysicalCardId> {
     match backing {
         ObjectBacking::Cards(cards) => cards.clone(),

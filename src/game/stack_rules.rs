@@ -197,6 +197,7 @@ impl Game {
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
             | EffectDef::Cascade
+            | EffectDef::RestartGame(_)
             | EffectDef::Proliferate
             | EffectDef::Explore { .. }
             | EffectDef::SearchZone { then: None, .. }

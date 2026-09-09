@@ -566,6 +566,7 @@ impl HandcraftedPolicy {
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
             | EffectDef::Cascade
+            | EffectDef::RestartGame(_)
             | EffectDef::Proliferate
             | EffectDef::Explore { .. }
             | EffectDef::LookAtHand { .. }

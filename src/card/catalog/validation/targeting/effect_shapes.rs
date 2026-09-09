@@ -684,7 +684,7 @@ fn validate_effect_target_shapes(
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::Cascade
-        | EffectDef::Proliferate
+        | EffectDef::RestartGame(_) | EffectDef::Proliferate
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::GainClassLevel { .. }

@@ -10,7 +10,7 @@ use crate::card::{EffectDef, EffectRecipientDef};
 use crate::game::GameObjectId;
 
 impl Game {
-    pub(super) fn matching_linked_exiles(
+    pub(in crate::game) fn matching_linked_exiles(
         &self,
         predicate: crate::card::ObjectPredicateDef,
         object: &StackObject,

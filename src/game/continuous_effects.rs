@@ -640,7 +640,7 @@ impl Game {
                 | EffectDef::ConditionalStatic(_)
                 | EffectDef::StaticApply { .. }
                 | EffectDef::Apply { .. }
-                | EffectDef::Proliferate
+                | EffectDef::RestartGame(_) | EffectDef::Proliferate
                 | EffectDef::Explore { .. }
                 | EffectDef::Endure { .. }
                 | EffectDef::Cascade

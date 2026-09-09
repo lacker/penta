@@ -1,4 +1,3 @@
-use super::match_play::DeckLists;
 use super::{
     BotPolicy, Format, Game, HandcraftedPolicy, JsValue, LocalSession, PlayerId, RandomPolicy,
     Value, WebGame, card, deck_by_name, js_error, json, wasm_bindgen,
@@ -65,30 +64,8 @@ impl WebGame {
             .and_then(|seed| u32::try_from(seed).ok())
             .ok_or_else(|| js_error("invalid seed"))?;
         let catalog = card::catalog().map_err(js_error)?;
-        let registered = [
-            deck_by_name(format, human_deck)?,
-            deck_by_name(format, bot_deck)?,
-        ];
-        let decks = if let Some(value) = replay_config.get("decks") {
-            let values = value
-                .as_array()
-                .filter(|values| values.len() == 2)
-                .ok_or_else(|| js_error("expected two deck lists"))?;
-            let decks = [
-                DeckLists::parse(&values[0])?.into_deck(),
-                DeckLists::parse(&values[1])?.into_deck(),
-            ];
-            let registration = penta::match_play::BestOfThree::new(registered, PlayerId::One);
-            for seat in [PlayerId::One, PlayerId::Two] {
-                registration
-                    .validate_sideboard(seat, &decks[seat.index()], &catalog, format)
-                    .map_err(js_error)?;
-            }
-            decks
-        } else {
-            registered
-        };
-        let [human_deck, bot_deck] = decks.clone();
+        let human_deck = deck_by_name(format, human_deck)?;
+        let bot_deck = deck_by_name(format, bot_deck)?;
         let human = if human_first {
             PlayerId::One
         } else {
@@ -98,8 +75,19 @@ impl WebGame {
             PlayerId::One => [human_deck, bot_deck],
             PlayerId::Two => [bot_deck, human_deck],
         };
-        let game = Game::new_with_format(format, catalog.clone(), ordered_decks, u64::from(seed))
-            .map_err(js_error)?;
+        let mut game =
+            Game::new_with_format(format, catalog.clone(), ordered_decks, u64::from(seed))
+                .map_err(js_error)?;
+        let mode = penta::match_play::MatchMode::parse(
+            replay_config
+                .get("matchMode")
+                .map_or(Ok("one-conclusion"), |value| {
+                    value.as_str().ok_or("matchMode must be a string")
+                })
+                .map_err(js_error)?,
+        )
+        .map_err(js_error)?;
+        game.set_match_mode(mode).map_err(js_error)?;
         let bot = match bot_policy.to_ascii_lowercase().as_str() {
             "random" => BotPolicy::Random(RandomPolicy::new(u64::from(seed) ^ 0x00b0_7b07)),
             "handcrafted" => BotPolicy::Handcrafted(HandcraftedPolicy::new(catalog.clone())),
@@ -108,8 +96,6 @@ impl WebGame {
         };
         let mut web_game = Self {
             session: LocalSession::new(game),
-            decks,
-            series: None,
             replay_config,
             journal: Vec::new(),
             catalog,

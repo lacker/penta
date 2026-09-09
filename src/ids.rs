@@ -524,7 +524,7 @@ pub use GameObjectId as CardInstanceId;
 pub use GameObjectId as StackObjectId;
 
 /// One of the two players in a game.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum PlayerId {
     One,
     Two,

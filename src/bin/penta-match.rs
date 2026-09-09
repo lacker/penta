@@ -5,7 +5,7 @@
 //!     --games 100 --seed 1
 //! ```
 //!
-//! Seats swap every game so neither policy always plays first. A deck of
+//! Seats swap every match so neither policy always plays first. A deck of
 //! `Random` rotates deterministically through the built-in list, so a series
 //! samples the whole pool.
 
@@ -58,6 +58,7 @@ struct Config {
     games: u64,
     seed: u64,
     prepared_engine: bool,
+    match_mode: penta::match_play::MatchMode,
 }
 
 fn parse_args() -> Result<Config, String> {
@@ -69,6 +70,7 @@ fn parse_args() -> Result<Config, String> {
         games: 100,
         seed: 1,
         prepared_engine: true,
+        match_mode: penta::match_play::MatchMode::OneConclusion,
     };
     let mut args = std::env::args().skip(1);
     while let Some(flag) = args.next() {
@@ -86,7 +88,10 @@ fn parse_args() -> Result<Config, String> {
             }
             "--deck1" => config.deck1 = value("--deck1")?,
             "--deck2" => config.deck2 = value("--deck2")?,
-            "--games" => {
+            "--match-mode" => {
+                config.match_mode = penta::match_play::MatchMode::parse(&value("--match-mode")?)?;
+            }
+            "--matches" | "--games" => {
                 let count = value("--games")?;
                 config.games = count
                     .parse()
@@ -105,7 +110,7 @@ fn parse_args() -> Result<Config, String> {
             "--help" | "-h" => {
                 return Err(
                     "usage: penta-match [--p1 random|handcrafted] [--p2 random|handcrafted] \
-                     [--deck1 NAME|Random] [--deck2 NAME|Random] [--games N] [--seed N]"
+                     [--deck1 NAME|Random] [--deck2 NAME|Random] [--matches N] [--match-mode one-conclusion|first-to-two-wins] [--seed N]"
                         .to_string(),
                 );
             }
@@ -115,7 +120,7 @@ fn parse_args() -> Result<Config, String> {
     Ok(config)
 }
 
-/// Resolves a deck request for one game, rotating `Random` through the pool.
+/// Resolves a deck request for one match, rotating `Random` through the pool.
 fn pick_deck(request: &str, rotation: u64) -> Result<Deck, String> {
     if request.eq_ignore_ascii_case("random") {
         let names = deck_names();
@@ -125,6 +130,7 @@ fn pick_deck(request: &str, rotation: u64) -> Result<Deck, String> {
     deck_by_name(request).ok_or_else(|| format!("unknown deck: {request}"))
 }
 
+#[allow(clippy::too_many_lines)]
 fn main() -> ExitCode {
     let config = match parse_args() {
         Ok(config) => config,
@@ -149,8 +155,8 @@ fn main() -> ExitCode {
 
     for game_index in 0..config.games {
         let seed = config.seed.wrapping_add(game_index);
-        // Swap seats every game so neither contestant always plays first.
-        // Contestant 1 sits in seat One on even games.
+        // Swap seats every match so neither contestant always plays first.
+        // Contestant 1 sits in seat One on even matches.
         let swapped = game_index % 2 == 1;
         let decks = match (
             pick_deck(&config.deck1, game_index),
@@ -175,6 +181,8 @@ fn main() -> ExitCode {
                 return ExitCode::FAILURE;
             }
         };
+        game.set_match_mode(config.match_mode)
+            .expect("new match configuration");
         game.set_prepared_engine_enabled(config.prepared_engine);
         let (first, second) = if swapped {
             (config.p2, config.p1)
@@ -209,8 +217,9 @@ fn main() -> ExitCode {
     }
 
     println!(
-        "{} games: {} = {} wins, {} = {} wins, {} draws{}",
+        "{} matches ({}): {} = {} wins, {} = {} wins, {} draws{}",
         config.games,
+        config.match_mode.slug(),
         config.p1.label(),
         wins[0],
         config.p2.label(),

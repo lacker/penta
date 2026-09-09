@@ -795,10 +795,11 @@ impl WebGame {
             // observation can read. Anything else the opponent chose stays
             // private, including when the human is mid-decision themselves.
             Action::ChooseDecision { decision, .. }
-                if observation
-                    .decision
-                    .as_ref()
-                    .is_none_or(|visible| visible.id != *decision) =>
+                if observation.decision.as_ref().is_none_or(|visible| {
+                    visible.id != *decision
+                        || (visible.player != self.human
+                            && visible.visibility == penta::DecisionVisibility::Private)
+                }) =>
             {
                 "Opponent made a private choice".into()
             }

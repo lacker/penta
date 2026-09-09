@@ -194,6 +194,11 @@ impl Game {
             .collect::<Result<Vec<_>, _>>()?;
         let prepared_engine = crate::prepared_engine::PreparedEngine::compile(&catalog);
         let mut game = Self {
+            match_context: None,
+            pending_restart: None,
+            restart_arrivals: None,
+            restart_count: checkpoint.restart_count,
+            starting_player: player_from_index(checkpoint.starting_player)?,
             format,
             arrived: None,
             enumerated: EnumeratedActions::default(),
@@ -329,9 +334,19 @@ impl Game {
             next_regular_player: player_from_index(checkpoint.next_regular_player)?,
             damage_preventions,
             damage_redirects,
-            result: None,
+            result: checkpoint.current_game_result,
             events: vec![GameEvent::GameStarted { seed: rollout_seed }],
         };
+        game.restore_match_checkpoint(checkpoint.match_state.as_ref(), hidden, viewer, rollout_seed)?;
+        if let Some(value) = &checkpoint.restart_arrivals {
+            let retained: Vec<u32> = serde_json::from_value(value["retained"].clone()).map_err(|error| error.to_string())?;
+            game.restart_arrivals = Some(super::restart::RestartArrivals {
+                controller: serde_json::from_value(value["controller"].clone()).map_err(|error| error.to_string())?,
+                retained: retained.into_iter().map(GameObjectId).collect(),
+                entering: value["entering"].as_bool().ok_or("restart entering flag must be boolean")?,
+                ready: parse_pending_events(&serde_json::from_value::<Vec<PendingEventSnapshot>>(value["ready"].clone()).map_err(|error| error.to_string())?, &game.catalog)?.into(),
+            });
+        }
         let (battlefield, phased_out) =
             parse_battlefield(observation, &checkpoint.battlefield, &game.catalog)?;
         game.battlefield = battlefield;
@@ -405,6 +420,7 @@ impl Game {
                     .into(),
             );
         }
+        game.restore_physical_cards();
         Ok(game)
     }
 }

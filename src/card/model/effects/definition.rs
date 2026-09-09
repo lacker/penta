@@ -760,6 +760,7 @@ pub enum EffectDef {
     /// what each chosen thing gets is read off what is already on it rather
     /// than named by the card.
     Proliferate,
+    RestartGame(RestartGameDef),
     /// Freely divide a frozen collection into two groups. A later stage decides
     /// whether anyone chooses between them.
     PartitionGroup(super::PartitionGroupDef),

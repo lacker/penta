@@ -116,6 +116,7 @@ impl Game {
             // longer rules procedures to finish. The procedure runner uses
             // the same terminal guard, so calling it again could not make
             // progress while queued cleanup remained.
+            if self.pending_restart.is_some() { self.perform_restart(); return; }
             if self.result.is_some() {
                 return;
             }
@@ -139,6 +140,7 @@ impl Game {
             return;
         }
 
+        if self.continue_restart_startup() { return; }
         self.check_state_based_actions();
         if self.result.is_none()
             && self.pending_decisions.is_empty()

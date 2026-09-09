@@ -18,6 +18,22 @@ Observations and catalogs also advertise named additive capabilities. Replay
 and reconstruction payloads carry their own format versions instead of moving
 the bot-wire epoch.
 
+## Unreleased
+
+- Add opt-in `first-to-two-wins` matches to the shared game lifecycle, bindings,
+  browser, hosted rooms and headless runner. Registrations stay fixed; private
+  sideboarding follows each nonterminal conclusion, draws score separately,
+  and the loser chooses play/draw (the previous chooser after a draw).
+- The default `one-conclusion` mode stops at a win/loss/draw. Karn Liberated is
+  fully declarative: a restart resets gameplay and pregame procedures without
+  changing the match score or permitting sideboarding.
+- Advertise additive `match.first-to-two-wins.v1` and `rules.restart-game.v1`
+  capabilities. Optional checkpoint fields record match state, starting player,
+  and restart startup; opponent match decks remain separate hidden hypotheses.
+  Existing callers keep single-conclusion behavior. The protocol epoch and
+  checkpoint format remain unchanged; exact simulations/replays must still
+  match the generated simulation fingerprint.
+
 ## 0.7.0 — protocol 29
 
 This release reports engine 0.7.0 and protocol 29. The simulation fingerprint

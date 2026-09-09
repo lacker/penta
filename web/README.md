@@ -106,17 +106,24 @@ registry from the disabled route:
 curl -s -o /dev/null -w '%{http_code}\n' https://penta.lacker.workers.dev/_bots
 ```
 
-## Best-of-three matches
+## Tournament matches
 
-In local game setup, choose **Best of three · Sideboarding**. Deck choices
-(including Random) resolve once for the match. Between games, move registered
-cards between your main deck and sideboard, then start the next game. The engine
-checks the format's deck sizes and preserves the complete registered card pool.
-The previous loser chooses play or draw; after a draw, the previous chooser
-keeps that choice. The match ends when either player wins twice.
+Choose **First to 2 wins · Sideboarding** in setup for local or hosted play.
+Deck choices (including Random) resolve once. The initially selected seat
+chooses play or draw before either opening hand is visible. After every game
+conclusion that continues the match, each seat privately submits a main deck
+from its registered main-plus-sideboard pool. Format deck-size rules still apply.
+The previous loser then chooses play or draw; a draw preserves the previous
+chooser. Draws have a separate count and never advance the two-win threshold.
+Hosted first-to-two matches have no move clock.
 
-Built-in bots currently keep their deck unchanged and choose to play first.
-Hosted opponents and the headless runner still play individual games. Match
-state lives in the current browser session; reloading starts a fresh game.
-Bug-report replays reproduce the individual game, including its sideboarded
-lists, rather than the surrounding match history.
+The same match state and decisions run in the native engine, built-in policies,
+remote bots, bindings and headless runner. Handcrafted uses the generic decision
+policy; external bots may submit explicit option IDs. Replays cover the whole
+match, including every sideboard selection and starting-player choice. Local
+page reloads still start a new session; hosted rooms reconstruct saved commands.
+
+**One game conclusion** ends at the first win, loss or draw. Karn Liberated
+restarts the game in either mode without scoring a conclusion or sideboarding.
+Its controller starts the restarted game; retained cards enter after mulligans
+and opening-hand actions, before the first turn.

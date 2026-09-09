@@ -197,4 +197,25 @@ print("simulate: opponent hands rewritten, worlds diverge, real game untouched")
 game = penta.Game("Sligh", "The Deck", opponent="handcrafted", seed=3)
 obs = json.loads(game.observe())
 assert "opponentHandSize" in obs and isinstance(obs["opponentHandSize"], int)
+# A whole tournament match uses the same loop and explicit decision endpoint.
+match = penta.Game("Sligh", "The Deck", opponent="handcrafted", seed=3,
+                   match_mode="first-to-two-wins")
+saw_sideboard = False
+for _ in range(10000):
+    view = json.loads(match.observe("p1"))
+    if match.result() is not None:
+        assert max(view["match"]["wins"]) == 2
+        assert view["match"]["stage"] == "complete"
+        break
+    if view["match"]["stage"] == "sideboarding":
+        saw_sideboard = True
+        decision = view["decision"]
+        match.choose_decision([option["id"] for option in decision["options"][:decision["minimum"]]])
+    else:
+        match.act(pass_bot(view))
+else:
+    raise AssertionError("tournament match did not finish")
+assert saw_sideboard
+print("match: sideboarding and two game wins through the shared Python loop")
+
 print("smoke test passed")

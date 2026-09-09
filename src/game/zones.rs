@@ -2,9 +2,10 @@ use super::{
     ArrivalAttachment, BattlefieldArrival, CardDefinitionId, CardInstance, CardPartId,
     CardStructure, CharacteristicContext, CharacteristicSource, CommittedTriggerEvent, CounterKind,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EntryCompletion, Game, GameEvent,
-    GameObjectId, KeywordAbility, ObjectBacking, PendingBattlefieldEntry, Permanent, PlayerId,
-    PublicCard, ReplacementEffectDef, ReplacementEventDef, Target, TriggerContext, ZoneCard,
-    ZoneError, ZoneKind, ZoneMoveCause, ZoneMoveCauseDef, ZonePlacement, applicable_part_ids_ref,
+    GameObjectId, KeywordAbility, ObjectBacking, PendingBattlefieldEntry, Permanent, PhysicalCard,
+    PhysicalCardId, PlayerId, PublicCard, ReplacementEffectDef, ReplacementEventDef, Target,
+    TriggerContext, ZoneCard, ZoneError, ZoneKind, ZoneMoveCause, ZoneMoveCauseDef, ZonePlacement,
+    applicable_part_ids_ref,
 };
 
 mod exile_events;
@@ -139,6 +140,13 @@ impl Game {
     ) -> Result<(), ZoneError> {
         self.forget_enumeration();
         let built = self.build_zone(player, cards)?;
+        let removed = self.players[player.index()]
+            .hand
+            .iter()
+            .flat_map(|card| super::backing_cards(&card.backing))
+            .collect::<Vec<_>>();
+        self.physical_cards
+            .retain(|card| !removed.contains(&card.id));
         self.players[player.index()].hand = built;
         Ok(())
     }
@@ -263,6 +271,13 @@ impl Game {
     ) -> Result<(), ZoneError> {
         self.forget_enumeration();
         let built = self.build_zone(player, cards)?;
+        let removed = self.players[player.index()]
+            .library
+            .iter()
+            .flat_map(|card| super::backing_cards(&card.backing))
+            .collect::<Vec<_>>();
+        self.physical_cards
+            .retain(|card| !removed.contains(&card.id));
         self.players[player.index()].library = built;
         Ok(())
     }
@@ -288,13 +303,22 @@ impl Game {
                     .next_object_id
                     .checked_add(1)
                     .ok_or(ZoneError::TooManyCards)?;
+                let physical_id = PhysicalCardId(
+                    self.physical_cards
+                        .last()
+                        .map_or(Some(0), |card| card.id.0.checked_add(1))
+                        .ok_or(ZoneError::TooManyCards)?,
+                );
+                self.physical_cards.push(PhysicalCard {
+                    id: physical_id,
+                    definition: *definition,
+                    owner: player,
+                });
                 Ok(CardInstance {
                     id,
                     definition: *definition,
                     owner: player,
-                    // A card conjured for a hypothetical has no physical
-                    // provenance, which only meld and copy effects consult.
-                    backing: ObjectBacking::None,
+                    backing: ObjectBacking::Cards(vec![physical_id]),
                     characteristics: CharacteristicSource::Card(*definition),
                     counters: crate::game::counters::Counters::new(),
                 })

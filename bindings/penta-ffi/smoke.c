@@ -65,6 +65,13 @@ static int play_one(const char *config, int check_json) {
     }
 
     int32_t result = penta_result(game);
+    if (strstr(config, "first-to-two-wins")) {
+        char *view = penta_observe_json(game, 0);
+        if (!view || (!strstr(view, "\"wins\":[2,0]") && !strstr(view, "\"wins\":[2,1]") &&
+                      !strstr(view, "\"wins\":[0,2]") && !strstr(view, "\"wins\":[1,2]")))
+            return fail("match did not reach two game wins");
+        penta_string_free(view);
+    }
     penta_free(game);
     if (result == -1) {
         fprintf(stderr, "FAIL: game did not finish in %d steps\n", steps);
@@ -188,6 +195,10 @@ static int check_clone(const char *config) {
 }
 
 int main(void) {
+    if (play_one("{\"p1Deck\":\"Sligh\",\"p2Deck\":\"The Deck\","
+                 "\"opponent\":\"handcrafted\",\"seed\":3,"
+                 "\"matchMode\":\"first-to-two-wins\"}", 1)) return 1;
+
     const char *fingerprint = penta_simulation_fingerprint();
     if (!fingerprint || strncmp(fingerprint, "sha256-", 7) != 0 ||
         strlen(fingerprint) != 71)

@@ -33,7 +33,7 @@ pub struct HostedGame {
     game: BotGame,
     /// Every action index applied, in order. With the seed and the decks this
     /// is the whole game, which is what gets written down.
-    history: Vec<u32>,
+    history: Vec<serde_json::Value>,
 }
 
 #[wasm_bindgen]
@@ -72,6 +72,47 @@ impl HostedGame {
             game,
             history: Vec::new(),
         })
+    }
+
+    /// Starts a match from the shared native/C configuration JSON.
+    /// # Errors
+    /// Rejects invalid configuration or registered decks.
+    #[wasm_bindgen(js_name = fromConfigJson)]
+    pub fn from_config_json(config: &str) -> Result<HostedGame, JsValue> {
+        Ok(Self {
+            game: BotGame::from_config_json(config).map_err(js_error)?,
+            history: Vec::new(),
+        })
+    }
+
+    /// Replays indices and explicit selections from `historyJson`.
+    /// # Errors
+    /// Rejects invalid configuration, history, or selections.
+    #[wasm_bindgen(js_name = replayConfigJson)]
+    pub fn replay_config_json(config: &str, history: &str) -> Result<HostedGame, JsValue> {
+        let mut game = Self::from_config_json(config)?;
+        let commands: Vec<serde_json::Value> =
+            serde_json::from_str(history).map_err(|error| js_error(error.to_string()))?;
+        for command in commands {
+            if let Some(index) = command.as_u64().and_then(|index| u32::try_from(index).ok()) {
+                game.act(index)?;
+            } else {
+                game.choose_decision(&command["options"].to_string())?;
+            }
+        }
+        Ok(game)
+    }
+
+    /// Supplies the deciding seat's explicit option IDs.
+    /// # Errors
+    /// Rejects an invalid selection or a missing decision.
+    #[wasm_bindgen(js_name = chooseDecision)]
+    pub fn choose_decision(&mut self, options: &str) -> Result<(), JsValue> {
+        let options: Vec<u32> =
+            serde_json::from_str(options).map_err(|error| js_error(error.to_string()))?;
+        self.game.choose_decision(&options).map_err(js_error)?;
+        self.history.push(serde_json::json!({"options": options}));
+        Ok(())
     }
 
     /// Rebuilds a game from what was written down. The actions are replayed
@@ -135,7 +176,7 @@ impl HostedGame {
     /// has already finished.
     pub fn act(&mut self, index: u32) -> Result<(), JsValue> {
         self.game.act(index as usize).map_err(js_error)?;
-        self.history.push(index);
+        self.history.push(serde_json::json!(index));
         Ok(())
     }
 

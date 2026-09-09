@@ -191,6 +191,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::RemoveAllCounters { .. }
         | EffectDef::RemoveCounters { .. }
         | EffectDef::Explore { .. }
+        | EffectDef::RestartGame(_)
         | EffectDef::Proliferate
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::ScheduleTurnPhases(_)

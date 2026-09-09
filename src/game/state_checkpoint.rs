@@ -293,6 +293,12 @@ impl Game {
                     .copied()
                     .flat_map(prevention::damage_redirect_referenced_object_ids),
             )
+            .chain(self.restart_arrivals.iter().flat_map(|state| {
+                state
+                    .ready
+                    .iter()
+                    .flat_map(pending_event_referenced_object_ids)
+            }))
             .filter(|id| self.retired_objects.contains_key(id))
             .collect::<BTreeSet<_>>();
         let retired_objects = retired_ids
@@ -495,6 +501,11 @@ impl Game {
         let has_unlocated_emblem = emblems.len() != self.emblems.len();
         GameSnapshot {
             version: crate::protocol::CHECKPOINT_VERSION,
+            starting_player: self.starting_player.index(),
+            match_state: self.match_checkpoint(viewer),
+            current_game_result: self.result,
+            restart_count: self.restart_count,
+            restart_arrivals: self.restart_arrivals.as_ref().map(|state| serde_json::json!({ "controller": state.controller, "retained": state.retained.iter().map(|id| id.0).collect::<Vec<_>>(), "entering": state.entering, "ready": state.ready.iter().map(|pending| pending_event_snapshot(&self.catalog, pending)).collect::<Option<Vec<_>>>() })),
             simulation_fingerprint: crate::protocol::SIMULATION_FINGERPRINT.to_owned(),
             turns_started: self.turns_started,
             damage_taken_this_turn: self.damage_taken_this_turn,

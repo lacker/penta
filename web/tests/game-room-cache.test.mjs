@@ -46,6 +46,14 @@ const SAFE_AFTER_DECLINE = {
 
 class TestWebGame {
   state = structuredClone(SAFE_BEFORE_DRAW);
+  tournament = false;
+  enable_match() { this.tournament = true; }
+  matchStage() { return this.tournament ? "sideboarding" : "playing"; }
+  opponentChooseDecision(decision, options) {
+    assert.equal(decision, 42);
+    assert.deepEqual(JSON.parse(options), [0, 2]);
+    this.opponentAct();
+  }
   opponentDeciding = false;
 
   act() {
@@ -223,4 +231,26 @@ test("built-in game records do not expose either seat token", async () => {
     await room.fetch(request("record", { token: started.humanToken }))
   ).json();
   assertCredentialsRedacted(record);
+});
+
+
+test("tournament rooms persist bot sideboard selections without a move clock", async () => {
+  const storage = new MemoryStorage();
+  const room = new GameRoom(durableState(storage));
+  const started = await (await room.fetch(request("start", { body: {
+    humanDeck: "human deck", botDeck: "bot deck", botPolicy: "external",
+    humanFirst: true, seed: 7, matchMode: "first-to-two-wins",
+  } }))).json();
+  assert.equal(started.state.moveClock, undefined);
+  await room.fetch(request("command", { token: started.humanToken, body: { t: "act", index: 0 } }));
+  assert.equal(storage.values.has("move-clock"), false);
+  assert.equal(storage.alarm, null);
+  const selected = { t: "botChoose", decision: 42, options: [0, 2] };
+  const applied = await room.fetch(request("command", { token: started.botToken, body: selected }));
+  assert.equal(applied.status, 200);
+  const stored = [...storage.values.values()].find(value => value?.commands);
+  assert.deepEqual(stored.commands.at(-1), selected);
+  const reloaded = new GameRoom(durableState(storage));
+  const state = await (await reloaded.fetch(request("state", { token: started.humanToken }))).json();
+  assert.equal(state.view, "safe-after-decline");
 });

@@ -41,6 +41,7 @@ interface GameConfig {
   botPolicy: string;
   humanFirst: boolean;
   seed: number;
+  matchMode?: "one-conclusion" | "first-to-two-wins";
   format?: string;
   /**
    * The human seat's own opt-in to open decklists: it is willing to have
@@ -62,10 +63,11 @@ type Command =
   | { t: "phaseStop"; phase: string; enabled: boolean }
   | { t: "autopass"; enabled: boolean }
   | { t: "botAct"; index: number }
+  | { t: "botChoose"; decision: number; options: number[] }
   | { t: "loseOnTime"; seat: "human" | "bot"; reason: string };
 
 /** The bot seat's one verb; everything else belongs to the human. */
-const BOT_COMMANDS = new Set(["botAct"]);
+const BOT_COMMANDS = new Set(["botAct", "botChoose"]);
 
 interface StoredGame {
   config: GameConfig;
@@ -198,6 +200,9 @@ function apply(game: WebGame, command: Command): void {
     case "autopass":
       game.set_autopass(command.enabled);
       return;
+    case "botChoose":
+      game.opponentChooseDecision(command.decision, JSON.stringify(command.options));
+      break;
     case "botAct":
       game.opponentAct(command.index);
       return;
@@ -509,6 +514,8 @@ export class GameRoom {
       config.seed,
       config.format,
     );
+    if (config.matchMode === "first-to-two-wins") game.enable_match();
+    else if (config.matchMode && config.matchMode !== "one-conclusion") throw new Error("unknown match mode");
     const stored: StoredGame = {
       config,
       commands: [],
@@ -577,6 +584,7 @@ export class GameRoom {
         stored.config.seed,
         stored.config.format,
       );
+      if (stored.config.matchMode === "first-to-two-wins") game.enable_match();
       // Replaying also recovers the last safe boundary for rooms created
       // before the cache existed, or after a storage write was interrupted.
       let replayedHumanState: HumanStateCache = {
@@ -586,7 +594,7 @@ export class GameRoom {
       for (const [position, command] of stored.commands.entries()) {
         try {
           apply(game, command);
-          if (!game.opponentIsDeciding()) {
+          if (!game.opponentIsDeciding() || game.matchStage?.() === "sideboarding" || game.matchStage?.() === "play-draw") {
             replayedHumanState = {
               commandCount: position + 1,
               state: JSON.parse(game.state_json()) as HumanStateCache["state"],
@@ -682,9 +690,10 @@ export class GameRoom {
     // arrive as frames rather than as requests `fetch` could notice.
     this.#lastBotSeen = Date.now();
     try {
-      const message = JSON.parse(String(data)) as { t: string; index: number };
-      if (message.t !== "act") throw new Error("the bot socket speaks only act");
-      await this.#apply(game, { t: "botAct", index: message.index });
+      const message = JSON.parse(String(data)) as { t: string; index: number; decision: number; options: number[] };
+      if (message.t === "choose") await this.#apply(game, { t: "botChoose", decision: message.decision, options: message.options });
+      else if (message.t === "act") await this.#apply(game, { t: "botAct", index: message.index });
+      else throw new Error("expected act or choose");
     } catch (cause) {
       this.#bot?.send(JSON.stringify({ t: "error", message: String(cause) }));
     }
@@ -701,6 +710,10 @@ export class GameRoom {
       await this.#armClock(game);
       if (game.opponentIsDeciding()) {
         this.#promptBot(game);
+        if (game.matchStage?.() === "sideboarding" || game.matchStage?.() === "play-draw") {
+          await this.#rememberHumanState(game);
+          this.#toHumans(this.#deliverable());
+        }
         // Humans are not pushed here. Their snapshot would describe their own
         // seat as holding a decision it does not hold, and an actionable panel
         // that rejects every click is worse than a still one.
@@ -730,6 +743,12 @@ export class GameRoom {
       // be looking at it, and a bug report may still want its replay -- but
       // not forever. The alarm comes back to release it.
       await this.#state.storage.setAlarm(Date.now() + FINISHED_ROOM_MS);
+      return;
+    }
+    if (this.#stored?.config.matchMode === "first-to-two-wins") {
+      this.#clock = null;
+      await this.#state.storage.delete(CLOCK);
+      await this.#state.storage.deleteAlarm();
       return;
     }
     const seat: MoveClock["seat"] = game.opponentIsDeciding() ? "bot" : "human";

@@ -421,6 +421,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::MillUntil { .. }
         | EffectDef::ExileFromTopUntil { .. }
         | EffectDef::Cascade
+        | EffectDef::RestartGame(_)
         | EffectDef::Proliferate
         | EffectDef::Explore { .. }
         | EffectDef::LookAtHand { .. }

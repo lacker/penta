@@ -75,7 +75,7 @@ pub use model::{
     PregameAbilityDef, PregameConditionDef, PregameTimingDef, PrintedManaCost,
     PutObjectsOntoBattlefieldFaceDownDef, QuantifierDef, QuotientValueDef, RandomizeObjectOrderDef,
     ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectDurationSetDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectDurationSetDef, RestartGameDef,
     RevealAndClassifyCardsDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
     ScalarChoiceListDef, ScaledValueDef, SetOperationDef, SourceMatchValueDef, SpecialActionDef,
     SpellAbilityDef, SpellCastQueryDef, SpellCostConditionDef, SpellCostModificationDef, SpellForm,

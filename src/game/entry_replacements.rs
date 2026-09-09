@@ -692,6 +692,16 @@ impl Game {
     }
 
     pub(super) fn commit_pending_event(&mut self, pending: PendingEvent) {
+        let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
+        if entry.redirected_to.is_none()
+            && let Some(startup) = self
+                .restart_arrivals
+                .as_mut()
+                .filter(|startup| startup.entering)
+        {
+            startup.ready.push(pending);
+            return;
+        }
         match pending.event {
             ReplaceableEvent::BattlefieldEntry(entry) => self.commit_battlefield_entry(entry),
         }
@@ -752,6 +762,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(super) fn commit_battlefield_entry(&mut self, mut entry: PendingBattlefieldEntry) {
         if let Some(zone) = entry.redirected_to {
             self.commit_redirected_entry(entry, zone);
@@ -870,7 +881,9 @@ impl Game {
         });
         self.capture_room_entry_unlock(permanent_id);
         self.place_entry_lore_counter(permanent_id);
-        self.apply_legend_rule();
+        if self.pregame.is_none() && self.restart_arrivals.is_none() {
+            self.apply_legend_rule();
+        }
 
         if let EntryCompletion::SpellResolved { card, definition } = entry.completion {
             self.events

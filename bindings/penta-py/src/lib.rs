@@ -62,8 +62,10 @@ impl Game {
         opponent="handcrafted",
         opponent_seat="p2",
         seed=0,
-        format="old-school-93-94"
+        format="old-school-93-94",
+        match_mode="one-conclusion"
     ))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         p1_deck: &str,
         p2_deck: &str,
@@ -71,6 +73,7 @@ impl Game {
         opponent_seat: &str,
         seed: u64,
         format: &str,
+        match_mode: &str,
     ) -> PyResult<Self> {
         let opponent = match opponent {
             "external" => Opponent::External,
@@ -84,9 +87,17 @@ impl Game {
         };
         let seat = seat_from_name(opponent_seat)?;
         let format = format_from_slug(format)?;
-        BotGame::new_with_format(format, p1_deck, p2_deck, opponent, seat, seed)
-            .map(|inner| Self { inner })
-            .map_err(PyValueError::new_err)
+        BotGame::new_with_match(
+            format,
+            p1_deck,
+            p2_deck,
+            opponent,
+            seat,
+            seed,
+            engine::match_play::MatchMode::parse(match_mode).map_err(PyValueError::new_err)?,
+        )
+        .map(|inner| Self { inner })
+        .map_err(PyValueError::new_err)
     }
 
     /// The seat that must act next (`"p1"`/`"p2"`), or `None` when the game

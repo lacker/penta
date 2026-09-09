@@ -157,13 +157,38 @@ impl BotGame {
         opponent_seat: PlayerId,
         seed: u64,
     ) -> Result<Self, String> {
+        Self::new_with_match(
+            format,
+            p1_deck,
+            p2_deck,
+            opponent,
+            opponent_seat,
+            seed,
+            crate::match_play::MatchMode::OneConclusion,
+        )
+    }
+
+    /// Starts a match using the shared game-conclusion and sideboarding rules.
+    /// # Errors
+    /// Returns an error for invalid configuration or a failing scripted opponent.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_with_match(
+        format: Format,
+        p1_deck: &str,
+        p2_deck: &str,
+        opponent: Opponent,
+        opponent_seat: PlayerId,
+        seed: u64,
+        mode: crate::match_play::MatchMode,
+    ) -> Result<Self, String> {
         let catalog = poc::catalog().map_err(|error| error.to_string())?;
         let deck_one = deck_by_name_for_format(format, p1_deck)
             .ok_or_else(|| format!("unknown deck for {}: {p1_deck}", format.slug()))?;
         let deck_two = deck_by_name_for_format(format, p2_deck)
             .ok_or_else(|| format!("unknown deck for {}: {p2_deck}", format.slug()))?;
-        let game = Game::new_with_format(format, catalog.clone(), [deck_one, deck_two], seed)
+        let mut game = Game::new_with_format(format, catalog.clone(), [deck_one, deck_two], seed)
             .map_err(|error| error.to_string())?;
+        game.set_match_mode(mode)?;
         let opponent = match opponent {
             Opponent::External => OpponentPolicy::External,
             Opponent::Random => OpponentPolicy::Random(RandomPolicy::new(seed ^ 0x00b0_7b07)),
@@ -222,13 +247,20 @@ impl BotGame {
             )?,
         };
         let seed = value["seed"].as_u64().unwrap_or(0);
-        Self::new_with_format(
+        Self::new_with_match(
             format,
             field("p1Deck")?,
             field("p2Deck")?,
             opponent,
             opponent_seat,
             seed,
+            crate::match_play::MatchMode::parse(
+                value
+                    .get("matchMode")
+                    .map_or(Ok("one-conclusion"), |value| {
+                        value.as_str().ok_or("matchMode must be a string")
+                    })?,
+            )?,
         )
     }
 
@@ -300,14 +332,15 @@ impl BotGame {
     pub fn observe_json(&self, seat: PlayerId) -> String {
         let observation = self.game.observe(seat);
         let actions = protocol_actions(&observation);
-        observation_json_for_format(
+        let mut value = observation_json_for_format(
             &self.catalog,
             self.format,
             &observation,
             self.game.in_pregame(),
             &actions,
-        )
-        .to_string()
+        );
+        value["match"] = self.game.match_json(seat);
+        value.to_string()
     }
 
     /// The number of legal actions for the seat that must act, so FFI

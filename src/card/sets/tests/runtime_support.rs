@@ -3,13 +3,14 @@ mod costs;
 mod mana_effects;
 mod names;
 mod nested_definitions;
+mod object_predicates;
 mod stack_effects;
 mod static_effects;
 
 pub(super) use conditions::*;
 pub(super) use costs::*;
 pub(super) use mana_effects::shared_mana_effect;
-use names::{shared_card_name, shared_card_name_set};
+pub(super) use object_predicates::shared_object_predicate;
 pub(super) use static_effects::shared_static_effect;
 
 pub(super) use nested_definitions::*;
@@ -23,79 +24,6 @@ use crate::card::{
 };
 
 use super::*;
-
-pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
-    match predicate {
-        ObjectPredicateDef::All(predicates) | ObjectPredicateDef::AnyOf(predicates) => {
-            predicates.iter().copied().all(shared_object_predicate)
-        }
-        ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
-            shared_object_predicate(*predicate)
-        }
-        ObjectPredicateDef::NameEquals(name) => shared_card_name(name),
-        ObjectPredicateDef::NameIn(names) => shared_card_name_set(*names),
-        ObjectPredicateDef::Special(_) => false,
-        ObjectPredicateDef::Any
-        | ObjectPredicateDef::Source
-        | ObjectPredicateDef::Token
-        | ObjectPredicateDef::HasType(_)
-        | ObjectPredicateDef::HasAnyBasicLandType(_)
-        | ObjectPredicateDef::Spell
-        | ObjectPredicateDef::Ability
-        | ObjectPredicateDef::ActivatedAbility
-        | ObjectPredicateDef::TriggeredAbility
-        | ObjectPredicateDef::DeclaredTargetCount { .. }
-        | ObjectPredicateDef::HasDeclaredTarget(_)
-        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
-        | ObjectPredicateDef::NoncreatureSpell
-        | ObjectPredicateDef::Color(_)
-        | ObjectPredicateDef::ColorCount(_)
-        | ObjectPredicateDef::Subtype(_)
-        | ObjectPredicateDef::ManaValueAtMost(_)
-        | ObjectPredicateDef::GenericManaCostAtMost(_)
-        | ObjectPredicateDef::ManaValueEqualTo(_)
-        | ObjectPredicateDef::ManaValueAtMostValue(_)
-        | ObjectPredicateDef::PowerAtLeast(_)
-        | ObjectPredicateDef::PowerExactly(_)
-        | ObjectPredicateDef::ToughnessExactly(_)
-        | ObjectPredicateDef::TotalPowerAndToughnessAtMost(_)
-        | ObjectPredicateDef::ToughnessLessThan(_)
-        | ObjectPredicateDef::PowerGreaterThan(_)
-        | ObjectPredicateDef::PowerLessThan(_)
-        | ObjectPredicateDef::ToughnessGreaterThanItsPower
-        | ObjectPredicateDef::ToughnessGreaterThan(_)
-        | ObjectPredicateDef::WasDealtDamageThisTurn
-        | ObjectPredicateDef::DealtDamageThisTurn
-        | ObjectPredicateDef::ControlledBy(_)
-        | ObjectPredicateDef::OwnedBy(_)
-        | ObjectPredicateDef::Supertype(_)
-        | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::HasSourcesChosenScalar(_)
-        | ObjectPredicateDef::TargetsObjectMatching(_)
-        | ObjectPredicateDef::AttackingOrBlocking
-        | ObjectPredicateDef::HasKeyword(_)
-        | ObjectPredicateDef::HasAbility(_)
-        | ObjectPredicateDef::HasCounter(_)
-        | ObjectPredicateDef::HasAnyCounter
-        | ObjectPredicateDef::CounterCount { .. }
-        | ObjectPredicateDef::HasNonManaActivatedAbility
-        | ObjectPredicateDef::Tapped
-        | ObjectPredicateDef::Attacking
-        | ObjectPredicateDef::Saddled
-        | ObjectPredicateDef::Blocking
-        | ObjectPredicateDef::AttachedToSource
-        | ObjectPredicateDef::BlockedBySource
-        | ObjectPredicateDef::BlockingSource
-        | ObjectPredicateDef::BandedWithSource
-        | ObjectPredicateDef::Unpaired
-        | ObjectPredicateDef::PairedWithSource
-        | ObjectPredicateDef::Enchanted
-        | ObjectPredicateDef::AttackedThisTurn
-        | ObjectPredicateDef::CameUnderControlThisTurn
-        | ObjectPredicateDef::EnteredThisTurn
-        | ObjectPredicateDef::AttackedDuringControllersLastTurn => true,
-    }
-}
 
 pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
     match recipient.0 {
@@ -687,6 +615,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ExileFromTopUntil { .. }
                     | EffectDef::PutOntoBattlefieldThen { .. }
                     | EffectDef::Cascade
+                    | EffectDef::RestartGame(_)
                     | EffectDef::Proliferate
                     | EffectDef::Explore { .. }
                     | EffectDef::IfNoObjects(_)

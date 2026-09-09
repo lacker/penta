@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { HostedGame } from "../app/wasm/penta_wasm.js";
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
 
 test("the game-over message names whoever actually lost", async () => {
@@ -109,14 +110,12 @@ test("the game log describes objects that have left visible zones", async () => 
   game.free();
 });
 
-test("best of three fixes decks, validates sideboarding, changes seats and replays game two", async () => {
+test("first to two fixes decks and replays sideboarding and play/draw", async () => {
   await initializeWasm();
   const game = new WebGame("The Deck", "Sligh", "Handcrafted", true, 41);
   game.enable_match();
   const read = () => JSON.parse(game.state_json());
-  const lists = () => ({ main: read().match.main.map((card) => card.id), sideboard: read().match.sideboard.map((card) => card.id) });
   const concede = () => {
-    // Mulligan decisions do not offer concession; keep the opening hand first.
     let state = read();
     const keep = state.actions.find((action) => action.label === "Keep this hand");
     if (keep) game.act(keep.index);
@@ -127,31 +126,74 @@ test("best of three fixes decks, validates sideboarding, changes seats and repla
   };
   try {
     assert.deepEqual(read().match.wins, [0, 0]);
-    assert.throws(() => game.next_match_game(JSON.stringify(lists()), true, 42), /finish this game/);
+    assert.equal(read().match.stage, "play-draw");
+    game.choose_decision(read().decision.id, "[0]");
     concede();
     assert.deepEqual(read().match.wins, [0, 1]);
-    assert.equal(read().match.humanChooses, true);
-    const original = lists();
-    const invalid = { main: original.main.slice(1), sideboard: original.sideboard };
-    assert.throws(() => game.next_match_game(JSON.stringify(invalid), false, 42), /registered/);
+    assert.equal(read().result, null, "one loss does not end the match");
+    assert.equal(read().match.stage, "sideboarding");
+    const original = read().match;
+    const decision = read().decision;
+    const main = original.main.map((_,index) => index);
+    assert.throws(() => game.choose_decision(decision.id, JSON.stringify(main.slice(1))));
     assert.equal(read().match.game, 1);
-    const swapped = structuredClone(original);
-    [swapped.main[0], swapped.sideboard[0]] = [swapped.sideboard[0], swapped.main[0]];
-    game.next_match_game(JSON.stringify(swapped), false, 42);
+    main[0] = original.main.length;
+    game.choose_decision(decision.id, JSON.stringify(main));
+    assert.equal(read().match.stage, "play-draw");
+    const choices = read().opponentActions.filter(action => action.kind === "choice");
+    assert.ok(choices.length > 0);
+    assert.ok(choices.every(action => action.label === "Opponent made a private choice"));
+    game.choose_decision(read().decision.id, "[1]");
     assert.equal(read().match.game, 2);
     assert.deepEqual(read().match.wins, [0, 1]);
-    assert.deepEqual(lists(), swapped);
+    assert.ok(read().match.main.some(card => card.id === original.sideboard[0].id));
     const replay = WebGame.fromReplayJson(game.replayJson());
-    try {
-      const actual = JSON.parse(replay.state_json());
-      const expected = read();
-      // Replays reproduce the individual game, not its surrounding match UI.
-      delete actual.match; delete expected.match;
-      assert.deepEqual(actual, expected);
-    } finally { replay.free(); }
+    try { assert.deepEqual(JSON.parse(replay.state_json()), read()); } finally { replay.free(); }
     concede();
     assert.deepEqual(read().match.wins, [0, 2]);
     assert.equal(read().match.finished, true);
-    assert.throws(() => game.next_match_game(JSON.stringify(swapped), true, 43), /finished/);
+    assert.equal(read().match.stage, "complete");
+  } finally { game.free(); }
+});
+
+
+test("hosted first-to-two decisions and the complete match history replay", async () => {
+  await initializeWasm();
+  const config = JSON.stringify({ p1Deck: "Sligh", p2Deck: "The Deck", opponent: "external", seed: 41, matchMode: "first-to-two-wins" });
+  const game = HostedGame.fromConfigJson(config);
+  let sawSideboard = false;
+  try {
+    for (let step = 0; step < 12000 && game.decisionSeat(); step++) {
+      const view = JSON.parse(game.observeJson(game.decisionSeat()));
+      if (view.decision) {
+        sawSideboard ||= view.match.stage === "sideboarding";
+        game.chooseDecision(JSON.stringify(view.decision.options.slice(0, view.decision.minimum).map(option => option.id)));
+      } else {
+        const actions = view.legalActions;
+        game.act((actions.find(action => action.type === "KeepHand") ?? actions.find(action => action.type === "PassPriority") ?? actions[0]).index);
+      }
+    }
+    assert.ok(sawSideboard);
+    assert.ok(game.resultJson());
+    assert.equal(Math.max(...JSON.parse(game.observeJson("p1")).match.wins), 2);
+    const replay = HostedGame.replayConfigJson(config, game.historyJson());
+    try { assert.equal(replay.observeJson("p1"), game.observeJson("p1")); } finally { replay.free(); }
+  } finally { game.free(); }
+});
+
+test("external browser opponents choose play/draw through replayable decisions", async () => {
+  await initializeWasm();
+  const game = new WebGame("The Deck", "Sligh", "External", false, 41);
+  try {
+    game.enable_match();
+    assert.equal(game.opponentIsDeciding(), true);
+    const view = JSON.parse(game.opponentObserveJson());
+    assert.equal(view.match.stage, "play-draw");
+    assert.equal(view.hand.length, 0);
+    game.opponentChooseDecision(view.decision.id, "[1]");
+    assert.equal(game.opponentIsDeciding(), false);
+    const state = JSON.parse(game.state_json());
+    assert.equal(state.human.hand.length, 7);
+    assert.equal(state.match.stage, "playing");
   } finally { game.free(); }
 });

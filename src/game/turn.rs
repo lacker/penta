@@ -208,7 +208,7 @@ impl Game {
             Step::Upkeep => {
                 self.step = Step::Draw;
                 self.draw_step_draw_taken[self.active_player.index()] = false;
-                if !(self.turn == 1 && self.active_player == PlayerId::One) {
+                if !(self.turn == 1 && self.active_player == self.starting_player) {
                     self.draw_instruction(self.active_player, 1);
                     if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
                         self.pending_procedures
@@ -805,6 +805,9 @@ impl Game {
                 self.resolve_effect_def(effect, object, context.fork_resolution());
                 context
             };
+            if self.pending_restart.is_some() {
+                return;
+            }
             if let Some(super::PendingDecision {
                 continuation: super::DecisionContinuation::CardNameChoice { resume, .. },
                 ..

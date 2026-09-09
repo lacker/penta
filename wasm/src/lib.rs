@@ -175,8 +175,6 @@ impl BotPolicy {
 #[wasm_bindgen]
 pub struct WebGame {
     session: LocalSession,
-    decks: [penta::Deck; 2],
-    series: Option<penta::match_play::BestOfThree>,
     /// How this game was dealt, kept verbatim so the journal below can be
     /// replayed by anyone -- a game room, a bug report, a native harness.
     replay_config: Value,
@@ -546,14 +544,15 @@ impl WebGame {
         }
         let observation = self.session.observe(self.human.opponent());
         let actions = penta::protocol::protocol_actions(&observation);
-        Ok(penta::protocol::observation_json_for_format(
+        let mut value = penta::protocol::observation_json_for_format(
             &self.catalog,
             self.session.format(),
             &observation,
             self.session.in_pregame(),
             &actions,
-        )
-        .to_string())
+        );
+        value["match"] = self.session.match_json(self.human.opponent());
+        Ok(value.to_string())
     }
 
     /// Applies the external opponent's chosen action by its index in the
@@ -586,6 +585,38 @@ impl WebGame {
         self.apply_advancing_action(opponent, &observation, action)?;
         self.advance_until_human_choice()?;
         self.journal.push(json!({ "t": "botAct", "index": index }));
+        Ok(())
+    }
+
+    /// Answers an external seat's decision, including private sideboarding.
+    /// # Errors
+    /// Rejects a stale decision, invalid selection, or a seat without control.
+    #[wasm_bindgen(js_name = opponentChooseDecision)]
+    pub fn opponent_choose_decision(
+        &mut self,
+        decision: u32,
+        options_json: &str,
+    ) -> Result<(), JsValue> {
+        let opponent = self.human.opponent();
+        if !matches!(self.bot, BotPolicy::External)
+            || self.session.decision_seat() != Some(opponent)
+        {
+            return Err(js_error("the external opponent does not hold the decision"));
+        }
+        let options: Vec<u32> =
+            serde_json::from_str(options_json).map_err(|error| js_error(error.to_string()))?;
+        let observation = self.session.observe(opponent);
+        self.apply_advancing_action(
+            opponent,
+            &observation,
+            Action::ChooseDecision {
+                decision,
+                options: options.clone(),
+            },
+        )?;
+        self.advance_until_human_choice()?;
+        self.journal
+            .push(json!({ "t": "botChoose", "decision": decision, "options": options }));
         Ok(())
     }
 
@@ -742,6 +773,10 @@ impl WebGame {
                 required_json_bool(command, "command", "enabled")?,
             ),
             "autopass" => self.set_autopass(required_json_bool(command, "command", "enabled")?),
+            "botChoose" => self.opponent_choose_decision(
+                required_json_u32(command, "command", "decision")?,
+                &command["options"].to_string(),
+            ),
             "botAct" => self.opponent_act(required_json_u32(command, "command", "index")?),
             "loseOnTime" => {
                 let seat = required_json_string(command, "command", "seat")?;

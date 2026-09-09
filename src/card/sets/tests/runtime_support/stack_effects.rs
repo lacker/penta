@@ -383,6 +383,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // decision window like any other. Proliferate asks over permanents
         // and players at once, which is the same kind of window and reads
         // nothing off a recipient either.
+        EffectDef::RestartGame(definition) => shared_object_predicate(definition.retained_exiles),
         EffectDef::Proliferate => {
             deferred_decision_allowed
         }

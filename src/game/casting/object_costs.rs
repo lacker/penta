@@ -34,6 +34,42 @@ impl Game {
                 stack_object.chosen_permanents.push(spent);
             }
             match cost {
+                CostDef::Forage => {
+                    if self.players[stack_object.controller.index()]
+                        .graveyard
+                        .iter()
+                        .any(|card| card.id == spent)
+                    {
+                        // Retain each forage's three-card boundary even when
+                        // another forage or exile cost follows this payment.
+                        let mut cards = vec![spent];
+                        for _ in 0..2 {
+                            let (id, CostDef::Forage) = remaining_sacrifices.first().copied()? else {
+                                return None;
+                            };
+                            remaining_sacrifices.remove(0);
+                            cards.push(id);
+                            stack_object.chosen_permanents.push(id);
+                        }
+                        let exiled = self.exile_to_forage(stack_object.controller, &cards)?;
+                        stack_object
+                            .cast
+                            .as_mut()?
+                            .exiled_payment_cards
+                            .extend(exiled);
+                        continue;
+                    }
+                    self.sacrifice_food_to_forage(
+                        stack_object.controller,
+                        spent,
+                        Some(BattlefieldExitCompletion::CompleteSpellCast {
+                            object: Box::new(stack_object),
+                            targets,
+                            remaining_sacrifices,
+                        }),
+                    );
+                    return None;
+                }
                 CostDef::Sacrifice { .. } => {
                     self.capture_sacrifices(&[spent]);
                     self.move_permanents_to_graveyard_then(
@@ -90,7 +126,6 @@ impl Game {
                 | CostDef::Mana(_)
                 | CostDef::PayLife(_)
                 | CostDef::PayLifeTimes(_)
-                | CostDef::Forage
                 | CostDef::All(_)
                 | CostDef::Choice(_) => {
                     unreachable!("scalar and composite costs do not name individual objects")

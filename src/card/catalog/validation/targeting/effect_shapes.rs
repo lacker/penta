@@ -688,6 +688,7 @@ fn validate_effect_target_shapes(
         | EffectDef::ModifyCost(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
+        | EffectDef::Forage { .. }
         | EffectDef::CumulativeUpkeep(_)
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::ReturnLinkedExiles { .. }

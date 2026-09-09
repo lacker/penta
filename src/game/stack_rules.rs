@@ -231,6 +231,7 @@ impl Game {
             | EffectDef::ScheduleTurnPhases(_)
             | EffectDef::TakeExtraTurn { .. }
             | EffectDef::PutSourceOntoBattlefieldAttacking
+            | EffectDef::Forage { .. }
             | EffectDef::BecomeMonarch { .. }
             | EffectDef::VoteForPermanentToExile { .. }
             | EffectDef::DamageCannotBePreventedThisTurn

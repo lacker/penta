@@ -1,6 +1,8 @@
 /// Declarative effect primitives interpreted by the rules engine.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum EffectDef {
+    /// The controller exiles three graveyard cards or sacrifices a Food.
+    Forage { optional: bool },
     CumulativeUpkeep(CostDef),
     AddCounters {
         object: EffectRecipientDef,

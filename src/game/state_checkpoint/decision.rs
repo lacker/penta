@@ -69,6 +69,17 @@ fn continuation_snapshot(
     visible_rebindings: &[GameObjectId],
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
+        DecisionContinuation::Forage {
+            player,
+            optional,
+            from,
+        } => {
+            DecisionContinuationSnapshot::Forage {
+                player: player.index(),
+                optional: *optional,
+                from: from.map(zone_kind_snapshot),
+            }
+        }
         DecisionContinuation::PregameActions { player, actions } => {
             DecisionContinuationSnapshot::PregameActions {
                 player: player.index(),

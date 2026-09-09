@@ -6,7 +6,7 @@ use crate::card::{
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CostDef, CounterKind,
     DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
@@ -271,6 +271,35 @@ pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// BLB 210 — Corpseberry Cultivator
+pub(in crate::card::sets) static CORPSEBERRY_CULTIVATOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c911a759-ed7b-452b-88a3-663478357610"),
+    "Corpseberry Cultivator",
+    CardArt::new("c911a759-ed7b-452b-88a3-663478357610", "Izzy"),
+    CardSet::Bloomburrow,
+    CardRules::new_creature(mana_cost!("{1}{B/G}{B/G}"), &["Squirrel", "Warlock"], 2, 3)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "At the beginning of combat on your turn, you may forage. (Exile three cards \
+                 from your graveyard or sacrifice a Food.)",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::BeginningOfCombat,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::Forage { optional: true },
+            ),
+            AbilityDef::triggered(
+                "Whenever you forage, put a +1/+1 counter on this creature.",
+                TriggerEventDef::Foraged(PlayerRelation::You),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
+);
+
 // BLB 235 — Tempest Angler
 pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("850daae4-f0b7-4604-95e7-ad044ec165c3"),
@@ -388,6 +417,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THUNDERTRAP_TRAINER,
     &FEED_THE_CYCLE,
     &CINDERING_CUTTHROAT,
+    &CORPSEBERRY_CULTIVATOR,
     &TEMPEST_ANGLER,
     &HIDDEN_GROTTO,
     &KEEN_EYED_CURATOR,

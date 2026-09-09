@@ -227,6 +227,11 @@ pub(super) enum CounteredSpellZone {
 
 #[derive(Clone, Debug)]
 pub(super) enum DecisionContinuation {
+    Forage {
+        player: PlayerId,
+        optional: bool,
+        from: Option<ZoneKind>,
+    },
     /// The chooser may take any remaining opening-hand action, in any order,
     /// or answer this zero-option decision to finish their window.
     PregameActions {

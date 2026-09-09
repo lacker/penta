@@ -36,6 +36,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::ForEachInBinding { .. } => "ForEachInBinding",
         EffectDef::SelectAtRandomFromZone { .. } => "SelectAtRandomFromZone",
         EffectDef::PayOr(_) => "PayOr",
+        EffectDef::Forage { .. } => "Forage",
         EffectDef::CumulativeUpkeep(_) => "CumulativeUpkeep",
         EffectDef::PreventDamage { .. } => "PreventDamage",
         EffectDef::AddMana(_) => "AddMana",

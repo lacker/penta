@@ -25,6 +25,13 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Corpseberry Cultivator is implemented.** Shared forage effects offer the
+  complete graveyard-exile or Food-sacrifice payment, and completed forage
+  actions raise their own trigger event, including when paying Feed the Cycle's
+  additional cost. Food sacrifices retain battlefield-exit replacement choices.
+  The additive `forage` checkpoint continuation restores both selection stages;
+  protocol, replay, and checkpoint versions are unchanged.
+
 - **A resolving spell that adds a variable amount of one colour now adds
   that amount.** `AddManaEffectDef::variable_amount` was read only on the
   open-colour path, so a fixed-colour clause resolving from the stack

@@ -331,6 +331,13 @@ same open-world schema before building a `Game`. Catalog-owned executable data
 is represented by semantic locators, while hidden-zone identities are supplied
 only by the separate hypothesis above.
 
+Forage decisions use the ordinary public choice shape: first choose a payment
+method or decline, then select exactly three graveyard cards or one controlled
+Food. The additive `forage` checkpoint continuation retains the payer,
+optionality, and selection stage, and reconstruction validates the offered
+choices against that stage. Protocol and checkpoint versions are unchanged;
+the simulation fingerprint guards exact reconstruction compatibility.
+
 A private pending decision is reconstructible only from its choosing seat's
 observation. Other seats receive neither the decision nor its continuation in
 their checkpoint; `hasDeferredState` is true, so importing that checkpoint

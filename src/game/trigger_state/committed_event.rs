@@ -22,6 +22,9 @@ pub(super) enum CommittedStackObjectEvent {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum CommittedTriggerEvent {
+    Foraged {
+        player: PlayerId,
+    },
     CumulativeUpkeepPaid {
         object: TriggerEventObject,
         player: PlayerId,
@@ -560,7 +563,8 @@ impl CommittedTriggerEvent {
             // A drawn card snapshot belongs to trigger matching only. The
             // draw does not reveal it, so these player-only events carry no
             // hidden-zone identity into resolution or a public checkpoint.
-            Self::CoinFlipped { player, .. }
+            Self::Foraged { player }
+            | Self::CoinFlipped { player, .. }
             | Self::StepBegins { player, .. }
             | Self::CommittedCrime { player }
             | Self::CardsDiscarded { player }

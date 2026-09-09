@@ -12,6 +12,7 @@ mod copy;
 mod cumulative_upkeep;
 mod damage;
 mod exile_to_play;
+mod forage;
 mod hand_and_library;
 mod installed_triggers;
 mod linked_exiles;
@@ -34,6 +35,9 @@ impl Game {
     ) {
         let context = context.into();
         match scoped.effect {
+            EffectDef::Forage { optional } => {
+                self.queue_forage(object.controller, optional, None, object.source);
+            }
             EffectDef::WithRule { rule, effect } => {
                 self.resolve_effect_def(
                     scoped.with_rule(rule).with_effect(*effect),

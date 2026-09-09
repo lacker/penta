@@ -344,6 +344,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                             || shared_stack_effect_at_position(**effect, true)
                     })
         }
+        EffectDef::Forage { .. } => deferred_decision_allowed,
         EffectDef::CumulativeUpkeep(cost) => {
             deferred_decision_allowed
                 && match cost {

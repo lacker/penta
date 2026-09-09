@@ -298,7 +298,8 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             extend_stack_continuation_ids(&mut ids, object, context);
             ids.extend(candidates.iter().copied());
         }
-        DecisionContinuation::ScryBottom { .. }
+        DecisionContinuation::Forage { .. }
+        | DecisionContinuation::ScryBottom { .. }
         | DecisionContinuation::ScryTop { .. }
         | DecisionContinuation::ChosenColorMana { .. }
         | DecisionContinuation::SearchZone { .. }

@@ -13,6 +13,32 @@ fn parse_continuation(
     game: &Game,
 ) -> Result<DecisionContinuation, String> {
     Ok(match value {
+        DecisionContinuationSnapshot::Forage {
+            player: chooser,
+            optional,
+            from,
+        } => {
+            let player = player(*chooser)?;
+            let from = from.map(parse_zone_kind);
+            let (prompt, count, options) = game.forage_options(player, *optional, from)
+                .ok_or("forage decision has no complete legal payment")?;
+            validate_authored_decision(
+                observation,
+                player,
+                prompt,
+                DecisionVisibility::Public,
+                DecisionPreference::Neutral,
+                count,
+                count,
+                &options,
+                "forage",
+            )?;
+            DecisionContinuation::Forage {
+                player,
+                optional: *optional,
+                from,
+            }
+        }
         pregame @ (DecisionContinuationSnapshot::PregameActions { .. }
         | DecisionContinuationSnapshot::ScryBottom { .. }
         | DecisionContinuationSnapshot::ScryTop { .. }) => {

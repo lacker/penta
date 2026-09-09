@@ -138,7 +138,8 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
         // A crime names only the player who committed it; what was targeted
         // is not part of the event. Cycling names no object of its own: the
         // card that was cycled is the only thing that can be listening.
-        TriggerEventDef::CommittedCrime(_)
+        TriggerEventDef::Foraged(_)
+        | TriggerEventDef::CommittedCrime(_)
         | TriggerEventDef::CumulativeUpkeepPaid { .. }
         | TriggerEventDef::CumulativeUpkeepNotPaid
         | TriggerEventDef::CoinFlipWon(_)

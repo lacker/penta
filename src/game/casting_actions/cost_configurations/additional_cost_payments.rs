@@ -66,6 +66,14 @@ impl Game {
                     .flat_map(|cost| {
                         self.spell_additional_cost_payment_options(cost, card, player, scale)
                     })
+                    .map(|mut payment| {
+                        // These objects pay the forage action, whose event
+                        // must survive lowering to concrete payment choices.
+                        for (_, cost) in &mut payment.objects {
+                            *cost = CostDef::Forage;
+                        }
+                        payment
+                    })
                     .collect()
             }
             CostDef::Choice(costs) => costs

@@ -25,6 +25,11 @@ use super::{
     rename_all_fields = "camelCase"
 )]
 pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
+    Forage {
+        player: usize,
+        optional: bool,
+        from: Option<ZoneKindSnapshot>,
+    },
     PregameActions {
         player: usize,
         actions: Vec<PregameAbilityActionSnapshot>,

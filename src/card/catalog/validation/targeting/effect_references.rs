@@ -944,6 +944,7 @@ fn validate_effect_references(
         | EffectDef::CannotAttackIf(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
+        | EffectDef::Forage { .. }
         | EffectDef::CumulativeUpkeep(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }

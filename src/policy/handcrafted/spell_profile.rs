@@ -582,6 +582,7 @@ impl HandcraftedPolicy {
             | EffectDef::ModifyCounters { .. }
             | EffectDef::BecomeCopyOf { .. }
             | EffectDef::CannotBeForcedToSacrifice
+            | EffectDef::Forage { .. }
             | EffectDef::CumulativeUpkeep(_)
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }

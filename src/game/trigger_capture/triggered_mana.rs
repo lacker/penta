@@ -108,7 +108,8 @@ EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } |
 EffectDef::CreateEmblem { .. } | EffectDef::CreateOngoingEffect(_) |
 EffectDef::PutOntoBattlefieldThen { .. } | EffectDef::Transform { .. } |
 EffectDef::ScheduleTurnPhases(_) | EffectDef::TakeExtraTurn { .. } |
-EffectDef::PutSourceOntoBattlefieldAttacking | EffectDef::BecomeMonarch { .. }
+EffectDef::PutSourceOntoBattlefieldAttacking | EffectDef::Forage { .. }
+| EffectDef::BecomeMonarch { .. }
 | EffectDef::VoteForPermanentToExile { .. } |
 EffectDef::DamageCannotBePreventedThisTurn |
 EffectDef::ExileLinkedToSource { .. } |

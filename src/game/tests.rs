@@ -210,6 +210,7 @@ mod filtered_sweeps;
 mod fixtures;
 mod flashback_casts;
 mod flying_blockers_only;
+mod forage;
 mod form_of_the_dragon;
 mod free_sacrifice_outlet;
 mod fungusaur;

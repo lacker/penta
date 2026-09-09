@@ -2334,17 +2334,11 @@ pub(in crate::card::sets) static FROZEN_SHADE: CardRecord = CardRecord::new_with
     CardArt::new("d0bd76c8-4cff-4c15-9686-7a299b589814", "Douglas Shuler"),
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Shade"], 0, 1).with_abilities(&[
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{B}: This creature gets +1/+1 until end of turn.",
-            &[CostDef::Mana(mana_cost!("{B}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Constant(1),
-                    ValueDef::Constant(1),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{B}"),
+            ValueDef::Constant(1),
+            ValueDef::Constant(1),
         ),
     ]),
 );
@@ -3733,17 +3727,11 @@ pub(in crate::card::sets) static SHIVAN_DRAGON: CardRecord = CardRecord::new_wit
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Dragon"], 5, 5).with_abilities(&[
         abilities::flying(),
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{R}: This creature gets +1/+0 until end of turn.",
-            &[CostDef::Mana(mana_cost!("{R}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Constant(1),
-                    ValueDef::Constant(0),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{R}"),
+            ValueDef::Constant(1),
+            ValueDef::Constant(0),
         ),
     ]),
 );
@@ -3898,17 +3886,11 @@ pub(in crate::card::sets) static WALL_OF_FIRE: CardRecord = CardRecord::new_with
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Wall"], 0, 5).with_abilities(&[
         abilities::defender(),
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{R}: This creature gets +1/+0 until end of turn.",
-            &[CostDef::Mana(mana_cost!("{R}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Constant(1),
-                    ValueDef::Constant(0),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{R}"),
+            ValueDef::Constant(1),
+            ValueDef::Constant(0),
         ),
     ]),
 );

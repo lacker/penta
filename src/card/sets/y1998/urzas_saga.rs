@@ -2150,20 +2150,14 @@ pub(in crate::card::sets) static PHYREXIAN_GHOUL: CardRecord = CardRecord::new(
     // A free sacrifice outlet, so it converts a board about to be swept
     // into damage that has already happened.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Zombie"], 2, 2).with_ability(
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn(
             "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
             &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
             }],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Constant(2),
-                    ValueDef::Constant(2),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            ValueDef::Constant(2),
+            ValueDef::Constant(2),
         ),
     ),
 );

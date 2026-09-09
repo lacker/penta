@@ -5112,17 +5112,11 @@ pub(in crate::card::sets) static YEW_SPIRIT: CardRecord = CardRecord::new_with_l
     CardArt::new("b9320432-4f89-4363-91e6-2e740535cc2e", "Dan Murayama Scott"),
     CardSet::AvacynRestored,
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Spirit", "Treefolk"], 3, 3).with_ability(
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{2}{G}{G}: This creature gets +X/+X until end of turn, where X is its power.",
-            &[CostDef::Mana(mana_cost!("{2}{G}{G}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::SourcePower,
-                    ValueDef::SourcePower,
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{2}{G}{G}"),
+            ValueDef::SourcePower,
+            ValueDef::SourcePower,
         ),
     ),
 );

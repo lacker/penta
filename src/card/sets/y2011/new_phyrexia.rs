@@ -2172,17 +2172,11 @@ pub(in crate::card::sets) static MOLTENSTEEL_DRAGON: CardRecord = CardRecord::ne
     CardRules::new_artifact_creature(mana_cost!("{4}{R/P}{R/P}"), &["Phyrexian", "Dragon"], 4, 4)
         .with_abilities(&[
             abilities::flying(),
-            AbilityDef::activated(
+            abilities::pump_until_end_of_turn_for_mana(
                 "{R/P}: This creature gets +1/+0 until end of turn.",
-                &[CostDef::Mana(mana_cost!("{R/P}"))],
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::modify_power_toughness(
-                        ValueDef::Constant(1),
-                        ValueDef::Constant(0),
-                    ),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
+                mana_cost!("{R/P}"),
+                ValueDef::Constant(1),
+                ValueDef::Constant(0),
             ),
         ]),
 );
@@ -3329,17 +3323,11 @@ pub(in crate::card::sets) static IMMOLATING_SOULEATER: CardRecord = CardRecord::
     crate::card::CardArt::new("abbaf916-067d-4834-a55c-b400fe0d8c1f", "Austin Hsu"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Dog"], 1, 1).with_ability(
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{R/P}: This creature gets +1/+0 until end of turn.",
-            &[CostDef::Mana(mana_cost!("{R/P}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Constant(1),
-                    ValueDef::Constant(0),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{R/P}"),
+            ValueDef::Constant(1),
+            ValueDef::Constant(0),
         ),
     ),
 );

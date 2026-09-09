@@ -297,23 +297,17 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{1}: This creature gets +1/-1 until end of turn.",
-            &[CostDef::Mana(mana_cost!("{1}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(-1)),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{1}"),
+            ValueDef::Constant(1),
+            ValueDef::Constant(-1),
         ),
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{1}: This creature gets -1/+1 until end of turn.",
-            &[CostDef::Mana(mana_cost!("{1}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(1)),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{1}"),
+            ValueDef::Constant(-1),
+            ValueDef::Constant(1),
         ),
     ]),
 );
@@ -1700,17 +1694,11 @@ pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new_wit
     CardArt::new("108a9ef2-c74a-450b-8148-4fdf9f09843f", "Dave Kendall"),
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{1}{R}{G}"), &["Goblin", "Shaman"], 2, 1).with_ability(
-        AbilityDef::activated(
+        abilities::pump_until_end_of_turn_for_mana(
             "{3}: This creature gets +X/+0 until end of turn, where X is its power.",
-            &[CostDef::Mana(mana_cost!("{3}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::SourcePower,
-                    ValueDef::Constant(0),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{3}"),
+            ValueDef::SourcePower,
+            ValueDef::Constant(0),
         ),
     ),
 );

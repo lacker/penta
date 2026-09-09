@@ -790,43 +790,6 @@ pub const fn regenerate_self(text: &'static str, costs: &'static [CostDef]) -> A
     )
 }
 
-/// An activated ability that gives its source one ability until end of turn.
-/// The caller supplies the complete cost list so nonmana payments retain the
-/// same compact declaration shape.
-#[must_use]
-pub const fn gain_ability_until_end_of_turn(
-    text: &'static str,
-    costs: &'static [CostDef],
-    ability: &'static AbilityDef,
-) -> AbilityDef {
-    AbilityDef::activated(text, costs, gain_ability_until_end_of_turn_effect(ability))
-}
-
-/// The common mana-only form of [`gain_ability_until_end_of_turn`]. Owning
-/// the one-element cost list lets card declarations pass a [`ManaCost`]
-/// directly without naming the generic activation-cost representation.
-#[must_use]
-pub const fn gain_ability_until_end_of_turn_for_mana(
-    text: &'static str,
-    cost: ManaCost,
-    ability: &'static AbilityDef,
-) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
-        text,
-        AbilityCostList::one(CostDef::Mana(cost)),
-        &[],
-        gain_ability_until_end_of_turn_effect(ability),
-    )
-}
-
-const fn gain_ability_until_end_of_turn_effect(ability: &'static AbilityDef) -> EffectDef {
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::add_ability(ability),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    }
-}
-
 /// A Circle of Protection: "the next time a <kind> source of your choice
 /// would deal damage to you this turn, prevent that damage". The source is
 /// chosen as the ability resolves rather than targeted, so it may be a spell
@@ -976,4 +939,5 @@ include!("abilities/attachment.rs");
 include!("abilities/named_cards.rs");
 include!("abilities/suspend.rs");
 include!("abilities/cumulative_upkeep.rs");
+include!("abilities/temporary_self_effects.rs");
 include!("abilities/tests.rs");

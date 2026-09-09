@@ -356,6 +356,16 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "ability {ability:?} on part {part:?} of card definition {definition:?} references object binding {binding:?} outside its scope"
             ),
+            Self::InvalidAlternativeCostBinding {
+                definition,
+                part,
+                ability,
+                binding,
+                reason,
+            } => write!(
+                formatter,
+                "ability {ability:?} on part {part:?} of card definition {definition:?} has invalid alternative-cost binding {binding:?}: {reason}"
+            ),
             Self::AbilityBindingAlreadyDeclared {
                 definition,
                 part,

@@ -228,6 +228,15 @@ fn top_level_ability_error(
                 binding: *binding,
             }
         }
+        GrantedAbilityValidationError::InvalidAlternativeCostBinding { binding, reason } => {
+            CatalogError::InvalidAlternativeCostBinding {
+                definition: definition.id,
+                part,
+                ability,
+                binding: *binding,
+                reason,
+            }
+        }
         GrantedAbilityValidationError::BindingAlreadyDeclared { binding } => {
             CatalogError::AbilityBindingAlreadyDeclared {
                 definition: definition.id,

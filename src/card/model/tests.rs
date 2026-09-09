@@ -585,16 +585,19 @@ fn alternative_cast_clauses_render_and_project_escape_costs() {
         composition.play_options[0].alternative_costs,
         vec![
             AlternativeCostDef {
+                binding: None,
                 id: AlternativeCostId(1),
                 label: "Flashback".into(),
                 mana_cost: mana_cost!("{2}{U}"),
             },
             AlternativeCostDef {
+                binding: None,
                 id: AlternativeCostId(2),
                 label: "Overload".into(),
                 mana_cost: mana_cost!("{3}{R}"),
             },
             AlternativeCostDef {
+                binding: None,
                 id: AlternativeCostId(3),
                 label: "Escape".into(),
                 mana_cost: mana_cost!("{G}{G}{U}{U}"),
@@ -610,6 +613,7 @@ fn alternative_cast_clauses_render_and_project_escape_costs() {
         CardEffectStatus::Implemented,
     );
     generic.alternative_costs.push(AlternativeCostDef {
+        binding: None,
         id: AlternativeCostId(9),
         label: "Generic".into(),
         mana_cost: mana_cost!("{U}"),

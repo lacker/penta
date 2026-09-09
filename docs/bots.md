@@ -251,13 +251,14 @@ and references to payment objects, but clears its source zone and facts about
 mana or life actually spent because the copy was not cast. The retired
 `castTags` field remains readable for format-10 compatibility; new checkpoints
 leave it empty and represent Escape as the `escape` alternative cast kind.
-The optional `castAlternativeCost` field on stack objects (including detached
-objects) and permanents identifies the chosen printed alternative by its
-zero-based position among the card's alternative costs. External alternatives
-such as Omniscience have no index on that card. This choice survives spell
-copies and lets Evoke distinguish its cost from another printed alternative
-of the same kind. When the field is absent, a stack object's retained cast
-signature supplies the index if available; a permanent has no such fallback.
+The optional `castAlternativeCostBinding` field on stack objects (including
+detached objects) and permanents stores the chosen alternative's authored name,
+such as `"evoke"`. Unlabeled and external alternatives such as Omniscience
+have no binding. This choice survives spell copies and lets Evoke distinguish
+its cost from another alternative of the same kind, independent of ability
+order. The wire stores the name, not its internal interned ID. When the field
+is absent, a stack object's retained cast signature supplies the binding if
+available; a permanent has no such fallback.
 This is additive checkpoint vocabulary; the protocol and artifact versions
 are unchanged, and exact reconstruction still requires the same fingerprint.
 Supply a hypothesis for the zones the observation intentionally redacts, then

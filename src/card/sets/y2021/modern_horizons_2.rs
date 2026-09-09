@@ -98,6 +98,7 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
                 Some("Evoke—Exile a white card from your hand."),
                 EffectDef::None,
             )
+            .with_alternative_cost_binding(crate::Binding!("evoke"))
             .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::White),
                 ZoneKind::Hand,
@@ -267,6 +268,7 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
                 Some("Evoke—Exile a blue card from your hand."),
                 EffectDef::None,
             )
+            .with_alternative_cost_binding(crate::Binding!("evoke"))
             .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Blue),
                 ZoneKind::Hand,
@@ -460,6 +462,7 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
                 Some("Evoke—Exile a black card from your hand."),
                 EffectDef::None,
             )
+            .with_alternative_cost_binding(crate::Binding!("evoke"))
             .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Black),
                 ZoneKind::Hand,
@@ -639,6 +642,7 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
                 Some("Evoke—Exile a red card from your hand."),
                 EffectDef::None,
             )
+            .with_alternative_cost_binding(crate::Binding!("evoke"))
             .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Red),
                 ZoneKind::Hand,
@@ -914,6 +918,7 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
                 Some("Evoke—Exile a green card from your hand."),
                 EffectDef::None,
             )
+            .with_alternative_cost_binding(crate::Binding!("evoke"))
             .with_alternative_additional_cost(&CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Green),
                 ZoneKind::Hand,

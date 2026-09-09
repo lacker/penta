@@ -36,12 +36,14 @@ distinguishes snapshots of the covered source and build inputs.
   Existing protocol and checkpoint version numbers are unchanged; unavailable
   checkpoints fail closed in both current and older readers.
 
-- **Evoke's sacrifice checks its own printed alternative cost.** The shared
-  `SourcePaidAlternativeCost` condition distinguishes two printed costs of the
-  same kind, so choosing an unrelated alternative no longer triggers Evoke.
+- **Evoke's sacrifice checks its named alternative cost.** The shared
+  `SourcePaidAlternativeCost` condition reads a binding declared on the cost,
+  so choosing an unrelated alternative no longer triggers Evoke. Catalog
+  validation rejects duplicate or undeclared cost names, and reordering
+  abilities preserves their links.
   Normal casting and Omniscience's external alternative keep their behavior.
-  The selected printed-cost index survives spell copies and is preserved by
-  the additive `castAlternativeCost` checkpoint member on stack objects and
+  The selected cost name survives spell copies and is preserved by the
+  additive `castAlternativeCostBinding` checkpoint member on stack objects and
   permanents. Protocol, checkpoint, and replay versions are unchanged;
   exact reconstruction continues to require the simulation fingerprint.
 

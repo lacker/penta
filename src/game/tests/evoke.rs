@@ -25,34 +25,50 @@ fn evoke_does_not_sacrifice_for_another_printed_alternative_cost() {
             AlternativeCastKindDef::AlternativeCost,
             Some("Evoke {1}"),
             EffectDef::None,
-        ),
+        )
+        .with_alternative_cost_binding(crate::Binding!("evoke")),
         abilities::flying(),
         AbilityDef::alternative_cast(
             mana_cost!("{2}"),
             AlternativeCastKindDef::AlternativeCost,
             Some("You may pay {2} rather than pay this spell's mana cost."),
             EffectDef::None,
-        ),
+        )
+        .with_alternative_cost_binding(crate::Binding!("other_alternative_cost")),
         abilities::evoke_sacrifice(),
         AbilityDef::triggered_if(
-            "When this creature enters, if its second alternative cost was paid, you gain 1 life.",
+            "When this creature enters, if its other alternative cost was paid, you gain 1 life.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::Source,
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            &TriggerConditionDef::SourcePaidAlternativeCost(crate::AlternativeCostIndex::SECONDARY),
+            &TriggerConditionDef::SourcePaidAlternativeCost(crate::Binding!(
+                "other_alternative_cost"
+            )),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
             },
         ),
     ];
-    for (cost, sacrificed) in [(AlternativeCostId(2), false), (AlternativeCostId(0), true)] {
+    static REORDERED: [AbilityDef; 5] = [
+        ABILITIES[2],
+        ABILITIES[1],
+        ABILITIES[0],
+        ABILITIES[3],
+        ABILITIES[4],
+    ];
+    for (reordered, cost, sacrificed) in [
+        (false, AlternativeCostId(2), false),
+        (false, AlternativeCostId(0), true),
+        (true, AlternativeCostId(0), false),
+        (true, AlternativeCostId(2), true),
+    ] {
         let mut game = ready_game();
         let mut definition = game.catalog.get(cards::MULLDRIFTER).unwrap().clone();
         definition.rules = CardRules::new_creature(mana_cost!("{5}"), &["Elemental"], 2, 2)
-            .with_abilities(&ABILITIES);
+            .with_abilities(if reordered { &REORDERED } else { &ABILITIES });
         synchronize_single_part_definition(&mut definition);
         game.catalog = CardCatalog::new(game.catalog.definitions().into_iter().map(|card| {
             if card.id == definition.id {
@@ -194,6 +210,12 @@ fn evoke_choice_survives_spell_and_permanent_checkpoints() {
             free_cost(&game, spell, printed)
         };
         cast_for(&mut game, spell, Some(selected));
+        let (wire, _) = checkpoint_fixture(&game, PlayerId::One);
+        assert_eq!(
+            wire.pointer("/checkpoint/stack/0/castAlternativeCostBinding")
+                .and_then(serde_json::Value::as_str),
+            evoked.then_some("evoke"),
+        );
         game = round_trip(&game);
         pass_priority_pair(&mut game);
         assert!(
@@ -202,10 +224,57 @@ fn evoke_choice_survives_spell_and_permanent_checkpoints() {
                 .any(|permanent| { permanent.card.definition == cards::MULLDRIFTER }),
             "the creature has entered before its triggers resolve"
         );
+        let (wire, _) = checkpoint_fixture(&game, PlayerId::One);
+        assert_eq!(
+            wire["checkpoint"]["battlefield"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter_map(|permanent| permanent["castAlternativeCostBinding"].as_str())
+                .collect::<Vec<_>>(),
+            if evoked { vec!["evoke"] } else { vec![] },
+        );
         game = round_trip(&game);
         drain_pending(&mut game);
         assert_mulldrifter_result(&game, evoked, 2, usize::from(!evoked));
     }
+}
+
+#[test]
+fn evoke_checkpoint_binding_falls_back_to_the_signature_and_rejects_unknown_names() {
+    let (mut game, spell, printed) = staged_mulldrifter();
+    cast_for(&mut game, spell, Some(printed));
+    let (mut wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+    wire["checkpoint"]["stack"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("castAlternativeCostBinding");
+    let mut rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &hidden,
+        231_200,
+    )
+    .expect("the signature identifies the cost when the additive field is absent");
+    drain_pending(&mut rebuilt);
+    assert_mulldrifter_result(&rebuilt, true, 2, 0);
+
+    wire["checkpoint"]["stack"][0]["castAlternativeCostBinding"] =
+        serde_json::json!("unknown_alternative_cost");
+    let error = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &hidden,
+        231_200,
+    )
+    .err()
+    .expect("unknown names must not silently discard the paid-cost choice");
+    assert!(
+        error.contains("unknown alternative-cost binding"),
+        "{error}"
+    );
 }
 
 #[test]

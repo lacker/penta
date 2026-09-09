@@ -171,6 +171,7 @@ fn definition_granting(granted: &'static AbilityDef) -> CardDefinition {
 
 mod abilities_grants;
 mod composition;
+mod cost_bindings;
 mod identity_printings;
 mod names;
 mod presentation;

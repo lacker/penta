@@ -87,9 +87,9 @@ pub(super) struct PermanentSnapshot {
     /// order of a catalog enum.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) cast_alternative: Option<String>,
-    /// Index of the chosen printed alternative cost; absent for external costs.
+    /// Name of the chosen alternative cost; absent for unlabeled or external costs.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(super) cast_alternative_cost: Option<u8>,
+    pub(super) cast_alternative_cost_binding: Option<String>,
     /// Semantic cast facts by stable name. Additive: an absent collection is
     /// an ordinary untagged cast.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

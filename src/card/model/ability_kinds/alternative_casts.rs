@@ -22,6 +22,9 @@ use super::{AbilityTargetDef, CostDef, TriggerConditionDef};
 pub struct AlternativeCastAbilityDef {
     pub mana_cost: AlternativeCastManaCostDef,
     pub kind: AlternativeCastKindDef,
+    /// Optional card-part-local name for clauses that ask whether this cost
+    /// was paid. Independent of ability order, display text, and cost kind.
+    pub binding: Option<crate::Binding>,
     /// Rules text for the spell as modified by this alternative, when the
     /// procedure changes its visible instructions (as overload does).
     pub stack_text: Option<&'static str>,
@@ -489,6 +492,7 @@ impl AlternativeCastAbilityDef {
     ) -> Option<AlternativeCostDef> {
         Some(AlternativeCostDef {
             id: AlternativeCostId(ability.0),
+            binding: self.binding,
             label: self.kind.label().into(),
             mana_cost: self.mana_cost.resolve(card_mana_cost)?,
         })

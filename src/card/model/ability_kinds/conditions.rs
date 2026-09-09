@@ -84,10 +84,11 @@ pub enum TriggerConditionDef {
     /// dash. Use `SourcePaidAlternativeCost` when a clause refers to one
     /// particular printed cost rather than every cost in the same family.
     SourceCastWith(AlternativeCastKindDef),
-    /// Whether this particular printed alternative cost was chosen for the
-    /// source spell. A spell copy retains this choice (CR 707.10); an external
-    /// alternative such as Omniscience has no printed index on the source.
-    SourcePaidAlternativeCost(crate::AlternativeCostIndex),
+    /// Whether the source spell chose the alternative cost with this binding.
+    /// Catalog validation links the name to exactly one cost on the card part.
+    /// Spell copies retain this choice (CR 707.10); external alternatives such
+    /// as Omniscience have no cost binding on the source card.
+    SourcePaidAlternativeCost(crate::Binding),
     /// Whether one particular optional additional cost was paid for the
     /// source spell. This distinguishes cards with two independent kickers.
     SourcePaidAdditionalCost(crate::AdditionalCostIndex),

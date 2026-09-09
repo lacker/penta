@@ -4,6 +4,22 @@
 // so the imports here are that module's.
 
 impl AbilityDef {
+    /// Names this alternative cost for `SourcePaidAlternativeCost` conditions.
+    /// The catalog requires names to be unique within their card part.
+    ///
+    /// # Panics
+    ///
+    /// Panics if this is not an alternative-casting clause.
+    #[must_use]
+    pub const fn with_alternative_cost_binding(mut self, binding: crate::Binding) -> Self {
+        let DeclarativeAbilityDef::AlternativeCast(mut alternative) = self.definition else {
+            panic!("only an alternative cast can declare a cost binding");
+        };
+        alternative.binding = Some(binding);
+        self.definition = DeclarativeAbilityDef::AlternativeCast(alternative);
+        self
+    }
+
     #[must_use]
     pub const fn alternative_cast(
         mana_cost: ManaCost,
@@ -27,6 +43,7 @@ impl AbilityDef {
             DeclarativeAbilityDef::AlternativeCast(AlternativeCastAbilityDef {
                 mana_cost: AlternativeCastManaCostDef::Fixed(mana_cost),
                 kind,
+                binding: None,
                 stack_text,
                 targets,
                 additional_cost: None,
@@ -56,6 +73,7 @@ impl AbilityDef {
             DeclarativeAbilityDef::AlternativeCast(AlternativeCastAbilityDef {
                 mana_cost,
                 kind,
+                binding: None,
                 stack_text,
                 targets: &[],
                 additional_cost: Some(additional_cost),
@@ -83,6 +101,7 @@ impl AbilityDef {
             DeclarativeAbilityDef::AlternativeCast(AlternativeCastAbilityDef {
                 mana_cost: AlternativeCastManaCostDef::ThisCardManaCost,
                 kind,
+                binding: None,
                 stack_text,
                 targets: &[],
                 additional_cost: None,

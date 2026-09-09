@@ -13,6 +13,8 @@ use super::{
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AlternativeCostDef {
     pub id: AlternativeCostId,
+    /// Authored cost name, separate from the presentation label below.
+    pub binding: Option<crate::Binding>,
     pub label: String,
     pub mana_cost: ManaCost,
 }

@@ -115,11 +115,12 @@ pub(super) fn permanent_snapshot(
             .as_ref()
             .and_then(|cast| cast.alternative)
             .map(|kind| kind.label().to_owned()),
-        cast_alternative_cost: permanent
+        cast_alternative_cost_binding: permanent
             .cast
             .as_ref()
-            .and_then(|cast| cast.alternative_cost)
-            .map(|cost| cost.0),
+            .and_then(|cast| cast.alternative_cost_binding)
+            .and_then(crate::Binding::label)
+            .map(str::to_owned),
         cast_tags: Vec::new(),
         cast_exiled_payment_cards: permanent.cast.as_ref().map_or_else(Vec::new, |cast| {
             cast.exiled_payment_cards.iter().map(|id| id.0).collect()

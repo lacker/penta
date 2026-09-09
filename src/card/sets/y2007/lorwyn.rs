@@ -96,7 +96,8 @@ pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
             AlternativeCastKindDef::AlternativeCost,
             Some("Evoke {2}{U} (You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters.)"),
             EffectDef::None,
-        ),
+        )
+        .with_alternative_cost_binding(crate::Binding!("evoke")),
         // The draw still happens: the sacrifice is its own trigger and goes
         // on the stack alongside the arrival, not instead of it.
         abilities::evoke_sacrifice(),

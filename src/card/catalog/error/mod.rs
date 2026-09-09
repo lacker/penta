@@ -116,6 +116,10 @@ pub enum GrantedAbilityValidationError {
     BindingAlreadyDeclared {
         binding: Binding,
     },
+    InvalidAlternativeCostBinding {
+        binding: Binding,
+        reason: &'static str,
+    },
     ObjectSetBindingReferenceOutOfScope {
         binding: Binding,
     },
@@ -234,6 +238,9 @@ impl fmt::Display for GrantedAbilityValidationError {
             Self::ObjectBindingReferenceOutOfScope { binding } => {
                 write!(formatter, "references object binding {binding:?} outside its scope")
             }
+            Self::InvalidAlternativeCostBinding { binding, reason } => write!(
+                formatter, "invalid alternative-cost binding {binding:?}: {reason}"
+            ),
             Self::BindingAlreadyDeclared { binding } => write!(
                 formatter,
                 "declares binding {binding:?} more than once in one expanded declaration"
@@ -513,6 +520,13 @@ pub enum CatalogError {
         part: CardPartId,
         ability: AbilityId,
         binding: Binding,
+    },
+    InvalidAlternativeCostBinding {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        binding: Binding,
+        reason: &'static str,
     },
     AbilityBindingAlreadyDeclared {
         definition: CardDefinitionId,

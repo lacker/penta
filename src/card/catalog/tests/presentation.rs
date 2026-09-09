@@ -161,11 +161,13 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
     let mut duplicate_alternative = definition(1, "Test Card", CardSet::Alpha);
     duplicate_alternative.play_options[0].alternative_costs = vec![
         AlternativeCostDef {
+            binding: None,
             id: AlternativeCostId(4),
             label: "first".into(),
             mana_cost: ManaCost::default(),
         },
         AlternativeCostDef {
+            binding: None,
             id: AlternativeCostId(4),
             label: "second".into(),
             mana_cost: ManaCost::default(),
@@ -183,6 +185,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
     let mut alternatives_on_distinct_options = split_definition(None);
     for option in &mut alternatives_on_distinct_options.play_options {
         option.alternative_costs.push(AlternativeCostDef {
+            binding: None,
             id: AlternativeCostId(4),
             label: "Generic alternative".into(),
             mana_cost: ManaCost::default(),
@@ -261,6 +264,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
     projected.play_options[0]
         .alternative_costs
         .push(AlternativeCostDef {
+            binding: None,
             id: AlternativeCostId(1),
             label: "Flashback".into(),
             mana_cost: flashback_cost,

@@ -140,6 +140,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
         conditional_maximum: None,
     });
     option.alternative_costs = vec![AlternativeCostDef {
+        binding: None,
         id: alternative_id,
         label: "Alternative cost".into(),
         mana_cost: ManaCost::new(1, 0),
@@ -260,6 +261,7 @@ fn cost_configuration_visitor_preserves_option_order() {
     option.alternative_costs = alternatives
         .into_iter()
         .map(|id| AlternativeCostDef {
+            binding: None,
             id,
             label: format!("Alternative {}", id.0),
             mana_cost: ManaCost::new(1, 0),

@@ -122,12 +122,15 @@ Resolution must not silently change an explicit ability category or let a
 supported activated or triggered non-mana ability bypass the shared stack.
 
 A clause that asks whether a particular alternative cost was paid should use
-`TriggerConditionDef::SourcePaidAlternativeCost(AlternativeCostIndex)`. The
-index counts printed alternative costs, not all abilities; externally supplied
-costs have no index on that card. `SourceCastWith` instead asks about a cost
-family such as escape. The `evoke_sacrifice()` helper names the first printed
-alternative cost; author the condition directly if Evoke occupies another
-position.
+`TriggerConditionDef::SourcePaidAlternativeCost(Binding!("evoke"))`, with the
+same name declared on the cost using
+`.with_alternative_cost_binding(Binding!("evoke"))`. The `evoke_sacrifice()`
+helper reads this `evoke` binding. Ability order does not affect the link.
+Catalog validation rejects duplicate cost names within a card part and
+references to undeclared cost names. These names occupy a separate namespace
+from effect-output bindings; `ParentBinding` cannot name a cost.
+`SourceCastWith` instead asks about a cost family such as escape. External
+alternatives such as Omniscience do not acquire the card's cost bindings.
 
 ## Coverage
 

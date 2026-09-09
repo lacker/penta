@@ -215,24 +215,6 @@ impl AdditionalCostObjectIndex {
     }
 }
 
-/// Positional reference to one printed alternative-cost clause on a card.
-///
-/// Unlike [`AlternativeCostId`], this counts only alternative-cost clauses,
-/// so inserting an unrelated ability does not change the referenced cost.
-/// Costs supplied by other objects do not have a printed index on this card.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct AlternativeCostIndex(pub u8);
-
-impl AlternativeCostIndex {
-    pub const PRIMARY: Self = Self(0);
-    pub const SECONDARY: Self = Self(1);
-
-    #[must_use]
-    pub const fn index(self) -> usize {
-        self.0 as usize
-    }
-}
-
 /// Positional reference to one optional additional-cost clause on a card.
 ///
 /// Unlike [`AdditionalCostId`], this is authored against the ordered list of
@@ -252,12 +234,15 @@ impl AdditionalCostIndex {
     }
 }
 
-/// Authored identity of one value retained while an effect resolves.
+/// Authored label for an effect output or a retained casting-cost choice.
+///
+/// Cost bindings are scoped to a card part and do not enter the effect-output
+/// binding map. Both namespaces use the same compact, named vocabulary.
 ///
 /// Unlike a [`TargetIndex`], a binding is not part of the spell or ability's
-/// target payload: it is populated only by the effect program and is not
-/// subject to targeting restrictions or legality checks. The producer and
-/// consumer determine whether the value is one object or an object set.
+/// target payload and is not subject to targeting restrictions or legality
+/// checks. Effect-output producers and consumers determine whether their
+/// retained value is one object, an object set, or a card name.
 /// A compact reference to either a durable label or the direct lexical
 /// parent's output. Labels are registered here once so the high-fanout effect
 /// model carries only a compact identifier while declarations and diagnostics
@@ -302,6 +287,7 @@ const BINDING_LABELS: &[&str] = &[
     "epic_experiment_castable",
     "epic_experiment_exiled",
     "epic_experiment_rest",
+    "evoke",
     "exiled_creature",
     "extirpate_target",
     "fact_chosen",
@@ -357,6 +343,7 @@ const BINDING_LABELS: &[&str] = &[
     "oracle_nonland",
     "oracle_rest",
     "oracle_top",
+    "other_alternative_cost",
     "outcome_owned_by_you",
     "paroxysm_land",
     "paroxysm_nonland",

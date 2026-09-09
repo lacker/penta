@@ -7,7 +7,7 @@
 //! casting permission from a copied signature.
 
 use super::{CastSourceZone, Game, GameObjectId, RetiredObject, StackObject};
-use crate::{AlternativeCastKindDef, AlternativeCostIndex, CastSignature, ColorSet, PlayOptionDef};
+use crate::{AlternativeCastKindDef, Binding, CastSignature, ColorSet, PlayOptionDef};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct CastContext {
@@ -17,9 +17,9 @@ pub(super) struct CastContext {
     /// The selected alternative-cost family. This is a copied casting choice,
     /// even though [`Self::source_zone`] is cleared on a spell copy.
     pub(super) alternative: Option<AlternativeCastKindDef>,
-    /// Which printed alternative-cost clause was chosen, independently of
-    /// its family. External alternatives have no printed index here.
-    pub(super) alternative_cost: Option<AlternativeCostIndex>,
+    /// The chosen cost's authored binding, independent of its position and
+    /// family. External alternatives have no binding on this card.
+    pub(super) alternative_cost_binding: Option<Binding>,
     /// Whether the actual cast happened outside an ordinary sorcery window.
     pub(super) at_instant_speed: bool,
     /// The announced X and optional additional-cost payments. These are cast
@@ -52,7 +52,10 @@ impl CastContext {
         Self {
             source_zone: Some(source_zone),
             alternative,
-            alternative_cost: Game::printed_alternative_cost_for(option, signature.costs()),
+            alternative_cost_binding: Game::selected_alternative_cost_binding(
+                option,
+                signature.costs(),
+            ),
             at_instant_speed,
             x: signature.x(),
             repeatable_additional_costs: Game::repeatable_additional_cost_payments_for(

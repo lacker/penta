@@ -560,7 +560,7 @@ pub const fn overload(
 /// The permission is the alternative cast; the sacrifice is a separate
 /// triggered ability, because it happens after the spell has already
 /// resolved and the creature's own enters triggers have gone on the stack
-/// alongside it. This helper names the first printed alternative cost.
+/// alongside it. The cost and this trigger share the `evoke` binding.
 #[must_use]
 pub const fn evoke_sacrifice() -> AbilityDef {
     AbilityDef::triggered_if(
@@ -578,7 +578,7 @@ pub const fn evoke_sacrifice() -> AbilityDef {
 }
 
 static EVOKED: TriggerConditionDef =
-    TriggerConditionDef::SourcePaidAlternativeCost(crate::AlternativeCostIndex::PRIMARY);
+    TriggerConditionDef::SourcePaidAlternativeCost(crate::Binding!("evoke"));
 
 /// Echo (CR 702.29): "At the beginning of your upkeep, if this came under
 /// your control since the beginning of your last upkeep, sacrifice it unless

@@ -40,23 +40,11 @@ impl Game {
                         .iter()
                         .any(|card| card.id == spent)
                     {
-                        // Retain each forage's three-card boundary even when
-                        // another forage or exile cost follows this payment.
-                        let mut cards = vec![spent];
-                        for _ in 0..2 {
-                            let (id, CostDef::Forage) = remaining_sacrifices.first().copied()? else {
-                                return None;
-                            };
-                            remaining_sacrifices.remove(0);
-                            cards.push(id);
-                            stack_object.chosen_permanents.push(id);
-                        }
-                        let exiled = self.exile_to_forage(stack_object.controller, &cards)?;
-                        stack_object
-                            .cast
-                            .as_mut()?
-                            .exiled_payment_cards
-                            .extend(exiled);
+                        self.pay_spell_graveyard_forage(
+                            &mut stack_object,
+                            spent,
+                            &mut remaining_sacrifices,
+                        )?;
                         continue;
                     }
                     self.sacrifice_food_to_forage(
@@ -133,22 +121,63 @@ impl Game {
                 _ => unreachable!("unsupported spell costs are not advertised"),
             }
 
-            let exiled_payment_cards = self.pay_nonbattlefield_spell_object_cost(
-                stack_object.controller,
+            self.pay_spell_nonbattlefield_cost(
+                &mut stack_object,
                 spent,
                 cost,
                 &mut remaining_sacrifices,
-                &mut stack_object.chosen_permanents,
             );
-            stack_object
-                .cast
-                .as_mut()
-                .expect("a cast spell retains its context through payment")
-                .exiled_payment_cards
-                .extend(exiled_payment_cards);
         }
 
         Some((stack_object, targets))
+    }
+
+    fn pay_spell_nonbattlefield_cost(
+        &mut self,
+        stack_object: &mut StackObject,
+        spent: GameObjectId,
+        cost: CostDef,
+        remaining_payments: &mut Vec<(GameObjectId, CostDef)>,
+    ) {
+        let exiled_payment_cards = self.pay_nonbattlefield_spell_object_cost(
+            stack_object.controller,
+            spent,
+            cost,
+            remaining_payments,
+            &mut stack_object.chosen_permanents,
+        );
+        stack_object
+            .cast
+            .as_mut()
+            .expect("a cast spell retains its context through payment")
+            .exiled_payment_cards
+            .extend(exiled_payment_cards);
+    }
+
+    fn pay_spell_graveyard_forage(
+        &mut self,
+        stack_object: &mut StackObject,
+        spent: GameObjectId,
+        remaining_payments: &mut Vec<(GameObjectId, CostDef)>,
+    ) -> Option<()> {
+        // Retain each forage's three-card boundary even when another forage
+        // or exile cost follows this payment.
+        let mut cards = vec![spent];
+        for _ in 0..2 {
+            let (id, CostDef::Forage) = remaining_payments.first().copied()? else {
+                return None;
+            };
+            remaining_payments.remove(0);
+            cards.push(id);
+            stack_object.chosen_permanents.push(id);
+        }
+        let exiled = self.exile_to_forage(stack_object.controller, &cards)?;
+        stack_object
+            .cast
+            .as_mut()?
+            .exiled_payment_cards
+            .extend(exiled);
+        Some(())
     }
 
     fn pay_nonbattlefield_spell_object_cost(

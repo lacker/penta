@@ -105,3 +105,18 @@ registry from the disabled route:
 ```bash
 curl -s -o /dev/null -w '%{http_code}\n' https://penta.lacker.workers.dev/_bots
 ```
+
+## Best-of-three matches
+
+In local game setup, choose **Best of three · Sideboarding**. Deck choices
+(including Random) resolve once for the match. Between games, move registered
+cards between your main deck and sideboard, then start the next game. The engine
+checks the format's deck sizes and preserves the complete registered card pool.
+The previous loser chooses play or draw; after a draw, the previous chooser
+keeps that choice. The match ends when either player wins twice.
+
+Built-in bots currently keep their deck unchanged and choose to play first.
+Hosted opponents and the headless runner still play individual games. Match
+state lives in the current browser session; reloading starts a fresh game.
+Bug-report replays reproduce the individual game, including its sideboarded
+lists, rather than the surrounding match history.

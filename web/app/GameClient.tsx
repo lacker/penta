@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { MatchResult } from "./MatchResult";
 import { CardArt } from "./CardArt";
 import { isScryfallId, type CardArtMode } from "./card-art-mode";
 import {
@@ -219,6 +220,8 @@ export function GameClient({
   const [draftBotDeck, setDraftBotDeck] = useState(defaultBotDeck);
   const [draftPolicy, setDraftPolicy] = useState("Handcrafted");
   const [draftHumanFirst, setDraftHumanFirst] = useState(true);
+  const [bestOfThree, setBestOfThree] = useState(false);
+  const [draftBestOfThree, setDraftBestOfThree] = useState(false);
   const [draftCardArtMode, setDraftCardArtMode] = useState<CardArtMode>(defaultCardArtMode);
   /**
    * The seed field as typed. Blank means "roll one", so it is text rather
@@ -510,6 +513,7 @@ export function GameClient({
       nextPolicy = policy,
       nextHumanFirst = humanFirst,
       nextFormat = format,
+      nextBestOfThree = bestOfThree,
     ) => {
       if (!wasmReady.current) return false;
       const dealtHumanDeck = resolveDeck(nextFormat, nextHumanDeck);
@@ -519,6 +523,10 @@ export function GameClient({
       const challengedBot = nextPolicy.startsWith(LIVE_BOT_PREFIX)
         ? nextPolicy.slice(LIVE_BOT_PREFIX.length)
         : null;
+      if (nextBestOfThree && (hostedRoom.current || challengedBot)) {
+        setError("Best of three is available against local bots. Choose a single game for hosted play.");
+        return false;
+      }
       if (hostedRoom.current || challengedBot) {
         // A hosted deal is a new room. Routing it through the address bar
         // reuses the join path instead of duplicating it here.
@@ -547,6 +555,8 @@ export function GameClient({
           humanFirst: nextHumanFirst,
           seed: nextSeed,
         });
+        if (nextBestOfThree) replacement.enable_match?.();
+        setBestOfThree(nextBestOfThree);
         // A fresh game replaces the whole board; nothing should glide between
         // unrelated games, and no stale beats should keep playing.
         suppressFlip.current = true;
@@ -574,7 +584,7 @@ export function GameClient({
         return false;
       }
     },
-    [botDeckChoice, format, humanDeckChoice, humanFirst, policy, refresh],
+    [bestOfThree, botDeckChoice, format, humanDeckChoice, humanFirst, policy, refresh],
   );
 
   // A hosted room's clock only needs ticking while it is close to expiring,
@@ -1597,6 +1607,7 @@ export function GameClient({
     setDraftBotDeck(botDeckChoice);
     setDraftPolicy(policy);
     setDraftHumanFirst(humanFirst);
+    setDraftBestOfThree(bestOfThree);
     setDraftCardArtMode(cardArtMode);
     // Reopening the form asks for a new game, and a new game rolls a new deal
     // unless the player types one. The seed that just played is in the menu.
@@ -1617,6 +1628,7 @@ export function GameClient({
       draftPolicy,
       draftHumanFirst,
       draftFormat,
+      draftBestOfThree,
     );
     if (!started) return;
     setHumanDeckChoice(draftHumanDeck);
@@ -1726,6 +1738,13 @@ export function GameClient({
                     ))}
                   </select>
                   <small>{deckChoiceNote(draftFormat, draftHumanDeck)}</small>
+                </label>
+                <label>
+                  <span>Match length</span>
+                  <select value={draftBestOfThree ? "three" : "one"} onChange={(event) => setDraftBestOfThree(event.target.value === "three")}>
+                    <option value="one">Single game</option>
+                    <option value="three">Best of three · Sideboarding</option>
+                  </select>
                 </label>
                 <label className="setup-seat">
                   <input
@@ -1906,7 +1925,7 @@ export function GameClient({
                 <span className="brand-mark" aria-hidden="true">P</span>
                 <div>
                   <strong>PENTA</strong>
-                  <small>{formatConfigs[format].shortName}</small>
+                  <small>{state.match ? `Game ${state.match.game} · ${state.match.wins[0]}–${state.match.wins[1]}` : formatConfigs[format].shortName}</small>
                 </div>
               </div>
               <div className="opponent-hand" aria-label={`${state.opponent.handSize} hidden cards`}>
@@ -2604,6 +2623,7 @@ export function GameClient({
                 <span>You · {humanDeck}</span>
                 <i>versus</i>
                 <span>{policy} · {botDeck}</span>
+                {state.match && <strong>Game {state.match.game} · You {state.match.wins[0]} – {state.match.wins[1]} Opponent</strong>}
                 <small>Seed {seed}</small>
               </p>
               <button onClick={openSetup}>New game</button>
@@ -2651,9 +2671,22 @@ export function GameClient({
         </div>
       )}
 
-      {state?.result && (
+      {state?.result && !setupOpen && (
         <div className="result-backdrop">
-          <section className={`result-card result-${state.result.outcome}`}>
+          {state.match ? <MatchResult key={state.match.game} match={state.match} message={state.result.message} error={error} newMatch={openSetup} next={(main, sideboard, first) => {
+            try {
+              const nextSeed = randomSeed();
+              if (!game.current?.next_match_game) throw new Error("This engine does not support match play");
+              game.current.next_match_game(JSON.stringify({ main, sideboard }), first, nextSeed);
+              suppressFlip.current = true;
+              setPresentationQueue([]);
+              displayedState.current = null;
+              finalStateAfterOpponentActions.current = null;
+              setSeed(nextSeed);
+              setDecisionSelectionState({ decisionId: null, options: [] });
+              refresh();
+            } catch (cause) { setError(String(cause)); }
+          }} /> : <section className={`result-card result-${state.result.outcome}`}>
             <span>GAME OVER</span>
             <h1>{state.result.message}</h1>
             <p>
@@ -2671,7 +2704,7 @@ export function GameClient({
                 Rematch
               </button>
             </div>
-          </section>
+          </section>}
         </div>
       )}
     </main>

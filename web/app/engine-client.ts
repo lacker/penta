@@ -12,6 +12,8 @@ import type { FormatId } from "./game-config";
  * this structurally; `RemoteEngineGame` satisfies it over a WebSocket.
  */
 export interface EngineGame {
+  enable_match?(): void;
+  next_match_game?(deckJson: string, humanFirst: boolean, seed: number): void;
   act(index: number): void;
   choose_decision(decision: number, optionsJson: string): void;
   attack_all(): void;

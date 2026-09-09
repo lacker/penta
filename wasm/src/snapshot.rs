@@ -550,6 +550,7 @@ impl WebGame {
             "opponentActions": opponent_actions,
             "afterYourAction": human_action_state,
             "result": result,
+            "match": self.match_value(),
             "events": events,
         })
     }

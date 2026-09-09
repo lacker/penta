@@ -27,6 +27,7 @@ pub mod format {
 }
 pub mod game;
 pub mod ids;
+pub mod match_play;
 pub mod poc;
 pub mod policy;
 mod prepared_engine;

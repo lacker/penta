@@ -108,3 +108,50 @@ test("the game log describes objects that have left visible zones", async () => 
 
   game.free();
 });
+
+test("best of three fixes decks, validates sideboarding, changes seats and replays game two", async () => {
+  await initializeWasm();
+  const game = new WebGame("The Deck", "Sligh", "Handcrafted", true, 41);
+  game.enable_match();
+  const read = () => JSON.parse(game.state_json());
+  const lists = () => ({ main: read().match.main.map((card) => card.id), sideboard: read().match.sideboard.map((card) => card.id) });
+  const concede = () => {
+    // Mulligan decisions do not offer concession; keep the opening hand first.
+    let state = read();
+    const keep = state.actions.find((action) => action.label === "Keep this hand");
+    if (keep) game.act(keep.index);
+    state = read();
+    const action = state.actions.find((action) => /concede/i.test(action.label));
+    assert.ok(action, "concession available after keeping");
+    game.act(action.index);
+  };
+  try {
+    assert.deepEqual(read().match.wins, [0, 0]);
+    assert.throws(() => game.next_match_game(JSON.stringify(lists()), true, 42), /finish this game/);
+    concede();
+    assert.deepEqual(read().match.wins, [0, 1]);
+    assert.equal(read().match.humanChooses, true);
+    const original = lists();
+    const invalid = { main: original.main.slice(1), sideboard: original.sideboard };
+    assert.throws(() => game.next_match_game(JSON.stringify(invalid), false, 42), /registered/);
+    assert.equal(read().match.game, 1);
+    const swapped = structuredClone(original);
+    [swapped.main[0], swapped.sideboard[0]] = [swapped.sideboard[0], swapped.main[0]];
+    game.next_match_game(JSON.stringify(swapped), false, 42);
+    assert.equal(read().match.game, 2);
+    assert.deepEqual(read().match.wins, [0, 1]);
+    assert.deepEqual(lists(), swapped);
+    const replay = WebGame.fromReplayJson(game.replayJson());
+    try {
+      const actual = JSON.parse(replay.state_json());
+      const expected = read();
+      // Replays reproduce the individual game, not its surrounding match UI.
+      delete actual.match; delete expected.match;
+      assert.deepEqual(actual, expected);
+    } finally { replay.free(); }
+    concede();
+    assert.deepEqual(read().match.wins, [0, 2]);
+    assert.equal(read().match.finished, true);
+    assert.throws(() => game.next_match_game(JSON.stringify(swapped), true, 43), /finished/);
+  } finally { game.free(); }
+});

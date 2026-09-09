@@ -1,7 +1,9 @@
 mod action_view;
 mod autopass;
+mod construction;
 mod hosted;
 mod labels;
+mod match_play;
 mod pacing;
 mod presentation;
 mod session;
@@ -173,6 +175,8 @@ impl BotPolicy {
 #[wasm_bindgen]
 pub struct WebGame {
     session: LocalSession,
+    decks: [penta::Deck; 2],
+    series: Option<penta::match_play::BestOfThree>,
     /// How this game was dealt, kept verbatim so the journal below can be
     /// replayed by anyone -- a game room, a bug report, a native harness.
     replay_config: Value,
@@ -202,78 +206,6 @@ pub struct WebGame {
 
 #[wasm_bindgen]
 impl WebGame {
-    /// Creates a mirror-format game and advances until the human must decide.
-    ///
-    /// # Errors
-    ///
-    /// Returns a JavaScript error when a deck or policy name is unknown, game
-    /// construction fails, or the bot cannot reach a human decision.
-    #[allow(clippy::needless_pass_by_value)] // wasm-bindgen owns optional strings at the ABI.
-    #[wasm_bindgen(constructor)]
-    pub fn new(
-        human_deck: &str,
-        bot_deck: &str,
-        bot_policy: &str,
-        human_first: bool,
-        seed: u32,
-        format: Option<String>,
-    ) -> Result<WebGame, JsValue> {
-        let format = penta::protocol::parse_format_slug(
-            format.as_deref().unwrap_or(Format::OldSchool9394.slug()),
-        )
-        .map_err(js_error)?;
-        // The names as asked for, before resolution: a replay hands these
-        // same strings back to this same constructor.
-        let replay_config = json!({
-            "format": format.slug(),
-            "humanDeck": human_deck,
-            "botDeck": bot_deck,
-            "botPolicy": bot_policy.to_ascii_lowercase(),
-            "humanFirst": human_first,
-            "seed": seed,
-        });
-        let catalog = card::catalog().map_err(js_error)?;
-        let human_deck = deck_by_name(format, human_deck)?;
-        let bot_deck = deck_by_name(format, bot_deck)?;
-        let human = if human_first {
-            PlayerId::One
-        } else {
-            PlayerId::Two
-        };
-        let decks = match human {
-            PlayerId::One => [human_deck, bot_deck],
-            PlayerId::Two => [bot_deck, human_deck],
-        };
-        let game = Game::new_with_format(format, catalog.clone(), decks, u64::from(seed))
-            .map_err(js_error)?;
-        let bot = match bot_policy.to_ascii_lowercase().as_str() {
-            "random" => BotPolicy::Random(RandomPolicy::new(u64::from(seed) ^ 0x00b0_7b07)),
-            "handcrafted" => BotPolicy::Handcrafted(HandcraftedPolicy::new(catalog.clone())),
-            "external" => BotPolicy::External,
-            _ => return Err(JsValue::from_str("unknown bot policy")),
-        };
-        let mut web_game = Self {
-            session: LocalSession::new(game),
-            replay_config,
-            journal: Vec::new(),
-            catalog,
-            human,
-            bot,
-            opponent_actions: Vec::new(),
-            pending_opponent_mana: Vec::new(),
-            mana_undo_history: Vec::new(),
-            phase_stops: Vec::new(),
-            autopass_enabled: true,
-            attack_undo: None,
-            // The opening turn arrives with the board, not as a change to it.
-            announced_turn: Some(1),
-            human_action_state: None,
-            timeout_reason: None,
-        };
-        web_game.advance_until_human_choice()?;
-        Ok(web_game)
-    }
-
     /// Applies one action from the current state's action list.
     ///
     /// # Errors
@@ -761,21 +693,13 @@ impl WebGame {
         let _engine_version = required_json_string(envelope, "replay", "engineVersion")?;
         let _protocol_version = required_json_u32(envelope, "replay", "protocolVersion")?;
         let config = required_json_object(envelope, "replay", "config")?;
-        let format = required_json_string(config, "replay.config", "format")?;
-        let human_deck = required_json_string(config, "replay.config", "humanDeck")?;
-        let bot_deck = required_json_string(config, "replay.config", "botDeck")?;
-        let bot_policy = required_json_string(config, "replay.config", "botPolicy")?;
-        let human_first = required_json_bool(config, "replay.config", "humanFirst")?;
-        let seed = required_json_u32(config, "replay.config", "seed")?;
+        for field in ["format", "humanDeck", "botDeck", "botPolicy"] {
+            required_json_string(config, "replay.config", field)?;
+        }
+        required_json_bool(config, "replay.config", "humanFirst")?;
+        required_json_u32(config, "replay.config", "seed")?;
         let commands = required_json_array(envelope, "replay", "commands")?;
-        let mut game = Self::new(
-            human_deck,
-            bot_deck,
-            bot_policy,
-            human_first,
-            seed,
-            Some(format.to_owned()),
-        )?;
+        let mut game = Self::build(Value::Object(config.clone()))?;
         let total = commands.len();
         for (position, command) in commands.iter().enumerate() {
             game.apply_replay_command(command).map_err(|error| {

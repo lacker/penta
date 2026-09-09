@@ -249,7 +249,17 @@ export type MoveClock = {
   deadline: number;
 };
 
+export type MatchState = {
+  wins: [number, number];
+  game: number;
+  finished: boolean;
+  humanChooses: boolean;
+  main: { id: number; name: string }[];
+  sideboard: { id: number; name: string }[];
+};
+
 export type GameState = {
+  match?: MatchState | null;
   format: FormatId;
   /** Only in a hosted game, and only while it is live. */
   moveClock?: MoveClock;

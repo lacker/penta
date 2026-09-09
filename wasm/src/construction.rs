@@ -1,0 +1,132 @@
+use super::match_play::DeckLists;
+use super::{
+    BotPolicy, Format, Game, HandcraftedPolicy, JsValue, LocalSession, PlayerId, RandomPolicy,
+    Value, WebGame, card, deck_by_name, js_error, json, wasm_bindgen,
+};
+
+#[wasm_bindgen]
+impl WebGame {
+    /// Creates a mirror-format game and advances until the human must decide.
+    ///
+    /// # Errors
+    ///
+    /// Returns a JavaScript error when a deck or policy name is unknown, game
+    /// construction fails, or the bot cannot reach a human decision.
+    #[allow(clippy::needless_pass_by_value)] // wasm-bindgen owns optional strings at the ABI.
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        human_deck: &str,
+        bot_deck: &str,
+        bot_policy: &str,
+        human_first: bool,
+        seed: u32,
+        format: Option<String>,
+    ) -> Result<WebGame, JsValue> {
+        let format = penta::protocol::parse_format_slug(
+            format.as_deref().unwrap_or(Format::OldSchool9394.slug()),
+        )
+        .map_err(js_error)?;
+        // The names as asked for, before resolution: a replay hands these
+        // same strings back to this same constructor.
+        let replay_config = json!({
+            "format": format.slug(),
+            "humanDeck": human_deck,
+            "botDeck": bot_deck,
+            "botPolicy": bot_policy.to_ascii_lowercase(),
+            "humanFirst": human_first,
+            "seed": seed,
+        });
+        Self::build(replay_config)
+    }
+}
+
+impl WebGame {
+    pub(super) fn build(replay_config: Value) -> Result<Self, JsValue> {
+        let format = penta::protocol::parse_format_slug(
+            replay_config["format"]
+                .as_str()
+                .ok_or_else(|| js_error("missing format"))?,
+        )
+        .map_err(js_error)?;
+        let human_deck = replay_config["humanDeck"]
+            .as_str()
+            .ok_or_else(|| js_error("missing human deck"))?;
+        let bot_deck = replay_config["botDeck"]
+            .as_str()
+            .ok_or_else(|| js_error("missing bot deck"))?;
+        let bot_policy = replay_config["botPolicy"]
+            .as_str()
+            .ok_or_else(|| js_error("missing policy"))?;
+        let human_first = replay_config["humanFirst"]
+            .as_bool()
+            .ok_or_else(|| js_error("missing starting player"))?;
+        let seed = replay_config["seed"]
+            .as_u64()
+            .and_then(|seed| u32::try_from(seed).ok())
+            .ok_or_else(|| js_error("invalid seed"))?;
+        let catalog = card::catalog().map_err(js_error)?;
+        let registered = [
+            deck_by_name(format, human_deck)?,
+            deck_by_name(format, bot_deck)?,
+        ];
+        let decks = if let Some(value) = replay_config.get("decks") {
+            let values = value
+                .as_array()
+                .filter(|values| values.len() == 2)
+                .ok_or_else(|| js_error("expected two deck lists"))?;
+            let decks = [
+                DeckLists::parse(&values[0])?.into_deck(),
+                DeckLists::parse(&values[1])?.into_deck(),
+            ];
+            let registration = penta::match_play::BestOfThree::new(registered, PlayerId::One);
+            for seat in [PlayerId::One, PlayerId::Two] {
+                registration
+                    .validate_sideboard(seat, &decks[seat.index()], &catalog, format)
+                    .map_err(js_error)?;
+            }
+            decks
+        } else {
+            registered
+        };
+        let [human_deck, bot_deck] = decks.clone();
+        let human = if human_first {
+            PlayerId::One
+        } else {
+            PlayerId::Two
+        };
+        let ordered_decks = match human {
+            PlayerId::One => [human_deck, bot_deck],
+            PlayerId::Two => [bot_deck, human_deck],
+        };
+        let game = Game::new_with_format(format, catalog.clone(), ordered_decks, u64::from(seed))
+            .map_err(js_error)?;
+        let bot = match bot_policy.to_ascii_lowercase().as_str() {
+            "random" => BotPolicy::Random(RandomPolicy::new(u64::from(seed) ^ 0x00b0_7b07)),
+            "handcrafted" => BotPolicy::Handcrafted(HandcraftedPolicy::new(catalog.clone())),
+            "external" => BotPolicy::External,
+            _ => return Err(JsValue::from_str("unknown bot policy")),
+        };
+        let mut web_game = Self {
+            session: LocalSession::new(game),
+            decks,
+            series: None,
+            replay_config,
+            journal: Vec::new(),
+            catalog,
+            human,
+            bot,
+            opponent_actions: Vec::new(),
+            pending_opponent_mana: Vec::new(),
+            mana_undo_history: Vec::new(),
+            phase_stops: Vec::new(),
+            autopass_enabled: true,
+            attack_undo: None,
+            // The opening turn arrives with the board, not as a change to it.
+            announced_turn: Some(1),
+            human_action_state: None,
+            timeout_reason: None,
+        };
+        web_game.advance_until_human_choice()?;
+        Ok(web_game)
+    }
+}

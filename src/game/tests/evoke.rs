@@ -121,7 +121,7 @@ fn assert_mulldrifter_result(game: &Game, evoked: bool, draws: usize, bodies: us
             .iter()
             .filter(|permanent| game
                 .permanent_types(permanent)
-                .is_some_and(|types| types.is_creature()))
+                .is_some_and(crate::card::CardTypeSet::is_creature))
             .count(),
         bodies
     );

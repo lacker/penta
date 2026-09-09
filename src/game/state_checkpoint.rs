@@ -48,6 +48,7 @@ mod ongoing_effect;
 mod permanent;
 mod play_restriction;
 mod prevention;
+mod privacy;
 mod procedure;
 mod semantics;
 mod stack;

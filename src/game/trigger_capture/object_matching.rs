@@ -52,19 +52,11 @@ impl Game {
         }
 
         if let Some(stack) = self.stack.iter().find(|stack| stack.id == object) {
-            let Some(signature) = &stack.signature else {
-                return false;
-            };
-            let Some(definition) = stack.presentation().card_definition() else {
-                return false;
-            };
-            return self.definition_has_ability(
-                definition,
-                &CharacteristicContext::Stack {
-                    form: signature.form().clone(),
-                },
-                predicate,
-            );
+            let mut found = false;
+            self.for_each_stack_spell_ability(stack, |effective| {
+                found |= predicate.matches(&effective.ability);
+            });
+            return found;
         }
 
         let Some((zone, card)) = self.card_in_nonbattlefield_zone(object) else {

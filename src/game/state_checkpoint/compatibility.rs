@@ -17,6 +17,11 @@ fn parse_compatible_game_snapshot(checkpoint_value: &Value) -> Result<GameSnapsh
             crate::protocol::SIMULATION_FINGERPRINT
         ));
     }
+    if checkpoint_value.get("unavailableReason").and_then(Value::as_str)
+        == Some("hiddenFaceDownObjects")
+    {
+        return Err("checkpoint reconstruction requires hidden face-down object hypotheses".into());
+    }
     let checkpoint: GameSnapshot = serde_json::from_value(checkpoint_value.clone())
         .map_err(|error| format!("invalid game snapshot: {error}"))?;
     if checkpoint.channel_active != [false; 2] {

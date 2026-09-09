@@ -1,7 +1,7 @@
 use super::{
-    AppliedEffectDef, AppliedRuleDef, CharacteristicContext, CounteredSpellZone,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, Game, GameObjectId, StackObject,
-    StackObjectKind, Target, TriggerContext, ZoneKind, applicable_part_ids_ref,
+    AppliedEffectDef, AppliedRuleDef, CounteredSpellZone, DeclarativeAbilityDef, EffectDef,
+    EffectRecipientDef, Game, GameObjectId, StackObject, StackObjectKind, Target, TriggerContext,
+    ZoneKind,
 };
 use crate::card::ChooseDef;
 use crate::card::ZonePlacement;
@@ -283,34 +283,18 @@ impl Game {
         object: &StackObject,
         expected: AppliedEffectDef,
     ) -> bool {
-        let Some(signature) = &object.signature else {
-            return false;
-        };
-        let Some(card_definition) = object.card.definition.card_definition() else {
-            return false;
-        };
-        let Some(definition) = self.catalog.get(card_definition) else {
-            return false;
-        };
-        let context = CharacteristicContext::Stack {
-            form: signature.form().clone(),
-        };
-        let Ok(parts) = applicable_part_ids_ref(definition, &context) else {
-            return false;
-        };
-        parts.iter().copied().any(|part| {
-            definition.part(part).is_some_and(|part| {
-                part.rules.ability_clauses().iter().any(|ability| {
-                    matches!(
-                        ability.definition,
-                        DeclarativeAbilityDef::Static(definition)
-                            if definition.source_zones.contains(&ZoneKind::Stack)
-                    ) && ability
-                        .declarative_effect()
-                        .is_some_and(|effect| Self::effect_applies_to_source(effect, expected))
-                })
-            })
-        })
+        let mut found = false;
+        self.for_each_stack_spell_ability(object, |effective| {
+            let ability = effective.ability;
+            found |= matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Static(definition)
+                    if definition.source_zones.contains(&ZoneKind::Stack)
+            ) && ability
+                .declarative_effect()
+                .is_some_and(|effect| Self::effect_applies_to_source(effect, expected));
+        });
+        found
     }
 
     /// Whether a spell on the stack can be countered at all. Printed static

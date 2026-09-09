@@ -276,17 +276,11 @@ impl Game {
         let Some(card) = cast.card.clone().into_card() else {
             return;
         };
-        let Some(signature) = cast.signature.as_ref() else {
-            return;
-        };
         let Some(cast_from) = cast.cast.as_ref().and_then(|context| context.source_zone) else {
             return;
         };
-        let context = CharacteristicContext::Stack {
-            form: signature.form().clone(),
-        };
         let mut listeners = Vec::new();
-        self.for_each_printed_card_ability(&card, &context, |effective| {
+        self.for_each_stack_spell_ability(&cast, |effective| {
             let ability = effective.ability;
             let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
                 return;
@@ -316,7 +310,7 @@ impl Game {
                     },
                     presentation: Self::ability_presentation(
                         effective.origin,
-                        ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
+                        cast.public_presentation(),
                     ),
                     owner: card.owner,
                     controller: cast.controller,

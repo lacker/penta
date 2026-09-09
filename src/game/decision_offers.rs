@@ -805,7 +805,7 @@ impl Game {
             .stack
             .iter()
             .find(|object| object.id == spell)
-            .and_then(|object| self.characteristics_name(object.presentation()))
+            .and_then(|object| self.characteristics_name(object.public_presentation()))
             .map_or_else(|| "that spell".to_owned(), std::borrow::Cow::into_owned);
         self.queue_decision(
             owner,
@@ -883,6 +883,7 @@ impl Game {
         match target {
             Target::Player(player) if player == viewer => "you".into(),
             Target::Player(_) => "your opponent".into(),
+            Target::Card(id) if self.exiled_card_is_face_down(id) => "Face-down card".into(),
             Target::Card(id) => self
                 .card_in_nonbattlefield_zone(id)
                 .and_then(|(_, card)| self.catalog.get(card.definition))
@@ -897,7 +898,7 @@ impl Game {
                 .stack
                 .iter()
                 .find(|object| object.id == id)
-                .and_then(|object| self.characteristics_name(object.presentation()))
+                .and_then(|object| self.characteristics_name(object.public_presentation()))
                 .map_or_else(|| "that spell".into(), Cow::into_owned),
         }
     }

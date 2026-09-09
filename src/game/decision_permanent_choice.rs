@@ -230,7 +230,7 @@ impl Game {
                 .map_or_else(
                     || ("Unknown spell".into(), None, DecisionZone::Stack),
                     |candidate| {
-                        let characteristics = candidate.presentation();
+                        let characteristics = candidate.public_presentation();
                         (
                             match characteristics {
                                 ObjectCharacteristics::Card { definition, part } => self
@@ -257,6 +257,9 @@ impl Game {
                         )
                     },
                 ),
+            Target::Card(id) if self.exiled_card_is_face_down(id) => {
+                ("Face-down card".into(), None, DecisionZone::Exile)
+            }
             Target::Card(id) => self.card_in_nonbattlefield_zone(id).map_or_else(
                 || ("Unknown card".into(), None, DecisionZone::None),
                 |(zone, card)| {
@@ -293,25 +296,7 @@ impl Game {
         &self,
         target: Target,
     ) -> Option<(GameObjectId, ObjectCharacteristics)> {
-        match target {
-            Target::Permanent(id) => self
-                .battlefield
-                .iter()
-                .find(|permanent| permanent.card.id == id)
-                .map(|permanent| (id, Self::effective_rules_source(permanent))),
-            Target::Spell(id) => self
-                .stack
-                .iter()
-                .find(|candidate| candidate.id == id)
-                .map(|candidate| (id, candidate.presentation())),
-            Target::Card(id) => self.card_in_nonbattlefield_zone(id).map(|(_, card)| {
-                (
-                    id,
-                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
-                )
-            }),
-            Target::Player(_) => None,
-        }
+        self.target_card(target)
     }
 }
 

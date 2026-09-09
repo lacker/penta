@@ -282,6 +282,16 @@ world = penta.Game.from_observation(
 )
 ```
 
+Face-down stack and battlefield objects remain anonymous to opponents, including
+inside `checkpoint`. When reconstruction would require such a hidden identity,
+the checkpoint contains only `version`, `simulationFingerprint`, `viewer`,
+`hasDeferredState: true`, and `unavailableReason: "hiddenFaceDownObjects"`.
+Reconstruction rejects that envelope explicitly: the current hidden hypothesis
+format cannot yet supply those public objects' underlying identities. This also
+covers phased-out permanents and retained face-down objects in continuations or
+referenced history. Ordinary gameplay remains available; a controller's visible
+live face-down objects and the existing hidden-exile hypotheses still reconstruct.
+
 The observation preserves every public object ID. Hypothesized hidden cards,
 including outside-game cards, receive fresh IDs, so private identities cannot
 collide with or disclose the host's objects. Outside-game contents are never

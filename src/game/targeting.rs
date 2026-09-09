@@ -46,6 +46,9 @@ impl Game {
     }
 
     pub(super) fn stack_spell_types(&self, object: &StackObject) -> Option<CardTypeSet> {
+        if let Some(face_down) = object.face_down {
+            return Some(face_down.rules().types());
+        }
         let definition = self
             .catalog
             .get(object.card.definition.card_definition()?)?;

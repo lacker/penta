@@ -25,6 +25,17 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Face-down cards keep their identities private.** Public target decisions and
+  stack observations mask printed names, previews, and casting signatures.
+  Face-down permanents override double-faced mana values; face-down spells use
+  their supplied types and abilities, including for counterability and cast
+  triggers. Face-down exile queries see no printed characteristics. Checkpoints
+  with hidden face-down stack, battlefield, or retained objects use an explicit
+  unavailable envelope until reconstruction supports their hidden identities.
+  See [the reconstruction contract](docs/bots.md#rolling-out-against-worlds-you-cannot-see).
+  Existing protocol and checkpoint version numbers are unchanged; unavailable
+  checkpoints fail closed in both current and older readers.
+
 - **Corpseberry Cultivator is implemented.** Shared forage effects offer the
   complete graveyard-exile or Food-sacrifice payment, and completed forage
   actions raise their own trigger event, including when paying Feed the Cycle's

@@ -276,6 +276,15 @@ impl StackObject {
         self.ability.as_ref().and_then(|ability| ability.text)
     }
 
+    /// Presentation safe for a public decision, including one made by the
+    /// controller who can privately inspect the card underneath.
+    pub(super) fn public_presentation(&self) -> ObjectCharacteristics {
+        self.face_down.map_or_else(
+            || self.presentation(),
+            ObjectCharacteristics::face_down,
+        )
+    }
+
     fn presentation(&self) -> ObjectCharacteristics {
         self.ability.as_ref().map_or_else(
             || {

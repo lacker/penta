@@ -20,6 +20,21 @@ impl Game {
     /// The copiable name of any object the engine can still find, wherever it
     /// is. Used by the cards that speak about names rather than identity.
     pub(super) fn object_card_name(&self, id: GameObjectId) -> Option<Cow<'_, str>> {
+        if self.exiled_card_is_face_down(id)
+            || self
+                .stack
+                .iter()
+                .any(|object| object.id == id && object.face_down.is_some())
+            || self.battlefield.iter().any(|permanent| {
+                permanent.card.id == id
+                    && matches!(
+                        Self::effective_rules_source(permanent),
+                        crate::ObjectCharacteristics::FaceDown { .. }
+                    )
+            })
+        {
+            return None;
+        }
         self.permanent_card_name(id)
             .or_else(|| {
                 self.card_in_nonbattlefield_zone(id)
@@ -37,17 +52,24 @@ impl Game {
                 self.stack
                     .iter()
                     .find(|object| object.id == id)
-                    .and_then(|object| self.presentation_name(object.presentation()))
+                    .and_then(|object| self.presentation_name(object.public_presentation()))
             })
             .or_else(|| match self.retired_objects.get(&id) {
                 Some(RetiredObject::Permanent { permanent, .. }) => {
-                    self.presentation_name(Self::effective_rules_source(permanent))
+                    let presentation = Self::effective_rules_source(permanent);
+                    (!matches!(presentation, crate::ObjectCharacteristics::FaceDown { .. }))
+                        .then(|| self.presentation_name(presentation))
+                        .flatten()
                 }
                 Some(RetiredObject::Card(card)) => self
                     .catalog
                     .get(card.definition)
                     .map(|definition| Cow::Borrowed(definition.name.as_str())),
-                Some(RetiredObject::Stack(stack)) => self.presentation_name(stack.presentation()),
+                Some(RetiredObject::Stack(stack)) => stack
+                    .face_down
+                    .is_none()
+                    .then(|| self.presentation_name(stack.presentation()))
+                    .flatten(),
                 None => None,
             })
     }

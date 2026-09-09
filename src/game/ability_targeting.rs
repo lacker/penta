@@ -742,9 +742,12 @@ impl Game {
         zone: ZoneKind,
         source: GameObjectId,
     ) -> bool {
-        if self.catalog.get(card.definition).is_some_and(|definition| {
-            definition.rules.implementation_status() == crate::ImplementationStatus::Unsupported
-        }) {
+        let face_down = zone == ZoneKind::Exile && self.exiled_card_is_face_down(card.id);
+        if !face_down
+            && self.catalog.get(card.definition).is_some_and(|definition| {
+                definition.rules.implementation_status() == crate::ImplementationStatus::Unsupported
+            })
+        {
             // Unsupported cards cannot become gameplay objects through a
             // shared selection or movement effect.
             return false;
@@ -761,26 +764,29 @@ impl Game {
             ObjectPredicateDef::GenericManaCostAtMost(limit) => {
                 // The printed cost, not the mana value: a card with no mana
                 // cost at all is not a card whose mana cost is {0}.
-                return self.catalog.get(card.definition).is_some_and(|definition| {
-                    definition
-                        .rules
-                        .printed_mana_cost()
-                        .as_option()
-                        .is_some_and(|cost| cost.is_generic_at_most(u16::from(limit)))
-                });
+                return !face_down
+                    && self.catalog.get(card.definition).is_some_and(|definition| {
+                        definition
+                            .rules
+                            .printed_mana_cost()
+                            .as_option()
+                            .is_some_and(|cost| cost.is_generic_at_most(u16::from(limit)))
+                    });
             }
             ObjectPredicateDef::NameEquals(name) => {
-                return self
-                    .catalog
-                    .get(card.definition)
-                    .zip(self.source_card_name(name, source))
-                    .is_some_and(|(definition, expected)| definition.name == expected);
+                return !face_down
+                    && self
+                        .catalog
+                        .get(card.definition)
+                        .zip(self.source_card_name(name, source))
+                        .is_some_and(|(definition, expected)| definition.name == expected);
             }
             ObjectPredicateDef::NameIn(names) => {
-                return self.catalog.get(card.definition).is_some_and(|definition| {
-                    self.source_card_name_set(*names, source)
-                        .contains(&definition.name)
-                });
+                return !face_down
+                    && self.catalog.get(card.definition).is_some_and(|definition| {
+                        self.source_card_name_set(*names, source)
+                            .contains(&definition.name)
+                    });
             }
             ObjectPredicateDef::All(predicates) => {
                 return predicates
@@ -796,6 +802,14 @@ impl Game {
                 return !self.card_object_matches(*predicate, card, zone, source);
             }
             _ => {}
+        }
+        if face_down {
+            return self.trigger_object_matches(
+                predicate,
+                &Self::face_down_exiled_event_object(card.id, card.owner),
+                source,
+                false,
+            );
         }
         let context = match zone {
             ZoneKind::Library => CharacteristicContext::Library,

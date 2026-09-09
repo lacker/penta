@@ -3,10 +3,18 @@
 use super::*;
 
 impl Game {
-    /// Projection for the current checkpoint format. The checkpoint has one typed schema
-    /// internally; only this boundary turns it into JSON.
+    /// Projection for the current checkpoint format. Available checkpoints use
+    /// the typed snapshot; private identities require an unavailable envelope.
     pub(in crate::game) fn checkpoint_json(&self, viewer: PlayerId) -> Value {
-        serde_json::to_value(self.snapshot(viewer)).expect("GameSnapshot is serializable")
+        if self.checkpoint_has_private_face_down_objects(viewer) {
+            return super::privacy::private_face_down_checkpoint(viewer);
+        }
+        let value =
+            serde_json::to_value(self.snapshot(viewer)).expect("GameSnapshot is serializable");
+        if self.checkpoint_contains_detached_face_down(&value, viewer) {
+            return super::privacy::private_face_down_checkpoint(viewer);
+        }
+        value
     }
 }
 

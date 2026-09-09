@@ -200,6 +200,7 @@ mod exalted;
 mod exile_source_costs;
 mod extra_turns;
 mod face_down;
+mod face_down_privacy;
 mod fateful_hour;
 mod fear;
 mod fetch_tapped;

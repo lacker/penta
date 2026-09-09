@@ -450,6 +450,7 @@ impl Game {
     ) -> Option<(GameObjectId, ObjectCharacteristics)> {
         match target {
             Target::Player(_) => None,
+            Target::Card(id) if self.exiled_card_is_face_down(id) => None,
             Target::Card(id) => self.card_in_nonbattlefield_zone(id).map(|(_, card)| {
                 (
                     id,
@@ -465,7 +466,7 @@ impl Game {
                 .stack
                 .iter()
                 .find(|object| object.id == id)
-                .map(|object| (id, object.presentation())),
+                .map(|object| (id, object.public_presentation())),
         }
     }
 

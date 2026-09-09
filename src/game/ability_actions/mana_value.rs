@@ -5,6 +5,9 @@ use super::{
 
 impl Game {
     pub(in crate::game) fn permanent_mana_value(&self, permanent: &Permanent) -> u16 {
+        if let Some(face_down) = permanent.face_down {
+            return face_down.rules().printed_mana_cost().mana_value();
+        }
         // "With no mana cost" is a copy exception, so it answers before
         // anything reads the card it copied (CR 202.3a: no mana cost is a
         // mana value of zero).
@@ -81,6 +84,9 @@ impl Game {
             return Some(self.stack_spell_mana_value(object));
         }
         if let Some((_, card)) = self.card_in_nonbattlefield_zone(id) {
+            if self.exiled_card_is_face_down(id) {
+                return Some(0);
+            }
             return self
                 .catalog
                 .get(card.definition)

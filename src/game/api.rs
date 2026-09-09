@@ -938,7 +938,9 @@ impl Game {
                     },
                     controller: object.controller,
                     counterable: self.can_be_countered(object),
-                    signature: object.signature.clone(),
+                    signature: (object.face_down.is_none() || object.controller == viewer)
+                        .then(|| object.signature.clone())
+                        .flatten(),
                     targets: object.declared_targets(),
                     chosen_permanents: object.chosen_permanents.clone(),
                     x: object.x(),

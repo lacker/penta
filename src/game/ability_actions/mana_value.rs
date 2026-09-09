@@ -98,6 +98,9 @@ impl Game {
     }
 
     pub(in crate::game) fn stack_spell_mana_value(&self, object: &StackObject) -> u16 {
+        if let Some(face_down) = object.face_down {
+            return face_down.rules().printed_mana_cost().mana_value();
+        }
         let Some(card_definition) = object.card.definition.card_definition() else {
             return 0;
         };

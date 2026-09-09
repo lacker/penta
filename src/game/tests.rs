@@ -97,6 +97,7 @@ mod casting_and_targets;
 mod casting_modes;
 mod casting_windows;
 mod chain_spells;
+mod chalice_of_the_void;
 mod chaos_orb;
 mod charm_modes;
 mod chosen_characteristics;

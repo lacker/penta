@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardNameSetDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostAdjustmentDef, CostAmountDef, CostDef, EffectDef, EffectRecipientDef, ManaColor,
-    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, SacrificedAmountDef, SpellCostConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    BattlefieldEntryModificationDef, CardArt, CardNameSetDef, CardRules, CardSet, CardType,
+    ChoiceVisibilityDef, ChooseDef, CostAdjustmentDef, CostAmountDef, CostDef, CounterKind,
+    EffectDef, EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    ReplacementEffectDef, SacrificedAmountDef, SpellCostConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -112,6 +113,37 @@ pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
             ),
             abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
+);
+
+// MRD 150 — Chalice of the Void
+pub(in crate::card::sets) static CHALICE_OF_THE_VOID: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1a02ca71-5e39-4a5f-aaba-a1e3e10a6a3e"),
+    "Chalice of the Void",
+    CardArt::new("1a02ca71-5e39-4a5f-aaba-a1e3e10a6a3e", "Mark Zug"),
+    CardSet::Mirrodin,
+    CardRules::new_artifact(mana_cost!("{X}{X}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters with X charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::named("charge"),
+                },
+            ),
+        ),
+        AbilityDef::triggered(
+            "Whenever a player casts a spell with mana value equal to the number of charge counters on this artifact, counter that spell.",
+            // The comparison belongs to the cast event, so changing the counters
+            // afterward does not change whether the captured trigger counters it.
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ManaValueEqualTo(
+                ValueDef::CountersOnSource(CounterKind::named("charge")),
+            )),
+            EffectDef::Counter {
+                object: EffectRecipientDef::TriggeringObject,
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // MRD 152 — Chrome Mox
@@ -297,6 +329,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HUM_OF_THE_RADIX,
     &AETHER_SPELLBOMB,
     &BONESPLITTER,
+    &CHALICE_OF_THE_VOID,
     &CHROME_MOX,
     &EXTRAPLANAR_LENS,
     &LIGHTNING_GREAVES,

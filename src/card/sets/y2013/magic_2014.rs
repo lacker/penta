@@ -2896,11 +2896,10 @@ pub(in crate::card::sets) static ROOTWALLA: CardRecord = CardRecord::new_with_le
     // The quota is per turn and per permanent, so a second Rootwalla still
     // has its own.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Lizard"], 2, 2).with_ability(
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}{G}: This creature gets +2/+2 until end of turn. Activate only once each turn.",
-            mana_cost!("{1}{G}"),
-            ValueDef::Constant(2),
-            ValueDef::Constant(2),
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
         )
         .once_each_turn(),
     ),

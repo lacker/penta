@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    CostDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -68,11 +68,10 @@ pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
     // A two-mana 4/4 that costs two life a turn to be one, and the life is
     // paid before blockers rather than after.
     CardRules::new_creature(mana_cost!("{B}{G}"), &["Zombie", "Leech"], 2, 2).with_ability(
-        abilities::pump_until_end_of_turn(
+        abilities::apply_to_self_until_end_of_turn(
             "Pay 2 life: This creature gets +2/+2 until end of turn. Activate only once each turn.",
             &[CostDef::PayLife(2)],
-            ValueDef::Constant(2),
-            ValueDef::Constant(2),
+            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
         )
         .once_each_turn(),
     ),

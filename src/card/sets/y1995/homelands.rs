@@ -37,11 +37,10 @@ pub(in crate::card::sets) static ABBEY_MATRON: CardRecord = CardRecord::new(
     crate::card::CardArt::new("158caa84-da2e-4c4c-b24d-0c035c900e20", "Mike Kimble"),
     crate::card::CardSet::Homelands,
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 1, 3).with_ability(
-        abilities::pump_until_end_of_turn(
+        abilities::apply_to_self_until_end_of_turn(
             "{W}, {T}: This creature gets +0/+3 until end of turn.",
             &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
-            ValueDef::Constant(0),
-            ValueDef::Constant(3),
+            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(0), ValueDef::Constant(3)),
         ),
     ),
 );
@@ -148,10 +147,10 @@ pub(in crate::card::sets) static BEAST_WALKERS: CardRecord = CardRecord::new(
         2,
         2,
     )
-    .with_ability(abilities::gain_ability_until_end_of_turn_for_mana(
+    .with_ability(abilities::apply_to_self_until_end_of_turn(
         "{G}: This creature gains banding until end of turn.",
-        mana_cost!("{G}"),
-        &abilities::banding(),
+        &[CostDef::Mana(mana_cost!("{G}"))],
+        AppliedEffectDef::add_ability(&abilities::banding()),
     )),
 );
 
@@ -1444,9 +1443,9 @@ pub(in crate::card::sets) static VELDRANE_OF_SENGIR: CardRecord = CardRecord::ne
     crate::card::CardSet::Homelands,
     CardRules::new_creature(mana_cost!("{5}{B}{B}"), &["Human", "Rogue"], 5, 5)
         .with_supertype(CardSupertype::Legendary)
-        .with_ability(abilities::apply_to_self_until_end_of_turn_for_mana(
+        .with_ability(abilities::apply_to_self_until_end_of_turn(
             "{1}{B}{B}: Veldrane gets -3/-0 and gains forestwalk until end of turn.",
-            mana_cost!("{1}{B}{B}"),
+            &[CostDef::Mana(mana_cost!("{1}{B}{B}"))],
             AppliedEffectDef::Composite(&[
                 AppliedEffectDef::modify_power_toughness(
                     ValueDef::Constant(-3),
@@ -2116,9 +2115,9 @@ pub(in crate::card::sets) static LEAPING_LIZARD: CardRecord = CardRecord::new(
     crate::card::CardArt::new("4b0e4744-4d73-4e6e-950b-bb4c83229499", "Amy Weber"),
     crate::card::CardSet::Homelands,
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Lizard"], 2, 3).with_ability(
-        abilities::apply_to_self_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}{G}: This creature gets -0/-1 and gains flying until end of turn.",
-            mana_cost!("{1}{G}"),
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
             AppliedEffectDef::Composite(&[
                 AppliedEffectDef::modify_power_toughness(
                     ValueDef::Constant(0),

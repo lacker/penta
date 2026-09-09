@@ -4207,10 +4207,10 @@ pub(in crate::card::sets) static KESSIG_WOLF: CardRecord = CardRecord::new_with_
     CardArt::new("3255480b-c1cf-43d9-a40e-43e38112bb18", "Wayne England"),
     CardSet::Innistrad,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Wolf"], 3, 1).with_ability(
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}{R}: This creature gains first strike until end of turn.",
-            mana_cost!("{1}{R}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
     ),
 );

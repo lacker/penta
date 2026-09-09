@@ -579,10 +579,10 @@ pub(in crate::card::sets) static PRIZED_ELEPHANT: CardRecord = CardRecord::new_w
                 ),
             },
         ),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{G}: This creature gains trample until end of turn.",
-            mana_cost!("{G}"),
-            &abilities::trample(),
+            &[CostDef::Mana(mana_cost!("{G}"))],
+            AppliedEffectDef::add_ability(&abilities::trample()),
         ),
     ]),
 );
@@ -847,10 +847,10 @@ pub(in crate::card::sets) static ARCTIC_AVEN: CardRecord = CardRecord::new_with_
                 ),
             },
         ),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{W}: This creature gains lifelink until end of turn.",
-            mana_cost!("{W}"),
-            &abilities::lifelink(),
+            &[CostDef::Mana(mana_cost!("{W}"))],
+            AppliedEffectDef::add_ability(&abilities::lifelink()),
         ),
     ]),
 );
@@ -3733,10 +3733,10 @@ pub(in crate::card::sets) static FLINTHOOF_BOAR: CardRecord = CardRecord::new_wi
                 ),
             },
         ),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R}: This creature gains haste until end of turn. (It can attack and {T} this turn.)",
-            mana_cost!("{R}"),
-            &abilities::haste(),
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            AppliedEffectDef::add_ability(&abilities::haste()),
         ),
     ]),
 );

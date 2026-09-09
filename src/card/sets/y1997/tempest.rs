@@ -145,11 +145,13 @@ pub(in crate::card::sets) static ARMOR_SLIVER: CardRecord = CardRecord::new(
             "All Sliver creatures have \"{2}: This creature gets +0/+1 until end of turn.\"",
             all_slivers_get(AppliedEffectDef::add_ability(
                 &const {
-                    abilities::pump_until_end_of_turn_for_mana(
+                    abilities::apply_to_self_until_end_of_turn(
                         "{2}: This creature gets +0/+1 until end of turn.",
-                        mana_cost!("{2}"),
-                        ValueDef::Constant(0),
-                        ValueDef::Constant(1),
+                        &[CostDef::Mana(mana_cost!("{2}"))],
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(1),
+                        ),
                     )
                 },
             )),
@@ -3085,11 +3087,13 @@ pub(in crate::card::sets) static BARBED_SLIVER: CardRecord = CardRecord::new(
             "All Sliver creatures have \"{2}: This creature gets +1/+0 until end of turn.\"",
             all_slivers_get(AppliedEffectDef::add_ability(
                 &const {
-                    abilities::pump_until_end_of_turn_for_mana(
+                    abilities::apply_to_self_until_end_of_turn(
                         "{2}: This creature gets +1/+0 until end of turn.",
-                        mana_cost!("{2}"),
-                        ValueDef::Constant(1),
-                        ValueDef::Constant(0),
+                        &[CostDef::Mana(mana_cost!("{2}"))],
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
                     )
                 },
             )),

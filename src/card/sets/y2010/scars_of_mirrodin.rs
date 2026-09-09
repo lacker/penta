@@ -1353,13 +1353,13 @@ pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
         2,
         1,
     )
-    .with_ability(abilities::gain_ability_until_end_of_turn(
+    .with_ability(abilities::apply_to_self_until_end_of_turn(
         "Sacrifice a creature: This creature gains flying until end of turn.",
         &[CostDef::SacrificePermanent {
             object: ObjectPredicateDef::HasType(CardType::Creature),
             controller: PlayerRelation::You,
         }],
-        &abilities::flying(),
+        AppliedEffectDef::add_ability(&abilities::flying()),
     )),
 );
 
@@ -1779,10 +1779,10 @@ pub(in crate::card::sets) static SKITHIRYX_THE_BLIGHT_DRAGON: CardRecord = CardR
     .with_abilities(&[
         abilities::flying(),
         abilities::infect(),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{B}: Skithiryx gains haste until end of turn.",
-            mana_cost!("{B}"),
-            &abilities::haste(),
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            AppliedEffectDef::add_ability(&abilities::haste()),
         ),
         abilities::regenerate_self(
             "{B}{B}: Regenerate Skithiryx.",
@@ -2317,13 +2317,13 @@ pub(in crate::card::sets) static OXIDDA_DAREDEVIL: CardRecord = CardRecord::new(
     crate::card::CardArt::new("4b0bde7b-dc2d-45d2-b124-69b4b51ef3d9", "Pete Venters"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 2, 1).with_ability(
-        abilities::gain_ability_until_end_of_turn(
+        abilities::apply_to_self_until_end_of_turn(
             "Sacrifice an artifact: This creature gains haste until end of turn.",
             &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
                 controller: PlayerRelation::You,
             }],
-            &abilities::haste(),
+            AppliedEffectDef::add_ability(&abilities::haste()),
         ),
     ),
 );
@@ -4665,10 +4665,10 @@ pub(in crate::card::sets) static SABERCLAW_GOLEM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("6656b6d1-1c92-4da4-8afb-36f11610b0b4", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 4, 2).with_ability(
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R}: This creature gains first strike until end of turn.",
-            mana_cost!("{R}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
     ),
 );
@@ -5255,10 +5255,10 @@ pub(in crate::card::sets) static VECTOR_ASP: CardRecord = CardRecord::new(
     crate::card::CardArt::new("7ffe86e1-ad47-4ccb-aa55-119dc681d370", "Erica Yang"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_artifact_creature(mana_cost!("{1}"), &["Phyrexian", "Snake"], 1, 1)
-        .with_ability(abilities::gain_ability_until_end_of_turn_for_mana(
+        .with_ability(abilities::apply_to_self_until_end_of_turn(
             "{B}: This creature gains infect until end of turn.",
-            mana_cost!("{B}"),
-            &abilities::infect(),
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            AppliedEffectDef::add_ability(&abilities::infect()),
         )),
 );
 
@@ -5333,10 +5333,10 @@ pub(in crate::card::sets) static WALL_OF_TANGLECORD: CardRecord = CardRecord::ne
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Wall"], 0, 6).with_abilities(&[
         abilities::defender(),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{G}: This creature gains reach until end of turn.",
-            mana_cost!("{G}"),
-            &abilities::reach(),
+            &[CostDef::Mana(mana_cost!("{G}"))],
+            AppliedEffectDef::add_ability(&abilities::reach()),
         ),
     ]),
 );

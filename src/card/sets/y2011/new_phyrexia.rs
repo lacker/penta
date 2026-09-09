@@ -2172,11 +2172,13 @@ pub(in crate::card::sets) static MOLTENSTEEL_DRAGON: CardRecord = CardRecord::ne
     CardRules::new_artifact_creature(mana_cost!("{4}{R/P}{R/P}"), &["Phyrexian", "Dragon"], 4, 4)
         .with_abilities(&[
             abilities::flying(),
-            abilities::pump_until_end_of_turn_for_mana(
+            abilities::apply_to_self_until_end_of_turn(
                 "{R/P}: This creature gets +1/+0 until end of turn.",
-                mana_cost!("{R/P}"),
-                ValueDef::Constant(1),
-                ValueDef::Constant(0),
+                &[CostDef::Mana(mana_cost!("{R/P}"))],
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
             ),
         ]),
 );
@@ -2656,15 +2658,15 @@ pub(in crate::card::sets) static DEATH_HOOD_COBRA: CardRecord = CardRecord::new(
     crate::card::CardArt::new("5279ac25-8175-44ad-ab7b-dfa17e359a10", "Jason Felix"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Phyrexian", "Snake"], 2, 2).with_abilities(&[
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}{G}: This creature gains reach until end of turn.",
-            mana_cost!("{1}{G}"),
-            &abilities::reach(),
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            AppliedEffectDef::add_ability(&abilities::reach()),
         ),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}{G}: This creature gains deathtouch until end of turn.",
-            mana_cost!("{1}{G}"),
-            &abilities::deathtouch(),
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            AppliedEffectDef::add_ability(&abilities::deathtouch()),
         ),
     ]),
 );
@@ -3323,11 +3325,10 @@ pub(in crate::card::sets) static IMMOLATING_SOULEATER: CardRecord = CardRecord::
     crate::card::CardArt::new("abbaf916-067d-4834-a55c-b400fe0d8c1f", "Austin Hsu"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Dog"], 1, 1).with_ability(
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R/P}: This creature gets +1/+0 until end of turn.",
-            mana_cost!("{R/P}"),
-            ValueDef::Constant(1),
-            ValueDef::Constant(0),
+            &[CostDef::Mana(mana_cost!("{R/P}"))],
+            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
         ),
     ),
 );
@@ -3339,10 +3340,10 @@ pub(in crate::card::sets) static INSATIABLE_SOULEATER: CardRecord = CardRecord::
     crate::card::CardArt::new("171d5213-5bb4-4f5b-9ddd-e2a7ac092ec6", "Dave Kendall"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Phyrexian", "Beast"], 5, 1)
-        .with_ability(abilities::gain_ability_until_end_of_turn_for_mana(
+        .with_ability(abilities::apply_to_self_until_end_of_turn(
             "{G/P}: This creature gains trample until end of turn.",
-            mana_cost!("{G/P}"),
-            &abilities::trample(),
+            &[CostDef::Mana(mana_cost!("{G/P}"))],
+            AppliedEffectDef::add_ability(&abilities::trample()),
         )),
 );
 
@@ -3510,10 +3511,10 @@ pub(in crate::card::sets) static PESTILENT_SOULEATER: CardRecord = CardRecord::n
     crate::card::CardArt::new("a069cc07-55eb-4ddb-a548-cbf463d078d3", "Matt Stewart"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Phyrexian", "Insect"], 3, 3)
-        .with_ability(abilities::gain_ability_until_end_of_turn_for_mana(
+        .with_ability(abilities::apply_to_self_until_end_of_turn(
             "{B/P}: This creature gains infect until end of turn.",
-            mana_cost!("{B/P}"),
-            &abilities::infect(),
+            &[CostDef::Mana(mana_cost!("{B/P}"))],
+            AppliedEffectDef::add_ability(&abilities::infect()),
         )),
 );
 

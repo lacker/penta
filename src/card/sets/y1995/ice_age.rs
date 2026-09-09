@@ -559,10 +559,10 @@ pub(in crate::card::sets) static ORDER_OF_THE_WHITE_SHIELD: CardRecord = CardRec
     crate::card::CardSet::IceAge,
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Knight"], 2, 1).with_abilities(&[
         abilities::protection_from_color(ManaColor::Black),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{W}: This creature gains first strike until end of turn.",
-            mana_cost!("{W}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{W}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
         AbilityDef::activated(
             "{W}{W}: This creature gets +1/+0 until end of turn.",
@@ -1932,10 +1932,10 @@ pub(in crate::card::sets) static KNIGHT_OF_STROMGALD: CardRecord = CardRecord::n
     crate::card::CardSet::IceAge,
     CardRules::new_creature(mana_cost!("{B}{B}"), &["Human", "Knight"], 2, 1).with_abilities(&[
         abilities::protection_from_color(ManaColor::White),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{B}: This creature gains first strike until end of turn.",
-            mana_cost!("{B}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
         AbilityDef::activated(
             "{B}{B}: This creature gets +1/+0 until end of turn.",

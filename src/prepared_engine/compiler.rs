@@ -361,7 +361,7 @@ fn applied_effect_contains_land_type_operation(effect: AppliedEffectDef) -> bool
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::card::abilities;
+    use crate::card::{CostDef, abilities};
 
     static TEST_FLYING: AbilityDef = abilities::flying();
     static TEST_FLYING_GRANT: AppliedEffectDef = AppliedEffectDef::add_ability(&TEST_FLYING);
@@ -393,10 +393,10 @@ mod tests {
 
     #[test]
     fn source_ability_grant_until_end_of_turn_prepares_to_an_intrinsic() {
-        let effect = abilities::gain_ability_until_end_of_turn_for_mana(
+        let effect = abilities::apply_to_self_until_end_of_turn(
             "{U}: This creature gains flying until end of turn.",
-            crate::mana_cost!("{U}"),
-            &TEST_FLYING,
+            &[CostDef::Mana(crate::mana_cost!("{U}"))],
+            AppliedEffectDef::add_ability(&TEST_FLYING),
         )
         .declarative_effect()
         .expect("the helper constructs a declarative effect");

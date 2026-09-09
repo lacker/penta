@@ -1876,7 +1876,7 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
                 amount: ValueDef::Constant(1),
             },
         ),
-        abilities::gain_ability_until_end_of_turn(
+        abilities::apply_to_self_until_end_of_turn(
             "Exile three cards from your graveyard: This creature gains flying until end of turn.",
             &[CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
                 ObjectPredicateDef::Any,
@@ -1884,7 +1884,7 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
                 ZoneKind::Exile,
                 3,
             ))],
-            &abilities::flying(),
+            AppliedEffectDef::add_ability(&abilities::flying()),
         ),
     ]),
 );

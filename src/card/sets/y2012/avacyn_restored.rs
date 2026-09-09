@@ -800,10 +800,10 @@ pub(in crate::card::sets) static MOORLAND_INQUISITOR: CardRecord = CardRecord::n
     CardArt::new("581dbbea-9995-4e4b-ba5c-d6d5597e4ace", "David Palumbo"),
     CardSet::AvacynRestored,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 2, 2).with_ability(
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{2}{W}: This creature gains first strike until end of turn.",
-            mana_cost!("{2}{W}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{2}{W}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
     ),
 );
@@ -3027,10 +3027,10 @@ pub(in crate::card::sets) static SEARCHLIGHT_GEIST: CardRecord = CardRecord::new
     CardSet::AvacynRestored,
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Spirit"], 2, 1).with_abilities(&[
         abilities::flying(),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{3}{B}: This creature gains deathtouch until end of turn.",
-            mana_cost!("{3}{B}"),
-            &abilities::deathtouch(),
+            &[CostDef::Mana(mana_cost!("{3}{B}"))],
+            AppliedEffectDef::add_ability(&abilities::deathtouch()),
         ),
     ]),
 );
@@ -5112,11 +5112,10 @@ pub(in crate::card::sets) static YEW_SPIRIT: CardRecord = CardRecord::new_with_l
     CardArt::new("b9320432-4f89-4363-91e6-2e740535cc2e", "Dan Murayama Scott"),
     CardSet::AvacynRestored,
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Spirit", "Treefolk"], 3, 3).with_ability(
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{2}{G}{G}: This creature gets +X/+X until end of turn, where X is its power.",
-            mana_cost!("{2}{G}{G}"),
-            ValueDef::SourcePower,
-            ValueDef::SourcePower,
+            &[CostDef::Mana(mana_cost!("{2}{G}{G}"))],
+            AppliedEffectDef::modify_power_toughness(ValueDef::SourcePower, ValueDef::SourcePower),
         ),
     ),
 );

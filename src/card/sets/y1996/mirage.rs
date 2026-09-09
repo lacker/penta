@@ -355,10 +355,10 @@ pub(in crate::card::sets) static FEMEREF_KNIGHT: CardRecord = CardRecord::new(
     crate::card::CardSet::Mirage,
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
         abilities::flanking(),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{W}: This creature gains vigilance until end of turn.",
-            mana_cost!("{W}"),
-            &abilities::vigilance(),
+            &[CostDef::Mana(mana_cost!("{W}"))],
+            AppliedEffectDef::add_ability(&abilities::vigilance()),
         ),
     ]),
 );
@@ -2561,10 +2561,10 @@ pub(in crate::card::sets) static BURNING_SHIELD_ASKARI: CardRecord = CardRecord:
     crate::card::CardSet::Mirage,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Knight"], 2, 2).with_abilities(&[
         abilities::flanking(),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R}{R}: This creature gains first strike until end of turn.",
-            mana_cost!("{R}{R}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{R}{R}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
     ]),
 );
@@ -4632,10 +4632,10 @@ pub(in crate::card::sets) static IGNEOUS_GOLEM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("f44c5e24-98f9-4a4d-9ecc-c862363eb66d", "Adam Rex"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 3, 4).with_ability(
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{2}: This creature gains trample until end of turn.",
-            mana_cost!("{2}"),
-            &abilities::trample(),
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            AppliedEffectDef::add_ability(&abilities::trample()),
         ),
     ),
 );
@@ -4767,10 +4767,10 @@ pub(in crate::card::sets) static PATAGIA_GOLEM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("89920b7a-fd56-4fa8-96c9-fb66c2af6fbf", "Scott Kirschner"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 2, 3).with_ability(
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{3}: This creature gains flying until end of turn.",
-            mana_cost!("{3}"),
-            &abilities::flying(),
+            &[CostDef::Mana(mana_cost!("{3}"))],
+            AppliedEffectDef::add_ability(&abilities::flying()),
         ),
     ),
 );

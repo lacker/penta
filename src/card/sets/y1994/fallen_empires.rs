@@ -137,15 +137,15 @@ pub(in crate::card::sets) static ICATIAN_INFANTRY: CardRecord = CardRecord::new_
     ),
     CardSet::FallenEmpires,
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_abilities(&[
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}: This creature gains first strike until end of turn.",
-            mana_cost!("{1}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}: This creature gains banding until end of turn.",
-            mana_cost!("{1}"),
-            &abilities::banding(),
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AppliedEffectDef::add_ability(&abilities::banding()),
         ),
     ]),
 );
@@ -393,10 +393,10 @@ pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new_
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Cleric", "Knight"], 2, 1)
         .with_abilities(&[
             abilities::protection_from_color(ManaColor::Black),
-            abilities::gain_ability_until_end_of_turn_for_mana(
+            abilities::apply_to_self_until_end_of_turn(
                 "{W}: This creature gains first strike until end of turn.",
-                mana_cost!("{W}"),
-                &abilities::first_strike(),
+                &[CostDef::Mana(mana_cost!("{W}"))],
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
             ),
             AbilityDef::activated(
                 "{W}{W}: This creature gets +1/+0 until end of turn.",
@@ -658,10 +658,10 @@ pub(in crate::card::sets) static RIVER_MERFOLK: CardRecord = CardRecord::new_wit
     CardArt::new("27d7fa54-4b89-4a9a-b088-4b89c525c1ea", "Douglas Shuler"),
     CardSet::FallenEmpires,
     CardRules::new_creature(mana_cost!("{U}{U}"), &["Merfolk"], 2, 1).with_abilities(&[
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{U}: This creature gains mountainwalk until end of turn.",
-            mana_cost!("{U}"),
-            &abilities::mountainwalk(),
+            &[CostDef::Mana(mana_cost!("{U}"))],
+            AppliedEffectDef::add_ability(&abilities::mountainwalk()),
         ),
     ]),
 );
@@ -1063,10 +1063,10 @@ pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord =
         CardRules::new_creature(mana_cost!("{B}{B}"), &["Cleric", "Knight"], 2, 1).with_abilities(
             &[
                 abilities::protection_from_color(ManaColor::White),
-                abilities::gain_ability_until_end_of_turn_for_mana(
+                abilities::apply_to_self_until_end_of_turn(
                     "{B}: This creature gains first strike until end of turn.",
-                    mana_cost!("{B}"),
-                    &abilities::first_strike(),
+                    &[CostDef::Mana(mana_cost!("{B}"))],
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
                 ),
                 AbilityDef::activated(
                     "{B}{B}: This creature gets +1/+0 until end of turn.",
@@ -1539,10 +1539,10 @@ pub(in crate::card::sets) static ORCISH_VETERAN: CardRecord = CardRecord::new_wi
                 )),
             },
         ),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R}: This creature gains first strike until end of turn.",
-            mana_cost!("{R}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
     ]),
 );

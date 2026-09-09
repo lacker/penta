@@ -1260,7 +1260,7 @@ pub(in crate::card::sets) static CORPSE_BLOCKADE: CardRecord = CardRecord::new_w
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 1, 4).with_abilities(&[
         abilities::defender(),
-        abilities::gain_ability_until_end_of_turn(
+        abilities::apply_to_self_until_end_of_turn(
             "Sacrifice another creature: This creature gains deathtouch until end of turn.",
             &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::All(&[
@@ -1269,7 +1269,7 @@ pub(in crate::card::sets) static CORPSE_BLOCKADE: CardRecord = CardRecord::new_w
                 ]),
                 controller: PlayerRelation::You,
             }],
-            &abilities::deathtouch(),
+            AppliedEffectDef::add_ability(&abilities::deathtouch()),
         ),
     ]),
 );
@@ -1443,10 +1443,10 @@ pub(in crate::card::sets) static HORROR_OF_THE_DIM: CardRecord = CardRecord::new
     CardArt::new("f5d36c9d-967e-42dc-890c-0485b12f704f", "Jack Wang"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{4}{B}"), &["Horror"], 3, 4).with_ability(
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{U}: This creature gains hexproof until end of turn.",
-            mana_cost!("{U}"),
-            &abilities::hexproof(),
+            &[CostDef::Mana(mana_cost!("{U}"))],
+            AppliedEffectDef::add_ability(&abilities::hexproof()),
         ),
     ),
 );
@@ -2254,10 +2254,10 @@ pub(in crate::card::sets) static TOWERING_THUNDERFIST: CardRecord = CardRecord::
     CardArt::new("d68e9280-cb1a-48e1-a91e-217e101f19c5", "Zoltan Boros"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Soldier"], 4, 4).with_ability(
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{W}: This creature gains vigilance until end of turn.",
-            mana_cost!("{W}"),
-            &abilities::vigilance(),
+            &[CostDef::Mana(mana_cost!("{W}"))],
+            AppliedEffectDef::add_ability(&abilities::vigilance()),
         ),
     ),
 );
@@ -2424,10 +2424,10 @@ pub(in crate::card::sets) static DISCIPLE_OF_THE_OLD_WAYS: CardRecord =
         CardArt::new("3c62b3ee-db2b-45c3-87d5-5d917ea4baeb", "Anthony Palumbo"),
         CardSet::Gatecrash,
         CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Warrior"], 2, 2).with_ability(
-            abilities::gain_ability_until_end_of_turn_for_mana(
+            abilities::apply_to_self_until_end_of_turn(
                 "{R}: This creature gains first strike until end of turn.",
-                mana_cost!("{R}"),
-                &abilities::first_strike(),
+                &[CostDef::Mana(mana_cost!("{R}"))],
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
             ),
         ),
     );
@@ -4249,10 +4249,10 @@ pub(in crate::card::sets) static TRUEFIRE_PALADIN: CardRecord = CardRecord::new_
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::gain_ability_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R}{W}: This creature gains first strike until end of turn.",
-            mana_cost!("{R}{W}"),
-            &abilities::first_strike(),
+            &[CostDef::Mana(mana_cost!("{R}{W}"))],
+            AppliedEffectDef::add_ability(&abilities::first_strike()),
         ),
     ]),
 );
@@ -4444,10 +4444,10 @@ pub(in crate::card::sets) static BOROS_RECKONER: CardRecord = CardRecord::new_wi
                     amount: ValueDef::TriggerEventAmount,
                 },
             ),
-            abilities::gain_ability_until_end_of_turn_for_mana(
+            abilities::apply_to_self_until_end_of_turn(
                 "{R/W}: This creature gains first strike until end of turn.",
-                mana_cost!("{R/W}"),
-                &abilities::first_strike(),
+                &[CostDef::Mana(mana_cost!("{R/W}"))],
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
             ),
         ]),
 );

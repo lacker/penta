@@ -297,17 +297,21 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}: This creature gets +1/-1 until end of turn.",
-            mana_cost!("{1}"),
-            ValueDef::Constant(1),
-            ValueDef::Constant(-1),
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(-1),
+            ),
         ),
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{1}: This creature gets -1/+1 until end of turn.",
-            mana_cost!("{1}"),
-            ValueDef::Constant(-1),
-            ValueDef::Constant(1),
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-1),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -1694,11 +1698,10 @@ pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new_wit
     CardArt::new("108a9ef2-c74a-450b-8148-4fdf9f09843f", "Dave Kendall"),
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{1}{R}{G}"), &["Goblin", "Shaman"], 2, 1).with_ability(
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{3}: This creature gets +X/+0 until end of turn, where X is its power.",
-            mana_cost!("{3}"),
-            ValueDef::SourcePower,
-            ValueDef::Constant(0),
+            &[CostDef::Mana(mana_cost!("{3}"))],
+            AppliedEffectDef::modify_power_toughness(ValueDef::SourcePower, ValueDef::Constant(0)),
         ),
     ),
 );

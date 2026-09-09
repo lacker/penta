@@ -2334,11 +2334,10 @@ pub(in crate::card::sets) static FROZEN_SHADE: CardRecord = CardRecord::new_with
     CardArt::new("d0bd76c8-4cff-4c15-9686-7a299b589814", "Douglas Shuler"),
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Shade"], 0, 1).with_abilities(&[
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{B}: This creature gets +1/+1 until end of turn.",
-            mana_cost!("{B}"),
-            ValueDef::Constant(1),
-            ValueDef::Constant(1),
+            &[CostDef::Mana(mana_cost!("{B}"))],
+            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
         ),
     ]),
 );
@@ -3341,10 +3340,10 @@ pub(in crate::card::sets) static GOBLIN_BALLOON_BRIGADE: CardRecord =
         CardArt::new("5129b422-7a35-4bc5-b14b-c814012a0d8f", "Andi Rusu"),
         CardSet::Alpha,
         CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
-            abilities::gain_ability_until_end_of_turn_for_mana(
+            abilities::apply_to_self_until_end_of_turn(
                 "{R}: This creature gains flying until end of turn.",
-                mana_cost!("{R}"),
-                &abilities::flying(),
+                &[CostDef::Mana(mana_cost!("{R}"))],
+                AppliedEffectDef::add_ability(&abilities::flying()),
             ),
         ]),
     );
@@ -3727,11 +3726,10 @@ pub(in crate::card::sets) static SHIVAN_DRAGON: CardRecord = CardRecord::new_wit
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Dragon"], 5, 5).with_abilities(&[
         abilities::flying(),
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R}: This creature gets +1/+0 until end of turn.",
-            mana_cost!("{R}"),
-            ValueDef::Constant(1),
-            ValueDef::Constant(0),
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
         ),
     ]),
 );
@@ -3886,11 +3884,10 @@ pub(in crate::card::sets) static WALL_OF_FIRE: CardRecord = CardRecord::new_with
     CardSet::Alpha,
     CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Wall"], 0, 5).with_abilities(&[
         abilities::defender(),
-        abilities::pump_until_end_of_turn_for_mana(
+        abilities::apply_to_self_until_end_of_turn(
             "{R}: This creature gets +1/+0 until end of turn.",
-            mana_cost!("{R}"),
-            ValueDef::Constant(1),
-            ValueDef::Constant(0),
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
         ),
     ]),
 );

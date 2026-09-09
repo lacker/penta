@@ -1,15 +1,15 @@
 #[cfg(test)]
 mod tests {
     use super::{
-        attacks_each_combat_if_able, banding, begin_game_on_battlefield, bind_top_cards_then,
+        apply_to_self_until_end_of_turn, attacks_each_combat_if_able, banding,
+        begin_game_on_battlefield, bind_top_cards_then,
         bind_top_cards_through_first_matching_then, bloodrush, check_land_enters,
         bloodthirst, bushido,
         creature_damaged_by_source_dies_trigger,
         creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
         dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
         enters_tapped, enters_trigger, enters_trigger_with_targets, evoke,
-        exile_and_return_transformed, gain_ability_until_end_of_turn,
-        gain_ability_until_end_of_turn_for_mana,
+        exile_and_return_transformed,
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, legendary_landwalk, living_weapon,
@@ -23,7 +23,7 @@ mod tests {
     use crate::card::{
         CostDef, AbilityCostList, AbilityDef, AbilityKindDef, AbilityPredicateDef,
         AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
-        AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
+        AlternativeCastManaCostDef, AppliedEffectDef, BasicLandType, CardRules, CardType, ConditionDef,
         CollectionInspectionDef, DeclarativeAbilityDef, EffectDef,
         EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectCollectionSourceDef,
         ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
@@ -49,15 +49,15 @@ mod tests {
 
     #[test]
     fn activated_self_grants_share_one_semantic_shape_across_cost_kinds() {
-        let mana = gain_ability_until_end_of_turn_for_mana(
+        let mana = apply_to_self_until_end_of_turn(
             "{R}: This creature gains first strike until end of turn.",
-            mana_cost!("{R}"),
-            &TEST_FIRST_STRIKE,
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            AppliedEffectDef::add_ability(&TEST_FIRST_STRIKE),
         );
-        let nonmana = gain_ability_until_end_of_turn(
+        let nonmana = apply_to_self_until_end_of_turn(
             "Sacrifice this creature: It gains first strike until end of turn.",
             &TEST_SACRIFICE_SOURCE,
-            &TEST_FIRST_STRIKE,
+            AppliedEffectDef::add_ability(&TEST_FIRST_STRIKE),
         );
 
         assert_eq!(

@@ -790,6 +790,29 @@ pub const fn regenerate_self(text: &'static str, costs: &'static [CostDef]) -> A
     )
 }
 
+/// An activated ability that applies an effect to its source until end of turn.
+/// Use [`AppliedEffectDef::modify_power_toughness`] for signed or dynamic stat
+/// deltas, [`AppliedEffectDef::add_ability`] for an ability grant, or
+/// [`AppliedEffectDef::Composite`] to combine them. Costs and printed text
+/// remain card-local; activation limits and timing restrictions can be chained
+/// onto the result.
+#[must_use]
+pub const fn apply_to_self_until_end_of_turn(
+    text: &'static str,
+    costs: &'static [CostDef],
+    effect: AppliedEffectDef,
+) -> AbilityDef {
+    AbilityDef::activated(
+        text,
+        costs,
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect,
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )
+}
+
 /// A Circle of Protection: "the next time a <kind> source of your choice
 /// would deal damage to you this turn, prevent that damage". The source is
 /// chosen as the ability resolves rather than targeted, so it may be a spell
@@ -939,5 +962,4 @@ include!("abilities/attachment.rs");
 include!("abilities/named_cards.rs");
 include!("abilities/suspend.rs");
 include!("abilities/cumulative_upkeep.rs");
-include!("abilities/temporary_self_effects.rs");
 include!("abilities/tests.rs");

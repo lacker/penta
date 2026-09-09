@@ -7,7 +7,7 @@ mod tests {
         creature_damaged_by_source_dies_trigger,
         creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
         dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
-        enters_tapped, enters_trigger, enters_trigger_with_targets, evoke_sacrifice,
+        enters_tapped, enters_trigger, enters_trigger_with_targets, evoke,
         exile_and_return_transformed, gain_ability_until_end_of_turn,
         gain_ability_until_end_of_turn_for_mana,
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
@@ -137,7 +137,7 @@ mod tests {
             "Enchanted creature has protection from blue. This effect doesn't remove this Aura.",
         );
         assert_eq!(
-            evoke_sacrifice().text,
+            evoke(CostDef::Mana(mana_cost!("{1}")))[1].text,
             "When this creature enters, if it was evoked, sacrifice it.",
         );
     }

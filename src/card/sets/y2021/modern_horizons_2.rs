@@ -58,53 +58,47 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
     // Two white cards for a free Swords to Plowshares at instant speed, and
     // a lifelinking 3/2 on the turns five mana is available instead.
     CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Elemental", "Incarnation"], 3, 2)
-        .with_abilities(&[
-            abilities::flash(),
-            abilities::lifelink(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, exile up to one other target creature. That creature's \
-                 controller gains life equal to its power.",
-                // "Up to one other": declining is a legal choice, and Solitude herself is
-                // never one of the options.
-                &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: None,
-                        owner: None,
-                    },
-                    1,
-                )],
-                // Swords to Plowshares' pair, in the same order: the power the life is
-                // read from is the one the creature had as it left the battlefield.
-                EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
-                    EffectDef::GainLife {
-                        recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                        amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-                    },
-                ]),
-            ),
-            AbilityDef::alternative_cast(
-                mana_cost!("{0}"),
-                AlternativeCastKindDef::AlternativeCost,
-                Some("Evoke—Exile a white card from your hand."),
-                EffectDef::None,
-            )
-            .with_alternative_cost_binding(crate::Binding!("evoke"))
-            .with_alternative_additional_cost(&CostDef::exile(
+        .with_abilities(&crate::ability_list![
+            [
+                abilities::flash(),
+                abilities::lifelink(),
+                abilities::enters_trigger_with_targets(
+                    "When this creature enters, exile up to one other target creature. That creature's \
+                     controller gains life equal to its power.",
+                    // "Up to one other": declining is a legal choice, and Solitude herself is
+                    // never one of the options.
+                    &[AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: None,
+                            owner: None,
+                        },
+                        1,
+                    )],
+                    // Swords to Plowshares' pair, in the same order: the power the life is
+                    // read from is the one the creature had as it left the battlefield.
+                    EffectDef::Sequence(&[
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            zone: ZoneKind::Exile,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                            amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+                        },
+                    ]),
+                ),
+            ],
+            abilities::evoke(CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::White),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -234,47 +228,41 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
     // Free interaction that leaves a body when you have the mana, and a
     // blue card off the top of your hand when you do not.
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Elemental", "Incarnation"], 3, 3)
-        .with_abilities(&[
-            abilities::flash(),
-            abilities::flying(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, choose up to one target creature spell or planeswalker \
-                 spell. Its owner puts it on their choice of the top or bottom of their library.",
-                // A creature or planeswalker spell on the stack, anybody's. "Up to one"
-                // means a Subtlety with nothing worth answering still enters and still
-                // leaves a 3/3 behind.
-                &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Spell,
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+        .with_abilities(&crate::ability_list![
+            [
+                abilities::flash(),
+                abilities::flying(),
+                abilities::enters_trigger_with_targets(
+                    "When this creature enters, choose up to one target creature spell or planeswalker \
+                     spell. Its owner puts it on their choice of the top or bottom of their library.",
+                    // A creature or planeswalker spell on the stack, anybody's. "Up to one"
+                    // means a Subtlety with nothing worth answering still enters and still
+                    // leaves a 3/3 behind.
+                    &[AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Spell,
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                ]),
                             ]),
-                        ]),
-                        zones: &[ZoneKind::Stack],
-                        controller: None,
-                        owner: None,
+                            zones: &[ZoneKind::Stack],
+                            controller: None,
+                            owner: None,
+                        },
+                        1,
+                    )],
+                    EffectDef::PutSpellIntoOwnersLibrary {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     },
-                    1,
-                )],
-                EffectDef::PutSpellIntoOwnersLibrary {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
-            AbilityDef::alternative_cast(
-                mana_cost!("{0}"),
-                AlternativeCastKindDef::AlternativeCost,
-                Some("Evoke—Exile a blue card from your hand."),
-                EffectDef::None,
-            )
-            .with_alternative_cost_binding(crate::Binding!("evoke"))
-            .with_alternative_additional_cost(&CostDef::exile(
+                ),
+            ],
+            abilities::evoke(CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Blue),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -443,32 +431,26 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
         // Thoughtseize's clause without the life, and aimed at an opponent rather
         // than any player: revealed rather than looked at, so the choice is one
         // both players can check.
-        .with_abilities(&[
-            abilities::menace(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, target opponent reveals their hand. You choose a nonland \
-                 card from it. That player discards that card.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                )],
-                EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
-                    PlayerRefDef::Target(TargetIndex::PRIMARY),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                )),
-            ),
-            AbilityDef::alternative_cast(
-                mana_cost!("{0}"),
-                AlternativeCastKindDef::AlternativeCost,
-                Some("Evoke—Exile a black card from your hand."),
-                EffectDef::None,
-            )
-            .with_alternative_cost_binding(crate::Binding!("evoke"))
-            .with_alternative_additional_cost(&CostDef::exile(
+        .with_abilities(&crate::ability_list![
+            [
+                abilities::menace(),
+                abilities::enters_trigger_with_targets(
+                    "When this creature enters, target opponent reveals their hand. You choose a nonland \
+                     card from it. That player discards that card.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                    )],
+                    EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+                        PlayerRefDef::Target(TargetIndex::PRIMARY),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    )),
+                ),
+            ],
+            abilities::evoke(CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Black),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -606,52 +588,43 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
     CardArt::new("bd281158-8180-40b9-a5b7-03cfc712d81a", "Raoul Vitale"),
     CardSet::ModernHorizons2,
     CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Elemental", "Incarnation"], 3, 3)
-        .with_abilities(&[
-            abilities::double_strike(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
-                // Four damage split however the caster likes, over creatures and
-                // planeswalkers alike. Every target must be assigned at least one, so four
-                // is the most it can ever cover.
-                &[AbilityTargetDef {
-                    predicate: AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::HasType(CardType::Planeswalker),
-                        ]),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: None,
-                        owner: None,
+        .with_abilities(&crate::ability_list![
+            [
+                abilities::double_strike(),
+                abilities::enters_trigger_with_targets(
+                    "When this creature enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
+                    // Four damage split however the caster likes, over creatures and
+                    // planeswalkers alike. Every target must be assigned at least one, so four
+                    // is the most it can ever cover.
+                    &[AbilityTargetDef {
+                        predicate: AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: None,
+                            owner: None,
+                        },
+                        minimum: 1,
+                        maximum: AbilityTargetDef::UNLIMITED,
+                        exact_count: None,
+                        divided_total: Some(DividedTotal::Fixed(4)),
+                        another: false,
+                        excludes_source: false,
+                        chooser: TargetChooserDef::Controller,
+                    }],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::DividedAmongTargets,
                     },
-                    minimum: 1,
-                    maximum: AbilityTargetDef::UNLIMITED,
-                    exact_count: None,
-                    divided_total: Some(DividedTotal::Fixed(4)),
-                    another: false,
-                    excludes_source: false,
-                    chooser: TargetChooserDef::Controller,
-                }],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::DividedAmongTargets,
-                },
-            ),
-            AbilityDef::alternative_cast(
-                mana_cost!("{0}"),
-                AlternativeCastKindDef::AlternativeCost,
-                Some("Evoke—Exile a red card from your hand."),
-                EffectDef::None,
-            )
-            .with_alternative_cost_binding(crate::Binding!("evoke"))
-            .with_alternative_additional_cost(&CostDef::exile(
+                ),
+            ],
+            abilities::evoke(CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Red),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            // Evoke's own sacrifice. It is a separate trigger because it happens
-            // after the Elemental has arrived, alongside the damage trigger rather
-            // than instead of it -- which is why an evoked Fury still burns.
-            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -895,36 +868,30 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
     // green card off the top of your hand when the graveyard is the whole
     // reason you are casting it.
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elemental", "Incarnation"], 3, 4)
-        .with_abilities(&[
-            abilities::flash(),
-            abilities::reach(),
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, up to one target player puts all the cards from their \
-                 graveyard on the bottom of their library in a random order.",
-                // "Up to one target player" includes yourself, which is the mode nobody
-                // prints on the card: an Endurance can put your own graveyard back when
-                // something else is trying to eat it.
-                &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::Player(PlayerRelation::Any),
-                    1,
-                )],
-                EffectDef::BuryGraveyard {
-                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            ),
-            AbilityDef::alternative_cast(
-                mana_cost!("{0}"),
-                AlternativeCastKindDef::AlternativeCost,
-                Some("Evoke—Exile a green card from your hand."),
-                EffectDef::None,
-            )
-            .with_alternative_cost_binding(crate::Binding!("evoke"))
-            .with_alternative_additional_cost(&CostDef::exile(
+        .with_abilities(&crate::ability_list![
+            [
+                abilities::flash(),
+                abilities::reach(),
+                abilities::enters_trigger_with_targets(
+                    "When this creature enters, up to one target player puts all the cards from their \
+                     graveyard on the bottom of their library in a random order.",
+                    // "Up to one target player" includes yourself, which is the mode nobody
+                    // prints on the card: an Endurance can put your own graveyard back when
+                    // something else is trying to eat it.
+                    &[AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                        1,
+                    )],
+                    EffectDef::BuryGraveyard {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                ),
+            ],
+            abilities::evoke(CostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Green),
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice(),
         ]),
 );
 

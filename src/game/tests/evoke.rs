@@ -19,48 +19,43 @@ fn cast_for(game: &mut Game, spell: GameObjectId, cost: Option<AlternativeCostId
 
 #[test]
 fn evoke_does_not_sacrifice_for_another_printed_alternative_cost() {
-    static ABILITIES: [AbilityDef; 5] = [
-        AbilityDef::alternative_cast(
-            mana_cost!("{1}"),
-            AlternativeCastKindDef::AlternativeCost,
-            Some("Evoke {1}"),
-            EffectDef::None,
-        )
-        .with_alternative_cost_binding(crate::Binding!("evoke")),
-        abilities::flying(),
-        AbilityDef::alternative_cast(
-            mana_cost!("{2}"),
-            AlternativeCastKindDef::AlternativeCost,
-            Some("You may pay {2} rather than pay this spell's mana cost."),
-            EffectDef::None,
-        )
-        .with_alternative_cost_binding(crate::Binding!("other_alternative_cost")),
-        abilities::evoke_sacrifice(),
-        AbilityDef::triggered_if(
-            "When this creature enters, if its other alternative cost was paid, you gain 1 life.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::Source,
-                None,
-                Some(ZoneKind::Battlefield),
+    static ABILITIES: [AbilityDef; 5] = crate::ability_list![
+        abilities::evoke(CostDef::Mana(mana_cost!("{1}"))),
+        [
+            abilities::flying(),
+            AbilityDef::alternative_cast(
+                mana_cost!("{2}"),
+                AlternativeCastKindDef::AlternativeCost,
+                Some("You may pay {2} rather than pay this spell's mana cost."),
+                EffectDef::None,
+            )
+            .with_alternative_cost_binding(crate::Binding!("other_alternative_cost")),
+            AbilityDef::triggered_if(
+                "When this creature enters, if its other alternative cost was paid, you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &TriggerConditionDef::SourcePaidAlternativeCost(crate::Binding!(
+                    "other_alternative_cost"
+                )),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
             ),
-            &TriggerConditionDef::SourcePaidAlternativeCost(crate::Binding!(
-                "other_alternative_cost"
-            )),
-            EffectDef::GainLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-        ),
+        ],
     ];
     static REORDERED: [AbilityDef; 5] = [
-        ABILITIES[2],
-        ABILITIES[1],
-        ABILITIES[0],
         ABILITIES[3],
+        ABILITIES[2],
+        ABILITIES[0],
+        ABILITIES[1],
         ABILITIES[4],
     ];
     for (reordered, cost, sacrificed) in [
-        (false, AlternativeCostId(2), false),
+        (false, AlternativeCostId(3), false),
         (false, AlternativeCostId(0), true),
         (true, AlternativeCostId(0), false),
         (true, AlternativeCostId(2), true),

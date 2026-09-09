@@ -2,11 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
-    CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, EffectDef, EffectRecipientDef,
-    FreePlayDef, FreePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TriggerConditionDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, CardArt, CardRules,
+    CardSet, CardType, ComparisonDef, CostDef, EffectDef, EffectRecipientDef, FreePlayDef,
+    FreePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    TriggerConditionDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -82,26 +81,21 @@ pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
     // Five mana for a flier and two cards, or three mana for just the two
     // cards. Only choosing the evoke cost triggers the sacrifice; another
     // alternative cost can also leave the creature on the battlefield.
-    CardRules::new_creature(mana_cost!("{4}{U}"), &["Elemental"], 2, 2).with_abilities(&[
-        abilities::flying(),
-        abilities::enters_trigger(
-            "When this creature enters, draw two cards.",
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(2),
-            },
-        ),
-        AbilityDef::alternative_cast(
-            mana_cost!("{2}{U}"),
-            AlternativeCastKindDef::AlternativeCost,
-            Some("Evoke {2}{U} (You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters.)"),
-            EffectDef::None,
-        )
-        .with_alternative_cost_binding(crate::Binding!("evoke")),
-        // The draw still happens: the sacrifice is its own trigger and goes
-        // on the stack alongside the arrival, not instead of it.
-        abilities::evoke_sacrifice(),
-    ]),
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Elemental"], 2, 2).with_abilities(
+        &crate::ability_list![
+            [
+                abilities::flying(),
+                abilities::enters_trigger(
+                    "When this creature enters, draw two cards.",
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+            ],
+            abilities::evoke(CostDef::Mana(mana_cost!("{2}{U}"))),
+        ],
+    ),
 );
 
 // LRW 79 — Ponder

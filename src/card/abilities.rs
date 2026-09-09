@@ -556,29 +556,9 @@ pub const fn overload(
     )
 }
 
-/// Evoke: an alternative cost that comes due once the creature has arrived.
-/// The permission is the alternative cast; the sacrifice is a separate
-/// triggered ability, because it happens after the spell has already
-/// resolved and the creature's own enters triggers have gone on the stack
-/// alongside it. The cost and this trigger share the `evoke` binding.
-#[must_use]
-pub const fn evoke_sacrifice() -> AbilityDef {
-    AbilityDef::triggered_if(
-        "When this creature enters, if it was evoked, sacrifice it.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
-        &EVOKED,
-        EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    )
-}
-
-static EVOKED: TriggerConditionDef =
-    TriggerConditionDef::SourcePaidAlternativeCost(crate::Binding!("evoke"));
+include!("abilities/evoke.rs");
+#[path = "abilities/list.rs"]
+mod list;
 
 /// Echo (CR 702.29): "At the beginning of your upkeep, if this came under
 /// your control since the beginning of your last upkeep, sacrifice it unless

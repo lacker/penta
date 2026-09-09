@@ -25,6 +25,9 @@ pub struct AlternativeCastAbilityDef {
     /// Optional card-part-local name for clauses that ask whether this cost
     /// was paid. Independent of ability order, display text, and cost kind.
     pub binding: Option<crate::Binding>,
+    /// A keyword header for a generic alternative cost. Its mana cost is
+    /// rendered from the declaration; explicit `stack_text` overrides it.
+    pub cost_header: Option<&'static str>,
     /// Rules text for the spell as modified by this alternative, when the
     /// procedure changes its visible instructions (as overload does).
     pub stack_text: Option<&'static str>,
@@ -376,6 +379,21 @@ impl AlternativeCastAbilityDef {
         )
     }
 
+    fn generic_alternative_rules_text(self) -> String {
+        let Some(header) = self.cost_header else {
+            return "Alternative cost".into();
+        };
+        self.stack_text.map_or_else(
+            || match self.mana_cost {
+                AlternativeCastManaCostDef::Fixed(cost) => format!("{header} {cost}"),
+                AlternativeCastManaCostDef::ThisCardManaCost => {
+                    format!("{header}—this card's mana cost")
+                }
+            },
+            str::to_owned,
+        )
+    }
+
     #[must_use]
     pub fn rules_text(self) -> String {
         if let Some(text) = self.fixed_rules_text() {
@@ -434,7 +452,7 @@ impl AlternativeCastAbilityDef {
                 "Kicked".into()
             }
             // The card prints what is paid instead, so it supplies the text.
-            (AlternativeCastKindDef::AlternativeCost, _) => "Alternative cost".into(),
+            (AlternativeCastKindDef::AlternativeCost, _) => self.generic_alternative_rules_text(),
             (AlternativeCastKindDef::Foretell, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
                 format!(
                     "Foretell {mana_cost} (During your turn, you may pay {{2}} and exile this card from your hand face down. Cast it on a later turn for its foretell cost.)",

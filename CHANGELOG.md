@@ -37,7 +37,9 @@ distinguishes snapshots of the covered source and build inputs.
   checkpoints fail closed in both current and older readers.
 
 - **Evoke's sacrifice checks its named alternative cost.** The shared
-  `SourcePaidAlternativeCost` condition reads a binding declared on the cost,
+  `evoke(cost)` constructor expands into both the alternative cost and its
+  separate sacrifice trigger. Its `SourcePaidAlternativeCost` condition
+  reads the binding declared internally on the cost,
   so choosing an unrelated alternative no longer triggers Evoke. Catalog
   validation rejects duplicate or undeclared cost names, and reordering
   abilities preserves their links.

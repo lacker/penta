@@ -1,12 +1,8 @@
 use super::*;
 
-const EVOKE_COST: AbilityDef = AbilityDef::alternative_cast(
-    crate::mana_cost!("{1}"),
-    AlternativeCastKindDef::AlternativeCost,
-    Some("Evoke {1}"),
-    EffectDef::None,
-)
-.with_alternative_cost_binding(crate::Binding!("evoke"));
+const EVOKE: [AbilityDef; 2] =
+    crate::card::abilities::evoke(CostDef::Mana(crate::mana_cost!("{1}")));
+const EVOKE_COST: AbilityDef = EVOKE[0];
 
 fn cost_binding_card(id: u64, name: &str, abilities: &'static [AbilityDef]) -> CardDefinition {
     CardDefinition::new(
@@ -20,7 +16,7 @@ fn cost_binding_card(id: u64, name: &str, abilities: &'static [AbilityDef]) -> C
 
 #[test]
 fn alternative_cost_bindings_require_a_declaration_on_the_same_card_part() {
-    static REFERENCES: [AbilityDef; 1] = [crate::card::abilities::evoke_sacrifice()];
+    static REFERENCES: [AbilityDef; 1] = [EVOKE[1]];
     let declares = cost_binding_card(1, "Declares Evoke", &[EVOKE_COST]);
     let references = cost_binding_card(2, "Missing Evoke", &REFERENCES);
     assert!(matches!(
@@ -54,7 +50,7 @@ fn alternative_cost_bindings_require_a_durable_name() {
 
 #[test]
 fn alternative_cost_bindings_can_be_reused_by_different_cards() {
-    static ABILITIES: [AbilityDef; 2] = [crate::card::abilities::evoke_sacrifice(), EVOKE_COST];
+    static ABILITIES: [AbilityDef; 2] = [EVOKE[1], EVOKE_COST];
     CardCatalog::new([
         cost_binding_card(1, "First Evoke", &ABILITIES),
         cost_binding_card(2, "Second Evoke", &ABILITIES),

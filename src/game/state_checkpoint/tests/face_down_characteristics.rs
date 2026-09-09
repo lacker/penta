@@ -107,8 +107,7 @@ fn face_down_checkpoint_refuses_to_reconstruct_a_hidden_identity() {
         &true_hidden_hypothesis(&game, PlayerId::Two),
         81_022,
     )
-    .err()
-    .expect("the missing hidden identity cannot reconstruct");
+    .expect_err("the missing hidden identity cannot reconstruct");
     assert!(
         error.contains("hidden face-down object hypotheses"),
         "{error}"

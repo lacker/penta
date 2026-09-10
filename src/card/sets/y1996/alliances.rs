@@ -7,12 +7,12 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryScalarChoiceDef, BlockRestrictionDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, ControlDurationDef, CostDef, CounterKind,
     CreatedTokensDef, DamageAssignmentDef, DamageEventMatcherDef, DamagePreventionDef,
-    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ManaTypeDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetChooserDef,
-    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    DividedTotal, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ManaTypeDef,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetChooserDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
@@ -97,10 +97,7 @@ pub(in crate::card::sets) static INHERITANCE: CardRecord = CardRecord::new(
         "Whenever a creature dies, you may pay {3}. If you do, draw a card.",
         ObjectPredicateDef::HasType(CardType::Creature),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{3}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             &EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -586,20 +583,21 @@ pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_wit
     // have beaten it.
     CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[
+                CostDef::exile(
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ZoneKind::Hand,
+                    CostQuantityDef::Fixed(1),
+                ),
+                CostDef::PayLife(1),
+            ],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "You may pay 1 life and exile a blue card from your hand rather than pay this \
                  spell's mana cost.",
             ),
             EffectDef::None,
-        )
-        .with_alternative_additional_cost(&CostDef::exile(
-            ObjectPredicateDef::Color(ManaColor::Blue),
-            ZoneKind::Hand,
-            CostQuantityDef::Fixed(1),
-        ))
-        .with_alternative_life(1),
+        ),
         AbilityDef::spell_with_targets(
             "Counter target spell.",
             &[AbilityTargetDef::exactly_one(
@@ -794,7 +792,9 @@ pub(in crate::card::sets) static THOUGHT_LASH: CardRecord = CardRecord::new(
     crate::card::CardArt::new("d59bbac1-ca51-4c72-9f1f-5fc6c82a4a27", "Mark Tedin"),
     crate::card::CardSet::Alliances,
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::exile_top_cards(1))
+        abilities::cumulative_upkeep(
+            &[CostDef::exile_top_cards(1)],
+        )
             .override_text("Cumulative upkeep—Exile the top card of your library."),
         AbilityDef::triggered(
             "When this enchantment's cumulative upkeep isn't paid, exile all cards from your library.",
@@ -964,7 +964,9 @@ pub(in crate::card::sets) static DYSTOPIA: CardRecord = CardRecord::new(
     crate::card::CardArt::new("5f8bb451-706d-44ff-bbad-9ddc6f9f786a", "Ruth Thompson"),
     crate::card::CardSet::Alliances,
     CardRules::new_enchantment(mana_cost!("{1}{B}{B}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::life(1)),
+        abilities::cumulative_upkeep(
+            &[CostDef::life(1)],
+        ),
         AbilityDef::triggered(
             "At the beginning of each player's upkeep, that player sacrifices a green or white permanent of their choice.",
             TriggerEventDef::StepBegins {
@@ -1602,16 +1604,12 @@ pub(in crate::card::sets) static PRIMITIVE_JUSTICE: CardRecord = CardRecord::new
     crate::card::CardArt::new("d6b7829b-2a10-47e7-9cf9-8ae49d2b398a", "Anthony S. Waters"),
     crate::card::CardSet::Alliances,
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
-        abilities::repeatable_additional_mana_cost(
-            "As an additional cost to cast this spell, you may pay {1}{R} any number of times.",
-            "{1}{R} additional cost",
-            mana_cost!("{1}{R}"),
-        ),
-        abilities::repeatable_additional_mana_cost(
-            "As an additional cost to cast this spell, you may pay {1}{G} any number of times.",
-            "{1}{G} additional cost",
-            mana_cost!("{1}{G}"),
-        ),
+        abilities::repeatable_additional_cost("As an additional cost to cast this spell, you may pay {1}{R} any number of times.",
+"{1}{R} additional cost",
+&[CostDef::Mana(mana_cost!("{1}{R}"))]),
+        abilities::repeatable_additional_cost("As an additional cost to cast this spell, you may pay {1}{G} any number of times.",
+"{1}{G} additional cost",
+&[CostDef::Mana(mana_cost!("{1}{G}"))]),
         AbilityDef::spell_with_targets(
             "Destroy target artifact. For each additional {1}{R} you paid, destroy another target artifact. For each additional {1}{G} you paid, destroy another target artifact, and you gain 1 life.",
             &[AbilityTargetDef::exactly_value(
@@ -1655,18 +1653,18 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
     // board -- so the printed cost alone understates it considerably.
     CardRules::new_instant(mana_cost!("{4}{R}{R}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Red),
+                ZoneKind::Hand,
+                CostQuantityDef::Fixed(1),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some("You may exile a red card from your hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
         // Exiled from hand rather than discarded: the card is spent without ever
         // becoming a graveyard card, which is what "exile a red card" means.
-        .with_alternative_additional_cost(&CostDef::exile(
-            ObjectPredicateDef::Color(ManaColor::Red),
-            ZoneKind::Hand,
-            CostQuantityDef::Fixed(1),
-        )),
+        ,
         AbilityDef::spell_with_targets(
             "Pyrokinesis deals 4 damage divided as you choose among any number of target creatures.",
             // Four damage split however the caster likes. There is no printed ceiling on
@@ -1794,11 +1792,11 @@ pub(in crate::card::sets) static VARCHILD_S_WAR_RIDERS: CardRecord = CardRecord:
     crate::card::CardArt::new("ee1d41da-aa72-434b-811f-95d4bae4ba5c", "Susan Van Camp"),
     crate::card::CardSet::Alliances,
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Warrior"], 3, 4).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::create_tokens(
+        abilities::cumulative_upkeep(&[CostDef::create_tokens(
             PlayerRelation::Opponent,
             &TokenCharacteristics::creature(&["Survivor"], &[ManaColor::Red], 1, 1),
             1,
-        ))
+        )])
         .override_text(
             "Cumulative upkeep—Have an opponent create a 1/1 red Survivor creature token.",
         ),
@@ -2087,9 +2085,11 @@ pub(in crate::card::sets) static SPLINTERING_WIND: CardRecord = CardRecord::new(
                     TokenCharacteristics::creature(&["Splinter"], &[ManaColor::Green], 1, 1)
                         .with_abilities(&[
                             abilities::flying(),
-                            abilities::cumulative_upkeep(CostDef::mana(
-                                mana_cost!("{G}"),
-                            )),
+                            abilities::cumulative_upkeep(
+                                &[CostDef::mana(
+                                    mana_cost!("{G}"),
+                                )],
+                            ),
                             AbilityDef::triggered(
                                 "When this creature leaves the battlefield, it deals 1 damage to you and each creature you control.",
                                 TriggerEventDef::zone_changed(
@@ -2125,10 +2125,10 @@ pub(in crate::card::sets) static TASTE_OF_PARADISE: CardRecord = CardRecord::new
     crate::card::CardArt::new("a774c426-ec0e-48de-b00f-5a05cc6dc34b", "Lawrence Snelly"),
     crate::card::CardSet::Alliances,
     CardRules::new_sorcery(mana_cost!("{3}{G}")).with_abilities(&[
-        abilities::repeatable_additional_mana_cost(
+        abilities::repeatable_additional_cost(
             "As an additional cost to cast this spell, you may pay {1}{G} any number of times.",
             "{1}{G} additional cost",
-            mana_cost!("{1}{G}"),
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
         ),
         AbilityDef::spell(
             "You gain 3 life plus an additional 3 life for each additional {1}{G} you paid.",
@@ -2215,7 +2215,9 @@ pub(in crate::card::sets) static YAVIMAYA_ANTS: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Insect"], 5, 1).with_abilities(&[
         abilities::trample(),
         abilities::haste(),
-        abilities::cumulative_upkeep(CostDef::Mana(mana_cost!("{G}{G}"))).override_text(
+        abilities::cumulative_upkeep(
+            &[CostDef::Mana(mana_cost!("{G}{G}"))],
+        ).override_text(
                 "Cumulative upkeep {G}{G} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
             ),
     ]),

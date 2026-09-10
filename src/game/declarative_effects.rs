@@ -173,7 +173,7 @@ impl Game {
                     return;
                 };
                 let payment =
-                    self.resolved_effect_payment(definition.payment.cost, object, &context, scoped);
+                    self.resolved_effect_costs(definition.payment.costs, object, &context, scoped);
                 self.queue_pay_or(
                     *player,
                     payment,

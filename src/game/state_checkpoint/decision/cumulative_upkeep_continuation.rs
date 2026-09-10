@@ -4,7 +4,7 @@ fn parse_cumulative_upkeep_continuation(
     payer: PlayerId,
     recorded_age: Option<u16>,
     scoped: ScopedEffect,
-    cost: crate::card::CostDef,
+    cost: &'static [crate::CostDef],
 ) -> Result<
     (
         super::super::ResolvedEffectPayment,

@@ -154,9 +154,9 @@ pub(in crate::card::sets) static IRON_WILL: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -368,7 +368,7 @@ pub(in crate::card::sets) static RADIANT_S_DRAGOONS: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier"], 2, 5).with_abilities(&[
         abilities::echo(
             "Echo {3}{W} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{3}{W}"),
+            &[CostDef::Mana(mana_cost!("{3}{W}"))],
         ),
         abilities::enters_trigger("When this creature enters, you gain 5 life.", EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -607,11 +607,11 @@ pub(in crate::card::sets) static MISCALCULATION: CardRecord = CardRecord::new_wi
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(2))]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1185,8 +1185,7 @@ pub(in crate::card::sets) static SLEEPER_S_GUILE: CardRecord = CardRecord::new(
                 },
             ),
             abilities::dies_trigger(
-                "When this Aura is put into a graveyard from the battlefield, return it to \
-                 its owner's hand.",
+                "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::TriggeringZoneChangeResult,
                     zone: ZoneKind::Hand,
@@ -1287,9 +1286,9 @@ pub(in crate::card::sets) static UNEARTH: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1367,7 +1366,7 @@ pub(in crate::card::sets) static GHITU_SLINGER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Nomad"], 2, 2).with_abilities(&[
         abilities::echo(
             "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{2}{R}"),
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
         ),
         abilities::enters_trigger_with_targets(
             "When this creature enters, it deals 2 damage to any target.",
@@ -1719,9 +1718,9 @@ pub(in crate::card::sets) static BLOATED_TOAD: CardRecord = CardRecord::new(
     // ever drawing it against the others.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Frog"], 2, 2).with_abilities(&[
         abilities::protection_from_color(ManaColor::Blue),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1772,9 +1771,9 @@ pub(in crate::card::sets) static DARKWATCH_ELVES: CardRecord = CardRecord::new(
     // wanted in this format.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf"], 2, 2).with_abilities(&[
         abilities::protection_from_color(ManaColor::Black),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1800,7 +1799,7 @@ pub(in crate::card::sets) static DERANGED_HERMIT: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elf"], 1, 1).with_abilities(&[
         abilities::echo(
             "Echo {3}{G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{3}{G}{G}"),
+            &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
         ),
         abilities::enters_trigger(
             "When this creature enters, create four 1/1 green Squirrel creature tokens.",
@@ -1955,7 +1954,7 @@ pub(in crate::card::sets) static MULTANI_S_ACOLYTE: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{G}{G}"), &["Elf"], 2, 1).with_abilities(&[
         abilities::echo(
             "Echo {G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{G}{G}"),
+            &[CostDef::Mana(mana_cost!("{G}{G}"))],
         ),
         abilities::enters_trigger("When this creature enters, draw a card.", EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -2054,9 +2053,9 @@ pub(in crate::card::sets) static SIMIAN_GRUNTS: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Ape"], 3, 4).with_abilities(&[
         abilities::flash(),
         abilities::echo(
-        "Echo {2}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-        mana_cost!("{2}{G}"),
-    ),
+            "Echo {2}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
+        ),
     ]),
 );
 
@@ -2441,7 +2440,7 @@ pub(in crate::card::sets) static THRAN_WAR_MACHINE: CardRecord = CardRecord::new
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 4, 5).with_abilities(&[
         abilities::echo(
             "Echo {4} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{4}"),
+            &[CostDef::Mana(mana_cost!("{4}"))],
         ),
         abilities::attacks_each_combat_if_able(),
     ]),
@@ -2470,9 +2469,9 @@ pub(in crate::card::sets) static TICKING_GNOMES: CardRecord = CardRecord::new(
     // is there whether or not the rent is paid.
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 3, 3).with_abilities(&[
         abilities::echo(
-        "Echo {3} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-        mana_cost!("{3}"),
-    ),
+            "Echo {3} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            &[CostDef::Mana(mana_cost!("{3}"))],
+        ),
         AbilityDef::activated_with_targets(
         "Sacrifice this creature: It deals 1 damage to any target.",
         &[CostDef::SacrificeSource],

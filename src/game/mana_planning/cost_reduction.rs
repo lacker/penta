@@ -26,11 +26,11 @@ impl Game {
         &self,
         player: PlayerId,
         source: GameObjectId,
-    ) -> Vec<ManaCost> {
+    ) -> Vec<&'static [crate::CostDef]> {
         let Some((zone, card)) = self.card_in_nonbattlefield_zone(source) else {
             return Vec::new();
         };
-        let mut costs = Vec::new();
+        let mut alternatives = Vec::new();
         for permanent in &self.battlefield {
             let Some(rules) = self.effective_rules(permanent) else {
                 continue;
@@ -40,7 +40,7 @@ impl Game {
                     spell,
                     caster,
                     zones,
-                    cost,
+                    costs,
                 })) = ability.declarative_effect()
                 else {
                     continue;
@@ -52,14 +52,14 @@ impl Game {
                     TriggerContext::empty(),
                 ) || !zones.contains(&zone)
                     || !self.card_object_matches(spell, card, zone, permanent.card.id)
-                    || costs.contains(&cost)
+                    || alternatives.contains(&costs)
                 {
                     continue;
                 }
-                costs.push(cost);
+                alternatives.push(costs);
             }
         }
-        costs
+        alternatives
     }
 
     /// How much generic mana this card's own static clauses take off its
@@ -125,16 +125,13 @@ impl Game {
                 ) {
                     continue;
                 }
-                if !self.card_object_matches(
-                    modification.spell,
-                    card,
-                    zone,
-                    permanent.card.id,
-                ) || !spell_cost_condition_matches(
-                    modification.condition,
-                    Target::Permanent(permanent.card.id),
-                    targets,
-                ) {
+                if !self.card_object_matches(modification.spell, card, zone, permanent.card.id)
+                    || !spell_cost_condition_matches(
+                        modification.condition,
+                        Target::Permanent(permanent.card.id),
+                        targets,
+                    )
+                {
                     continue;
                 }
                 reduction = self.add_spell_cost_reduction(
@@ -202,20 +199,22 @@ impl Game {
                 ) {
                     continue;
                 }
-                if !self.card_object_matches(
-                    modification.spell,
-                    card,
-                    zone,
-                    permanent.card.id,
-                ) || !spell_cost_condition_matches(
-                    modification.condition,
-                    Target::Permanent(permanent.card.id),
-                    targets,
-                ) {
+                if !self.card_object_matches(modification.spell, card, zone, permanent.card.id)
+                    || !spell_cost_condition_matches(
+                        modification.condition,
+                        Target::Permanent(permanent.card.id),
+                        targets,
+                    )
+                {
                     continue;
                 }
-                increase =
-                    self.add_spell_cost_amount(increase, amount, player, permanent.card.id, targets);
+                increase = self.add_spell_cost_amount(
+                    increase,
+                    amount,
+                    player,
+                    permanent.card.id,
+                    targets,
+                );
             }
         }
 
@@ -259,11 +258,11 @@ impl Game {
                     continue;
                 };
                 for ability in rules.ability_clauses() {
-                    let DeclarativeAbilityDef::Static(static_definition) = ability.definition else {
+                    let DeclarativeAbilityDef::Static(static_definition) = ability.definition
+                    else {
                         continue;
                     };
-                    if !static_definition.source_zones.contains(&ZoneKind::Stack)
-                    {
+                    if !static_definition.source_zones.contains(&ZoneKind::Stack) {
                         continue;
                     }
                     let Some(EffectDef::ModifyCost(CostModificationDef::Spell(modification))) =
@@ -327,9 +326,12 @@ impl Game {
                 reduction.symbols = add_mana_cost(reduction.symbols, amount);
             }
             CostAmountDef::Generic(value) => {
-                reduction.generic = reduction.generic.saturating_add(
-                    self.spell_cost_value(value, player, modifier_source, targets),
-                );
+                reduction.generic = reduction.generic.saturating_add(self.spell_cost_value(
+                    value,
+                    player,
+                    modifier_source,
+                    targets,
+                ));
             }
         }
         reduction
@@ -380,12 +382,10 @@ impl Game {
                     })) if self.ability_cost_effect_applies(matcher, permanent, other) => {
                         total = add_mana_cost(total, amount);
                     }
-                    Some(EffectDef::ModifyCost(
-                        CostModificationDef::SourceAbilityIncrease {
-                            source: matcher,
-                            amount,
-                        },
-                    )) if self.ability_cost_effect_applies(matcher, permanent, other) => {
+                    Some(EffectDef::ModifyCost(CostModificationDef::SourceAbilityIncrease {
+                        source: matcher,
+                        amount,
+                    })) if self.ability_cost_effect_applies(matcher, permanent, other) => {
                         total = add_mana_cost(total, amount);
                     }
                     Some(EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
@@ -437,9 +437,18 @@ impl Game {
                         permanent: matcher,
                         amount,
                         minimum,
-                    }) if self.trigger_object_matches(matcher, object, permanent.card.id, false) => {
-                        let amount =
-                            self.cost_reduction_value(amount, permanent.controller, permanent.card.id);
+                    }) if self.trigger_object_matches(
+                        matcher,
+                        object,
+                        permanent.card.id,
+                        false,
+                    ) =>
+                    {
+                        let amount = self.cost_reduction_value(
+                            amount,
+                            permanent.controller,
+                            permanent.card.id,
+                        );
                         discounts.push((amount, minimum));
                     }
                     _ => {}
@@ -476,31 +485,22 @@ impl Game {
             | crate::card::ZoneKind::Command
             | crate::card::ZoneKind::Stack => return cost,
         };
-        self.printed_trigger_event_object(
-            card.id,
-            card.definition,
-            card.owner,
-            &context,
-        )
-        .map_or(cost, |object| {
-            self.nonbattlefield_ability_mana_cost(&object, cost)
-        })
+        self.printed_trigger_event_object(card.id, card.definition, card.owner, &context)
+            .map_or(cost, |object| {
+                self.nonbattlefield_ability_mana_cost(&object, cost)
+            })
     }
 
+    /// Price the entire declared mana payment before any activation costs
+    /// change the board or player state.
     pub(super) fn priced_ability_mana_cost(
         &self,
         source: GameObjectId,
         definition: &ActivatedAbilityDef,
-    ) -> Option<ManaCost> {
-        definition
-            .costs
-            .as_slice()
-            .iter()
-            .find_map(|cost| match cost {
-                CostDef::Mana(cost) => Some(*cost),
-                _ => None,
-            })
-            .map(|cost| self.activation_mana_cost(definition, source, cost))
+    ) -> ManaCost {
+        let cost = crate::card::costs::mana_cost(definition.costs, None)
+            .expect("offered nonbattlefield activations have fixed mana expressions");
+        self.activation_mana_cost(definition, source, cost)
     }
 
     /// What activating this ability costs in mana: the increases and

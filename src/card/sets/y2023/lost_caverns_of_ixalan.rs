@@ -6,11 +6,10 @@ use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostDef, CounterKind, DiscardFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef,
-    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, tokens,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ExilePlayDurationDef, InstalledTriggerDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -162,7 +161,7 @@ pub(in crate::card::sets) static MALCOLM_ALLURING_SCOUNDREL: CardRecord = CardRe
                                     // for nothing. The kind says both halves at once -- no mana, and an
                                     // ordinary trip to the graveyard afterwards.
                                     ability: &AbilityDef::alternative_cast(
-                                        mana_cost!("{0}"),
+                                        crate::NO_COSTS,
                                         AlternativeCastKindDef::WithoutPayingManaCost,
                                         Some("Cast without paying its mana cost."),
                                         EffectDef::None,
@@ -323,11 +322,7 @@ pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRec
                     },
                 )],
                 EffectDef::PayOr(PayOrDef::optional(
-                    EffectPaymentDef {
-                        payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: CostDef::DiscardCards(1),
-                    },
-                    // "It gains trample until end of turn" -- the creature that took the
+                    &[CostDef::DiscardCards(1)], // "It gains trample until end of turn" -- the creature that took the
                     // counter, which is the one the trigger targeted.
                     &EffectDef::Sequence(&[
                         EffectDef::AddCounters {

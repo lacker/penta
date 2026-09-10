@@ -9,12 +9,12 @@ use crate::card::{
     CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
     ColorSet, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostDef, CountConditionDef,
     CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -295,13 +295,10 @@ pub(in crate::card::sets) static GLINT_HAWK: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, sacrifice it unless you return an artifact you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        object: ObjectPredicateDef::HasType(CardType::Artifact),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zone: ZoneKind::Hand,
+                }],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -405,10 +402,7 @@ pub(in crate::card::sets) static MYRSMITH: CardRecord = CardRecord::new(
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &EffectDef::create_artifact_creature_token(&["Myr"], &[], 1, 1),
             )),
         ),
@@ -633,10 +627,7 @@ pub(in crate::card::sets) static VIGIL_FOR_THE_LOST: CardRecord = CardRecord::ne
             Some(ZoneKind::Graveyard),
         ),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef {
-                payer: PlayerSetDef::Related(PlayerRelation::You),
-                cost: CostDef::ChosenGenericMana,
-            },
+            &[CostDef::ChosenGenericMana],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::PaidAmount,
@@ -1968,10 +1959,7 @@ pub(in crate::card::sets) static EMBERSMITH: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(1),
@@ -2036,10 +2024,7 @@ pub(in crate::card::sets) static FURNACE_CELEBRATION: CardRecord = CardRecord::n
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{2}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 &EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(2),
@@ -2774,10 +2759,7 @@ pub(in crate::card::sets) static LIFESMITH: CardRecord = CardRecord::new(
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(3),
@@ -3518,7 +3500,7 @@ pub(in crate::card::sets) static FLIGHT_SPELLBOMB: CardRecord = CardRecord::new(
                 Some(ZoneKind::Graveyard),
             ),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(PlayerSetDef::Related(PlayerRelation::You), mana_cost!("{U}")),
+                &[CostDef::Mana(mana_cost!("{U}"))],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -3865,7 +3847,7 @@ pub(in crate::card::sets) static HORIZON_SPELLBOMB: CardRecord = CardRecord::new
                 Some(ZoneKind::Graveyard),
             ),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(PlayerSetDef::Related(PlayerRelation::You), mana_cost!("{G}")),
+                &[CostDef::Mana(mana_cost!("{G}"))],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -4116,7 +4098,7 @@ pub(in crate::card::sets) static MOLTEN_TAIL_MASTICORE: CardRecord = CardRecord:
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
+                &[CostDef::DiscardCards(1)],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -4456,7 +4438,7 @@ pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
                 Some(ZoneKind::Graveyard),
             ),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(PlayerSetDef::Related(PlayerRelation::You), mana_cost!("{B}")),
+                &[CostDef::Mana(mana_cost!("{B}"))],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -4500,7 +4482,7 @@ pub(in crate::card::sets) static ORIGIN_SPELLBOMB: CardRecord = CardRecord::new(
                 Some(ZoneKind::Graveyard),
             ),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(PlayerSetDef::Related(PlayerRelation::You), mana_cost!("{W}")),
+                &[CostDef::Mana(mana_cost!("{W}"))],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -4552,7 +4534,7 @@ pub(in crate::card::sets) static PANIC_SPELLBOMB: CardRecord = CardRecord::new(
                 Some(ZoneKind::Graveyard),
             ),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(PlayerSetDef::Related(PlayerRelation::You), mana_cost!("{R}")),
+                &[CostDef::Mana(mana_cost!("{R}"))],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),

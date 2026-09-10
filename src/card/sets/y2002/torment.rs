@@ -801,7 +801,7 @@ pub(in crate::card::sets) static CHAINER_S_EDICT: CardRecord = CardRecord::new(
                 optional: false,
             },
         ),
-        abilities::flashback(mana_cost!("{5}{B}{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{B}{B}"))]),
     ]),
 );
 

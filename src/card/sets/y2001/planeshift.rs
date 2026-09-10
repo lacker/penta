@@ -6,12 +6,12 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, CostDef, CostQuantityDef, CounterKind, DiscardSelectionDef,
-    DrawEventMatcherDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ManaTypeDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DrawEventMatcherDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaTypeDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -148,7 +148,7 @@ pub(in crate::card::sets) static ORIM_S_CHANT: CardRecord = CardRecord::new(
     // stops the swing back -- a Time Walk with a narrow enough door.
     CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{W}{W}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {W} (You may pay an additional {W} as you cast this spell.)"),
             EffectDef::None,
@@ -2076,18 +2076,18 @@ pub(in crate::card::sets) static PHYREXIAN_TYRANNY: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{U}{B}{R}")).with_ability(AbilityDef::triggered(
         "Whenever a player draws a card, that player loses 2 life unless they pay {2}.",
         TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Any)),
-        EffectDef::PayOr(PayOrDef::unless(
-            EffectPaymentDef::mana(
-                PlayerSetDef::One(PlayerRefDef::EventPlayer),
-                mana_cost!("{2}"),
-            ),
-            &const {
-                EffectDef::LoseLife {
-                    recipient: EffectRecipientDef::EventPlayer,
-                    amount: ValueDef::Constant(2),
-                }
-            },
-        )),
+        EffectDef::PayOr(
+            PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                &const {
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::EventPlayer,
+                        amount: ValueDef::Constant(2),
+                    }
+                },
+            )
+            .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
+        ),
     )),
 );
 
@@ -2330,22 +2330,19 @@ pub(in crate::card::sets) static CROSIS_S_CATACOMBS: CardRecord = CardRecord::ne
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        // The Lair itself is excluded by its own subtype, so a
-                        // second one cannot pay for the first.
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    // The Lair itself is excluded by its own subtype, so a
+                    // second one cannot pay for the first.
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &EffectDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            },
+                    object: EffectRecipientDef::Source,
+                },
             )),
         ),
         AbilityDef::activated_mana(
@@ -2371,22 +2368,19 @@ pub(in crate::card::sets) static DARIGAAZ_S_CALDERA: CardRecord = CardRecord::ne
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        // The Lair itself is excluded by its own subtype, so a
-                        // second one cannot pay for the first.
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    // The Lair itself is excluded by its own subtype, so a
+                    // second one cannot pay for the first.
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &EffectDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            },
+                    object: EffectRecipientDef::Source,
+                },
             )),
         ),
         AbilityDef::activated_mana(
@@ -2412,22 +2406,19 @@ pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        // The Lair itself is excluded by its own subtype, so a
-                        // second one cannot pay for the first.
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    // The Lair itself is excluded by its own subtype, so a
+                    // second one cannot pay for the first.
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &EffectDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            },
+                    object: EffectRecipientDef::Source,
+                },
             )),
         ),
         AbilityDef::activated_mana(
@@ -2531,22 +2522,19 @@ pub(in crate::card::sets) static RITH_S_GROVE: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        // The Lair itself is excluded by its own subtype, so a
-                        // second one cannot pay for the first.
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    // The Lair itself is excluded by its own subtype, so a
+                    // second one cannot pay for the first.
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &EffectDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            },
+                    object: EffectRecipientDef::Source,
+                },
             )),
         ),
         AbilityDef::activated_mana(
@@ -2610,23 +2598,20 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
     // costs tempo rather than cards.
     CardRules::new_land(&["Lair"]).with_abilities(&[
         abilities::enters_trigger("When this land enters, sacrifice it unless you return a non-Lair land you control to its owner's hand.", EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        // The Lair itself is excluded by its own subtype, so a second one cannot pay
-                        // for the first.
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
-                &EffectDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                },
-            ))),
+            &[CostDef::MovePermanentMatching {
+                // The Lair itself is excluded by its own subtype, so a second one cannot pay
+                // for the first.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                zone: ZoneKind::Hand,
+            }],
+            &EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ))),
         AbilityDef::activated_mana(
             "{T}: Add {G}, {W}, or {U}.",
             &[CostDef::TapSource],

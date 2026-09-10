@@ -3,22 +3,21 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AggregateOperationDef, AlternativeCastKindDef, AlternativeCastManaCostDef, AppliedEffectDef,
-    AppliedRuleDef, AttackEventMatcherDef, BasicLandType, BattlefieldArrivalDef,
-    BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
-    CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
-    CopyExceptionsDef, CostDef, CostQuantityDef, CounterKind, CreatureTypeSetDef,
-    DrawEventMatcherDef, EffectDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
-    ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef, PerPlayerSelectionDef,
-    PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef, ScaledValueDef,
-    SetOperationDef, SumValueDef, TargetConditionDef, TokenCountersDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
-    ZonePlacement, abilities, tokens,
+    AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
+    AttackEventMatcherDef, BasicLandType, BattlefieldArrivalDef, BattlefieldEntryModificationDef,
+    CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
+    CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ChooseForEachPlayerDef,
+    ClassifyObjectsDef, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostDef,
+    CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics, ExiledCastPermissionDef,
+    HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor,
+    ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetValueAtLeastDef, ObjectSetValueDef,
+    ObjectValueDef, PayOrDef, PerPlayerSelectionDef, PileExileDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef,
+    SacrificedAmountDef, ScaledValueDef, SetOperationDef, SumValueDef, TargetConditionDef,
+    TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
@@ -107,8 +106,7 @@ static LANDSCAPE_FETCH_COST: [CostDef; 2] = [CostDef::TapSource, CostDef::Sacrif
 const fn landscape_abilities(
     fetch_text: &'static str,
     basics: ObjectPredicateDef,
-    cycling_text: &'static str,
-    cycling_cost: ManaCost,
+    cycling: &AbilityDef,
 ) -> [AbilityDef; 3] {
     [
         abilities::tap_for(ManaColor::Colorless),
@@ -131,7 +129,7 @@ const fn landscape_abilities(
                 then: None,
             },
         ),
-        abilities::cycling(cycling_text, cycling_cost),
+        *cycling,
     ]
 }
 
@@ -413,10 +411,7 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new_wit
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::Energy(1),
-                },
+                &[CostDef::Energy(1)],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -732,15 +727,8 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            AbilityDef::alternative_cast_with_additional_cost(
-                AlternativeCastManaCostDef::Fixed(mana_cost!("{2}{B}")),
-                AlternativeCastKindDef::Escape,
-                Some(
-                    "Escape—{2}{B}, Exile any number of other cards from your graveyard with four or \
-                     more card types among them. (You may cast this card from your graveyard for its \
-                     escape cost.)",
-                ),
-                // The escape cost counts card types rather than cards: one Artifact
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{2}{B}")), // The escape cost counts card types rather than cards: one Artifact
                 // Creature Land pays three quarters of it by itself, which is why the deck
                 // playing this is the one with a graveyard full of odd things.
                 CostDef::exile(
@@ -750,6 +738,12 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
                         value: ObjectSetValueDef::CardTypeCount,
                         minimum: 4,
                     }),
+                )],
+                AlternativeCastKindDef::Escape,
+                Some(
+                    "Escape—{2}{B}, Exile any number of other cards from your graveyard with four or \
+                     more card types among them. (You may cast this card from your graveyard for its \
+                     escape cost.)",
                 ),
                 EffectDef::None,
             ),
@@ -929,7 +923,20 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
     CardRules::new_enchantment_creature(mana_cost!("{2}{R}"), &["Phoenix"], 2, 2)
         .with_abilities(&[
         AbilityDef::alternative_cast_with_targets(
-            mana_cost!("{R}"),
+            &[
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::exile(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
+                        value: ObjectSetValueDef::Aggregate {
+                            select: ObjectValueDef::ManaValue,
+                            operation: AggregateOperationDef::Sum,
+                        },
+                        minimum: 6,
+                    }),
+                ),
+            ],
             AlternativeCastKindDef::Bestow,
             Some(
                 "Bestow—{R}, Collect evidence 6. (To pay this bestow cost, pay {R} and exile cards \
@@ -942,17 +949,6 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
         )
         // Collect evidence 6 (CR 701.58a): cards out of your own graveyard whose
         // mana values add up to six, however many that takes.
-        .with_alternative_additional_cost(&CostDef::exile(
-            ObjectPredicateDef::Any,
-            ZoneKind::Graveyard,
-            CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
-                value: ObjectSetValueDef::Aggregate {
-                    select: ObjectValueDef::ManaValue,
-                    operation: AggregateOperationDef::Sum,
-                },
-                minimum: 6,
-            }),
-        ))
         .with_alternative_from_graveyard(),
         abilities::flying(),
         abilities::haste(),
@@ -1005,11 +1001,7 @@ pub(in crate::card::sets) static GALVANIC_DISCHARGE: CardRecord = CardRecord::ne
                 amount: ValueDef::Constant(3),
             },
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::ChosenEnergy,
-                },
-                // "That much damage": the amount the payment settled, which is what makes
+                &[CostDef::ChosenEnergy], // "That much damage": the amount the payment settled, which is what makes
                 // the three energy it hands out into three damage the turn it is cast and
                 // more than that on a board that has been banking it.
                 &EffectDef::damage(
@@ -1288,11 +1280,11 @@ pub(in crate::card::sets) static FANATIC_OF_RHONAS: CardRecord = CardRecord::new
                 },
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(4)),
             ),
-            abilities::eternalize(
+            abilities::eternalize!(
                 "Eternalize {2}{G}{G} ({2}{G}{G}, Exile this card from your graveyard: Create a token \
-                 that's a copy of it, except it's a 4/4 black Zombie Snake Druid with no mana cost. \
-                 Eternalize only as a sorcery.)",
-                mana_cost!("{2}{G}{G}"),
+                that's a copy of it, except it's a 4/4 black Zombie Snake Druid with no mana cost. \
+                Eternalize only as a sorcery.)",
+                &[CostDef::Mana(mana_cost!("{2}{G}{G}"))],
             ),
         ]),
 );
@@ -1409,7 +1401,7 @@ pub(in crate::card::sets) static NYXBORN_HYDRA: CardRecord = CardRecord::new(
         .with_type(CardType::Enchantment)
         .with_abilities(&[
             AbilityDef::alternative_cast_with_targets(
-                mana_cost!("{X}{G}{G}"),
+                &[CostDef::Mana(mana_cost!("{X}{G}{G}"))],
                 AlternativeCastKindDef::Bestow,
                 Some(
                     "Bestow {X}{G}{G} (If you cast this card for its bestow cost, it's an Aura \
@@ -1527,7 +1519,11 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                                 ObjectPredicateDef::HasType(CardType::Enchantment),
                                 ObjectPredicateDef::HasType(CardType::Planeswalker),
                             ]),
-                            ability: &AbilityDef::alternative_cast_for_card_mana_cost(
+                            ability: &AbilityDef::alternative_cast(
+                                &[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::discard(
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                    CostQuantityDef::Fixed(1),
+                                )],
                                 AlternativeCastKindDef::Retrace,
                                 Some(
                                     "Retrace (You may cast this card from your graveyard by discarding a land card in \
@@ -1536,10 +1532,7 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                                 EffectDef::None,
                             )
                             // Retrace's own cost: the card's mana cost, plus a land out of your hand.
-                            .with_alternative_additional_cost(&CostDef::discard(
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                CostQuantityDef::Fixed(1),
-                            )),
+                            ,
                         }),
                     },
                 },
@@ -1563,7 +1556,7 @@ pub(in crate::card::sets) static SOWING_MYCOSPAWN: CardRecord = CardRecord::new_
             // the card says what it is.
             abilities::devoid(),
             AbilityDef::alternative_cast(
-                mana_cost!("{4}{G}{C}"),
+                &[CostDef::Mana(mana_cost!("{4}{G}{C}"))],
                 AlternativeCastKindDef::Kicked,
                 Some("Kicker {1}{C} (You may pay an additional {1}{C} as you cast this spell.)"),
                 EffectDef::None,
@@ -1618,7 +1611,7 @@ pub(in crate::card::sets) static SPRINGHEART_NANTUKO: CardRecord = CardRecord::n
         .with_type(CardType::Enchantment)
         .with_abilities(&[
             AbilityDef::alternative_cast_with_targets(
-                mana_cost!("{1}{G}"),
+                &[CostDef::Mana(mana_cost!("{1}{G}"))],
                 AlternativeCastKindDef::Bestow,
                 Some(
                     "Bestow {1}{G} (If you cast this card for its bestow cost, it's an Aura spell with \
@@ -1652,17 +1645,12 @@ pub(in crate::card::sets) static SPRINGHEART_NANTUKO: CardRecord = CardRecord::n
                 ]), None, Some(ZoneKind::Battlefield)),
                 EffectDef::PayOr(
                     PayOrDef::optional_or(
-                        EffectPaymentDef::mana(
-                            PlayerSetDef::One(PlayerRefDef::EffectController),
-                            mana_cost!("{1}{G}"),
-                        ),
-                        // The whole point of bestowing it: every land is another copy of whatever
+                        &[CostDef::Mana(mana_cost!("{1}{G}"))], // The whole point of bestowing it: every land is another copy of whatever
                         // it is wearing.
                         &EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
-                                object: &EffectRecipientDef::AttachedPermanent,
-                                exceptions: CopyExceptionsDef::NONE,
-                            }),
-                        // "If you didn't create a token this way": declining, being unable to pay,
+                            object: &EffectRecipientDef::AttachedPermanent,
+                            exceptions: CopyExceptionsDef::NONE,
+                        }), // "If you didn't create a token this way": declining, being unable to pay,
                         // and not being attached at all are the same answer, and each leaves an
                         // Insect behind.
                         &EffectDef::create_creature_token(&["Insect"], &[ManaColor::Green], 1, 1),
@@ -1671,11 +1659,11 @@ pub(in crate::card::sets) static SPRINGHEART_NANTUKO: CardRecord = CardRecord::n
                     // the offer, because a Nantuko that is a creature rather than an Aura has
                     // nothing to copy and should not be asked to pay for one.
                     .only_if(&TriggerConditionDef::AttachedPermanentMatches {
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                            ]),
-                        }),
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                    }),
                 ),
             ),
         ]),
@@ -1727,10 +1715,7 @@ pub(in crate::card::sets) static CONDUIT_GOBLIN: CardRecord = CardRecord::new(
                 ]),
             )],
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::Energy(1),
-                },
+                &[CostDef::Energy(1)],
                 &const {
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1843,10 +1828,7 @@ pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
                         },
                     ]),
                 ),
-                escape(
-                    AlternativeCastManaCostDef::Fixed(mana_cost!("{R}{R}{W}{W}")),
-                    5,
-                ),
+                escape(&[CostDef::Mana(mana_cost!("{R}{R}{W}{W}")), CostDef::exile(crate::ObjectPredicateDef::Any, crate::ZoneKind::Graveyard, crate::card::CostQuantityDef::Fixed(5))]),
             ]),
     );
 
@@ -2012,8 +1994,10 @@ pub(in crate::card::sets) static BOUNTIFUL_LANDSCAPE: CardRecord = CardRecord::n
                 BasicLandType::Mountain,
             ]),
         ]),
-        "Cycling {G}{U}{R} ({G}{U}{R}, Discard this card: Draw a card.)",
-        mana_cost!("{G}{U}{R}"),
+        &abilities::cycling!(
+            "Cycling {G}{U}{R} ({G}{U}{R}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{G}{U}{R}"))],
+        ),
     )),
 );
 
@@ -2038,9 +2022,9 @@ pub(in crate::card::sets) static CONTAMINATED_LANDSCAPE: CardRecord = CardRecord
                 ]),
             ]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {W}{U}{B} ({W}{U}{B}, Discard this card: Draw a card.)",
-            mana_cost!("{W}{U}{B}"),
+            &[CostDef::Mana(mana_cost!("{W}{U}{B}"))],
         ),
     ]),
 );
@@ -2066,9 +2050,9 @@ pub(in crate::card::sets) static DECEPTIVE_LANDSCAPE: CardRecord = CardRecord::n
                 ]),
             ]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {W}{B}{G} ({W}{B}{G}, Discard this card: Draw a card.)",
-            mana_cost!("{W}{B}{G}"),
+            &[CostDef::Mana(mana_cost!("{W}{B}{G}"))],
         ),
     ]),
 );
@@ -2094,9 +2078,9 @@ pub(in crate::card::sets) static FOREBODING_LANDSCAPE: CardRecord = CardRecord::
                 ]),
             ]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {B}{G}{U} ({B}{G}{U}, Discard this card: Draw a card.)",
-            mana_cost!("{B}{G}{U}"),
+            &[CostDef::Mana(mana_cost!("{B}{G}{U}"))],
         ),
     ]),
 );
@@ -2122,9 +2106,9 @@ pub(in crate::card::sets) static PERILOUS_LANDSCAPE: CardRecord = CardRecord::ne
                 ]),
             ]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {U}{R}{W} ({U}{R}{W}, Discard this card: Draw a card.)",
-            mana_cost!("{U}{R}{W}"),
+            &[CostDef::Mana(mana_cost!("{U}{R}{W}"))],
         ),
     ]),
 );
@@ -2151,9 +2135,9 @@ pub(in crate::card::sets) static SEETHING_LANDSCAPE: CardRecord = CardRecord::ne
                 ]),
             ]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {U}{B}{R} ({U}{B}{R}, Discard this card: Draw a card.)",
-            mana_cost!("{U}{B}{R}"),
+            &[CostDef::Mana(mana_cost!("{U}{B}{R}"))],
         ),
     ]),
 );
@@ -2180,9 +2164,9 @@ pub(in crate::card::sets) static SHATTERED_LANDSCAPE: CardRecord = CardRecord::n
                 ]),
             ]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {R}{W}{B} ({R}{W}{B}, Discard this card: Draw a card.)",
-            mana_cost!("{R}{W}{B}"),
+            &[CostDef::Mana(mana_cost!("{R}{W}{B}"))],
         ),
     ]),
 );
@@ -2226,9 +2210,9 @@ pub(in crate::card::sets) static SHELTERING_LANDSCAPE: CardRecord = CardRecord::
                 then: None,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {R}{G}{W} ({R}{G}{W}, Discard this card: Draw a card.)",
-            mana_cost!("{R}{G}{W}"),
+            &[CostDef::Mana(mana_cost!("{R}{G}{W}"))],
         ),
     ]),
 );
@@ -2316,9 +2300,9 @@ pub(in crate::card::sets) static TRANQUIL_LANDSCAPE: CardRecord = CardRecord::ne
                 ]),
             ]),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {G}{W}{U} ({G}{W}{U}, Discard this card: Draw a card.)",
-            mana_cost!("{G}{W}{U}"),
+            &[CostDef::Mana(mana_cost!("{G}{W}{U}"))],
         ),
     ]),
 );
@@ -2343,8 +2327,10 @@ pub(in crate::card::sets) static TWISTED_LANDSCAPE: CardRecord = CardRecord::new
                 BasicLandType::Forest,
             ]),
         ]),
-        "Cycling {B}{R}{G} ({B}{R}{G}, Discard this card: Draw a card.)",
-        mana_cost!("{B}{R}{G}"),
+        &abilities::cycling!(
+            "Cycling {B}{R}{G} ({B}{R}{G}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{B}{R}{G}"))],
+        ),
     )),
 );
 
@@ -2541,7 +2527,10 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
                 AbilityDef::replacement(
                     "As this land enters, you may pay 3 life. If you don't, it enters tapped.",
                     ReplacementEffectDef::PayOr {
-                        payment: EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 3),
+                        payment: EffectPaymentDef::new(
+                            PlayerSetDef::Related(PlayerRelation::You),
+                            &[CostDef::PayLife(3)],
+                        ),
                         if_paid: &const { [] },
                         // Declining is what taps it, so the paid branch does nothing and the
                         // declined branch is the whole of the cost.
@@ -2606,7 +2595,10 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
                 AbilityDef::replacement(
                     "As this land enters, you may pay 3 life. If you don't, it enters tapped.",
                     ReplacementEffectDef::PayOr {
-                        payment: EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 3),
+                        payment: EffectPaymentDef::new(
+                            PlayerSetDef::Related(PlayerRelation::You),
+                            &[CostDef::PayLife(3)],
+                        ),
                         if_paid: &const { [] },
                         if_declined: &const { [ReplacementEffectDef::ModifyBattlefieldEntry(
                                 BattlefieldEntryModificationDef::Tapped,
@@ -3141,11 +3133,7 @@ pub(in crate::card::sets) static GUIDE_OF_SOULS: CardRecord = CardRecord::new(
                     },
                 )],
                 EffectDef::PayOr(PayOrDef::optional(
-                    EffectPaymentDef {
-                        payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: CostDef::Energy(3),
-                    },
-                    // All three stick: the counters and the type are permanent, so the
+                    &[CostDef::Energy(3)], // All three stick: the counters and the type are permanent, so the
                     // creature is still a flying Angel next turn.
                     &EffectDef::Sequence(&[
                         EffectDef::AddCounters {
@@ -3176,16 +3164,15 @@ pub(in crate::card::sets) static CRABOMINATION: CardRecord = CardRecord::new(
     CardArt::new("b6ac511f-6c28-45f9-968b-9ac72872641b", "Nicholas Gregory"),
     CardSet::ModernHorizons3,
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Crab", "Demon"], 5, 5).with_abilities(&[
-        AbilityDef::alternative_cast_with_additional_cost(
-            AlternativeCastManaCostDef::Fixed(mana_cost!("{5}{B}{B}")),
-            AlternativeCastKindDef::Emerge,
-            None,
-            // The reduction the keyword applies is generic only, so a big
+        AbilityDef::alternative_cast(
+            &[CostDef::Mana(mana_cost!("{5}{B}{B}")), // The reduction the keyword applies is generic only, so a big
             // enough artifact still leaves both black pips owed.
             CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 CostQuantityDef::Fixed(1),
-            ),
+            )],
+            AlternativeCastKindDef::Emerge,
+            None,
             EffectDef::None,
         ),
         abilities::enters_trigger_with_targets(

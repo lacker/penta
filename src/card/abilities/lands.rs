@@ -85,8 +85,7 @@ pub const fn horizon_land(
     ]
 }
 
-static HORIZON_MANA_COST: [CostDef; 2] =
-    [CostDef::TapSource, CostDef::PayLife(1)];
+static HORIZON_MANA_COST: [CostDef; 2] = [CostDef::TapSource, CostDef::PayLife(1)];
 
 static HORIZON_CASH_IN_COST: [CostDef; 3] = [
     CostDef::Mana(crate::mana_cost!("{1}")),
@@ -100,7 +99,10 @@ pub const fn shock_land_enters() -> AbilityDef {
     AbilityDef::as_enters(
         "As this land enters, you may pay 2 life. If you don't, it enters tapped.",
         ReplacementEffectDef::PayOr {
-            payment: EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 2),
+            payment: EffectPaymentDef::new(
+                PlayerSetDef::Related(PlayerRelation::You),
+                &[crate::CostDef::PayLife(2)],
+            ),
             if_paid: &[],
             if_declined: &ENTER_TAPPED,
         },
@@ -216,12 +218,7 @@ pub const fn karoo_bounce() -> AbilityDef {
 pub const fn campus_scry() -> AbilityDef {
     AbilityDef::activated(
         "{4}, {T}: Scry 1.",
-        &const {
-            [
-                CostDef::Mana(crate::mana_cost!("{4}")),
-                CostDef::TapSource,
-            ]
-        },
+        &const { [CostDef::Mana(crate::mana_cost!("{4}")), CostDef::TapSource] },
         scry(ValueDef::Constant(1)),
     )
 }
@@ -237,9 +234,9 @@ pub const fn desert_entry_ping() -> AbilityDef {
     enters_trigger_with_targets(
         "When this land enters, it deals 1 damage to target opponent.",
         &const {
-            [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
-                PlayerRelation::Opponent,
-            ))]
+            [AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )]
         },
         EffectDef::damage(
             EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -280,5 +277,4 @@ pub const fn landscape_fetch(text: &'static str, object: ObjectPredicateDef) -> 
     )
 }
 
-static LANDSCAPE_FETCH_COST: [CostDef; 2] =
-    [CostDef::TapSource, CostDef::SacrificeSource];
+static LANDSCAPE_FETCH_COST: [CostDef; 2] = [CostDef::TapSource, CostDef::SacrificeSource];

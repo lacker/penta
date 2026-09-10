@@ -8,11 +8,11 @@ use crate::card::{
     BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
     ControlDurationDef, CostDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -478,23 +478,25 @@ pub(in crate::card::sets) static AETHER_BARRIER: CardRecord = CardRecord::new(
         ObjectPredicateDef::Spell,
         ObjectPredicateDef::HasType(CardType::Creature),
     ])),
-    EffectDef::PayOr(PayOrDef::unless(
-        EffectPaymentDef::mana(
-            PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)),
-            mana_cost!("{1}"),
-        ),
-        &const {
-            EffectDef::SacrificeOfChoice {
-                player: EffectRecipientDef::ControllerOfTriggeringObject,
-                object: ObjectPredicateDef::Any,
-                count: ValueDef::Constant(1),
-                then: None,
-                amount: SacrificedAmountDef::Power,
-                otherwise: None,
-                optional: false,
-            }
-        },
-    )),
+    EffectDef::PayOr(
+        PayOrDef::unless(
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            &const {
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::ControllerOfTriggeringObject,
+                    object: ObjectPredicateDef::Any,
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                }
+            },
+        )
+        .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+            ObjectRefDef::TriggeringObject,
+        ))),
+    ),
 )),
 );
 
@@ -535,20 +537,20 @@ pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]),
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::return_to_hand(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                CostQuantityDef::Fixed(1),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some("You may return an Island you control to its owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
         // One Island back to hand, which is what makes the card free on turn one and
         // a real cost on turn six.
-        .with_alternative_additional_cost(&CostDef::return_to_hand(
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-            CostQuantityDef::Fixed(1),
-        )),
+        ,
     ]),
 );
 
@@ -1643,7 +1645,7 @@ pub(in crate::card::sets) static MOGG_SALVAGE: CardRecord = CardRecord::new_with
             ))
 ),
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::Mana(mana_cost!("{0}"))],
             AlternativeCastKindDef::AlternativeCost,
             Some("If an opponent controls an Island and you control a Mountain, you may cast this spell without paying its mana cost."),
             EffectDef::None,

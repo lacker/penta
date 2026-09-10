@@ -129,7 +129,7 @@ pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
         // battlefield the creature is heading to.
         .with_source_zones(&[ZoneKind::Hand]),
         abilities::ward(
-            2,
+            &[crate::CostDef::Mana(crate::ManaCost::new(2, 0))],
             "Ward {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)",
         ),
     ]),
@@ -226,7 +226,9 @@ pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
     // or four for anything at all -- and exile rather than destruction,
     // which is what the extra mana is really paying for.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
-        abilities::kicker(mana_cost!("{1}{B}")),
+        abilities::kicker(
+            &[crate::CostDef::Mana(mana_cost!("{1}{B}"))],
+        ),
         AbilityDef::spell_with_targets(
             "Exile target artifact or enchantment. If this spell was kicked, exile target nonland permanent instead.",
             &[AbilityTargetDef::exactly_one(

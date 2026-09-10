@@ -25,7 +25,7 @@ impl Game {
             payment_purpose,
             mana_payment,
         } = announced;
-        let priced_mana_cost = self.priced_ability_mana_cost(source, definition);
+        let mana_cost = self.priced_ability_mana_cost(source, definition);
         if definition
             .costs
             .iter()
@@ -34,22 +34,23 @@ impl Game {
         {
             let _ = self.tap_permanent(*chosen);
         }
-        for cost in definition.costs.as_slice() {
+        self.pay_nonbattlefield_activation_mana_and_life(
+            player,
+            mana_cost,
+            definition.costs,
+            AnnouncedActivationCost {
+                cost_objects,
+                x,
+                payment_purpose,
+                mana_payment,
+            },
+        );
+        for cost in definition.costs {
             match cost {
-                CostDef::Mana(printed) => {
-                    let cost = priced_mana_cost.unwrap_or(*printed);
-                    let cost = self.announced_activation_cost(player, cost, mana_payment);
-                    self.activate_mana_for_cost_avoiding_for(
-                        player,
-                        cost,
-                        x,
-                        None,
-                        payment_purpose,
-                    );
-                    let _ = self.pay_player_cost_for(player, cost, x, payment_purpose);
-                }
-                // Paid above, before anything else could tap it.
-                CostDef::TapPermanents { count: 1, .. } => {}
+                // Paid above; the chosen permanent is tapped before mana.
+                CostDef::Mana(_)
+                | CostDef::PayLife(_)
+                | CostDef::TapPermanents { count: 1, .. } => {}
                 CostDef::ExileSource => self.exile_graveyard_source(player, source),
                 CostDef::MillCards(amount) => {
                     let milled = self.take_top_of_library(player, usize::from(*amount));
@@ -63,6 +64,27 @@ impl Game {
                 _ => unreachable!("unsupported graveyard-zone costs are not offered"),
             }
         }
+    }
+
+    /// The complete fixed mana payment is priced once. Spend explicit life
+    /// first so mana abilities cannot borrow life already owed by this cost.
+    pub(super) fn pay_nonbattlefield_activation_mana_and_life(
+        &mut self,
+        player: PlayerId,
+        cost: crate::ManaCost,
+        costs: &[CostDef],
+        announced: AnnouncedActivationCost<'_>,
+    ) {
+        self.lose_life(player, crate::card::costs::life_cost(costs));
+        let cost = self.announced_activation_cost(player, cost, announced.mana_payment);
+        self.activate_mana_for_cost_avoiding_for(
+            player,
+            cost,
+            announced.x,
+            announced.cost_objects.first().copied(),
+            announced.payment_purpose,
+        );
+        let _ = self.pay_player_cost_for(player, cost, announced.x, announced.payment_purpose);
     }
 
     pub(super) fn pay_nonbattlefield_move_cost(

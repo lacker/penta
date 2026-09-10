@@ -17,9 +17,9 @@ use crate::mana_cost;
 /// subtypes already grant, so it is not restated as a clause.
 const TRIOME_ABILITIES: &[AbilityDef] = &[
     abilities::enters_tapped(CardType::Land),
-    abilities::cycling(
+    abilities::cycling!(
         "Cycling {3} ({3}, Discard this card: Draw a card.)",
-        mana_cost!("{3}"),
+        &[CostDef::Mana(mana_cost!("{3}"))],
     ),
 ];
 
@@ -92,8 +92,8 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
                  (If this card is your chosen companion, you may put it into your hand from \
                  outside the game for {3} as a sorcery.)",
                 DeckConstructionDef::Companion(CompanionConditionDef::PermanentManaValueAtMost(2)),
-                "Both halves are here: the deck-construction condition the deck layer checks, \
-                 and the special action that takes it from outside the game for {3}.",
+                "Both halves are here: the deck-construction condition the deck layer checks, and the \
+                 special action that takes it from outside the game for {3}.",
             ),
             abilities::lifelink(),
             AbilityDef::static_ability(
@@ -144,8 +144,8 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
                 DeckConstructionDef::Companion(
                     CompanionConditionDef::EveryPermanentHasAnActivatedAbility,
                 ),
-                "Both halves are here: the deck-construction condition the deck layer checks, \
-                 and the special action that takes it from outside the game for {3}.",
+                "Both halves are here: the deck-construction condition the deck layer checks, and the \
+                 special action that takes it from outside the game for {3}.",
             ),
             AbilityDef::static_ability(
                 "Abilities you activate that aren't mana abilities cost {2} less to activate. \

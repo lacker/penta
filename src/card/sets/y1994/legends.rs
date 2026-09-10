@@ -7,10 +7,10 @@ use crate::card::{
     ComparisonDef, ControlDurationDef, CostDef, CostModificationDef, CounterKind,
     DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
+    DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellResolutionDestinationDef,
     SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -1167,7 +1167,7 @@ pub(in crate::card::sets) static FORCE_SPIKE: CardRecord = CardRecord::new_with_
                 owner: None,
             },
         )],
-        abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+        abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]),
     )),
 );
 
@@ -2300,7 +2300,9 @@ pub(in crate::card::sets) static NETHER_VOID: CardRecord = CardRecord::new_with_
         .with_ability(AbilityDef::triggered(
             "Whenever a player casts a spell, counter it unless that player pays {3}.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
-            abilities::counter_triggering_spell_unless_paid(ValueDef::Constant(3)),
+            abilities::counter_triggering_spell_unless_paid(&[CostDef::GenericMana(
+                ValueDef::Constant(3),
+            )]),
         )),
 );
 
@@ -2743,28 +2745,25 @@ pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new_w
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::damage(
-                EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                ValueDef::Constant(3),
+            EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(3)),
+            EffectDef::PayOr(
+                PayOrDef::optional(
+                    &[CostDef::Mana(mana_cost!("{R}{R}"))],
+                    &EffectDef::May {
+                        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                            object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                            count: ValueDef::Constant(1),
+                            retarget: true,
+                            colors: None,
+                        }),
+                    },
+                )
+                .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                ))),
             ),
-            EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                        TargetIndex::PRIMARY,
-                    ))),
-                    mana_cost!("{R}{R}"),
-                ),
-                &EffectDef::May {
-                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-                        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-                        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                        count: ValueDef::Constant(1),
-                        retarget: true,
-                        colors: None,
-                    }),
-                },
-            )),
         ]),
     )),
 );
@@ -3221,21 +3220,15 @@ pub(in crate::card::sets) static PRIMORDIAL_OOZE: CardRecord = CardRecord::new_w
                     kind: CounterKind::PlusOnePlusOne,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::PayOr(PayOrDef {
-                    payment: EffectPaymentDef::generic_mana(
-                        PlayerSetDef::One(PlayerRefDef::EffectController),
-                        PRIMORDIAL_OOZE_X,
-                    ),
-                    if_paid: None,
-                    otherwise: Some(&EffectDef::Sequence(&[
+                EffectDef::PayOr(PayOrDef::unless(
+                    &[CostDef::GenericMana(PRIMORDIAL_OOZE_X)],
+                    &EffectDef::Sequence(&[
                         EffectDef::Tap {
                             object: EffectRecipientDef::Source,
                         },
                         EffectDef::damage(EffectRecipientDef::Controller, PRIMORDIAL_OOZE_X),
-                    ])),
-                    visibility: ChoiceVisibilityDef::Private,
-                    condition: None,
-                }),
+                    ]),
+                )),
             ]),
         ),
     ]),
@@ -4108,19 +4101,10 @@ pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new_wi
                                     binding: ParentBinding,
                                     effect: &const {
                                         EffectDef::PayOr(PayOrDef::unless(
-                                            EffectPaymentDef::life(
-                                                PlayerSetDef::One(
-                                                    PlayerRefDef::EffectController,
-                                                ),
-                                                4,
-                                            ),
+                                            &[CostDef::PayLife(4)],
                                             &const {
                                                 EffectDef::MoveToZone {
-                                                    object: EffectRecipientDef::object(
-                                                        ObjectRefDef::Binding(
-                                                            ParentBinding,
-                                                        ),
-                                                    ),
+                                                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                                                     zone: ZoneKind::Library,
                                                     placement: ZonePlacement::Top,
                                                 }
@@ -4366,8 +4350,8 @@ pub(in crate::card::sets) static ARCADES_SABBOTH: CardRecord = CardRecord::new_w
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{G}{W}{U}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{G}{W}{U}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -4513,8 +4497,8 @@ pub(in crate::card::sets) static CHROMIUM: CardRecord = CardRecord::new_with_leg
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{W}{U}{B}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{W}{U}{B}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -4891,8 +4875,8 @@ pub(in crate::card::sets) static NICOL_BOLAS: CardRecord = CardRecord::new_with_
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{U}{B}{R}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{U}{B}{R}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -4936,8 +4920,8 @@ pub(in crate::card::sets) static PALLADIA_MORS: CardRecord = CardRecord::new_wit
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{R}{G}{W}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{R}{G}{W}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -5348,8 +5332,8 @@ pub(in crate::card::sets) static VAEVICTIS_ASMADI: CardRecord = CardRecord::new_
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{B}{R}{G}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{B}{R}{G}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -5544,8 +5528,8 @@ pub(in crate::card::sets) static FORETHOUGHT_AMULET: CardRecord = CardRecord::ne
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{3}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -6149,8 +6133,8 @@ pub(in crate::card::sets) static THE_TABERNACLE_AT_PENDRELL_VALE: CardRecord = C
                         step: TurnStepDef::Upkeep,
                         player: PlayerRelation::You,
                     },
-                    EffectDef::PayOr(PayOrDef::unless_mana(
-                        mana_cost!("{1}"),
+                    EffectDef::PayOr(PayOrDef::unless(
+                        &[CostDef::Mana(mana_cost!("{1}"))],
                         &EffectDef::Destroy {
                             object: EffectRecipientDef::Source,
                             then: None,

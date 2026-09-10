@@ -525,7 +525,7 @@ fn modal_spell_freezes_bought_back_hand_destination() {
         ),
     ];
     static ABILITIES: [AbilityDef; 2] = [
-        abilities::buyback(mana_cost!("{1}")),
+        abilities::buyback(&[crate::CostDef::Mana(mana_cost!("{1}"))]),
         AbilityDef::modal_spell("Choose one.", &MODES),
     ];
 
@@ -597,7 +597,7 @@ fn modal_spell_freezes_bought_back_hand_destination() {
 #[test]
 fn effectful_overload_freezes_bought_back_hand_destination() {
     static ABILITIES: [AbilityDef; 3] = [
-        abilities::buyback(mana_cost!("{1}")),
+        abilities::buyback(&[crate::CostDef::Mana(mana_cost!("{1}"))]),
         AbilityDef::spell(
             "You gain 1 life.",
             EffectDef::GainLife {
@@ -606,7 +606,7 @@ fn effectful_overload_freezes_bought_back_hand_destination() {
             },
         ),
         abilities::overload(
-            mana_cost!("{1}"),
+            &[crate::CostDef::Mana(mana_cost!("{1}"))],
             "You gain 2 life.",
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -691,7 +691,7 @@ fn mandatory_return_cost_and_buyback_sacrifice_keep_distinct_actions() {
         CostQuantityDef::Fixed(1),
     );
     static ABILITIES: [AbilityDef; 2] = [
-        abilities::buyback_with_additional_cost("Buyback—Sacrifice a Forest.", &SACRIFICE_A_FOREST),
+        abilities::buyback(&[SACRIFICE_A_FOREST]).override_text("Buyback—Sacrifice a Forest."),
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, return an Island you control to its owner's hand. You gain 1 life.",
             &[],

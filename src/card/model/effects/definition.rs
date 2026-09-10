@@ -3,7 +3,7 @@
 pub enum EffectDef {
     /// The controller exiles three graveyard cards or sacrifices a Food.
     Forage { optional: bool },
-    CumulativeUpkeep(CostDef),
+    CumulativeUpkeep(&'static [CostDef]),
     AddCounters {
         object: EffectRecipientDef,
         kind: CounterKind,

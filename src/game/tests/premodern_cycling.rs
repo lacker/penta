@@ -422,7 +422,6 @@ fn akromas_vengeance_destroys_artifacts_creatures_and_enchantments() {
 /// records about itself rather than one read off its cost.
 mod channel_is_not_cycling {
     use super::*;
-    use crate::card::AbilityCostList;
 
     static CHANNEL_DRAWS: EffectDef = EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,
@@ -435,13 +434,16 @@ mod channel_is_not_cycling {
     };
 
     static BOTH_ABILITIES: [AbilityDef; 3] = [
-        abilities::cycling("Cycling {1}", crate::mana_cost!("{1}")),
-        AbilityDef::activated_with_cost_list_and_targets(
+        abilities::cycling!(
+            "Cycling {1}",
+            &[crate::CostDef::Mana(crate::mana_cost!("{1}"))],
+        ),
+        AbilityDef::activated_with_targets(
             "Channel — {1}, Discard this card: Draw a card.",
-            AbilityCostList::two(
+            &[
                 CostDef::Mana(crate::mana_cost!("{1}")),
                 CostDef::DiscardSource,
-            ),
+            ],
             &[],
             CHANNEL_DRAWS,
         )

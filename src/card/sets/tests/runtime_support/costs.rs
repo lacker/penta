@@ -183,7 +183,6 @@ pub(in super::super) fn shared_activated_costs(zones: &[ZoneKind], costs: &[Cost
             // built by the mana path, which is why the caller also requires
             // the effect to be an AddMana.
             | CostDef::RemoveAnyNumberOfCountersFromSource(_)
-            | CostDef::PayLife(_)
             | CostDef::Loyalty(_)
             // Nobody chooses which cards go, so a random discard needs no
             // decision procedure -- only a permanent to activate from. A
@@ -196,6 +195,7 @@ pub(in super::super) fn shared_activated_costs(zones: &[ZoneKind], costs: &[Cost
             // untapped creature the payer controls, and the decision that
             // asks reads the battlefield directly.
             | CostDef::TapCreaturesWithTotalPower { .. } => battlefield,
+            CostDef::PayLife(_) => battlefield || hand || graveyard,
             CostDef::ExileTopCards(amount) => battlefield && *amount > 0,
             // Ninjutsu's cost joins the discard here: what it may return is
             // combat state rather than a predicate, and both are paid by a
@@ -212,7 +212,24 @@ pub(in super::super) fn shared_spell_additional_cost(cost: Option<CostDef>) -> b
 
 fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
     match cost {
-        CostDef::Forage | CostDef::Mana(_) | CostDef::PayLife(_) => true,
+        CostDef::Forage | CostDef::Mana(_) | CostDef::PayLife(_) | CostDef::DiscardCards(_) => true,
+        CostDef::DiscardMatching(object)
+        | CostDef::DiscardCardMatching(object)
+        | CostDef::SacrificePermanentMatching(object)
+        | CostDef::SacrificePermanent {
+            object,
+            controller: PlayerRelation::You,
+        }
+        | CostDef::SacrificePermanents {
+            object,
+            controller: PlayerRelation::You,
+            ..
+        }
+        | CostDef::TapPermanents {
+            object,
+            controller: PlayerRelation::You,
+            ..
+        } => shared_object_predicate(object),
         CostDef::ManaTimes { quantity, .. } | CostDef::PayLifeTimes(quantity) => {
             shared_scalar_cost_quantity(quantity)
         }
@@ -233,9 +250,7 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
             ) && shared_object_cost_quantity(quantity)
                 && shared_object_predicate(object)
         }
-        CostDef::All(costs) => {
-            !costs.is_empty() && costs.iter().copied().all(shared_spell_additional_cost_def)
-        }
+        CostDef::All(costs) => costs.iter().copied().all(shared_spell_additional_cost_def),
         CostDef::Choice(costs) => {
             !costs.is_empty()
                 && costs.iter().copied().all(shared_spell_additional_cost_def)
@@ -301,4 +316,35 @@ fn shared_scalar_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
         }
         crate::card::CostQuantityDef::ObjectSetValueAtLeast(_) => false,
     }
+}
+
+pub(in super::super) fn shared_cast_costs(costs: &'static [crate::CostDef]) -> bool {
+    costs.iter().all(|cost| match cost {
+        CostDef::ManaCostOf(crate::ObjectRefDef::Source)
+        | CostDef::GainLife {
+            player: PlayerRelation::Opponent,
+            ..
+        } => true,
+        cost => shared_spell_additional_cost_def(*cost),
+    })
+}
+
+pub(in super::super) fn shared_special_action_costs(costs: &'static [crate::CostDef]) -> bool {
+    costs.iter().all(|cost| match *cost {
+        CostDef::Mana(_)
+        | CostDef::ManaCostOf(crate::ObjectRefDef::Source)
+        | CostDef::PayLife(_)
+        | CostDef::Energy(_)
+        | CostDef::DiscardCards(_)
+        | CostDef::MillCards(_) => true,
+        CostDef::DiscardMatching(object)
+        | CostDef::DiscardCardMatching(object)
+        | CostDef::SacrificePermanentMatching(object)
+        | CostDef::SacrificePermanent {
+            object,
+            controller: PlayerRelation::You,
+        } => shared_object_predicate(object),
+        CostDef::All(costs) => shared_special_action_costs(costs),
+        _ => false,
+    })
 }

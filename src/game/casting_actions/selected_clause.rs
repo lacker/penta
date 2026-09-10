@@ -23,9 +23,9 @@ impl Game {
                 .indexed_abilities()
                 .find_map(|attached| {
                     (matches!(
-                            attached.definition.definition,
-                            DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Rebound)
-                        ))
+                        attached.definition.definition,
+                        DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Rebound)
+                    ))
                     .then_some(AbilityOrigin::Printed {
                         definition: definition.id,
                         part: *part_id,
@@ -96,8 +96,7 @@ impl Game {
                     else {
                         return None;
                     };
-                    (attached.additional_cost_id() == Some(additional))
-                    .then_some((
+                    (attached.additional_cost_id() == Some(additional)).then_some((
                         AbilityOrigin::Printed {
                             definition: definition.id,
                             part: *part_id,
@@ -253,7 +252,7 @@ impl Game {
         card: GameObjectId,
         option: &PlayOptionDef,
         selected: AlternativeCostId,
-    ) -> Option<ManaCost> {
+    ) -> Option<&'static [crate::CostDef]> {
         self.battlefield_spell_alternative_costs(player, card)
             .into_iter()
             .enumerate()
@@ -291,7 +290,10 @@ impl Game {
             .then_some((grant.ability, alternative))
         };
         let temporary = match required {
-            Some(grant) => self.nonbattlefield_ability_grants.get(grant).and_then(resolve),
+            Some(grant) => self
+                .nonbattlefield_ability_grants
+                .get(grant)
+                .and_then(resolve),
             None => self.nonbattlefield_ability_grants.iter().find_map(resolve),
         };
         let (ability, alternative) = temporary.or_else(|| {
@@ -304,9 +306,7 @@ impl Game {
             };
             Some((ability, alternative))
         })?;
-        alternative
-            .mana_cost
-            .resolve(option.mana_cost)
+        crate::card::costs::mana_cost(alternative.costs, option.mana_cost)
             .map(|mana_cost| (ability, alternative, mana_cost))
     }
 

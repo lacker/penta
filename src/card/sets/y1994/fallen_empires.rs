@@ -4,10 +4,10 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
     CardRules, CardSet, CardType, ChoiceVisibilityDef, ComparisonDef, ControlDurationDef, CostDef,
     CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -429,13 +429,13 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_l
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef {
-                payment: EffectPaymentDef::mill(PlayerSetDef::Related(PlayerRelation::You), 2),
-                if_paid: None,
-                otherwise: Some(&EffectDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
                 visibility: ChoiceVisibilityDef::Public,
-                condition: None,
+                ..PayOrDef::unless(
+                    &[CostDef::MillCards(2)],
+                    &EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    },
+                )
             }),
         ),
         AbilityDef::activated(
@@ -776,7 +776,7 @@ pub(in crate::card::sets) static VODALIAN_MAGE: CardRecord = CardRecord::new_wit
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]),
         ),
     ]),
 );
@@ -872,8 +872,8 @@ pub(in crate::card::sets) static BREEDING_PIT: CardRecord = CardRecord::new_with
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{B}{B}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{B}{B}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

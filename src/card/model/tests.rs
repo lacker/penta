@@ -1,13 +1,12 @@
 use super::{
-    AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AlternativeCastManaCostDef, AlternativeCostDef, CardComposition,
-    CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet,
-    CardType, CardTypeSet, CostDef, CostQuantityDef, CreatureStats, DeclarativeAbilityDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, FlexibleManaSymbol, ImplementationStatus,
-    LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
-    ManaSelectionDef, ManaTypeSetDef, ModalModeListDef, ObjectPredicateDef, PlayOptionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost, SpellAbilityDef, SpellForm,
-    TargetPredicate, TriggerEventDef, ZoneKind,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AlternativeCostDef, CardComposition, CardDefinition, CardEffectStatus, CardPart, CardPrinting,
+    CardPrintingId, CardRules, CardSet, CardType, CardTypeSet, CostDef, CostQuantityDef,
+    CreatureStats, DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    FlexibleManaSymbol, ImplementationStatus, LikelihoodDef, ManaColor, ManaCost,
+    ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaTypeSetDef, ModalModeListDef,
+    ObjectPredicateDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost,
+    SpellAbilityDef, SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
@@ -24,7 +23,7 @@ fn one_cost_definition_embeds_in_activation_casting_and_resolving_payments() {
     let DeclarativeAbilityDef::Activated(activated) = activated.definition else {
         panic!("expected an activated ability");
     };
-    assert_eq!(activated.costs.as_slice(), [COST]);
+    assert_eq!(activated.costs, [COST]);
 
     let spell = AbilityDef::spell_with_additional_cost(
         "As an additional cost, pay 2 life.",
@@ -40,11 +39,8 @@ fn one_cost_definition_embeds_in_activation_casting_and_resolving_payments() {
     };
     assert_eq!(additional_cost, Some(COST));
 
-    let payment = EffectPaymentDef {
-        payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-        cost: COST,
-    };
-    assert_eq!(payment.cost, COST);
+    let payment = EffectPaymentDef::new(PlayerSetDef::One(PlayerRefDef::EffectController), &[COST]);
+    assert_eq!(payment.costs, [COST]);
 }
 
 #[test]
@@ -94,26 +90,6 @@ fn likelihood_def_rejects_values_below_zero() {
 #[should_panic(expected = "likelihood must be finite and between 0.0 and 1.0")]
 fn likelihood_def_rejects_values_above_one() {
     let _ = LikelihoodDef::new(1.1);
-}
-
-#[test]
-fn ability_cost_list_equality_and_hash_ignore_storage_representation() {
-    use std::collections::{HashSet, hash_map::DefaultHasher};
-    use std::hash::{Hash, Hasher};
-
-    static COSTS: [CostDef; 2] = [CostDef::Mana(ManaCost::new(2, 0)), CostDef::DiscardSource];
-    let borrowed = AbilityCostList::borrowed(&COSTS);
-    let inline = AbilityCostList::two(COSTS[0], COSTS[1]);
-
-    let hash = |costs: AbilityCostList| {
-        let mut hasher = DefaultHasher::new();
-        costs.hash(&mut hasher);
-        hasher.finish()
-    };
-
-    assert_eq!(borrowed, inline);
-    assert_eq!(hash(borrowed), hash(inline));
-    assert!(HashSet::from([borrowed]).contains(&inline));
 }
 
 #[test]
@@ -216,11 +192,11 @@ fn spree_modes_derive_costs_and_complete_rules_text() {
     const RULES: CardRules =
         CardRules::new_instant(crate::mana_cost!("{R}")).with_ability(AbilityDef::spree(&[
             (
-                crate::mana_cost!("{1}"),
+                &[crate::CostDef::Mana(crate::mana_cost!("{1}"))],
                 AbilityDef::spell("First instruction.", EffectDef::None),
             ),
             (
-                crate::mana_cost!("{2}{G}"),
+                &[crate::CostDef::Mana(crate::mana_cost!("{2}{G}"))],
                 AbilityDef::spell("Second instruction.", EffectDef::None),
             ),
         ]));
@@ -532,26 +508,28 @@ fn alternative_cast_clauses_render_and_project_escape_costs() {
     static ABILITIES: [AbilityDef; 4] = [
         AbilityDef::spell("Draw a card.", EffectDef::None),
         AbilityDef::alternative_cast(
-            mana_cost!("{2}{U}"),
+            &[crate::CostDef::Mana(mana_cost!("{2}{U}"))],
             AlternativeCastKindDef::Flashback,
             None,
             EffectDef::None,
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{R}"),
+            &[crate::CostDef::Mana(mana_cost!("{3}{R}"))],
             AlternativeCastKindDef::Overload,
             Some("Draw a card for each opponent."),
             EffectDef::None,
         ),
-        AbilityDef::alternative_cast_with_additional_cost(
-            AlternativeCastManaCostDef::Fixed(mana_cost!("{G}{G}{U}{U}")),
+        AbilityDef::alternative_cast(
+            &[
+                crate::CostDef::Mana(mana_cost!("{G}{G}{U}{U}")),
+                CostDef::exile(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    CostQuantityDef::Fixed(5),
+                ),
+            ],
             AlternativeCastKindDef::Escape,
             None,
-            CostDef::exile(
-                ObjectPredicateDef::Any,
-                ZoneKind::Graveyard,
-                CostQuantityDef::Fixed(5),
-            ),
             EffectDef::None,
         ),
     ];
@@ -631,7 +609,7 @@ fn convoke_and_mana_buyback_constructors_render_exact_rules_text() {
         "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)",
     );
 
-    let buyback = crate::card::abilities::buyback(mana_cost!("{3}"));
+    let buyback = crate::card::abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]);
     assert_eq!(
         buyback.rules_text(),
         "Buyback {3} (You may pay an additional {3} as you cast this spell. If you do, put this card into your hand as it resolves.)",

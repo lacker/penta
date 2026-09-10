@@ -572,7 +572,7 @@ pub(in crate::card::sets) static MANA_LEAK: CardRecord = CardRecord::new_with_le
                 owner: None,
             },
         )],
-        abilities::counter_target_unless_paid(ValueDef::Constant(3)),
+        abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(3))]),
     )),
 );
 
@@ -593,7 +593,7 @@ pub(in crate::card::sets) static MIND_GAMES: CardRecord = CardRecord::new(
     crate::card::CardArt::new("4da50979-1f5d-48d1-9406-dfc785273c04", "Andrew Robinson"),
     crate::card::CardSet::Stronghold,
     CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{2}{U}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{2}{U}"))]),
         AbilityDef::spell_with_targets(
             "Tap target artifact, creature, or land.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -742,8 +742,8 @@ pub(in crate::card::sets) static SPINDRIFT_DRAKE: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{U}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{U}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -873,7 +873,7 @@ pub(in crate::card::sets) static BRUSH_WITH_DEATH: CardRecord = CardRecord::new(
     crate::card::CardArt::new("04013bc6-7774-400b-a6af-de755b4c324d", "Stephen Daniele"),
     crate::card::CardSet::Stronghold,
     CardRules::new_sorcery(mana_cost!("{2}{B}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{2}{B}{B}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{2}{B}{B}"))]),
         AbilityDef::spell_with_targets(
             "Target opponent loses 2 life. You gain 2 life.",
             &[AbilityTargetDef::exactly_one(
@@ -1021,7 +1021,7 @@ pub(in crate::card::sets) static LAB_RATS: CardRecord = CardRecord::new(
     crate::card::CardArt::new("3132c128-e0bd-4524-9526-914b3c7181fc", "DiTerlizzi"),
     crate::card::CardSet::Stronghold,
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{4}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{4}"))]),
         AbilityDef::spell(
             "Create a 1/1 black Rat creature token.",
             EffectDef::create_creature_token(&["Rat"], &[ManaColor::Black], 1, 1),
@@ -1049,7 +1049,7 @@ pub(in crate::card::sets) static MIND_PEEL: CardRecord = CardRecord::new(
     crate::card::CardArt::new("92bd531c-fdd1-4a22-816e-258b2975c1a3", "Adam Rex"),
     crate::card::CardSet::Stronghold,
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{2}{B}{B}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{2}{B}{B}"))]),
         AbilityDef::spell_with_targets(
             "Target player discards a card.",
             &[AbilityTargetDef::exactly_one(
@@ -1410,7 +1410,7 @@ pub(in crate::card::sets) static FANNING_THE_FLAMES: CardRecord = CardRecord::ne
     crate::card::CardArt::new("79075361-e6ee-4cc9-990b-88fef27bbb1c", "Ron Spencer"),
     crate::card::CardSet::Stronghold,
     CardRules::new_sorcery(mana_cost!("{X}{R}{R}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell_with_targets(
             "Fanning the Flames deals X damage to any target.",
             &[AbilityTargetDef::exactly_one(
@@ -1675,7 +1675,7 @@ pub(in crate::card::sets) static SEETHING_ANGER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("e6f1edb8-fff4-4f84-944c-fa5a032f4fb1", "Val Mayerik"),
     crate::card::CardSet::Stronghold,
     CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell_with_targets(
             "Target creature gets +3/+0 until end of turn.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -1808,13 +1808,12 @@ pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
     CardArt::new("97a8a5fe-0391-489b-9556-0a1bf7e1900d", "Dermot Power"),
     CardSet::Stronghold,
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
-        abilities::buyback_with_additional_cost(
-            "Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &CostDef::sacrifice(
+        abilities::buyback(
+            &[CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Land),
                 CostQuantityDef::Fixed(1),
-            ),
-        ),
+            )],
+        ).override_text("Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)"),
         AbilityDef::spell(
             "Prevent all combat damage that would be dealt this turn.",
             EffectDef::PreventDamage {
@@ -2456,7 +2455,7 @@ pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_
                     payer: PlayerSetDef::Related(PlayerRelation::You),
                     // A land card from hand, which is the whole cost. A hand with none cannot
                     // pay at all, and the Mox goes straight to the graveyard.
-                    cost: CostDef::DiscardMatching(ObjectPredicateDef::HasType(CardType::Land)),
+                    costs: &[CostDef::DiscardMatching(ObjectPredicateDef::HasType(CardType::Land))],
                 },
                 // Paying changes nothing about the entry: the Mox arrives as it was
                 // going to. Declining is what redirects it.

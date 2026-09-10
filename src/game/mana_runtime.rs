@@ -9,7 +9,7 @@ use super::{
     pay_cost_with_generic_strategy,
 };
 use crate::ManaPaymentChoice;
-use crate::card::{AbilityCostList, ManaSplit};
+use crate::card::ManaSplit;
 
 mod color_spending;
 mod eligibility;
@@ -255,41 +255,46 @@ impl Game {
             let sizes = match Self::variable_counter_removal(definition) {
                 Some(kind) => (1..=permanent.counters(kind))
                     .map(|removed| {
-                        let costs = AbilityCostList::two(
+                        let costs = vec![
                             CostDef::TapSource,
                             CostDef::RemoveCountersFromSource {
                                 kind,
                                 amount: removed,
                             },
-                        );
+                        ];
                         (costs, removed, Some(removed))
                     })
                     .collect::<Vec<_>>(),
-                None => vec![(definition.costs, effect.amount, None)],
+                None => vec![(definition.costs.to_vec(), effect.amount, None)],
             };
             // "Sacrifice a Goblin" is a choice of which one, and a mana
             // ability has no window in which to ask: like the counter sizes
             // above, each candidate becomes its own activation.
             let sacrifices = self.mana_ability_cost_candidates(permanent, definition);
-            let mut add_activation =
-                |color, costs, amount, counters_removed, cost_object, combination, also| {
-                    activations.push(ManaAbilityActivation {
-                        source: permanent.card.id,
-                        ability: origin,
-                        color,
-                        costs,
-                        only_as_instant: definition.only_as_instant,
-                        effect: AddManaEffectDef {
-                            amount,
-                            also,
-                            ..effect
-                        },
-                        counters_removed,
-                        cost_object,
-                        combination,
-                        triggered_mana: None,
-                    });
-                };
+            let mut add_activation = |color,
+                                      costs: &[CostDef],
+                                      amount,
+                                      counters_removed,
+                                      cost_object,
+                                      combination,
+                                      also| {
+                activations.push(ManaAbilityActivation {
+                    source: permanent.card.id,
+                    ability: origin,
+                    color,
+                    costs: costs.to_vec(),
+                    only_as_instant: definition.only_as_instant,
+                    effect: AddManaEffectDef {
+                        amount,
+                        also,
+                        ..effect
+                    },
+                    counters_removed,
+                    cost_object,
+                    combination,
+                    triggered_mana: None,
+                });
+            };
             for (costs, amount, counters_removed) in sizes {
                 for cost_object in &sacrifices {
                     match effect.mana {
@@ -300,7 +305,7 @@ impl Game {
                             };
                             add_activation(
                                 color,
-                                costs,
+                                &costs,
                                 amount,
                                 counters_removed,
                                 *cost_object,
@@ -313,7 +318,7 @@ impl Game {
                             for color in self.mana_types_for_set(permanent, types, &mut visiting) {
                                 add_activation(
                                     color,
-                                    costs,
+                                    &costs,
                                     amount,
                                     counters_removed,
                                     *cost_object,
@@ -329,7 +334,7 @@ impl Game {
                                 };
                                 add_activation(
                                     color,
-                                    costs,
+                                    &costs,
                                     bundle.total(),
                                     counters_removed,
                                     *cost_object,
@@ -346,7 +351,7 @@ impl Game {
                             for color in self.linked_exile_colors(permanent.card.id) {
                                 add_activation(
                                     color,
-                                    costs,
+                                    &costs,
                                     amount,
                                     counters_removed,
                                     *cost_object,
@@ -369,7 +374,7 @@ impl Game {
                                 };
                                 add_activation(
                                     color,
-                                    costs,
+                                    &costs,
                                     amount,
                                     counters_removed,
                                     *cost_object,

@@ -6,8 +6,8 @@
 
 use crate::ids::{AbilityId, AdditionalCostId};
 
-use super::super::{AdditionalCostDef, ManaCost};
-use super::{CostDef, SpellResolutionDestinationDef};
+use super::super::{AdditionalCostDef, CostDef};
+use super::SpellResolutionDestinationDef;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum OptionalAdditionalCostKindDef {
@@ -78,15 +78,25 @@ pub struct OptionalAdditionalCostAbilityDef {
     /// Short action label, distinct for cards that print several costs of the
     /// same general kind.
     pub label: &'static str,
-    pub mana_cost: Option<ManaCost>,
-    pub additional_cost: Option<CostDef>,
+    pub costs: &'static [CostDef],
     pub resolution_destination: SpellResolutionDestinationDef,
 }
 
 impl OptionalAdditionalCostAbilityDef {
     #[must_use]
     pub fn rules_text(self) -> String {
-        match (self.kind, self.mana_cost) {
+        if self.costs.is_empty()
+            || !self
+                .costs
+                .iter()
+                .all(|cost| matches!(cost, crate::CostDef::Mana(_)))
+        {
+            return crate::card::costs::rules_text(self.costs).map_or_else(
+                || self.kind.label().into(),
+                |cost| format!("{}—{cost}.", self.kind.label()),
+            );
+        }
+        match (self.kind, crate::card::costs::mana_cost(self.costs, None)) {
             (OptionalAdditionalCostKindDef::Kicker, Some(cost)) => {
                 format!("Kicker {cost} (You may pay an additional {cost} as you cast this spell.)")
             }
@@ -124,11 +134,17 @@ impl OptionalAdditionalCostAbilityDef {
     }
 
     #[must_use]
-    pub fn additional_cost(self, ability: AbilityId) -> AdditionalCostDef {
+    pub fn additional_cost(
+        self,
+        ability: AbilityId,
+        source_mana: Option<super::super::ManaCost>,
+    ) -> AdditionalCostDef {
         AdditionalCostDef {
             id: AdditionalCostId(ability.0),
             label: self.label.into(),
-            mana_cost: self.mana_cost,
+            mana_cost: crate::card::costs::includes_mana_payment(self.costs)
+                .then(|| crate::card::costs::mana_cost(self.costs, source_mana))
+                .flatten(),
             repeatable: self.kind.repeatable(),
         }
     }

@@ -210,7 +210,9 @@ impl Game {
             } => {
                 let payable = self
                     .pending_resolved_payment(&pending, context, payment)
-                    .filter(|(player, payment)| self.can_pay_effect_payment(*player, *payment));
+                    .filter(|(player, payment)| {
+                        self.can_pay_effect_payment(*player, payment.clone())
+                    });
                 if let Some((player, resolved)) = payable {
                     let name = self.pending_entry_name(&pending);
                     self.pending_events.push_front(pending);
@@ -355,7 +357,7 @@ impl Game {
         let [player] = payers.as_slice() else {
             return None;
         };
-        let resolved = self.resolved_effect_payment(payment.cost, &object, &resolution, scoped);
+        let resolved = self.resolved_effect_costs(payment.costs, &object, &resolution, scoped);
         Some((*player, resolved))
     }
 
@@ -367,8 +369,8 @@ impl Game {
         resolved: ResolvedEffectPayment,
         definition: ReplacementEffectDef,
     ) {
-        let payment_label = Self::effect_payment_label(resolved);
-        let options = self.payment_options(player, resolved, true, "Do not pay");
+        let payment_label = Self::effect_payment_label(&resolved);
+        let options = self.payment_options(player, resolved.clone(), true, "Do not pay");
         self.queue_decision(
             player,
             format!("{payment_label} as {name} enters the battlefield?"),

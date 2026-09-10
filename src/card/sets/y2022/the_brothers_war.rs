@@ -5,9 +5,9 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CharacteristicOperationDef, CostDef, CounterKind, CreatureTypeSetDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef, PayOrDef,
+    PlayerRelation, ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -90,10 +90,7 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
             abilities::enters_trigger(
                 "When this Aura enters, you may pay {3}. If you do, tap enchanted permanent.",
                 EffectDef::PayOr(PayOrDef::optional(
-                    EffectPaymentDef {
-                        payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                        cost: CostDef::GenericMana(ValueDef::Constant(3)),
-                    },
+                    &[CostDef::GenericMana(ValueDef::Constant(3))],
                     &const {
                         EffectDef::Tap {
                             object: EffectRecipientDef::AttachedPermanent,

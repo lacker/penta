@@ -15,7 +15,7 @@ pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::n
     CardArt::new("b689a206-aec3-4a31-95cf-3d4b840db04c", "Jonas De Ro"),
     CardSet::Fallout,
     CardRules::new_artifact_creature(mana_cost!("{1}{W}"), &["Robot"], 2, 2).with_abilities(&[
-        abilities::squad(mana_cost!("{3}")),
+        abilities::squad(&[crate::CostDef::Mana(mana_cost!("{3}"))]),
         abilities::vigilance(),
         abilities::enters_trigger(
             "When this creature enters, create that many tokens that are copies of it.",

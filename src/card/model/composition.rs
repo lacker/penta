@@ -148,7 +148,7 @@ impl PlayOptionDef {
         self.additional_costs.extend(
             rules
                 .indexed_abilities()
-                .filter_map(super::rules::AttachedAbilityDef::additional_cost),
+                .filter_map(|ability| ability.additional_cost(rules.mana_cost())),
         );
         self
     }

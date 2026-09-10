@@ -15,11 +15,11 @@ use crate::card::{
     BattlefieldEntryScalarChoiceDef, BlockRestrictionDef, CardArt, CardNameSetDef, CardRules,
     CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorSet, ControlDurationDef,
     CostDef, CostQuantityDef, CounterKind, CreatedTokensDef, DamageEventMatcherDef,
-    DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    ManaTypeDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    DamagePreventionDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor, ManaTypeDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
-    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, ReplacementChoiceDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, ScaledValueDef, SumValueDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
@@ -1029,17 +1029,16 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
                     // and nothing else: the coloured pips are still paid in their colours.
                     then: &const {
                         EffectDef::PayOr(PayOrDef {
-                            payment: EffectPaymentDef {
-                                payer: PlayerSetDef::Related(PlayerRelation::You),
-                                cost: CostDef::ObjectManaCostReducedBy {
-                                    object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ParentBinding,
-                                    )),
+                            visibility: ChoiceVisibilityDef::Public,
+                            ..PayOrDef::unless(
+                                &[CostDef::ObjectManaCostReducedBy {
+                                    object: &const {
+                                        EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                            ParentBinding,
+                                        ))
+                                    },
                                     generic: 2,
-                                },
-                            },
-                            if_paid: None,
-                            otherwise: Some(
+                                }],
                                 &const {
                                     EffectDef::Sacrifice {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
@@ -1047,9 +1046,7 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
                                         )),
                                     }
                                 },
-                            ),
-                            visibility: ChoiceVisibilityDef::Public,
-                            condition: None,
+                            )
                         })
                     },
                 }
@@ -1163,10 +1160,7 @@ pub(in crate::card::sets) static MERFOLK_SEER: CardRecord = CardRecord::new(
         abilities::dies_trigger(
             "When this creature dies, you may pay {1}{U}. If you do, draw a card.",
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}{U}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}{U}"))],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -1211,7 +1205,7 @@ pub(in crate::card::sets) static MIND_HARNESS: CardRecord = CardRecord::new(
                     )]
                 },
             ),
-            abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+            abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{1}"))]),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
                 EffectDef::GainControl {
@@ -4794,10 +4788,7 @@ pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord:
             // asked, which is the ordinary case: the deck plays this to be answered by
             // its own Stifle, not to be paid for.
             abilities::enters_trigger("When this creature enters, sacrifice it unless you sacrifice any number of creatures with total power 12 or greater.", EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::SacrificeCreaturesWithTotalPower(12),
-                },
+                &[CostDef::SacrificeCreaturesWithTotalPower(12)],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

@@ -4,10 +4,10 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
     CardType, CardTypeSet, ChoiceVisibilityDef, ConditionDef, CostDef, CounterKind,
     CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef, DamageSourceGroupDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SumValueDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
+    ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SumValueDef,
     TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
@@ -220,8 +220,8 @@ pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new_with_
                         step: TurnStepDef::Upkeep,
                         player: PlayerRelation::You,
                     },
-                    EffectDef::PayOr(PayOrDef::unless_mana(
-                        mana_cost!("{2}"),
+                    EffectDef::PayOr(PayOrDef::unless(
+                        &[CostDef::Mana(mana_cost!("{2}"))],
                         &const {
                             EffectDef::Sacrifice {
                                 object: EffectRecipientDef::Source,
@@ -1322,21 +1322,21 @@ pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef {
-                payment: EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
-                if_paid: None,
-                otherwise: Some(&EffectDef::DealDamage(
-                    crate::card::DamageDef::new(
-                        EffectRecipientDef::Controller,
-                        ValueDef::Constant(3),
-                    )
-                    .with_follow_up(
-                        crate::card::DamageFollowUpDef::IfDealtToIntended(&EffectDef::Tap {
-                            object: EffectRecipientDef::Source,
-                        }),
-                    ),
-                )),
                 visibility: ChoiceVisibilityDef::Public,
-                condition: None,
+                ..PayOrDef::unless(
+                    &[CostDef::DiscardCards(1)],
+                    &EffectDef::DealDamage(
+                        crate::card::DamageDef::new(
+                            EffectRecipientDef::Controller,
+                            ValueDef::Constant(3),
+                        )
+                        .with_follow_up(
+                            crate::card::DamageFollowUpDef::IfDealtToIntended(&EffectDef::Tap {
+                                object: EffectRecipientDef::Source,
+                            }),
+                        ),
+                    ),
+                )
             }),
         ),
     ]),
@@ -1519,10 +1519,7 @@ pub(in crate::card::sets) static TABLET_OF_EPITYR: CardRecord = CardRecord::new_
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ]), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -1644,19 +1641,14 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_leg
             "At the beginning of your upkeep, you may remove any number of +1/+1 counters from this creature. If you do, create that many 1/1 colorless Tetravite artifact creature tokens. They each have flying and \"This token can't be enchanted.\"",
             UPKEEP,
             EffectDef::PayOr(PayOrDef {
-                payment: EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::RemoveAnyNumberOfCounters {
+                visibility: ChoiceVisibilityDef::Public,
+                ..PayOrDef::optional(
+                    &[CostDef::RemoveAnyNumberOfCounters {
                         object: &EffectRecipientDef::Source,
                         kind: CounterKind::PlusOnePlusOne,
-                    },
-                },
-                if_paid: Some(
+                    }],
                     &EffectDef::create_token(TETRAVITE).with_count(ValueDef::PaidAmount),
-                ),
-                otherwise: None,
-                visibility: ChoiceVisibilityDef::Public,
-                condition: None,
+                )
             }),
         ),
         AbilityDef::triggered(
@@ -1753,10 +1745,7 @@ pub(in crate::card::sets) static URZAS_CHALICE: CardRecord = CardRecord::new_wit
         "Whenever a player casts an artifact spell, you may pay {1}. If you do, you gain 1 life.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::HasType(CardType::Artifact)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

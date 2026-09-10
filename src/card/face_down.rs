@@ -9,7 +9,7 @@
 use super::{AbilityDef, AlternativeCastKindDef, FaceDownCharacteristics, abilities};
 
 static WARD_TWO: [AbilityDef; 1] = [abilities::ward(
-    2,
+    &[crate::CostDef::Mana(crate::ManaCost::new(2, 0))],
     "Ward {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)",
 )];
 

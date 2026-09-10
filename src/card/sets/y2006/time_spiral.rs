@@ -118,7 +118,7 @@ pub(in crate::card::sets) static MOMENTARY_BLINK: CardRecord = CardRecord::new(
                 },
             ]),
         ),
-        abilities::flashback(mana_cost!("{3}{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{U}"))]),
     ]),
 );
 
@@ -143,7 +143,10 @@ pub(in crate::card::sets) static ANCESTRAL_VISION: CardRecord = CardRecord::new(
         PrintedManaCost::None,
     )
     .with_abilities(&[
-        abilities::suspend("Suspend 4—{U}", 4, &mana_cost!("{U}")),
+        abilities::suspend(
+            "Suspend 4—{U}",
+            &crate::card::SuspendAbilityDef::fixed(4, &[CostDef::Mana(mana_cost!("{U}"))]),
+        ),
         AbilityDef::spell_with_targets(
             "Target player draws three cards.",
             &[AbilityTargetDef::exactly_one(
@@ -164,7 +167,9 @@ pub(in crate::card::sets) static CLOCKSPINNING: CardRecord = CardRecord::new(
     CardArt::new("1323d548-e2fe-47c5-8df3-f181aed537c5", "Zoltan Boros & Gabor Szikszai"),
     CardSet::TimeSpiral,
     CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(
+            &[CostDef::Mana(mana_cost!("{3}"))],
+        ),
         AbilityDef::spell_with_targets(
             "Choose a counter on target permanent or suspended card. Remove that counter from that permanent or card or put another of those counters on it.",
             &[AbilityTargetDef::exactly_one(
@@ -221,7 +226,10 @@ pub(in crate::card::sets) static DEEP_SEA_KRAKEN: CardRecord = CardRecord::new(
     CardSet::TimeSpiral,
     CardRules::new_creature(mana_cost!("{7}{U}{U}{U}"), &["Kraken"], 6, 6).with_abilities(&[
         abilities::cannot_be_blocked(),
-        abilities::suspend("Suspend 9—{2}{U}", 9, &mana_cost!("{2}{U}")),
+        abilities::suspend(
+            "Suspend 9—{2}{U}",
+            &crate::card::SuspendAbilityDef::fixed(9, &[CostDef::Mana(mana_cost!("{2}{U}"))]),
+        ),
         AbilityDef::triggered_if(
             "Whenever an opponent casts a spell, if this card is suspended, remove a time counter from it.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
@@ -294,15 +302,14 @@ pub(in crate::card::sets) static DREAD_RETURN: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(3),
+            )],
             AlternativeCastKindDef::Flashback,
             Some("Flashback—Sacrifice three creatures."),
             EffectDef::None,
-        )
-        .with_alternative_additional_cost(&CostDef::sacrifice(
-            ObjectPredicateDef::HasType(CardType::Creature),
-            CostQuantityDef::Fixed(3),
-        )),
+        ),
     ]),
 );
 
@@ -333,7 +340,10 @@ pub(in crate::card::sets) static GREATER_GARGADON: CardRecord = CardRecord::new(
     CardArt::new("653ddfa0-2088-4503-a3ab-b0f1d55d8351", "Rob Alexander"),
     CardSet::TimeSpiral,
     CardRules::new_creature(mana_cost!("{9}{R}"), &["Beast"], 9, 7).with_abilities(&[
-        abilities::suspend("Suspend 10—{R}", 10, &mana_cost!("{R}")),
+        abilities::suspend(
+            "Suspend 10—{R}",
+            &crate::card::SuspendAbilityDef::fixed(10, &[CostDef::Mana(mana_cost!("{R}"))]),
+        ),
         AbilityDef::activated(
             "Sacrifice an artifact, creature, or land: Remove a time counter from this card. Activate only if this card is suspended.",
             &[CostDef::SacrificePermanent {
@@ -362,7 +372,10 @@ pub(in crate::card::sets) static RIFT_BOLT: CardRecord = CardRecord::new(
     CardArt::new("88dde96e-6824-4d26-9fb5-86b9f3c50959", "Michael Sutfin"),
     CardSet::TimeSpiral,
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
-        abilities::suspend("Suspend 1—{R}", 1, &mana_cost!("{R}")),
+        abilities::suspend(
+            "Suspend 1—{R}",
+            &crate::card::SuspendAbilityDef::fixed(1, &[CostDef::Mana(mana_cost!("{R}"))]),
+        ),
         AbilityDef::spell_with_targets(
             "Rift Bolt deals 3 damage to any target.",
             &[AbilityTargetDef::exactly_one(
@@ -392,8 +405,12 @@ pub(in crate::card::sets) static DURKWOOD_BALOTH: CardRecord = CardRecord::new(
     "Durkwood Baloth",
     CardArt::new("670521c3-df02-487d-a299-49419e41889f", "Dan Frazier"),
     CardSet::TimeSpiral,
-    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Beast"], 5, 5)
-        .with_ability(abilities::suspend("Suspend 5—{G}", 5, &mana_cost!("{G}"))),
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Beast"], 5, 5).with_ability(
+        abilities::suspend(
+            "Suspend 5—{G}",
+            &crate::card::SuspendAbilityDef::fixed(5, &[CostDef::Mana(mana_cost!("{G}"))]),
+        ),
+    ),
 );
 
 // TSP 251 — Chromatic Star

@@ -6,7 +6,7 @@
 /// use penta::{ability_list, card::abilities, CostDef, mana_cost};
 /// const ABILITIES: [penta::AbilityDef; 3] = ability_list![
 ///     [abilities::flying()],
-///     abilities::evoke(CostDef::Mana(mana_cost!("{2}{U}"))),
+///     abilities::evoke(&[CostDef::Mana(mana_cost!("{2}{U}"))]),
 /// ];
 /// ```
 #[macro_export]
@@ -53,7 +53,7 @@ mod tests {
             .with_abilities(&crate::ability_list![
                 [abilities::flying()],
                 EMPTY,
-                abilities::evoke(CostDef::Mana(mana_cost!("{2}{U}"))),
+                abilities::evoke(&[CostDef::Mana(mana_cost!("{2}{U}"))]),
                 [abilities::haste()],
             ]);
         assert_eq!(

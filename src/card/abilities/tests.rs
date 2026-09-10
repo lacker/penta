@@ -1,33 +1,28 @@
 #[cfg(test)]
 mod tests {
     use super::{
-        apply_to_self_until_end_of_turn, attacks_each_combat_if_able, banding,
-        begin_game_on_battlefield, bind_top_cards_then,
-        bind_top_cards_through_first_matching_then, bloodrush, check_land_enters,
-        bloodthirst, bushido,
+        EQUIP_TARGET, apply_to_self_until_end_of_turn, attacks_each_combat_if_able, banding,
+        begin_game_on_battlefield, bind_top_cards_then, bind_top_cards_through_first_matching_then,
+        bloodrush, bloodthirst, bushido, check_land_enters,
         creature_damaged_by_source_dies_trigger,
-        creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
-        dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
-        enters_tapped, enters_trigger, enters_trigger_with_targets, evoke,
-        exile_and_return_transformed,
+        creature_damaged_by_source_dies_trigger_with_targets, dies_trigger, dies_trigger_matching,
+        dies_trigger_with_targets, double_strike, enchant_creature, enters_tapped, enters_trigger,
+        enters_trigger_with_targets, equip, evoke, exile_and_return_transformed,
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
-        exile_until_source_leaves, first_strike, flashback,
-        flashback_for_card_mana_cost, flying, intimidate, legendary_landwalk, living_weapon,
-        look_at_top_cards, mountainwalk,
-        look_at_top_cards_choose_to_hand_rest_bottom, overload, pain_land,
+        exile_until_source_leaves, first_strike, flashback, flashback_for_card_mana_cost, flying,
+        intimidate, legendary_landwalk, living_weapon, look_at_top_cards,
+        look_at_top_cards_choose_to_hand_rest_bottom, mountainwalk, overload, pain_land, rampage,
         rebound, reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
-        reveal_hand_and_exile_chosen_card,
-        rampage, reveal_top_cards_put_matching_in_hand_rest_graveyard, shock_land_enters, storm,
-        tap_for, trample, ward_aura_protection, EQUIP_TARGET, equip,
+        reveal_hand_and_exile_chosen_card, reveal_top_cards_put_matching_in_hand_rest_graveyard,
+        shock_land_enters, storm, tap_for, trample, ward_aura_protection,
     };
     use crate::card::{
-        CostDef, AbilityCostList, AbilityDef, AbilityKindDef, AbilityPredicateDef,
-        AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
-        AlternativeCastManaCostDef, AppliedEffectDef, BasicLandType, CardRules, CardType, ConditionDef,
-        CollectionInspectionDef, DeclarativeAbilityDef, EffectDef,
-        EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectCollectionSourceDef,
-        ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-        ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
+        AbilityDef, AbilityKindDef, AbilityPredicateDef, AbilityTargetDef, ActivationTimingDef,
+        AddManaEffectDef, AlternativeCastKindDef, AlternativeCastManaCostDef, AppliedEffectDef,
+        BasicLandType, CardRules, CardType, CollectionInspectionDef, ConditionDef, CostDef,
+        DeclarativeAbilityDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ManaCost,
+        ObjectCollectionSourceDef, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
+        PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
         ZoneChangeEventMatcherDef, ZoneKind,
     };
     use crate::mana_cost;
@@ -137,7 +132,7 @@ mod tests {
             "Enchanted creature has protection from blue. This effect doesn't remove this Aura.",
         );
         assert_eq!(
-            evoke(CostDef::Mana(mana_cost!("{1}")))[1].text,
+            evoke(&[CostDef::Mana(mana_cost!("{1}"))])[1].text,
             "When this creature enters, if it was evoked, sacrifice it.",
         );
     }
@@ -160,8 +155,7 @@ mod tests {
     fn look_at_top_cards_hides_collection_plumbing_for_pure_looks() {
         let player = PlayerRefDef::Target(TargetIndex::PRIMARY);
 
-        let EffectDef::LookAtObjects(look) =
-            look_at_top_cards(player, ValueDef::Constant(3))
+        let EffectDef::LookAtObjects(look) = look_at_top_cards(player, ValueDef::Constant(3))
         else {
             panic!("the helper should build one information action")
         };
@@ -215,12 +209,7 @@ mod tests {
     fn ordinary_top_card_workflows_are_single_semantic_effects() {
         let predicate = ObjectPredicateDef::HasType(CardType::Instant);
         let EffectDef::ChooseCardsFromCollection(choice) =
-            look_at_top_cards_choose_to_hand_rest_bottom(
-                ValueDef::Constant(4),
-                predicate,
-                0,
-                1,
-            )
+            look_at_top_cards_choose_to_hand_rest_bottom(ValueDef::Constant(4), predicate, 0, 1)
         else {
             panic!("an ordinary dig should not expose its binding pipeline")
         };
@@ -271,8 +260,10 @@ mod tests {
         let player = PlayerRefDef::Target(TargetIndex::PRIMARY);
         let object = ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land));
 
-        let [EffectDef::RevealHand { player: revealed }, EffectDef::Choose(choice)] =
-            reveal_hand_and_choose_card(player, object, &CONTINUATION)
+        let [
+            EffectDef::RevealHand { player: revealed },
+            EffectDef::Choose(choice),
+        ] = reveal_hand_and_choose_card(player, object, &CONTINUATION)
         else {
             panic!("the helper should reveal, then choose")
         };
@@ -282,8 +273,7 @@ mod tests {
         assert_eq!(choice.maximum, 1);
         assert_eq!(choice.then, &CONTINUATION);
 
-        let [_, EffectDef::Choose(discard)] =
-            reveal_hand_and_discard_chosen_card(player, object)
+        let [_, EffectDef::Choose(discard)] = reveal_hand_and_discard_chosen_card(player, object)
         else {
             panic!("discard helper should use the common choice")
         };
@@ -322,7 +312,12 @@ mod tests {
         assert!(rules.has_type(CardType::Creature));
         assert_eq!(rules.subtypes(), &["Phyrexian", "Germ"]);
         assert_eq!(rules.colors(), [false, false, true, false, false]);
-        assert_eq!(rules.creature_stats().map(|stats| (stats.power, stats.toughness)), Some((0, 0)));
+        assert_eq!(
+            rules
+                .creature_stats()
+                .map(|stats| (stats.power, stats.toughness)),
+            Some((0, 0))
+        );
     }
 
     #[test]
@@ -403,13 +398,12 @@ mod tests {
         assert_eq!(targeted_dies.targets, TARGETS);
 
         let artifact = ObjectPredicateDef::HasType(CardType::Artifact);
-        let DeclarativeAbilityDef::Triggered(matching_dies) =
-            dies_trigger_matching(
-                "When an artifact is put into a graveyard from the battlefield, test.",
-                artifact,
-                effect,
-            )
-            .definition
+        let DeclarativeAbilityDef::Triggered(matching_dies) = dies_trigger_matching(
+            "When an artifact is put into a graveyard from the battlefield, test.",
+            artifact,
+            effect,
+        )
+        .definition
         else {
             unreachable!()
         };
@@ -421,7 +415,6 @@ mod tests {
                 Some(ZoneKind::Graveyard),
             )
         );
-
     }
 
     #[test]
@@ -487,10 +480,7 @@ mod tests {
         else {
             panic!("the blink helper should own the complete exile-and-return clause")
         };
-        assert_eq!(
-            object,
-            EffectRecipientDef::Target(TargetIndex::PRIMARY)
-        );
+        assert_eq!(object, EffectRecipientDef::Target(TargetIndex::PRIMARY));
         let EffectDef::InstallTrigger(installed) = *return_trigger else {
             panic!("the blink helper should install an ordinary delayed trigger")
         };
@@ -559,8 +549,7 @@ mod tests {
 
     #[test]
     fn until_source_leaves_builds_one_linked_exile_clause() {
-        let effect =
-            exile_until_source_leaves(EffectRecipientDef::Target(TargetIndex::PRIMARY));
+        let effect = exile_until_source_leaves(EffectRecipientDef::Target(TargetIndex::PRIMARY));
         let EffectDef::ExileLinkedToSource {
             object,
             then: Some(return_trigger),
@@ -612,7 +601,7 @@ mod tests {
             assert!(matches!(
                 ability.definition,
                 DeclarativeAbilityDef::ActivatedMana(definition)
-                    if definition.costs.as_slice() == [CostDef::TapSource]
+                    if definition.costs == [CostDef::TapSource]
             ));
             assert_eq!(
                 ability.declarative_effect(),
@@ -653,7 +642,7 @@ mod tests {
                 if_declined: [_],
                 ..
             }) if payment.payer == PlayerSetDef::Related(PlayerRelation::You)
-                && payment.cost == CostDef::PayLife(2)
+                && payment.costs == [CostDef::PayLife(2)]
         ));
 
         let check = check_land_enters(
@@ -714,9 +703,9 @@ mod tests {
 
     #[test]
     fn alternative_cast_helpers_own_costs_and_render_canonical_text() {
-        let flashback = flashback(mana_cost!("{2}{U}"));
+        let flashback = flashback(&[crate::CostDef::Mana(mana_cost!("{2}{U}"))]);
         let overload = overload(
-            mana_cost!("{3}{R}{R}{R}"),
+            &[crate::CostDef::Mana(mana_cost!("{3}{R}{R}{R}"))],
             "Deal 4 damage to each creature you don't control.",
             EffectDef::None,
         );
@@ -725,7 +714,7 @@ mod tests {
             flashback.definition,
             DeclarativeAbilityDef::AlternativeCast(definition)
                 if definition.kind == AlternativeCastKindDef::Flashback
-                    && definition.mana_cost
+                    && definition.mana_cost_source()
                         == AlternativeCastManaCostDef::Fixed(mana_cost!("{2}{U}"))
         ));
         assert!(AbilityPredicateDef::Is(AbilityKindDef::Flashback).matches(&flashback));
@@ -738,7 +727,7 @@ mod tests {
             overload.definition,
             DeclarativeAbilityDef::AlternativeCast(definition)
                 if definition.kind == AlternativeCastKindDef::Overload
-                    && definition.mana_cost
+                    && definition.mana_cost_source()
                         == AlternativeCastManaCostDef::Fixed(mana_cost!("{3}{R}{R}{R}"))
                     && definition.stack_text
                         == Some("Deal 4 damage to each creature you don't control.")
@@ -753,14 +742,14 @@ mod tests {
             granted.definition,
             DeclarativeAbilityDef::AlternativeCast(definition)
                 if definition.kind == AlternativeCastKindDef::Flashback
-                    && definition.mana_cost == AlternativeCastManaCostDef::ThisCardManaCost
-                    && definition.mana_cost.resolve(Some(mana_cost!("{1}{U}")))
+                    && definition.mana_cost_source() == AlternativeCastManaCostDef::ThisCardManaCost
+                    && crate::card::costs::mana_cost(definition.costs, Some(mana_cost!("{1}{U}")))
                         == Some(mana_cost!("{1}{U}"))
         ));
         let DeclarativeAbilityDef::AlternativeCast(definition) = granted.definition else {
             unreachable!("the helper always builds an alternative-cast ability")
         };
-        assert_eq!(definition.mana_cost.resolve(None), None);
+        assert_eq!(crate::card::costs::mana_cost(definition.costs, None), None);
     }
 
     #[test]
@@ -778,12 +767,8 @@ mod tests {
         assert!(AbilityPredicateDef::Is(AbilityKindDef::Activated).matches(&mana));
         assert!(AbilityPredicateDef::Is(AbilityKindDef::Activated).matches(&nonmana));
         assert!(AbilityPredicateDef::Is(AbilityKindDef::ActivatedMana).matches(&mana));
-        assert!(
-            !AbilityPredicateDef::Is(AbilityKindDef::ActivatedMana).matches(&nonmana)
-        );
-        assert!(
-            AbilityPredicateDef::Is(AbilityKindDef::NonManaActivated).matches(&nonmana)
-        );
+        assert!(!AbilityPredicateDef::Is(AbilityKindDef::ActivatedMana).matches(&nonmana));
+        assert!(AbilityPredicateDef::Is(AbilityKindDef::NonManaActivated).matches(&nonmana));
         assert!(!AbilityPredicateDef::Is(AbilityKindDef::NonManaActivated).matches(&mana));
     }
 
@@ -791,7 +776,12 @@ mod tests {
     fn bloodrush_owns_its_hand_zone_and_discard_procedure() {
         let effect = EffectDef::Special("Test Bloodrush effect");
         let text = "Bloodrush — {R}{G}, Discard this card: Test Bloodrush effect.";
-        let ability = bloodrush(mana_cost!("{R}{G}"), text, &[], effect);
+        let ability = bloodrush!(
+            &[crate::CostDef::Mana(mana_cost!("{R}{G}"))],
+            text,
+            &[],
+            effect,
+        );
         let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
             panic!("Bloodrush should be an activated ability")
         };
@@ -800,18 +790,7 @@ mod tests {
         assert_eq!(definition.source_zones, [ZoneKind::Hand]);
         assert_eq!(
             definition.costs,
-            AbilityCostList::borrowed(&[
-                CostDef::Mana(mana_cost!("{R}{G}")),
-                CostDef::DiscardSource,
-            ]),
-            "inline and borrowed cost storage should compare by their costs",
-        );
-        assert_eq!(
-            definition.costs.as_slice(),
-            [
-                CostDef::Mana(mana_cost!("{R}{G}")),
-                CostDef::DiscardSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}{G}")), CostDef::DiscardSource,],
         );
         assert_eq!(ability.declarative_effect(), Some(effect));
     }
@@ -829,8 +808,7 @@ mod tests {
         };
 
         assert_eq!(
-            definition.costs.as_slice(),
-            COSTS,
+            definition.costs, COSTS,
             "mana and distinct nonmana costs retain their printed order",
         );
         assert_eq!(definition.targets, EQUIP_TARGET);

@@ -4,11 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ControlDurationDef, CostDef, CounterKind, CreatedTokensDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ControlDurationDef, CostDef, CounterKind, CreatedTokensDef, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -35,10 +35,7 @@ const fn servo_for_two_energy_on_attack() -> AbilityDef {
         "Whenever this creature attacks, you may pay {E}{E}. If you do, create a 1/1 colorless Servo artifact creature token.",
         TriggerEventDef::attacks(ObjectPredicateDef::Source),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef {
-                payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                cost: CostDef::Energy(2),
-            },
+            &[CostDef::Energy(2)],
             &const { EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1) },
         )),
     )

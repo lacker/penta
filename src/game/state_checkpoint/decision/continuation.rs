@@ -20,7 +20,8 @@ fn parse_continuation(
         } => {
             let player = player(*chooser)?;
             let from = from.map(parse_zone_kind);
-            let (prompt, count, options) = game.forage_options(player, *optional, from)
+            let (prompt, count, options) = game
+                .forage_options(player, *optional, from)
                 .ok_or("forage decision has no complete legal payment")?;
             validate_authored_decision(
                 observation,
@@ -451,9 +452,7 @@ fn parse_continuation(
                     (state, binding, definition.then, prompt, visibility)
                 }
                 _ => {
-                    return Err(
-                        "object-choice locator does not identify an authored choice".into(),
-                    );
+                    return Err("object-choice locator does not identify an authored choice".into());
                 }
             };
             // An ordered binding makes the live decision carry resolution
@@ -469,8 +468,11 @@ fn parse_continuation(
                 state.minimum,
                 state.maximum,
                 &state.options,
-                matches!(binding, crate::card::ObjectChoiceBindingDef::OrderedObjects(_))
-                    .then_some(DecisionOrderSemantics::Resolution),
+                matches!(
+                    binding,
+                    crate::card::ObjectChoiceBindingDef::OrderedObjects(_)
+                )
+                .then_some(DecisionOrderSemantics::Resolution),
                 "object choice",
             )?;
             DecisionContinuation::ChooseForEffect {
@@ -598,7 +600,11 @@ fn parse_continuation(
             let EffectDef::ChooseOneOfEach(definition) = continuation.effect.effect else {
                 return Err("one-of-each locator does not identify an authored choice".into());
             };
-            let remaining = remaining.iter().copied().map(parse_target).collect::<Vec<_>>();
+            let remaining = remaining
+                .iter()
+                .copied()
+                .map(parse_target)
+                .collect::<Vec<_>>();
             let chosen = chosen.iter().copied().map(parse_target).collect::<Vec<_>>();
             let authored = game.effect_objects(
                 definition.input,
@@ -606,11 +612,7 @@ fn parse_continuation(
                 &continuation.context,
                 continuation.effect,
             );
-            let combined = remaining
-                .iter()
-                .chain(&chosen)
-                .copied()
-                .collect::<Vec<_>>();
+            let combined = remaining.iter().chain(&chosen).copied().collect::<Vec<_>>();
             if combined.len() != authored.len()
                 || combined
                     .iter()
@@ -638,7 +640,9 @@ fn parse_continuation(
                 .filter(|target| game.bound_object_matches(*target, predicate, source))
                 .collect::<Vec<_>>();
             if candidates.is_empty() {
-                return Err("one-of-each progress stopped at a predicate with no candidates".into());
+                return Err(
+                    "one-of-each progress stopped at a predicate with no candidates".into(),
+                );
             }
             let actor = game
                 .effect_player_reference(
@@ -717,18 +721,11 @@ fn parse_continuation(
                     .map(|(choice, expected_owner)| {
                         let owner = player(choice.player)?;
                         if owner != *expected_owner {
-                            return Err(
-                                "private per-player choice owner order is invalid".into(),
-                            );
+                            return Err("private per-player choice owner order is invalid".into());
                         }
                         match &choice.cards {
                             Some(cards) => Ok(game_ids(cards)),
-                            None => hidden_player_choices(
-                                hidden,
-                                owner,
-                                choice.count,
-                                game,
-                            ),
+                            None => hidden_player_choices(hidden, owner, choice.count, game),
                         }
                     })
                     .collect::<Result<Vec<_>, String>>()?
@@ -752,9 +749,7 @@ fn parse_continuation(
                 )
                 .ok_or("per-player choice task is out of range")?;
             if state.candidates.len() <= state.count {
-                return Err(
-                    "per-player choice checkpoint encodes an automatic choice".into(),
-                );
+                return Err("per-player choice checkpoint encodes an automatic choice".into());
             }
             validate_authored_decision(
                 observation,
@@ -777,6 +772,9 @@ fn parse_continuation(
                 candidates: state.candidates,
             }
         }
+        special @ DecisionContinuationSnapshot::PaySpecialAction { .. } => {
+            parse_special_action_continuation(game, observation, special)?
+        }
         DecisionContinuationSnapshot::PayOr {
             player: payer,
             payment: payment_snapshot,
@@ -798,27 +796,23 @@ fn parse_continuation(
             let scoped = catalog_scoped_effect(&game.catalog, ability, definition)
                 .ok_or("pay-or locator is absent from this catalog")?;
             let (payment, visibility, if_paid, otherwise) = match scoped.effect {
-                EffectDef::PayOr(authored) => {
-                    parse_authored_pay_or_continuation(
-                        game,
-                        &object,
-                        &context,
-                        payer,
-                        *cumulative_upkeep_age,
-                        scoped,
-                        authored,
-                    )?
-                }
-                EffectDef::CumulativeUpkeep(cost) => {
-                    parse_cumulative_upkeep_continuation(
-                        game,
-                        &object,
-                        payer,
-                        *cumulative_upkeep_age,
-                        scoped,
-                        cost,
-                    )?
-                }
+                EffectDef::PayOr(authored) => parse_authored_pay_or_continuation(
+                    game,
+                    &object,
+                    &context,
+                    payer,
+                    *cumulative_upkeep_age,
+                    scoped,
+                    authored,
+                )?,
+                EffectDef::CumulativeUpkeep(cost) => parse_cumulative_upkeep_continuation(
+                    game,
+                    &object,
+                    payer,
+                    *cumulative_upkeep_age,
+                    scoped,
+                    cost,
+                )?,
                 _ => {
                     return Err("pay-or locator does not identify an optional payment".into());
                 }
@@ -826,17 +820,17 @@ fn parse_continuation(
             // Compared as snapshots, and kept as the authored value: a
             // payment that names a predicate cannot be rebuilt from the
             // checkpoint alone, and the authored effect is what defines it.
-            if resolved_effect_payment_snapshot(payment) != *payment_snapshot {
+            if resolved_effect_payment_snapshot(payment.clone()) != *payment_snapshot {
                 return Err("pay-or payer or payment disagrees with its authored effect".into());
             }
-            let can_pay = game.can_pay_effect_payment(payer, payment);
-            if if_paid.is_none() && otherwise.is_none() || (!can_pay && otherwise.is_some())
-            {
+            let can_pay = game.can_pay_effect_payment(payer, payment.clone());
+            if if_paid.is_none() && otherwise.is_none() || (!can_pay && otherwise.is_some()) {
                 return Err(
                     "pay-or checkpoint encodes a choice that would resolve automatically".into(),
                 );
             }
-            let options = payment_decision_options(game, payer, payment, can_pay, "Decline");
+            let options =
+                payment_decision_options(game, payer, payment.clone(), can_pay, "Decline");
             validate_authored_decision(
                 observation,
                 payer,
@@ -871,11 +865,7 @@ fn parse_continuation(
         DecisionContinuationSnapshot::ExploredCardPlacement {
             player: seat,
             revealed,
-        } => parse_explored_card_placement(
-            observation,
-            *seat,
-            GameObjectId(*revealed),
-        )?,
+        } => parse_explored_card_placement(observation, *seat, GameObjectId(*revealed))?,
         DecisionContinuationSnapshot::Proliferate { candidates } => {
             // Rebuilt rather than trusted: what a proliferate could add to
             // is a fact of the board, so a checkpoint naming anything else

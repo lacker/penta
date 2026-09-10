@@ -197,7 +197,7 @@ pub(in crate::card::sets) static THUNDERTRAP_TRAINER: CardRecord = CardRecord::n
     // bodies and two looks.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Otter", "Wizard"], 1, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{5}{U}"),
+            &[CostDef::Mana(mana_cost!("{5}{U}"))],
             AlternativeCastKindDef::Offspring,
             Some(
                 "Offspring {4} (You may pay an additional {4} as you cast this spell. If you do, \

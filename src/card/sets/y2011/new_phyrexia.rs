@@ -10,12 +10,12 @@ use crate::card::{
     AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, BattlefieldEntryModificationDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef,
     ChooseDef, ControlDurationDef, CopyExceptionsDef, CostDef, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ManaRestrictionDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
@@ -91,17 +91,17 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecor
                 EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
                     "When each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
                     TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
-                    EffectDef::PayOr(PayOrDef::unless(
-                        EffectPaymentDef::mana(
-                            PlayerSetDef::One(PlayerRefDef::EventPlayer),
-                            mana_cost!("{1}"),
-                        ),
-                        &EffectDef::Counter {
-                            object: EffectRecipientDef::TriggeringObject,
-                            zone: ZoneKind::Graveyard,
-                            placement: ZonePlacement::Top,
-                        },
-                    )),
+                    EffectDef::PayOr(
+                        PayOrDef::unless(
+                            &[CostDef::Mana(mana_cost!("{1}"))],
+                            &EffectDef::Counter {
+                                object: EffectRecipientDef::TriggeringObject,
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                            },
+                        )
+                        .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
+                    ),
                 ))),
             ),
             abilities::flying(),
@@ -110,17 +110,17 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecor
                 TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
                     PlayerRelation::Opponent,
                 )),
-                EffectDef::PayOr(PayOrDef::unless(
-                    EffectPaymentDef::mana(
-                        PlayerSetDef::One(PlayerRefDef::EventPlayer),
-                        mana_cost!("{1}"),
-                    ),
-                    &EffectDef::Counter {
-                        object: EffectRecipientDef::TriggeringObject,
-                        zone: ZoneKind::Graveyard,
-                        placement: ZonePlacement::Top,
-                    },
-                )),
+                EffectDef::PayOr(
+                    PayOrDef::unless(
+                        &[CostDef::Mana(mana_cost!("{1}"))],
+                        &EffectDef::Counter {
+                            object: EffectRecipientDef::TriggeringObject,
+                            zone: ZoneKind::Graveyard,
+                            placement: ZonePlacement::Top,
+                        },
+                    )
+                    .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
+                ),
             ),
         ]),
 );
@@ -709,7 +709,7 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardReco
                 EffectDef::MayCastTargetWithoutPaying {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ability: &AbilityDef::alternative_cast(
-                        mana_cost!("{0}"),
+                        crate::NO_COSTS,
                         AlternativeCastKindDef::WithoutPayingManaCost,
                         Some("Cast without paying its mana cost."),
                         EffectDef::None,
@@ -3359,16 +3359,16 @@ pub(in crate::card::sets) static ISOLATION_CELL: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
         ])),
-        EffectDef::PayOr(PayOrDef::unless(
-            EffectPaymentDef::mana(
-                PlayerSetDef::One(PlayerRefDef::EventPlayer),
-                mana_cost!("{2}"),
-            ),
-            &EffectDef::LoseLife {
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::Constant(2),
-            },
-        )),
+        EffectDef::PayOr(
+            PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                &EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(2),
+                },
+            )
+            .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
+        ),
     )),
 );
 

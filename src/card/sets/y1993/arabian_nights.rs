@@ -7,12 +7,11 @@ use crate::card::{
     CardSet, CardType, ChoiceVisibilityDef, ComparisonDef, ControlDurationDef, CostDef,
     CounterKind, DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -327,10 +326,7 @@ pub(in crate::card::sets) static ISLAND_FISH_JASCONIUS: CardRecord = CardRecord:
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{U}{U}{U}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{U}{U}{U}"))],
                 &EffectDef::Untap {
                     object: EffectRecipientDef::Source,
                 },
@@ -564,8 +560,8 @@ pub(in crate::card::sets) static HASRAN_OGRESS: CardRecord = CardRecord::new_wit
         AbilityDef::triggered(
             "Whenever this creature attacks, it deals 3 damage to you unless you pay {2}.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{2}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 &EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(3)),
             )),
         ),
@@ -588,8 +584,8 @@ pub(in crate::card::sets) static JUNUN_EFREET: CardRecord = CardRecord::new_with
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{B}{B}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{B}{B}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -934,34 +930,32 @@ pub(in crate::card::sets) static CYCLONE: CardRecord = CardRecord::new_with_lega
                 amount: ValueDef::Constant(1),
             },
             EffectDef::PayOr(PayOrDef {
-                payment: EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::ColoredMana {
+                visibility: ChoiceVisibilityDef::Public,
+                ..PayOrDef::optional_or(
+                    &[CostDef::ColoredMana {
                         color: ManaColor::Green,
                         amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
-                    },
-                },
-                // The damage is one number dealt twice over: every creature and every
-                // player, including its own controller and their own board.
-                if_paid: Some(&EffectDef::Sequence(&[
-                    EffectDef::damage(
-                        EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::Any,
+                    }],
+                    // The damage is one number dealt twice over: every creature and every
+                    // player, including its own controller and their own board.
+                    &EffectDef::Sequence(&[
+                        EffectDef::damage(
+                            EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::Any,
+                            ),
+                            ValueDef::CountersOnSource(CounterKind::named("wind")),
                         ),
-                        ValueDef::CountersOnSource(CounterKind::named("wind")),
-                    ),
-                    EffectDef::damage(
-                        EffectRecipientDef::EachPlayer,
-                        ValueDef::CountersOnSource(CounterKind::named("wind")),
-                    ),
-                ])),
-                otherwise: Some(&EffectDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
-                visibility: ChoiceVisibilityDef::Public,
-                condition: None,
+                        EffectDef::damage(
+                            EffectRecipientDef::EachPlayer,
+                            ValueDef::CountersOnSource(CounterKind::named("wind")),
+                        ),
+                    ]),
+                    &EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    },
+                )
             }),
         ]),
     )),
@@ -1233,10 +1227,7 @@ pub(in crate::card::sets) static BRASS_MAN: CardRecord = CardRecord::new_with_le
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &EffectDef::Untap {
                     object: EffectRecipientDef::Source,
                 },

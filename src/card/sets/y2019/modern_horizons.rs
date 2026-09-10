@@ -32,8 +32,8 @@ pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
     // that the creature has to survive until the second one.
     CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "Exile target creature you control, then return it to the battlefield under its \
-             owner's control.",
+            "Exile target creature you control, then return it to the battlefield under \
+                     its owner's control.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -247,7 +247,7 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_
             ]),
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{4}{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{4}{W}{W}"))],
             AlternativeCastKindDef::Overload,
             Some("Exile each creature you don't control. For each creature exiled this way, its controller searches their library for a basic land card. Those players put those cards onto the battlefield tapped, then shuffle."),
             abilities::bind_objects_then(
@@ -305,7 +305,7 @@ pub(in crate::card::sets) static ECHO_OF_EONS: CardRecord = CardRecord::new_with
              cards.",
             abilities::shuffle_back_and_draw_seven(),
         ),
-        abilities::flashback(mana_cost!("{2}{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{U}"))]),
     ]),
 );
 
@@ -336,7 +336,11 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
     // answering for free, and only on the turn somebody else is using it.
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Blue),
+                ZoneKind::Hand,
+                CostQuantityDef::Fixed(1),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "If it's not your turn, you may exile a blue card from your hand rather than pay \
@@ -347,11 +351,6 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
         // Exiled rather than discarded, the same way the green half of the cycle
         // spends its card: what pays is gone without ever becoming a graveyard
         // card.
-        .with_alternative_additional_cost(&CostDef::exile(
-            ObjectPredicateDef::Color(ManaColor::Blue),
-            ZoneKind::Hand,
-            CostQuantityDef::Fixed(1),
-        ))
         .with_alternative_condition(&NOT_YOUR_TURN),
         AbilityDef::spell_with_targets(
             "Counter target noncreature spell. If that spell is countered this way, exile it \
@@ -600,7 +599,7 @@ pub(in crate::card::sets) static RECKLESS_CHARGE: CardRecord = CardRecord::new(
                 },
             ]),
         ),
-        abilities::flashback(mana_cost!("{2}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{R}"))]),
     ]),
 );
 
@@ -706,7 +705,11 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_wi
     CardSet::ModernHorizons1,
     CardRules::new_instant(mana_cost!("{2}{G}{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Green),
+                ZoneKind::Hand,
+                CostQuantityDef::Fixed(1),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "If it's not your turn, you may exile a green card from your hand rather than pay this spell's mana cost.",
@@ -715,11 +718,7 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_wi
         )
         // Exiled rather than discarded: the card is spent without ever becoming a
         // graveyard card, which is what "exile a green card" means.
-        .with_alternative_additional_cost(&CostDef::exile(
-            ObjectPredicateDef::Color(ManaColor::Green),
-            ZoneKind::Hand,
-            CostQuantityDef::Fixed(1),
-        ))
+
         .with_alternative_condition(&NOT_YOUR_TURN),
         AbilityDef::spell_with_targets(
             "Destroy up to two target artifacts and/or enchantments.",
@@ -842,9 +841,9 @@ pub(in crate::card::sets) static KROSAN_TUSKER: CardRecord = CardRecord::new(
     // Nobody casts the Boar; cycling it for a land and a card is the card,
     // and the seven-mana body is there so the cycling costs three.
     CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Boar", "Beast"], 6, 5).with_abilities(&[
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2}{G} ({2}{G}, Discard this card: Draw a card.)",
-            mana_cost!("{2}{G}"),
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
         ),
         AbilityDef::triggered(
             "When you cycle this card, you may search your library for a basic land card, reveal \
@@ -992,9 +991,9 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_wi
     // free, every time.
     CardRules::new_creature(mana_cost!("{3}{U}{B}"), &["Zombie", "Ninja"], 5, 4)
         .with_abilities(&[
-            abilities::ninjutsu(
+            abilities::ninjutsu!(
                 "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
-                mana_cost!("{2}{U}{B}"),
+                &[CostDef::Mana(mana_cost!("{2}{U}{B}"))],
             ),
             AbilityDef::triggered(
                 "Whenever this creature deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs.",
@@ -1070,7 +1069,11 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                                         ObjectPredicateDef::HasType(CardType::Instant),
                                         ObjectPredicateDef::HasType(CardType::Sorcery),
                                     ]),
-                                    ability: &AbilityDef::alternative_cast_for_card_mana_cost(
+                                    ability: &AbilityDef::alternative_cast(
+                                        &[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::discard(
+                                            ObjectPredicateDef::HasType(CardType::Land),
+                                            CostQuantityDef::Fixed(1),
+                                        )],
                                         AlternativeCastKindDef::Retrace,
                                         Some(
                                             "Retrace (You may cast this card from your graveyard by discarding a land card in \
@@ -1081,10 +1084,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                                     // Retrace's own cost: the card's mana cost, plus a land out of your hand.
                                     // Discarding is what an ordinary hand cost does, so nothing else has to be
                                     // said about how the land is spent.
-                                    .with_alternative_additional_cost(&CostDef::discard(
-                                        ObjectPredicateDef::HasType(CardType::Land),
-                                        CostQuantityDef::Fixed(1),
-                                    )),
+                                    ,
                                 }),
                             },
                         )]),

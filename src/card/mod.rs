@@ -23,17 +23,16 @@ pub use catalog::{CardCatalog, CatalogError, EffectSubjectKind, GrantedAbilityVa
 pub(crate) use characteristics::applicable_part_ids_ref;
 pub use characteristics::{CharacteristicContext, CharacteristicError, applicable_part_ids};
 pub use creature_types::{CREATURE_TYPES, creature_type_name};
-pub(crate) use model::child_effects;
 pub use model::{
-    AbilityCostList, AbilityCostReductionDef, AbilityDef, AbilityEffectDef, AbilityKindDef,
-    AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef, AbilityProgramDef,
-    AbilityTargetDef, AbilityTargetPredicate, ActivatedAbilityDef, ActivationPermissionDef,
-    ActivationTimingDef, AddManaEffectDef, AdditionalCostDef, AdditionalCostValueDef,
-    AdditionalTriggerDef, AggregateOperationDef, AlternateSpellKind, AlternativeCastAbilityDef,
-    AlternativeCastKindDef, AlternativeCastManaCostDef, AlternativeCostDef, AppliedEffectDef,
-    AppliedRuleDef, ArrivalAttachmentDef, AttachedAbilityDef, AttackDeclarationRangeDef,
-    AttackDefenderKindDef, AttackDefenderScopeDef, AttackEventMatcherDef, AttackRestrictionDef,
-    BandingQuality, BasicLandType, BattlefieldArrivalDef, BattlefieldEntryChoiceDestinationDef,
+    AbilityCostReductionDef, AbilityDef, AbilityEffectDef, AbilityKindDef, AbilityOperationDef,
+    AbilityPredicateDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
+    AbilityTargetPredicate, ActivatedAbilityDef, ActivationPermissionDef, ActivationTimingDef,
+    AddManaEffectDef, AdditionalCostDef, AdditionalCostValueDef, AdditionalTriggerDef,
+    AggregateOperationDef, AlternateSpellKind, AlternativeCastAbilityDef, AlternativeCastKindDef,
+    AlternativeCastManaCostDef, AlternativeCostDef, AppliedEffectDef, AppliedRuleDef,
+    ArrivalAttachmentDef, AttachedAbilityDef, AttackDeclarationRangeDef, AttackDefenderKindDef,
+    AttackDefenderScopeDef, AttackEventMatcherDef, AttackRestrictionDef, BandingQuality,
+    BasicLandType, BattlefieldArrivalDef, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, BindObjectsDef,
     BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardAbilityList,
     CardArt, CardChoiceSourceDef, CardComposition, CardDefinition, CardEffectStatus, CardNameDef,
@@ -63,7 +62,7 @@ pub use model::{
     ManaSpendEffectDef, ManaSplit, ManaTypeDef, ManaTypeFilterDef, ManaTypeSetDef,
     ManaTypeSourceDef, MeldComponentDef, MeldRecipeDef, MeldResultDef, MillLoopDef, MillUntilDef,
     ModalModeListDef, ModalSpellDef, ModeDef, ModeSetDef, MoveObjectsDef, MoveToZoneCostDef,
-    NONBASIC_LAND_SUBTYPES, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
+    NO_COSTS, NONBASIC_LAND_SUBTYPES, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
     ObjectCountConditionDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetPredicateDef, ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueAggregateDef,
@@ -92,6 +91,7 @@ pub use model::{
 pub use model::{
     DamageAssignmentDef, DamageAssignmentsDef, DamageDef, DamageFollowUpDef, FightExcessDef,
 };
+pub(crate) use model::{child_effects, costs};
 
 /// The built-in catalog, validated once per process. Construction walks every
 /// definition and printing, and callers used to pay for it on every game — a

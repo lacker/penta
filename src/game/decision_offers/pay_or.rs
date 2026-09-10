@@ -15,7 +15,7 @@ impl Game {
         if if_paid.is_none() && otherwise.is_none() {
             return;
         }
-        let can_pay = self.can_pay_effect_payment(player, payment);
+        let can_pay = self.can_pay_effect_payment(player, payment.clone());
         if !can_pay && let Some(effect) = otherwise {
             if let Some(age) = cumulative_upkeep_age {
                 self.capture_cumulative_upkeep_not_paid(object, player, age);
@@ -23,7 +23,7 @@ impl Game {
             self.resolve_effect_def(effect, object, context);
             return;
         }
-        let options = self.payment_options(player, payment, can_pay, "Decline");
+        let options = self.payment_options(player, payment.clone(), can_pay, "Decline");
         self.queue_decision(
             player,
             object.ability_text().unwrap_or("Pay the cost?"),

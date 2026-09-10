@@ -35,7 +35,7 @@ impl Game {
                     return;
                 }
                 let mut sacrifice = None;
-                for cost in &definition.costs {
+                for cost in definition.costs {
                     match cost {
                         CostDef::SacrificePermanent { object, controller }
                             if sacrifice.is_none() =>
@@ -94,12 +94,14 @@ impl Game {
     /// the ability's cost names something a card in a hand cannot spend.
     fn hand_activation_mana_cost(definition: &ActivatedAbilityDef) -> Option<ManaCost> {
         let mut mana_cost = ManaCost::default();
-        for cost in definition.costs.as_slice() {
+        for cost in definition.costs {
             match cost {
                 CostDef::Mana(cost) => {
                     mana_cost = add_mana_cost(mana_cost, *cost);
                 }
-                CostDef::DiscardSource | CostDef::ReturnUnblockedAttackerToHand => {}
+                CostDef::DiscardSource
+                | CostDef::ReturnUnblockedAttackerToHand
+                | CostDef::PayLife(_) => {}
                 // Nothing else is supported for an ability activated from a
                 // hand; in particular, the source cannot pay by also being
                 // one card in a larger hand payment.
@@ -138,9 +140,12 @@ impl Game {
                     taps_source: false,
                     leaves_source: false,
                 };
-                if !self.can_pay_cost_for(player, mana_cost, 0, &payment_purpose) {
+                let Some(life_available) = self.life_available_after_payment(
+                    player,
+                    crate::card::costs::life_cost(definition.costs),
+                ) else {
                     return;
-                }
+                };
                 let max_x = if mana_cost.variable_x {
                     self.maximum_x_for(player, mana_cost, &payment_purpose)
                 } else {
@@ -173,6 +178,16 @@ impl Game {
                         &[],
                     ) {
                         for cost_objects in &returned {
+                            if !self.can_pay_cost_for_reserving_with_life(
+                                player,
+                                mana_cost,
+                                x,
+                                &payment_purpose,
+                                cost_objects,
+                                life_available,
+                            ) {
+                                continue;
+                            }
                             actions.push(Action::ActivateAbility {
                                 source: card.id,
                                 ability: effective.origin,
@@ -253,11 +268,15 @@ impl Game {
                     // Nothing offers a graveyard activation more than once, so
                     // a variable X would silently be chosen as zero.
                     mana_cost = self.activation_mana_cost(&definition, card.id, mana_cost);
-                    if mana_cost.variable_x
-                        || !self.can_pay_cost_for(player, mana_cost, 0, &payment_purpose)
-                    {
+                    if mana_cost.variable_x {
                         return;
                     }
+                    let Some(life_available) = self.life_available_after_payment(
+                        player,
+                        crate::card::costs::life_cost(definition.costs),
+                    ) else {
+                        return;
+                    };
                     let payers = self.graveyard_activation_payers(player, card.id, taps);
                     for targets in self.legal_ability_target_selections(
                         definition.targets,
@@ -268,6 +287,16 @@ impl Game {
                         &[],
                     ) {
                         for cost_objects in &payers {
+                            if !self.can_pay_cost_for_reserving_with_life(
+                                player,
+                                mana_cost,
+                                0,
+                                &payment_purpose,
+                                cost_objects,
+                                life_available,
+                            ) {
+                                continue;
+                            }
                             actions.push(Action::ActivateAbility {
                                 source: card.id,
                                 ability: effective.origin,
@@ -292,13 +321,13 @@ impl Game {
     ) -> Option<(ManaCost, Option<(ObjectPredicateDef, PlayerRelation)>)> {
         let mut mana_cost = ManaCost::default();
         let mut taps = None;
-        for cost in definition.costs.as_slice() {
+        for cost in definition.costs {
             match cost {
                 CostDef::Mana(cost) => mana_cost = add_mana_cost(mana_cost, *cost),
                 // The card itself, and one permanent on the battlefield: a
                 // card in a graveyard can still name something out there to
                 // tap.
-                CostDef::ExileSource | CostDef::MillCards(_) => {}
+                CostDef::ExileSource | CostDef::MillCards(_) | CostDef::PayLife(_) => {}
                 CostDef::TapPermanents {
                     object,
                     controller,

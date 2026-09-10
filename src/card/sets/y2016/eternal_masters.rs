@@ -40,12 +40,14 @@ pub(in crate::card::sets) static DEEP_ANALYSIS: CardRecord = CardRecord::new(
             },
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{1}{U}"),
+            &[
+                CostDef::Mana(mana_cost!("{1}{U}")),
+                CostDef::pay_life(CostQuantityDef::Fixed(3)),
+            ],
             AlternativeCastKindDef::Flashback,
             Some("Flashback—{1}{U}, Pay 3 life."),
             EffectDef::None,
-        )
-        .with_alternative_additional_cost(&CostDef::pay_life(CostQuantityDef::Fixed(3))),
+        ),
     ]),
 );
 
@@ -76,7 +78,7 @@ pub(in crate::card::sets) static MOGG_WAR_MARSHAL: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
         abilities::echo(
             "Echo {1}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{1}{R}"),
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
         ),
         AbilityDef::triggered(
             "When this creature enters or dies, create a 1/1 red Goblin creature token.",

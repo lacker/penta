@@ -62,12 +62,13 @@ pub(super) fn validate_ability_program_targets(
         validate_trigger_condition(*condition, targets.len(), scope)?;
     }
     validate_program_references(program, targets.len(), scope)?;
-    let triggering_object_zone = trigger_event
-        .and_then(trigger_event_object_zone)
-        .or(match replacement_event {
-            Some(ReplacementEventDef::WouldBeDestroyed { .. }) => Some(ZoneKind::Battlefield),
-            _ => None,
-        });
+    let triggering_object_zone =
+        trigger_event
+            .and_then(trigger_event_object_zone)
+            .or(match replacement_event {
+                Some(ReplacementEventDef::WouldBeDestroyed { .. }) => Some(ZoneKind::Battlefield),
+                _ => None,
+            });
     validate_program_target_shapes(program, targets, triggering_object_zone)
 }
 
@@ -226,8 +227,8 @@ fn validate_payment_references(
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_single_payment_payer(payment.payer)?;
     validate_player_set(payment.payer, target_count, scope)?;
-    if let CostDef::GenericMana(amount) = payment.cost {
-        validate_value_target_references(amount, target_count, scope)?;
+    for cost in payment.costs {
+        validate_payment_cost_references(*cost, target_count, scope)?;
     }
     Ok(())
 }
@@ -470,9 +471,9 @@ fn validate_object_set_target_references(
         // no player or target reference in it to validate.
         ObjectSetDef::LinkedExiles => Ok(()),
         ObjectSetDef::BottomOfGraveyard(player)
-            | ObjectSetDef::CardsDrawnThisTurnInHand(player)
-            | ObjectSetDef::PermanentsControlledBy(player)
-            | ObjectSetDef::TopOfGraveyardMatching { player, .. } => {
+        | ObjectSetDef::CardsDrawnThisTurnInHand(player)
+        | ObjectSetDef::PermanentsControlledBy(player)
+        | ObjectSetDef::TopOfGraveyardMatching { player, .. } => {
             validate_player_reference(player, target_count, scope)
         }
     }
@@ -740,3 +741,28 @@ fn validate_card_name_references(
 }
 
 include!("name_references.rs");
+
+fn validate_payment_cost_references(
+    cost: CostDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    match cost {
+        CostDef::All(costs) => costs
+            .iter()
+            .try_for_each(|cost| validate_payment_cost_references(*cost, target_count, scope)),
+        CostDef::GenericMana(amount) | CostDef::ColoredMana { amount, .. } => {
+            validate_value_target_references(amount, target_count, scope)
+        }
+        CostDef::ObjectManaCostReducedBy { object, .. }
+        | CostDef::RemoveAnyNumberOfCounters { object, .. } => {
+            validate_recipient_target_references(*object, target_count, scope)
+        }
+        CostDef::DiscardMatching(object)
+        | CostDef::SacrificePermanentMatching(object)
+        | CostDef::MovePermanentMatching { object, .. } => {
+            validate_object_predicate_references(object, target_count, scope)
+        }
+        _ => Ok(()),
+    }
+}

@@ -138,7 +138,7 @@ pub(in crate::card::sets) static TRAPPED_IN_THE_SCREEN: CardRecord = CardRecord:
     // enchantment costs two more than it used to.
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_abilities(&[
         abilities::ward(
-            2,
+            &[CostDef::Mana(crate::ManaCost::new(2, 0))],
             "Ward {2} (Whenever this enchantment becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)",
         ),
         abilities::enters_trigger_with_targets(
@@ -221,7 +221,7 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
         CardRules::new_enchantment_creature(mana_cost!("{3}{B}{B}"), &["Avatar", "Horror"], 5, 5)
             .with_abilities(&[
                 AbilityDef::alternative_cast(
-                    mana_cost!("{1}{B}"),
+                    &[CostDef::Mana(mana_cost!("{1}{B}"))],
                     AlternativeCastKindDef::Impending,
                     Some(
                         "Impending 5—{1}{B} (If you cast this spell for its impending cost, it enters with \
@@ -444,7 +444,7 @@ pub(in crate::card::sets) static LEYLINE_OF_MUTATION: CardRecord = CardRecord::n
                     ZoneKind::Graveyard,
                     ZoneKind::Exile,
                 ],
-                cost: mana_cost!("{W}{U}{B}{R}{G}"),
+                costs: &[CostDef::Mana(mana_cost!("{W}{U}{B}{R}{G}"))],
             }),
         ),
     ]),
@@ -570,10 +570,10 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
     CardRules::new_planeswalker(mana_cost!("{2}{U}{B}"), &["Kaito"], 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            abilities::ninjutsu(
+            abilities::ninjutsu!(
                 "Ninjutsu {1}{U}{B} ({1}{U}{B}, Return an unblocked attacker you control to hand: Put \
-                 this card onto the battlefield from your hand tapped and attacking.)",
-                mana_cost!("{1}{U}{B}"),
+                this card onto the battlefield from your hand tapped and attacking.)",
+                &[CostDef::Mana(mana_cost!("{1}{U}{B}"))],
             ),
             AbilityDef::static_ability(
                 "During your turn, as long as Kaito has one or more loyalty counters on him, he's a 3/4 \
@@ -1032,7 +1032,7 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_MISTMOORS: CardRecord = CardRec
     CardRules::new_enchantment_creature(mana_cost!("{5}{W}{W}"), &["Avatar", "Horror"], 6, 6)
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{2}{W}{W}"),
+                &[CostDef::Mana(mana_cost!("{2}{W}{W}"))],
                 AlternativeCastKindDef::Impending,
                 Some(
                     "Impending 4—{2}{W}{W} (If you cast this spell for its impending cost, it enters \

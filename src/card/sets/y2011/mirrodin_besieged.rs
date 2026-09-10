@@ -12,12 +12,12 @@ use crate::card::{
     CardSupertype, CardType, CardTypeSet, CastTimingPermissionDef, CharacteristicOperationDef,
     ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef, CounterKind,
     CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef,
-    DividedTotal, DrawEventMatcherDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, ScaledValueDef, SpellResolutionDestinationDef,
-    TargetChooserDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, ScaledValueDef, SpellResolutionDestinationDef, TargetChooserDef,
+    TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -1470,12 +1470,9 @@ pub(in crate::card::sets) static KULDOTHA_FLAMEFIEND: CardRecord = CardRecord::n
                 chooser: TargetChooserDef::Controller,
             }],
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::SacrificePermanentMatching(
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                    ),
-                },
+                &[CostDef::SacrificePermanentMatching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
                 &EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::DividedAmongTargets,
@@ -2450,10 +2447,7 @@ pub(in crate::card::sets) static MIRRORWORKS: CardRecord = CardRecord::new(
             Some(ZoneKind::Battlefield),
         ),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{2}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{2}"))],
             &EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
                 object: &EffectRecipientDef::TriggeringObject,
                 exceptions: CopyExceptionsDef::NONE,

@@ -142,7 +142,9 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
             // splice is a cast-time option on the card in hand, so the
             // clause exists to give the splice cost somewhere printed to
             // live, exactly as plot's does.
-            abilities::splice_onto_arcane(mana_cost!("{2}{R}{R}")),
+            abilities::splice_onto_arcane(
+                &[CostDef::Mana(mana_cost!("{2}{R}{R}"))],
+            ),
         ]),
 );
 

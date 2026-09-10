@@ -1,7 +1,7 @@
 use serde_json::Value;
 
 use crate::card::{
-    AlternativeCastKindDef, CardType, CardTypeSet, CostDef, EffectDef, EffectPaymentDef,
+    AlternativeCastKindDef, CardType, CardTypeSet, EffectDef, EffectPaymentDef,
     ReplacementChoiceDef, ReplacementEventDef, TurnKindDef, ZonePlacement,
 };
 use crate::{
@@ -548,6 +548,9 @@ fn continuation_snapshot(
                 private_chosen,
             }
         }
+        DecisionContinuation::PaySpecialAction { player, source, action, payment } => DecisionContinuationSnapshot::PaySpecialAction {
+            player: player.index(), source: source.0, action: *action, payment: resolved_effect_payment_snapshot(payment.clone()),
+        },
         DecisionContinuation::PayOr {
             player,
             payment,
@@ -572,7 +575,7 @@ fn continuation_snapshot(
             let definition = catalog_ability(&game.catalog, &ability)?;
             DecisionContinuationSnapshot::PayOr {
                 player: player.index(),
-                payment: resolved_effect_payment_snapshot(*payment),
+                payment: resolved_effect_payment_snapshot(payment.clone()),
                 cumulative_upkeep_age: *cumulative_upkeep_age,
                 object: detached_stack_snapshot_allowing(game, viewer, object, visible_rebindings)?,
                 ability,
@@ -588,7 +591,7 @@ fn continuation_snapshot(
         } => DecisionContinuationSnapshot::BattlefieldEntryPayment {
             context: replacement_context_snapshot(*context),
             player: player.index(),
-            payment: resolved_effect_payment_snapshot(*payment),
+            payment: resolved_effect_payment_snapshot(payment.clone()),
             effect: resolved_replacement_effect_locator(
                 &game.catalog,
                 context.source,
@@ -958,6 +961,7 @@ fn continuation_snapshot(
 include!("decision/parse_observation.rs");
 
 include!("decision/continuation.rs");
+include!("decision/special_action_continuation.rs");
 include!("decision/battlefield_entry_continuation.rs");
 
 include!("decision/validation.rs");

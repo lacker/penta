@@ -169,6 +169,9 @@ fn shared_static_query(query: ObjectQueryDef) -> bool {
 }
 
 pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
+    if let KeywordAbility::Suspend(crate::card::SuspendAbilityDef::Hand { costs, .. }) = keyword {
+        return costs::shared_special_action_costs(costs);
+    }
     matches!(
         keyword,
         KeywordAbility::Convoke
@@ -450,7 +453,17 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
     match ability.definition {
         DeclarativeAbilityDef::Spell(definition) => {
             if let Some(modal) = definition.modal() {
-                shared_spell_additional_cost(modal.escalate_cost)
+                (0..modal.modes.len()).all(|index| {
+                    modal
+                        .mode_additional_costs(
+                            crate::ModeId::from_index(index).expect("mode index fits"),
+                        )
+                        .is_none_or(|costs| {
+                            costs
+                                .iter()
+                                .all(|cost| shared_spell_additional_cost(Some(*cost)))
+                        })
+                }) && shared_spell_additional_cost(modal.escalate_cost)
                     && modal.modes.iter().all(|mode| {
                         mode.declarative_effect().is_none() || shared_definition_ability(mode)
                     })
@@ -492,11 +505,11 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
 
             let battlefield = battlefield_only(definition.source_zones);
             let hand = definition.source_zones == [ZoneKind::Hand]
-                && definition.costs.as_slice() == [CostDef::ExileSource]
+                && definition.costs == [CostDef::ExileSource]
                 && definition.activation_limit.is_none()
                 && definition.condition.is_none();
             let command = definition.source_zones == [ZoneKind::Command]
-                && !definition.costs.as_slice().is_empty()
+                && !definition.costs.is_empty()
                 && definition
                     .costs
                     .iter()
@@ -506,7 +519,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
 
             (battlefield || hand || command)
                 && definition.procedure == AbilityProcedureDef::Shared
-                && !definition.costs.as_slice().is_empty()
+                && !definition.costs.is_empty()
                 && definition.costs.iter().all(|cost| {
                     if hand || command {
                         return true;
@@ -752,7 +765,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     definition.source_zones,
                     [ZoneKind::Battlefield | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile]
                 ) && definition.procedure == AbilityProcedureDef::Shared
-                    && shared_activated_costs(definition.source_zones, definition.costs.as_slice())
+                    && shared_activated_costs(definition.source_zones, definition.costs)
                     // Only the mana path enumerates one activation per
                     // removable count, so an open-ended removal outside it
                     // would leave the size unanswered.
@@ -846,7 +859,14 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             effect == EffectDef::None || shared_static_effect(definition.source_zones, effect)
         }
         DeclarativeAbilityDef::Replacement(_) => unreachable!("handled before ordinary effects"),
-        DeclarativeAbilityDef::AlternativeCast(definition) => match definition.kind {
+        DeclarativeAbilityDef::AlternativeCast(definition) => {
+            let costs_supported = if definition.kind == AlternativeCastKindDef::Plot {
+                costs::shared_special_action_costs(definition.costs)
+            } else {
+                costs::shared_cast_costs(definition.costs)
+            };
+            costs_supported
+                && match definition.kind {
             // These are permissions to cast rather than effects of their
             // own. The card's spell clause does the work; for a face-down
             // cast nothing does, which is the point. Impending and dash
@@ -896,13 +916,20 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             // What a cast wears when another permanent supplied the cost.
             // No card prints it, so no card may claim it.
             AlternativeCastKindDef::Granted => false,
-        },
+        }
+        }
         // Neither clause resolves anything: a cost clause has already been
         // paid where the spell was announced, and a deck-construction
         // permission is read while a deck is assembled and never while a
         // game runs. Both are shared exactly when they do nothing.
-        DeclarativeAbilityDef::OptionalAdditionalCost(_)
-        | DeclarativeAbilityDef::DeckConstruction(_) => effect == EffectDef::None,
+        DeclarativeAbilityDef::OptionalAdditionalCost(cost) => {
+            effect == EffectDef::None
+                && cost.costs.iter().all(|cost| {
+                    matches!(cost, CostDef::ManaCostOf(crate::ObjectRefDef::Source))
+                        || shared_spell_additional_cost(Some(*cost))
+                })
+        }
+        DeclarativeAbilityDef::DeckConstruction(_) => effect == EffectDef::None,
         DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
         DeclarativeAbilityDef::SpecialAction(_) => false,
     }

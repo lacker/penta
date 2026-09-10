@@ -5,8 +5,7 @@
 //! each answer.
 
 use super::{
-    ChoiceVisibilityDef, CostDef, EffectDef, ManaCost, PlayerRefDef, PlayerSetDef,
-    TriggerConditionDef, ValueDef,
+    ChoiceVisibilityDef, CostDef, EffectDef, PlayerRefDef, PlayerSetDef, TriggerConditionDef,
 };
 
 /// A payment offered while an effect or replacement procedure resolves.
@@ -18,48 +17,13 @@ use super::{
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct EffectPaymentDef {
     pub payer: PlayerSetDef,
-    pub cost: CostDef,
+    pub costs: &'static [CostDef],
 }
 
 impl EffectPaymentDef {
     #[must_use]
-    pub const fn mana(payer: PlayerSetDef, cost: ManaCost) -> Self {
-        Self {
-            payer,
-            cost: CostDef::Mana(cost),
-        }
-    }
-
-    #[must_use]
-    pub const fn generic_mana(payer: PlayerSetDef, amount: ValueDef) -> Self {
-        Self {
-            payer,
-            cost: CostDef::GenericMana(amount),
-        }
-    }
-
-    #[must_use]
-    pub const fn life(payer: PlayerSetDef, amount: u16) -> Self {
-        Self {
-            payer,
-            cost: CostDef::PayLife(amount),
-        }
-    }
-
-    #[must_use]
-    pub const fn mill(payer: PlayerSetDef, amount: u16) -> Self {
-        Self {
-            payer,
-            cost: CostDef::MillCards(amount),
-        }
-    }
-
-    #[must_use]
-    pub const fn discard(payer: PlayerSetDef, amount: u16) -> Self {
-        Self {
-            payer,
-            cost: CostDef::DiscardCards(amount),
-        }
+    pub const fn new(payer: PlayerSetDef, costs: &'static [CostDef]) -> Self {
+        Self { payer, costs }
     }
 }
 
@@ -78,11 +42,15 @@ pub struct PayOrDef {
 }
 
 impl PayOrDef {
-    /// Offer an optional payment and continue only when it is paid.
+    /// Offer the effect controller an optional payment and continue only when
+    /// it is paid.
     #[must_use]
-    pub const fn optional(payment: EffectPaymentDef, if_paid: &'static EffectDef) -> Self {
+    pub const fn optional(costs: &'static [CostDef], if_paid: &'static EffectDef) -> Self {
         Self {
-            payment,
+            payment: EffectPaymentDef::new(
+                PlayerSetDef::One(PlayerRefDef::EffectController),
+                costs,
+            ),
             if_paid: Some(if_paid),
             otherwise: None,
             visibility: ChoiceVisibilityDef::Private,
@@ -90,22 +58,26 @@ impl PayOrDef {
         }
     }
 
-    /// Offer an optional payment with a branch either way. Both halves are
-    /// one printed clause, so the player choosing not to pay is not the same
-    /// as nothing happening.
+    /// Offer the effect controller an optional payment with a branch either
+    /// way. Both halves are one printed clause, so the player choosing not to
+    /// pay is not the same as nothing happening.
     #[must_use]
     pub const fn optional_or(
-        payment: EffectPaymentDef,
+        costs: &'static [CostDef],
         if_paid: &'static EffectDef,
         otherwise: &'static EffectDef,
     ) -> Self {
         Self {
-            payment,
-            if_paid: Some(if_paid),
             otherwise: Some(otherwise),
-            visibility: ChoiceVisibilityDef::Private,
-            condition: None,
+            ..Self::optional(costs, if_paid)
         }
+    }
+
+    /// Charge a specific player instead of the effect controller.
+    #[must_use]
+    pub const fn with_payer(mut self, payer: PlayerSetDef) -> Self {
+        self.payment.payer = payer;
+        self
     }
 
     /// "You may pay ... if <condition>": the offer is made only when the
@@ -116,28 +88,15 @@ impl PayOrDef {
         self
     }
 
-    /// Continue unless the payer pays. Nothing happens when they do, which is
-    /// what "sacrifice it unless you return a land" says: paying is the whole
-    /// point of the clause and buys only the absence of the consequence.
+    /// Continue unless the effect controller pays. Nothing happens when they
+    /// do, which is what "sacrifice it unless you return a land" says: paying
+    /// is the whole point and buys only the absence of the consequence.
     #[must_use]
-    pub const fn unless(payment: EffectPaymentDef, otherwise: &'static EffectDef) -> Self {
+    pub const fn unless(costs: &'static [CostDef], otherwise: &'static EffectDef) -> Self {
         Self {
-            payment,
-            if_paid: None,
-            otherwise: Some(otherwise),
-            visibility: ChoiceVisibilityDef::Private,
-            condition: None,
-        }
-    }
-
-    /// Continue unless the resolving effect's controller pays a fixed mana
-    /// cost.
-    #[must_use]
-    pub const fn unless_mana(cost: ManaCost, otherwise: &'static EffectDef) -> Self {
-        Self {
-            payment: EffectPaymentDef::mana(
+            payment: EffectPaymentDef::new(
                 PlayerSetDef::One(PlayerRefDef::EffectController),
-                cost,
+                costs,
             ),
             if_paid: None,
             otherwise: Some(otherwise),

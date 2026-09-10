@@ -7,15 +7,14 @@ use crate::card::{
     ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef,
     CostModificationDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
     DamagePreventionDef, DamagePreventionFollowUpDef, DamageRecipientMatcherDef,
-    DamageSourceGroupDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, LikelihoodDef,
-    ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PerPlayerSelectionDef,
-    PlayerObjectCountAggregateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuotientValueDef,
-    ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SourceMatchValueDef,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    DamageSourceGroupDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
+    HalvedValueDef, InstalledTriggerDef, KeywordAbility, LikelihoodDef, ManaColor, ManaTypeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    OngoingEffectDef, PayOrDef, PerPlayerSelectionDef, PlayerObjectCountAggregateDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, QuotientValueDef, ReplacementAbilityDef, ReplacementChoiceDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RoundingDef, SourceMatchValueDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -384,8 +383,8 @@ pub(in crate::card::sets) static CONVERSION: CardRecord = CardRecord::new_with_l
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{W}{W}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{W}{W}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -492,10 +491,7 @@ pub(in crate::card::sets) static FARMSTEAD: CardRecord = CardRecord::new_with_le
                             player: PlayerRelation::You,
                         },
                         EffectDef::PayOr(PayOrDef::optional(
-                            EffectPaymentDef::mana(
-                                PlayerSetDef::Related(PlayerRelation::You),
-                                mana_cost!("{W}{W}"),
-                            ),
+                            &[CostDef::Mana(mana_cost!("{W}{W}"))],
                             &EffectDef::GainLife {
                                 recipient: EffectRecipientDef::Controller,
                                 amount: ValueDef::Constant(1),
@@ -1493,8 +1489,8 @@ pub(in crate::card::sets) static PHANTASMAL_FORCES: CardRecord = CardRecord::new
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{U}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{U}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1731,8 +1727,8 @@ pub(in crate::card::sets) static STASIS: CardRecord = CardRecord::new_with_legac
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{U}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{U}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -2559,15 +2555,15 @@ pub(in crate::card::sets) static PARALYZE: CardRecord = CardRecord::new_with_leg
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted creature's controller, that player \
                  may pay {4}. If the player does, untap the creature.",
-                EffectDef::PayOr(PayOrDef::optional(
-                    EffectPaymentDef::mana(
-                        PlayerSetDef::One(PlayerRefDef::EventPlayer),
-                        mana_cost!("{4}"),
-                    ),
-                    &EffectDef::Untap {
-                        object: EffectRecipientDef::AttachedPermanent,
-                    },
-                )),
+                EffectDef::PayOr(
+                    PayOrDef::optional(
+                        &[CostDef::Mana(mana_cost!("{4}"))],
+                        &EffectDef::Untap {
+                            object: EffectRecipientDef::AttachedPermanent,
+                        },
+                    )
+                    .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
+                ),
             ),
         ]),
 );
@@ -4165,8 +4161,8 @@ pub(in crate::card::sets) static FORCE_OF_NATURE: CardRecord = CardRecord::new_w
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                EffectDef::PayOr(PayOrDef::unless_mana(
-                    mana_cost!("{G}{G}{G}{G}"),
+                EffectDef::PayOr(PayOrDef::unless(
+                    &[CostDef::Mana(mana_cost!("{G}{G}{G}{G}"))],
                     &EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(8)),
                 )),
             ),
@@ -5078,10 +5074,7 @@ pub(in crate::card::sets) static CRYSTAL_ROD: CardRecord = CardRecord::new_with_
         "Whenever a player casts a blue spell, you may pay {1}. If you do, you gain 1 life.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Blue)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -5302,10 +5295,7 @@ pub(in crate::card::sets) static IRON_STAR: CardRecord = CardRecord::new_with_le
         "Whenever a player casts a red spell, you may pay {1}. If you do, you gain 1 life.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Red)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -5324,10 +5314,7 @@ pub(in crate::card::sets) static IVORY_CUP: CardRecord = CardRecord::new_with_le
         "Whenever a player casts a white spell, you may pay {1}. If you do, you gain 1 life.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::White)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -5493,10 +5480,7 @@ pub(in crate::card::sets) static MANA_VAULT: CardRecord = CardRecord::new_with_l
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{4}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{4}"))],
                 &EffectDef::Untap {
                     object: EffectRecipientDef::Source,
                 },
@@ -5679,10 +5663,7 @@ pub(in crate::card::sets) static SOUL_NET: CardRecord = CardRecord::new_with_leg
             Some(ZoneKind::Graveyard),
         ),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -5730,10 +5711,7 @@ pub(in crate::card::sets) static THRONE_OF_BONE: CardRecord = CardRecord::new_wi
         "Whenever a player casts a black spell, you may pay {1}. If you do, you gain 1 life.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Black)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -5816,10 +5794,7 @@ pub(in crate::card::sets) static WOODEN_SPHERE: CardRecord = CardRecord::new_wit
         "Whenever a player casts a green spell, you may pay {1}. If you do, you gain 1 life.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Green)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                mana_cost!("{1}"),
-            ),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

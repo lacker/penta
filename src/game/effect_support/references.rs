@@ -97,6 +97,21 @@ impl Game {
     /// standing payment decision -- because all three are the same question
     /// about the same clause, and a cost that answered differently in one of
     /// them would be a different card there.
+    pub(in crate::game) fn resolved_effect_costs(
+        &self,
+        costs: &'static [crate::CostDef],
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> crate::game::ResolvedEffectPayment {
+        crate::game::ResolvedEffectPayment::all(
+            costs
+                .iter()
+                .map(|cost| self.resolved_effect_payment(*cost, object, context, scoped))
+                .collect(),
+        )
+    }
+
     pub(in crate::game) fn resolved_effect_payment(
         &self,
         cost: crate::card::CostDef,
@@ -111,6 +126,7 @@ impl Game {
                 .unwrap_or(u16::MAX)
         };
         match cost {
+            Cost::All(costs) => self.resolved_effect_costs(costs, object, context, scoped),
             Cost::Mana(cost) => Resolved::Mana(cost),
             Cost::GenericMana(amount) => Resolved::Mana(crate::ManaCost::new(amount_of(amount), 0)),
             Cost::ColoredMana { color, amount } => {
@@ -212,9 +228,7 @@ impl Game {
             // moved it again. An enclosing ZoneChangeSuccessor reference
             // needs the retired identity in order to follow that one new
             // transition edge; a direct target lookup still requires it live.
-            ObjectRefDef::ZoneChangeResultOfTriggeringObject => {
-                context.trigger.zone_change_result
-            }
+            ObjectRefDef::ZoneChangeResultOfTriggeringObject => context.trigger.zone_change_result,
             ObjectRefDef::AbilityGrantSource => {
                 object.ability_origin().and_then(|origin| match origin {
                     crate::AbilityOrigin::Granted { source, .. }
@@ -638,12 +652,7 @@ impl Game {
                 .current_or_last_known_controller(source)
                 .or_else(|| self.current_or_last_known_owner(source))
                 .map(|controller| {
-                    self.objects_matching_query(
-                        query,
-                        controller,
-                        source,
-                        TriggerContext::empty(),
-                    )
+                    self.objects_matching_query(query, controller, source, TriggerContext::empty())
                 })
                 .unwrap_or_default(),
             ObjectSetDef::LinkedExiles => self
@@ -658,9 +667,7 @@ impl Game {
             } => self
                 .source_object_set_targets(*objects, source)
                 .into_iter()
-                .filter(|target| {
-                    self.bound_object_matches(*target, predicate.predicate(), source)
-                })
+                .filter(|target| self.bound_object_matches(*target, predicate.predicate(), source))
                 .collect(),
             ObjectSetDef::ExceptObject { objects, object } => {
                 let excluded = match object {
@@ -832,7 +839,10 @@ impl Game {
             ObjectSetDef::LegalAttachmentHosts(reference) => {
                 self.legal_attachment_hosts(reference, object, context, scoped)
             }
-            ObjectSetDef::ExceptObject { objects, object: excluded } => {
+            ObjectSetDef::ExceptObject {
+                objects,
+                object: excluded,
+            } => {
                 let excluded = self.object_reference_id(excluded, object, context, scoped);
                 self.effect_objects(*objects, object, context, scoped)
                     .into_iter()

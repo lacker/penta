@@ -8,7 +8,7 @@ mod ability;
 mod ability_kinds;
 mod characteristics;
 mod composition;
-mod costs;
+pub(crate) mod costs;
 mod effects;
 mod emblem;
 mod face_down;

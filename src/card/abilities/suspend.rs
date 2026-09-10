@@ -1,20 +1,8 @@
 /// Suspend N--cost (CR 702.62): a hand special action and the linked upkeep
 /// and last-counter triggers that function while the card is in exile.
 #[must_use]
-pub const fn suspend(text: &'static str, time: u16, cost: &'static ManaCost) -> AbilityDef {
-    keyword(
-        text,
-        KeywordAbility::Suspend(SuspendAbilityDef::fixed(time, cost)),
-    )
-}
-
-/// Suspend X--cost, with the printed lower bound on X.
-#[must_use]
-pub const fn suspend_x(text: &'static str, cost: &'static ManaCost, minimum: u16) -> AbilityDef {
-    keyword(
-        text,
-        KeywordAbility::Suspend(SuspendAbilityDef::chosen_x(cost, minimum)),
-    )
+pub const fn suspend(text: &'static str, definition: &'static SuspendAbilityDef) -> AbilityDef {
+    keyword(text, KeywordAbility::Suspend(definition))
 }
 
 /// Suspend granted to a card already in exile. Moving it and adding its time
@@ -22,7 +10,7 @@ pub const fn suspend_x(text: &'static str, cost: &'static ManaCost, minimum: u16
 /// permission and exile triggers represented by the keyword.
 pub(crate) static GRANTED_SUSPEND: AbilityDef = keyword(
     "Suspend",
-    KeywordAbility::Suspend(SuspendAbilityDef::granted()),
+    KeywordAbility::Suspend(&SuspendAbilityDef::granted()),
 );
 
 const SUSPEND_TIME: CounterKind = CounterKind::named("time");
@@ -34,10 +22,9 @@ const SUSPENDED_CARD_PARTS: [ObjectPredicateDef; 2] = [
 ];
 pub(crate) const SUSPENDED_CARD: ObjectPredicateDef =
     ObjectPredicateDef::All(&SUSPENDED_CARD_PARTS);
-const SOURCE_HAS_SUSPEND: ObjectPredicateDef =
-    ObjectPredicateDef::HasAbility(crate::card::AbilityPredicateDef::Is(
-        crate::card::AbilityKindDef::Suspend,
-    ));
+const SOURCE_HAS_SUSPEND: ObjectPredicateDef = ObjectPredicateDef::HasAbility(
+    crate::card::AbilityPredicateDef::Is(crate::card::AbilityKindDef::Suspend),
+);
 const SUSPEND_SOURCE_IS_SUSPENDED_PARTS: [TriggerConditionDef; 3] = [
     TriggerConditionDef::SourceInZone(ZoneKind::Exile),
     TriggerConditionDef::SourceCounters {

@@ -276,7 +276,7 @@ impl Game {
                     return;
                 }
                 let mut fixed_sacrifices = Vec::new();
-                for cost in definition.costs.as_slice() {
+                for cost in definition.costs {
                     let CostDef::SacrificeObject(reference) = cost else {
                         continue;
                     };
@@ -317,10 +317,7 @@ impl Game {
                     && (permanent.tapped || !self.can_use_tap_or_untap_ability(permanent)))
                     || (untaps_source
                         && (!permanent.tapped || !self.can_use_tap_or_untap_ability(permanent)))
-                    || !Self::source_counter_costs_are_payable(
-                        permanent,
-                        definition.costs.as_slice(),
-                    )
+                    || !Self::source_counter_costs_are_payable(permanent, definition.costs)
                     || definition.costs.iter().any(|cost| match cost {
                         // A flexible symbol has more than one way to be paid,
                         // so what makes the cost payable is that one of them

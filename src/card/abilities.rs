@@ -4,15 +4,14 @@
 //! intrinsic rule, or grant site assigns identity when it attaches the clause.
 
 use super::model::{
-    AbilityCostList, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, BandingQuality, BasicLandType,
-    BattlefieldEntryModificationDef, BindObjectsDef, BlockRestrictionDef, BlockRestrictionMatchDef,
-    BlockRestrictionSubjectDef, CardChoiceSourceDef, CardNameDef, CardType, CardTypeSet,
-    ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseObjectOrderDef,
-    CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef, CopyExceptionsDef,
-    CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef, CostModificationDef,
-    CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef, BindObjectsDef,
+    BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardChoiceSourceDef,
+    CardNameDef, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef,
+    ChooseDef, ChooseObjectOrderDef, CollectionInspectionDef, ColorSet, ComparisonDef,
+    ConditionDef, CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef,
+    CostModificationDef, CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
     InstalledTriggerLifetimeDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost,
@@ -498,9 +497,9 @@ pub const fn ward_aura_protection(color: ManaColor) -> AbilityDef {
 /// that costs {2} put the card. The reminder text is generated from the cost
 /// the card prints, the same way flashback's is.
 #[must_use]
-pub const fn foretell(mana_cost: ManaCost) -> AbilityDef {
+pub const fn foretell(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::alternative_cast(
-        mana_cost,
+        costs,
         AlternativeCastKindDef::Foretell,
         None,
         EffectDef::None,
@@ -508,9 +507,9 @@ pub const fn foretell(mana_cost: ManaCost) -> AbilityDef {
 }
 
 #[must_use]
-pub const fn flashback(mana_cost: ManaCost) -> AbilityDef {
+pub const fn flashback(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::alternative_cast(
-        mana_cost,
+        costs,
         AlternativeCastKindDef::Flashback,
         None,
         EffectDef::None,
@@ -520,9 +519,9 @@ pub const fn flashback(mana_cost: ManaCost) -> AbilityDef {
 /// Miracle, the permission to cast a card from hand for a different cost in
 /// the window opened by drawing it.
 #[must_use]
-pub const fn miracle(mana_cost: ManaCost) -> AbilityDef {
+pub const fn miracle(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::alternative_cast(
-        mana_cost,
+        costs,
         AlternativeCastKindDef::Miracle,
         None,
         EffectDef::None,
@@ -533,7 +532,8 @@ pub const fn miracle(mana_cost: ManaCost) -> AbilityDef {
 /// This is the form granted by Snapcaster Mage.
 #[must_use]
 pub const fn flashback_for_card_mana_cost() -> AbilityDef {
-    AbilityDef::alternative_cast_for_card_mana_cost(
+    AbilityDef::alternative_cast(
+        &[crate::CostDef::ManaCostOf(crate::ObjectRefDef::Source)],
         AlternativeCastKindDef::Flashback,
         None,
         EffectDef::None,
@@ -544,12 +544,12 @@ pub const fn flashback_for_card_mana_cost() -> AbilityDef {
 /// "target" has been changed to "each."
 #[must_use]
 pub const fn overload(
-    mana_cost: ManaCost,
+    costs: &'static [CostDef],
     stack_text: &'static str,
     effect: EffectDef,
 ) -> AbilityDef {
     AbilityDef::alternative_cast(
-        mana_cost,
+        costs,
         AlternativeCastKindDef::Overload,
         Some(stack_text),
         effect,
@@ -557,6 +557,10 @@ pub const fn overload(
 }
 
 include!("abilities/evoke.rs");
+#[path = "abilities/intrinsic_costs.rs"]
+mod intrinsic_costs;
+pub use intrinsic_costs::*;
+
 #[path = "abilities/list.rs"]
 mod list;
 
@@ -567,7 +571,7 @@ mod list;
 /// The intervening-if is what makes the cost come due exactly once. The
 /// caller supplies the printed text, because the reminder repeats the cost.
 #[must_use]
-pub const fn echo(text: &'static str, cost: ManaCost) -> AbilityDef {
+pub const fn echo(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::triggered_if(
         text,
         TriggerEventDef::StepBegins {
@@ -575,7 +579,7 @@ pub const fn echo(text: &'static str, cost: ManaCost) -> AbilityDef {
             player: PlayerRelation::You,
         },
         &TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep,
-        EffectDef::PayOr(PayOrDef::unless_mana(cost, &SACRIFICE_SOURCE)),
+        EffectDef::PayOr(PayOrDef::unless(costs, &SACRIFICE_SOURCE)),
     )
 }
 
@@ -583,23 +587,17 @@ static SACRIFICE_SOURCE: EffectDef = EffectDef::Sacrifice {
     object: EffectRecipientDef::Source,
 };
 
-/// A Bloodrush ability activated from the card carrying it in hand. The
-/// mechanic always discards that card in addition to paying its mana cost;
-/// the card supplies its exact rules text, target declaration, and effect.
+/// Implementation for the [`bloodrush!`] constructor after its costs are composed.
+#[doc(hidden)]
 #[must_use]
-pub const fn bloodrush(
-    mana_cost: ManaCost,
+pub const fn bloodrush_with_costs(
+    costs: &'static [CostDef],
     text: &'static str,
     targets: &'static [AbilityTargetDef],
     effect: EffectDef,
 ) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
-        text,
-        AbilityCostList::two(CostDef::Mana(mana_cost), CostDef::DiscardSource),
-        targets,
-        effect,
-    )
-    .with_source_zones(&[ZoneKind::Hand])
+    AbilityDef::activated_with_targets(text, costs, targets, effect)
+        .with_source_zones(&[ZoneKind::Hand])
 }
 
 /// Connive, on the permanent doing it: draw a card, then discard a card, and
@@ -647,14 +645,13 @@ static CONNIVE_COUNTERS: DiscardFollowUpDef = DiscardFollowUpDef {
     },
 };
 
-/// Scavenge, whose printed cost is the card's own exile from its owner's
-/// graveyard and whose counter count is the exiled card's power. Reminder
-/// text carries the mana cost, so each card supplies its own literal.
+/// Implementation for the [`scavenge!`] constructor after its costs are composed.
+#[doc(hidden)]
 #[must_use]
-pub const fn scavenge(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
+pub const fn scavenge_with_costs(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_targets(
         text,
-        AbilityCostList::two(CostDef::Mana(mana_cost), CostDef::ExileSource),
+        costs,
         SCAVENGE_TARGET,
         EffectDef::AddCounters {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -723,19 +720,13 @@ pub const fn enters_tapped(printed_subject: CardType) -> AbilityDef {
     AbilityDef::as_enters(text, ENTER_TAPPED[0])
 }
 
-/// "Cycling {cost} ({cost}, Discard this card: Draw a card.)"
-///
-/// Cycling is an activated ability that exists only while the card is in
-/// hand, which is what keeps it off the battlefield version of the same
-/// permanent. Nothing else about it is special: the discard is a cost, so it
-/// happens on activation rather than on resolution, and the draw is what goes
-/// on the stack. The caller supplies the printed text because the reminder
-/// repeats the cost.
+/// Implementation for the [`cycling!`] constructor after its costs are composed.
+#[doc(hidden)]
 #[must_use]
-pub const fn cycling(text: &'static str, cost: ManaCost) -> AbilityDef {
+pub const fn cycling_with_costs(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::cycling_ability(
         text,
-        AbilityCostList::two(CostDef::Mana(cost), CostDef::DiscardSource),
+        costs,
         EffectDef::DrawCards {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(1),
@@ -744,18 +735,17 @@ pub const fn cycling(text: &'static str, cost: ManaCost) -> AbilityDef {
     .with_source_zones(&[ZoneKind::Hand])
 }
 
-/// "<Type>cycling {cost}" -- the same ability as [`cycling`], except that
-/// what it buys is a search rather than a draw. Failing to find is allowed,
-/// so the minimum is zero: the discard has already been paid either way.
+/// Implementation for the [`typecycling!`] constructor after its costs are composed.
+#[doc(hidden)]
 #[must_use]
-pub const fn typecycling(
+pub const fn typecycling_with_costs(
     text: &'static str,
-    cost: ManaCost,
+    costs: &'static [CostDef],
     object: ObjectPredicateDef,
 ) -> AbilityDef {
     AbilityDef::cycling_ability(
         text,
-        AbilityCostList::two(CostDef::Mana(cost), CostDef::DiscardSource),
+        costs,
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -896,44 +886,41 @@ static COUNTER_TRIGGERING_SPELL: EffectDef = EffectDef::Counter {
 
 const fn pay_or_counter(
     payer: PlayerRefDef,
-    amount: ValueDef,
+    costs: &'static [CostDef],
     otherwise: &'static EffectDef,
 ) -> EffectDef {
     EffectDef::PayOr(PayOrDef {
-        payment: EffectPaymentDef::generic_mana(PlayerSetDef::One(payer), amount),
-        if_paid: None,
-        otherwise: Some(otherwise),
         visibility: ChoiceVisibilityDef::Public,
-        condition: None,
+        ..PayOrDef::unless(costs, otherwise).with_payer(PlayerSetDef::One(payer))
     })
 }
 
-/// Counter the primary targeted spell unless its controller pays generic mana.
+/// Counter the primary targeted spell unless its controller pays the supplied costs.
 #[must_use]
-pub const fn counter_target_unless_paid(amount: ValueDef) -> EffectDef {
+pub const fn counter_target_unless_paid(costs: &'static [CostDef]) -> EffectDef {
     pay_or_counter(
         PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-        amount,
+        costs,
         &COUNTER_PRIMARY_TARGET,
     )
 }
 
 /// Counter the primary targeted spell into exile unless its controller pays.
 #[must_use]
-pub const fn counter_target_to_exile_unless_paid(amount: ValueDef) -> EffectDef {
+pub const fn counter_target_to_exile_unless_paid(costs: &'static [CostDef]) -> EffectDef {
     pay_or_counter(
         PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-        amount,
+        costs,
         &COUNTER_PRIMARY_TARGET_TO_EXILE,
     )
 }
 
 /// Counter the spell that caused a trigger unless its controller pays.
 #[must_use]
-pub const fn counter_triggering_spell_unless_paid(amount: ValueDef) -> EffectDef {
+pub const fn counter_triggering_spell_unless_paid(costs: &'static [CostDef]) -> EffectDef {
     pay_or_counter(
         PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
-        amount,
+        costs,
         &COUNTER_TRIGGERING_SPELL,
     )
 }

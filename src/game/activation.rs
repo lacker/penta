@@ -343,22 +343,22 @@ impl Game {
                 taps_source: false,
                 leaves_source: false,
             };
-            let priced_mana_cost = self.priced_ability_mana_cost(source, &definition);
+            let mana_cost = self.priced_ability_mana_cost(source, &definition);
+            self.pay_nonbattlefield_activation_mana_and_life(
+                player,
+                mana_cost,
+                definition.costs,
+                AnnouncedActivationCost {
+                    cost_objects,
+                    x,
+                    payment_purpose: &payment_purpose,
+                    mana_payment,
+                },
+            );
             let is_cycling = definition.cycling;
-            for cost in definition.costs.as_slice() {
+            for cost in definition.costs {
                 match cost {
-                    CostDef::Mana(cost) => {
-                        let cost = priced_mana_cost.unwrap_or(*cost);
-                        let cost = self.announced_activation_cost(player, cost, mana_payment);
-                        self.activate_mana_for_cost_avoiding_for(
-                            player,
-                            cost,
-                            x,
-                            None,
-                            &payment_purpose,
-                        );
-                        let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
-                    }
+                    CostDef::Mana(_) | CostDef::PayLife(_) => {}
                     CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. } => {
                         unreachable!("hand abilities cannot price another chosen card")
                     }
@@ -420,7 +420,6 @@ impl Game {
                     | CostDef::ReturnSourceToHand
                     | CostDef::RemoveCountersFromSource { .. }
                     | CostDef::RemoveAnyNumberOfCountersFromSource(_)
-                    | CostDef::PayLife(_)
                     | CostDef::MillCards(_)
                     | CostDef::ExileTopCards(_)
                     | CostDef::DiscardCards(_)
@@ -596,7 +595,7 @@ impl Game {
                 )
             });
             let mut dynamic_mana_paid = false;
-            for cost in definition.costs.as_slice() {
+            for cost in definition.costs {
                 match cost {
                     CostDef::Mana(_) if has_dynamic_mana => {}
                     CostDef::Mana(cost) => {

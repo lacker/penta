@@ -20,9 +20,8 @@ mod tests {
     use super::HandcraftedPolicy;
     use crate::TargetIndex;
     use crate::card::{
-        AbilityDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaCost,
-        ObjectPredicateDef, PayOrDef, PlayerRelation, PlayerSetDef, TargetConditionDef,
-        TriggerEventDef, TurnStepDef, ValueDef,
+        AbilityDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef,
+        PayOrDef, PlayerRelation, TargetConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
     };
 
     static TARGET_CONDITION: TargetConditionDef = TargetConditionDef {
@@ -50,10 +49,7 @@ mod tests {
             effect: &CONDITIONAL_EFFECT,
         };
         let optional_payment = EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                ManaCost::new(1, 0),
-            ),
+            &[crate::CostDef::Mana(crate::mana_cost!("{1}"))],
             &CONDITIONAL_EFFECT,
         ));
         let delayed = EffectDef::InstallTrigger(InstalledTriggerDef::once(&DELAYED_CONDITIONAL));

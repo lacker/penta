@@ -608,9 +608,9 @@ pub(in crate::card::sets) static KEENEYE_AVEN: CardRecord = CardRecord::new(
     // the block was built to be.
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Bird", "Soldier"], 2, 3).with_abilities(&[
         abilities::flying(),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -704,9 +704,9 @@ pub(in crate::card::sets) static PRIMOC_ESCAPEE: CardRecord = CardRecord::new(
     // cantrip that occasionally wins a game.
     CardRules::new_creature(mana_cost!("{6}{U}"), &["Bird", "Beast"], 4, 4).with_abilities(&[
         abilities::flying(),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1221,10 +1221,10 @@ pub(in crate::card::sets) static SOOTFEATHER_FLOCK: CardRecord = CardRecord::new
     // A five-mana 3/2 flier is filler; arriving as a 2/2 for three and
     // flipping later is what makes it playable.
     CardRules::new_creature(mana_cost!("{4}{B}"), &["Bird", "Beast"], 3, 2)
-        .with_morph(mana_cost!("{3}{B}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{3}{B}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {3}{B} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -1481,9 +1481,9 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
     // the Incinerator itself is not on the battlefield when it counts -- it
     // is in the graveyard, so it never counts itself.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 2, 1).with_abilities(&[
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {1}{R} ({1}{R}, Discard this card: Draw a card.)",
-            mana_cost!("{1}{R}"),
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
         ),
         AbilityDef::triggered_with_targets(
             "When you cycle this card, you may have it deal X damage to target creature, where X is the number of Goblins on the battlefield.",
@@ -1661,9 +1661,9 @@ pub(in crate::card::sets) static MACETAIL_HYSTRODON: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{6}{R}"), &["Beast"], 4, 4).with_abilities(&[
         abilities::first_strike(),
         abilities::haste(),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {3} ({3}, Discard this card: Draw a card.)",
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
         ),
     ]),
 );
@@ -1737,10 +1737,10 @@ pub(in crate::card::sets) static ROCKSHARD_ELEMENTAL: CardRecord = CardRecord::n
     // Eight power against a blocker, which is what double strike on four
     // power really means -- and the morph hides it until it is too late.
     CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Elemental"], 4, 3)
-        .with_morph(mana_cost!("{4}{R}{R}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{R}{R}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {4}{R}{R} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -1876,10 +1876,10 @@ pub(in crate::card::sets) static BRANCHSNAP_LORIAN: CardRecord = CardRecord::new
     // Four trampling power for three, on a body one blocker kills -- unless
     // it arrives face down and flips after blockers.
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Beast"], 4, 1)
-        .with_morph(mana_cost!("{G}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{G}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {G} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -2003,9 +2003,9 @@ pub(in crate::card::sets) static HUNDROOG: CardRecord = CardRecord::new(
     // Seven mana is unaffordable and three to cycle is not, so it is
     // really a cantrip with an emergency body attached.
     CardRules::new_creature(mana_cost!("{6}{G}"), &["Beast"], 4, 7).with_ability(
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {3} ({3}, Discard this card: Draw a card.)",
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
         ),
     ),
 );

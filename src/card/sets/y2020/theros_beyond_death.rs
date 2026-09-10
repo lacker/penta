@@ -3,14 +3,14 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AlternativeCastManaCostDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
-    CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CostDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
-    MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, RandomizeObjectOrderDef, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostDef,
+    CounterKind, EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    RandomizeObjectOrderDef, ReplacementConditionDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -18,21 +18,8 @@ use crate::mana_cost;
 /// The ordinary Escape shape: a resolved mana cost, this many other graveyard
 /// cards exiled as an additional cost. The selected alternative cast kind
 /// itself is the lasting Escape fact; exceptional costs remain card-local.
-pub(in crate::card::sets) const fn escape(
-    mana_cost: AlternativeCastManaCostDef,
-    cards: u8,
-) -> AbilityDef {
-    AbilityDef::alternative_cast_with_additional_cost(
-        mana_cost,
-        AlternativeCastKindDef::Escape,
-        None,
-        CostDef::exile(
-            ObjectPredicateDef::Any,
-            ZoneKind::Graveyard,
-            CostQuantityDef::Fixed(cards),
-        ),
-        EffectDef::None,
-    )
+pub(in crate::card::sets) const fn escape(costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::alternative_cast(costs, AlternativeCastKindDef::Escape, None, EffectDef::None)
 }
 
 // THB 20 — Heliod's Pilgrim
@@ -225,7 +212,14 @@ pub(in crate::card::sets) static UNDERWORLD_CHARGER: CardRecord = CardRecord::ne
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
             },
         ),
-        escape(AlternativeCastManaCostDef::Fixed(mana_cost!("{4}{B}")), 3),
+        escape(&[
+            CostDef::Mana(mana_cost!("{4}{B}")),
+            CostDef::exile(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::Fixed(3),
+            ),
+        ]),
         AbilityDef::as_enters_if(
             "This creature escapes with two +1/+1 counters on it.",
             ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
@@ -314,7 +308,7 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
                     object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                     // The card being cast is on the stack by the time the three other cards
                     // are chosen, so it is already absent from its graveyard candidates.
-                    ability: &escape(AlternativeCastManaCostDef::ThisCardManaCost, 3),
+                    ability: &escape(&[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard, CostQuantityDef::Fixed(3))]),
                 }),
             },
         ),
@@ -344,7 +338,14 @@ pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord:
     // harder than the first.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Elemental", "Dog"], 3, 1).with_abilities(&[
         abilities::attacks_each_combat_if_able(),
-        escape(AlternativeCastManaCostDef::Fixed(mana_cost!("{3}{R}")), 3),
+        escape(&[
+            CostDef::Mana(mana_cost!("{3}{R}")),
+            CostDef::exile(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::Fixed(3),
+            ),
+        ]),
         AbilityDef::as_enters_if(
             "This creature escapes with a +1/+1 counter on it.",
             ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
@@ -427,10 +428,7 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
                     },
                 ]),
             ),
-            escape(
-                AlternativeCastManaCostDef::Fixed(mana_cost!("{G}{G}{U}{U}")),
-                5,
-            ),
+            escape(&[CostDef::Mana(mana_cost!("{G}{G}{U}{U}")), CostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard, CostQuantityDef::Fixed(5))]),
         ]),
 );
 

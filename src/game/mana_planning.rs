@@ -94,6 +94,7 @@ impl Game {
                         card: held,
                         player,
                         modes: choices.modes(),
+                        spliced: choices.spliced(),
                         scale: super::casting_actions::CastScale {
                             x: choices.x(),
                             modes: choices.modes().len(),
@@ -114,11 +115,11 @@ impl Game {
                     self.card_mana_is_any_color(*card),
                 )?;
                 let cast_life = self.configured_cast_life_payment(
+                    player,
                     definition,
                     option,
                     *card,
                     choices.costs(),
-                    choices.x(),
                     offer,
                 );
                 let library_life = self
@@ -967,3 +968,5 @@ include!("mana_planning/source_assignment.rs");
 include!("mana_planning/payment_order.rs");
 include!("mana_planning/cost_reduction.rs");
 include!("mana_planning/activation_characteristics.rs");
+
+include!("mana_planning/resolving_payment.rs");

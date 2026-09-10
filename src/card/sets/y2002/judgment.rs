@@ -70,20 +70,18 @@ pub(in crate::card::sets) static BATTLE_SCREECH: CardRecord = CardRecord::new(
                 .with_amount(2),
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::tap(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ]),
+                CostQuantityDef::Fixed(3),
+            )],
             AlternativeCastKindDef::Flashback,
             Some("Flashback—Tap three untapped white creatures you control."),
             EffectDef::None,
-        )
-        // Untapped and yours are what tapping as a cost already asks for, so
-        // the predicate only has to add the colour.
-        .with_alternative_additional_cost(&CostDef::tap(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Color(ManaColor::White),
-            ]),
-            CostQuantityDef::Fixed(3),
-        )),
+        ), // Untapped and yours are what tapping as a cost already asks for, so
+           // the predicate only has to add the colour.
     ]),
 );
 
@@ -565,7 +563,7 @@ pub(in crate::card::sets) static DEFY_GRAVITY: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::flashback(mana_cost!("{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{U}"))]),
     ]),
 );
 
@@ -617,7 +615,11 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
             ),
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{1}{U}"),
+            &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Blue),
+                ZoneKind::Graveyard,
+                CostQuantityDef::ChosenX,
+            )],
             AlternativeCastKindDef::Flashback,
             Some("Flashback—{1}{U}, Exile X blue cards from your graveyard."),
             EffectDef::None,
@@ -625,11 +627,7 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
         // X blue cards from your own graveyard, exiled to pay. The count is the same
         // X the spell is cast for, which is what makes the flashback expensive
         // exactly when it is worth casting big.
-        .with_alternative_additional_cost(&CostDef::exile(
-            ObjectPredicateDef::Color(ManaColor::Blue),
-            ZoneKind::Graveyard,
-            CostQuantityDef::ChosenX,
-        )),
+        ,
     ]),
 );
 
@@ -917,15 +915,14 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
             ]),
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            )],
             AlternativeCastKindDef::Flashback,
             Some("Flashback—Sacrifice a creature."),
             EffectDef::None,
-        )
-        .with_alternative_additional_cost(&CostDef::sacrifice(
-            ObjectPredicateDef::HasType(CardType::Creature),
-            CostQuantityDef::Fixed(1),
-        )),
+        ),
     ]),
 );
 
@@ -1698,7 +1695,7 @@ pub(in crate::card::sets) static CRUSH_OF_WURMS: CardRecord = CardRecord::new(
             EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 6, 6)
                 .with_count(ValueDef::Constant(3)),
         ),
-        abilities::flashback(mana_cost!("{9}{G}{G}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{9}{G}{G}{G}"))]),
     ]),
 );
 
@@ -1808,7 +1805,7 @@ pub(in crate::card::sets) static FOLK_MEDICINE: CardRecord = CardRecord::new(
                 ),
             },
         ),
-        abilities::flashback(mana_cost!("{1}{W}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{1}{W}"))]),
     ]),
 );
 
@@ -1941,7 +1938,7 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
             }),
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{1}{G}"),
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
             AlternativeCastKindDef::Flashback,
             Some("Flashback {1}{G}"),
             EffectDef::None,

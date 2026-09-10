@@ -27,7 +27,9 @@ pub enum BandingQuality {
 pub enum SuspendTimeDef {
     Fixed(u16),
     /// The X paid in the suspend cost. Some printed instances prohibit zero.
-    ChosenX { minimum: u16 },
+    ChosenX {
+        minimum: u16,
+    },
 }
 
 /// The forms of suspend represented by one keyword ability (CR 702.62a).
@@ -36,9 +38,7 @@ pub enum SuspendAbilityDef {
     /// A printed hand action, including the time counters and cost it names.
     Hand {
         time: SuspendTimeDef,
-        /// Kept by reference so adding a parameterized keyword does not inflate
-        /// every predicate, trigger, and effect that can mention a keyword.
-        cost: &'static ManaCost,
+        costs: &'static [CostDef],
     },
     /// Suspend granted to a card already in exile. It has no hand action of
     /// its own; the granting effect separately moves the card and adds time
@@ -48,18 +48,18 @@ pub enum SuspendAbilityDef {
 
 impl SuspendAbilityDef {
     #[must_use]
-    pub const fn fixed(time: u16, cost: &'static ManaCost) -> Self {
+    pub const fn fixed(time: u16, costs: &'static [CostDef]) -> Self {
         Self::Hand {
             time: SuspendTimeDef::Fixed(time),
-            cost,
+            costs,
         }
     }
 
     #[must_use]
-    pub const fn chosen_x(cost: &'static ManaCost, minimum: u16) -> Self {
+    pub const fn chosen_x(costs: &'static [CostDef], minimum: u16) -> Self {
         Self::Hand {
             time: SuspendTimeDef::ChosenX { minimum },
-            cost,
+            costs,
         }
     }
 
@@ -193,7 +193,7 @@ pub enum KeywordAbility {
     Compleated,
     /// CR 702.62. A special action from hand plus two triggered abilities in
     /// exile. The parameter owns both the time-counter count and its cost.
-    Suspend(SuspendAbilityDef),
+    Suspend(&'static SuspendAbilityDef),
     /// CR 702.87. A resolving instant or sorcery cast from hand exiles itself
     /// and installs the next-upkeep offer that casts it from exile for free.
     /// Like split second, this is read from the spell rather than from a

@@ -2,15 +2,15 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, CopyAbilityDef,
-    CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CostDef, CounterKind, CreatedTokensDef,
-    CreatureTypeSetDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, CopyAbilityDef, CopyExceptionsDef,
+    CostAdjustmentDef, CostAmountDef, CostDef, CounterKind, CreatedTokensDef, CreatureTypeSetDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -99,9 +99,9 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_le
                 },
             ),
             abilities::reconfigure(
-                mana_cost!("{2}"),
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 "Reconfigure {2} ({2}: Attach to target creature you control; or unattach from a \
-                 creature. Reconfigure only as a sorcery. While attached, this isn't a creature.)",
+                creature. Reconfigure only as a sorcery. While attached, this isn't a creature.)",
             ),
         ]),
 );
@@ -162,13 +162,10 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
                 ))),
             ]),
         ),
-        AbilityDef::activated_with_cost_list_and_targets(
+        AbilityDef::activated_with_targets(
             "Channel — {1}{W}, Discard this card: Exile target artifact or creature. Return it to \
              the battlefield under its owner's control at the beginning of the next end step.",
-            AbilityCostList::two(
-                CostDef::Mana(mana_cost!("{1}{W}")),
-                CostDef::DiscardSource,
-            ),
+            &[CostDef::Mana(mana_cost!("{1}{W}")), CostDef::DiscardSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 AN_ARTIFACT_OR_CREATURE,
             )],
@@ -282,14 +279,14 @@ pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
     // enough to cast it.
     CardRules::new_artifact_creature(mana_cost!("{5}{U}{U}"), &["Crab"], 5, 7).with_abilities(&[
         abilities::ward(
-            3,
+            &[CostDef::Mana(crate::ManaCost::new(3, 0))],
             "Ward {3} (Whenever this creature becomes the target of a spell or ability an \
-             opponent controls, counter it unless that player pays {3}.)",
+            opponent controls, counter it unless that player pays {3}.)",
         ),
-        AbilityDef::activated_with_cost_list_and_targets(
+        AbilityDef::activated_with_targets(
             "Channel — {2}{U}, Discard this card: Counter target spell or ability unless its \
              controller pays {3}.",
-            AbilityCostList::two(CostDef::Mana(mana_cost!("{2}{U}")), CostDef::DiscardSource),
+            &[CostDef::Mana(mana_cost!("{2}{U}")), CostDef::DiscardSource],
             // "Spell or ability" is everything on the stack, so the predicate
             // names the zone and nothing else: a triggered ability is as legal
             // a target as a spell, and the Crab's own controller is too.
@@ -301,7 +298,7 @@ pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(3)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(3))]),
         )
         .with_source_zones(&[ZoneKind::Hand]),
     ]),
@@ -318,10 +315,10 @@ pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::n
     // ninjutsu is a clean card and the reward for leaving it out is a loot.
     CardRules::new_enchantment_creature(mana_cost!("{1}{U}"), &["Human", "Ninja"], 2, 1)
         .with_abilities(&[
-            abilities::ninjutsu(
+            abilities::ninjutsu!(
                 "Ninjutsu {U} ({U}, Return an unblocked attacker you control to hand: Put this \
-                 card onto the battlefield from your hand tapped and attacking.)",
-                mana_cost!("{U}"),
+                card onto the battlefield from your hand tapped and attacking.)",
+                &[CostDef::Mana(mana_cost!("{U}"))],
             ),
             AbilityDef::triggered(
                 "Whenever this creature deals combat damage to a player, you may draw a card. If \
@@ -551,7 +548,7 @@ pub(in crate::card::sets) static RABBIT_BATTERY: CardRecord = CardRecord::new_wi
                 },
             ),
             abilities::reconfigure(
-                mana_cost!("{R}"),
+                &[CostDef::Mana(mana_cost!("{R}"))],
                 "Reconfigure {R} ({R}: Attach to target creature you control; or unattach from a creature. Reconfigure only as a sorcery. While attached, this isn't a creature.)",
             ),
         ]),
@@ -766,11 +763,11 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
                 &[CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
             ),
-            AbilityDef::activated_with_cost_list_and_targets(
+            AbilityDef::activated_with_targets(
                 "Channel — {3}{U}, Discard this card: Return target artifact, creature, \
                  enchantment, or planeswalker to its owner\'s hand. This ability costs {1} less \
                  to activate for each legendary creature you control.",
-                AbilityCostList::two(CostDef::Mana(mana_cost!("{3}{U}")), CostDef::DiscardSource),
+                &[CostDef::Mana(mana_cost!("{3}{U}")), CostDef::DiscardSource],
                 &[AbilityTargetDef::exactly_one_permanent(
                     // Everything a bounce spell would want and nothing else: a land answers a
                     // creature, but not another land.
@@ -934,12 +931,12 @@ pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::n
                 &[CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
             ),
-            AbilityDef::activated_with_cost_list_and_targets(
+            AbilityDef::activated_with_targets(
                 "Channel — {1}{G}, Discard this card: Destroy target artifact, enchantment, or \
                  nonbasic land an opponent controls. That player may search their library for a \
                  land card with a basic land type, put it onto the battlefield, then shuffle. \
                  This ability costs {1} less to activate for each legendary creature you control.",
-                AbilityCostList::two(CostDef::Mana(mana_cost!("{1}{G}")), CostDef::DiscardSource),
+                &[CostDef::Mana(mana_cost!("{1}{G}")), CostDef::DiscardSource],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         // "Nonbasic" is the whole reason the land half is in the target list: every

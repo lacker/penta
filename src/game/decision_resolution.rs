@@ -239,6 +239,19 @@ impl Game {
             DecisionContinuation::BattlefieldExitOrder { batch, remaining } => {
                 self.complete_battlefield_exit_order(batch, remaining, &pending_options, options);
             }
+            DecisionContinuation::PaySpecialAction {
+                player,
+                source,
+                action,
+                payment,
+            } => {
+                if self
+                    .settle_payment_decision(player, payment, options, &pending_options)
+                    .is_some()
+                {
+                    self.finish_paid_special_action(player, source, action);
+                }
+            }
             DecisionContinuation::PayOr {
                 player,
                 payment,

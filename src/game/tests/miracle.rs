@@ -3,7 +3,7 @@ use super::*;
 static FIRST_DUPLICATE_MIRACLE_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::spell("Do nothing.", EffectDef::None),
     AbilityDef::alternative_cast(
-        ManaCost::new(0, 1),
+        &[crate::CostDef::Mana(ManaCost::new(0, 1))],
         AlternativeCastKindDef::Miracle,
         None,
         EffectDef::None,
@@ -12,7 +12,7 @@ static FIRST_DUPLICATE_MIRACLE_ABILITIES: [AbilityDef; 2] = [
 static SECOND_DUPLICATE_MIRACLE_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::spell("Do nothing else.", EffectDef::None),
     AbilityDef::alternative_cast(
-        ManaCost::new(3, 1),
+        &[crate::CostDef::Mana(ManaCost::new(3, 1))],
         AlternativeCastKindDef::Miracle,
         None,
         EffectDef::None,

@@ -122,7 +122,7 @@ pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::
                 1,
             ),
         ),
-        abilities::flashback(mana_cost!("{6}{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{6}{B}"))]),
     ]),
 );
 

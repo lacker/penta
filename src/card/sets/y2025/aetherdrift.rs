@@ -53,7 +53,10 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
         )
         // Read from hand, where the cost is paid.
         .with_source_zones(&[ZoneKind::Hand]),
-        abilities::cycling("Cycling {2} ({2}, Discard this card: Draw a card.)", mana_cost!("{2}")),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+        ),
     ]),
 );
 
@@ -210,9 +213,9 @@ pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
             &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {3} ({3}, Discard this card: Draw a card.)",
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
         ),
     ]),
 );

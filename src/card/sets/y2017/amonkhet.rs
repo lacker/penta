@@ -27,9 +27,9 @@ pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardReco
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {1}{U} ({1}{U}, Discard this card: Draw a card.)",
-            mana_cost!("{1}{U}"),
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
         ),
         AbilityDef::triggered_with_targets(
             "When you cycle this card, untap target permanent.",

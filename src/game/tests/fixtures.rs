@@ -37,7 +37,10 @@ pub(in crate::game) static TEST_EXTERNAL_ENTER_TAPPED: [ReplacementEffectDef; 1]
     )];
 pub(in crate::game) static TEST_EXTERNAL_PAYMENT: [ReplacementEffectDef; 1] =
     [ReplacementEffectDef::PayOr {
-        payment: EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 2),
+        payment: EffectPaymentDef::new(
+            PlayerSetDef::Related(PlayerRelation::You),
+            &[crate::CostDef::PayLife(2)],
+        ),
         if_paid: &[],
         if_declined: &TEST_EXTERNAL_ENTER_TAPPED,
     }];

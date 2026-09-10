@@ -142,7 +142,7 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_w
             ]),
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{1}{B}"),
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
             AlternativeCastKindDef::AlternativeCost,
             Some("You may pay {1}{B} rather than pay this spell's mana cost."),
             EffectDef::None,
@@ -388,10 +388,10 @@ pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
         abilities::menace(),
         // Ward's cost is whatever the card prints, and hers is life -- which a
         // deck that already pays life for its lands is well placed to charge.
-        abilities::ward_life(
-            3,
+        abilities::ward(
+            &[CostDef::PayLife(3)],
             "Ward—Pay 3 life. (Whenever this creature becomes the target of a spell or ability an \
-                 opponent controls, counter it unless that player pays 3 life.)",
+            opponent controls, counter it unless that player pays 3 life.)",
         ),
         AbilityDef::triggered(
             "Magecraft — Whenever you cast or copy an instant or sorcery spell, create a 1/1 black \

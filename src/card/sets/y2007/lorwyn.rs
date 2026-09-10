@@ -93,7 +93,7 @@ pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
                     },
                 ),
             ],
-            abilities::evoke(CostDef::Mana(mana_cost!("{2}{U}"))),
+            abilities::evoke(&[CostDef::Mana(mana_cost!("{2}{U}"))],),
         ],
     ),
 );

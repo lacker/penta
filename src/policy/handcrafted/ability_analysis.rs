@@ -184,17 +184,13 @@ impl HandcraftedPolicy {
         let DeclarativeAbilityDef::Activated(activated) = ability.definition else {
             return None;
         };
-        let eaten = activated
-            .costs
-            .as_slice()
-            .iter()
-            .find_map(|cost| match cost {
-                CostDef::SacrificePermanent {
-                    object,
-                    controller: PlayerRelation::You,
-                } => Some(*object),
-                _ => None,
-            })?;
+        let eaten = activated.costs.iter().find_map(|cost| match cost {
+            CostDef::SacrificePermanent {
+                object,
+                controller: PlayerRelation::You,
+            } => Some(*object),
+            _ => None,
+        })?;
         let Some(EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
             effect:
@@ -437,12 +433,11 @@ impl HandcraftedPolicy {
                     .or_else(|| Self::target_condition_in(*choice.then))
             }
             EffectDef::PayOr(payment) => {
-                let payment_condition = match payment.payment.cost {
-                    crate::card::CostDef::GenericMana(amount) => {
-                        Self::target_condition_in_value(amount)
-                    }
-                    _ => None,
-                };
+                let payment_condition = payment
+                    .payment
+                    .costs
+                    .iter()
+                    .find_map(|cost| Self::target_condition_in_cost(*cost));
                 payment_condition.or_else(|| {
                     payment
                         .if_paid
@@ -635,5 +630,22 @@ impl HandcraftedPolicy {
         };
         Self::collect_spell_effect_profile(ability.declarative_effect()?, 0, targets, &mut profile);
         Some(profile)
+    }
+}
+
+impl HandcraftedPolicy {
+    fn target_condition_in_cost(
+        cost: crate::CostDef,
+    ) -> Option<&'static crate::card::TargetConditionDef> {
+        match cost {
+            crate::CostDef::All(costs) => costs
+                .iter()
+                .find_map(|cost| Self::target_condition_in_cost(*cost)),
+            crate::CostDef::GenericMana(value)
+            | crate::CostDef::ColoredMana { amount: value, .. } => {
+                Self::target_condition_in_value(value)
+            }
+            _ => None,
+        }
     }
 }

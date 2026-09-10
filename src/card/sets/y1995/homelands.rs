@@ -2081,8 +2081,8 @@ pub(in crate::card::sets) static HUNGRY_MIST: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{G}{G}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{G}{G}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

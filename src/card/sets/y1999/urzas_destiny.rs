@@ -11,14 +11,14 @@ use crate::card::{
     CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
     ChoiceVisibilityDef, ChooseDef, ChooseExactDef, ComparisonDef, ControlDurationDef, CostDef,
     CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
-    DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, MillUntilDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
-    QuantifierDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, ScaledValueDef, SetOperationDef, StackTargetAggregationDef,
-    StackTargetFilterDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ManaColor, MillUntilDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, QuantifierDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
+    ScaledValueDef, SetOperationDef, StackTargetAggregationDef, StackTargetFilterDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -184,9 +184,9 @@ pub(in crate::card::sets) static FEND_OFF: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -742,22 +742,21 @@ pub(in crate::card::sets) static BRINE_SEER: CardRecord = CardRecord::new(
                         input: ObjectSetDef::Binding(ParentBinding),
                         then: &EffectDef::None,
                     }),
-                    EffectDef::PayOr(PayOrDef {
-                        payment: EffectPaymentDef::generic_mana(
-                            PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                                TargetIndex::PRIMARY,
-                            ))),
-                            ValueDef::BoundObjectCount(ParentBinding),
-                        ),
-                        if_paid: None,
-                        otherwise: Some(&EffectDef::Counter {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            zone: ZoneKind::Graveyard,
-                            placement: ZonePlacement::Top,
-                        }),
-                        visibility: ChoiceVisibilityDef::Private,
-                        condition: None,
-                    }),
+                    EffectDef::PayOr(
+                        PayOrDef::unless(
+                            &[CostDef::GenericMana(ValueDef::BoundObjectCount(
+                                ParentBinding,
+                            ))],
+                            &EffectDef::Counter {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                            },
+                        )
+                        .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        ))),
+                    ),
                 ]),
             }),
         ),
@@ -1211,22 +1210,21 @@ pub(in crate::card::sets) static SCENT_OF_BRINE: CardRecord = CardRecord::new(
                         input: ObjectSetDef::Binding(ParentBinding),
                         then: &EffectDef::None,
                     }),
-                    EffectDef::PayOr(PayOrDef {
-                        payment: EffectPaymentDef::generic_mana(
-                            PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                                TargetIndex::PRIMARY,
-                            ))),
-                            ValueDef::BoundObjectCount(ParentBinding),
-                        ),
-                        if_paid: None,
-                        otherwise: Some(&EffectDef::Counter {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            zone: ZoneKind::Graveyard,
-                            placement: ZonePlacement::Top,
-                        }),
-                        visibility: ChoiceVisibilityDef::Private,
-                        condition: None,
-                    }),
+                    EffectDef::PayOr(
+                        PayOrDef::unless(
+                            &[CostDef::GenericMana(ValueDef::BoundObjectCount(
+                                ParentBinding,
+                            ))],
+                            &EffectDef::Counter {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                            },
+                        )
+                        .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        ))),
+                    ),
                 ]),
             }),
         )),
@@ -1467,22 +1465,16 @@ pub(in crate::card::sets) static BODY_SNATCHER: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::enters_trigger(
                 "When this creature enters, exile it unless you discard a creature card.",
-                EffectDef::PayOr(PayOrDef {
-                    payment: EffectPaymentDef {
-                        payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: CostDef::DiscardMatching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        ),
-                    },
-                    if_paid: None,
-                    otherwise: Some(&EffectDef::MoveToZone {
+                EffectDef::PayOr(PayOrDef::unless(
+                    &[CostDef::DiscardMatching(ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    ))],
+                    &EffectDef::MoveToZone {
                         object: EffectRecipientDef::Source,
                         zone: ZoneKind::Exile,
                         placement: ZonePlacement::Top,
-                    }),
-                    visibility: ChoiceVisibilityDef::Private,
-                    condition: None,
-                }),
+                    },
+                )),
             ),
             abilities::dies_trigger_with_targets(
                 "When this creature dies, exile it and return target creature card from your graveyard to the battlefield.",
@@ -2203,9 +2195,9 @@ pub(in crate::card::sets) static FLAME_JET: CardRecord = CardRecord::new(
                 ValueDef::Constant(3),
             ),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -2264,7 +2256,7 @@ pub(in crate::card::sets) static GOBLIN_MARSHAL: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::echo(
                 "Echo {4}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-                mana_cost!("{4}{R}{R}"),
+                &[CostDef::Mana(mana_cost!("{4}{R}{R}"))],
             ),
             AbilityDef::triggered(
                 "When this creature enters or dies, create two 1/1 red Goblin creature tokens.",
@@ -2405,7 +2397,7 @@ pub(in crate::card::sets) static KELDON_CHAMPION: CardRecord = CardRecord::new(
             abilities::haste(),
             abilities::echo(
                 "Echo {2}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-                mana_cost!("{2}{R}{R}"),
+                &[CostDef::Mana(mana_cost!("{2}{R}{R}"))],
             ),
             abilities::enters_trigger_with_targets(
                 "When this creature enters, it deals 3 damage to target player or planeswalker.",
@@ -2431,7 +2423,7 @@ pub(in crate::card::sets) static KELDON_VANDALS: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Rogue"], 4, 1).with_abilities(&[
         abilities::echo(
             "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{2}{R}"),
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
         ),
         abilities::enters_trigger_with_targets(
             "When this creature enters, destroy target artifact.",
@@ -2835,7 +2827,7 @@ pub(in crate::card::sets) static HUNTING_MOA: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Bird", "Beast"], 3, 2).with_abilities(&[
         abilities::echo(
             "Echo {2}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{2}{G}"),
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
         ),
         AbilityDef::triggered_with_targets(
             "When this creature enters or dies, put a +1/+1 counter on target creature.",
@@ -3462,7 +3454,7 @@ pub(in crate::card::sets) static EXTRUDER: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::echo(
                 "Echo {4} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-                mana_cost!("{4}"),
+                &[CostDef::Mana(mana_cost!("{4}"))],
             ),
             AbilityDef::activated_with_targets(
                 "Sacrifice an artifact: Put a +1/+1 counter on target creature.",
@@ -3576,7 +3568,7 @@ pub(in crate::card::sets) static MASTICORE: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
+                &[CostDef::DiscardCards(1)],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

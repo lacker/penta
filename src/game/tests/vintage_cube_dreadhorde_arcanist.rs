@@ -4,13 +4,13 @@
 use super::*;
 
 static OTHER_SAME_KIND_GRANT: AbilityDef = AbilityDef::alternative_cast(
-    ManaCost::new(7, 0),
+    &[crate::CostDef::Mana(ManaCost::new(7, 0))],
     AlternativeCastKindDef::WithoutPayingManaCost,
     Some("A different same-kind test grant."),
     EffectDef::None,
 );
 static IDENTICAL_FREE_GRANT: AbilityDef = AbilityDef::alternative_cast(
-    ManaCost::new(0, 0),
+    crate::NO_COSTS,
     AlternativeCastKindDef::WithoutPayingManaCost,
     Some("An identical one-shot free-cast grant."),
     EffectDef::None,

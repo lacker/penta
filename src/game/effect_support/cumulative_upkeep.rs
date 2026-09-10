@@ -1,5 +1,19 @@
 impl Game {
     pub(in crate::game) fn resolved_cumulative_upkeep_payment(
+        costs: &'static [crate::CostDef],
+        source: GameObjectId,
+        age: u16,
+    ) -> crate::game::ResolvedEffectPayment {
+        crate::game::ResolvedEffectPayment::all(
+            costs
+                .iter()
+                .map(|cost| Self::resolved_cumulative_upkeep_cost(*cost, source, age))
+                .collect(),
+        )
+    }
+}
+impl Game {
+    pub(in crate::game) fn resolved_cumulative_upkeep_cost(
         cost: crate::card::CostDef,
         source: GameObjectId,
         age: u16,
@@ -9,6 +23,7 @@ impl Game {
 
         let repeated = |amount: u16| amount.saturating_mul(age);
         match cost {
+            Cost::All(costs) => Self::resolved_cumulative_upkeep_payment(costs, source, age),
             Cost::Mana(cost) => Resolved::CumulativeMana {
                 source,
                 cost: repeat_mana_cost(cost, age),
@@ -68,13 +83,11 @@ impl Game {
                 token: *token,
                 amount: repeated(amount),
             },
-            Cost::GainControlPermanents { object, amount } => {
-                Resolved::GainControlPermanents {
-                    source,
-                    object,
-                    amount: repeated(amount),
-                }
-            }
+            Cost::GainControlPermanents { object, amount } => Resolved::GainControlPermanents {
+                source,
+                object,
+                amount: repeated(amount),
+            },
             Cost::FlipCoins(amount) => Resolved::FlipCoins(repeated(amount)),
             _ => panic!("unsupported cumulative-upkeep cost"),
         }

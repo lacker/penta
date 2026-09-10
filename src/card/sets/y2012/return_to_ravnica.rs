@@ -9,15 +9,15 @@ use crate::card::{
     ChooseCardsFromCollectionDef, ClassifyObjectsDef, CollectionInspectionDef, ColorSet,
     ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CopyExceptionsDef, CostDef,
     CostModificationDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageAssignmentDef,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, FreePlayDef, FreePlayDurationDef, HalvedValueDef, IfNoObjectsDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
-    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, SpellResolutionDestinationDef,
-    StaticApplyDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, HalvedValueDef, IfNoObjectsDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef, ObjectCollectionSourceDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
+    SacrificedAmountDef, SpellResolutionDestinationDef, StaticApplyDef, TokenStatsDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -651,17 +651,19 @@ pub(in crate::card::sets) static SOUL_TITHE: CardRecord = CardRecord::new(
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::ControllerOfAttachedPermanent,
                 },
-                EffectDef::PayOr(PayOrDef::unless(
-                    EffectPaymentDef {
-                        payer: PlayerSetDef::Related(PlayerRelation::ControllerOfAttachedPermanent),
-                        cost: CostDef::GenericMana(ValueDef::ObjectManaValue(
+                EffectDef::PayOr(
+                    PayOrDef::unless(
+                        &[CostDef::GenericMana(ValueDef::ObjectManaValue(
                             ObjectRefDef::AttachedToSource,
-                        )),
-                    },
-                    &EffectDef::Sacrifice {
-                        object: EffectRecipientDef::AttachedPermanent,
-                    },
-                )),
+                        ))],
+                        &EffectDef::Sacrifice {
+                            object: EffectRecipientDef::AttachedPermanent,
+                        },
+                    )
+                    .with_payer(PlayerSetDef::Related(
+                        PlayerRelation::ControllerOfAttachedPermanent,
+                    )),
+                ),
             ),
         ]),
 );
@@ -800,7 +802,7 @@ pub(in crate::card::sets) static BLUSTERSQUALL: CardRecord = CardRecord::new_wit
             },
         ),
         abilities::overload(
-            mana_cost!("{3}{U}"),
+            &[CostDef::Mana(mana_cost!("{3}{U}"))],
             "Tap each creature you don't control.",
             EffectDef::Tap {
                 object: EffectRecipientDef::matching_objects(
@@ -926,7 +928,7 @@ pub(in crate::card::sets) static CYCLONIC_RIFT: CardRecord = CardRecord::new_wit
             },
         ),
         abilities::overload(
-            mana_cost!("{6}{U}"),
+            &[CostDef::Mana(mana_cost!("{6}{U}"))],
             "Return each nonland permanent you don't control to its owner's hand.",
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::matching_objects(
@@ -1020,7 +1022,7 @@ pub(in crate::card::sets) static DOWNSIZE: CardRecord = CardRecord::new_with_leg
             },
         ),
         abilities::overload(
-            mana_cost!("{2}{U}"),
+            &[CostDef::Mana(mana_cost!("{2}{U}"))],
             "Each creature you don't control gets -4/-0 until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
@@ -1049,16 +1051,13 @@ pub(in crate::card::sets) static FAERIE_IMPOSTOR: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, sacrifice it unless you return another creature you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1188,7 +1187,7 @@ pub(in crate::card::sets) static MIZZIUM_SKIN: CardRecord = CardRecord::new_with
             },
         ),
         abilities::overload(
-            mana_cost!("{1}{U}"),
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
             "Each creature you control gets +0/+1 and gains hexproof until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
@@ -1370,7 +1369,7 @@ pub(in crate::card::sets) static SYNCOPATE: CardRecord = CardRecord::new_with_le
                 controller: None,
                 owner: None,
             },
-        )], abilities::counter_target_to_exile_unless_paid(ValueDef::ChosenX)),
+        )], abilities::counter_target_to_exile_unless_paid(&[CostDef::GenericMana(ValueDef::ChosenX)])),
     ),
 );
 
@@ -1653,10 +1652,7 @@ pub(in crate::card::sets) static DRAINPIPE_VERMIN: CardRecord = CardRecord::new_
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{B}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{B}"))],
                 &EffectDef::Discard {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(1),
@@ -1914,11 +1910,11 @@ pub(in crate::card::sets) static SEWER_SHAMBLER: CardRecord = CardRecord::new_wi
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 2, 1).with_abilities(&[
         abilities::landwalk(BasicLandType::Swamp),
-        abilities::scavenge(
-            mana_cost!("{2}{B}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{2}{B}"))],
             "Scavenge {2}{B} ({2}{B}, Exile this card from your graveyard: Put a number of \
-             +1/+1 counters equal to this card's power on target creature. Scavenge only as a \
-             sorcery.)",
+            +1/+1 counters equal to this card's power on target creature. Scavenge only as a \
+            sorcery.)",
         ),
     ]),
 );
@@ -2036,8 +2032,8 @@ pub(in crate::card::sets) static TERRUS_WURM: CardRecord = CardRecord::new_with_
     CardArt::new("1998135c-7b7f-402b-a8a5-4f4af131b1bc", "Cliff Childs"),
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{6}{B}"), &["Zombie", "Wurm"], 5, 5).with_abilities(&[
-        abilities::scavenge(
-            mana_cost!("{6}{B}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{6}{B}"))],
             "Scavenge {6}{B} ({6}{B}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -2120,8 +2116,8 @@ pub(in crate::card::sets) static ZANIKEV_LOCUST: CardRecord = CardRecord::new_wi
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{5}{B}"), &["Insect"], 3, 3).with_abilities(&[
         abilities::flying(),
-        abilities::scavenge(
-            mana_cost!("{2}{B}{B}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{2}{B}{B}"))],
             "Scavenge {2}{B}{B} ({2}{B}{B}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -2300,7 +2296,7 @@ pub(in crate::card::sets) static DYNACHARGE: CardRecord = CardRecord::new_with_l
             },
         ),
         abilities::overload(
-            mana_cost!("{2}{R}"),
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
             "Each creature you control gets +2/+0 until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
@@ -2341,7 +2337,7 @@ pub(in crate::card::sets) static ELECTRICKERY: CardRecord = CardRecord::new_with
             ),
         ),
         abilities::overload(
-            mana_cost!("{1}{R}"),
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
             "Electrickery deals 1 damage to each creature you don't control.",
             EffectDef::damage(
                 EffectRecipientDef::matching_objects(
@@ -2578,7 +2574,7 @@ pub(in crate::card::sets) static MIZZIUM_MORTARS: CardRecord = CardRecord::new_w
             ),
         ),
         abilities::overload(
-            mana_cost!("{3}{R}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{R}{R}{R}"))],
             "Mizzium Mortars deals 4 damage to each creature you don't control.",
             EffectDef::damage(
                 EffectRecipientDef::matching_objects(
@@ -2734,7 +2730,7 @@ pub(in crate::card::sets) static STREET_SPASM: CardRecord = CardRecord::new_with
             ),
         ),
         abilities::overload(
-            mana_cost!("{X}{X}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{X}{X}{R}{R}"))],
             "Street Spasm deals X damage to each creature without flying you don't control.",
             EffectDef::damage(
                 EffectRecipientDef::matching_objects(
@@ -2863,7 +2859,7 @@ pub(in crate::card::sets) static VANDALBLAST: CardRecord = CardRecord::new_with_
             },
         ),
         abilities::overload(
-            mana_cost!("{4}{R}"),
+            &[CostDef::Mana(mana_cost!("{4}{R}"))],
             "Destroy each artifact you don't control.",
             EffectDef::Destroy {
                 object: EffectRecipientDef::matching_objects(
@@ -2887,7 +2883,7 @@ pub(in crate::card::sets) static VIASHINO_RACKETEER: CardRecord = CardRecord::ne
         abilities::enters_trigger(
             "When this creature enters, you may discard a card. If you do, draw a card.",
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
+                &[CostDef::DiscardCards(1)],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -3043,8 +3039,8 @@ pub(in crate::card::sets) static DEADBRIDGE_GOLIATH: CardRecord = CardRecord::ne
     CardArt::new("6ad03e99-25d3-4a09-819b-9192dfd8c9d2", "Chase Stone"),
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Insect"], 5, 5).with_abilities(&[
-        abilities::scavenge(
-            mana_cost!("{4}{G}{G}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{4}{G}{G}"))],
             "Scavenge {4}{G}{G} ({4}{G}{G}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -3095,8 +3091,8 @@ pub(in crate::card::sets) static DRUDGE_BEETLE: CardRecord = CardRecord::new_wit
     CardArt::new("e4812e81-beca-4afc-b2f2-24d5ab27abff", "Slawomir Maniak"),
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 2, 2).with_abilities(&[
-        abilities::scavenge(
-            mana_cost!("{5}{G}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{5}{G}"))],
             "Scavenge {5}{G} ({5}{G}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -3207,11 +3203,11 @@ pub(in crate::card::sets) static GOLGARI_DECOY: CardRecord = CardRecord::new_wit
                 )),
             },
         ),
-        abilities::scavenge(
-            mana_cost!("{3}{G}{G}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
             "Scavenge {3}{G}{G} ({3}{G}{G}, Exile this card from your graveyard: Put a number \
-             of +1/+1 counters equal to this card's power on target creature. Scavenge only as \
-             a sorcery.)",
+            of +1/+1 counters equal to this card's power on target creature. Scavenge only as \
+            a sorcery.)",
         ),
     ]),
 );
@@ -3244,8 +3240,8 @@ pub(in crate::card::sets) static KOROZDA_MONITOR: CardRecord = CardRecord::new_w
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Lizard"], 3, 3).with_abilities(&[
         abilities::trample(),
-        abilities::scavenge(
-            mana_cost!("{5}{G}{G}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{5}{G}{G}"))],
             "Scavenge {5}{G}{G} ({5}{G}{G}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -3749,7 +3745,7 @@ pub(in crate::card::sets) static CHEMISTERS_TRICK: CardRecord = CardRecord::new_
             },
         ),
         abilities::overload(
-            mana_cost!("{3}{U}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{U}{R}"))],
             "Each creature you don't control gets -2/-0 until end of turn and attacks this turn if able.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::NotYou),
@@ -3853,7 +3849,7 @@ pub(in crate::card::sets) static COUNTERFLUX: CardRecord = CardRecord::new_with_
             },
         ),
         abilities::overload(
-            mana_cost!("{1}{U}{U}{R}"),
+            &[CostDef::Mana(mana_cost!("{1}{U}{U}{R}"))],
             "Counter each spell you don't control.",
             EffectDef::Counter {
                 object: EffectRecipientDef::matching_objects(
@@ -3986,8 +3982,8 @@ pub(in crate::card::sets) static DREG_MANGLER: CardRecord = CardRecord::new_with
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{1}{B}{G}"), &["Plant", "Zombie"], 3, 3).with_abilities(&[
         abilities::haste(),
-        abilities::scavenge(
-            mana_cost!("{3}{B}{G}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{3}{B}{G}"))],
             "Scavenge {3}{B}{G} ({3}{B}{G}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -4416,7 +4412,9 @@ pub(in crate::card::sets) static IZZET_CHARM: CardRecord = CardRecord::new_with_
                         owner: None,
                     },
                 )],
-                abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+                abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(
+                    2,
+                ))]),
             ),
             AbilityDef::spell_with_targets(
                 "Izzet Charm deals 2 damage to target creature.",
@@ -5260,8 +5258,8 @@ pub(in crate::card::sets) static SLUICEWAY_SCORPION: CardRecord = CardRecord::ne
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{2}{B}{G}"), &["Scorpion"], 2, 2).with_abilities(&[
         abilities::deathtouch(),
-        abilities::scavenge(
-            mana_cost!("{1}{B}{G}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{1}{B}{G}"))],
             "Scavenge {1}{B}{G} ({1}{B}{G}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -5352,7 +5350,7 @@ pub(in crate::card::sets) static TELEPORTAL: CardRecord = CardRecord::new_with_l
             },
         ),
         abilities::overload(
-            mana_cost!("{3}{U}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{U}{R}"))],
             "Each creature you control gets +1/+0 until end of turn and can't be blocked this turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
@@ -5856,7 +5854,7 @@ ObjectPredicateDef::AnyOf(&[
                 controller: None,
                 owner: None,
             })],
-            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]),
         ),
     ]),
 );
@@ -5901,8 +5899,8 @@ pub(in crate::card::sets) static SLITHERHEAD: CardRecord = CardRecord::new_with_
     CardArt::new("d9327905-a254-4885-8310-69fc153ec52f", "Greg Staples"),
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{B/G}"), &["Plant", "Zombie"], 1, 1).with_abilities(&[
-        abilities::scavenge(
-            mana_cost!("{0}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{0}"))],
             "Scavenge {0} ({0}, Exile this card from your graveyard: Put a number of +1/+1 counters equal to this card's power on target creature. Scavenge only as a sorcery.)",
         ),
     ]),
@@ -6500,8 +6498,8 @@ pub(in crate::card::sets) static TRANSGUILD_PROMENADE: CardRecord = CardRecord::
         abilities::enters_tapped(CardType::Land),
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you pay {1}.",
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{1}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

@@ -24,75 +24,7 @@ fn resolved_effect_payment(
     let [player] = payers.as_slice() else {
         return None;
     };
-    let payment = match payment.cost {
-        CostDef::Mana(cost) => super::super::ResolvedEffectPayment::Mana(cost),
-        CostDef::ObjectManaCostReducedBy {
-            object: reference,
-            generic,
-        } => super::super::ResolvedEffectPayment::Mana(
-            game.object_mana_cost_reduced_by(*reference, generic, object, context, scoped),
-        ),
-        CostDef::GenericMana(amount) => {
-            let amount = game
-                .effect_value(amount, object, context, scoped)
-                .max(0)
-                .try_into()
-                .unwrap_or(u16::MAX);
-            super::super::ResolvedEffectPayment::Mana(ManaCost::new(amount, 0))
-        }
-        CostDef::ColoredMana { color, amount } => {
-            let amount = game
-                .effect_value(amount, object, context, scoped)
-                .max(0)
-                .try_into()
-                .unwrap_or(u16::MAX);
-            super::super::ResolvedEffectPayment::Mana(ManaCost::of_color(color, amount))
-        }
-        CostDef::PayLife(amount) => super::super::ResolvedEffectPayment::Life(amount),
-        CostDef::Energy(amount) => super::super::ResolvedEffectPayment::Energy(amount),
-        CostDef::MillCards(amount) => super::super::ResolvedEffectPayment::Mill(amount),
-        CostDef::DiscardCards(amount) => {
-            super::super::ResolvedEffectPayment::Discard(amount)
-        }
-        CostDef::ChosenGenericMana => {
-            super::super::ResolvedEffectPayment::ChosenGenericMana
-        }
-        CostDef::ChosenEnergy => super::super::ResolvedEffectPayment::ChosenEnergy,
-        CostDef::RemoveAnyNumberOfCounters {
-            object: recipient,
-            kind,
-        } => game
-            .effect_recipients(*recipient, object, context, scoped)
-            .into_iter()
-            .find_map(|target| match target {
-                crate::Target::Permanent(object) => Some(
-                    super::super::ResolvedEffectPayment::RemoveAnyNumberOfCounters {
-                        object,
-                        kind,
-                    },
-                ),
-                crate::Target::Player(_)
-                | crate::Target::Card(_)
-                | crate::Target::Spell(_) => None,
-            })
-            .unwrap_or(super::super::ResolvedEffectPayment::RemoveAnyNumberOfCounters {
-                object: crate::GameObjectId(0),
-                kind,
-            }),
-        CostDef::SacrificePermanentMatching(predicate) => {
-            super::super::ResolvedEffectPayment::SacrificePermanentMatching(predicate)
-        }
-        CostDef::SacrificeCreaturesWithTotalPower(total) => {
-            super::super::ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(total)
-        }
-        CostDef::MovePermanentMatching { object, zone } => {
-            super::super::ResolvedEffectPayment::MovePermanentMatching { object, zone }
-        }
-        CostDef::DiscardMatching(predicate) => {
-            super::super::ResolvedEffectPayment::DiscardMatching(predicate)
-        }
-        _ => return None,
-    };
+    let payment = game.resolved_effect_costs(payment.costs, object, context, scoped);
     Some((*player, payment))
 }
 
@@ -307,7 +239,9 @@ fn parse_may_cast_alternative_continuation(
         .map(|(origin, _)| origin)
         .ok_or("alternative-cast offer card lacks its linked Miracle ability")?;
     if ability != linked_ability {
-        return Err("alternative-cast offer ability is not the card's linked Miracle clause".into());
+        return Err(
+            "alternative-cast offer ability is not the card's linked Miracle clause".into(),
+        );
     }
     let ability_definition = game
         .ability_for_origin(card, ability)
@@ -398,13 +332,14 @@ fn parse_may_cast_granted_continuation(
         _ => CastSourceZone::Graveyard,
     };
     let DeclarativeAbilityDef::AlternativeCast(alternative) = ability.definition else {
-        return Err("checkpoint granted-cast offer ability is not an alternative-cast clause".into());
+        return Err(
+            "checkpoint granted-cast offer ability is not an alternative-cast clause".into(),
+        );
     };
     if !matches!(
-            alternative.kind,
-            AlternativeCastKindDef::WithoutPayingManaCost | AlternativeCastKindDef::Rebound
-        )
-    {
+        alternative.kind,
+        AlternativeCastKindDef::WithoutPayingManaCost | AlternativeCastKindDef::Rebound
+    ) {
         return Err(
             "checkpoint granted-cast offers currently support only executable free casts".into(),
         );

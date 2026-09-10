@@ -88,8 +88,11 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
             spell,
             caster,
             zones,
-            ..
-        } => shared_spell_alternative(source_zones, spell, caster, zones),
+            costs,
+        } => {
+            shared_spell_alternative(source_zones, spell, caster, zones)
+                && super::costs::shared_cast_costs(costs)
+        }
     }
 }
 

@@ -21,7 +21,7 @@ pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{5}{U}"), &["Turtle", "Warrior"], 4, 4)
         .with_abilities(&[
             abilities::improvise(),
-            abilities::ward(4, "Ward {4}"),
+            abilities::ward(&[CostDef::Mana(crate::ManaCost::new(4, 0))], "Ward {4}"),
             AbilityDef::triggered(
                 "Whenever this creature or another artifact you control enters, put a +1/+1 \
                  counter on this creature. It can't be blocked this turn.",

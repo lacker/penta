@@ -1099,7 +1099,9 @@ pub(in crate::card::sets) static SPELL_RUPTURE: CardRecord = CardRecord::new_wit
         )],
         // The tax is whatever your biggest creature is, so this is a counterspell
         // that grows with the board rather than with the turn.
-        abilities::counter_target_unless_paid(abilities::greatest_power_you_control()),
+        abilities::counter_target_unless_paid(&[CostDef::GenericMana(
+            abilities::greatest_power_you_control(),
+        )]),
     )),
 );
 
@@ -2150,18 +2152,23 @@ pub(in crate::card::sets) static SCORCHWALKER: CardRecord = CardRecord::new_with
     CardArt::new("14ac6bde-1fef-45f4-b505-80a66b03140a", "Anthony Palumbo"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Elemental"], 5, 1).with_ability(
-        abilities::bloodrush(
-            mana_cost!("{1}{R}{R}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{1}{R}{R}"))],
             "Bloodrush — {1}{R}{R}, Discard this card: Target attacking creature gets +5/+1 until end of turn.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(5), ValueDef::Constant(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(5),
+                    ValueDef::Constant(1)
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2175,18 +2182,23 @@ pub(in crate::card::sets) static SKINBRAND_GOBLIN: CardRecord = CardRecord::new_
     CardArt::new("fe4f9b6c-3ba9-4f4f-8135-f5236195e507", "Marco Nelor"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Warrior"], 2, 1).with_ability(
-        abilities::bloodrush(
-            mana_cost!("{R}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{R}"))],
             "Bloodrush — {R}, Discard this card: Target attacking creature gets +2/+1 until end of turn.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(1)
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2268,15 +2280,17 @@ pub(in crate::card::sets) static VIASHINO_SHANKTAIL: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Lizard", "Warrior"], 3, 1)
         .with_abilities(&[
             abilities::first_strike(),
-            abilities::bloodrush(
-                mana_cost!("{2}{R}"),
+            abilities::bloodrush!(
+                &[CostDef::Mana(mana_cost!("{2}{R}"))],
                 "Bloodrush — {2}{R}, Discard this card: Target attacking creature gets +3/+1 and gains first strike until end of turn.",
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Attacking,
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                })],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Attacking,
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    }
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::Composite(&[
@@ -2316,15 +2330,17 @@ pub(in crate::card::sets) static WRECKING_OGRE: CardRecord = CardRecord::new_wit
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Ogre", "Warrior"], 3, 3)
         .with_abilities(&[
             abilities::double_strike(),
-            abilities::bloodrush(
-                mana_cost!("{3}{R}{R}"),
+            abilities::bloodrush!(
+                &[CostDef::Mana(mana_cost!("{3}{R}{R}"))],
                 "Bloodrush — {3}{R}{R}, Discard this card: Target attacking creature gets +3/+3 and gains double strike until end of turn.",
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Attacking,
-                    zones: &[ZoneKind::Battlefield],
-                    controller: None,
-                    owner: None,
-                })],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Attacking,
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    }
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::Composite(&[
@@ -2653,18 +2669,23 @@ pub(in crate::card::sets) static SCAB_CLAN_CHARGER: CardRecord = CardRecord::new
     CardArt::new("964c88d3-3141-44ab-8856-44a3f08331ea", "Nils Hamm"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Centaur", "Warrior"], 2, 4).with_ability(
-        abilities::bloodrush(
-            mana_cost!("{1}{G}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
             "Bloodrush — {1}{G}, Discard this card: Target attacking creature gets +2/+4 until end of turn.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(4)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(4)
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2689,15 +2710,17 @@ pub(in crate::card::sets) static SKARRG_GOLIATH: CardRecord = CardRecord::new_wi
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Beast"], 9, 9).with_abilities(&[
         abilities::trample(),
-        abilities::bloodrush(
-            mana_cost!("{5}{G}{G}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{5}{G}{G}"))],
             "Bloodrush — {5}{G}{G}, Discard this card: Target attacking creature gets +9/+9 and gains trample until end of turn.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::Composite(&[
@@ -2717,18 +2740,23 @@ pub(in crate::card::sets) static SLAUGHTERHORN: CardRecord = CardRecord::new_wit
     CardArt::new("fb3fcc7a-ff5b-4695-aa86-9166f6cba565", "Steve Prescott"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Beast"], 3, 2).with_ability(
-        abilities::bloodrush(
-            mana_cost!("{G}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{G}"))],
             "Bloodrush — {G}, Discard this card: Target attacking creature gets +3/+2 until end of turn.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(2)
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2814,15 +2842,17 @@ pub(in crate::card::sets) static WASTELAND_VIPER: CardRecord = CardRecord::new_w
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{G}"), &["Snake"], 1, 2).with_abilities(&[
         abilities::deathtouch(),
-        abilities::bloodrush(
-            mana_cost!("{G}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{G}"))],
             "Bloodrush — {G}, Discard this card: Target attacking creature gets +1/+2 and gains deathtouch until end of turn.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::Composite(&[
@@ -3526,8 +3556,8 @@ pub(in crate::card::sets) static GHOR_CLAN_RAMPAGER: CardRecord = CardRecord::ne
     )
     .with_abilities(&[
         abilities::trample(),
-        abilities::bloodrush(
-            mana_cost!("{R}{G}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{R}{G}"))],
             "Bloodrush — {R}{G}, Discard this card: Target attacking creature gets +4/+4 and gains trample until end of turn.",
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -4339,18 +4369,23 @@ pub(in crate::card::sets) static ZHUR_TAA_SWINE: CardRecord = CardRecord::new_wi
     CardArt::new("cef93050-2f24-4c85-a00b-796e53868ac1", "Yeong-Hao Han"),
     CardSet::Gatecrash,
     CardRules::new_creature(mana_cost!("{3}{R}{G}"), &["Boar"], 5, 4).with_ability(
-        abilities::bloodrush(
-            mana_cost!("{1}{R}{G}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{1}{R}{G}"))],
             "Bloodrush — {1}{R}{G}, Discard this card: Target attacking creature gets +5/+4 until end of turn.",
-            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Attacking,
-                zones: &[ZoneKind::Battlefield],
-                controller: None,
-                owner: None,
-            })],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Attacking,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                }
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(5), ValueDef::Constant(4)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(5),
+                    ValueDef::Constant(4)
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

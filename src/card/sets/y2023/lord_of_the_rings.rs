@@ -111,10 +111,10 @@ pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::n
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
-            abilities::typecycling(
+            abilities::typecycling!(
                 "Plainscycling {1} ({1}, Discard this card: Search your library for a Plains card, \
-                 reveal it, put it into your hand, then shuffle.)",
-                mana_cost!("{1}"),
+                reveal it, put it into your hand, then shuffle.)",
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 ObjectPredicateDef::Subtype("Plains"),
             ),
         ]),
@@ -170,9 +170,9 @@ pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new_w
                 amount: ValueDef::Constant(3),
             },
         ),
-        abilities::typecycling(
+        abilities::typecycling!(
             "Islandcycling {1} ({1}, Discard this card: Search your library for an Island card, reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{1}"),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             ObjectPredicateDef::Subtype("Island"),
         ),
     ]),
@@ -312,10 +312,10 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
                     )),
                 },
             ),
-            abilities::typecycling(
+            abilities::typecycling!(
                 "Swampcycling {1} ({1}, Discard this card: Search your library for a Swamp card, reveal \
-                 it, put it into your hand, then shuffle.)",
-                mana_cost!("{1}"),
+                it, put it into your hand, then shuffle.)",
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 ObjectPredicateDef::Subtype("Swamp"),
             ),
         ]),
@@ -388,9 +388,9 @@ pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::typecycling(
+        abilities::typecycling!(
             "Mountaincycling {1} ({1}, Discard this card: Search your library for a Mountain card, reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{1}"),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             ObjectPredicateDef::Subtype("Mountain"),
         ),
     ]),
@@ -465,9 +465,9 @@ pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new_with
             ))),
         // Six mana is not what this card is for. Forestcycling is: one mana
         // from hand, and the Ent becomes the land the draw did not give you.
-        abilities::typecycling(
+        abilities::typecycling!(
             "Forestcycling {1} ({1}, Discard this card: Search your library for a Forest card, reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{1}"),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             ObjectPredicateDef::Subtype("Forest"),
         ),
     ]),

@@ -1,10 +1,10 @@
 use super::super::{EffectResolutionContext, Game, ScopedEffect, StackObject};
-use crate::card::{ChoiceVisibilityDef, CostDef, EffectDef, EffectRecipientDef};
+use crate::card::{ChoiceVisibilityDef, EffectDef, EffectRecipientDef};
 
 impl Game {
     pub(super) fn resolve_cumulative_upkeep(
         &mut self,
-        cost: CostDef,
+        cost: &'static [crate::CostDef],
         scoped: ScopedEffect,
         object: &StackObject,
         context: EffectResolutionContext,

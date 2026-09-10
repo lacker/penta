@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CopyExceptionsDef, CreatedTokensDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    CardType, CopyExceptionsDef, CreatedTokensDef, EffectDef, EffectRecipientDef,
     InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRelation,
     PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, abilities,
@@ -47,10 +47,7 @@ pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::n
                     Some(ZoneKind::Battlefield),
                 ),
                 EffectDef::PayOr(crate::card::PayOrDef::optional(
-                    EffectPaymentDef::mana(
-                        PlayerSetDef::Related(PlayerRelation::You),
-                        mana_cost!("{1}"),
-                    ),
+                    &[crate::CostDef::Mana(mana_cost!("{1}"))],
                     &EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
                         object: &EffectRecipientDef::TriggeringObject,
                         exceptions: CopyExceptionsDef::NONE,
@@ -59,26 +56,20 @@ pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::n
                         binding: ParentBinding,
                         then: &EffectDef::Sequence(&[
                             EffectDef::Apply {
-                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                    ParentBinding,
-                                )),
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                                 effect: AppliedEffectDef::add_ability(&abilities::haste()),
                                 duration: ResolvedEffectDurationDef::Permanent,
                             },
-                            EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                                &AbilityDef::triggered(
-                                    "Sacrifice it at the beginning of the next end step.",
-                                    TriggerEventDef::StepBegins {
-                                        step: TurnStepDef::End,
-                                        player: PlayerRelation::Any,
-                                    },
-                                    EffectDef::Sacrifice {
-                                        object: EffectRecipientDef::objects(
-                                            ObjectSetDef::Binding(ParentBinding),
-                                        ),
-                                    },
-                                ),
-                            )),
+                            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                                "Sacrifice it at the beginning of the next end step.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::Sacrifice {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                                },
+                            ))),
                         ]),
                     }),
                 )),

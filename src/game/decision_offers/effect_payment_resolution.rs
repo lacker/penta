@@ -2,14 +2,13 @@ impl Game {
     fn settle_group_payment_decision(
         &mut self,
         player: PlayerId,
-        payment: ResolvedEffectPayment,
+        payment: &ResolvedEffectPayment,
         chosen: u32,
         options: &[DecisionOption],
     ) -> Option<SettledEffectPayment> {
         let members = selected_payment_members(chosen, options);
-        match payment {
-            ResolvedEffectPayment::DiscardCards(amount) => (members.len()
-                == usize::from(amount)
+        match *payment {
+            ResolvedEffectPayment::DiscardCards(amount) => (members.len() == usize::from(amount)
                 && members.iter().all(|card| {
                     self.players[player.index()]
                         .hand
@@ -78,11 +77,12 @@ impl Game {
         player: PlayerId,
         payment: ResolvedEffectPayment,
     ) -> Option<SettledEffectPayment> {
-        if !self.can_pay_effect_payment(player, payment) {
+        if !self.can_pay_effect_payment(player, payment.clone()) {
             return None;
         }
         let mut mana_spent = Vec::new();
         match payment {
+            ResolvedEffectPayment::All(payments) => return self.settle_cost_list_payment(player, &payments, 1),
             ResolvedEffectPayment::Mana(cost) => {
                 self.activate_mana_for_cost(player, cost, 0);
                 mana_spent = self.pay_player_cost(player, cost, 0);
@@ -204,8 +204,9 @@ impl Game {
         true
     }
 
-    pub(super) fn effect_payment_label(payment: ResolvedEffectPayment) -> String {
-        match payment {
+    pub(super) fn effect_payment_label(payment: &ResolvedEffectPayment) -> String {
+        match *payment {
+            ResolvedEffectPayment::All(_) => "Pay the cost".into(),
             ResolvedEffectPayment::Mana(_) | ResolvedEffectPayment::CumulativeMana { .. } => {
                 "Pay the cost".to_string()
             }

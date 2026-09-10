@@ -35,15 +35,15 @@ fn effect_life_payments_are_preflighted_and_paid_atomically() {
     let mut game = ready_game();
 
     game.players[0].life = 3;
-    assert!(!game.can_pay_effect_payment(PlayerId::One, payment));
-    assert!(!game.pay_effect_payment(PlayerId::One, payment));
+    assert!(!game.can_pay_effect_payment(PlayerId::One, payment.clone()));
+    assert!(!game.pay_effect_payment(PlayerId::One, payment.clone()));
     assert_eq!(game.players[0].life, 3);
 
     game.players[0].life = 4;
     let event_start = game.events().len();
-    assert!(game.can_pay_effect_payment(PlayerId::One, payment));
-    assert_eq!(Game::effect_payment_label(payment), "Pay 4 life");
-    assert!(game.pay_effect_payment(PlayerId::One, payment));
+    assert!(game.can_pay_effect_payment(PlayerId::One, payment.clone()));
+    assert_eq!(Game::effect_payment_label(&payment), "Pay 4 life");
+    assert!(game.pay_effect_payment(PlayerId::One, payment.clone()));
     assert_eq!(game.players[0].life, 0);
     assert_eq!(
         game.events()[event_start..]

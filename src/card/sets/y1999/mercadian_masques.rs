@@ -22,10 +22,10 @@ use crate::card::{
     BlockRestrictionSubjectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind,
     DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerRuleDef, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerRuleDef,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
@@ -1303,15 +1303,14 @@ pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_
             },
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::return_to_hand(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                CostQuantityDef::Fixed(2),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some("You may return two Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
-        )
-        .with_alternative_additional_cost(&CostDef::return_to_hand(
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-            CostQuantityDef::Fixed(2),
-        )),
+        ),
     ]),
 );
 
@@ -1391,18 +1390,17 @@ pub(in crate::card::sets) static MISDIRECTION: CardRecord = CardRecord::new(
     crate::card::CardSet::MercadianMasques,
     CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::exile(
+                ObjectPredicateDef::Color(ManaColor::Blue),
+                ZoneKind::Hand,
+                CostQuantityDef::Fixed(1),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "You may exile a blue card from your hand rather than pay this spell's mana cost.",
             ),
             EffectDef::None,
-        )
-        .with_alternative_additional_cost(&CostDef::exile(
-            ObjectPredicateDef::Color(ManaColor::Blue),
-            ZoneKind::Hand,
-            CostQuantityDef::Fixed(1),
-        )),
+        ),
         AbilityDef::spell_with_targets(
             "Change the target of target spell with a single target.",
             &[AbilityTargetDef::exactly_one(
@@ -1709,15 +1707,14 @@ pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new_with_legac
             },
         )][0]),
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::return_to_hand(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                CostQuantityDef::Fixed(3),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some("You may return three Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
-        )
-        .with_alternative_additional_cost(&CostDef::return_to_hand(
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-            CostQuantityDef::Fixed(3),
-        )),
+        ),
     ]),
 );
 
@@ -2409,8 +2406,8 @@ pub(in crate::card::sets) static MOLTING_HARPY: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{2}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -2634,12 +2631,11 @@ pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_le
     // the turn it is needed, which is somebody else's.
     CardRules::new_instant(mana_cost!("{3}{B}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::PayLife(4)],
             AlternativeCastKindDef::AlternativeCost,
             Some("If you control a Swamp, you may pay 4 life rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_life(4)
         // A Swamp on the battlefield, which is what the free cast is gated on.
         .with_alternative_condition(&TriggerConditionDef::ObjectCount {
             query: ObjectQueryDef::matching(
@@ -3246,10 +3242,9 @@ pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain])),
-                },
+                &[CostDef::SacrificePermanentMatching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                )],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -3962,7 +3957,10 @@ pub(in crate::card::sets) static INVIGORATE: CardRecord = CardRecord::new(
     CardSet::MercadianMasques,
     CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::GainLife {
+                player: crate::PlayerRelation::Opponent,
+                amount: 3,
+            }],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "If you control a Forest, rather than pay this spell's mana cost, you may have an \
@@ -3970,7 +3968,6 @@ pub(in crate::card::sets) static INVIGORATE: CardRecord = CardRecord::new(
             ),
             EffectDef::None,
         )
-        .with_alternative_opponent_life_gain(3)
         .with_alternative_condition(&TriggerConditionDef::ObjectCount {
             query: ObjectQueryDef::matching(
                 ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),

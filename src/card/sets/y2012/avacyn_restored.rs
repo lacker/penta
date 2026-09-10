@@ -11,13 +11,13 @@ use crate::card::{
     ControlDurationDef, CostDef, CostModificationDef, CounterKind, CreatedTokensDef,
     CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal,
-    EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ManaRestrictionDef, ManaSpendEffectDef, MoveObjectsDef,
-    ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    EffectChoiceDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    ManaRestrictionDef, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -208,7 +208,7 @@ pub(in crate::card::sets) static BANISHING_STROKE: CardRecord = CardRecord::new_
                 placement: ZonePlacement::Bottom,
             },
         ),
-        abilities::miracle(mana_cost!("{W}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{W}"))]),
     ]),
 );
 
@@ -564,7 +564,7 @@ pub(in crate::card::sets) static ENTREAT_THE_ANGELS: CardRecord = CardRecord::ne
                 ))
                 .with_count(ValueDef::ChosenX),
         ),
-        abilities::miracle(mana_cost!("{X}{W}{W}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{X}{W}{W}"))]),
     ]),
 );
 
@@ -987,7 +987,7 @@ pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new_with_leg
                 placement: ZonePlacement::Bottom,
             },
         ),
-        abilities::miracle(mana_cost!("{W}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{W}"))]),
     ]),
 );
 
@@ -1264,7 +1264,7 @@ pub(in crate::card::sets) static DEVASTATION_TIDE: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::miracle(mana_cost!("{1}{U}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{1}{U}"))]),
     ]),
 );
 
@@ -1356,23 +1356,22 @@ pub(in crate::card::sets) static FETTERGEIST: CardRecord = CardRecord::new_with_
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef {
-                payment: EffectPaymentDef::generic_mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    )),
-                ),
-                if_paid: None,
-                otherwise: Some(&EffectDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
                 visibility: ChoiceVisibilityDef::Public,
-                condition: None,
+                ..PayOrDef::unless(
+                    &[CostDef::GenericMana(ValueDef::CountMatchingObjects(
+                        &ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    ))],
+                    &EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    },
+                )
             }),
         ),
     ]),
@@ -1738,10 +1737,7 @@ pub(in crate::card::sets) static LUNAR_MYSTIC: CardRecord = CardRecord::new_with
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
@@ -2105,7 +2101,7 @@ pub(in crate::card::sets) static TEMPORAL_MASTERY: CardRecord = CardRecord::new_
             },
         )
         .with_resolution_destination(crate::SpellResolutionDestinationDef::Exile),
-        abilities::miracle(mana_cost!("{1}{U}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{1}{U}"))]),
     ]),
 );
 
@@ -2127,7 +2123,7 @@ pub(in crate::card::sets) static VANISHMENT: CardRecord = CardRecord::new_with_l
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::miracle(mana_cost!("{U}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{U}"))]),
     ]),
 );
 
@@ -2487,15 +2483,12 @@ pub(in crate::card::sets) static DEMONLORD_OF_ASHMOUTH: CardRecord = CardRecord:
         abilities::enters_trigger(
             "When this creature enters, exile it unless you sacrifice another creature.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: crate::card::CostDef::SacrificePermanentMatching(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                    ),
-                },
+                &[crate::card::CostDef::SacrificePermanentMatching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                )],
                 &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
                     zone: ZoneKind::Exile,
@@ -3290,7 +3283,9 @@ pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord:
                 ),
             ]),
         ),
-        abilities::miracle(mana_cost!("{X}{R}")),
+        abilities::miracle(
+            &[CostDef::Mana(mana_cost!("{X}{R}"))],
+        ),
     ]),
 );
 
@@ -3808,7 +3803,7 @@ pub(in crate::card::sets) static REFORGE_THE_SOUL: CardRecord = CardRecord::new(
                 },
             ]),
         ),
-        abilities::miracle(mana_cost!("{1}{R}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{1}{R}"))]),
     ]),
 );
 
@@ -4026,7 +4021,7 @@ pub(in crate::card::sets) static THUNDEROUS_WRATH: CardRecord = CardRecord::new_
                 ValueDef::Constant(5),
             ),
         ),
-        abilities::miracle(mana_cost!("{R}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{R}"))]),
     ]),
 );
 
@@ -4775,7 +4770,9 @@ pub(in crate::card::sets) static REVENGE_OF_THE_HUNTED: CardRecord = CardRecord:
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::miracle(mana_cost!("{G}")),
+        abilities::miracle(
+            &[CostDef::Mana(mana_cost!("{G}"))],
+        ),
     ]),
 );
 

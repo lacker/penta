@@ -56,25 +56,25 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        AbilityDef::alternative_cast_for_card_mana_cost(
+        AbilityDef::alternative_cast(
+            &[
+                CostDef::ManaCostOf(crate::ObjectRefDef::Source),
+                const {
+                    CostDef::discard(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        CostQuantityDef::Fixed(1),
+                    )
+                },
+            ],
             AlternativeCastKindDef::Retrace,
             Some(
                 "Retrace (You may cast this card from your graveyard by discarding a land card \
                  in addition to paying its other costs.)",
             ),
             EffectDef::None,
-        )
-        // Retrace's own cost: the card's mana cost again, plus a land out of
-        // hand. Discarding is what an ordinary hand cost does, so nothing
-        // else has to be said about how the land is spent.
-        .with_alternative_additional_cost(
-            &const {
-                CostDef::discard(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    CostQuantityDef::Fixed(1),
-                )
-            },
-        ),
+        ), // Retrace's own cost: the card's mana cost again, plus a land out of
+           // hand. Discarding is what an ordinary hand cost does, so nothing
+           // else has to be said about how the land is spent.
     ]),
 );
 

@@ -89,16 +89,18 @@ fn escape_context_and_kicker_payment_coexist_through_entry() {
                 amount: ValueDef::Constant(1),
             },
         ),
-        abilities::kicker(mana_cost!("{1}")),
-        AbilityDef::alternative_cast_with_additional_cost(
-            AlternativeCastManaCostDef::Fixed(mana_cost!("{B}")),
+        abilities::kicker(&[crate::CostDef::Mana(mana_cost!("{1}"))]),
+        AbilityDef::alternative_cast(
+            &[
+                crate::CostDef::Mana(mana_cost!("{B}")),
+                CostDef::exile(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    CostQuantityDef::Fixed(1),
+                ),
+            ],
             AlternativeCastKindDef::Escape,
             None,
-            CostDef::exile(
-                ObjectPredicateDef::Any,
-                ZoneKind::Graveyard,
-                CostQuantityDef::Fixed(1),
-            ),
             EffectDef::None,
         ),
     ];

@@ -10,7 +10,7 @@ use crate::ids::{AbilityId, AlternativeCostId};
 use super::super::{AlternativeCostDef, CostQuantityDef, ManaCost, ObjectPredicateDef, ZoneKind};
 use super::{AbilityTargetDef, CostDef, TriggerConditionDef};
 
-/// The rules procedure and mana cost supplied by a printed
+/// The rules procedure and complete cost supplied by a printed
 /// alternative-casting keyword.
 ///
 /// A play option exposes a derived [`AlternativeCostDef`] whose identity is
@@ -20,21 +20,17 @@ use super::{AbilityTargetDef, CostDef, TriggerConditionDef};
 /// goes after the stack.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct AlternativeCastAbilityDef {
-    pub mana_cost: AlternativeCastManaCostDef,
+    pub costs: &'static [CostDef],
     pub kind: AlternativeCastKindDef,
     /// Optional card-part-local name for clauses that ask whether this cost
     /// was paid. Independent of ability order, display text, and cost kind.
     pub binding: Option<crate::Binding>,
-    /// A keyword header for a generic alternative cost. Its mana cost is
+    /// A keyword header for a generic alternative cost. Its cost is
     /// rendered from the declaration; explicit `stack_text` overrides it.
     pub cost_header: Option<&'static str>,
     /// Rules text for the spell as modified by this alternative, when the
     /// procedure changes its visible instructions (as overload does).
     pub stack_text: Option<&'static str>,
-    /// A nonmana cost paid in place of the mana one. The objects it names are
-    /// spent the way the zone says: a permanent is sacrificed, a card in a
-    /// graveyard is exiled, a card in hand is discarded.
-    pub additional_cost: Option<CostDef>,
     /// A board condition the alternative requires. Mogg Salvage's free cast
     /// is only available while the two lands it names are out, so a false
     /// condition means the alternative is not offered at all.
@@ -44,14 +40,6 @@ pub struct AlternativeCastAbilityDef {
     /// the unkicked one does -- and the clause carries its own instructions,
     /// so it has to declare the slots those instructions read.
     pub targets: &'static [AbilityTargetDef],
-    /// Life paid as part of this alternative, on top of whatever mana it
-    /// names. "You may pay 4 life rather than pay this spell's mana cost" is
-    /// a mana cost of nothing and a life cost of four.
-    pub life: u16,
-    /// Life an opponent gains as this alternative is taken. Invigorate's is
-    /// the only shape of it: what the caster spends is not their own life
-    /// but the other player's gain, which costs them nothing they had.
-    pub opponent_life_gain: u16,
     /// Whether the card also prints a permission to use this alternative
     /// from its owner's graveyard. Detective's Phoenix's "You may cast this
     /// card from your graveyard using its bestow ability" is one clause
@@ -75,7 +63,7 @@ pub enum AlternativeCastKindDef {
     /// A plain "you may <do something> rather than pay this spell's mana
     /// cost". Like flashback it only changes what the spell costs, never what
     /// it does, so the spell's own clause still supplies the instructions --
-    /// what it carries instead is a nonmana cost in `additional_cost`.
+    /// its complete replacement cost is carried in `costs`.
     AlternativeCost,
     /// Cast from hand with its kicker paid. A kicker is printed as an
     /// optional additional cost, but the kicked spell is exactly a spell cast
@@ -289,21 +277,21 @@ impl AlternativeCastAbilityDef {
     /// their authored text, while the ordinary mana-plus-cards form can be
     /// rendered entirely from its semantic cost.
     fn common_escape_rules_text(self) -> Option<String> {
-        let AlternativeCastManaCostDef::Fixed(mana_cost) = self.mana_cost else {
-            return None;
-        };
-        let Some(CostDef::Exile {
-            object: ObjectPredicateDef::Any,
-            from: ZoneKind::Graveyard,
-            quantity: CostQuantityDef::Fixed(cards),
-        }) = self.additional_cost
+        let [
+            CostDef::Mana(mana_cost),
+            CostDef::Exile {
+                object: ObjectPredicateDef::Any,
+                from: ZoneKind::Graveyard,
+                quantity: CostQuantityDef::Fixed(cards),
+            },
+        ] = self.costs
         else {
             return None;
         };
         Some(format!(
             "Escape—{mana_cost}, Exile {} other card{} from your graveyard. (You may cast this card from your graveyard for its escape cost.)",
-            Self::count_word(cards),
-            if cards == 1 { "" } else { "s" },
+            Self::count_word(*cards),
+            if *cards == 1 { "" } else { "s" },
         ))
     }
 
@@ -384,7 +372,7 @@ impl AlternativeCastAbilityDef {
             return "Alternative cost".into();
         };
         self.stack_text.map_or_else(
-            || match self.mana_cost {
+            || match self.mana_cost_source() {
                 AlternativeCastManaCostDef::Fixed(cost) => format!("{header} {cost}"),
                 AlternativeCastManaCostDef::ThisCardManaCost => {
                     format!("{header}—this card's mana cost")
@@ -394,12 +382,35 @@ impl AlternativeCastAbilityDef {
         )
     }
 
+    fn nonmana_rules_text(self) -> Option<String> {
+        if !self.costs.iter().all(|cost| {
+            matches!(
+                cost,
+                CostDef::Mana(_) | CostDef::ManaCostOf(crate::ObjectRefDef::Source)
+            )
+        }) || self.costs.is_empty()
+        {
+            return Some(self.stack_text.map_or_else(
+                || {
+                    let header = self.cost_header.unwrap_or(self.kind.label());
+                    crate::card::costs::rules_text(self.costs)
+                        .map_or_else(|| header.into(), |cost| format!("{header}—{cost}."))
+                },
+                str::to_owned,
+            ));
+        }
+        None
+    }
+
     #[must_use]
     pub fn rules_text(self) -> String {
         if let Some(text) = self.fixed_rules_text() {
             return text;
         }
-        match (self.kind, self.mana_cost) {
+        if let Some(text) = self.nonmana_rules_text() {
+            return text;
+        }
+        match (self.kind, self.mana_cost_source()) {
             (AlternativeCastKindDef::Flashback, AlternativeCastManaCostDef::Fixed(mana_cost)) => {
                 format!(
                     "Flashback {mana_cost} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
@@ -512,7 +523,24 @@ impl AlternativeCastAbilityDef {
             id: AlternativeCostId(ability.0),
             binding: self.binding,
             label: self.kind.label().into(),
-            mana_cost: self.mana_cost.resolve(card_mana_cost)?,
+            mana_cost: crate::card::costs::mana_cost(self.costs, card_mana_cost)?,
         })
+    }
+}
+
+impl AlternativeCastAbilityDef {
+    /// Derived wording for the mana component, never independent authored data.
+    #[must_use]
+    pub fn mana_cost_source(self) -> AlternativeCastManaCostDef {
+        if self
+            .costs
+            .contains(&CostDef::ManaCostOf(super::super::ObjectRefDef::Source))
+        {
+            AlternativeCastManaCostDef::ThisCardManaCost
+        } else {
+            AlternativeCastManaCostDef::Fixed(
+                crate::card::costs::mana_cost(self.costs, None).unwrap_or_default(),
+            )
+        }
     }
 }

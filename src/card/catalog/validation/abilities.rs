@@ -109,7 +109,7 @@ pub(super) fn validate_optional_additional_cost_abilities(
                 |option| matches!(option.form, SpellForm::Part(candidate) if candidate == part.id),
             ) {
                 owning_option_found = true;
-                let expected = optional.additional_cost(attached.id);
+                let expected = optional.additional_cost(attached.id, part.rules.mana_cost());
                 let Some(actual) = option
                     .additional_costs
                     .iter()

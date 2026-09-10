@@ -33,7 +33,7 @@ pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             // The demand is the same X this was cast for, so paying more for
             // it raises what the other player has to find.
-            abilities::counter_target_unless_paid(ValueDef::ChosenX),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::ChosenX)]),
             // Scrying happens either way: the spell resolving through does
             // not stop the second half.
             abilities::scry(ValueDef::Constant(2)),

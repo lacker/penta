@@ -312,7 +312,7 @@ fn tutors_and_fetch_lands_use_declarative_zone_searches() {
             panic!("{} should have an activated ability", fetch.name);
         };
         assert_eq!(
-            activated.costs.as_slice(),
+            activated.costs,
             &[
                 CostDef::TapSource,
                 CostDef::PayLife(1),
@@ -448,7 +448,7 @@ fn ring_uses_declarative_format_and_draw_replacement_constructs() {
         panic!("Ring of Ma'rûf should have an activated ability");
     };
     assert_eq!(
-        activated.costs.as_slice(),
+        activated.costs,
         &[
             CostDef::Mana(crate::mana_cost!("{5}")),
             CostDef::TapSource,

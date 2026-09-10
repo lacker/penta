@@ -10,14 +10,16 @@
 ///
 /// Panics for nonmana costs without default wording; use `evoke_with_text`.
 #[must_use]
-pub const fn evoke(cost: CostDef) -> [AbilityDef; 2] {
-    let text = match cost {
-        CostDef::Mana(_) => None,
-        CostDef::Exile {
-            object: ObjectPredicateDef::Color(color),
-            from: ZoneKind::Hand,
-            quantity: super::model::CostQuantityDef::Fixed(1),
-        } => Some(match color {
+pub const fn evoke(costs: &'static [CostDef]) -> [AbilityDef; 2] {
+    let text = match costs {
+        [CostDef::Mana(_)] => None,
+        [
+            CostDef::Exile {
+                object: ObjectPredicateDef::Color(color),
+                from: ZoneKind::Hand,
+                quantity: super::model::CostQuantityDef::Fixed(1),
+            },
+        ] => Some(match color {
             ManaColor::White => "Evoke—Exile a white card from your hand.",
             ManaColor::Blue => "Evoke—Exile a blue card from your hand.",
             ManaColor::Black => "Evoke—Exile a black card from your hand.",
@@ -27,31 +29,22 @@ pub const fn evoke(cost: CostDef) -> [AbilityDef; 2] {
         }),
         _ => panic!("use evoke_with_text for this nonmana cost"),
     };
-    evoke_expansion(cost, text)
+    evoke_expansion(costs, text)
 }
 
 /// Evoke with card-local wording; the cost and sacrifice still expand together.
 #[must_use]
-pub const fn evoke_with_text(cost: CostDef, text: &'static str) -> [AbilityDef; 2] {
-    evoke_expansion(cost, Some(text))
+pub const fn evoke_with_text(costs: &'static [CostDef], text: &'static str) -> [AbilityDef; 2] {
+    evoke_expansion(costs, Some(text))
 }
 
-const fn evoke_expansion(cost: CostDef, text: Option<&'static str>) -> [AbilityDef; 2] {
-    let mut alternative = match cost {
-        CostDef::Mana(mana) => AbilityDef::alternative_cast(
-            mana,
-            AlternativeCastKindDef::AlternativeCost,
-            text,
-            EffectDef::None,
-        ),
-        nonmana => AbilityDef::alternative_cast_with_additional_cost(
-            super::model::AlternativeCastManaCostDef::Fixed(ManaCost::new(0, 0)),
-            AlternativeCastKindDef::AlternativeCost,
-            text,
-            nonmana,
-            EffectDef::None,
-        ),
-    }
+const fn evoke_expansion(costs: &'static [CostDef], text: Option<&'static str>) -> [AbilityDef; 2] {
+    let mut alternative = AbilityDef::alternative_cast(
+        costs,
+        AlternativeCastKindDef::AlternativeCost,
+        text,
+        EffectDef::None,
+    )
     .with_alternative_cost_binding(crate::Binding!("evoke"));
     if let super::model::DeclarativeAbilityDef::AlternativeCast(mut definition) =
         alternative.definition
@@ -82,11 +75,11 @@ static EVOKE_PAID: TriggerConditionDef =
 #[cfg(test)]
 mod evoke_tests {
     use super::*;
-    use crate::card::{AlternativeCastManaCostDef, CostQuantityDef, DeclarativeAbilityDef};
+    use crate::card::{CostQuantityDef, DeclarativeAbilityDef};
 
     #[test]
     fn evoke_costs_and_text_remain_together_in_the_expansion() {
-        let exile = CostDef::exile(
+        const EXILE: CostDef = CostDef::exile(
             ObjectPredicateDef::Color(ManaColor::White),
             ZoneKind::Hand,
             CostQuantityDef::Fixed(1),
@@ -94,17 +87,17 @@ mod evoke_tests {
         for (cost, expansion, expected_text) in [
             (
                 CostDef::Mana(crate::mana_cost!("{X}{W/U}")),
-                evoke(CostDef::Mana(crate::mana_cost!("{X}{W/U}"))),
+                evoke(&[CostDef::Mana(crate::mana_cost!("{X}{W/U}"))]),
                 "Evoke {X}{W/U}",
             ),
             (
-                exile,
-                evoke(exile),
+                EXILE,
+                evoke(&[EXILE]),
                 "Evoke—Exile a white card from your hand.",
             ),
             (
                 CostDef::PayLife(2),
-                evoke_with_text(CostDef::PayLife(2), "Evoke—Pay 2 life."),
+                evoke_with_text(&[CostDef::PayLife(2)], "Evoke—Pay 2 life."),
                 "Evoke—Pay 2 life.",
             ),
         ] {
@@ -113,22 +106,7 @@ mod evoke_tests {
             else {
                 panic!("the expansion starts with the alternative cost");
             };
-            match cost {
-                CostDef::Mana(mana) => {
-                    assert_eq!(
-                        alternative.mana_cost,
-                        AlternativeCastManaCostDef::Fixed(mana)
-                    );
-                    assert_eq!(alternative.additional_cost, None);
-                }
-                nonmana => {
-                    assert_eq!(
-                        alternative.mana_cost,
-                        AlternativeCastManaCostDef::Fixed(ManaCost::new(0, 0))
-                    );
-                    assert_eq!(alternative.additional_cost, Some(nonmana));
-                }
-            }
+            assert_eq!(alternative.costs, &[cost]);
             let DeclarativeAbilityDef::Triggered(trigger) = expansion[1].definition else {
                 panic!("the expansion includes a separate trigger");
             };

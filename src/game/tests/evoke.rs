@@ -20,14 +20,14 @@ fn cast_for(game: &mut Game, spell: GameObjectId, cost: Option<AlternativeCostId
 #[test]
 fn evoke_does_not_sacrifice_for_another_printed_alternative_cost() {
     static ABILITIES: [AbilityDef; 5] = crate::ability_list![
-        abilities::evoke(CostDef::Mana(mana_cost!("{1}"))),
+        abilities::evoke(&[CostDef::Mana(mana_cost!("{1}"))]),
         [
             abilities::flying(),
             AbilityDef::alternative_cast(
-                mana_cost!("{2}"),
+                &[crate::CostDef::Mana(mana_cost!("{2}"))],
                 AlternativeCastKindDef::AlternativeCost,
                 Some("You may pay {2} rather than pay this spell's mana cost."),
-                EffectDef::None,
+                EffectDef::None
             )
             .with_alternative_cost_binding(crate::Binding!("other_alternative_cost")),
             AbilityDef::triggered_if(

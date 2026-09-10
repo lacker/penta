@@ -4,8 +4,9 @@ use crate::ids::{AbilityId, AdditionalCostId, AlternativeCostId, ModeId};
 
 use super::{
     AbilityDef, AdditionalCostDef, AlternativeCostDef, CardSupertype, CardType, CardTypeSet,
-    ColorSet, DeclarativeAbilityDef, FlexibleManaSymbol, ImplementationStatus, KeywordAbility,
-    ManaColor, ManaCost, ModeSetDef, ObjectPredicateDef, PlayRestriction, PrintedManaCost,
+    ColorSet, CostDef, DeclarativeAbilityDef, FlexibleManaSymbol, ImplementationStatus,
+    KeywordAbility, ManaColor, ManaCost, ModeSetDef, ObjectPredicateDef, PlayRestriction,
+    PrintedManaCost,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -76,12 +77,12 @@ impl AttachedAbilityDef {
     /// Materializes the play-option view of a printed optional additional
     /// cost.
     #[must_use]
-    pub fn additional_cost(self) -> Option<AdditionalCostDef> {
+    pub fn additional_cost(self, source_mana: Option<ManaCost>) -> Option<AdditionalCostDef> {
         let DeclarativeAbilityDef::OptionalAdditionalCost(definition) = self.definition.definition
         else {
             return None;
         };
-        Some(definition.additional_cost(self.id))
+        Some(definition.additional_cost(self.id, source_mana))
     }
 }
 
@@ -128,7 +129,7 @@ pub struct CardRules {
     /// permanent's presented rules: a face-down permanent has no abilities,
     /// and turning it face up is a special action rather than one of them
     /// (CR 702.37b).
-    pub(super) morph: Option<ManaCost>,
+    pub(super) morph: Option<&'static [CostDef]>,
 }
 
 /// Whether any flexible symbol in this cost contains one colour.
@@ -222,13 +223,13 @@ impl CardRules {
     /// down is a separate declared clause, so that a card carrying one
     /// without the other fails catalog validation rather than half-working.
     #[must_use]
-    pub const fn with_morph(mut self, cost: ManaCost) -> Self {
+    pub const fn with_morph(mut self, cost: &'static [CostDef]) -> Self {
         self.morph = Some(cost);
         self
     }
 
     #[must_use]
-    pub const fn morph_cost(&self) -> Option<ManaCost> {
+    pub const fn morph_cost(&self) -> Option<&'static [CostDef]> {
         self.morph
     }
 

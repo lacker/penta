@@ -10,15 +10,15 @@ use crate::card::{
     CollectionInspectionDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
     CopyExceptionsDef, CopyStackObjectDef, CostDef, CounterKind, CreatureTypeSetDef,
     DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ManaTypeSetDef, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
-    ObjectValueDef, PayOrDef, PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
+    ManaColor, ManaTypeSetDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef,
+    PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TopOfLibraryCostDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -101,10 +101,7 @@ pub(in crate::card::sets) static HAAZDA_SNARE_SQUAD: CardRecord = CardRecord::ne
                 },
             )],
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{W}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{W}"))],
                 &EffectDef::Tap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -364,7 +361,7 @@ pub(in crate::card::sets) static MINDSTATIC: CardRecord = CardRecord::new_with_l
                 owner: None,
             },
         )],
-        abilities::counter_target_unless_paid(ValueDef::Constant(6)),
+        abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(6))]),
     )),
 );
 
@@ -846,16 +843,21 @@ pub(in crate::card::sets) static PYREWILD_SHAMAN: CardRecord = CardRecord::new_w
     CardArt::new("8c6f6e45-f613-420d-83d2-d93c643265ee", "Lucas Graciano"),
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Shaman"], 3, 1).with_abilities(&[
-        abilities::bloodrush(
-            mana_cost!("{1}{R}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
             "Bloodrush — {1}{R}, Discard this card: Target attacking creature gets +3/+1 until end of turn.",
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Attacking,
-            ]))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ])
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(1)
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -866,10 +868,7 @@ pub(in crate::card::sets) static PYREWILD_SHAMAN: CardRecord = CardRecord::new_w
                 players: PlayerRelation::Any,
             },
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{3}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
                     zone: ZoneKind::Hand,
@@ -905,16 +904,21 @@ pub(in crate::card::sets) static RUBBLEBELT_MAAKA: CardRecord = CardRecord::new_
     CardArt::new("bc802d62-6559-45b9-ad11-de5887aece2b", "Eric Velhagen"),
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Cat"], 3, 3).with_ability(
-        abilities::bloodrush(
-            mana_cost!("{R}"),
+        abilities::bloodrush!(
+            &[CostDef::Mana(mana_cost!("{R}"))],
             "Bloodrush — {R}, Discard this card: Target attacking creature gets +3/+3 until end of turn.",
-            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Attacking,
-            ]))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ])
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3)
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -988,7 +992,7 @@ pub(in crate::card::sets) static WEAPON_SURGE: CardRecord = CardRecord::new_with
             },
         ),
         abilities::overload(
-            mana_cost!("{1}{R}"),
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
             "Each creature you control gets +1/+0 and gains first strike until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
@@ -1184,11 +1188,11 @@ pub(in crate::card::sets) static THRASHING_MOSSDOG: CardRecord = CardRecord::new
     CardSet::DragonsMaze,
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Plant", "Dog"], 3, 3).with_abilities(&[
         abilities::reach(),
-        abilities::scavenge(
-            mana_cost!("{4}{G}{G}"),
+        abilities::scavenge!(
+            &[CostDef::Mana(mana_cost!("{4}{G}{G}"))],
             "Scavenge {4}{G}{G} ({4}{G}{G}, Exile this card from your graveyard: Put a number \
-             of +1/+1 counters equal to this card's power on target creature. Scavenge only as \
-             a sorcery.)",
+            of +1/+1 counters equal to this card's power on target creature. Scavenge only as \
+            a sorcery.)",
         ),
     ]),
 );
@@ -1565,7 +1569,7 @@ pub(in crate::card::sets) static DRAGONSHIFT: CardRecord = CardRecord::new(
             },
         ),
         abilities::overload(
-            mana_cost!("{3}{U}{U}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{U}{U}{R}{R}"))],
             "Until end of turn, each creature you control becomes a blue and red Dragon with base power and toughness 4/4, loses all abilities, and gains flying.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(

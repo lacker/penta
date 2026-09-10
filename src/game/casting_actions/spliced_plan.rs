@@ -101,13 +101,20 @@ impl Game {
             .iter()
             .filter_map(|card| self.card_in_nonbattlefield_zone(*card))
             .filter_map(|(_, instance)| self.catalog.get(instance.definition))
-            .filter_map(Self::splice_cost)
+            .filter_map(|definition| {
+                crate::card::costs::mana_cost(
+                    Self::splice_cost(definition)?,
+                    definition.rules.mana_cost(),
+                )
+            })
             .fold(ManaCost::default(), add_mana_cost)
     }
 
     /// What splicing this card onto an Arcane spell costs, or `None` when it
     /// has no splice clause at all.
-    pub(in crate::game) fn splice_cost(definition: &CardDefinition) -> Option<ManaCost> {
+    pub(in crate::game) fn splice_cost(
+        definition: &CardDefinition,
+    ) -> Option<&'static [crate::CostDef]> {
         definition
             .parts
             .iter()
@@ -116,12 +123,8 @@ impl Game {
                 DeclarativeAbilityDef::AlternativeCast(alternative)
                     if alternative.kind == AlternativeCastKindDef::Splice =>
                 {
-                    match alternative.mana_cost {
-                        crate::card::AlternativeCastManaCostDef::Fixed(cost) => Some(cost),
-                        crate::card::AlternativeCastManaCostDef::ThisCardManaCost => {
-                            definition.rules.mana_cost()
-                        }
-                    }
+                    crate::card::costs::mana_cost(alternative.costs, definition.rules.mana_cost())?;
+                    Some(alternative.costs)
                 }
                 _ => None,
             })

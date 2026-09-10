@@ -13,7 +13,7 @@ use crate::{AbilityOrigin, Action, GameObjectId, PlayerId};
 use super::{Game, ManaPaymentPurpose};
 
 impl Game {
-    fn suspend_abilities_in_hand(
+    pub(in crate::game) fn suspend_abilities_in_hand(
         &self,
         card: &super::CardInstance,
     ) -> Vec<(AbilityOrigin, SuspendAbilityDef)> {
@@ -23,7 +23,7 @@ impl Game {
                 definition @ SuspendAbilityDef::Hand { .. },
             )) = effective.ability.definition
             {
-                abilities.push((effective.origin, definition));
+                abilities.push((effective.origin, *definition));
             }
         });
         abilities
@@ -62,13 +62,22 @@ impl Game {
             if !self.suspend_timing_allows(card, player) {
                 continue;
             }
-            for (ability, suspend) in self.suspend_abilities_in_hand(card) {
-                let SuspendAbilityDef::Hand { time, cost } = suspend else {
+            for (index, (ability, suspend)) in
+                self.suspend_abilities_in_hand(card).into_iter().enumerate()
+            {
+                let SuspendAbilityDef::Hand { time, costs } = suspend else {
                     continue;
                 };
                 match time {
                     SuspendTimeDef::Fixed(_) => {
-                        if self.can_pay_cost_for(player, *cost, 0, &ManaPaymentPurpose::Other) {
+                        if self.can_pay_special_action(
+                            player,
+                            card.id,
+                            super::special_action_payments::PaidSpecialAction::Suspend {
+                                ability: index,
+                                x: 0,
+                            },
+                        ) {
                             actions.push(Action::Suspend {
                                 card: card.id,
                                 ability,
@@ -77,14 +86,31 @@ impl Game {
                         }
                     }
                     SuspendTimeDef::ChosenX { minimum } => {
-                        let maximum = self.maximum_x_for(player, *cost, &ManaPaymentPurpose::Other);
+                        let maximum = self.maximum_x_for(
+                            player,
+                            crate::card::costs::mana_cost(
+                                costs,
+                                self.catalog
+                                    .get(card.definition)
+                                    .and_then(|d| d.rules.mana_cost()),
+                            )
+                            .unwrap_or_default(),
+                            &ManaPaymentPurpose::Other,
+                        );
                         actions.extend((minimum..=maximum).filter_map(|x| {
-                            self.can_pay_cost_for(player, *cost, x, &ManaPaymentPurpose::Other)
-                                .then_some(Action::Suspend {
-                                    card: card.id,
-                                    ability,
+                            self.can_pay_special_action(
+                                player,
+                                card.id,
+                                super::special_action_payments::PaidSpecialAction::Suspend {
+                                    ability: index,
                                     x,
-                                })
+                                },
+                            )
+                            .then_some(Action::Suspend {
+                                card: card.id,
+                                ability,
+                                x,
+                            })
                         }));
                     }
                 }
@@ -99,31 +125,52 @@ impl Game {
         ability: AbilityOrigin,
         x: u16,
     ) {
+        let Some(card_ref) = self.players[player.index()]
+            .hand
+            .iter()
+            .find(|held| held.id == card)
+        else {
+            return;
+        };
+        let Some(index) = self
+            .suspend_abilities_in_hand(card_ref)
+            .iter()
+            .position(|(origin, _)| *origin == ability)
+        else {
+            return;
+        };
+        self.begin_special_action_payment(
+            player,
+            card,
+            super::special_action_payments::PaidSpecialAction::Suspend { ability: index, x },
+        );
+    }
+
+    pub(in crate::game) fn finish_suspend(
+        &mut self,
+        player: PlayerId,
+        card: GameObjectId,
+        ability: usize,
+        x: u16,
+    ) {
         let Some(index) = self.players[player.index()]
             .hand
             .iter()
-            .position(|candidate| candidate.id == card)
+            .position(|held| held.id == card)
         else {
             return;
         };
-        let moved = self.players[player.index()].hand[index].clone();
-        let Some((_, suspend)) = self
-            .suspend_abilities_in_hand(&moved)
-            .into_iter()
-            .find(|(origin, _)| *origin == ability)
+        let Some((_, SuspendAbilityDef::Hand { time, .. })) = self
+            .suspend_abilities_in_hand(&self.players[player.index()].hand[index])
+            .get(ability)
+            .copied()
         else {
-            return;
-        };
-        let SuspendAbilityDef::Hand { time, cost } = suspend else {
             return;
         };
         let counters = match time {
-            SuspendTimeDef::Fixed(counters) if x == 0 => counters,
-            SuspendTimeDef::ChosenX { minimum } if x >= minimum => x,
-            _ => return,
+            SuspendTimeDef::Fixed(counters) => counters,
+            SuspendTimeDef::ChosenX { .. } => x,
         };
-        self.activate_mana_for_cost(player, *cost, x);
-        let _spent = self.pay_player_cost(player, *cost, x);
         let moved = self.players[player.index()].hand.remove(index);
         let owner = moved.owner;
         let (mut moved, _zone_change) = self.zone_change_card(moved);

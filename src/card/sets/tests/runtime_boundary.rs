@@ -82,8 +82,16 @@ fn activated_cost_boundary_is_specific_to_the_source_zone() {
         &[ZoneKind::Hand],
         &[mana, CostDef::DiscardSource],
     ));
-    assert!(!shared_activated_costs(
+    assert!(shared_activated_costs(
         &[ZoneKind::Hand],
+        &[CostDef::PayLife(1), CostDef::DiscardSource],
+    ));
+    assert!(shared_activated_costs(
+        &[ZoneKind::Graveyard],
+        &[mana, CostDef::PayLife(1), CostDef::ExileSource],
+    ));
+    assert!(!shared_activated_costs(
+        &[ZoneKind::Exile],
         &[CostDef::PayLife(1)],
     ));
     assert!(shared_activated_costs(
@@ -195,36 +203,21 @@ fn assert_stack_effect_support(effects: &[EffectDef], expected: bool) {
 }
 
 fn assert_optional_payment_boundaries(tap: &'static EffectDef) {
-    let any_payer = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::mana(
-            PlayerSetDef::Related(PlayerRelation::Any),
-            ManaCost::new(1, 0),
-        ),
-        tap,
-    ));
-    let chosen_payer = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::mana(
-            PlayerSetDef::Related(PlayerRelation::ChosenPlayer),
-            ManaCost::new(1, 0),
-        ),
-        tap,
-    ));
-    let event_payer = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::mana(
-            PlayerSetDef::Related(PlayerRelation::EventPlayer),
-            ManaCost::new(1, 0),
-        ),
-        tap,
-    ));
-    let life_payment = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 1),
-        tap,
-    ));
+    let any_payer = EffectDef::PayOr(
+        PayOrDef::optional(&[crate::CostDef::Mana(crate::mana_cost!("{1}"))], tap)
+            .with_payer(PlayerSetDef::Related(PlayerRelation::Any)),
+    );
+    let chosen_payer = EffectDef::PayOr(
+        PayOrDef::optional(&[crate::CostDef::Mana(crate::mana_cost!("{1}"))], tap)
+            .with_payer(PlayerSetDef::Related(PlayerRelation::ChosenPlayer)),
+    );
+    let event_payer = EffectDef::PayOr(
+        PayOrDef::optional(&[crate::CostDef::Mana(crate::mana_cost!("{1}"))], tap)
+            .with_payer(PlayerSetDef::Related(PlayerRelation::EventPlayer)),
+    );
+    let life_payment = EffectDef::PayOr(PayOrDef::optional(&[crate::CostDef::PayLife(1)], tap));
     let dynamic_mana = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::generic_mana(
-            PlayerSetDef::Related(PlayerRelation::You),
-            ValueDef::Constant(1),
-        ),
+        &[crate::CostDef::GenericMana(ValueDef::Constant(1))],
         tap,
     ));
 
@@ -250,10 +243,7 @@ fn decision_effects_suspend_inside_shared_stack_sequences() {
         effect: &TAP,
     };
     static OPTIONAL_TAP: EffectDef = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::mana(
-            PlayerSetDef::Related(PlayerRelation::You),
-            ManaCost::new(1, 0),
-        ),
+        &[crate::CostDef::Mana(crate::mana_cost!("{1}"))],
         &TAP,
     ));
     static SOURCE_PRESENT: TriggerConditionDef = TriggerConditionDef::SourceOnBattlefield;

@@ -75,6 +75,16 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Casting and ability procedures share generic cost lists.** Alternative
+  casting costs, optional and modal additional costs, Echo, Ward, cumulative
+  upkeep, and special actions accept mana and nonmana costs together. Ordinary
+  printed mana costs remain distinct from mandatory text-box additional costs.
+  Deepcavern Imp now uses its complete discard-based Echo cost. Omniscience
+  supplies an empty alternative list; explicit `{0}` remains a mana payment,
+  including after cost reduction, for CR 601.2g. Checkpoint format 14 preserves
+  complete resolving payments and pending special-action choices; ordinary
+  indexed actions and replay version 2 are unchanged.
+
 - **Fear is grantable, as the restriction rather than the ability.**
   `abilities::FEAR_RESTRICTION` is the applied effect `abilities::fear()`
   hands to its own source, exposed so a card that grants fear can apply the

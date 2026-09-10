@@ -13,15 +13,15 @@
 
 use crate::ids::GameObjectId;
 
-use super::{
-    Action, AlternativeCastKindDef, DeclarativeAbilityDef, Game, ManaCost, ManaPaymentPurpose,
-    PlayerId,
-};
+use super::{Action, AlternativeCastKindDef, DeclarativeAbilityDef, Game, PlayerId};
 
 impl Game {
     /// The plot cost this card prints, which is what makes the special
     /// action available for it at all.
-    fn card_plot_cost(&self, definition: crate::ids::CardDefinitionId) -> Option<ManaCost> {
+    pub(in crate::game) fn card_plot_cost(
+        &self,
+        definition: crate::ids::CardDefinitionId,
+    ) -> Option<&'static [crate::CostDef]> {
         self.catalog.get(definition).and_then(|card| {
             card.parts.iter().find_map(|part| {
                 part.rules.ability_clauses().iter().find_map(|ability| {
@@ -29,9 +29,7 @@ impl Game {
                     else {
                         return None;
                     };
-                    (alternative.kind == AlternativeCastKindDef::Plot)
-                        .then(|| alternative.mana_cost.resolve(None))
-                        .flatten()
+                    (alternative.kind == AlternativeCastKindDef::Plot).then_some(alternative.costs)
                 })
             })
         })
@@ -48,25 +46,25 @@ impl Game {
                 .hand
                 .iter()
                 .filter(|card| {
-                    self.card_plot_cost(card.definition).is_some_and(|cost| {
-                        self.can_pay_cost_for(player, cost, 0, &ManaPaymentPurpose::Other)
-                    })
+                    self.can_pay_special_action(
+                        player,
+                        card.id,
+                        super::special_action_payments::PaidSpecialAction::Plot,
+                    )
                 })
                 .map(|card| Action::Plot { card: card.id }),
         );
     }
 
     pub(super) fn plot(&mut self, player: PlayerId, card: GameObjectId) {
-        let Some(cost) = self.players[player.index()]
-            .hand
-            .iter()
-            .find(|candidate| candidate.id == card)
-            .and_then(|candidate| self.card_plot_cost(candidate.definition))
-        else {
-            return;
-        };
-        self.activate_mana_for_cost(player, cost, 0);
-        let _spent = self.pay_player_cost(player, cost, 0);
+        self.begin_special_action_payment(
+            player,
+            card,
+            super::special_action_payments::PaidSpecialAction::Plot,
+        );
+    }
+
+    pub(in crate::game) fn finish_plot(&mut self, player: PlayerId, card: GameObjectId) {
         let Some(index) = self.players[player.index()]
             .hand
             .iter()

@@ -5,11 +5,10 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     BasicLandType, CardArt, CardRules, CardSet, CardType, CardTypeSet, ColorSet, ComparisonDef,
     CostDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -183,21 +182,21 @@ pub(in crate::card::sets) static EXCISE: CardRecord = CardRecord::new(
                 ]),
             )]
         },
-        EffectDef::PayOr(PayOrDef::unless(
-            EffectPaymentDef::generic_mana(
-                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                    TargetIndex::PRIMARY,
-                ))),
-                ValueDef::ChosenX,
-            ),
-            &const {
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                }
-            },
-        )),
+        EffectDef::PayOr(
+            PayOrDef::unless(
+                &[CostDef::GenericMana(ValueDef::ChosenX)],
+                &const {
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    }
+                },
+            )
+            .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                ObjectRefDef::Target(TargetIndex::PRIMARY),
+            ))),
+        ),
     )),
 );
 
@@ -744,21 +743,23 @@ pub(in crate::card::sets) static RETHINK: CardRecord = CardRecord::new(
                 },
             )]
         },
-        EffectDef::PayOr(PayOrDef::unless(
-            EffectPaymentDef::generic_mana(
-                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+        EffectDef::PayOr(
+            PayOrDef::unless(
+                &[CostDef::GenericMana(ValueDef::TargetManaValue(
                     TargetIndex::PRIMARY,
-                ))),
-                ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-            ),
-            &const {
-                EffectDef::Counter {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Graveyard,
-                    placement: ZonePlacement::Top,
-                }
-            },
-        )),
+                ))],
+                &const {
+                    EffectDef::Counter {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                    }
+                },
+            )
+            .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                ObjectRefDef::Target(TargetIndex::PRIMARY),
+            ))),
+        ),
     )),
 );
 
@@ -833,7 +834,7 @@ pub(in crate::card::sets) static SPIKETAIL_DRAKE: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(3)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(3))]),
         ),
     ]),
 );
@@ -859,7 +860,7 @@ pub(in crate::card::sets) static SPIKETAIL_HATCHLING: CardRecord = CardRecord::n
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]),
         ),
     ]),
 );
@@ -905,7 +906,9 @@ pub(in crate::card::sets) static SUNKEN_FIELD: CardRecord = CardRecord::new(
                                         },
                                     )]
                                 },
-                                abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+                                abilities::counter_target_unless_paid(&[CostDef::GenericMana(
+                                    ValueDef::Constant(1),
+                                )]),
                             )
                         },
                     ),
@@ -1006,12 +1009,9 @@ pub(in crate::card::sets) static BOG_ELEMENTAL: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                        CardType::Land,
-                    )),
-                },
+                &[CostDef::SacrificePermanentMatching(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1280,8 +1280,8 @@ pub(in crate::card::sets) static PIT_RAPTOR: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-                EffectDef::PayOr(PayOrDef::unless_mana(
-                    mana_cost!("{2}{B}{B}"),
+                EffectDef::PayOr(PayOrDef::unless(
+                    &[CostDef::Mana(mana_cost!("{2}{B}{B}"))],
                     &EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
                     },
@@ -1350,28 +1350,28 @@ pub(in crate::card::sets) static RHYSTIC_SYPHON: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )]
         },
-        EffectDef::PayOr(PayOrDef::unless(
-            EffectPaymentDef::mana(
-                PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
-                mana_cost!("{3}"),
-            ),
-            &const {
-                EffectDef::Sequence(
-                    &const {
-                        [
-                            EffectDef::LoseLife {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(5),
-                            },
-                            EffectDef::GainLife {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::Constant(5),
-                            },
-                        ]
-                    },
-                )
-            },
-        )),
+        EffectDef::PayOr(
+            PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                &const {
+                    EffectDef::Sequence(
+                        &const {
+                            [
+                                EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    amount: ValueDef::Constant(5),
+                                },
+                                EffectDef::GainLife {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(5),
+                                },
+                            ]
+                        },
+                    )
+                },
+            )
+            .with_payer(PlayerSetDef::LegalTargets(TargetIndex::PRIMARY)),
+        ),
     )),
 );
 
@@ -1463,8 +1463,8 @@ pub(in crate::card::sets) static WHIPSTITCHED_ZOMBIE: CardRecord = CardRecord::n
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{B}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{B}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1983,8 +1983,8 @@ pub(in crate::card::sets) static DARBA: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{G}{G}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{G}{G}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

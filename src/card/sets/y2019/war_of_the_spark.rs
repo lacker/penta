@@ -245,7 +245,7 @@ pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::n
                     // of the printed clause at once: the cast costs nothing, and the card is
                     // exiled rather than buried afterwards.
                     ability: &AbilityDef::alternative_cast(
-                        mana_cost!("{0}"),
+                        crate::NO_COSTS,
                         AlternativeCastKindDef::WithoutPayingManaCost,
                         Some("Cast without paying its mana cost, then exile it."),
                         EffectDef::None,

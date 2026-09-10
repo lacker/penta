@@ -64,14 +64,12 @@ impl AbilityPredicateDef {
                     ability.definition,
                     DeclarativeAbilityDef::ActivatedMana(_) | DeclarativeAbilityDef::Activated(_)
                 ),
-                AbilityKindDef::ActivatedMana => matches!(
-                    ability.definition,
-                    DeclarativeAbilityDef::ActivatedMana(_)
-                ),
-                AbilityKindDef::NonManaActivated => matches!(
-                    ability.definition,
-                    DeclarativeAbilityDef::Activated(_)
-                ),
+                AbilityKindDef::ActivatedMana => {
+                    matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
+                }
+                AbilityKindDef::NonManaActivated => {
+                    matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
+                }
                 AbilityKindDef::Flashback => matches!(
                     ability.definition,
                     DeclarativeAbilityDef::AlternativeCast(alternative)
@@ -232,7 +230,7 @@ pub enum CostModificationDef {
         spell: ObjectPredicateDef,
         caster: PlayerRelation,
         zones: &'static [ZoneKind],
-        cost: ManaCost,
+        costs: &'static [CostDef],
     },
 }
 

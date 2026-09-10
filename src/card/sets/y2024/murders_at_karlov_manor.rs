@@ -222,7 +222,9 @@ pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
                 owner: None,
             },
         )],
-        abilities::counter_target_to_exile_unless_paid(ValueDef::Constant(3)),
+        abilities::counter_target_to_exile_unless_paid(&[CostDef::GenericMana(
+            ValueDef::Constant(3),
+        )]),
     )),
 );
 

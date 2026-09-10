@@ -212,6 +212,12 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         private_chosen: Vec<DiscardChoiceSnapshot>,
     },
+    PaySpecialAction {
+        player: usize,
+        source: u32,
+        action: crate::game::special_action_payments::PaidSpecialAction,
+        payment: ResolvedEffectPaymentSnapshot,
+    },
     PayOr {
         player: usize,
         payment: ResolvedEffectPaymentSnapshot,

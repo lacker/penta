@@ -1,8 +1,7 @@
 use super::*;
 use crate::ParentBinding;
 use crate::card::{
-    BasicLandType, CardNameDef, CardNameSetDef, CardTypeSet, EffectPaymentDef, PayOrDef,
-    ScaledValueDef, abilities,
+    BasicLandType, CardNameDef, CardNameSetDef, CardTypeSet, PayOrDef, ScaledValueDef, abilities,
 };
 
 #[test]
@@ -273,7 +272,7 @@ fn resolving_apply_rejects_shapes_that_cannot_be_stored() {
 fn nonbattlefield_ability_grants_are_executable_flashback_until_cleanup() {
     static FLYING: AbilityDef = abilities::flying();
     static FLASHBACK: AbilityDef = abilities::flashback_for_card_mana_cost();
-    static MIRACLE: AbilityDef = abilities::miracle(ManaCost::new(0, 0));
+    static MIRACLE: AbilityDef = abilities::miracle(&[crate::CostDef::Mana(ManaCost::new(0, 0))]);
     static GRAVEYARD_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
         AbilityTargetPredicate::Object {
             object: ObjectPredicateDef::Any,
@@ -441,13 +440,10 @@ fn payment_target_sets_must_resolve_to_one_player() {
     assert_eq!(
         validate_ability_targets(
             &PLAYER_TARGETS,
-            EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
-                    ManaCost::new(1, 0),
-                ),
-                &NONE,
-            )),
+            EffectDef::PayOr(
+                PayOrDef::optional(&[crate::CostDef::Mana(crate::mana_cost!("{1}"))], &NONE)
+                    .with_payer(PlayerSetDef::LegalTargets(TargetIndex::PRIMARY))
+            ),
         ),
         Err(
             GrantedAbilityValidationError::TargetReferenceRequiresSingular {

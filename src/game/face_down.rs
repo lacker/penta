@@ -6,7 +6,7 @@
 //! and it is available even though the permanent has no abilities at all
 //! while it is face down.
 
-use super::{Action, Game, GameObjectId, ManaPaymentPurpose, PlayerId};
+use super::{Action, Game, GameObjectId, PlayerId};
 
 impl Game {
     /// The spell's own abilities after its face-down characteristics replace
@@ -71,7 +71,7 @@ impl Game {
     pub(super) fn printed_morph_cost(
         &self,
         permanent: &super::Permanent,
-    ) -> Option<crate::card::ManaCost> {
+    ) -> Option<&'static [crate::CostDef]> {
         self.catalog
             .get(permanent.card.definition.card_definition()?)?
             .part(permanent.presented)?
@@ -83,10 +83,7 @@ impl Game {
     /// can. A morph-like object pays the special cost its card prints; a
     /// Manifest- or Cloak-like object pays the card's own mana cost, and only
     /// if the card under it is a creature card (CR 701.34c, 701.58c).
-    pub(super) fn face_up_cost(
-        &self,
-        permanent: &super::Permanent,
-    ) -> Option<crate::card::ManaCost> {
+    pub(super) fn face_up_cost(&self, permanent: &super::Permanent) -> Option<Vec<crate::CostDef>> {
         if self
             .catalog
             .get(permanent.card.definition.card_definition()?)?
@@ -97,7 +94,7 @@ impl Game {
             return None;
         }
         if let Some(cost) = self.printed_morph_cost(permanent) {
-            return Some(cost);
+            return Some(cost.to_vec());
         }
         if !permanent.turn_up_for_mana_cost {
             return None;
@@ -108,7 +105,11 @@ impl Game {
             .part(permanent.presented)?;
         part.rules
             .has_type(crate::card::CardType::Creature)
-            .then(|| part.rules.mana_cost())
+            .then(|| {
+                part.rules
+                    .mana_cost()
+                    .map(|mana| vec![crate::CostDef::Mana(mana)])
+            })
             .flatten()
     }
 
@@ -118,10 +119,11 @@ impl Game {
             .iter()
             .filter(|permanent| permanent.face_down.is_some() && permanent.controller == player)
         {
-            let Some(cost) = self.face_up_cost(permanent) else {
-                continue;
-            };
-            if self.can_pay_cost_for(player, cost, 0, &ManaPaymentPurpose::Other) {
+            if self.can_pay_special_action(
+                player,
+                permanent.card.id,
+                super::special_action_payments::PaidSpecialAction::TurnFaceUp,
+            ) {
                 actions.push(Action::TurnFaceUp {
                     permanent: permanent.card.id,
                 });
@@ -130,16 +132,14 @@ impl Game {
     }
 
     pub(super) fn turn_face_up(&mut self, player: PlayerId, permanent: GameObjectId) {
-        let Some(cost) = self
-            .battlefield
-            .iter()
-            .find(|candidate| candidate.card.id == permanent)
-            .and_then(|candidate| self.face_up_cost(candidate))
-        else {
-            return;
-        };
-        self.activate_mana_for_cost(player, cost, 0);
-        let _spent = self.pay_player_cost(player, cost, 0);
+        self.begin_special_action_payment(
+            player,
+            permanent,
+            super::special_action_payments::PaidSpecialAction::TurnFaceUp,
+        );
+    }
+
+    pub(in crate::game) fn finish_turn_face_up(&mut self, permanent: GameObjectId) {
         // Turning face up is not a zone change and creates no new object, so
         // the permanent keeps its identity, its counters, and its damage. It
         // simply stops presenting the body.

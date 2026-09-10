@@ -44,6 +44,7 @@ impl Game {
     /// the caller already has in hand.
     pub(super) fn cast_opponent_life_gain(
         &self,
+        player: PlayerId,
         card: GameObjectId,
         signature: &CastSignature,
     ) -> u16 {
@@ -51,7 +52,9 @@ impl Game {
             .and_then(|definition| self.catalog.get(definition))
             .and_then(|definition| {
                 let option = definition.play_option(signature.play_option())?;
-                Some(Self::configured_cast_opponent_life_gain(
+                Some(self.configured_cast_opponent_life_gain(
+                    player,
+                    card,
                     definition,
                     option,
                     signature.costs(),
@@ -64,6 +67,9 @@ impl Game {
     /// Invigorate charges instead of mana. Read the same way the caster's own
     /// life payment is, off whichever alternative was selected.
     pub(super) fn configured_cast_opponent_life_gain(
+        &self,
+        player: PlayerId,
+        card: GameObjectId,
         definition: &CardDefinition,
         option: &PlayOptionDef,
         costs: &CostConfiguration,
@@ -71,14 +77,19 @@ impl Game {
         costs
             .alternative()
             .and_then(|selected| {
-                Self::alternative_cast_clause(definition, option, selected).and_then(
-                    |(_, ability, _)| match ability.definition {
+                Self::alternative_cast_clause(definition, option, selected)
+                    .and_then(|(_, ability, _)| match ability.definition {
                         DeclarativeAbilityDef::AlternativeCast(alternative) => {
-                            Some(alternative.opponent_life_gain)
+                            Some(crate::card::costs::opponent_life_gain(alternative.costs))
                         }
                         _ => None,
-                    },
-                )
+                    })
+                    .or_else(|| {
+                        self.battlefield_spell_alternative_cost_for_id(
+                            player, card, option, selected,
+                        )
+                        .map(crate::card::costs::opponent_life_gain)
+                    })
             })
             .unwrap_or(0)
     }
@@ -88,11 +99,11 @@ impl Game {
     /// separately and added by the caller.
     pub(super) fn configured_cast_life_payment(
         &self,
+        player: PlayerId,
         definition: &CardDefinition,
         option: &PlayOptionDef,
         card: GameObjectId,
         costs: &CostConfiguration,
-        _x: u16,
         offer: Option<CastOfferCost>,
     ) -> u16 {
         costs
@@ -104,18 +115,23 @@ impl Game {
                         None | Some(CastOfferCost::Any) => None,
                         Some(CastOfferCost::PrintedAlternative(_)) => return None,
                     };
-                    return self
-                        .granted_alternative_cast(card, option, required)
-                        .map(|(_, alternative, _)| alternative.life);
+                    return self.granted_alternative_cast(card, option, required).map(
+                        |(_, alternative, _)| crate::card::costs::life_cost(alternative.costs),
+                    );
                 }
-                Self::alternative_cast_clause(definition, option, selected).and_then(
-                    |(_, ability, _)| match ability.definition {
+                Self::alternative_cast_clause(definition, option, selected)
+                    .and_then(|(_, ability, _)| match ability.definition {
                         DeclarativeAbilityDef::AlternativeCast(alternative) => {
-                            Some(alternative.life)
+                            Some(crate::card::costs::life_cost(alternative.costs))
                         }
                         _ => None,
-                    },
-                )
+                    })
+                    .or_else(|| {
+                        self.battlefield_spell_alternative_cost_for_id(
+                            player, card, option, selected,
+                        )
+                        .map(crate::card::costs::life_cost)
+                    })
             })
             .unwrap_or(0)
     }
@@ -173,11 +189,11 @@ impl Game {
         let definition = self.catalog.get(card.definition)?;
         let option = definition.play_option(choices.play_option())?;
         let cast_life = self.configured_cast_life_payment(
+            player,
             definition,
             option,
             card_id,
             choices.costs(),
-            choices.x(),
             self.current_cast_offer(player, card_id, source_zone)
                 .map(|offer| offer.cost),
         );
@@ -208,14 +224,14 @@ impl Game {
             .unwrap_or(0)
     }
 
-    fn cast_object_payments_and_life(
+    pub(in crate::game) fn cast_object_payments_and_life(
         &self,
         player: PlayerId,
         card_id: GameObjectId,
         signature: &CastSignature,
         context: super::CastCostContext,
         sacrifices: &[GameObjectId],
-    ) -> (Vec<(GameObjectId, CostDef)>, u16) {
+    ) -> (Vec<(GameObjectId, CostDef)>, u16, bool) {
         let super::CastCostContext { source_zone, offer } = context;
         let held = match source_zone {
             CastSourceZone::Hand => self.players[player.index()]
@@ -253,6 +269,7 @@ impl Game {
                     card: held,
                     player,
                     modes: signature.modes(),
+                    spliced: signature.spliced(),
                     scale: super::casting_actions::CastScale {
                         x: signature.x(),
                         modes: signature.modes().len(),
@@ -270,14 +287,30 @@ impl Game {
         );
         let life = self
             .configured_cast_life_payment(
+                player,
                 definition,
                 option,
                 card_id,
                 signature.costs(),
-                signature.x(),
                 offer,
             )
             .saturating_add(payment.life);
-        (payment.objects, life)
+        let includes_mana = signature.spliced().iter().any(|id| {
+            self.card_in_nonbattlefield_zone(*id)
+                .and_then(|(_, instance)| self.catalog.get(instance.definition))
+                .and_then(Self::splice_cost)
+                .is_some_and(crate::card::costs::includes_fixed_mana_payment)
+        }) || payment.includes_mana_payment
+            || self.configured_cast_includes_mana_payment(
+                player,
+                card_id,
+                definition,
+                option,
+                signature.costs(),
+                offer,
+            )
+            || self.spell_cost_increase(player, card_id, signature.targets())
+                != ManaCost::default();
+        (payment.objects, life, includes_mana)
     }
 }

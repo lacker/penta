@@ -91,8 +91,9 @@ fn fused_split_composition_combines_targets_in_printed_order() {
 
 #[test]
 fn optional_additional_costs_are_not_alternative_casts() {
-    let rules = CardRules::new_instant(mana_cost!("{G}"))
-        .with_ability(abilities::buyback(mana_cost!("{3}")));
+    let rules = CardRules::new_instant(mana_cost!("{G}")).with_ability(abilities::buyback(&[
+        crate::CostDef::Mana(mana_cost!("{3}")),
+    ]));
     let composition = CardComposition::single("Buyback test", rules);
     let option = &composition.play_options[0];
 

@@ -18,9 +18,9 @@ pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::n
     // that is still a real threat in the games that go long.
     CardRules::new_creature(mana_cost!("{6}{U}"), &["Serpent"], 5, 5).with_abilities(&[
         abilities::hexproof(),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {U} ({U}, Discard this card: Draw a card.)",
-            mana_cost!("{U}"),
+            &[crate::CostDef::Mana(mana_cost!("{U}"))],
         ),
     ]),
 );

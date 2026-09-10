@@ -4,12 +4,12 @@ use crate::card::{
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ChangeStackTargetsDef,
     ComparisonDef, CostDef, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DamageSourceGroupDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    HalvedValueDef, KeywordAbility, ManaColor, ManaTypeSetDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, StackTargetChangeDef,
-    TargetChooserDef, TargetPredicate, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    DamageSourceGroupDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, HalvedValueDef,
+    KeywordAbility, ManaColor, ManaTypeSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    RoundingDef, SacrificedAmountDef, StackTargetChangeDef, TargetChooserDef, TargetPredicate,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -679,8 +679,8 @@ pub(in crate::card::sets) static SUNKEN_CITY: CardRecord = CardRecord::new_with_
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{U}{U}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{U}{U}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1909,16 +1909,12 @@ pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new_wit
                 other: ObjectPredicateDef::HasType(CardType::Creature),
             },
             EffectDef::PayOr(PayOrDef::optional_or(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}{G}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}{G}"))],
                 &EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::add_ability(&SPITTING_SLUG_FIRST_STRIKE),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-                // The other side of the same block, whichever way round it happened.
+                }, // The other side of the same block, whichever way round it happened.
                 &EffectDef::Apply {
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::AnyOf(&[

@@ -120,7 +120,7 @@ pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new
                 },
             ]),
         ),
-        abilities::flashback(mana_cost!("{W}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{W}"))]),
     ]),
 );
 

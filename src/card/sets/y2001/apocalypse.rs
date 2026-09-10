@@ -581,7 +581,7 @@ pub(in crate::card::sets) static DESOLATION_ANGEL: CardRecord = CardRecord::new(
     // everyone's -- the sort of card only a deck already ahead can cast.
     CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Angel"], 5, 4).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{B}{B}{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{3}{B}{B}{W}{W}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {W}{W} (You may pay an additional {W}{W} as you cast this spell.)"),
             EffectDef::None,
@@ -1042,7 +1042,7 @@ pub(in crate::card::sets) static DESOLATION_GIANT: CardRecord = CardRecord::new(
     // two white mana a sweeper that leaves itself standing.
     CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Giant"], 3, 3).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{2}{R}{R}{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{2}{R}{R}{W}{W}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {W}{W} (You may pay an additional {W}{W} as you cast this spell.)"),
             EffectDef::None,
@@ -1404,8 +1404,14 @@ pub(in crate::card::sets) static ANAVOLVER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("5e685a8c-fba6-495f-ac0f-1ff5456b22d0", "Matt Cavotta"),
     crate::card::CardSet::Apocalypse,
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Volver"], 3, 3).with_abilities(&[
-        abilities::kicker_with_label("Kicker {1}{U}", mana_cost!("{1}{U}")),
-        abilities::kicker_with_label("Kicker {B}", mana_cost!("{B}")),
+        abilities::kicker_with_label(
+            "Kicker {1}{U}",
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
+        ),
+        abilities::kicker_with_label(
+            "Kicker {B}",
+            &[CostDef::Mana(mana_cost!("{B}"))],
+        ),
         AbilityDef::as_enters(
             "If this creature was kicked with its {1}{U} kicker, it enters with two +1/+1 counters on it and with flying.",
             crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -1612,7 +1618,7 @@ pub(in crate::card::sets) static STRENGTH_OF_NIGHT: CardRecord = CardRecord::new
     // Zombies -- which in this block it often was.
     CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{2}{G}{B}"),
+            &[CostDef::Mana(mana_cost!("{2}{G}{B}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {B} (You may pay an additional {B} as you cast this spell.)"),
             EffectDef::None,

@@ -48,8 +48,7 @@ fn target_can_project(predicate: AbilityTargetPredicate, expected: RecipientExpe
         if_paid, otherwise, ..
     } = predicate
     {
-        return target_can_project(*if_paid, expected)
-            && target_can_project(*otherwise, expected);
+        return target_can_project(*if_paid, expected) && target_can_project(*otherwise, expected);
     }
     if let AbilityTargetPredicate::AnyOf(predicates) = predicate {
         return !predicates.is_empty()
@@ -166,9 +165,7 @@ fn validate_player_reference_shape(
         }
         PlayerRefDef::ControllerOf(reference)
         | PlayerRefDef::OpponentOf(reference)
-        | PlayerRefDef::OwnerOf(reference) => {
-            validate_object_reference_shape(reference, targets)
-        }
+        | PlayerRefDef::OwnerOf(reference) => validate_object_reference_shape(reference, targets),
         PlayerRefDef::EffectController
         | PlayerRefDef::EnchantedPlayer
         | PlayerRefDef::EventPlayer
@@ -245,7 +242,6 @@ fn validate_object_set_shape(
             validate_target_projection(target, targets, RecipientExpectation::Object)
         }
         ObjectSetDef::Binding(_)
-
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
         | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::LinkedExiles
@@ -357,7 +353,9 @@ fn validate_value_shape(
         ValueDef::CountMatchingPlayerAttachments(query) => {
             validate_object_predicate_shape(query.object, targets)
         }
-        ValueDef::CountObjects(objects) => validate_object_set_shape(*objects, targets),
+        ValueDef::CountObjects(objects) | ValueDef::CardTypesAmongObjects(objects) => {
+            validate_object_set_shape(*objects, targets)
+        }
         ValueDef::TargetLibrarySize(target) => {
             validate_target_shape(target, targets, RecipientExpectation::Player, true)
         }
@@ -413,9 +411,6 @@ fn validate_value_shape(
         | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets
         | ValueDef::ResolvedRecipientCount => Ok(()),
-        ValueDef::CardTypesAmongObjects(objects) => {
-            validate_object_set_shape(*objects, targets)
-        }
     }
 }
 
@@ -583,8 +578,8 @@ fn validate_payment_shape(
         validate_target_shape(target, targets, RecipientExpectation::Any, true)?;
         validate_target_projection(target, targets, RecipientExpectation::Player)?;
     }
-    if let CostDef::GenericMana(amount) = payment.cost {
-        validate_value_shape(amount, targets)?;
+    for cost in payment.costs {
+        validate_payment_cost_shape(*cost, targets)?;
     }
     Ok(())
 }
@@ -611,10 +606,10 @@ fn nonbattlefield_ability_grants_are_flashback(effect: AppliedEffectDef) -> bool
             AbilityOperationDef::Add(ability),
         )) => {
             matches!(
-                    ability.definition,
-                    DeclarativeAbilityDef::AlternativeCast(definition)
-                        if definition.kind == AlternativeCastKindDef::Flashback
-                )
+                ability.definition,
+                DeclarativeAbilityDef::AlternativeCast(definition)
+                    if definition.kind == AlternativeCastKindDef::Flashback
+            )
         }
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => true,
     }
@@ -630,11 +625,11 @@ fn nonbattlefield_ability_grants_are_suspend(effect: AppliedEffectDef) -> bool {
             AbilityOperationDef::Add(ability),
         )) => {
             matches!(
-                    ability.definition,
-                    DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Suspend(
-                        crate::card::SuspendAbilityDef::Granted
-                    ))
-                )
+                ability.definition,
+                DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Suspend(
+                    crate::card::SuspendAbilityDef::Granted
+                ))
+            )
         }
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => true,
     }
@@ -643,9 +638,7 @@ fn nonbattlefield_ability_grants_are_suspend(effect: AppliedEffectDef) -> bool {
 /// Whole replacement abilities granted to a resolving permanent spell can
 /// move onto the permanent it becomes. The event restriction is what keeps a
 /// granted battlefield-only ability from being mistaken for stack behavior.
-fn nonbattlefield_ability_grants_are_source_entry_replacements(
-    effect: AppliedEffectDef,
-) -> bool {
+fn nonbattlefield_ability_grants_are_source_entry_replacements(effect: AppliedEffectDef) -> bool {
     match effect {
         AppliedEffectDef::Composite(effects) => effects
             .iter()
@@ -958,5 +951,29 @@ fn validate_applied_effect_shapes(
         AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Object)
         }
+    }
+}
+
+fn validate_payment_cost_shape(
+    cost: CostDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    match cost {
+        CostDef::All(costs) => costs
+            .iter()
+            .try_for_each(|cost| validate_payment_cost_shape(*cost, targets)),
+        CostDef::GenericMana(amount) | CostDef::ColoredMana { amount, .. } => {
+            validate_value_shape(amount, targets)
+        }
+        CostDef::ObjectManaCostReducedBy { object, .. }
+        | CostDef::RemoveAnyNumberOfCounters { object, .. } => {
+            validate_recipient_shape(*object, targets, RecipientExpectation::Object)
+        }
+        CostDef::DiscardMatching(object)
+        | CostDef::SacrificePermanentMatching(object)
+        | CostDef::MovePermanentMatching { object, .. } => {
+            validate_object_predicate_shape(object, targets)
+        }
+        _ => Ok(()),
     }
 }

@@ -284,6 +284,7 @@ impl Game {
             card,
             player,
             modes: choices.modes(),
+            spliced: choices.spliced(),
             scale: CastScale {
                 x: choices.x(),
                 modes: choices.modes().len(),
@@ -306,6 +307,7 @@ impl Game {
                 card,
                 player,
                 modes: choices.modes(),
+                spliced: choices.spliced(),
                 scale: CastScale {
                     x: choices.x(),
                     modes: choices.modes().len(),
@@ -318,11 +320,11 @@ impl Game {
         cost = add_mana_cost(cost, additional_payment.mana);
         let cast_life = self
             .configured_cast_life_payment(
+                player,
                 definition,
                 option,
                 card_id,
                 choices.costs(),
-                choices.x(),
                 offer.map(|offer| offer.cost),
             )
             .saturating_add(additional_payment.life);

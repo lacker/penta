@@ -828,7 +828,7 @@ pub(in crate::card::sets) static FROST_TITAN: CardRecord = CardRecord::new(
             TriggerEventDef::becomes_targeted(
                 ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
             ),
-            abilities::counter_triggering_spell_unless_paid(ValueDef::Constant(2)),
+            abilities::counter_triggering_spell_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(2))]),
         ),
         AbilityDef::triggered_with_targets(
             "Whenever this creature enters or attacks, tap target permanent. It doesn't untap during its controller's next untap step.",

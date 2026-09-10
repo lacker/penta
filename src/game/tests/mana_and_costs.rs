@@ -253,13 +253,10 @@ fn optional_payment_uses_its_declared_payer() {
     let mountain_id = mountain.card.id;
     game.battlefield.push(mountain);
     let source = spell(10_001, cards::LIGHTNING_BOLT, PlayerId::One, 0);
-    let effect = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::mana(
-            PlayerSetDef::Related(PlayerRelation::Opponent),
-            ManaCost::new(1, 0),
-        ),
-        &IF_PAID,
-    ));
+    let effect = EffectDef::PayOr(
+        PayOrDef::optional(&[crate::CostDef::Mana(crate::mana_cost!("{1}"))], &IF_PAID)
+            .with_payer(PlayerSetDef::Related(PlayerRelation::Opponent)),
+    );
 
     game.resolve_effect_def(
         ScopedEffect::primary(effect),
@@ -289,17 +286,15 @@ fn optional_payment_uses_its_declared_payer() {
 }
 
 #[test]
-fn optional_life_payment_is_private_and_resumes_the_paid_branch() {
+fn optional_payment_defaults_to_the_effect_controller_and_keeps_the_choice_private() {
     static IF_PAID: EffectDef = EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
         amount: ValueDef::Constant(3),
     };
     let mut game = ready_game();
-    let source = spell(10_001, cards::LIGHTNING_BOLT, PlayerId::One, 0);
-    let effect = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::life(PlayerSetDef::One(PlayerRefDef::EffectController), 2),
-        &IF_PAID,
-    ));
+    let mut source = spell(10_001, cards::LIGHTNING_BOLT, PlayerId::Two, 0);
+    source.controller = PlayerId::One;
+    let effect = EffectDef::PayOr(PayOrDef::optional(&[crate::CostDef::PayLife(2)], &IF_PAID));
 
     game.resolve_effect_def(
         ScopedEffect::primary(effect),
@@ -325,6 +320,7 @@ fn optional_life_payment_is_private_and_resumes_the_paid_branch() {
     .unwrap();
 
     assert_eq!(game.players[0].life, 21);
+    assert_eq!(game.players[1].life, 20, "the spell owner does not pay");
 }
 
 #[test]
@@ -337,10 +333,7 @@ fn nested_choice_payment_preserves_its_binding_and_outer_sequence_tail() {
         },
     };
     static PAY_TO_DESTROY: EffectDef = EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::mana(
-            PlayerSetDef::Related(PlayerRelation::You),
-            ManaCost::new(1, 0),
-        ),
+        &[crate::CostDef::Mana(crate::mana_cost!("{1}"))],
         &DESTROY_CHOSEN,
     ));
     static CHOOSE_CREATURE: EffectDef = EffectDef::Choose(ChooseDef {

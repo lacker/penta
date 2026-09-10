@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostList, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor, ManaCost, ObjectPredicateDef,
-    PlayerRelation, ValueDef, ZoneKind, abilities,
+    AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CostDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ValueDef,
+    ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -148,7 +148,7 @@ const fn guildhall_surveil_land(
     mana_text: &'static str,
     colors: &'static [ManaColor],
     surveil_text: &'static str,
-    surveil_cost: ManaCost,
+    surveil_cost: &'static [CostDef],
 ) -> CardRules {
     CardRules::new_land(&[])
         .with_ability(abilities::enters_tapped(CardType::Land))
@@ -157,11 +157,9 @@ const fn guildhall_surveil_land(
             &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(colors)),
         ))
-        // A cost list rather than a slice: the mana cost is a parameter, and
-        // a slice holding it could not be given a 'static lifetime.
-        .with_ability(AbilityDef::activated_with_cost_list_and_targets(
+        .with_ability(AbilityDef::activated_with_targets(
             surveil_text,
-            AbilityCostList::two(CostDef::Mana(surveil_cost), CostDef::TapSource),
+            surveil_cost,
             &[],
             abilities::surveil(ValueDef::Constant(1)),
         ))
@@ -178,7 +176,7 @@ pub(in crate::card::sets) static FORUM_OF_AMITY: CardRecord = CardRecord::new(
         &[ManaColor::White, ManaColor::Black],
         "{2}{W}{B}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
          your graveyard.)",
-        mana_cost!("{2}{W}{B}"),
+        &[CostDef::Mana(mana_cost!("{2}{W}{B}")), CostDef::TapSource],
     ),
 );
 
@@ -193,7 +191,7 @@ pub(in crate::card::sets) static PARADOX_GARDENS: CardRecord = CardRecord::new(
         &[ManaColor::Green, ManaColor::Blue],
         "{2}{G}{U}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
          your graveyard.)",
-        mana_cost!("{2}{G}{U}"),
+        &[CostDef::Mana(mana_cost!("{2}{G}{U}")), CostDef::TapSource],
     ),
 );
 
@@ -248,7 +246,7 @@ pub(in crate::card::sets) static SPECTACLE_SUMMIT: CardRecord = CardRecord::new(
         &[ManaColor::Blue, ManaColor::Red],
         "{2}{U}{R}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
          your graveyard.)",
-        mana_cost!("{2}{U}{R}"),
+        &[CostDef::Mana(mana_cost!("{2}{U}{R}")), CostDef::TapSource],
     ),
 );
 

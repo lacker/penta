@@ -38,7 +38,7 @@ pub(in crate::card::sets) static WALL_OF_SHARDS: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::defender(),
             abilities::flying(),
-            abilities::cumulative_upkeep(CostDef::gain_life(PlayerRelation::Opponent, 1))
+            abilities::cumulative_upkeep(&[CostDef::gain_life(PlayerRelation::Opponent, 1)])
                 .override_text("Cumulative upkeep—An opponent gains 1 life."),
         ]),
 );
@@ -51,7 +51,7 @@ pub(in crate::card::sets) static VEXING_SPHINX: CardRecord = CardRecord::new(
     CardSet::Coldsnap,
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Sphinx"], 4, 4).with_abilities(&[
         abilities::flying(),
-        abilities::cumulative_upkeep(CostDef::discard_cards(1)),
+        abilities::cumulative_upkeep(&[CostDef::discard_cards(1)]),
         abilities::dies_trigger(
             "When this creature dies, draw a card for each age counter on it.",
             EffectDef::DrawCards {
@@ -69,7 +69,9 @@ pub(in crate::card::sets) static BALDUVIAN_FALLEN: CardRecord = CardRecord::new(
     CardArt::new("6a52b952-6e3b-403b-b355-2af47a282ab6", "Dave Kendall"),
     CardSet::Coldsnap,
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 3, 5).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        abilities::cumulative_upkeep(
+            &[CostDef::mana(mana_cost!("{1}"))],
+        ),
         AbilityDef::triggered(
             "Whenever this creature's cumulative upkeep is paid, it gets +1/+0 until end of turn for each {B} or {R} spent this way.",
             TriggerEventDef::CumulativeUpkeepPaid {
@@ -108,10 +110,10 @@ pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new
     CardSet::Coldsnap,
     CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(&[
         abilities::flying(),
-        abilities::cumulative_upkeep(CostDef::gain_control_permanents(
+        abilities::cumulative_upkeep(&[CostDef::gain_control_permanents(
             ObjectPredicateDef::HasType(CardType::Land),
             1,
-        ))
+        )])
         .override_text("Cumulative upkeep—Gain control of a land you don't control."),
         AbilityDef::static_ability(
             "This creature gets +1/+1 for each land you control but don't own.",
@@ -136,7 +138,7 @@ pub(in crate::card::sets) static BRAID_OF_FIRE: CardRecord = CardRecord::new(
     ),
     CardSet::Coldsnap,
     CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
-        abilities::cumulative_upkeep(CostDef::add_mana(&AddManaEffectDef::one(ManaColor::Red)))
+        abilities::cumulative_upkeep(&[CostDef::add_mana(&AddManaEffectDef::one(ManaColor::Red))])
             .override_text("Cumulative upkeep—Add {R}."),
     ),
 );
@@ -149,7 +151,9 @@ pub(in crate::card::sets) static KARPLUSAN_MINOTAUR: CardRecord = CardRecord::ne
     CardSet::Coldsnap,
     CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
         .with_abilities(&[
-            abilities::cumulative_upkeep(CostDef::flip_coins(1))
+            abilities::cumulative_upkeep(
+                &[CostDef::flip_coins(1)],
+            )
                 .override_text("Cumulative upkeep—Flip a coin."),
             AbilityDef::triggered_with_targets(
                 "Whenever you win a coin flip, this creature deals 1 damage to any target.",
@@ -181,7 +185,7 @@ pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
     CardSet::Coldsnap,
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Cat", "Warrior"], 6, 6).with_abilities(&[
         abilities::trample(),
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{G/W}")))
+        abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{G/W}"))])
             .override_text("Cumulative upkeep {G} or {W}"),
         abilities::dies_trigger(
             "When this creature dies, you gain 2 life for each age counter on it.",
@@ -238,11 +242,11 @@ pub(in crate::card::sets) static PHYREXIAN_SOULGORGER: CardRecord = CardRecord::
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Phyrexian", "Construct"], 8, 8)
         .with_supertype(CardSupertype::Snow)
         .with_ability(
-            abilities::cumulative_upkeep(CostDef::sacrifice_permanents(
+            abilities::cumulative_upkeep(&[CostDef::sacrifice_permanents(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 PlayerRelation::You,
                 1,
-            ))
+            )])
             .override_text("Cumulative upkeep—Sacrifice a creature."),
         ),
 );

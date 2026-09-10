@@ -117,11 +117,7 @@ fn validate_effect_target_shapes(
         }
         EffectDef::IfNoObjects(definition) => {
             validate_object_set_shape(definition.input, targets)?;
-            validate_effect_target_shapes(
-                *definition.if_empty,
-                targets,
-                triggering_object_zone,
-            )?;
+            validate_effect_target_shapes(*definition.if_empty, targets, triggering_object_zone)?;
             validate_effect_target_shapes(*definition.otherwise, targets, triggering_object_zone)
         }
         EffectDef::ClassifyObjects(definition) => {
@@ -203,15 +199,13 @@ fn validate_effect_target_shapes(
             effect,
             binding,
             then,
-        } => {
-            validate_zone_move_result_target_shapes(
-                effect,
-                binding,
-                then,
-                targets,
-                triggering_object_zone,
-            )
-        }
+        } => validate_zone_move_result_target_shapes(
+            effect,
+            binding,
+            then,
+            targets,
+            triggering_object_zone,
+        ),
         EffectDef::PayOr(payment) => {
             validate_payment_shape(payment.payment, targets)?;
             for effect in payment.if_paid.iter().chain(payment.otherwise.iter()) {
@@ -235,11 +229,7 @@ fn validate_effect_target_shapes(
                 if let Some(source) = assignment.source {
                     validate_object_reference_shape(source, targets)?;
                 }
-                validate_recipient_shape(
-                    assignment.recipient,
-                    targets,
-                    RecipientExpectation::Any,
-                )?;
+                validate_recipient_shape(assignment.recipient, targets, RecipientExpectation::Any)?;
                 validate_value_shape(assignment.amount, targets)?;
             }
             if let Some(then) = damage.continuation() {
@@ -297,11 +287,7 @@ fn validate_effect_target_shapes(
             validate_value_shape(amount, targets)?;
             if let Some(follow_up) = then {
                 validate_object_predicate_shape(follow_up.counted, targets)?;
-                validate_effect_target_shapes(
-                    *follow_up.effect,
-                    targets,
-                    triggering_object_zone,
-                )?;
+                validate_effect_target_shapes(*follow_up.effect, targets, triggering_object_zone)?;
             }
             Ok(())
         }
@@ -390,9 +376,7 @@ fn validate_effect_target_shapes(
         EffectDef::ExileLinkedToSource { object, then, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             match then {
-                Some(then) => {
-                    validate_effect_target_shapes(*then, targets, triggering_object_zone)
-                }
+                Some(then) => validate_effect_target_shapes(*then, targets, triggering_object_zone),
                 None => Ok(()),
             }
         }
@@ -461,8 +445,7 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
             validate_effect_target_shapes(*follow_up.effect, targets, triggering_object_zone)
         }
-        EffectDef::Attach { object }
-        | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
+        EffectDef::Attach { object } | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Any)
         }
         EffectDef::PutOntoBattlefieldThen {
@@ -578,7 +561,10 @@ fn validate_effect_target_shapes(
                     if matches!(
                         definition.event,
                         ReplacementEventDef::WouldBeDestroyed { .. }
-                    ) => Some(ZoneKind::Battlefield),
+                    ) =>
+                {
+                    Some(ZoneKind::Battlefield)
+                }
                 _ => None,
             };
             validate_program_target_shapes(
@@ -660,34 +646,24 @@ fn validate_effect_target_shapes(
             | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
         },
         // The ballot is a predicate, not a target: nothing is pointed at.
-        EffectDef::CumulativeUpkeep(
-            crate::card::CostDef::SacrificePermanents { object, .. }
-            | crate::card::CostDef::GainControlPermanents { object, .. },
-        ) => validate_object_predicate_shape(object, targets),
-        EffectDef::CumulativeUpkeep(
-            crate::card::CostDef::CreateTokens { token, .. },
-        ) => match token.variable_stats {
-            Some(stats) => {
-                validate_value_shape(stats.power, targets)?;
-                validate_value_shape(stats.toughness, targets)
-            }
-            None => Ok(()),
-        },
+        EffectDef::CumulativeUpkeep(costs) => costs
+            .iter()
+            .try_for_each(|cost| validate_upkeep_cost_shape(*cost, targets)),
+
         EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::ModifyCost(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
         | EffectDef::Forage { .. }
-        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::Cascade
         | EffectDef::Proliferate
         | EffectDef::CannotBeForcedToSacrifice
-            | EffectDef::CannotBeForcedToDiscard
-            | EffectDef::GainClassLevel { .. }
+        | EffectDef::CannotBeForcedToDiscard
+        | EffectDef::GainClassLevel { .. }
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::ScheduleTurnPhases(_)
@@ -702,12 +678,33 @@ fn validate_effect_target_shapes(
 #[path = "effect_shape_entry_choice_tests.rs"]
 mod entry_choice_tests;
 
+fn validate_upkeep_cost_shape(
+    cost: crate::CostDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    match cost {
+        crate::card::CostDef::SacrificePermanents { object, .. }
+        | crate::card::CostDef::GainControlPermanents { object, .. } => {
+            validate_object_predicate_shape(object, targets)
+        }
+        crate::card::CostDef::CreateTokens { token, .. } => match token.variable_stats {
+            Some(stats) => {
+                validate_value_shape(stats.power, targets)?;
+                validate_value_shape(stats.toughness, targets)
+            }
+            None => Ok(()),
+        },
+        crate::CostDef::All(costs) => costs
+            .iter()
+            .try_for_each(|cost| validate_upkeep_cost_shape(*cost, targets)),
+        _ => Ok(()),
+    }
+}
+
 #[cfg(test)]
 mod recipient_shape_tests {
     use super::*;
-    use crate::card::{
-        PlayActionMatcherDef, PlayRestrictionDef, ResolvedEffectDurationDef,
-    };
+    use crate::card::{PlayActionMatcherDef, PlayRestrictionDef, ResolvedEffectDurationDef};
 
     const PLAYER_TARGET: AbilityTargetDef =
         AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any));

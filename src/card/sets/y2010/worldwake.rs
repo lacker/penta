@@ -159,7 +159,7 @@ pub(in crate::card::sets) static RICOCHET_TRAP: CardRecord = CardRecord::new(
     CardSet::Worldwake,
     CardRules::new_instant(mana_cost!("{3}{R}")).with_subtypes(&["Trap"]).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{R}"),
+            &[CostDef::Mana(mana_cost!("{R}"))],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "If an opponent cast a blue spell this turn, you may pay {R} rather than pay this spell's mana cost.",
@@ -209,7 +209,9 @@ pub(in crate::card::sets) static WOLFBRIAR_ELEMENTAL: CardRecord = CardRecord::n
     CardArt::new("35ffbd5e-113a-4f24-baa1-b65a5082d893", "Chippy"),
     CardSet::Worldwake,
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 4, 4).with_abilities(&[
-        abilities::multikicker(mana_cost!("{G}")),
+        abilities::multikicker(
+            &[CostDef::Mana(mana_cost!("{G}"))],
+        ),
         abilities::enters_trigger(
             "When this creature enters, create a 2/2 green Wolf creature token for each time it was kicked.",
             EffectDef::create_token(TokenCharacteristics::creature(
@@ -234,7 +236,7 @@ pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::n
     // A mana rock whose size is chosen as it is cast, which is why it is
     // played on turn two and on turn ten.
     CardRules::new_artifact(mana_cost!("{0}")).with_abilities(&[
-        abilities::multikicker(mana_cost!("{2}")),
+        abilities::multikicker(&[CostDef::Mana(mana_cost!("{2}"))]),
         // The counters are the whole card: a Chalice cast for nothing is a nothing
         // that taps for nothing, and every {2} on the way in is a mana every turn
         // afterwards.

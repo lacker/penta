@@ -12,11 +12,10 @@ use crate::card::{
     AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
     CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
     DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
-    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -1418,18 +1417,16 @@ pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_le
             ),
         ),
         AbilityDef::alternative_cast(
-            crate::mana_cost!("{0}"),
+            &[CostDef::sacrifice(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                CostQuantityDef::Fixed(2),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some("You may sacrifice two Mountains rather than pay this spell's mana cost."),
             EffectDef::None,
-        )
-        // Two Mountains off the battlefield, which is why the card is a finisher
-        // rather than a burn spell: it is cast from an empty board on the turn the
-        // lands stop mattering.
-        .with_alternative_additional_cost(&CostDef::sacrifice(
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-            CostQuantityDef::Fixed(2),
-        )),
+        ), // Two Mountains off the battlefield, which is why the card is a finisher
+           // rather than a burn spell: it is cast from an empty board on the turn the
+           // lands stop mattering.
     ]),
 );
 
@@ -1802,7 +1799,9 @@ pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
     CardArt::new("f4c1f5a7-0d28-43ab-9b66-937e963f42cd", "Tony Roberts"),
     CardSet::Visions,
     CardRules::new_enchantment(mana_cost!("{G}")).with_abilities(&[
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{1}"))),
+        abilities::cumulative_upkeep(
+            &[CostDef::mana(mana_cost!("{1}"))],
+        ),
         AbilityDef::static_ability(
             "Black creatures can't attack you.",
             EffectDef::StaticApply {
@@ -2194,7 +2193,7 @@ pub(in crate::card::sets) static FIRESTORM_HELLKITE: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{4}{U}{R}"), &["Dragon"], 6, 6).with_abilities(&[
         abilities::flying(),
         abilities::trample(),
-        abilities::cumulative_upkeep(CostDef::mana(mana_cost!("{U}{R}")))
+        abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{U}{R}"))])
             .override_text("Cumulative upkeep {U}{R}"),
     ]),
 );
@@ -2552,17 +2551,14 @@ pub(in crate::card::sets) static CORAL_ATOLL: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return an untapped Island you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &const {
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
@@ -2594,17 +2590,14 @@ pub(in crate::card::sets) static DORMANT_VOLCANO: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return an untapped Mountain you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &const {
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
@@ -2636,17 +2629,14 @@ pub(in crate::card::sets) static EVERGLADES: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return an untapped Swamp you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &const {
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
@@ -2688,17 +2678,14 @@ pub(in crate::card::sets) static JUNGLE_BASIN: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return an untapped Forest you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &const {
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
@@ -2730,17 +2717,14 @@ pub(in crate::card::sets) static KAROO: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you return an untapped Plains you control to its owner's hand.",
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::MovePermanentMatching {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        zone: ZoneKind::Hand,
-                    },
-                },
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
                 &const {
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,

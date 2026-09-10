@@ -157,10 +157,14 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
         &[
             abilities::cascade(),
             abilities::haste(),
-            escape(
-                crate::card::AlternativeCastManaCostDef::Fixed(mana_cost!("{3}{R}{G}")),
-                3,
-            ),
+            escape(&[
+                crate::card::CostDef::Mana(mana_cost!("{3}{R}{G}")),
+                CostDef::exile(
+                    crate::ObjectPredicateDef::Any,
+                    crate::ZoneKind::Graveyard,
+                    crate::card::CostQuantityDef::Fixed(3),
+                ),
+            ]),
         ],
     ),
 );

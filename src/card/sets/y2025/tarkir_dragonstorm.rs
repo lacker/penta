@@ -6,12 +6,12 @@ use crate::card::{
     AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
     CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostDef, CounterKind, CreatedTokensDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef,
-    FreePlayDurationDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayOptionDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ResolvedEffectDurationDef,
+    SpellForm, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, ParentBinding, PlayOptionId, TargetIndex};
 use crate::mana_cost;
@@ -142,11 +142,7 @@ pub(in crate::card::sets) static DESCENDANT_OF_STORMS: CardRecord = CardRecord::
             "Whenever this creature attacks, you may pay {1}{W}. If you do, it endures 1.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}{W}"),
-                ),
-                // "It endures 1": the counter or the Spirit, and the attacking body is
+                &[CostDef::Mana(mana_cost!("{1}{W}"))], // "It endures 1": the counter or the Spirit, and the attacking body is
                 // what either one is about.
                 &EffectDef::Endure {
                     object: EffectRecipientDef::Source,

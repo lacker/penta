@@ -51,23 +51,18 @@ fn collect_ability_grants(
             }
         }
         EffectDef::CreateToken { token, copy, .. } => match copy {
-            Some(copy) => grants.extend(
-                copy.exceptions
-                    .added_abilities
-                    .iter()
-                    .filter_map(|addition| match addition {
-                        CopyAbilityDef::This => None,
-                        CopyAbilityDef::Ability(ability) => Some(*ability),
-                    }),
-            ),
+            Some(copy) => grants.extend(copy.exceptions.added_abilities.iter().filter_map(
+                |addition| match addition {
+                    CopyAbilityDef::This => None,
+                    CopyAbilityDef::Ability(ability) => Some(*ability),
+                },
+            )),
             None => tokens.push(token),
         },
         EffectDef::CreateAttachedToken { token, .. } => {
             tokens.push(token);
         }
-        EffectDef::CumulativeUpkeep(
-            crate::card::CostDef::CreateTokens { token, .. },
-        ) => tokens.push(*token),
+        EffectDef::CumulativeUpkeep(costs) => collect_cost_tokens(costs, tokens),
         EffectDef::CreateEmblem { emblem } => emblems.push(emblem),
         EffectDef::BecomeCopyOf { exceptions, .. } => grants.extend(
             exceptions
@@ -196,9 +191,7 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
 
 fn replacement_ability_grant_sites(effect: ReplacementEffectDef) -> usize {
     match effect {
-        ReplacementEffectDef::BindOutput { effect, .. } => {
-            replacement_ability_grant_sites(*effect)
-        }
+        ReplacementEffectDef::BindOutput { effect, .. } => replacement_ability_grant_sites(*effect),
         ReplacementEffectDef::Sequence(effects) => effects
             .iter()
             .map(|effect| replacement_ability_grant_sites(*effect))
@@ -230,9 +223,7 @@ fn replacement_ability_grant_sites(effect: ReplacementEffectDef) -> usize {
         | ReplacementEffectDef::AddToEventAmount(_)
         | ReplacementEffectDef::Choose(_)
         | ReplacementEffectDef::LookAtHand(_) => 0,
-        ReplacementEffectDef::CopyEntering { exceptions, .. } => {
-            exceptions.added_abilities.len()
-        }
+        ReplacementEffectDef::CopyEntering { exceptions, .. } => exceptions.added_abilities.len(),
     }
 }
 
@@ -246,5 +237,20 @@ fn applied_ability_grant_sites(effect: AppliedEffectDef) -> usize {
             AbilityOperationDef::Add(_),
         )) => 1,
         AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => 0,
+    }
+}
+
+fn collect_cost_tokens(
+    costs: &'static [crate::CostDef],
+    tokens: &mut Vec<crate::card::TokenCharacteristics>,
+) {
+    for cost in costs {
+        match cost {
+            crate::CostDef::CreateTokens { token, .. } => tokens.push(**token),
+            crate::CostDef::All(costs) => {
+                collect_cost_tokens(costs, tokens);
+            }
+            _ => {}
+        }
     }
 }

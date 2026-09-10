@@ -121,19 +121,19 @@ Use the smallest boundary that truthfully implements the behavior:
 Resolution must not silently change an explicit ability category or let a
 supported activated or triggered non-mana ability bypass the shared stack.
 
-Declare Evoke once with `abilities::evoke(cost)`. It expands into the alternative
+Declare Evoke once with `abilities::evoke(costs)`. It expands into the alternative
 cost and its sacrifice trigger, with their shared binding handled internally.
 Use `ability_list!` to flatten complete ability groups in source order:
 
 ```rust
 .with_abilities(&crate::ability_list![
     [abilities::flying()],
-    abilities::evoke(CostDef::Mana(mana_cost!("{2}{U}"))),
+    abilities::evoke(&[CostDef::Mana(mana_cost!("{2}{U}"))]),
 ])
 ```
 
 The constructor also accepts the colored-card exile costs. Use
-`abilities::evoke_with_text(cost, text)` for other nonmana wording or a printed
+`abilities::evoke_with_text(costs, text)` for other nonmana wording or a printed
 text override. Both constructors always return the complete mechanic.
 
 Other clauses that refer to a particular alternative cost can use
@@ -266,3 +266,36 @@ will be implemented later:
 The [development guide](development.md) maps repository paths to validation
 workflows. Current format and card coverage is described in
 [formats and scope](formats.md).
+
+## Declaring costs
+
+Use a plain `&'static [CostDef]` for an alternative cast, optional additional
+cost, resolving payment, or parameterized mechanic. Supply only the mechanic's
+variable cost: `cycling!`, `typecycling!`, and `bloodrush!` append `DiscardSource`;
+`scavenge!` and `eternalize!` append `ExileSource`; `ninjutsu!` appends
+`ReturnUnblockedAttackerToHand`. These constructor macros concatenate costs at
+compile time into an ordinary static slice. For example,
+`abilities::eternalize!("Eternalize {2}{G}{G}", &[CostDef::Mana(mana_cost!("{2}{G}{G}"))])`
+already includes exiling the source. Runtime procedures can build a `Vec<CostDef>`
+for computed costs; shared payment helpers accept slices.
+
+For example, `&[CostDef::Mana(mana_cost!("{2}{U}"))]` is a mana-only alternative,
+while `&[CostDef::Mana(mana_cost!("{1}")), CostDef::DiscardCards(1)]` asks for both
+payments. Use authored text when a complex predicate needs wording the shared
+cost renderer cannot derive.
+
+`PayOrDef::optional(costs, if_paid)`, `optional_or(costs, if_paid, otherwise)`,
+and `unless(costs, otherwise)` ask the effect controller to pay by default.
+Use `.with_payer(...)` when the text names another player, such as the controller
+of a targeted spell. Each constructor takes the complete cost slice directly.
+
+The surrounding procedure determines which expressions it can execute;
+keep its runtime-support validation honest when adding a new expression there.
+
+`NO_COSTS` (`&[]`) expresses an alternative paid without paying a mana cost,
+such as Omniscience. It differs from `&[CostDef::Mana(mana_cost!("{0}"))]`:
+only the latter includes a mana payment. CR 601.2g checks the complete selected
+payment, including additional costs and increases; reducing a mana component
+to zero preserves its presence. Neither form changes the card's printed mana
+cost. Keep that printed characteristic separate from mandatory additional
+costs in the text box, such as Bone Shards' sacrifice-or-discard cost.

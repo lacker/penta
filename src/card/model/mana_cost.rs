@@ -609,3 +609,27 @@ impl FromStr for ManaCost {
         Self::parse_symbols(symbols)
     }
 }
+
+impl ManaCost {
+    /// Combine all requirements, preserving flexible symbols and chosen X.
+    #[must_use]
+    pub fn plus(mut self, additional: Self) -> Self {
+        self.generic = self.generic.saturating_add(additional.generic);
+        self.white = self.white.saturating_add(additional.white);
+        self.blue = self.blue.saturating_add(additional.blue);
+        self.black = self.black.saturating_add(additional.black);
+        self.red = self.red.saturating_add(additional.red);
+        self.green = self.green.saturating_add(additional.green);
+        self.colorless = self.colorless.saturating_add(additional.colorless);
+        for index in 0..HybridPair::COUNT {
+            self.hybrid[index] = self.hybrid[index].saturating_add(additional.hybrid[index]);
+        }
+        for index in 0..FlexibleManaSymbol::ADDITIONAL_COUNT {
+            self.additional_flexible[index] = self.additional_flexible[index]
+                .saturating_add(additional.additional_flexible[index]);
+        }
+        self.variable_x |= additional.variable_x;
+        self.x_multiplier = self.x_multiplier.saturating_add(additional.x_multiplier);
+        self
+    }
+}

@@ -20,10 +20,10 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
     // what makes it connect: the attacker they chose not to block is traded
     // for the one they would have.
     CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Rat", "Ninja"], 3, 2).with_abilities(&[
-        abilities::ninjutsu(
+        abilities::ninjutsu!(
             "Ninjutsu {3}{B} ({3}{B}, Return an unblocked attacker you control to hand: Put this \
-             card onto the battlefield from your hand tapped and attacking.)",
-            mana_cost!("{3}{B}"),
+            card onto the battlefield from your hand tapped and attacking.)",
+            &[CostDef::Mana(mana_cost!("{3}{B}"))],
         ),
         AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, that player discards two \

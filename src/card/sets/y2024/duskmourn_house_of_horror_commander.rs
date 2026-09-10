@@ -53,7 +53,7 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
                 },
             },
         ),
-        abilities::miracle(mana_cost!("{1}{B}")),
+        abilities::miracle(&[CostDef::Mana(mana_cost!("{1}{B}"))]),
     ]),
 );
 

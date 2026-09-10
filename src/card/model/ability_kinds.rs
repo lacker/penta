@@ -1,8 +1,8 @@
 use crate::ids::{Binding, ModeId, TargetIndex};
 
 use super::{
-    AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardSupertype, CardType,
-    ConditionDef, CostDef, CounterKind, EffectDef, ManaCost, ObjectPredicateDef, ObjectQueryDef,
+    AbilityDef, AbilityTargetDef, BasicLandType, CardSupertype, CardType, ConditionDef, CostDef,
+    CounterKind, EffectDef, ManaCost, ObjectPredicateDef, ObjectQueryDef,
     ObjectSetCountConditionDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
     ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
 };
@@ -89,12 +89,12 @@ pub struct ModalSpellDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ModalModeListDef {
     Ordinary(&'static [AbilityDef]),
-    WithAdditionalManaCosts(&'static [(ManaCost, AbilityDef)]),
+    WithAdditionalCosts(&'static [(&'static [CostDef], AbilityDef)]),
 }
 
 pub enum ModalModeIter {
     Ordinary(std::slice::Iter<'static, AbilityDef>),
-    WithAdditionalManaCosts(std::slice::Iter<'static, (ManaCost, AbilityDef)>),
+    WithAdditionalCosts(std::slice::Iter<'static, (&'static [CostDef], AbilityDef)>),
 }
 
 impl Iterator for ModalModeIter {
@@ -103,14 +103,14 @@ impl Iterator for ModalModeIter {
     fn next(&mut self) -> Option<Self::Item> {
         match self {
             Self::Ordinary(modes) => modes.next(),
-            Self::WithAdditionalManaCosts(modes) => modes.next().map(|(_, mode)| mode),
+            Self::WithAdditionalCosts(modes) => modes.next().map(|(_, mode)| mode),
         }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self {
             Self::Ordinary(modes) => modes.size_hint(),
-            Self::WithAdditionalManaCosts(modes) => modes.size_hint(),
+            Self::WithAdditionalCosts(modes) => modes.size_hint(),
         }
     }
 }
@@ -122,7 +122,7 @@ impl ModalModeListDef {
     pub const fn len(self) -> usize {
         match self {
             Self::Ordinary(modes) => modes.len(),
-            Self::WithAdditionalManaCosts(modes) => modes.len(),
+            Self::WithAdditionalCosts(modes) => modes.len(),
         }
     }
 
@@ -135,9 +135,7 @@ impl ModalModeListDef {
     pub fn iter(self) -> ModalModeIter {
         match self {
             Self::Ordinary(modes) => ModalModeIter::Ordinary(modes.iter()),
-            Self::WithAdditionalManaCosts(modes) => {
-                ModalModeIter::WithAdditionalManaCosts(modes.iter())
-            }
+            Self::WithAdditionalCosts(modes) => ModalModeIter::WithAdditionalCosts(modes.iter()),
         }
     }
 
@@ -145,7 +143,7 @@ impl ModalModeListDef {
     pub fn get(self, index: usize) -> Option<&'static AbilityDef> {
         match self {
             Self::Ordinary(modes) => modes.get(index),
-            Self::WithAdditionalManaCosts(modes) => match modes.get(index) {
+            Self::WithAdditionalCosts(modes) => match modes.get(index) {
                 Some((_, mode)) => Some(mode),
                 None => None,
             },
@@ -153,16 +151,16 @@ impl ModalModeListDef {
     }
 
     #[must_use]
-    pub fn additional_mana_cost(self, mode: ModeId) -> Option<ManaCost> {
-        let Self::WithAdditionalManaCosts(modes) = self else {
+    pub fn additional_costs(self, mode: ModeId) -> Option<&'static [CostDef]> {
+        let Self::WithAdditionalCosts(modes) = self else {
             return None;
         };
         modes.get(mode.index()).map(|(cost, _)| *cost)
     }
 
     #[must_use]
-    pub const fn has_additional_mana_costs(self) -> bool {
-        matches!(self, Self::WithAdditionalManaCosts(_))
+    pub const fn has_additional_costs(self) -> bool {
+        matches!(self, Self::WithAdditionalCosts(_))
     }
 }
 
@@ -219,10 +217,10 @@ impl ModalSpellDef {
     ///
     /// Panics when more modes are supplied than the runtime mode-count field
     /// can represent.
-    pub const fn spree(modes: &'static [(ManaCost, AbilityDef)]) -> Self {
+    pub const fn spree(modes: &'static [(&'static [CostDef], AbilityDef)]) -> Self {
         assert!(modes.len() <= u8::MAX as usize);
         Self {
-            modes: ModalModeListDef::WithAdditionalManaCosts(modes),
+            modes: ModalModeListDef::WithAdditionalCosts(modes),
             minimum: 1,
             maximum: modes.len() as u8,
             may_repeat: false,
@@ -251,8 +249,17 @@ impl ModalSpellDef {
     }
 
     #[must_use]
+    pub fn mode_additional_costs(self, mode: ModeId) -> Option<&'static [CostDef]> {
+        self.modes.additional_costs(mode)
+    }
+
+    #[must_use]
     pub fn mode_additional_mana_cost(self, mode: ModeId) -> Option<ManaCost> {
-        self.modes.additional_mana_cost(mode)
+        self.mode_additional_costs(mode).and_then(|costs| {
+            crate::card::costs::includes_mana_payment(costs)
+                .then(|| crate::card::costs::mana_cost(costs, None))
+                .flatten()
+        })
     }
 }
 
@@ -458,7 +465,7 @@ pub enum ActivationPermissionDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ActivatedAbilityDef {
     pub source_zones: &'static [ZoneKind],
-    pub costs: AbilityCostList,
+    pub costs: &'static [CostDef],
     pub targets: &'static [AbilityTargetDef],
     pub procedure: AbilityProcedureDef,
     pub timing: ActivationTimingDef,
@@ -533,11 +540,6 @@ impl ActivatedAbilityDef {
 
     #[must_use]
     pub const fn new(costs: &'static [CostDef]) -> Self {
-        Self::with_costs(AbilityCostList::borrowed(costs))
-    }
-
-    #[must_use]
-    pub(crate) const fn with_costs(costs: AbilityCostList) -> Self {
         Self {
             source_zones: &[ZoneKind::Battlefield],
             costs,

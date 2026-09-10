@@ -1,14 +1,13 @@
 use crate::ids::TargetIndex;
 
 use super::{
-    AbilityCostList, AbilityEffectDef, AbilityProcedureDef, AbilityTargetDef, ActivatedAbilityDef,
-    ActivationTimingDef, AlternativeCastAbilityDef, AlternativeCastKindDef,
-    AlternativeCastManaCostDef, ConditionDef, CostDef, DeckConstructionDef, DeclarativeAbilityDef,
-    EffectDef, KeywordAbility, ManaCost, ModalSpellDef, OptionalAdditionalCostAbilityDef,
-    PregameAbilityDef, PregameConditionDef, PregameTimingDef, ReplacementAbilityDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, SpecialActionDef,
-    SpellAbilityDef, SpellResolutionDestinationDef, StaticAbilityDef, TriggerConditionDef,
-    TriggerEventDef, TriggeredAbilityDef, ValueDef, ZoneKind,
+    AbilityEffectDef, AbilityProcedureDef, AbilityTargetDef, ActivatedAbilityDef,
+    ActivationTimingDef, AlternativeCastAbilityDef, AlternativeCastKindDef, ConditionDef, CostDef,
+    DeckConstructionDef, DeclarativeAbilityDef, EffectDef, KeywordAbility, ModalSpellDef,
+    OptionalAdditionalCostAbilityDef, PregameAbilityDef, PregameConditionDef, PregameTimingDef,
+    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    SpecialActionDef, SpellAbilityDef, SpellResolutionDestinationDef, StaticAbilityDef,
+    TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, ValueDef, ZoneKind,
 };
 
 mod rules_text;
@@ -233,7 +232,7 @@ impl AbilityDef {
     /// Spree (CR 702.172): choose one or more modes and pay the additional
     /// mana cost attached to each mode chosen.
     #[must_use]
-    pub const fn spree(modes: &'static [(ManaCost, AbilityDef)]) -> Self {
+    pub const fn spree(modes: &'static [(&'static [CostDef], AbilityDef)]) -> Self {
         Self::defined(
             "Spree",
             DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(ModalSpellDef::spree(modes))),
@@ -302,26 +301,9 @@ impl AbilityDef {
         targets: &'static [AbilityTargetDef],
         effect: EffectDef,
     ) -> Self {
-        Self::activated_with_cost_list_and_targets(
-            text,
-            AbilityCostList::borrowed(costs),
-            targets,
-            effect,
-        )
-    }
-
-    #[must_use]
-    pub(crate) const fn activated_with_cost_list_and_targets(
-        text: &'static str,
-        costs: AbilityCostList,
-        targets: &'static [AbilityTargetDef],
-        effect: EffectDef,
-    ) -> Self {
         Self::defined(
             text,
-            DeclarativeAbilityDef::Activated(
-                ActivatedAbilityDef::with_costs(costs).with_targets(targets),
-            ),
+            DeclarativeAbilityDef::Activated(ActivatedAbilityDef::new(costs).with_targets(targets)),
             effect,
         )
     }
@@ -332,12 +314,12 @@ impl AbilityDef {
     #[must_use]
     pub(crate) const fn cycling_ability(
         text: &'static str,
-        costs: AbilityCostList,
+        costs: &'static [CostDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(
             text,
-            DeclarativeAbilityDef::Activated(ActivatedAbilityDef::with_costs(costs).cycling()),
+            DeclarativeAbilityDef::Activated(ActivatedAbilityDef::new(costs).cycling()),
             effect,
         )
     }
@@ -357,7 +339,7 @@ impl AbilityDef {
         Self::defined(
             text,
             DeclarativeAbilityDef::Activated(
-                ActivatedAbilityDef::with_costs(AbilityCostList::borrowed(costs))
+                ActivatedAbilityDef::new(costs)
                     .with_modes(ModalSpellDef::new(modes, minimum, maximum, may_repeat)),
             ),
             EffectDef::None,

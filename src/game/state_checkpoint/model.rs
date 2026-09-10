@@ -492,6 +492,7 @@ pub(super) struct EmblemSnapshot {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(tag = "kind", content = "value", rename_all = "camelCase")]
 pub(super) enum ResolvedEffectPaymentSnapshot {
+    All(Vec<Self>),
     Mana(ManaCostSnapshot),
     CumulativeMana {
         source: u32,

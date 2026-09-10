@@ -16,18 +16,24 @@ impl AbilityDef {
                 Cow::Owned(definition.rules_text())
             }
             DeclarativeAbilityDef::OptionalAdditionalCost(definition)
-                if definition.mana_cost.is_some() && self.text == definition.kind.label() =>
+                if self.text == definition.kind.label() =>
             {
                 Cow::Owned(definition.rules_text())
             }
             DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal))
-                if self.text == "Spree" && modal.modes.has_additional_mana_costs() =>
+                if self.text == "Spree" && modal.modes.has_additional_costs() =>
             {
                 let mut text = String::from("Spree (Choose one or more additional costs.)");
-                if let ModalModeListDef::WithAdditionalManaCosts(modes) = modal.modes {
+                if let ModalModeListDef::WithAdditionalCosts(modes) = modal.modes {
                     for (cost, mode) in modes {
-                        write!(text, "\n+ {cost} — {}", mode.text)
-                            .expect("writing to a string cannot fail");
+                        write!(
+                            text,
+                            "\n+ {} — {}",
+                            crate::card::costs::rules_text(cost)
+                                .unwrap_or_else(|| "Pay the additional cost".into()),
+                            mode.text
+                        )
+                        .expect("writing to a string cannot fail");
                     }
                 }
                 Cow::Owned(text)

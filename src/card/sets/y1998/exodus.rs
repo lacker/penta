@@ -9,14 +9,14 @@ use crate::card::{
     BlockRestrictionDef, CardArt, CardNameDef, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef,
     ConditionalStaticEffectDef, CostDef, CostQuantityDef, CounterKind, DiscardSelectionDef,
-    EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef, IfNoObjectsDef,
-    KeywordAbility, LikelihoodDef, ManaColor, MillUntilDef, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, PayOrDef, PerPlayerSelectionDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef,
-    StaticApplyDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectChoiceDef, EffectDef, EffectRecipientDef, IfNoObjectsDef, KeywordAbility, LikelihoodDef,
+    ManaColor, MillUntilDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PayOrDef, PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, StaticApplyDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -28,7 +28,7 @@ pub(in crate::card::sets) static ALLAY: CardRecord = CardRecord::new(
     crate::card::CardArt::new("f20a1c6d-ec6a-4bd6-b3b2-b997f71d41fc", "Randy Gallegos"),
     crate::card::CardSet::Exodus,
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::destroy_target(
             "Destroy target enchantment.",
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
@@ -318,13 +318,12 @@ pub(in crate::card::sets) static PEGASUS_STAMPEDE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("3b941576-8254-4d69-85ae-c748c7921ce5", "Mark Zug"),
     crate::card::CardSet::Exodus,
     CardRules::new_sorcery(mana_cost!("{1}{W}")).with_abilities(&[
-        abilities::buyback_with_additional_cost(
-            "Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &CostDef::sacrifice(
+        abilities::buyback(
+            &[CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Land),
                 CostQuantityDef::Fixed(1),
-            ),
-        ),
+            )],
+        ).override_text("Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)"),
         AbilityDef::spell(
             "Create a 1/1 white Pegasus creature token with flying.",
             EffectDef::CreateToken {
@@ -365,13 +364,12 @@ pub(in crate::card::sets) static REAPING_THE_REWARDS: CardRecord = CardRecord::n
     crate::card::CardArt::new("379b0495-8795-4b21-9d0a-dc4e10098de2", "Heather Hudson"),
     crate::card::CardSet::Exodus,
     CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
-        abilities::buyback_with_additional_cost(
-            "Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &CostDef::sacrifice(
+        abilities::buyback(
+            &[CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Land),
                 CostQuantityDef::Fixed(1),
-            ),
-        ),
+            )],
+        ).override_text("Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)"),
         AbilityDef::spell(
             "You gain 2 life.",
             EffectDef::GainLife {
@@ -760,10 +758,7 @@ pub(in crate::card::sets) static EQUILIBRIUM: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::PayOr(crate::card::PayOrDef::optional(
-                crate::card::EffectPaymentDef::mana(
-                    PlayerSetDef::Related(PlayerRelation::You),
-                    mana_cost!("{1}"),
-                ),
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
@@ -821,13 +816,12 @@ pub(in crate::card::sets) static FORBID: CardRecord = CardRecord::new(
     crate::card::CardArt::new("29df5ef7-d679-4543-bdb7-3984155c87e0", "Scott Kirschner"),
     crate::card::CardSet::Exodus,
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
-        abilities::buyback_with_additional_cost(
-            "Buyback—Discard two cards. (You may discard two cards in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &CostDef::discard(
+        abilities::buyback(
+            &[CostDef::discard(
                 ObjectPredicateDef::Any,
                 CostQuantityDef::Fixed(2),
-            ),
-        ),
+            )],
+        ).override_text("Buyback—Discard two cards. (You may discard two cards in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)"),
         AbilityDef::counter_target(
             "Counter target spell.",
             &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
@@ -1064,8 +1058,8 @@ pub(in crate::card::sets) static SCHOOL_OF_PIRANHA: CardRecord = CardRecord::new
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(PayOrDef::unless_mana(
-                mana_cost!("{1}{U}"),
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{1}{U}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1262,7 +1256,7 @@ pub(in crate::card::sets) static CARNOPHAGE: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::unless(
-                EffectPaymentDef::life(PlayerSetDef::One(PlayerRefDef::EffectController), 1),
+                &[CostDef::PayLife(1)],
                 &EffectDef::Tap {
                     object: EffectRecipientDef::Source,
                 },
@@ -1678,8 +1672,8 @@ pub(in crate::card::sets) static PIT_SPAWN: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::PayOr(crate::card::PayOrDef::unless_mana(
-                mana_cost!("{B}{B}"),
+            EffectDef::PayOr(crate::card::PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{B}{B}"))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1786,10 +1780,9 @@ pub(in crate::card::sets) static SLAUGHTER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("8ff06c7d-5e78-4bcf-864b-34487f6555b2", "Pete Venters"),
     crate::card::CardSet::Exodus,
     CardRules::new_instant(mana_cost!("{2}{B}{B}")).with_abilities(&[
-        abilities::buyback_with_additional_cost(
-            "Buyback—Pay 4 life. (You may pay 4 life in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &CostDef::pay_life(CostQuantityDef::Fixed(4)),
-        ),
+        abilities::buyback(
+            &[CostDef::pay_life(CostQuantityDef::Fixed(4))],
+        ).override_text("Buyback—Pay 4 life. (You may pay 4 life in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)"),
         AbilityDef::spell_with_targets(
             "Destroy target nonblack creature. It can't be regenerated.",
             &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
@@ -2462,7 +2455,7 @@ pub(in crate::card::sets) static SHATTERING_PULSE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("89d3b846-6071-4d65-86ba-da08c4bd0aa1", "Donato Giancola"),
     crate::card::CardSet::Exodus,
     CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::destroy_target(
             "Destroy target artifact.",
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
@@ -3281,19 +3274,19 @@ pub(in crate::card::sets) static ERRATIC_PORTAL: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::PayOr(crate::card::PayOrDef::unless(
-            crate::card::EffectPaymentDef::mana(
-                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                    TargetIndex::PRIMARY,
-                ))),
-                mana_cost!("{1}"),
-            ),
-            &EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
-        )),
+        EffectDef::PayOr(
+            crate::card::PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{1}"))],
+                &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            )
+            .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                ObjectRefDef::Target(TargetIndex::PRIMARY),
+            ))),
+        ),
     )),
 );
 

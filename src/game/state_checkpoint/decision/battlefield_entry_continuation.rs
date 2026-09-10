@@ -46,18 +46,19 @@ fn parse_battlefield_entry_continuation(
             // is the one restored.
             if payer != observation.player
                 || authored_payer != payer
-                || resolved_effect_payment_snapshot(payment) != *payment_snapshot
+                || resolved_effect_payment_snapshot(payment.clone()) != *payment_snapshot
             {
                 return Err(
                     "battlefield entry payer or payment disagrees with its authored effect".into(),
                 );
             }
-            if !game.can_pay_effect_payment(payer, payment) {
+            if !game.can_pay_effect_payment(payer, payment.clone()) {
                 return Err("battlefield entry payment is no longer payable".into());
             }
             let name = game.pending_entry_name(pending);
-            let payment_label = Game::effect_payment_label(payment);
-            let options = payment_decision_options(game, payer, payment, true, "Do not pay");
+            let payment_label = Game::effect_payment_label(&payment);
+            let options =
+                payment_decision_options(game, payer, payment.clone(), true, "Do not pay");
             validate_authored_decision(
                 observation,
                 payer,

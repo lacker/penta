@@ -13,10 +13,12 @@ fn validate_object_continuation(
         nested.binding_was_read(binding)
     };
     if !read {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "then continuation does not consume its declared binding; use Sequence",
-            operation,
-        });
+        return Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "then continuation does not consume its declared binding; use Sequence",
+                operation,
+            },
+        );
     }
     Ok(())
 }
@@ -37,10 +39,12 @@ fn validate_object_set_continuation(
         nested.binding_was_read(binding)
     };
     if !read && !may_escape {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "then continuation does not consume its declared binding; use Sequence",
-            operation,
-        });
+        return Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "then continuation does not consume its declared binding; use Sequence",
+                operation,
+            },
+        );
     }
     Ok(())
 }
@@ -915,19 +919,8 @@ fn validate_effect_references(
         // The chosen player is recorded on the permanent, not read from a
         // target slot.
         // A prohibition names a card shape, never a target.
-        EffectDef::CumulativeUpkeep(
-            crate::card::CostDef::SacrificePermanents { object, .. }
-            | crate::card::CostDef::GainControlPermanents { object, .. },
-        ) => validate_object_predicate_references(object, target_count, scope),
-        EffectDef::CumulativeUpkeep(
-            crate::card::CostDef::CreateTokens { token, .. },
-        ) => match token.variable_stats {
-            Some(stats) => {
-                validate_value_target_references(stats.power, target_count, scope)?;
-                validate_value_target_references(stats.toughness, target_count, scope)
-            }
-            None => Ok(()),
-        },
+        EffectDef::CumulativeUpkeep(costs) => costs.iter().try_for_each(|cost| validate_upkeep_cost_references(*cost, target_count, scope)),
+
         EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)
@@ -935,7 +928,6 @@ fn validate_effect_references(
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
         | EffectDef::Forage { .. }
-        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::DamageCannotBePreventedThisTurn
@@ -958,5 +950,29 @@ fn validate_effect_references(
             target_count,
             scope,
         ),
+    }
+}
+
+fn validate_upkeep_cost_references(
+    cost: crate::CostDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    match cost {
+        crate::card::CostDef::SacrificePermanents { object, .. }
+        | crate::card::CostDef::GainControlPermanents { object, .. } => {
+            validate_object_predicate_references(object, target_count, scope)
+        }
+        crate::card::CostDef::CreateTokens { token, .. } => match token.variable_stats {
+            Some(stats) => {
+                validate_value_target_references(stats.power, target_count, scope)?;
+                validate_value_target_references(stats.toughness, target_count, scope)
+            }
+            None => Ok(()),
+        },
+        crate::CostDef::All(costs) => costs
+            .iter()
+            .try_for_each(|cost| validate_upkeep_cost_references(*cost, target_count, scope)),
+        _ => Ok(()),
     }
 }

@@ -18,6 +18,7 @@ use crate::game::ManaPaymentPurpose;
 
 include!("cost_configurations/object_combinations.rs");
 include!("cost_configurations/additional_cost_payments.rs");
+include!("cost_configurations/mana_presence.rs");
 
 /// The chosen quantities a cost can be counted from: the X the spell is cast
 /// for, how many modes it was cast with, and how many targets it names.
@@ -56,6 +57,7 @@ pub(in crate::game) struct SpellAdditionalCostRequest<'a> {
     pub(in crate::game) card: &'a CardInstance,
     pub(in crate::game) player: PlayerId,
     pub(in crate::game) modes: &'a [ModeId],
+    pub(in crate::game) spliced: &'a [GameObjectId],
     pub(in crate::game) scale: CastScale,
 }
 
@@ -63,6 +65,7 @@ pub(in crate::game) struct SpellAdditionalCostRequest<'a> {
 pub(in crate::game) struct SpellAdditionalCostPayment {
     pub(in crate::game) objects: Vec<(GameObjectId, CostDef)>,
     pub(in crate::game) mana: ManaCost,
+    pub(in crate::game) includes_mana_payment: bool,
     pub(in crate::game) life: u16,
 }
 
@@ -71,6 +74,7 @@ impl SpellAdditionalCostPayment {
         Self {
             objects: Vec::new(),
             mana: ManaCost::default(),
+            includes_mana_payment: false,
             life: 0,
         }
     }
@@ -88,6 +92,7 @@ impl SpellAdditionalCostPayment {
         Some(Self {
             objects,
             mana: add_mana_cost(self.mana, other.mana),
+            includes_mana_payment: self.includes_mana_payment || other.includes_mana_payment,
             life: self.life.saturating_add(other.life),
         })
     }
@@ -124,18 +129,24 @@ impl SelectedSpellAdditionalCost {
 impl Game {
     fn selected_spell_additional_costs(
         &self,
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-        costs: &CostConfiguration,
-        card: &CardInstance,
-        selected_modes: &[ModeId],
-        offer: Option<CastOfferCost>,
+        request: SpellAdditionalCostRequest<'_>,
     ) -> Vec<SelectedSpellAdditionalCost> {
+        let SpellAdditionalCostRequest {
+            definition,
+            option,
+            costs,
+            card,
+            player,
+            modes: selected_modes,
+            spliced,
+            scale,
+        } = request;
+        let offer = scale.offer;
         let selected_alternative = costs
             .alternative()
             .and_then(|selected| Self::alternative_cast_ability(definition, option, selected))
             .and_then(|(_, ability, _)| match ability.definition {
-                DeclarativeAbilityDef::AlternativeCast(alternative) => alternative.additional_cost,
+                DeclarativeAbilityDef::AlternativeCast(alternative) => Some(alternative.costs),
                 _ => None,
             })
             // A granted alternative has no printed clause to read, so the
@@ -144,19 +155,23 @@ impl Game {
                 (costs.alternative() == Self::temporary_alternative_cost_id(option))
                     .then(|| self.granted_alternative_for_offer(card.id, option, offer))
                     .flatten()
-                    .and_then(|(_, alternative, _)| alternative.additional_cost)
+                    .map(|(_, alternative, _)| alternative.costs)
             });
+        let selected_alternative = selected_alternative.or_else(|| {
+            costs.alternative().and_then(|selected| {
+                self.battlefield_spell_alternative_cost_for_id(player, card.id, option, selected)
+            })
+        });
         let mut required = Vec::new();
         if let Some(cost) = selected_alternative {
-            required.push(SelectedSpellAdditionalCost::once(cost));
+            required.extend(
+                crate::card::costs::selected_costs(cost).map(SelectedSpellAdditionalCost::once),
+            );
         }
         // An alternative replaces only the spell's mana cost. Every mandatory
         // additional cost printed by the spell still applies (CR 118.9d).
-        if let Some(cost) = definition
-            .rules
-            .ability_clauses()
-            .iter()
-            .find_map(|ability| match ability.definition {
+        if let Some(cost) = Self::spell_ability(definition, option).and_then(|(_, ability)| {
+            match ability.definition {
                 DeclarativeAbilityDef::Spell(spell) => match spell {
                     crate::card::SpellAbilityDef::Nonmodal {
                         additional_cost: Some(cost),
@@ -175,28 +190,40 @@ impl Game {
                     } => None,
                 },
                 _ => None,
-            })
-        {
+            }
+        }) {
             required.push(cost);
         }
         if let Some((_, ability)) = Self::spell_ability(definition, option)
             && let DeclarativeAbilityDef::Spell(spell) = ability.definition
             && let Some(modal) = spell.modal()
         {
-            required.extend(selected_modes.iter().filter_map(|mode| {
-                modal
-                    .mode_additional_mana_cost(*mode)
-                    .map(CostDef::pay_mana)
-                    .map(SelectedSpellAdditionalCost::once)
-            }));
+            for mode in selected_modes {
+                if let Some(costs) = modal.mode_additional_costs(*mode) {
+                    required.extend(costs.iter().copied().map(SelectedSpellAdditionalCost::once));
+                }
+            }
+        }
+        for spliced_card in spliced {
+            if let Some((_, instance)) = self.card_in_nonbattlefield_zone(*spliced_card)
+                && let Some(definition) = self.catalog.get(instance.definition)
+                && let Some(costs) = Self::splice_cost(definition)
+            {
+                required.extend(
+                    crate::card::costs::costs_without_fixed_mana(costs)
+                        .map(SelectedSpellAdditionalCost::once),
+                );
+            }
         }
         for selected in costs.additional() {
             if let Some((_, ability, _)) =
                 Self::optional_additional_cost_clause(definition, option, *selected)
                 && let DeclarativeAbilityDef::OptionalAdditionalCost(optional) = ability.definition
-                && let Some(cost) = optional.additional_cost
             {
-                required.push(SelectedSpellAdditionalCost::once(cost));
+                required.extend(
+                    crate::card::costs::costs_without_fixed_mana(optional.costs)
+                        .map(SelectedSpellAdditionalCost::once),
+                );
             }
         }
         required
@@ -207,19 +234,16 @@ impl Game {
         &self,
         request: SpellAdditionalCostRequest<'_>,
     ) -> Option<u16> {
-        self.selected_spell_additional_costs(
-            request.definition,
-            request.option,
-            request.costs,
-            request.card,
-            request.modes,
-            request.scale.offer,
-        )
-        .into_iter()
-        .filter_map(|selected| {
-            self.maximum_x_for_spell_additional_cost(selected.cost, request.card, request.player)
-        })
-        .min()
+        self.selected_spell_additional_costs(request)
+            .into_iter()
+            .filter_map(|selected| {
+                self.maximum_x_for_spell_additional_cost(
+                    selected.cost,
+                    request.card,
+                    request.player,
+                )
+            })
+            .min()
     }
 
     fn maximum_x_for_spell_additional_cost(
@@ -274,14 +298,7 @@ impl Game {
         &self,
         request: SpellAdditionalCostRequest<'_>,
     ) -> Vec<SpellAdditionalCostPayment> {
-        let required = self.selected_spell_additional_costs(
-            request.definition,
-            request.option,
-            request.costs,
-            request.card,
-            request.modes,
-            request.scale.offer,
-        );
+        let required = self.selected_spell_additional_costs(request);
         if required.is_empty() {
             return vec![SpellAdditionalCostPayment::free()];
         }
@@ -349,6 +366,7 @@ impl Game {
                 .map(|objects| SpellAdditionalCostPayment {
                     objects: objects.into_iter().map(|object| (object, cost)).collect(),
                     mana: ManaCost::default(),
+                    includes_mana_payment: false,
                     life: 0,
                 })
                 .collect();
@@ -374,6 +392,7 @@ impl Game {
             .map(|objects| SpellAdditionalCostPayment {
                 objects: objects.into_iter().map(|object| (object, cost)).collect(),
                 mana: ManaCost::default(),
+                includes_mana_payment: false,
                 life: 0,
             })
             .collect()
@@ -566,37 +585,6 @@ impl Game {
         }
     }
 
-    /// How many times over a repeatable optional additional cost could be
-    /// paid on this cast: what the player could pay for at all, divided by
-    /// what one payment costs. A ceiling for the enumeration rather than an
-    /// answer -- a configuration nobody can actually pay for is dropped
-    /// where every unpayable cast is.
-    fn repeatable_additional_cost_bound(
-        &self,
-        definition: &CardDefinition,
-        card: GameObjectId,
-        player: PlayerId,
-        option: &PlayOptionDef,
-    ) -> u16 {
-        let Some(each) = option
-            .additional_costs
-            .iter()
-            .filter(|cost| cost.repeatable)
-            .map(|cost| cost.mana_cost.map_or(1, |mana| mana.mana_value().max(1)))
-            .min()
-        else {
-            return 0;
-        };
-        let purpose = ManaPaymentPurpose::Spell {
-            object: card,
-            definition: definition.id,
-            controller: player,
-            form: option.form.clone(),
-            reserved_life_payment: 0,
-        };
-        self.available_mana_ceiling(player, &purpose) / each
-    }
-
     pub(in crate::game) fn visit_cost_configurations(
         &self,
         definition: &CardDefinition,
@@ -715,7 +703,8 @@ impl Game {
             let gated = match Self::alternative_cast_clause(definition, option, cost.id) {
                 Some((origin, ability, _)) => match ability.definition {
                     DeclarativeAbilityDef::AlternativeCast(alternative) => {
-                        i16::try_from(alternative.life).unwrap_or(i16::MAX)
+                        i16::try_from(crate::card::costs::life_cost(alternative.costs))
+                            .unwrap_or(i16::MAX)
                             > self.players[player.index()].life
                             || alternative.condition.is_some_and(|condition| {
                                 !self.trigger_condition_holds(
@@ -859,6 +848,7 @@ impl Game {
             self.battlefield_spell_alternative_cost_for_id(player, card, option, selected)
         });
         let mut cost = battlefield_alternative
+            .and_then(|costs| crate::card::costs::mana_cost(costs, option.mana_cost))
             .or_else(|| granted_alternative.map(|(_, _, mana_cost)| mana_cost))
             .or_else(|| configured_base_mana_cost(option, configuration))?;
         // "Without paying its mana cost" and "rather than paying its mana
@@ -888,13 +878,18 @@ impl Game {
             };
         }
         for selected in configuration.additional() {
-            let additional = option
-                .additional_costs
-                .iter()
-                .find(|candidate| candidate.id == *selected)?;
-            if let Some(mana) = additional.mana_cost {
-                cost = add_mana_cost(cost, mana);
-            }
+            let (_, held) = self.card_in_nonbattlefield_zone(card)?;
+            let definition = self.catalog.get(held.definition)?;
+            let (_, ability, _) =
+                Self::optional_additional_cost_clause(definition, option, *selected)?;
+            let DeclarativeAbilityDef::OptionalAdditionalCost(additional) = ability.definition
+            else {
+                return None;
+            };
+            cost = add_mana_cost(
+                cost,
+                crate::card::costs::mana_cost(additional.costs, option.mana_cost)?,
+            );
         }
         Some(cost)
     }
@@ -935,3 +930,5 @@ impl Game {
         })
     }
 }
+
+include!("cost_configurations/repetition_bounds.rs");

@@ -94,9 +94,8 @@ pub const fn flanking() -> AbilityDef {
     )
 }
 
-static WITHOUT_FLANKING: ObjectPredicateDef = ObjectPredicateDef::Not(
-    &ObjectPredicateDef::HasKeyword(KeywordAbility::Flanking),
-);
+static WITHOUT_FLANKING: ObjectPredicateDef =
+    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(KeywordAbility::Flanking));
 
 /// The executable trigger abbreviated by one effective flanking instance.
 /// Kept out of card rules so granting the keyword cannot accidentally leave
@@ -170,10 +169,7 @@ pub const fn extort() -> AbilityDef {
          life and you gain that much life.)",
         TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
         EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef::mana(
-                PlayerSetDef::Related(PlayerRelation::You),
-                crate::mana_cost!("{W/B}"),
-            ),
+            &[crate::CostDef::Mana(crate::mana_cost!("{W/B}"))],
             &EXTORT_DRAIN,
         )),
     )
@@ -359,35 +355,15 @@ static AN_OPPONENTS_SPELL_OR_ABILITY: ObjectPredicateDef =
 /// flying, so the clause is the whole of it. The text is the caller's
 /// because a card that grants ward prints the reminder in its own voice.
 #[must_use]
-pub const fn ward(amount: u16, text: &'static str) -> AbilityDef {
-    AbilityDef::triggered(
-        text,
-        TriggerEventDef::becomes_targeted(AN_OPPONENTS_SPELL_OR_ABILITY),
-        pay_or_counter(
-            PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
-            ValueDef::Constant(amount as i32),
-            &COUNTER_TRIGGERING_SPELL,
-        ),
-    )
-}
-
-/// "Ward--Pay N life", the same keyword with a life cost. Ward's cost is any
-/// cost the card cares to print (CR 702.21a), so the shape above is the mana
-/// case rather than the whole of it.
-#[must_use]
-pub const fn ward_life(amount: u16, text: &'static str) -> AbilityDef {
+pub const fn ward(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
     AbilityDef::triggered(
         text,
         TriggerEventDef::becomes_targeted(AN_OPPONENTS_SPELL_OR_ABILITY),
         EffectDef::PayOr(PayOrDef {
-            payment: EffectPaymentDef::life(
-                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)),
-                amount,
-            ),
-            if_paid: None,
-            otherwise: Some(&COUNTER_TRIGGERING_SPELL),
             visibility: ChoiceVisibilityDef::Public,
-            condition: None,
+            ..PayOrDef::unless(costs, &COUNTER_TRIGGERING_SPELL).with_payer(PlayerSetDef::One(
+                PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
+            ))
         }),
     )
 }
@@ -452,10 +428,10 @@ pub const fn cascade() -> AbilityDef {
 /// about the Mount that lasts until end of turn -- the Mount's own printed
 /// clauses are the only things that read it.
 #[must_use]
-pub const fn saddle(minimum: u8, text: &'static str) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
+pub const fn saddle(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_targets(
         text,
-        AbilityCostList::one(CostDef::TapCreaturesWithTotalPower { minimum }),
+        costs,
         &[],
         EffectDef::Saddle {
             object: EffectRecipientDef::Source,
@@ -469,13 +445,8 @@ pub const fn saddle(minimum: u8, text: &'static str) -> AbilityDef {
 /// stays in hand, so like plot this is not a way to cast it and nothing
 /// offers it as one -- the clause exists to carry the cost.
 #[must_use]
-pub const fn splice_onto_arcane(mana_cost: ManaCost) -> AbilityDef {
-    AbilityDef::alternative_cast(
-        mana_cost,
-        AlternativeCastKindDef::Splice,
-        None,
-        EffectDef::None,
-    )
+pub const fn splice_onto_arcane(costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::alternative_cast(costs, AlternativeCastKindDef::Splice, None, EffectDef::None)
 }
 
 /// Plot (CR 702.170a): a cost paid to a special action rather than to a
@@ -483,13 +454,8 @@ pub const fn splice_onto_arcane(mana_cost: ManaCost) -> AbilityDef {
 /// nothing on a later turn, which is why the clause carries the cost and
 /// nothing offers it as a way to cast the card now.
 #[must_use]
-pub const fn plot(mana_cost: ManaCost) -> AbilityDef {
-    AbilityDef::alternative_cast(
-        mana_cost,
-        AlternativeCastKindDef::Plot,
-        None,
-        EffectDef::None,
-    )
+pub const fn plot(costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::alternative_cast(costs, AlternativeCastKindDef::Plot, None, EffectDef::None)
 }
 
 const REBOUND_TEXT: &str = "Rebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)";
@@ -498,7 +464,7 @@ const REBOUND_TEXT: &str = "Rebound (If you cast this spell from your hand, exil
 /// comes from exile; unlike the free cast a resolution lends, nothing exiles
 /// the card afterwards, because it was already there.
 static REBOUND_FREE_CAST: AbilityDef = AbilityDef::alternative_cast(
-    crate::mana_cost!("{0}"),
+    crate::NO_COSTS,
     AlternativeCastKindDef::Rebound,
     Some("Cast this card from exile without paying its mana cost."),
     EffectDef::None,
@@ -534,21 +500,13 @@ pub const fn rebound() -> AbilityDef {
     keyword(REBOUND_TEXT, KeywordAbility::Rebound)
 }
 
-/// "Eternalize {cost}" (CR 702.129a).
-///
-/// An activated ability of the card in its owner's graveyard: it exiles
-/// itself as a cost and makes a token copy of what it just exiled, except
-/// for the four things the keyword fixes -- a 4/4 body, black, a Zombie on
-/// top of the types it already had, and no mana cost. Sorcery timing,
-/// because the reminder says so.
-///
-/// The caller supplies the printed text, which repeats both the cost and the
-/// card's own creature types.
+/// Implementation for the [`eternalize!`] constructor after its costs are composed.
+#[doc(hidden)]
 #[must_use]
-pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
+pub const fn eternalize_with_costs(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::activated_with_targets(
         text,
-        AbilityCostList::two(CostDef::Mana(cost), CostDef::ExileSource),
+        costs,
         &[],
         EffectDef::create_token_from_copy(&ETERNALIZE_COPY),
     )
@@ -615,23 +573,13 @@ pub const fn boast(ability: AbilityDef) -> AbilityDef {
         .activations_each_turn(1)
 }
 
-/// Ninjutsu (CR 702.49): "`cost`, Return an unblocked attacker you control
-/// to hand: Put this card onto the battlefield from your hand tapped and
-/// attacking."
-///
-/// The return is a cost rather than an effect, so a Ninja whose activation
-/// is answered has already swapped the attacker away. Activation waits for
-/// attackers to be declared, since until then there is no unblocked attacker
-/// to give back. The caller supplies the printed text, which repeats the
-/// cost inside its own reminder.
+/// Implementation for the [`ninjutsu!`] constructor after its costs are composed.
+#[doc(hidden)]
 #[must_use]
-pub const fn ninjutsu(text: &'static str, cost: ManaCost) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
+pub const fn ninjutsu_with_costs(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
+    AbilityDef::activated_with_targets(
         text,
-        AbilityCostList::two(
-            CostDef::Mana(cost),
-            CostDef::ReturnUnblockedAttackerToHand,
-        ),
+        costs,
         &[],
         EffectDef::PutSourceOntoBattlefieldAttacking,
     )

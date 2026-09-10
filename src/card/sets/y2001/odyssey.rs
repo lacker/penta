@@ -17,12 +17,12 @@ use crate::card::{
     CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ComparisonDef,
     ControlDurationDef, CostDef, CostQuantityDef, CounterKind, CreatureTypeSetDef,
     DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamageSourceMatcherDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -85,7 +85,7 @@ pub(in crate::card::sets) static ANCESTRAL_TRIBUTE: CardRecord = CardRecord::new
                 ),
             },
         ),
-        abilities::flashback(mana_cost!("{9}{W}{W}{W}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{9}{W}{W}{W}"))]),
     ]),
 );
 
@@ -735,7 +735,7 @@ pub(in crate::card::sets) static RAY_OF_DISTORTION: CardRecord = CardRecord::new
                 then: None,
             },
         ),
-        abilities::flashback(mana_cost!("{4}{W}{W}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{4}{W}{W}"))]),
     ]),
 );
 
@@ -1471,7 +1471,7 @@ pub(in crate::card::sets) static DEMATERIALIZE: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::flashback(mana_cost!("{5}{U}{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{U}{U}"))]),
     ]),
 );
 
@@ -1500,22 +1500,22 @@ pub(in crate::card::sets) static DIVERT: CardRecord = CardRecord::new(
                 owner: None,
             },
         )],
-        EffectDef::PayOr(PayOrDef::unless(
-            EffectPaymentDef::mana(
-                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                    TargetIndex::PRIMARY,
-                ))),
-                mana_cost!("{2}"),
-            ),
-            &EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                chooser: PlayerRefDef::EffectController,
-                change: crate::card::StackTargetChangeDef::ChooseNew {
-                    optional: false,
-                    restriction: None,
-                },
-            }),
-        )),
+        EffectDef::PayOr(
+            PayOrDef::unless(
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                &EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    chooser: PlayerRefDef::EffectController,
+                    change: crate::card::StackTargetChangeDef::ChooseNew {
+                        optional: false,
+                        restriction: None,
+                    },
+                }),
+            )
+            .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                ObjectRefDef::Target(TargetIndex::PRIMARY),
+            ))),
+        ),
     )),
 );
 
@@ -1599,7 +1599,7 @@ pub(in crate::card::sets) static FERVENT_DENIAL: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::flashback(mana_cost!("{5}{U}{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{U}{U}"))]),
     ]),
 );
 
@@ -1650,7 +1650,7 @@ pub(in crate::card::sets) static PATRON_WIZARD: CardRecord = CardRecord::new(
                     owner: None,
                 })]
             },
-            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]),
         ),
     ),
 );
@@ -2032,18 +2032,20 @@ pub(in crate::card::sets) static UNIFYING_THEORY: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{1}{U}")).with_ability(AbilityDef::triggered(
     "Whenever a player casts a spell, that player may pay {2}. If the player does, they draw a card.",
     TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
-    EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef::mana(
-            PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)),
-            mana_cost!("{2}"),
-        ),
-        &const {
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-                amount: ValueDef::Constant(1),
-            }
-        },
-    )),
+    EffectDef::PayOr(
+        PayOrDef::optional(
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            &const {
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                    amount: ValueDef::Constant(1),
+                }
+            },
+        )
+        .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+            ObjectRefDef::TriggeringObject,
+        ))),
+    ),
 )),
 );
 
@@ -2296,7 +2298,7 @@ pub(in crate::card::sets) static COFFIN_PURGE: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::flashback(mana_cost!("{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{B}"))]),
     ]),
 );
 
@@ -2752,7 +2754,7 @@ pub(in crate::card::sets) static MORBID_HUNGER: CardRecord = CardRecord::new(
                 },
             ),
         ),
-        abilities::flashback(mana_cost!("{7}{B}{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{7}{B}{B}"))]),
     ]),
 );
 
@@ -2783,7 +2785,7 @@ pub(in crate::card::sets) static MORGUE_THEFT: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::flashback(mana_cost!("{4}{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{4}{B}"))]),
     ]),
 );
 
@@ -2958,7 +2960,7 @@ pub(in crate::card::sets) static SKULL_FRACTURE: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        abilities::flashback(mana_cost!("{3}{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{B}"))]),
     ]),
 );
 
@@ -3210,7 +3212,7 @@ pub(in crate::card::sets) static BASH_TO_BITS: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        abilities::flashback(mana_cost!("{4}{R}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{4}{R}{R}"))]),
     ]),
 );
 
@@ -3368,7 +3370,7 @@ pub(in crate::card::sets) static EARTH_RIFT: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        abilities::flashback(mana_cost!("{5}{R}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{R}{R}"))]),
     ]),
 );
 
@@ -3433,7 +3435,7 @@ pub(in crate::card::sets) static FIREBOLT: CardRecord = CardRecord::new_with_leg
                 ValueDef::Constant(2),
             ),
         ),
-        abilities::flashback(mana_cost!("{4}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{4}{R}"))]),
     ]),
 );
 
@@ -3834,7 +3836,7 @@ pub(in crate::card::sets) static SCORCHING_MISSILE: CardRecord = CardRecord::new
                 ValueDef::Constant(4),
             ),
         ),
-        abilities::flashback(mana_cost!("{9}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{9}{R}"))]),
     ]),
 );
 
@@ -3964,7 +3966,7 @@ pub(in crate::card::sets) static VOLCANIC_SPRAY: CardRecord = CardRecord::new(
                 },
             ),
         ),
-        abilities::flashback(mana_cost!("{1}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{1}{R}"))]),
     ]),
 );
 
@@ -4024,7 +4026,7 @@ pub(in crate::card::sets) static BEAST_ATTACK: CardRecord = CardRecord::new(
             "Create a 4/4 green Beast creature token.",
             EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 4, 4),
         ),
-        abilities::flashback(mana_cost!("{2}{G}{G}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{G}{G}{G}"))]),
     ]),
 );
 
@@ -4041,7 +4043,7 @@ pub(in crate::card::sets) static CALL_OF_THE_HERD: CardRecord = CardRecord::new(
             "Create a 3/3 green Elephant creature token.",
             EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
         ),
-        abilities::flashback(mana_cost!("{3}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{G}"))]),
     ]),
 );
 
@@ -4060,7 +4062,7 @@ pub(in crate::card::sets) static CHATTER_OF_THE_SQUIRREL: CardRecord = CardRecor
             "Create a 1/1 green Squirrel creature token.",
             EffectDef::create_creature_token(&["Squirrel"], &[ManaColor::Green], 1, 1),
         ),
-        abilities::flashback(mana_cost!("{1}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{1}{G}"))]),
     ]),
 );
 
@@ -4157,7 +4159,7 @@ pub(in crate::card::sets) static ELEPHANT_AMBUSH: CardRecord = CardRecord::new(
             "Create a 3/3 green Elephant creature token.",
             EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
         ),
-        abilities::flashback(mana_cost!("{6}{G}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{6}{G}{G}"))]),
     ]),
 );
 
@@ -4224,7 +4226,7 @@ pub(in crate::card::sets) static HOWLING_GALE: CardRecord = CardRecord::new(
                 },
             ),
         ),
-        abilities::flashback(mana_cost!("{1}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{1}{G}"))]),
     ]),
 );
 
@@ -4631,7 +4633,7 @@ pub(in crate::card::sets) static ROAR_OF_THE_WURM: CardRecord = CardRecord::new(
             "Create a 6/6 green Wurm creature token.",
             EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 6, 6),
         ),
-        abilities::flashback(mana_cost!("{3}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{G}"))]),
     ]),
 );
 
@@ -4862,7 +4864,7 @@ pub(in crate::card::sets) static SYLVAN_MIGHT: CardRecord = CardRecord::new(
                 },
             ]),
         ),
-        abilities::flashback(mana_cost!("{2}{G}{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{G}{G}"))]),
     ]),
 );
 

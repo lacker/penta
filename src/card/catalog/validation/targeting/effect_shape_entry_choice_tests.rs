@@ -69,9 +69,11 @@ fn card_name_entry_choices_require_public_name_sets_and_durable_bindings() {
                 effect: &PUBLIC_PRODUCER,
             },
         ),
-        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "binding",
-            operation: "BindOutput requires a durable labeled binding",
-        }),
+        Err(
+            GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "binding",
+                operation: "BindOutput requires a durable labeled binding",
+            }
+        ),
     );
 }

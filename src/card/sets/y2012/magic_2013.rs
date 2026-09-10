@@ -1315,7 +1315,7 @@ pub(in crate::card::sets) static OMNISCIENCE: CardRecord = CardRecord::new_with_
                 spell: ObjectPredicateDef::Any,
                 caster: PlayerRelation::You,
                 zones: &[ZoneKind::Hand],
-                cost: mana_cost!("{0}"),
+                costs: crate::NO_COSTS,
             }),
         ),
     ),

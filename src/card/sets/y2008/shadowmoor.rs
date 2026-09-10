@@ -15,7 +15,7 @@ use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 /// Conspire is one optional creature-tapping cast cost plus the cast trigger
 /// that copies the spell when that cost was paid. Each card supplies the
 /// creature predicate that shares one of its colors.
-const fn conspire(spell: &'static AbilityDef, additional_cost: CostDef) -> [AbilityDef; 3] {
+const fn conspire(spell: &'static AbilityDef, costs: &'static [CostDef]) -> [AbilityDef; 3] {
     [
         *spell,
         AbilityDef::optional_additional_cost(
@@ -23,9 +23,8 @@ const fn conspire(spell: &'static AbilityDef, additional_cost: CostDef) -> [Abil
             OptionalAdditionalCostAbilityDef {
                 kind: OptionalAdditionalCostKindDef::Conspire,
                 label: "Conspire",
-                mana_cost: None,
-                additional_cost: Some(additional_cost),
                 resolution_destination: SpellResolutionDestinationDef::Graveyard,
+                costs,
             },
         ),
         AbilityDef::triggered_if(
@@ -148,13 +147,13 @@ pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
                 ValueDef::Constant(3),
             ),
         ),
-        CostDef::Tap {
+        &[CostDef::Tap {
             object: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::Color(ManaColor::Red),
             ]),
             quantity: CostQuantityDef::Fixed(2),
-        },
+        }],
     )),
 );
 
@@ -262,7 +261,7 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        CostDef::Tap {
+        &[CostDef::Tap {
             object: ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::AnyOf(&[
@@ -271,7 +270,7 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
                 ]),
             ]),
             quantity: CostQuantityDef::Fixed(2),
-        },
+        }],
     )),
 );
 

@@ -115,7 +115,7 @@ pub(in crate::card::sets) static ANOINT: CardRecord = CardRecord::new(
     ),
     crate::card::CardSet::Tempest,
     CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell_with_targets(
             "Prevent the next 3 damage that would be dealt to target creature this turn.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -1059,7 +1059,7 @@ pub(in crate::card::sets) static CAPSIZE: CardRecord = CardRecord::new(
     // Six mana a turn to bounce anything forever: the buyback is the card,
     // and the unbought half is only what you cast when tapped out.
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell_with_targets(
             "Return target permanent to its owner's hand.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -1863,7 +1863,7 @@ pub(in crate::card::sets) static WHISPERS_OF_THE_MUSE: CardRecord = CardRecord::
     crate::card::CardArt::new("75c5cfd1-3f7c-4250-a84d-8db83c6d7eb7", "Quinton Hoover"),
     crate::card::CardSet::Tempest,
     CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{5}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{5}"))]),
         AbilityDef::spell(
             "Draw a card.",
             EffectDef::DrawCards {
@@ -2031,7 +2031,9 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
     // price worth paying: whatever is on top of the graveyard attacks every
     // turn from here, and the card is never spent.
     CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{2}")),
+        abilities::buyback(
+            &[CostDef::Mana(mana_cost!("{2}"))],
+        ),
         AbilityDef::spell(
             "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
             EffectDef::WithZoneMoveResult {
@@ -2269,7 +2271,7 @@ pub(in crate::card::sets) static DISTURBED_BURIAL: CardRecord = CardRecord::new(
     crate::card::CardArt::new("06254b6c-eb22-4ec9-9420-74e9ee15e072", "Heather Hudson"),
     crate::card::CardSet::Tempest,
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell_with_targets(
             "Return target creature card from your graveyard to your hand.",
             &[AbilityTargetDef::exactly_one(
@@ -2390,7 +2392,7 @@ pub(in crate::card::sets) static EVINCAR_S_JUSTICE: CardRecord = CardRecord::new
     crate::card::CardArt::new("5d53f46f-b069-4b34-af4b-98143328c078", "Hannibal King"),
     crate::card::CardSet::Tempest,
     CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell(
             "Evincar's Justice deals 2 damage to each creature and each player.",
             EffectDef::damage_simultaneously(&[
@@ -2454,7 +2456,7 @@ pub(in crate::card::sets) static IMPS_TAUNT: CardRecord = CardRecord::new(
     crate::card::CardArt::new("79d6ed64-9f5c-4233-85a9-028b8e5949c3", "Colin MacNeil"),
     crate::card::CardSet::Tempest,
     CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell_with_targets(
             "Target creature attacks this turn if able.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -3842,7 +3844,7 @@ pub(in crate::card::sets) static SEARING_TOUCH: CardRecord = CardRecord::new(
     ),
     crate::card::CardSet::Tempest,
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{4}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{4}"))]),
         AbilityDef::spell_with_targets(
             "Searing Touch deals 1 damage to any target.",
             &[AbilityTargetDef::exactly_one(
@@ -4355,7 +4357,7 @@ pub(in crate::card::sets) static ELVISH_FURY: CardRecord = CardRecord::new(
     crate::card::CardArt::new("f99c10b5-b93b-40c3-936c-d1b81b49c5a4", "Quinton Hoover"),
     crate::card::CardSet::Tempest,
     CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[
-        abilities::buyback(mana_cost!("{4}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{4}"))]),
         AbilityDef::spell_with_targets(
             "Target creature gets +2/+2 until end of turn.",
             &[AbilityTargetDef::exactly_one_permanent(

@@ -108,7 +108,7 @@ pub(in crate::card::sets) static INTO_THE_ROIL: CardRecord = CardRecord::new(
     // what keeps it playable in a deck that is not otherwise bouncing things.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{2}{U}{U}"),
+            &[CostDef::Mana(mana_cost!("{2}{U}{U}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{U} (You may pay an additional {1}{U} as you cast this spell.)"),
             EffectDef::None,
@@ -159,7 +159,7 @@ pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new_with
                 owner: None,
             },
         )],
-        abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+        abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(2))]),
     )),
 );
 
@@ -313,7 +313,9 @@ pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
     // One mana to answer what a one-drop deck leads with, and five to point
     // the same card at anything later.
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
-        abilities::kicker(mana_cost!("{4}")),
+        abilities::kicker(
+            &[CostDef::Mana(mana_cost!("{4}"))],
+        ),
         AbilityDef::spell_with_targets(
             "Burst Lightning deals 2 damage to any target. If this spell was kicked, it deals 4 damage instead.",
             &[AbilityTargetDef::exactly_one(
@@ -341,7 +343,7 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
     // Empty the Warrens turn, which is the only reason the card sees play.
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{R}{R}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {R} (You may pay an additional {R} as you cast this spell.)"),
             EffectDef::None,
@@ -430,7 +432,7 @@ pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new
     // why the same card is live at both ends of the game.
     CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{G}{G}"),
+            &[CostDef::Mana(mana_cost!("{G}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {G} (You may pay an additional {G} as you cast this spell.)"),
             EffectDef::None,

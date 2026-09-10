@@ -35,18 +35,17 @@ pub const fn improvise() -> AbilityDef {
     )
 }
 
-/// Buyback with a mana surcharge. It is an optional additional cost, so it
+/// Buyback with an additional cost. It is an optional additional cost, so it
 /// composes with flashback and every other casting permission.
 #[must_use]
-pub const fn buyback(mana_cost: ManaCost) -> AbilityDef {
+pub const fn buyback(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         OptionalAdditionalCostKindDef::Buyback.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Buyback,
             label: OptionalAdditionalCostKindDef::Buyback.label(),
-            mana_cost: Some(mana_cost),
-            additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Hand,
+            costs,
         },
     )
 }
@@ -55,22 +54,21 @@ pub const fn buyback(mana_cost: ManaCost) -> AbilityDef {
 /// alternative-cast helper, this composes with every legal way of casting the
 /// spell and preserves the selected cost as part of the cast signature.
 #[must_use]
-pub const fn kicker(mana_cost: ManaCost) -> AbilityDef {
-    kicker_with_label(OptionalAdditionalCostKindDef::Kicker.label(), mana_cost)
+pub const fn kicker(costs: &'static [CostDef]) -> AbilityDef {
+    kicker_with_label(OptionalAdditionalCostKindDef::Kicker.label(), costs)
 }
 
 /// Kicker with a distinct action label, for cards that print two independent
 /// kicker costs and need both choices to remain legible.
 #[must_use]
-pub const fn kicker_with_label(label: &'static str, mana_cost: ManaCost) -> AbilityDef {
+pub const fn kicker_with_label(label: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         OptionalAdditionalCostKindDef::Kicker.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Kicker,
             label,
-            mana_cost: Some(mana_cost),
-            additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            costs,
         },
     )
 }
@@ -80,15 +78,14 @@ pub const fn kicker_with_label(label: &'static str, mana_cost: ManaCost) -> Abil
 /// cast trigger beside it that counts the payments -- so all this says is
 /// what one payment costs and that it may be made again.
 #[must_use]
-pub const fn replicate(mana_cost: ManaCost) -> AbilityDef {
+pub const fn replicate(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         OptionalAdditionalCostKindDef::Replicate.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Replicate,
             label: OptionalAdditionalCostKindDef::Replicate.label(),
-            mana_cost: Some(mana_cost),
-            additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            costs,
         },
     )
 }
@@ -98,15 +95,14 @@ pub const fn replicate(mana_cost: ManaCost) -> AbilityDef {
 /// payments buy is printed beside it -- an enters trigger that makes that
 /// many token copies -- so all this says is what one payment costs.
 #[must_use]
-pub const fn squad(mana_cost: ManaCost) -> AbilityDef {
+pub const fn squad(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         OptionalAdditionalCostKindDef::Squad.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Squad,
             label: OptionalAdditionalCostKindDef::Squad.label(),
-            mana_cost: Some(mana_cost),
-            additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            costs,
         },
     )
 }
@@ -134,54 +130,34 @@ pub const fn storm() -> AbilityDef {
 /// with nothing else attached. What it buys is printed separately, as a
 /// clause that reads how many times it was paid.
 #[must_use]
-pub const fn multikicker(mana_cost: ManaCost) -> AbilityDef {
+pub const fn multikicker(costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         OptionalAdditionalCostKindDef::Multikicker.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Multikicker,
             label: OptionalAdditionalCostKindDef::Multikicker.label(),
-            mana_cost: Some(mana_cost),
-            additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
+            costs,
         },
     )
 }
 
-/// A named repeatable mana surcharge without a keyword wrapper. The caller's
+/// A named repeatable additional cost without a keyword wrapper. The caller's
 /// full text remains the printed clause while `label` distinguishes several
 /// costs offered by the same spell.
 #[must_use]
-pub const fn repeatable_additional_mana_cost(
+pub const fn repeatable_additional_cost(
     text: &'static str,
     label: &'static str,
-    mana_cost: ManaCost,
+    costs: &'static [CostDef],
 ) -> AbilityDef {
     AbilityDef::optional_additional_cost(
         text,
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Repeatable,
             label,
-            mana_cost: Some(mana_cost),
-            additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
-        },
-    )
-}
-
-/// Buyback paid with a selected nonmana object, such as sacrificing a land.
-#[must_use]
-pub const fn buyback_with_additional_cost(
-    text: &'static str,
-    cost: &'static CostDef,
-) -> AbilityDef {
-    AbilityDef::optional_additional_cost(
-        text,
-        OptionalAdditionalCostAbilityDef {
-            kind: OptionalAdditionalCostKindDef::Buyback,
-            label: OptionalAdditionalCostKindDef::Buyback.label(),
-            mana_cost: None,
-            additional_cost: Some(*cost),
-            resolution_destination: SpellResolutionDestinationDef::Hand,
+            costs,
         },
     )
 }
@@ -198,7 +174,7 @@ static DASH_RETURNS_IT: AbilityDef = AbilityDef::triggered(
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-},
+    },
 );
 
 static WAS_DASHED: TriggerConditionDef =
@@ -215,9 +191,9 @@ static HASTE: AbilityDef = haste();
 /// What it buys is stated by the two clauses below, the way evoke's
 /// sacrifice is stated beside its own alternative cost.
 #[must_use]
-pub const fn dash(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+pub const fn dash(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
     AbilityDef::alternative_cast(
-        mana_cost,
+        costs,
         AlternativeCastKindDef::Dash,
         Some(text),
         EffectDef::None,
@@ -278,9 +254,9 @@ static WAS_WARPED: TriggerConditionDef =
 /// Warp: an ordinary cast from hand for a different price, with what it
 /// buys stated by the clause below.
 #[must_use]
-pub const fn warp(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
+pub const fn warp(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
     AbilityDef::alternative_cast(
-        mana_cost,
+        costs,
         AlternativeCastKindDef::Warp,
         Some(text),
         EffectDef::None,

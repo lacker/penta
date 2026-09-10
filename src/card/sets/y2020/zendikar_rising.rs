@@ -22,7 +22,7 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
     // it is the better combat trick and the worse blocking one.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{2}{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{2}{W}{W}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{W} (You may pay an additional {1}{W} as you cast this spell.)"),
             EffectDef::None,
@@ -152,7 +152,7 @@ pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new
     // five, and the Sword comes down already attached.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Merfolk", "Rogue"], 2, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{X}{1}{U}"),
+            &[CostDef::Mana(mana_cost!("{X}{1}{U}"))],
             AlternativeCastKindDef::Kicked,
             Some(
                 "Kicker {X}. X can't be 0. (You may pay an additional {X} as you cast this \
@@ -211,7 +211,9 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
     // whatever is left, which is why the card is played over a cheaper
     // removal spell that can only do the first job.
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
-        abilities::kicker(mana_cost!("{2}{B}")),
+        abilities::kicker(
+            &[CostDef::Mana(mana_cost!("{2}{B}"))],
+        ),
         AbilityDef::spell_with_targets(
             "Destroy target creature or planeswalker with mana value 2 or less. If this spell was kicked, instead destroy target creature or planeswalker.",
             // The mana-value bound is part of what may be targeted rather than something
@@ -261,7 +263,7 @@ pub(in crate::card::sets) static GNARLID_COLONY: CardRecord = CardRecord::new(
     // pays a counters deck for playing it at either end.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Beast"], 2, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{G}{G}"),
+            &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2}{G} (You may pay an additional {2}{G} as you cast this spell.)"),
             EffectDef::None,

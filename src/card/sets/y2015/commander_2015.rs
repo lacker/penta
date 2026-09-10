@@ -35,7 +35,9 @@ pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new
                             owner: None,
                         },
                     )],
-                    abilities::counter_target_unless_paid(ValueDef::Constant(3)),
+                    abilities::counter_target_unless_paid(&[crate::CostDef::GenericMana(
+                        ValueDef::Constant(3),
+                    )]),
                 ),
                 AbilityDef::spell_with_targets(
                     "Return target creature to its owner's hand.",
@@ -176,10 +178,10 @@ pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecor
     // card: the attacker that got through goes back to be replayed, and the
     // 2/2 that replaced it is already connecting for a card a turn.
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Ninja"], 2, 2).with_abilities(&[
-        abilities::ninjutsu(
+        abilities::ninjutsu!(
             "Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this \
-             card onto the battlefield from your hand tapped and attacking.)",
-            mana_cost!("{1}{U}"),
+            card onto the battlefield from your hand tapped and attacking.)",
+            &[crate::CostDef::Mana(mana_cost!("{1}{U}"))],
         ),
         AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, you may draw a card.",

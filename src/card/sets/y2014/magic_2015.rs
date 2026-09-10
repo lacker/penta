@@ -3,10 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, BlockRestrictionDef, CardArt,
-    CardRules, CardSet, CardType, CostDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities,
+    CardRules, CardSet, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -48,13 +47,10 @@ pub(in crate::card::sets) static FRENZIED_GOBLIN: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::ColoredMana {
-                        color: ManaColor::Red,
-                        amount: ValueDef::Constant(1),
-                    },
-                },
+                &[CostDef::ColoredMana {
+                    color: ManaColor::Red,
+                    amount: ValueDef::Constant(1),
+                }],
                 &const {
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

@@ -220,14 +220,10 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
 
 #[test]
 fn alternative_cast_ability_requires_its_derived_cost_projection() {
-    let flashback_cost = ManaCost {
-        generic: 2,
-        blue: 1,
-        ..ManaCost::default()
-    };
+    const FLASHBACK_COST: ManaCost = crate::mana_cost!("{2}{U}");
     let missing_abilities = Box::leak(
         vec![AbilityDef::alternative_cast(
-            flashback_cost,
+            &[crate::CostDef::Mana(FLASHBACK_COST)],
             AlternativeCastKindDef::Flashback,
             None,
             EffectDef::None,
@@ -252,7 +248,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
         vec![
             AbilityDef::spell("Draw a card.", EffectDef::None),
             AbilityDef::alternative_cast(
-                flashback_cost,
+                &[crate::CostDef::Mana(FLASHBACK_COST)],
                 AlternativeCastKindDef::Flashback,
                 None,
                 EffectDef::None,
@@ -267,7 +263,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
             binding: None,
             id: AlternativeCostId(1),
             label: "Flashback".into(),
-            mana_cost: flashback_cost,
+            mana_cost: FLASHBACK_COST,
         });
     let rules =
         crate::CardRules::new_instant(ManaCost::default()).with_abilities(projected_abilities);
@@ -287,8 +283,8 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
             cost: AlternativeCostId(1),
             expected_label: "Flashback".into(),
             actual_label: "Overload".into(),
-            expected_mana_cost: flashback_cost,
-            actual_mana_cost: flashback_cost,
+            expected_mana_cost: FLASHBACK_COST,
+            actual_mana_cost: FLASHBACK_COST,
         }))
     );
 
@@ -304,7 +300,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
             cost: AlternativeCostId(1),
             expected_label: "Flashback".into(),
             actual_label: "Flashback".into(),
-            expected_mana_cost: flashback_cost,
+            expected_mana_cost: FLASHBACK_COST,
             actual_mana_cost: ManaCost::default(),
         }))
     );

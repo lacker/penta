@@ -24,10 +24,10 @@ pub(in crate::card::sets) static DEATH_GREETER_S_CHAMPION: CardRecord = CardReco
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 1)
         .with_abilities(&[
             abilities::dash(
-                mana_cost!("{3}{R}"),
+                &[crate::CostDef::Mana(mana_cost!("{3}{R}"))],
                 "Dash {3}{R} (You may cast this spell for its dash cost. If you do, it gains haste, and \
-                 it's returned from the battlefield to its owner's hand at the beginning of the next end \
-                 step.)",
+                it's returned from the battlefield to its owner's hand at the beginning of the next end \
+                step.)",
             ),
             abilities::dashed_haste(),
             abilities::dashed_return(),

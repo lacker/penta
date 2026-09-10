@@ -53,7 +53,7 @@ pub(in crate::card::sets) static ARDENT_SOLDIER: CardRecord = CardRecord::new(
     // kicker sells: one card that is never dead.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{W}"),
+            &[CostDef::Mana(mana_cost!("{3}{W}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
             EffectDef::None,
@@ -92,7 +92,7 @@ pub(in crate::card::sets) static BENALISH_EMISSARY: CardRecord = CardRecord::new
     // mileage for a common.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Wizard"], 1, 4).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{W}{G}"),
+            &[CostDef::Mana(mana_cost!("{3}{W}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{G} (You may pay an additional {1}{G} as you cast this spell.)"),
             EffectDef::None,
@@ -148,7 +148,7 @@ pub(in crate::card::sets) static BENALISH_LANCER: CardRecord = CardRecord::new(
     // that flooded out finally had somewhere to put the mana.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{4}{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{4}{W}{W}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2}{W} (You may pay an additional {2}{W} as you cast this spell.)"),
             EffectDef::None,
@@ -313,7 +313,7 @@ pub(in crate::card::sets) static DISMANTLING_BLOW: CardRecord = CardRecord::new(
     // artifact removal defensible at all.
     CardRules::new_instant(mana_cost!("{2}{W}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{4}{W}{U}"),
+            &[CostDef::Mana(mana_cost!("{4}{W}{U}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2}{U} (You may pay an additional {2}{U} as you cast this spell.)"),
             EffectDef::None,
@@ -1023,7 +1023,7 @@ pub(in crate::card::sets) static FAERIE_SQUADRON: CardRecord = CardRecord::new(
     // both halves of the game, which is the whole point of kicker.
     CardRules::new_creature(mana_cost!("{U}"), &["Faerie"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{U}{U}"),
+            &[CostDef::Mana(mana_cost!("{3}{U}{U}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {3}{U} (You may pay an additional {3}{U} as you cast this spell.)"),
             EffectDef::None,
@@ -1172,7 +1172,9 @@ pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_leg
     CardArt::new("0daa5458-2a97-40d0-b18d-2381a7a68ee1", "Adam Rex"),
     CardSet::Invasion,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
-        abilities::kicker(mana_cost!("{2}")),
+        abilities::kicker(
+            &[CostDef::Mana(mana_cost!("{2}"))],
+        ),
         AbilityDef::spell_with_targets(
             "Counter target spell if its mana value is 2 or less. If this spell was kicked, counter that spell if its mana value is 4 or less instead.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
@@ -1434,7 +1436,7 @@ pub(in crate::card::sets) static TOLARIAN_EMISSARY: CardRecord = CardRecord::new
     // otherwise cannot touch at all.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{U}{W}"),
+            &[CostDef::Mana(mana_cost!("{3}{U}{W}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{W} (You may pay an additional {1}{W} as you cast this spell.)"),
             EffectDef::None,
@@ -1523,7 +1525,7 @@ pub(in crate::card::sets) static VODALIAN_SERPENT: CardRecord = CardRecord::new(
     // 6/6 that still needs the opponent's cooperation.
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Serpent"], 2, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{5}{U}"),
+            &[CostDef::Mana(mana_cost!("{5}{U}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
             EffectDef::None,
@@ -1776,7 +1778,7 @@ pub(in crate::card::sets) static DUSKWALKER: CardRecord = CardRecord::new(
     // black usually gets out of its worst creature.
     CardRules::new_creature(mana_cost!("{B}"), &["Human", "Minion"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{B}{B}"),
+            &[CostDef::Mana(mana_cost!("{3}{B}{B}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {3}{B} (You may pay an additional {3}{B} as you cast this spell.)"),
             EffectDef::None,
@@ -1891,7 +1893,7 @@ pub(in crate::card::sets) static HYPNOTIC_CLOUD: CardRecord = CardRecord::new(
     // has gone long enough for the hand to be worth taking.
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{5}{B}"),
+            &[CostDef::Mana(mana_cost!("{5}{B}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {4} (You may pay an additional {4} as you cast this spell.)"),
             EffectDef::None,
@@ -2298,7 +2300,7 @@ pub(in crate::card::sets) static URBORG_EMISSARY: CardRecord = CardRecord::new(
     // cards is often better than killing it.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Wizard"], 3, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{B}{U}"),
+            &[CostDef::Mana(mana_cost!("{3}{B}{U}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{U} (You may pay an additional {1}{U} as you cast this spell.)"),
             EffectDef::None,
@@ -2375,7 +2377,7 @@ pub(in crate::card::sets) static URBORG_SKELETON: CardRecord = CardRecord::new(
     // the same card at both ends of the curve.
     CardRules::new_creature(mana_cost!("{B}"), &["Skeleton"], 0, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{B}"),
+            &[CostDef::Mana(mana_cost!("{3}{B}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {3} (You may pay an additional {3} as you cast this spell.)"),
             EffectDef::None,
@@ -2451,7 +2453,7 @@ pub(in crate::card::sets) static BREATH_OF_DARIGAAZ: CardRecord = CardRecord::ne
     // damage to the face is the reason the deck was red in the first place.
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{R}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
             EffectDef::None,
@@ -2622,7 +2624,7 @@ pub(in crate::card::sets) static KAVU_AGGRESSOR: CardRecord = CardRecord::new(
     // with seven mana and nothing better to do.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Kavu"], 3, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{6}{R}"),
+            &[CostDef::Mana(mana_cost!("{6}{R}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {4} (You may pay an additional {4} as you cast this spell.)"),
             EffectDef::None,
@@ -2743,7 +2745,9 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_leg
     // One mana answers a Lotus Petal or a Cursed Scroll; three answers most
     // of what a Premodern deck actually plays.
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
-        abilities::kicker(mana_cost!("{2}")),
+        abilities::kicker(
+            &[CostDef::Mana(mana_cost!("{2}"))],
+        ),
         AbilityDef::spell_with_targets(
             "Destroy target artifact if its mana value is 2 or less. If this spell was kicked, destroy that artifact if its mana value is 5 or less instead.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -2779,7 +2783,7 @@ pub(in crate::card::sets) static POUNCING_KAVU: CardRecord = CardRecord::new(
     // 1/1 it started as is a real turn-two play.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Kavu"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{R}{R}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2}{R} (You may pay an additional {2}{R} as you cast this spell.)"),
             EffectDef::None,
@@ -2892,7 +2896,7 @@ pub(in crate::card::sets) static SAVAGE_OFFENSIVE: CardRecord = CardRecord::new(
     // in; the green mana turns it into the swing that ends the game.
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{1}{R}{G}"),
+            &[CostDef::Mana(mana_cost!("{1}{R}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {G} (You may pay an additional {G} as you cast this spell.)"),
             EffectDef::None,
@@ -2978,7 +2982,7 @@ pub(in crate::card::sets) static SHIVAN_EMISSARY: CardRecord = CardRecord::new(
     // 1/1, and it cost two colours to get it.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Wizard"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{R}{B}"),
+            &[CostDef::Mana(mana_cost!("{3}{R}{B}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{B} (You may pay an additional {1}{B} as you cast this spell.)"),
             EffectDef::None,
@@ -3063,7 +3067,7 @@ pub(in crate::card::sets) static SKIZZIK: CardRecord = CardRecord::new(
     // mana was there -- a burn spell that sometimes stays.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Elemental"], 5, 3).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{R}{R}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {R} (You may pay an additional {R} as you cast this spell.)"),
             EffectDef::None,
@@ -3324,7 +3328,7 @@ pub(in crate::card::sets) static CANOPY_SURGE: CardRecord = CardRecord::new(
     // the caster the same life it charges everyone else.
     CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{G}"),
+            &[CostDef::Mana(mana_cost!("{3}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2} (You may pay an additional {2} as you cast this spell.)"),
             EffectDef::None,
@@ -3438,7 +3442,7 @@ pub(in crate::card::sets) static EXPLOSIVE_GROWTH: CardRecord = CardRecord::new(
     // has to decide which half it wanted when it drew the card.
     CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{5}{G}"),
+            &[CostDef::Mana(mana_cost!("{5}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {5} (You may pay an additional {5} as you cast this spell.)"),
             EffectDef::None,
@@ -3558,7 +3562,7 @@ pub(in crate::card::sets) static KAVU_TITAN: CardRecord = CardRecord::new(
     // trampler, and never a dead draw at either end.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Kavu"], 2, 2).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{G}{G}"),
+            &[CostDef::Mana(mana_cost!("{3}{G}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {2}{G} (You may pay an additional {2}{G} as you cast this spell.)"),
             EffectDef::None,
@@ -3616,7 +3620,7 @@ pub(in crate::card::sets) static LLANOWAR_ELITE: CardRecord = CardRecord::new(
     // reason a 1/1 trampler is worth a slot.
     CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Warrior"], 1, 1).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{8}{G}"),
+            &[CostDef::Mana(mana_cost!("{8}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {8} (You may pay an additional {8} as you cast this spell.)"),
             EffectDef::None,
@@ -3745,7 +3749,7 @@ pub(in crate::card::sets) static PINCER_SPIDER: CardRecord = CardRecord::new(
     // what a green deck wants from its filler.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Spider"], 2, 3).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{5}{G}"),
+            &[CostDef::Mana(mana_cost!("{5}{G}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {3} (You may pay an additional {3} as you cast this spell.)"),
             EffectDef::None,
@@ -4042,7 +4046,7 @@ pub(in crate::card::sets) static VERDURAN_EMISSARY: CardRecord = CardRecord::new
     // answers it could otherwise only sideboard into.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Wizard"], 2, 3).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{3}{G}{R}"),
+            &[CostDef::Mana(mana_cost!("{3}{G}{R}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{R} (You may pay an additional {1}{R} as you cast this spell.)"),
             EffectDef::None,

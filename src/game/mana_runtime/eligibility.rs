@@ -12,7 +12,7 @@ impl Game {
     ) -> bool {
         let taps_source = definition.costs.contains(&CostDef::TapSource);
         definition.source_zones.contains(&ZoneKind::Battlefield)
-            && !definition.costs.as_slice().is_empty()
+            && !definition.costs.is_empty()
             && definition
                 .costs
                 .iter()
@@ -71,7 +71,7 @@ impl Game {
                 }
                 _ => false,
             })
-            && Self::source_counter_costs_are_payable(permanent, definition.costs.as_slice())
+            && Self::source_counter_costs_are_payable(permanent, definition.costs)
     }
 
     /// The counter kind an ability lets the payer remove any number of, if

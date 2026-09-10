@@ -93,10 +93,10 @@ pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::n
     CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct", "Scout"], 6, 5)
         .with_abilities(&[
             abilities::trample(),
-            abilities::typecycling(
+            abilities::typecycling!(
                 "Basic landcycling {2} ({2}, Discard this card: Search your library for a basic \
-                 land card, reveal it, put it into your hand, then shuffle.)",
-                mana_cost!("{2}"),
+                land card, reveal it, put it into your hand, then shuffle.)",
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 // "Basic land card" is the conjunction, not the Basic supertype
                 // alone: a basic Snow-Covered land qualifies and a legendary
                 // land does not.

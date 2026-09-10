@@ -405,78 +405,12 @@ impl CostDef {
     }
 }
 
-/// Const-friendly storage for activated-ability costs.
-///
-/// Most card definitions borrow a promoted slice. Common constructors whose
-/// costs include a parameter, such as Bloodrush's mana cost, can instead own a
-/// small inline list without introducing a mechanic-specific cost primitive.
-#[derive(Clone, Copy, Debug)]
-pub struct AbilityCostList(AbilityCostStorage);
+/// An intentionally empty payment, such as casting without paying a mana cost.
+/// Unlike `&[CostDef::Mana(mana_cost!("{0}"))]`, this contains no mana payment.
+pub const NO_COSTS: &[CostDef] = &[];
 
-#[derive(Clone, Copy, Debug)]
-enum AbilityCostStorage {
-    Borrowed(&'static [CostDef]),
-    One([CostDef; 1]),
-    Two([CostDef; 2]),
-}
-
-impl PartialEq for AbilityCostList {
-    fn eq(&self, other: &Self) -> bool {
-        self.as_slice() == other.as_slice()
-    }
-}
-
-impl Eq for AbilityCostList {}
-
-impl std::hash::Hash for AbilityCostList {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        std::hash::Hash::hash(self.as_slice(), state);
-    }
-}
-
-impl AbilityCostList {
-    #[must_use]
-    pub(crate) const fn borrowed(costs: &'static [CostDef]) -> Self {
-        Self(AbilityCostStorage::Borrowed(costs))
-    }
-
-    #[must_use]
-    pub(crate) const fn one(cost: CostDef) -> Self {
-        Self(AbilityCostStorage::One([cost]))
-    }
-
-    #[must_use]
-    pub(crate) const fn two(first: CostDef, second: CostDef) -> Self {
-        Self(AbilityCostStorage::Two([first, second]))
-    }
-
-    #[must_use]
-    pub const fn as_slice(&self) -> &[CostDef] {
-        match &self.0 {
-            AbilityCostStorage::Borrowed(costs) => costs,
-            AbilityCostStorage::One(costs) => costs,
-            AbilityCostStorage::Two(costs) => costs,
-        }
-    }
-
-    #[must_use]
-    pub fn contains(&self, cost: &CostDef) -> bool {
-        self.as_slice().contains(cost)
-    }
-
-    pub fn iter(&self) -> std::slice::Iter<'_, CostDef> {
-        self.as_slice().iter()
-    }
-}
-
-impl<'a> IntoIterator for &'a AbilityCostList {
-    type Item = &'a CostDef;
-    type IntoIter = std::slice::Iter<'a, CostDef>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.as_slice().iter()
-    }
-}
+include!("costs/list.rs");
+include!("costs/text.rs");
 
 /// A basic land subtype used by type-changing effects and mana provenance.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

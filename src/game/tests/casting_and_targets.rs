@@ -90,14 +90,17 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
     let second_implemented_mode = ModeId(2);
     let slot_id = TargetSlotId(0);
     let alternative_id = AlternativeCostId(11);
-    let additional_id = AdditionalCostId(13);
+    let additional_id = AdditionalCostId(0);
     let mut definition = CardDefinition::new(
         definition_id,
         "Structured Bolt",
         CardSet::Alpha,
         crate::card::CardRules::unsupported(),
     );
-    definition.rules = CardRules::new_instant(ManaCost::new(0, 1));
+    definition.rules =
+        CardRules::new_instant(ManaCost::new(0, 1)).with_ability(abilities::kicker(&[
+            CostDef::Mana(crate::mana_cost!("{2}")),
+        ]));
     synchronize_single_part_definition(&mut definition);
     let mut option = PlayOptionDef::cast(
         option_id,
@@ -147,7 +150,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
     }];
     option.additional_costs = vec![AdditionalCostDef {
         id: additional_id,
-        label: "Additional cost".into(),
+        label: "Kicker".into(),
         mana_cost: Some(ManaCost::new(2, 0)),
         repeatable: false,
     }];

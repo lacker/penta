@@ -21,7 +21,7 @@ pub(in crate::card::sets) static RUSTLER_RAMPAGE: CardRecord = CardRecord::new(
     CardSet::OutlawsOfThunderJunction,
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spree(&[
         (
-            mana_cost!("{1}"),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             AbilityDef::spell_with_targets(
                 "Untap all creatures target player controls.",
                 &[AbilityTargetDef::exactly_one(
@@ -35,7 +35,7 @@ pub(in crate::card::sets) static RUSTLER_RAMPAGE: CardRecord = CardRecord::new(
             ),
         ),
         (
-            mana_cost!("{1}"),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             AbilityDef::spell_with_targets(
                 "Target creature gains double strike until end of turn.",
                 &[AbilityTargetDef::exactly_one_permanent(
@@ -111,7 +111,7 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
     // lets one card be a Spirit on the turn nothing needs answering.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spree(&[
         (
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             AbilityDef::spell(
                 "Create a 2/2 white Spirit creature token with flying.",
                 EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 2, 2)
@@ -119,7 +119,7 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
             ),
         ),
         (
-            mana_cost!("{1}"),
+            &[CostDef::Mana(mana_cost!("{1}"))],
             AbilityDef::spell_with_targets(
                 "Counter target spell unless its controller pays {2}.",
                 &[AbilityTargetDef::exactly_one(
@@ -130,7 +130,9 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
                         owner: None,
                     },
                 )],
-                abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+                abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(
+                    2,
+                ))]),
             ),
         ),
     ])),
@@ -199,9 +201,9 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
                 ),
             ),
             abilities::saddle(
-                3,
+                &[CostDef::TapCreaturesWithTotalPower { minimum: 3 }],
                 "Saddle 3 (Tap any number of other creatures you control with total power 3 or \
-                 more: This Mount becomes saddled until end of turn. Saddle only as a sorcery.)",
+                                         more: This Mount becomes saddled until end of turn. Saddle only as a sorcery.)",
             ),
         ]),
 );
@@ -214,7 +216,7 @@ pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::
     CardSet::OutlawsOfThunderJunction,
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spree(&[
         (
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
             AbilityDef::spell_with_targets(
                 "Explosive Derailment deals 4 damage to target creature.",
                 &[AbilityTargetDef::exactly_one_permanent(
@@ -227,7 +229,7 @@ pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::
             ),
         ),
         (
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
             AbilityDef::destroy_target(
                 "Destroy target artifact.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
@@ -244,10 +246,7 @@ pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
     "Return the Favor",
     CardArt::new("a9cc02d1-799d-42aa-9bc2-4c05452b63b4", "Eli Minaya"),
     CardSet::OutlawsOfThunderJunction,
-    CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(AbilityDef::spree(&[
-        (
-            mana_cost!("{1}"),
-            AbilityDef::spell_with_targets(
+    CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
                 "Copy target instant spell, sorcery spell, activated ability, or triggered ability. You may choose new targets for the copy.",
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
@@ -271,11 +270,8 @@ pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
                     retarget: true,
                     colors: None,
                 }),
-            ),
-        ),
-        (
-            mana_cost!("{1}"),
-            AbilityDef::spell_with_targets(
+            )),
+(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
                 "Change the target of target spell or ability with a single target.",
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::DeclaredTargetCount {
@@ -294,9 +290,7 @@ pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
                         restriction: None,
                     },
                 }),
-            ),
-        ),
-    ])),
+            ))])),
 );
 
 // OTJ 157 — Bristly Bill, Spine Sower
@@ -361,10 +355,7 @@ pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardReco
         "Dan Murayama Scott",
     ),
     CardSet::OutlawsOfThunderJunction,
-    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spree(&[
-        (
-            mana_cost!("{1}"),
-            AbilityDef::spell(
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell(
                 "Search your library for a basic land card or a Desert card, put it onto the battlefield, then shuffle.",
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
@@ -387,20 +378,15 @@ pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardReco
                     binding: None,
                     then: None,
                 },
-            ),
-        ),
-        (
-            mana_cost!("{3}"),
-            AbilityDef::spell(
+            )),
+(&[CostDef::Mana(mana_cost!("{3}"))], AbilityDef::spell(
                 "Create an X/X green Elemental creature token, where X is the number of lands you control.",
                 EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Green], 0, 0)
                     .with_variable_token_stats(&TokenStatsDef {
                         power: ValueDef::CountMatchingObjects(&DANCE_LANDS_YOU_CONTROL),
                         toughness: ValueDef::CountMatchingObjects(&DANCE_LANDS_YOU_CONTROL),
                     }),
-            ),
-        ),
-    ])),
+            ))])),
 );
 
 // OTJ 188 — Voracious Varmint
@@ -471,7 +457,7 @@ pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
                 1,
             ),
         ),
-        abilities::plot(mana_cost!("{1}{B}{G}")),
+        abilities::plot(&[CostDef::Mana(mana_cost!("{1}{B}{G}"))]),
     ]),
 );
 
@@ -497,9 +483,9 @@ pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_wi
                         // Ward reads as one clause on the Boots, so the granted ability carries the
                         // whole of the printed reminder rather than a paraphrase of it.
                         AppliedEffectDef::add_ability(&abilities::ward(
-                            1,
+                            &[CostDef::Mana(crate::ManaCost::new(1, 0))],
                             "Ward {1} (Whenever this creature becomes the target of a spell or ability an opponent \
-                             controls, counter it unless that player pays {1}.)",
+                            controls, counter it unless that player pays {1}.)",
                         )),
                     ]),
                 },
@@ -625,7 +611,7 @@ pub(in crate::card::sets) static SLICKSHOT_SHOW_OFF: CardRecord = CardRecord::ne
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::plot(mana_cost!("{1}{R}")),
+        abilities::plot(&[CostDef::Mana(mana_cost!("{1}{R}"))]),
     ]),
 );
 

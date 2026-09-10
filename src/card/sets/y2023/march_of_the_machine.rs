@@ -35,9 +35,9 @@ pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRe
                     TargetIndex::PRIMARY,
                 )),
             ),
-            abilities::typecycling(
+            abilities::typecycling!(
                 "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, reveal it, put it into your hand, then shuffle.)",
-                mana_cost!("{2}"),
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
             ),
         ],

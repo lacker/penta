@@ -229,9 +229,9 @@ static RECONFIGURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 /// and any supported nonmana costs without changing helpers.
 #[must_use]
 pub const fn equip(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
+    AbilityDef::activated_with_targets(
         text,
-        AbilityCostList::borrowed(costs),
+        costs,
         &EQUIP_TARGET,
         EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -319,10 +319,10 @@ static SOURCE_IS_UNPAIRED: TriggerConditionDef = TriggerConditionDef::SourceMatc
 /// shared attachment relation supplies Fortification's distinct land-host
 /// legality and state-based unattach behavior.
 #[must_use]
-pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
+pub const fn fortify(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_targets(
         text,
-        AbilityCostList::one(CostDef::Mana(mana_cost)),
+        costs,
         &FORTIFY_TARGET,
         EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -334,16 +334,12 @@ pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
 /// The rules-defined 0/0 black Phyrexian Germ created by every instance of
 /// living weapon. Its illustration is the earliest indexed printing of the
 /// current Phyrexian Germ token identity.
-const GERM: crate::TokenCharacteristics = crate::TokenCharacteristics::creature(
-    &["Phyrexian", "Germ"],
-    &[ManaColor::Black],
-    0,
-    0,
-)
-.with_art(crate::card::CardArt::new(
-    "b53e0681-603e-4180-bc86-3dadf214e61a",
-    "Igor Kieryluk",
-));
+const GERM: crate::TokenCharacteristics =
+    crate::TokenCharacteristics::creature(&["Phyrexian", "Germ"], &[ManaColor::Black], 0, 0)
+        .with_art(crate::card::CardArt::new(
+            "b53e0681-603e-4180-bc86-3dadf214e61a",
+            "Igor Kieryluk",
+        ));
 
 /// Living weapon's enter-the-battlefield trigger. The effect's entry
 /// continuation attaches the rules-defined Germ to the Equipment before
@@ -362,11 +358,9 @@ pub const fn living_weapon() -> AbilityDef {
 /// The Mirran resistance's 2/2, the same one every "For Mirrodin!"
 /// Equipment brings with it.
 const REBEL: crate::TokenCharacteristics =
-    crate::TokenCharacteristics::creature(&["Rebel"], &[ManaColor::Red], 2, 2)
-        .with_art(crate::card::CardArt::new(
-            "a41eb9df-d8b4-4697-a759-886faf16754d",
-            "Bram Sels",
-        ));
+    crate::TokenCharacteristics::creature(&["Rebel"], &[ManaColor::Red], 2, 2).with_art(
+        crate::card::CardArt::new("a41eb9df-d8b4-4697-a759-886faf16754d", "Bram Sels"),
+    );
 
 /// "For Mirrodin!" -- living weapon with the resistance's own token. The
 /// mechanism is identical; what differs is that the Rebel arrives able to
@@ -385,7 +379,8 @@ pub const fn for_mirrodin() -> AbilityDef {
 
 /// The Hero every Job select Equipment brings with it: a 1/1 with no colour
 /// and no creature type beyond Hero, which the Equipment then names.
-const HERO: crate::TokenCharacteristics = crate::TokenCharacteristics::creature(&["Hero"], &[], 1, 1);
+const HERO: crate::TokenCharacteristics =
+    crate::TokenCharacteristics::creature(&["Hero"], &[], 1, 1);
 
 /// Job select -- living weapon again, with the Hero the Final Fantasy
 /// Equipment share. The 1/1 body is the difference that matters: unlike a
@@ -404,10 +399,10 @@ pub const fn job_select() -> AbilityDef {
 
 /// Reconfigure's paired sorcery-speed attachment procedures.
 #[must_use]
-pub const fn reconfigure(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
-    AbilityDef::activated_with_cost_list_and_targets(
+pub const fn reconfigure(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
+    AbilityDef::activated_with_targets(
         text,
-        AbilityCostList::one(CostDef::Mana(mana_cost)),
+        costs,
         &RECONFIGURE_TARGET,
         EffectDef::Reconfigure {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

@@ -53,7 +53,7 @@ pub(super) fn parse_ongoing_effect(
         || definition.activation_limit.is_some()
         || definition.activation_permission != crate::card::ActivationPermissionDef::Controller
         || definition.condition.is_some()
-        || definition.costs.as_slice().iter().any(|cost| {
+        || definition.costs.iter().any(|cost| {
             if mana {
                 !matches!(cost, CostDef::PayLife(_))
             } else {

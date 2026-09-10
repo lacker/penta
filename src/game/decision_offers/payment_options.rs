@@ -26,10 +26,13 @@ impl Game {
         if !can_pay {
             return options;
         }
-        if self.append_exact_group_payment_options(&mut options, player, payment) {
+        if self.append_exact_group_payment_options(&mut options, player, &payment) {
             return options;
         }
         match payment {
+            ResolvedEffectPayment::All(payments) => {
+                options.extend(self.cost_list_payment_options(player, &payments));
+            }
             // One option per amount the payer can actually afford, with the
             // amount as the option id.
             ResolvedEffectPayment::ChosenGenericMana => {
@@ -101,7 +104,7 @@ impl Game {
             }
             payment => options.push(DecisionOption {
                 id: 1,
-                label: Self::effect_payment_label(payment),
+                label: Self::effect_payment_label(&payment),
                 card: None,
                 members: Vec::new(),
                 ability_text: None,
@@ -115,9 +118,9 @@ impl Game {
         &self,
         options: &mut Vec<DecisionOption>,
         player: PlayerId,
-        payment: ResolvedEffectPayment,
+        payment: &ResolvedEffectPayment,
     ) -> bool {
-        let (candidates, count, verb, zone) = match payment {
+        let (candidates, count, verb, zone) = match *payment {
             ResolvedEffectPayment::DiscardCards(amount) => (
                 self.players[player.index()]
                     .hand
@@ -158,13 +161,7 @@ impl Game {
             ),
             _ => return false,
         };
-        self.append_group_payment_options(
-            options,
-            &candidates,
-            usize::from(count),
-            verb,
-            zone,
-        );
+        self.append_group_payment_options(options, &candidates, usize::from(count), verb, zone);
         true
     }
 

@@ -55,7 +55,9 @@ pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_l
                 owner: None,
             },
         )],
-        abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+        abilities::counter_target_unless_paid(&[crate::CostDef::GenericMana(ValueDef::Constant(
+            1,
+        ))]),
     )),
 );
 
@@ -168,10 +170,9 @@ pub(in crate::card::sets) static FUNGAL_BEHEMOTH: CardRecord = CardRecord::new(
                 ),
             },
         ),
-        abilities::suspend_x(
+        abilities::suspend(
             "Suspend X—{X}{G}{G}. X can't be 0.",
-            &mana_cost!("{X}{G}{G}"),
-            1,
+            &crate::card::SuspendAbilityDef::chosen_x(&[crate::CostDef::Mana(mana_cost!("{X}{G}{G}"))], 1),
         ),
         AbilityDef::triggered_with_targets(
             "Whenever a time counter is removed from this card while it's exiled, you may put a +1/+1 counter on target creature.",

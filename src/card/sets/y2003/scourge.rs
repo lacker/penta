@@ -11,10 +11,10 @@ use crate::card::{
     AttackRestrictionDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
     BlockRestrictionSubjectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef,
     CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation, PlayerRuleDef,
-    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation, PlayerRuleDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -138,26 +138,22 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
                     "Magali Villeneuve",
                 )),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2}{W} ({2}{W}, Discard this card: Draw a card.)",
-            mana_cost!("{2}{W}"),
+            &[CostDef::Mana(mana_cost!("{2}{W}"))],
         ),
         AbilityDef::triggered(
             "When you cycle this card, you may pay {X}. If you do, create X 1/1 white Soldier creature tokens.",
             TriggerEventDef::Cycled,
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::ChosenGenericMana,
-                },
-                // The cycling half: X is settled by the payment rather than by a cast, so
+                &[CostDef::ChosenGenericMana], // The cycling half: X is settled by the payment rather than by a cast, so
                 // the branch that makes the tokens reads back what was actually paid.
                 &EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
-                        .with_count(ValueDef::PaidAmount)
-                        .with_art(CardArt::new(
-                            "70205fb6-7722-4974-a8c6-8909dbb1c96d",
-                            "Bachzim",
-                        )),
+                    .with_count(ValueDef::PaidAmount)
+                    .with_art(CardArt::new(
+                        "70205fb6-7722-4974-a8c6-8909dbb1c96d",
+                        "Bachzim",
+                    )),
             )),
         ),
     ]),
@@ -222,9 +218,10 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new_wi
         )
         .with_source_zones(&[ZoneKind::Graveyard])
         .with_activation_timing(ActivationTimingDef::YourUpkeep),
-        abilities::typecycling(
-            "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{2}"),
+        abilities::typecycling!(
+            "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, \
+                reveal it, put it into your hand, then shuffle.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
         ),
     ]),
@@ -280,9 +277,9 @@ pub(in crate::card::sets) static GILDED_LIGHT: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -337,10 +334,10 @@ pub(in crate::card::sets) static NOBLE_TEMPLAR: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{5}{W}"), &["Human", "Cleric", "Soldier"], 3, 6)
         .with_abilities(&[
             abilities::vigilance(),
-            abilities::typecycling(
+            abilities::typecycling!(
                 "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, \
-         reveal it, put it into your hand, then shuffle.)",
-                mana_cost!("{2}"),
+                reveal it, put it into your hand, then shuffle.)",
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 ObjectPredicateDef::Subtype("Plains"),
             ),
         ]),
@@ -452,9 +449,9 @@ pub(in crate::card::sets) static WIPE_CLEAN: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {3} ({3}, Discard this card: Draw a card.)",
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
         ),
     ]),
 );
@@ -569,9 +566,9 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
                 ]
             }),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {4}{U}{U} ({4}{U}{U}, Discard this card: Draw a card.)",
-            mana_cost!("{4}{U}{U}"),
+            &[CostDef::Mana(mana_cost!("{4}{U}{U}"))],
         ),
         AbilityDef::triggered_with_targets(
             "When you cycle this card, you may counter target spell.",
@@ -776,9 +773,9 @@ pub(in crate::card::sets) static SCORNFUL_EGOTIST: CardRecord = CardRecord::new(
     // Eight mana for a 1/1 is the joke; one blue to flip a 2/2 face up is
     // the reason anybody ever put it in a deck.
     CardRules::new_creature(mana_cost!("{7}{U}"), &["Human", "Wizard"], 1, 1)
-        .with_morph(mana_cost!("{U}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{U}"))])
         .with_ability(AbilityDef::alternative_cast(
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             crate::card::face_down::morph_cast(),
             Some(
                 "Morph {U} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -798,10 +795,10 @@ pub(in crate::card::sets) static SHORELINE_RANGER: CardRecord = CardRecord::new(
     // hand.
     CardRules::new_creature(mana_cost!("{5}{U}"), &["Bird", "Soldier"], 3, 4).with_abilities(&[
         abilities::flying(),
-        abilities::typecycling(
+        abilities::typecycling!(
             "Islandcycling {2} ({2}, Discard this card: Search your library for a Island card, \
-         reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{2}"),
+            reveal it, put it into your hand, then shuffle.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype("Island"),
         ),
     ]),
@@ -1118,10 +1115,10 @@ pub(in crate::card::sets) static TWISTED_ABOMINATION: CardRecord = CardRecord::n
             "{B}: Regenerate this creature.",
             &[CostDef::Mana(mana_cost!("{B}"))],
         ),
-        abilities::typecycling(
+        abilities::typecycling!(
             "Swampcycling {2} ({2}, Discard this card: Search your library for a Swamp card, \
-         reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{2}"),
+            reveal it, put it into your hand, then shuffle.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype("Swamp"),
         ),
     ]),
@@ -1150,9 +1147,9 @@ pub(in crate::card::sets) static UNBURDEN: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1271,10 +1268,10 @@ pub(in crate::card::sets) static CHARTOOTH_COUGAR: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::typecycling(
+        abilities::typecycling!(
             "Mountaincycling {2} ({2}, Discard this card: Search your library for a Mountain card, \
-         reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{2}"),
+            reveal it, put it into your hand, then shuffle.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype("Mountain"),
         ),
     ]),
@@ -1686,9 +1683,9 @@ pub(in crate::card::sets) static SPARK_SPRAY: CardRecord = CardRecord::new(
                 ValueDef::Constant(1),
             ),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {R} ({R}, Discard this card: Draw a card.)",
-            mana_cost!("{R}"),
+            &[CostDef::Mana(mana_cost!("{R}"))],
         ),
     ]),
 );
@@ -1793,9 +1790,9 @@ pub(in crate::card::sets) static BREAK_ASUNDER: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1830,9 +1827,9 @@ pub(in crate::card::sets) static CLAWS_OF_WIREWOOD: CardRecord = CardRecord::new
                 },
             ),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1884,10 +1881,10 @@ pub(in crate::card::sets) static ELVISH_ABERRATION: CardRecord = CardRecord::new
             &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(3)),
         ),
-        abilities::typecycling(
+        abilities::typecycling!(
             "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
-         reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{2}"),
+            reveal it, put it into your hand, then shuffle.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype("Forest"),
         ),
     ]),
@@ -2024,10 +2021,10 @@ pub(in crate::card::sets) static TITANIC_BULVOX: CardRecord = CardRecord::new(
     // Seven trampling power either way, and the morph cost buys the turn it
     // arrives rather than the mana it costs.
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Beast"], 7, 4)
-        .with_morph(mana_cost!("{4}{G}{G}{G}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{G}{G}{G}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {4}{G}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -2082,10 +2079,10 @@ pub(in crate::card::sets) static WIREWOOD_GUARDIAN: CardRecord = CardRecord::new
     // Seven mana for a 6/6 is filler; being a Forest on turn two is what puts
     // it in the deck.
     CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Giant"], 6, 6).with_ability(
-        abilities::typecycling(
+        abilities::typecycling!(
             "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
-     reveal it, put it into your hand, then shuffle.)",
-            mana_cost!("{2}"),
+            reveal it, put it into your hand, then shuffle.)",
+            &[CostDef::Mana(mana_cost!("{2}"))],
             ObjectPredicateDef::Subtype("Forest"),
         ),
     ),

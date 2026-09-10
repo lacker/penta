@@ -56,18 +56,15 @@ pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
             OptionalAdditionalCostAbilityDef {
                 kind: OptionalAdditionalCostKindDef::Bargain,
                 label: OptionalAdditionalCostKindDef::Bargain.label(),
-                mana_cost: None,
-                // "Or token": a creature token qualifies on the last clause
-                // even though it is neither an artifact nor an enchantment.
-                additional_cost: Some(CostDef::Sacrifice {
+                resolution_destination: SpellResolutionDestinationDef::Graveyard,
+                costs: &[CostDef::Sacrifice {
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         ObjectPredicateDef::HasType(CardType::Enchantment),
                         ObjectPredicateDef::Token,
                     ]),
                     quantity: CostQuantityDef::Fixed(1),
-                }),
-                resolution_destination: SpellResolutionDestinationDef::Graveyard,
+                }],
             },
         ),
         AbilityDef::spell_with_targets(

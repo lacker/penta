@@ -4,10 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     AttackEventMatcherDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, TargetChooserDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectSetDef, PayOrDef, PlayerRelation, ResolvedEffectDurationDef, TargetChooserDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -173,10 +172,7 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
             "Whenever this creature attacks, you may pay {E}{E}. If you do, put a +1/+1 counter on it.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: CostDef::Energy(2),
-                },
+                &[CostDef::Energy(2)],
                 &const {
                     EffectDef::AddCounters {
                         object: EffectRecipientDef::Source,

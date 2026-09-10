@@ -41,8 +41,9 @@ pub(super) struct SacrificeDeclined {
 
 /// A payment whose dynamic values and payer have been frozen before a
 /// resolving effect suspends behind a decision.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum ResolvedEffectPayment {
+    All(Vec<Self>),
     Mana(ManaCost),
     CumulativeMana {
         source: GameObjectId,
@@ -608,6 +609,12 @@ pub(super) enum DecisionContinuation {
     },
     /// A mana payment offered during effect resolution, with either branch
     /// able to continue the same effect program.
+    PaySpecialAction {
+        player: PlayerId,
+        source: GameObjectId,
+        action: super::special_action_payments::PaidSpecialAction,
+        payment: ResolvedEffectPayment,
+    },
     PayOr {
         player: PlayerId,
         payment: ResolvedEffectPayment,

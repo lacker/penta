@@ -16,9 +16,9 @@ use crate::card::{
     AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ControlDurationDef, CostDef, CounterKind, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerRuleDef, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerRuleDef, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities, tokens,
 };
@@ -68,9 +68,9 @@ pub(in crate::card::sets) static AKROMAS_VENGEANCE: CardRecord = CardRecord::new
                 then: None,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {3} ({3}, Discard this card: Draw a card.)",
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
         ),
     ]),
 );
@@ -134,9 +134,9 @@ pub(in crate::card::sets) static AURA_EXTRACTION: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -283,26 +283,26 @@ pub(in crate::card::sets) static CHAIN_OF_SILENCE: CardRecord = CardRecord::new(
                 )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                        TargetIndex::PRIMARY,
-                    ))),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                        CardType::Land,
-                    )),
-                },
-                &EffectDef::May {
-                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-                        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-                        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                        count: ValueDef::Constant(1),
-                        retarget: true,
-                        colors: None,
-                    }),
-                },
-            )),
+            EffectDef::PayOr(
+                PayOrDef::optional(
+                    &[CostDef::SacrificePermanentMatching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    )],
+                    &EffectDef::May {
+                        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                            object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                            count: ValueDef::Constant(1),
+                            retarget: true,
+                            colors: None,
+                        }),
+                    },
+                )
+                .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                ))),
+            ),
         ]),
     )),
 );
@@ -359,10 +359,10 @@ pub(in crate::card::sets) static CRUDE_RAMPART: CardRecord = CardRecord::new(
     // A wall that can arrive as a 2/2 attacker instead, which is the only
     // way a Defender ever gets to be a surprise.
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Wall"], 4, 5)
-        .with_morph(mana_cost!("{4}{W}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{W}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {4}{W} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -406,11 +406,10 @@ pub(in crate::card::sets) static DARU_LANCER: CardRecord = CardRecord::new(
         &[
             abilities::first_strike(),
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
-                    "Morph {2}{W}{W} (You may cast this card face down as a 2/2 creature for {3}. \
-                 Turn it face up any time for its morph cost.)",
+                    "Morph {2}{W}{W} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)",
                 ),
                 EffectDef::None,
             ),
@@ -437,10 +436,10 @@ pub(in crate::card::sets) static DAWNING_PURIST: CardRecord = CardRecord::new(
     // Enchantment removal that has to earn the right to fire, which is the
     // trade a sideboard card makes to be worth a maindeck slot.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 2, 2)
-        .with_morph(mana_cost!("{1}{W}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{1}{W}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {1}{W} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -531,7 +530,7 @@ pub(in crate::card::sets) static EXALTED_ANGEL: CardRecord = CardRecord::new_wit
     // Six mana is more than a control deck wants to pay on turn four, so it
     // comes down face down on three and stands up on the next turn instead.
     CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Angel"], 4, 5)
-        .with_morph(mana_cost!("{2}{W}{W}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{2}{W}{W}"))])
         .with_abilities(&[
             abilities::flying(),
             AbilityDef::triggered(
@@ -543,7 +542,7 @@ pub(in crate::card::sets) static EXALTED_ANGEL: CardRecord = CardRecord::new_wit
                 },
             ),
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {2}{W}{W} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)",
@@ -781,9 +780,9 @@ pub(in crate::card::sets) static IMPROVISED_ARMOR: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            abilities::cycling(
+            abilities::cycling!(
                 "Cycling {3} ({3}, Discard this card: Draw a card.)",
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
             ),
         ]),
 );
@@ -1083,10 +1082,10 @@ pub(in crate::card::sets) static WHIPCORDER: CardRecord = CardRecord::new(
     // Tapping a blocker every turn for one white is a soft lock, and the
     // morph is how it survives the removal aimed at it.
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier", "Rebel"], 2, 2)
-        .with_morph(mana_cost!("{W}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{W}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {W} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -1174,10 +1173,10 @@ pub(in crate::card::sets) static APHETTO_ALCHEMIST: CardRecord = CardRecord::new
     // Untapping an artifact for free is a combo piece; untapping a creature
     // is a combat trick, and it is the same two mana either way.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Wizard"], 1, 2)
-        .with_morph(mana_cost!("{U}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{U}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {U} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -1347,26 +1346,26 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_wi
             // A land of their choice, sacrificed by whoever just had a permanent
             // bounced. Paying buys the copy, which is what turns one Chain of Vapor into
             // a board sweep in a deck holding the lands to spend.
-            EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                        TargetIndex::PRIMARY,
-                    ))),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                        CardType::Land,
-                    )),
-                },
-                &EffectDef::May {
-                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-                        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-                        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                        count: ValueDef::Constant(1),
-                        retarget: true,
-                        colors: None,
-                    }),
-                },
-            )),
+            EffectDef::PayOr(
+                PayOrDef::optional(
+                    &[CostDef::SacrificePermanentMatching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    )],
+                    &EffectDef::May {
+                        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                            object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+                            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                            count: ValueDef::Constant(1),
+                            retarget: true,
+                            colors: None,
+                        }),
+                    },
+                )
+                .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                ))),
+            ),
         ]),
     )),
 );
@@ -1465,10 +1464,10 @@ pub(in crate::card::sets) static DISRUPTIVE_PITMAGE: CardRecord = CardRecord::ne
     // The same tax the Disruptive Student charges, on a body that can be
     // held back as a 2/2 until the mana is free.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1)
-        .with_morph(mana_cost!("{U}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{U}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {U} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -1489,7 +1488,9 @@ pub(in crate::card::sets) static DISRUPTIVE_PITMAGE: CardRecord = CardRecord::ne
                         },
                     )]
                 },
-                abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+                abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(
+                    1,
+                ))]),
             ),
         ]),
 );
@@ -1532,9 +1533,9 @@ pub(in crate::card::sets) static ESSENCE_FRACTURE: CardRecord = CardRecord::new(
                 },
             ),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2}{U} ({2}{U}, Discard this card: Draw a card.)",
-            mana_cost!("{2}{U}"),
+            &[CostDef::Mana(mana_cost!("{2}{U}"))],
         ),
     ]),
 );
@@ -1647,9 +1648,9 @@ pub(in crate::card::sets) static MAGE_S_GUILE: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {U} ({U}, Discard this card: Draw a card.)",
-            mana_cost!("{U}"),
+            &[CostDef::Mana(mana_cost!("{U}"))],
         ),
     ]),
 );
@@ -2054,14 +2055,14 @@ pub(in crate::card::sets) static BONEKNITTER: CardRecord = CardRecord::new(
     // It regenerates itself as readily as the rest of the tribe, which is
     // what makes a board of Zombies impossible to sweep.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie", "Cleric"], 1, 1)
-        .with_morph(mana_cost!("{2}{B}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{2}{B}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. \
-                     Turn it face up any time for its morph cost.)",
+                 Turn it face up any time for its morph cost.)",
                 ),
                 EffectDef::None,
             ),
@@ -2099,10 +2100,10 @@ pub(in crate::card::sets) static CABAL_EXECUTIONER: CardRecord = CardRecord::new
     // Edict on a stick, which asks the defender to keep a blocker back and
     // punishes them for it in the same swing.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Cleric"], 2, 2)
-        .with_morph(mana_cost!("{3}{B}{B}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{3}{B}{B}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {3}{B}{B} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -2283,9 +2284,9 @@ pub(in crate::card::sets) static DISCIPLE_OF_MALICE: CardRecord = CardRecord::ne
     // without ever drawing it against the others.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Cleric"], 1, 2).with_abilities(&[
         abilities::protection_from_color(ManaColor::White),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -2387,9 +2388,9 @@ pub(in crate::card::sets) static FADE_FROM_MEMORY: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {B} ({B}, Discard this card: Draw a card.)",
-            mana_cost!("{B}"),
+            &[CostDef::Mana(mana_cost!("{B}"))],
         ),
     ]),
 );
@@ -2501,10 +2502,10 @@ pub(in crate::card::sets) static GRINNING_DEMON: CardRecord = CardRecord::new(
     // A 6/6 on turn four, with the two life a turn standing in for the
     // colour's usual price of a card.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Demon"], 6, 6)
-        .with_morph(mana_cost!("{2}{B}{B}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{2}{B}{B}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {2}{B}{B} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -2555,10 +2556,10 @@ pub(in crate::card::sets) static HEADHUNTER: CardRecord = CardRecord::new(
     // A body this small connecting is not the threat; the card it takes
     // every time it does is, and a deck with no blockers pays over and over.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Cleric"], 1, 1)
-        .with_morph(mana_cost!("{B}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{B}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {B} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -2833,7 +2834,7 @@ pub(in crate::card::sets) static SPINED_BASHER: CardRecord = CardRecord::new(
     // creature in the set is selling.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Beast"], 3, 1).with_ability(
         AbilityDef::alternative_cast(
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             crate::card::face_down::morph_cast(),
             Some(
                 "Morph {2}{B} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -3014,7 +3015,7 @@ pub(in crate::card::sets) static BATTERING_CRAGHORN: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Goat", "Beast"], 3, 1).with_abilities(&[
         abilities::first_strike(),
         AbilityDef::alternative_cast(
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             crate::card::face_down::morph_cast(),
             Some(
                 "Morph {1}{R}{R} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -3097,10 +3098,10 @@ pub(in crate::card::sets) static CHARGING_SLATEBACK: CardRecord = CardRecord::ne
     // It never blocks, so the face-down mode is the only way it does
     // anything on the turn the opponent is attacking.
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Beast"], 4, 3)
-        .with_morph(mana_cost!("{4}{R}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{R}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {4}{R} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -3170,10 +3171,10 @@ pub(in crate::card::sets) static DWARVEN_BLASTMINER: CardRecord = CardRecord::ne
     // The same land destruction on a body cheap enough to matter, which is
     // what made nonbasic mana bases a real risk.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf"], 1, 1)
-        .with_morph(mana_cost!("{R}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{R}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {R} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -3473,10 +3474,10 @@ pub(in crate::card::sets) static GOBLIN_TASKMASTER: CardRecord = CardRecord::new
     // A one-drop that turns spare mana into damage every turn, which is all
     // a goblin deck ever needs from its worst card.
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1)
-        .with_morph(mana_cost!("{R}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{R}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {R} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -3714,10 +3715,10 @@ pub(in crate::card::sets) static SKIRK_COMMANDO: CardRecord = CardRecord::new(
     // Unblocked once and the blocker that would have stopped it next turn
     // is gone, which is what the morph cost is really buying.
     CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Goblin"], 2, 1)
-        .with_morph(mana_cost!("{2}{R}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{2}{R}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {2}{R} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -3810,10 +3811,10 @@ pub(in crate::card::sets) static SNAPPING_THRAGG: CardRecord = CardRecord::new(
     // The same deal as the Commando one size up, on a body that gets there
     // without help.
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Beast"], 3, 3)
-        .with_morph(mana_cost!("{4}{R}{R}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{R}{R}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {4}{R}{R} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -4006,9 +4007,9 @@ pub(in crate::card::sets) static BARKHIDE_MAULER: CardRecord = CardRecord::new(
     // A fat body that is also never a dead draw, which is what cycling
     // bought every common of the era.
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 4, 4).with_ability(
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ),
 );
@@ -4347,9 +4348,9 @@ pub(in crate::card::sets) static KROSAN_COLOSSUS: CardRecord = CardRecord::new(
     // Nine mana for nine power, or three now and eight later -- which is the
     // same total, spread across the turns you actually have.
     CardRules::new_creature(mana_cost!("{6}{G}{G}{G}"), &["Giant"], 9, 9)
-        .with_morph(mana_cost!("{6}{G}{G}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{6}{G}{G}"))])
         .with_ability(AbilityDef::alternative_cast(
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             crate::card::face_down::morph_cast(),
             Some(
                 "Morph {6}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -4534,10 +4535,10 @@ pub(in crate::card::sets) static SNARLING_UNDORAK: CardRecord = CardRecord::new(
     // A pump that only the Beast deck can use, on a body that deck was
     // already playing.
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 3, 3)
-        .with_morph(mana_cost!("{1}{G}{G}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{1}{G}{G}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {1}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -4577,10 +4578,10 @@ pub(in crate::card::sets) static SPITTING_GOURNA: CardRecord = CardRecord::new(
     // Reach on a five-drop matters only against fliers, so the morph cost is
     // what makes it a card against everything else.
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Beast"], 3, 4)
-        .with_morph(mana_cost!("{4}{G}"))
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{G}"))])
         .with_abilities(&[
             AbilityDef::alternative_cast(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 crate::card::face_down::morph_cast(),
                 Some(
                     "Morph {4}{G} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -4727,7 +4728,7 @@ pub(in crate::card::sets) static TOWERING_BALOTH: CardRecord = CardRecord::new(
     // this expensive castable at all.
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Beast"], 7, 6).with_ability(
         AbilityDef::alternative_cast(
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             crate::card::face_down::morph_cast(),
             Some(
                 "Morph {6}{G} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -4747,7 +4748,7 @@ pub(in crate::card::sets) static TREESPRING_LORIAN: CardRecord = CardRecord::new
     // A 5/4 for six, or a 2/2 on turn three that becomes one later.
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Beast"], 5, 4).with_ability(
         AbilityDef::alternative_cast(
-            mana_cost!("{3}"),
+            &[CostDef::Mana(mana_cost!("{3}"))],
             crate::card::face_down::morph_cast(),
             Some(
                 "Morph {5}{G} (You may cast this card face down as a 2/2 creature for {3}. \
@@ -5008,9 +5009,9 @@ pub(in crate::card::sets) static BARREN_MOOR: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Black),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {B} ({B}, Discard this card: Draw a card.)",
-            mana_cost!("{B}"),
+            &[CostDef::Mana(mana_cost!("{B}"))],
         ),
     ]),
 );
@@ -5118,9 +5119,9 @@ pub(in crate::card::sets) static FORGOTTEN_CAVE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Red),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {R} ({R}, Discard this card: Draw a card.)",
-            mana_cost!("{R}"),
+            &[CostDef::Mana(mana_cost!("{R}"))],
         ),
     ]),
 );
@@ -5188,9 +5189,9 @@ pub(in crate::card::sets) static LONELY_SANDBAR: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Blue),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {U} ({U}, Discard this card: Draw a card.)",
-            mana_cost!("{U}"),
+            &[CostDef::Mana(mana_cost!("{U}"))],
         ),
     ]),
 );
@@ -5280,9 +5281,9 @@ pub(in crate::card::sets) static SECLUDED_STEPPE: CardRecord = CardRecord::new_w
             &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {W} ({W}, Discard this card: Draw a card.)",
-            mana_cost!("{W}"),
+            &[CostDef::Mana(mana_cost!("{W}"))],
         ),
     ]),
 );
@@ -5308,9 +5309,9 @@ pub(in crate::card::sets) static TRANQUIL_THICKET: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Green),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {G} ({G}, Discard this card: Draw a card.)",
-            mana_cost!("{G}"),
+            &[CostDef::Mana(mana_cost!("{G}"))],
         ),
     ]),
 );

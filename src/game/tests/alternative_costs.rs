@@ -50,7 +50,7 @@ fn snapcaster_grants_an_ordinary_card_cost_flashback_ability() {
         granted.definition,
         DeclarativeAbilityDef::AlternativeCast(alternative)
             if alternative.kind == AlternativeCastKindDef::Flashback
-                && alternative.mana_cost == AlternativeCastManaCostDef::ThisCardManaCost
+                && alternative.mana_cost_source() == AlternativeCastManaCostDef::ThisCardManaCost
     ));
 }
 
@@ -503,7 +503,7 @@ fn ghor_clan_rampager_uses_one_shared_bloodrush_effect() {
 
     assert_eq!(definition.source_zones, [ZoneKind::Hand]);
     assert_eq!(
-        definition.costs.as_slice(),
+        definition.costs,
         [CostDef::Mana(mana_cost!("{R}{G}")), CostDef::DiscardSource,],
     );
     let AbilityProgramDef::Effects(EffectDef::Apply {

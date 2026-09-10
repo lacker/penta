@@ -29,7 +29,7 @@ pub(in crate::card::sets) static BEHOLD_THE_MULTIVERSE: CardRecord = CardRecord:
                 },
             ]),
         ),
-        abilities::foretell(mana_cost!("{1}{U}")),
+        abilities::foretell(&[CostDef::Mana(mana_cost!("{1}{U}"))]),
     ]),
 );
 
@@ -230,7 +230,7 @@ pub(in crate::card::sets) static SARULF_S_PACKMATE: CardRecord = CardRecord::new
                 amount: ValueDef::Constant(1),
             },
         ),
-        abilities::foretell(mana_cost!("{1}{G}")),
+        abilities::foretell(&[CostDef::Mana(mana_cost!("{1}{G}"))]),
     ]),
 );
 

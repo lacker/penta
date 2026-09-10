@@ -138,9 +138,9 @@ pub(in crate::card::sets) static CLEAR: CardRecord = CardRecord::new(
                 CardType::Enchantment,
             )),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -165,9 +165,9 @@ pub(in crate::card::sets) static DISCIPLE_OF_GRACE: CardRecord = CardRecord::new
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 2).with_abilities(&[
         abilities::protection_from_color(ManaColor::Black),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -180,9 +180,9 @@ pub(in crate::card::sets) static DISCIPLE_OF_LAW: CardRecord = CardRecord::new(
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 2).with_abilities(&[
         abilities::protection_from_color(ManaColor::Red),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -257,7 +257,7 @@ pub(in crate::card::sets) static HERALD_OF_SERRA: CardRecord = CardRecord::new(
         abilities::vigilance(),
         abilities::echo(
             "Echo {2}{W}{W} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{2}{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{2}{W}{W}"))],
         ),
     ]),
 );
@@ -680,9 +680,9 @@ pub(in crate::card::sets) static SHIMMERING_BARRIER: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Wall"], 1, 3).with_abilities(&[
         abilities::defender(),
         abilities::first_strike(),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -970,7 +970,7 @@ pub(in crate::card::sets) static DISRUPTIVE_STUDENT: CardRecord = CardRecord::ne
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(1)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]),
         ),
     ),
 );
@@ -1177,9 +1177,9 @@ pub(in crate::card::sets) static PENDRELL_DRAKE: CardRecord = CardRecord::new(
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Drake"], 2, 3).with_abilities(&[
         abilities::flying(),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1260,9 +1260,9 @@ pub(in crate::card::sets) static RESCIND: CardRecord = CardRecord::new(
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -1316,9 +1316,9 @@ pub(in crate::card::sets) static SANDBAR_MERFOLK: CardRecord = CardRecord::new(
     crate::card::CardArt::new("65ce3960-abf1-4f28-8434-ab3b27d3b7cb", "rk post"),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{U}"), &["Merfolk"], 1, 1).with_ability(
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ),
 );
@@ -1330,9 +1330,9 @@ pub(in crate::card::sets) static SANDBAR_SERPENT: CardRecord = CardRecord::new(
     crate::card::CardArt::new("b3b430ec-28e1-4b2c-bea8-3bfd3a0e8cf8", "Jim Nelson"),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{4}{U}"), &["Serpent"], 3, 4).with_ability(
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ),
 );
@@ -1982,9 +1982,9 @@ pub(in crate::card::sets) static EXPUNGE: CardRecord = CardRecord::new(
                 effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -2283,9 +2283,9 @@ pub(in crate::card::sets) static SICKEN: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            abilities::cycling(
+            abilities::cycling!(
                 "Cycling {2} ({2}, Discard this card: Draw a card.)",
-                mana_cost!("{2}"),
+                &[CostDef::Mana(mana_cost!("{2}"))],
             ),
         ]),
 );
@@ -2634,7 +2634,7 @@ pub(in crate::card::sets) static CRATER_HELLION: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Hellion", "Beast"], 6, 6).with_abilities(&[
         abilities::echo(
             "Echo {4}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{4}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{4}{R}{R}"))],
         ),
         abilities::enters_trigger("When this creature enters, it deals 4 damage to each other creature.", EffectDef::damage(
             EffectRecipientDef::matching_objects(
@@ -2901,7 +2901,7 @@ pub(in crate::card::sets) static GOBLIN_PATROL: CardRecord = CardRecord::new_wit
     // next upkeep and once only.
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 2, 1).with_ability(abilities::echo(
         "Echo {R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-        mana_cost!("{R}"),
+        &[CostDef::Mana(mana_cost!("{R}"))],
     )),
 );
 
@@ -2927,7 +2927,7 @@ pub(in crate::card::sets) static GOBLIN_WAR_BUGGY: CardRecord = CardRecord::new(
         abilities::haste(),
         abilities::echo(
             "Echo {1}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{1}{R}"),
+            &[CostDef::Mana(mana_cost!("{1}{R}"))],
         ),
     ]),
 );
@@ -2998,9 +2998,9 @@ pub(in crate::card::sets) static LAY_WASTE: CardRecord = CardRecord::new(
             "Destroy target land.",
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Land)),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -3015,7 +3015,7 @@ pub(in crate::card::sets) static LIGHTNING_DRAGON: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::echo(
             "Echo {2}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{2}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{2}{R}{R}"))],
         ),
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
@@ -3201,9 +3201,9 @@ pub(in crate::card::sets) static SCRAP: CardRecord = CardRecord::new(
                 CardType::Artifact,
             )),
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -3241,7 +3241,7 @@ pub(in crate::card::sets) static SHIVAN_RAPTOR: CardRecord = CardRecord::new(
         abilities::haste(),
         abilities::echo(
             "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{2}{R}"),
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
         ),
     ]),
 );
@@ -3429,7 +3429,7 @@ pub(in crate::card::sets) static VIASHINO_OUTRIDER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Lizard"], 4, 3).with_ability(
         abilities::echo(
             "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{2}{R}"),
+            &[CostDef::Mana(mana_cost!("{2}{R}"))],
         ),
     ),
 );
@@ -3488,7 +3488,7 @@ pub(in crate::card::sets) static VUG_LIZARD: CardRecord = CardRecord::new(
         abilities::mountainwalk(),
         abilities::echo(
             "Echo {1}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{1}{R}{R}"),
+            &[CostDef::Mana(mana_cost!("{1}{R}{R}"))],
         ),
     ]),
 );
@@ -3513,7 +3513,7 @@ pub(in crate::card::sets) static ACRIDIAN: CardRecord = CardRecord::new(
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 2, 4).with_ability(abilities::echo(
         "Echo {1}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-        mana_cost!("{1}{G}"),
+        &[CostDef::Mana(mana_cost!("{1}{G}"))],
     )),
 );
 
@@ -3526,7 +3526,7 @@ pub(in crate::card::sets) static ALBINO_TROLL: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Troll"], 3, 3).with_abilities(&[
         abilities::echo(
             "Echo {1}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{1}{G}"),
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
         ),
         abilities::regenerate_self(
             "{1}{G}: Regenerate this creature.",
@@ -3721,7 +3721,7 @@ pub(in crate::card::sets) static CITANUL_CENTAURS: CardRecord = CardRecord::new(
         abilities::shroud(),
         abilities::echo(
             "Echo {3}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{3}{G}"),
+            &[CostDef::Mana(mana_cost!("{3}{G}"))],
         ),
     ]),
 );
@@ -3746,7 +3746,7 @@ pub(in crate::card::sets) static CRADLE_GUARD: CardRecord = CardRecord::new(
         abilities::trample(),
         abilities::echo(
             "Echo {1}{G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-            mana_cost!("{1}{G}{G}"),
+            &[CostDef::Mana(mana_cost!("{1}{G}{G}"))],
         ),
     ]),
 );
@@ -4049,9 +4049,9 @@ pub(in crate::card::sets) static HUSH: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -4084,7 +4084,7 @@ pub(in crate::card::sets) static POUNCING_JAGUAR: CardRecord = CardRecord::new(
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{G}"), &["Cat"], 2, 2).with_ability(abilities::echo(
         "Echo {G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-        mana_cost!("{G}"),
+        &[CostDef::Mana(mana_cost!("{G}"))],
     )),
 );
 
@@ -4104,9 +4104,9 @@ pub(in crate::card::sets) static REJUVENATE: CardRecord = CardRecord::new(
                 amount: ValueDef::Constant(6),
             },
         ),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -4316,7 +4316,7 @@ pub(in crate::card::sets) static WINDING_WURM: CardRecord = CardRecord::new(
     crate::card::CardSet::UrzasSaga,
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Wurm"], 6, 6).with_ability(abilities::echo(
         "Echo {4}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
-        mana_cost!("{4}{G}"),
+        &[CostDef::Mana(mana_cost!("{4}{G}"))],
     )),
 );
 
@@ -4730,9 +4730,9 @@ pub(in crate::card::sets) static BLASTED_LANDSCAPE: CardRecord = CardRecord::new
     crate::card::CardSet::UrzasSaga,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -4746,9 +4746,9 @@ pub(in crate::card::sets) static DRIFTING_MEADOW: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::White),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -4808,9 +4808,9 @@ pub(in crate::card::sets) static POLLUTED_MIRE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Black),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -4824,9 +4824,9 @@ pub(in crate::card::sets) static REMOTE_ISLE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Blue),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -4883,9 +4883,9 @@ pub(in crate::card::sets) static SLIPPERY_KARST: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Green),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -4899,9 +4899,9 @@ pub(in crate::card::sets) static SMOLDERING_CRATER: CardRecord = CardRecord::new
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Red),
-        abilities::cycling(
+        abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
-            mana_cost!("{2}"),
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );

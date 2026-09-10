@@ -99,6 +99,9 @@ impl Game {
     ) -> Option<SettledEffectPayment> {
         let chosen = answered.iter().copied().find(|option| *option != 0)?;
         match payment {
+            ResolvedEffectPayment::All(payments) => {
+                self.settle_cost_list_payment(player, &payments, chosen)
+            }
             // The option id is the amount, so the answer carries how much was
             // paid without a second question.
             ResolvedEffectPayment::ChosenGenericMana => {
@@ -172,10 +175,10 @@ impl Game {
             payment @ (ResolvedEffectPayment::DiscardCards(_)
             | ResolvedEffectPayment::SacrificePermanents { .. }
             | ResolvedEffectPayment::GainControlPermanents { .. }) => {
-                self.settle_group_payment_decision(player, payment, chosen, options)
+                self.settle_group_payment_decision(player, &payment, chosen, options)
             }
             payment => (chosen == 1)
-                .then(|| self.pay_effect_payment_with_mana(player, payment))
+                .then(|| self.pay_effect_payment_with_mana(player, payment.clone()))
                 .flatten(),
         }
     }
@@ -241,6 +244,9 @@ impl Game {
         payment: ResolvedEffectPayment,
     ) -> bool {
         match payment {
+            ResolvedEffectPayment::All(payments) => {
+                !self.cost_list_payment_plans(player, &payments).is_empty()
+            }
             ResolvedEffectPayment::Mana(cost) => self.can_pay_cost(player, cost, 0),
             ResolvedEffectPayment::CumulativeMana { source, cost } => self.can_pay_cost_for(
                 player,
@@ -925,3 +931,5 @@ include!("decision_offers/copies.rs");
 include!("decision_offers/effect_payment_resolution.rs");
 include!("decision_offers/payment_options.rs");
 include!("decision_offers/pay_or.rs");
+
+include!("decision_offers/cost_lists.rs");

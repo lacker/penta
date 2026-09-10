@@ -87,7 +87,8 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::LookAtObjectsForEffect {
             object, context, ..
         } => extend_stack_continuation_ids(&mut ids, object, context),
-        DecisionContinuation::DrawActionWindow { card }
+        DecisionContinuation::PaySpecialAction { source: card, .. }
+        | DecisionContinuation::DrawActionWindow { card }
         | DecisionContinuation::CastSuspended { card, .. }
         | DecisionContinuation::MayCastAlternative { card, .. }
         | DecisionContinuation::MayCastGranted { card, .. } => ids.push(*card),
@@ -692,6 +693,12 @@ pub(super) fn resolved_effect_payment_snapshot(
     payment: ResolvedEffectPayment,
 ) -> ResolvedEffectPaymentSnapshot {
     match payment {
+        ResolvedEffectPayment::All(payments) => ResolvedEffectPaymentSnapshot::All(
+            payments
+                .into_iter()
+                .map(resolved_effect_payment_snapshot)
+                .collect(),
+        ),
         ResolvedEffectPayment::Mana(cost) => {
             ResolvedEffectPaymentSnapshot::Mana(mana_cost_snapshot(cost))
         }

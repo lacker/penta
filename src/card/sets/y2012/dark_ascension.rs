@@ -328,7 +328,9 @@ pub(in crate::card::sets) static INCREASING_DEVOTION: CardRecord = CardRecord::n
                     ValueDef::Constant(5)
                 )),
         ),
-        abilities::flashback(mana_cost!("{7}{W}{W}")),
+        abilities::flashback(
+            &[CostDef::Mana(mana_cost!("{7}{W}{W}"))],
+        ),
     ]),
 );
 
@@ -349,7 +351,7 @@ pub(in crate::card::sets) static LINGERING_SOULS: CardRecord = CardRecord::new_w
                 ))
                 .with_amount(2),
         ),
-        abilities::flashback(mana_cost!("{1}{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{1}{B}"))]),
     ]),
 );
 
@@ -456,7 +458,7 @@ pub(in crate::card::sets) static RAY_OF_REVELATION: CardRecord = CardRecord::new
                 then: None,
             },
         ),
-        abilities::flashback(mana_cost!("{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{G}"))]),
     ]),
 );
 
@@ -663,7 +665,7 @@ pub(in crate::card::sets) static ARTFUL_DODGE: CardRecord = CardRecord::new_with
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::flashback(mana_cost!("{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{U}"))]),
     ]),
 );
 
@@ -784,7 +786,7 @@ pub(in crate::card::sets) static CHILL_OF_FOREBODING: CardRecord = CardRecord::n
                 amount: ValueDef::Constant(5),
             },
         ),
-        abilities::flashback(mana_cost!("{7}{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{7}{U}"))]),
     ]),
 );
 
@@ -966,7 +968,9 @@ pub(in crate::card::sets) static INCREASING_CONFUSION: CardRecord = CardRecord::
                 ),
             },
         ),
-        abilities::flashback(mana_cost!("{X}{U}")),
+        abilities::flashback(
+            &[CostDef::Mana(mana_cost!("{X}{U}"))],
+        ),
     ]),
 );
 
@@ -996,7 +1000,7 @@ pub(in crate::card::sets) static MYSTIC_RETRIEVAL: CardRecord = CardRecord::new_
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::flashback(mana_cost!("{2}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{R}"))]),
     ]),
 );
 
@@ -1089,7 +1093,7 @@ pub(in crate::card::sets) static SAVING_GRASP: CardRecord = CardRecord::new_with
                 placement: ZonePlacement::Top,
             },
         ),
-        abilities::flashback(mana_cost!("{W}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{W}"))]),
     ]),
 );
 
@@ -1342,7 +1346,7 @@ pub(in crate::card::sets) static DEADLY_ALLURE: CardRecord = CardRecord::new_wit
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        abilities::flashback(mana_cost!("{G}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{G}"))]),
     ]),
 );
 
@@ -1552,7 +1556,9 @@ pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::n
                     },
                 },
             ),
-            abilities::flashback(mana_cost!("{7}{B}")),
+            abilities::flashback(
+                &[CostDef::Mana(mana_cost!("{7}{B}"))],
+            ),
         ] })
     },
 );
@@ -1628,7 +1634,7 @@ pub(in crate::card::sets) static REAP_THE_SEAGRAF: CardRecord = CardRecord::new_
                 CardArt::new("b877c19d-6022-4377-92e7-4511e24eb98e", "Lucas Graciano"),
             ),
         ),
-        abilities::flashback(mana_cost!("{4}{U}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{4}{U}"))]),
     ]),
 );
 
@@ -1951,7 +1957,7 @@ pub(in crate::card::sets) static BURNING_OIL: CardRecord = CardRecord::new_with_
                 ValueDef::Constant(3),
             ),
         ),
-        abilities::flashback(mana_cost!("{3}{W}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{W}"))]),
     ]),
 );
 
@@ -2007,7 +2013,7 @@ pub(in crate::card::sets) static FAITHLESS_LOOTING: CardRecord = CardRecord::new
                 },
             ]),
         ),
-        abilities::flashback(mana_cost!("{2}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{R}"))]),
     ]),
 );
 
@@ -2028,7 +2034,7 @@ pub(in crate::card::sets) static FIRES_OF_UNDEATH: CardRecord = CardRecord::new_
                 ValueDef::Constant(2),
             ),
         ),
-        abilities::flashback(mana_cost!("{5}{B}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{B}"))]),
     ]),
 );
 
@@ -2225,7 +2231,9 @@ pub(in crate::card::sets) static INCREASING_VENGEANCE: CardRecord = CardRecord::
                 colors: None,
             }),
         ),
-        abilities::flashback(mana_cost!("{3}{R}{R}")),
+        abilities::flashback(
+            &[CostDef::Mana(mana_cost!("{3}{R}{R}"))],
+        ),
     ]),
 );
 
@@ -2449,7 +2457,7 @@ pub(in crate::card::sets) static SHATTERED_PERCEPTION: CardRecord = CardRecord::
                 }),
             },
         ),
-        abilities::flashback(mana_cost!("{5}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{R}"))]),
     ]),
 );
 
@@ -2841,7 +2849,9 @@ pub(in crate::card::sets) static INCREASING_SAVAGERY: CardRecord = CardRecord::n
                 ),
             },
         ),
-        abilities::flashback(mana_cost!("{5}{G}{G}")),
+        abilities::flashback(
+            &[CostDef::Mana(mana_cost!("{5}{G}{G}"))],
+        ),
     ]),
 );
 
@@ -2992,7 +3002,9 @@ pub(in crate::card::sets) static TRACKER_S_INSTINCTS: CardRecord = CardRecord::n
                 1,
             ),
         ),
-        abilities::flashback(mana_cost!("{2}{U}")),
+        abilities::flashback(
+            &[CostDef::Mana(mana_cost!("{2}{U}"))],
+        ),
     ]),
 );
 
@@ -3099,7 +3111,7 @@ pub(in crate::card::sets) static WILD_HUNGER: CardRecord = CardRecord::new_with_
                 },
             ]),
         ),
-        abilities::flashback(mana_cost!("{3}{R}")),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{R}"))]),
     ]),
 );
 

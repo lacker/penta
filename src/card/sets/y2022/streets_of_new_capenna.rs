@@ -14,9 +14,9 @@ use crate::mana_cost;
 /// subtypes already grant, so it is not restated as a clause.
 const TRIOME_ABILITIES: &[AbilityDef] = &[
     abilities::enters_tapped(CardType::Land),
-    abilities::cycling(
+    abilities::cycling!(
         "Cycling {3} ({3}, Discard this card: Draw a card.)",
-        mana_cost!("{3}"),
+        &[CostDef::Mana(mana_cost!("{3}"))],
     ),
 ];
 

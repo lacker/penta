@@ -157,7 +157,11 @@ fn allocate_flexible_symbols(
 
     let first_is_preferred = flexible_preference(first) <= flexible_preference(second);
     for offset in 0..=count {
-        let first_count = if first_is_preferred { count - offset } else { offset };
+        let first_count = if first_is_preferred {
+            count - offset
+        } else {
+            offset
+        };
         let second_count = count - first_count;
         if pool.amount(first) < first_count || pool.amount(second) < second_count {
             continue;
@@ -221,30 +225,14 @@ pub(super) fn reduce_mana_symbols(mut cost: ManaCost, reduction: ManaCost) -> Ma
 
     let hybrid = maximum_hybrid_payment(available, cost, &|_| false);
     for (pair, allocation) in HybridPair::ALL.into_iter().zip(hybrid.allocations) {
-        cost.hybrid[pair.index()] = cost.hybrid[pair.index()]
-            .saturating_sub(allocation[0].saturating_add(allocation[1]));
+        cost.hybrid[pair.index()] =
+            cost.hybrid[pair.index()].saturating_sub(allocation[0].saturating_add(allocation[1]));
     }
     cost
 }
 
-pub(super) fn add_mana_cost(mut cost: ManaCost, additional: ManaCost) -> ManaCost {
-    cost.generic = cost.generic.saturating_add(additional.generic);
-    cost.white = cost.white.saturating_add(additional.white);
-    cost.blue = cost.blue.saturating_add(additional.blue);
-    cost.black = cost.black.saturating_add(additional.black);
-    cost.red = cost.red.saturating_add(additional.red);
-    cost.green = cost.green.saturating_add(additional.green);
-    cost.colorless = cost.colorless.saturating_add(additional.colorless);
-    for index in 0..HybridPair::COUNT {
-        cost.hybrid[index] = cost.hybrid[index].saturating_add(additional.hybrid[index]);
-    }
-    for index in 0..FlexibleManaSymbol::ADDITIONAL_COUNT {
-        cost.additional_flexible[index] =
-            cost.additional_flexible[index].saturating_add(additional.additional_flexible[index]);
-    }
-    cost.variable_x |= additional.variable_x;
-    cost.x_multiplier = cost.x_multiplier.saturating_add(additional.x_multiplier);
-    cost
+pub(super) fn add_mana_cost(cost: ManaCost, additional: ManaCost) -> ManaCost {
+    cost.plus(additional)
 }
 
 /// Pays a generic requirement one mana at a time, cycling through the order
@@ -423,9 +411,7 @@ pub(super) fn maximum_hybrid_payment(
                         value if value == COLOR_START + 4 => Some(ManaColor::Green),
                         _ => None,
                     };
-                    color.map_or((true, false), |color| {
-                        (false, hybrid_preference(color))
-                    })
+                    color.map_or((true, false), |color| (false, hybrid_preference(color)))
                 });
             }
             for next in neighbors {
@@ -494,7 +480,7 @@ pub(super) fn can_cover_hybrid_cost(pool: ManaPool, cost: ManaCost) -> bool {
 
 /// Whether one colour can pay any hybrid symbol this cost carries.
 pub(super) fn hybrid_pays_with(cost: ManaCost, color: ManaColor) -> bool {
-    FlexibleManaSymbol::ALL.into_iter().any(|symbol| {
-        cost.flexible_count(symbol) > 0 && symbol.mana_options().contains(&color)
-    })
+    FlexibleManaSymbol::ALL
+        .into_iter()
+        .any(|symbol| cost.flexible_count(symbol) > 0 && symbol.mana_options().contains(&color))
 }

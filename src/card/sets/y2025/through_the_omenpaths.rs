@@ -28,7 +28,10 @@ pub(in crate::card::sets) static MULTIVERSAL_PASSAGE: CardRecord = CardRecord::n
                     BattlefieldEntryScalarChoiceDef::BASIC_LAND_TYPE,
                 )),
                 ReplacementEffectDef::PayOr {
-                    payment: EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 2),
+                    payment: EffectPaymentDef::new(
+                        PlayerSetDef::Related(PlayerRelation::You),
+                        &[CostDef::PayLife(2)],
+                    ),
                     if_paid: &[],
                     // Declining is what makes it a tapped land, so the branch that pays does
                     // nothing at all and the branch that does not is the whole cost.

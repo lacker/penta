@@ -296,7 +296,7 @@ pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecor
     // much of what it finds.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{2}{U}{U}"),
+            &[CostDef::Mana(mana_cost!("{2}{U}{U}"))],
             AlternativeCastKindDef::Kicked,
             Some("Kicker {1}{U} (You may pay an additional {1}{U} as you cast this spell.)"),
             EffectDef::None,
@@ -474,10 +474,10 @@ pub(in crate::card::sets) static MECHANOZOA: CardRecord = CardRecord::new(
                 ]),
             ),
             abilities::warp(
-                mana_cost!("{2}{U}"),
+                &[CostDef::Mana(mana_cost!("{2}{U}"))],
                 "Warp {2}{U} (You may cast this card from your hand for its warp cost. Exile it \
-                 at the beginning of the next end step, then you may cast it from exile on a \
-                 later turn.)",
+                at the beginning of the next end step, then you may cast it from exile on a \
+                later turn.)",
             ),
             abilities::warped_exile(),
         ]),
@@ -517,10 +517,10 @@ pub(in crate::card::sets) static QUANTUM_RIDDLER: CardRecord = CardRecord::new(
             ReplacementEffectDef::AddToEventAmount(1),
         ),
         abilities::warp(
-            mana_cost!("{1}{U}"),
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
             "Warp {1}{U} (You may cast this card from your hand for its warp cost. Exile it at \
-             the beginning of the next end step, then you may cast it from exile on a later \
-             turn.)",
+            the beginning of the next end step, then you may cast it from exile on a later \
+            turn.)",
         ),
         abilities::warped_exile(),
     ]),
@@ -544,10 +544,10 @@ pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
             abilities::surveil(ValueDef::Constant(2)),
         ),
         abilities::warp(
-            mana_cost!("{1}{U}"),
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
             "Warp {1}{U} (You may cast this card from your hand for its warp cost. Exile it at \
-             the beginning of the next end step, then you may cast it from exile on a later \
-             turn.)",
+            the beginning of the next end step, then you may cast it from exile on a later \
+            turn.)",
         ),
         abilities::warped_exile(),
     ]),
@@ -646,10 +646,10 @@ pub(in crate::card::sets) static MIGHTFORM_HARMONIZER: CardRecord = CardRecord::
                 },
             ),
             abilities::warp(
-                mana_cost!("{2}{G}"),
+                &[CostDef::Mana(mana_cost!("{2}{G}"))],
                 "Warp {2}{G} (You may cast this card from your hand for its warp cost. Exile this \
-                 creature at the beginning of the next end step, then you may cast it from exile on a \
-                 later turn.)",
+                creature at the beginning of the next end step, then you may cast it from exile on a \
+                later turn.)",
             ),
             abilities::warped_exile(),
         ]),

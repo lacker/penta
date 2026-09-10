@@ -3,20 +3,19 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
     CostDef, CostModificationDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef,
-    FreePlayDef, FreePlayDurationDef, GraveyardTypeConditionDef, ManaColor, MillLoopDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    DividedTotal, EffectDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef,
+    FreePlayDurationDef, GraveyardTypeConditionDef, ManaColor, MillLoopDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, tokens,
 };
 use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
@@ -94,11 +93,13 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
                     ]),
                 ),
             ],
-            abilities::evoke(CostDef::exile(
-                ObjectPredicateDef::Color(ManaColor::White),
-                ZoneKind::Hand,
-                CostQuantityDef::Fixed(1),
-            )),
+            abilities::evoke(
+                &[CostDef::exile(
+                    ObjectPredicateDef::Color(ManaColor::White),
+                    ZoneKind::Hand,
+                    CostQuantityDef::Fixed(1),
+                )],
+            ),
         ]),
 );
 
@@ -139,7 +140,7 @@ pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
     // A soft counter that stops being soft once there is spare mana: each
     // replicate is another {2} the other player has to find.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
-        abilities::replicate(mana_cost!("{U}")),
+        abilities::replicate(&[CostDef::Mana(mana_cost!("{U}"))]),
         AbilityDef::spell_with_targets(
             "Counter target spell unless its controller pays {2}.",
             &[AbilityTargetDef::exactly_one(
@@ -150,7 +151,7 @@ pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+            abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(2))]),
         ),
         AbilityDef::triggered(
             "Replicate {U} (When you cast this spell, copy it for each time you paid its \
@@ -258,11 +259,13 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
                     },
                 ),
             ],
-            abilities::evoke(CostDef::exile(
-                ObjectPredicateDef::Color(ManaColor::Blue),
-                ZoneKind::Hand,
-                CostQuantityDef::Fixed(1),
-            )),
+            abilities::evoke(
+                &[CostDef::exile(
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ZoneKind::Hand,
+                    CostQuantityDef::Fixed(1),
+                )],
+            ),
         ]),
 );
 
@@ -401,7 +404,7 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
             },
         ),
         AbilityDef::alternative_cast(
-            mana_cost!("{2}{W}{W}"),
+            &[CostDef::Mana(mana_cost!("{2}{W}{W}"))],
             AlternativeCastKindDef::Overload,
             Some("Destroy each creature. A creature destroyed this way can't be regenerated."),
             EffectDef::WithRule {
@@ -446,11 +449,13 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
                     )),
                 ),
             ],
-            abilities::evoke(CostDef::exile(
-                ObjectPredicateDef::Color(ManaColor::Black),
-                ZoneKind::Hand,
-                CostQuantityDef::Fixed(1),
-            )),
+            abilities::evoke(
+                &[CostDef::exile(
+                    ObjectPredicateDef::Color(ManaColor::Black),
+                    ZoneKind::Hand,
+                    CostQuantityDef::Fixed(1),
+                )],
+            ),
         ]),
 );
 
@@ -620,11 +625,13 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
                     ),
                 ),
             ],
-            abilities::evoke(CostDef::exile(
-                ObjectPredicateDef::Color(ManaColor::Red),
-                ZoneKind::Hand,
-                CostQuantityDef::Fixed(1),
-            )),
+            abilities::evoke(
+                &[CostDef::exile(
+                    ObjectPredicateDef::Color(ManaColor::Red),
+                    ZoneKind::Hand,
+                    CostQuantityDef::Fixed(1),
+                )],
+            ),
         ]),
 );
 
@@ -639,7 +646,10 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
     // the half that reads "if it's your turn".
     CardRules::new_instant(mana_cost!("{3}{R}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            mana_cost!("{0}"),
+            &[CostDef::sacrifice(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                CostQuantityDef::Fixed(1),
+            )],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "If it's your turn, you may sacrifice a Mountain rather than pay this spell's \
@@ -649,10 +659,6 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
         )
         // A Mountain, not a red source: what the cost names is the land type, so a
         // Sacred Foundry pays it and a Mountain that has stopped being one does not.
-        .with_alternative_additional_cost(&CostDef::sacrifice(
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-            CostQuantityDef::Fixed(1),
-        ))
         // "If it's your turn" gates only the free cast. The printed cost is always
         // available, which is why this is a condition on the alternative rather
         // than a restriction on the card.
@@ -714,10 +720,10 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
                 ]),
             ),
             abilities::dash(
-                mana_cost!("{1}{R}"),
+                &[CostDef::Mana(mana_cost!("{1}{R}"))],
                 "Dash {1}{R} (You may cast this spell for its dash cost. If you do, it gains haste, and \
-                 it's returned from the battlefield to its owner's hand at the beginning of the next end \
-                 step.)",
+                it's returned from the battlefield to its owner's hand at the beginning of the next end \
+                step.)",
             ),
             abilities::dashed_haste(),
             abilities::dashed_return(),
@@ -818,10 +824,10 @@ pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::ne
     // the game has gone long.
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Beast"], 4, 4).with_abilities(&[
         abilities::trample(),
-        AbilityDef::activated_with_cost_list_and_targets(
+        AbilityDef::activated_with_targets(
             "Reinforce 2—{1}{G} ({1}{G}, Discard this card: Put two +1/+1 counters on target \
              creature.)",
-            AbilityCostList::two(CostDef::Mana(mana_cost!("{1}{G}")), CostDef::DiscardSource),
+            &[CostDef::Mana(mana_cost!("{1}{G}")), CostDef::DiscardSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -832,11 +838,11 @@ pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::ne
             },
         )
         .with_source_zones(&[ZoneKind::Hand]),
-        AbilityDef::activated_with_cost_list_and_targets(
+        AbilityDef::activated_with_targets(
             "Scavenge {5}{G}{G} ({5}{G}{G}, Exile this card from your graveyard: Put a number of \
              +1/+1 counters equal to this card's power on target creature. Scavenge only as a \
              sorcery.)",
-            AbilityCostList::two(CostDef::Mana(mana_cost!("{5}{G}{G}")), CostDef::ExileSource),
+            &[CostDef::Mana(mana_cost!("{5}{G}{G}")), CostDef::ExileSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -886,11 +892,13 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
                     },
                 ),
             ],
-            abilities::evoke(CostDef::exile(
-                ObjectPredicateDef::Color(ManaColor::Green),
-                ZoneKind::Hand,
-                CostQuantityDef::Fixed(1),
-            )),
+            abilities::evoke(
+                &[CostDef::exile(
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ZoneKind::Hand,
+                    CostQuantityDef::Fixed(1),
+                )],
+            ),
         ]),
 );
 
@@ -1025,12 +1033,9 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                 "\u{2212}2: You may sacrifice a creature.",
                 &[CostDef::Loyalty(-2)],
                 EffectDef::PayOr(PayOrDef::optional(
-                    EffectPaymentDef {
-                        payer: PlayerSetDef::Related(PlayerRelation::You),
-                        cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                                CardType::Creature,
-                            )),
-                    },
+                    &[CostDef::SacrificePermanentMatching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
                     &EffectDef::None,
                 )),
             ),

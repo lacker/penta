@@ -25,22 +25,18 @@ impl Game {
                         _ => return false,
                     };
                     self.nonbattlefield_mana_ability_activation_is_prohibited(
-                        controller,
-                        card,
-                        &context,
+                        controller, card, &context,
                     )
                 })
         {
             return Vec::new();
         }
         let supported = match zone {
-            ZoneKind::Hand => definition.costs.as_slice() == [CostDef::ExileSource],
+            ZoneKind::Hand => definition.costs == [CostDef::ExileSource],
             ZoneKind::Command => {
-                !definition.costs.as_slice().is_empty()
+                !definition.costs.is_empty()
                     && definition.costs.iter().all(|cost| match cost {
-                        CostDef::PayLife(amount) => {
-                            self.can_pay_life(controller, *amount)
-                        }
+                        CostDef::PayLife(amount) => self.can_pay_life(controller, *amount),
                         _ => false,
                     })
             }
@@ -62,7 +58,7 @@ impl Game {
                 source,
                 ability: origin,
                 color,
-                costs: definition.costs,
+                costs: definition.costs.to_vec(),
                 only_as_instant: definition.only_as_instant,
                 effect,
                 counters_removed: None,

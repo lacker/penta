@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, CardArt,
-    CardRules, CardSet, CardType, CostDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, ObjectPredicateDef, PayOrDef, PlayerRelation, PlayerSetDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, abilities,
+    CardRules, CardSet, CardType, CostDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ObjectPredicateDef, PayOrDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -67,7 +67,7 @@ pub(in crate::card::sets) static SKEWER_THE_CRITICS: CardRecord = CardRecord::ne
         // "Lost life", not "was dealt damage": a Thoughtseize or a painland
         // turns it on just as well as an attack.
         AbilityDef::alternative_cast(
-            mana_cost!("{R}"),
+            &[CostDef::Mana(mana_cost!("{R}"))],
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "Spectacle {R} (You may cast this spell for its spectacle cost rather than its \
@@ -127,12 +127,9 @@ pub(in crate::card::sets) static FIREBLADE_ARTIST: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::optional(
-                EffectPaymentDef {
-                    payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                        CardType::Creature,
-                    )),
-                },
+                &[CostDef::SacrificePermanentMatching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
                 &EffectDef::None,
             )),
         ),

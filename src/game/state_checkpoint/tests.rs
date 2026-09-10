@@ -801,3 +801,5 @@ fn checkpoint_round_trips_the_ordered_turn_phase_queue_and_resume_boundary() {
     assert!(final_rebuilt.turn_phase_queue.is_empty());
     assert_eq!(final_rebuilt.turn_phase_resume, None);
 }
+
+mod cost_lists;

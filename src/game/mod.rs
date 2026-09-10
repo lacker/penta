@@ -127,6 +127,7 @@ mod rooms;
 mod sacrifice_to_total;
 mod sagas;
 mod scry;
+mod special_action_payments;
 mod stack_resolution;
 mod stack_rules;
 mod state_based;

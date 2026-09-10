@@ -296,11 +296,11 @@ impl Game {
                                                     )?;
                                                 let total_life = self
                                                     .configured_cast_life_payment(
+                                                        player,
                                                         definition,
                                                         option,
                                                         card.id,
                                                         &costs,
-                                                        0,
                                                         offer.map(|offer| offer.cost),
                                                     )
                                                     .saturating_add(phyrexian_life);
@@ -343,6 +343,7 @@ impl Game {
                                         card,
                                         player,
                                         modes: &modes,
+                                        spliced: &spliced,
                                         scale: CastScale {
                                             x: 0,
                                             modes: modes.len(),
@@ -382,11 +383,11 @@ impl Game {
                                     let additional_cost_payments =
                                         Self::additional_cost_payment_counts_for(option, &costs);
                                     let base_cast_life = self.configured_cast_life_payment(
+                                        player,
                                         definition,
                                         option,
                                         card.id,
                                         &costs,
-                                        x,
                                         offer.map(|offer| offer.cost),
                                     );
                                     let library_life = if source_zone == CastSourceZone::LibraryTop
@@ -459,6 +460,7 @@ impl Game {
                                                     card,
                                                     player,
                                                     modes: &modes,
+                                                    spliced: &spliced,
                                                     scale: CastScale {
                                                         x,
                                                         modes: modes.len(),

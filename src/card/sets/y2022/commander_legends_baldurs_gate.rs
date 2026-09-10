@@ -762,7 +762,7 @@ pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
                     ),
                 },
             ),
-            abilities::foretell(mana_cost!("{4}{R}{R}")),
+            abilities::foretell(&[CostDef::Mana(mana_cost!("{4}{R}{R}"))]),
         ]),
     );
 

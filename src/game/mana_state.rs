@@ -1,5 +1,5 @@
 use crate::action::{AbilityOrigin, ManaColor};
-use crate::card::{AbilityCostList, AddManaEffectDef, AppliedEffectDef, ManaSplit, SpellForm};
+use crate::card::{AddManaEffectDef, AppliedEffectDef, CostDef, ManaSplit, SpellForm};
 use crate::ids::{CardDefinitionId, GameObjectId, PlayerId};
 
 use super::{ManaPool, ManaSource};
@@ -90,7 +90,7 @@ pub(super) struct ManaAbilityActivation {
     pub(super) source: GameObjectId,
     pub(super) ability: AbilityOrigin,
     pub(super) color: ManaColor,
-    pub(super) costs: AbilityCostList,
+    pub(super) costs: Vec<CostDef>,
     /// "Activate only as an instant": offered to a player holding priority
     /// and never reached for by the payment planner, which pays for a spell
     /// at a moment no instant could be cast.

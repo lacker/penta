@@ -367,13 +367,14 @@ impl Game {
         let offer = self
             .current_cast_offer(player, card_id, source_zone)
             .map(|offer| offer.cost);
-        let (object_payments, cast_life) = self.cast_object_payments_and_life(
-            player,
-            card_id,
-            &signature,
-            super::CastCostContext { source_zone, offer },
-            sacrifices,
-        );
+        let (object_payments, cast_life, includes_mana_payment) = self
+            .cast_object_payments_and_life(
+                player,
+                card_id,
+                &signature,
+                super::CastCostContext { source_zone, offer },
+                sacrifices,
+            );
         let alternative_kind = self.cast_alternative_kind(player, card_id, &signature, offer);
         let (granted_by_permission, cast_via_suspend) =
             self.spend_cast_permissions(player, card_id, &signature, source_zone, alternative_kind);
@@ -392,7 +393,7 @@ impl Game {
             0
         };
         // Read before the signature reaches the stack object, then pay below.
-        let opponent_life_gain = self.cast_opponent_life_gain(card_id, &signature);
+        let opponent_life_gain = self.cast_opponent_life_gain(player, card_id, &signature);
         let card = self.remove_card_for_cast(player, card_id, source_zone);
         let mut stack_object = self.propose_spell_on_stack(
             player,
@@ -433,19 +434,14 @@ impl Game {
             reserved_life_payment: life,
         };
         self.pay_cast_life_and_energy(player, life, opponent_life_gain, energy);
-        let Some(plan) = self.plan_mana_activations_for_reserving(
+        let plan = self.cast_mana_plan(
             player,
             cost,
             x,
-            None,
             &payment_purpose,
             sacrifices,
-        ) else {
-            panic!(
-                "{}",
-                self.unplannable_payment(player, cost, x, None, &payment_purpose)
-            );
-        };
+            includes_mana_payment,
+        );
         self.continue_spell_mana_payment(
             stack_object,
             targets,
@@ -544,6 +540,37 @@ impl Game {
             cast: Some(cast),
             face_down,
             is_copy: false,
+        }
+    }
+
+    fn cast_mana_plan(
+        &self,
+        player: PlayerId,
+        cost: ManaCost,
+        x: u16,
+        payment_purpose: &ManaPaymentPurpose,
+        sacrifices: &[GameObjectId],
+        includes_mana_payment: bool,
+    ) -> Vec<super::PlannedManaActivation> {
+        // CR 601.2g: omitting a mana payment never opens a mana-ability
+        // window. An explicit {0}, including a reduced mana cost, still does.
+        if includes_mana_payment {
+            let Some(plan) = self.plan_mana_activations_for_reserving(
+                player,
+                cost,
+                x,
+                None,
+                payment_purpose,
+                sacrifices,
+            ) else {
+                panic!(
+                    "{}",
+                    self.unplannable_payment(player, cost, x, None, payment_purpose)
+                );
+            };
+            plan
+        } else {
+            Vec::new()
         }
     }
 

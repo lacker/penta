@@ -31,7 +31,10 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
             &[(CounterKind::named("time"), 3)],
         )),
-        abilities::suspend("Suspend 3—{2}{U}", 3, &mana_cost!("{2}{U}")),
+        abilities::suspend(
+            "Suspend 3—{2}{U}",
+            &crate::card::SuspendAbilityDef::fixed(3, &[CostDef::Mana(mana_cost!("{2}{U}"))]),
+        ),
     ]),
 );
 
@@ -193,6 +196,23 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
     ]),
 );
 
+// FUT 83 — Deepcavern Imp
+pub(in crate::card::sets) static DEEPCAVERN_IMP: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b66cc281-3fa9-4d7b-a32b-41c0a93059ba"),
+    "Deepcavern Imp",
+    CardArt::new("b66cc281-3fa9-4d7b-a32b-41c0a93059ba", "Scott Altmann"),
+    CardSet::FutureSight,
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp", "Rebel"], 2, 2)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::haste(),
+            abilities::echo(
+                "Echo—Discard a card. (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+                &[CostDef::DiscardCards(1)],
+            ),
+        ]),
+);
+
 // FUT 94 — Arc Blade
 pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4d1c04fb-213f-4be1-9bba-94c737826bf8"),
@@ -213,7 +233,10 @@ pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
             &[(CounterKind::named("time"), 3)],
         )),
-        abilities::suspend("Suspend 3—{2}{R}", 3, &mana_cost!("{2}{R}")),
+        abilities::suspend(
+            "Suspend 3—{2}{R}",
+            &crate::card::SuspendAbilityDef::fixed(3, &[CostDef::Mana(mana_cost!("{2}{R}"))]),
+        ),
     ]),
 );
 
@@ -235,7 +258,7 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
     CardSet::FutureSight,
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         abilities::convoke(),
-        abilities::buyback(mana_cost!("{3}")),
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
         AbilityDef::spell(
             "Create a 1/1 green Saproling creature token.",
             EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1),
@@ -479,7 +502,7 @@ pub(in crate::card::sets) static DARKSTEEL_GARRISON: CardRecord = CardRecord::ne
                 },
             ),
             abilities::fortify(
-                mana_cost!("{3}"),
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 "Fortify {3} ({3}: Attach to target land you control. Fortify only as a sorcery. This card enters unattached and stays on the battlefield if the land leaves.)",
             ),
         ]),
@@ -523,6 +546,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NARCOMOEBA,
     &SHIMIAN_SPECTER,
     &BRIDGE_FROM_BELOW,
+    &DEEPCAVERN_IMP,
     &ARC_BLADE,
     &BOGARDAN_LANCER,
     &SPROUT_SWARM,

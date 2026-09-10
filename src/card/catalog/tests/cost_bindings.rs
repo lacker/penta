@@ -1,7 +1,7 @@
 use super::*;
 
 const EVOKE: [AbilityDef; 2] =
-    crate::card::abilities::evoke(CostDef::Mana(crate::mana_cost!("{1}")));
+    crate::card::abilities::evoke(&[CostDef::Mana(crate::mana_cost!("{1}"))]);
 const EVOKE_COST: AbilityDef = EVOKE[0];
 
 fn cost_binding_card(id: u64, name: &str, abilities: &'static [AbilityDef]) -> CardDefinition {

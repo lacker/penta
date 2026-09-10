@@ -4,35 +4,9 @@
 /// Common printed costs receive their Oracle reminder text here. A card with
 /// different wording can call [`AbilityDef::override_text`] on the result.
 #[must_use]
-pub const fn cumulative_upkeep(cost: CostDef) -> AbilityDef {
-    let text = match cost {
-        CostDef::Mana(cost) if mana_cost_is_generic(cost, 1) => {
-            "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
-        CostDef::Mana(cost) if mana_cost_is_generic(cost, 2) => {
-            "Cumulative upkeep {2} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
-        CostDef::Mana(cost) if mana_cost_is_green(cost, 1) => {
-            "Cumulative upkeep {G} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
-        CostDef::PayLife(1) => {
-            "Cumulative upkeep—Pay 1 life. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
-        CostDef::PayLife(2) => {
-            "Cumulative upkeep—Pay 2 life. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
-        CostDef::DrawCards(1) => {
-            "Cumulative upkeep—Draw a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
-        CostDef::DiscardCards(1) => {
-            "Cumulative upkeep—Discard a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
-        CostDef::PutCountersOnSource {
-            kind: CounterKind::MinusOneMinusOne,
-            amount: 1,
-        } => {
-            "Cumulative upkeep—Put a -1/-1 counter on this creature. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
-        }
+pub const fn cumulative_upkeep(costs: &'static [CostDef]) -> AbilityDef {
+    let text = match costs {
+        [cost] => cumulative_upkeep_text(*cost),
         _ => "Cumulative upkeep",
     };
     AbilityDef::triggered(
@@ -41,7 +15,7 @@ pub const fn cumulative_upkeep(cost: CostDef) -> AbilityDef {
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        EffectDef::CumulativeUpkeep(cost),
+        EffectDef::CumulativeUpkeep(costs),
     )
 }
 
@@ -82,4 +56,37 @@ const fn all_zero(values: &[u16]) -> bool {
         index += 1;
     }
     true
+}
+
+const fn cumulative_upkeep_text(cost: CostDef) -> &'static str {
+    match cost {
+        CostDef::Mana(cost) if mana_cost_is_generic(cost, 1) => {
+            "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        CostDef::Mana(cost) if mana_cost_is_generic(cost, 2) => {
+            "Cumulative upkeep {2} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        CostDef::Mana(cost) if mana_cost_is_green(cost, 1) => {
+            "Cumulative upkeep {G} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        CostDef::PayLife(1) => {
+            "Cumulative upkeep—Pay 1 life. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        CostDef::PayLife(2) => {
+            "Cumulative upkeep—Pay 2 life. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        CostDef::DrawCards(1) => {
+            "Cumulative upkeep—Draw a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        CostDef::DiscardCards(1) => {
+            "Cumulative upkeep—Discard a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        CostDef::PutCountersOnSource {
+            kind: CounterKind::MinusOneMinusOne,
+            amount: 1,
+        } => {
+            "Cumulative upkeep—Put a -1/-1 counter on this creature. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"
+        }
+        _ => "Cumulative upkeep",
+    }
 }

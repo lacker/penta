@@ -55,7 +55,7 @@ impl Game {
     ) -> Option<ManaCost> {
         let mut cost = ManaCost::default();
         let mut has_mana_cost = false;
-        for ability_cost in definition.costs.as_slice() {
+        for ability_cost in definition.costs {
             if let CostDef::Mana(mana) = ability_cost {
                 cost = add_mana_cost(cost, *mana);
                 has_mana_cost = true;
@@ -76,7 +76,7 @@ impl Game {
     ) -> Option<ManaCost> {
         let mut cost = ManaCost::default();
         let mut has_mana_cost = false;
-        for ability_cost in definition.costs.as_slice() {
+        for ability_cost in definition.costs {
             match ability_cost {
                 CostDef::Mana(mana) => {
                     cost = add_mana_cost(cost, *mana);

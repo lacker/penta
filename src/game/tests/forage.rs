@@ -3,6 +3,74 @@
 use super::*;
 
 #[test]
+fn named_costs_cast_selection_uses_the_payment_source_not_each_candidate() {
+    const ID: crate::card::MechanicId = crate::card::MechanicId::from_name("test:source-cost");
+    for object in [
+        ObjectPredicateDef::Source,
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+    ] {
+        for sacrifice in [false, true] {
+            let cost = Box::leak(Box::new(if sacrifice {
+                CostDef::sacrifice(object, crate::card::CostQuantityDef::Fixed(1))
+            } else {
+                CostDef::exile(
+                    object,
+                    ZoneKind::Graveyard,
+                    crate::card::CostQuantityDef::Fixed(1),
+                )
+            }));
+            let (mut game, source) = super::cost_lists::game_with_cost_rules(
+                &CardRules::new_sorcery(mana_cost!("{0}")).with_ability(
+                    AbilityDef::spell_with_additional_cost(
+                        "Pay a named object cost.",
+                        &[],
+                        CostDef::named(ID, cost),
+                        EffectDef::None,
+                    ),
+                ),
+            );
+            let payer = GameObjectId(181_100);
+            if sacrifice {
+                game.battlefield
+                    .push(creature(payer.0, cards::GRIZZLY_BEARS, PlayerId::One));
+            } else {
+                game.players[0]
+                    .graveyard
+                    .push(card(payer.0, cards::FOREST, PlayerId::One));
+            }
+            let casts = game
+                .legal_actions(PlayerId::One)
+                .into_iter()
+                .filter(
+                    |action| matches!(action, Action::CastSpell { card, .. } if *card == source),
+                )
+                .collect::<Vec<_>>();
+            if object == ObjectPredicateDef::Source {
+                assert!(
+                    casts.is_empty(),
+                    "the spell itself is not an eligible payment object"
+                );
+            } else {
+                assert_eq!(casts.len(), 1, "a different object can pay the cost");
+                game.apply(PlayerId::One, casts[0].clone()).unwrap();
+                assert_eq!(
+                    game.stack.len(),
+                    1,
+                    "the advertised plan commits successfully"
+                );
+                assert!(
+                    !game
+                        .battlefield
+                        .iter()
+                        .any(|permanent| permanent.card.id == payer)
+                );
+                assert_eq!(game.players[0].exile.len(), usize::from(!sacrifice));
+            }
+        }
+    }
+}
+
+#[test]
 fn named_costs_use_authored_identity_filter_and_quantity() {
     const RECLAIM: crate::card::MechanicId = crate::card::MechanicId::from_name("test:reclaim");
     static RULES: [AbilityDef; 2] = [

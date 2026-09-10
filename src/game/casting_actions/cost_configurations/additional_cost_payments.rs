@@ -61,7 +61,7 @@ impl Game {
                     .into_iter()
                     .collect()
             }
-            CostDef::Named { .. } => self.spell_named_cost_payments(cost, card, player, scale),
+            CostDef::Named { .. } => self.spell_named_cost_payments(cost, card, player),
             CostDef::Choice(costs) => costs
                 .iter()
                 .flat_map(|cost| {
@@ -103,7 +103,6 @@ impl Game {
         named: CostDef,
         card: &CardInstance,
         player: PlayerId,
-        scale: CastScale,
     ) -> Vec<SpellAdditionalCostPayment> {
         let CostDef::Named { mechanic, .. } = named else {
             return Vec::new();
@@ -113,13 +112,22 @@ impl Game {
             .unwrap_or_default()
             .iter()
             .flat_map(|cost| {
-                self.spell_additional_cost_payment_options(*cost, card, player, scale)
+                let (_, _, count) = cost
+                    .named_object_selection()
+                    .expect("validated named branch");
+                let candidates = self
+                    .named_cost_candidates(player, *cost, card.id)
                     .into_iter()
-                    .map(move |mut payment| {
-                        for (_, paid_cost) in &mut payment.objects {
-                            *paid_cost = CostDef::Named { mechanic, cost };
-                        }
-                        payment
+                    .filter(|id| *id != card.id)
+                    .collect::<Vec<_>>();
+                Self::object_combinations(&candidates, usize::from(count))
+                    .into_iter()
+                    .map(move |objects| SpellAdditionalCostPayment {
+                        objects: objects
+                            .into_iter()
+                            .map(|id| (id, CostDef::Named { mechanic, cost }))
+                            .collect(),
+                        ..SpellAdditionalCostPayment::free()
                     })
             })
             .collect()

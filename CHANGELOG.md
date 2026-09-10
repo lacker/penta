@@ -26,6 +26,9 @@ the bot-wire epoch.
   chooser. This closes Cavern of Souls' hand-dependent option-order leak and
   applies equally to Pithing Needle and other naming choices. The browser
   presents an opponent waiting notice without selection controls.
+- A restart reached after a shared action payment abandons the old game's
+  queued follow-ups once payment replacements finish, without emitting a
+  spurious game conclusion.
 - Temporary control effects now restore the returning controller's turn count
   during cleanup, so borrowed creatures can attack on that player's next turn.
 - Add opt-in `first-to-two-wins` matches to the shared game lifecycle, bindings,

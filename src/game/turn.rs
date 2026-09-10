@@ -731,6 +731,7 @@ impl Game {
     /// before state-based actions and trigger placement.
     pub(super) fn continue_pending_procedures(&mut self) {
         while self.result.is_none()
+            && self.pending_restart.is_none()
             && self.pending_decisions.is_empty()
             && self.pending_events.is_empty()
         {

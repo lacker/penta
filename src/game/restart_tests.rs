@@ -280,3 +280,87 @@ fn karn_restart_uses_hypothesized_cards_and_scores_a_short_opening_draw_as_a_los
         })
     );
 }
+
+#[test]
+fn restart_action_payment_finishes_replacements_but_abandons_old_followups() {
+    use crate::card::{
+        AbilityDef, CardType, EffectDef, EffectRecipientDef, PayOrDef, PlayerRelation,
+        RestartGameDef, TriggerEventDef, TurnStepDef, actions,
+    };
+    use crate::game::tests::composed_mechanic_programs::{staged as staged_program, start};
+    use crate::game::tests::{choose_decision_by_label, creature};
+
+    static PROGRAM: [AbilityDef; 1] = [AbilityDef::triggered(
+        "Sacrifice a land to restart, then win the old game",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        EffectDef::Sequence(&[
+            EffectDef::PayOr(PayOrDef::optional(
+                &[actions::choose_sacrifice(1)
+                    .matching(ObjectPredicateDef::HasType(CardType::Land))
+                    .as_cost()],
+                &EffectDef::RestartGame(RestartGameDef {
+                    retained_exiles: ObjectPredicateDef::Any,
+                }),
+            )),
+            EffectDef::WinTheGame {
+                player: EffectRecipientDef::Controller,
+            },
+        ]),
+    )];
+
+    for prepared in [false, true] {
+        let (mut game, _) = staged_program(&PROGRAM);
+        game.set_prepared_engine_enabled(prepared);
+        game.battlefield.extend([
+            creature(31_400, cards::ISLAND, PlayerId::One),
+            creature(31_401, cards::REST_IN_PEACE, PlayerId::Two),
+            creature(31_402, cards::REST_IN_PEACE, PlayerId::Two),
+        ]);
+        start(&mut game);
+        let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+        let mut resumed = Game::from_observation_checkpoint(
+            game.catalog.clone(),
+            game.format,
+            &wire,
+            &hidden,
+            42,
+        )
+        .unwrap();
+        resumed.set_prepared_engine_enabled(prepared);
+        choose_decision_by_label(&mut resumed, PlayerId::One, "Sacrifice Island");
+        assert_eq!(
+            resumed.restart_count, 0,
+            "payment replacements finish first"
+        );
+        assert!(resumed.pending_procedures.iter().any(|procedure| {
+            matches!(
+                procedure,
+                crate::game::PendingProcedure::CompletePayment { .. }
+            )
+        }));
+        let replacement = resumed.observe(PlayerId::One).decision.unwrap();
+        resumed
+            .apply(
+                PlayerId::One,
+                Action::ChooseDecision {
+                    decision: replacement.id,
+                    options: vec![replacement.options[0].id],
+                },
+            )
+            .unwrap();
+        assert_eq!(resumed.restart_count, 1);
+        assert!(resumed.in_pregame());
+        assert!(resumed.result().is_none());
+        assert!(resumed.pending_procedures.is_empty());
+        assert!(
+            resumed
+                .events
+                .iter()
+                .all(|event| { !matches!(event, crate::GameEvent::GameEnded { .. }) }),
+            "a queued instruction from the abandoned game must not conclude it"
+        );
+    }
+}

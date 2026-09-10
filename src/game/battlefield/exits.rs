@@ -831,7 +831,9 @@ impl Game {
         moved_to_graveyard: &[GameObjectId],
     ) {
         match completion {
-            BattlefieldExitCompletion::Foraged { player } => self.capture_forage(player),
+            BattlefieldExitCompletion::MechanicPerformed { mechanic, player } => {
+                self.capture_mechanic(mechanic, player);
+            }
             BattlefieldExitCompletion::Completions(completions) => {
                 self.resume_battlefield_exit_completions(completions, moved_to_graveyard);
             }

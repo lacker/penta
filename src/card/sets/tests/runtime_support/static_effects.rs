@@ -356,7 +356,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::ForEachInBinding { .. }
         | EffectDef::PayOr(_)
-        | EffectDef::Forage { .. }
         | EffectDef::WithCosts { .. }
         | EffectDef::PreventDamage { .. }
         | EffectDef::Apply { .. }
@@ -390,7 +389,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
             | crate::card::GameActionDef::MoveToZone { .. },
         )
         | EffectDef::ShuffleLibrary { .. }
-        | EffectDef::BuryGraveyard { .. }
         | EffectDef::EmptyManaPool { .. }
         | EffectDef::LoseLife { .. }
         | EffectDef::LoseTheGame { .. }

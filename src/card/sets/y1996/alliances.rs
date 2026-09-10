@@ -916,7 +916,7 @@ CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
             .override_text("Cumulative upkeep—Exile the top card of your library."),
         AbilityDef::triggered(
             "When this enchantment's cumulative upkeep isn't paid, exile all cards from your library.",
-            TriggerEventDef::PaymentNotPaid(crate::card::AbilityLabel::CUMULATIVE_UPKEEP),
+            TriggerEventDef::PaymentNotPaid(crate::card::abilities::CUMULATIVE_UPKEEP),
             EffectDef::move_to_zone(
                 EffectRecipientDef::objects(ObjectSetDef::Query(
                     crate::card::ObjectQueryDef::owned_by(

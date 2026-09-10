@@ -3,6 +3,7 @@
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(tag = "kind", content = "value", rename_all = "camelCase")]
 pub(super) enum ResolvedEffectPaymentSnapshot {
+    Named,
     Action { source: u32, amount: u16 },
     All(Vec<Self>),
     Choice(Vec<Self>),

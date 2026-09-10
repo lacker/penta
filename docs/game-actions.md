@@ -135,6 +135,11 @@ sequence finishes each action's replacement work before its next action.
 
 ## Initial payment boundary
 
+Named fixed object-cost alternatives use the additional
+[linear selection adapter](effect-programs.md#identities-and-named-actions).
+That adapter serves resolving payments and casting without adding mechanic
+identities to the shared action dispatcher.
+
 The resolving planner accepts independent exact selections from the payer's
 hand for discard, their battlefield permanents for sacrifice, and permanents
 they do not control for gaining control. A selection must feed its own bound

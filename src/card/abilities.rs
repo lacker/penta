@@ -12,7 +12,7 @@ use super::model::{
     CardNameDef, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef,
     ChooseDef, ChooseObjectOrderDef, CollectionInspectionDef, ColorSet, ComparisonDef,
     ConditionDef, CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef,
-    CostModificationDef, CounterKind, CreatedTokensDef, DamageEventMatcherDef, DamagePreventionDef,
+    CostModificationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
     InstalledTriggerLifetimeDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost,
@@ -727,6 +727,8 @@ pub const fn enters_tapped(printed_subject: CardType) -> AbilityDef {
     };
     AbilityDef::as_enters(text, ENTER_TAPPED[0])
 }
+
+pub const CYCLING: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:cycling");
 
 /// Implementation for the [`cycling!`] constructor after its costs are composed.
 #[doc(hidden)]

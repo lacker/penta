@@ -916,9 +916,22 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
                         AbilityTargetPredicate::Player(PlayerRelation::Any),
                         1,
                     )],
-                    EffectDef::BuryGraveyard {
-                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    },
+                    EffectDef::RandomizeObjectOrder(crate::card::RandomizeObjectOrderDef {
+                        input: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                        )),
+                        randomized: ParentBinding,
+                        then: &EffectDef::MoveObjects(crate::card::MoveObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
+                            from: Some(ZoneKind::Graveyard),
+                            zone: ZoneKind::Library,
+                            placement: ZonePlacement::Bottom,
+                            moved: None,
+                            then: &EffectDef::None,
+                        }),
+                    }),
                 ),
             ],
             abilities::evoke(

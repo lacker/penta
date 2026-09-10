@@ -118,6 +118,10 @@ design that preserves the same guarantee.
 
 ## Adding a prepared lowering
 
+Set-owned and card-local [effect programs](effect-programs.md) use this same
+boundary. Ownership and readable authoring helpers do not select optimizations;
+the compiler recognizes their ordinary inspectable structure.
+
 Start from a semantic operation that already belongs in the declarative model.
 If a new rules concept is required, add it for semantic clarity and implement
 the reference behavior first. Do not add a card constructor, field, variant,

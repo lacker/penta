@@ -289,7 +289,7 @@ fn adarkar_unicorn_offers_both_outputs_and_its_mana_only_pays_cumulative_upkeep(
             && game.mana_can_pay_for(
                 *mana,
                 &ManaPaymentPurpose::Payment {
-                    label: Some(crate::card::AbilityLabel::CUMULATIVE_UPKEEP),
+                    label: Some(crate::card::abilities::CUMULATIVE_UPKEEP),
                     source: unicorn_id,
                     snow: false,
                 },

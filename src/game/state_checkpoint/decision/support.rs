@@ -277,6 +277,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             ..
         } => extend_trigger_placement_ids(&mut ids, trigger, pending, remaining),
         DecisionContinuation::SacrificeToTotalPower { object, context, .. }
+        | DecisionContinuation::NamedCost { object, context, .. }
         | DecisionContinuation::BasicLandTypeSubstitution { object, context, .. } => {
             extend_stack_continuation_ids(&mut ids, object, context);
         }
@@ -299,8 +300,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             extend_stack_continuation_ids(&mut ids, object, context);
             ids.extend(candidates.iter().copied());
         }
-        DecisionContinuation::Forage { .. }
-        | DecisionContinuation::ScryBottom { .. }
+        DecisionContinuation::ScryBottom { .. }
         | DecisionContinuation::ScryTop { .. }
         | DecisionContinuation::ChosenColorMana { .. }
         | DecisionContinuation::SearchZone { .. }
@@ -694,6 +694,7 @@ pub(super) fn resolved_effect_payment_snapshot(
     payment: ResolvedEffectPayment,
 ) -> ResolvedEffectPaymentSnapshot {
     match payment {
+        ResolvedEffectPayment::Named(_) => ResolvedEffectPaymentSnapshot::Named,
         ResolvedEffectPayment::Action(payment) => ResolvedEffectPaymentSnapshot::Action {
             source: payment.source.0,
             amount: payment.amount,
@@ -718,7 +719,7 @@ pub(super) fn resolved_effect_payment_snapshot(
             cost,
             label,
         } => ResolvedEffectPaymentSnapshot::LabeledMana {
-            label: label.0.to_owned(),
+            label: label.to_string(),
             source: source.0,
             cost: mana_cost_snapshot(cost),
         },
@@ -727,7 +728,7 @@ pub(super) fn resolved_effect_payment_snapshot(
             amount,
             label,
         } => ResolvedEffectPaymentSnapshot::SnowMana {
-            label: label.map(|label| label.0.to_owned()),
+            label: label.map(|label| label.to_string()),
             source: source.0,
             amount,
         },

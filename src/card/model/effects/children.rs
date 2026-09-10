@@ -106,7 +106,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         // A distributed look runs nothing after a card lands, so like every
         // other leaf below it has no child effect to walk.
         EffectDef::AddCounters { .. }
-        | EffectDef::Forage { .. }
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::SelectAtRandomFromZone { .. }
@@ -195,7 +194,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Proliferate
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::ScheduleTurnPhases(_)
-        | EffectDef::BuryGraveyard { .. }
         | EffectDef::ShuffleLibrary { .. }
         | EffectDef::SkipNextUntapSteps { .. }
         | EffectDef::Special(_)

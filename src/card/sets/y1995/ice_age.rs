@@ -98,7 +98,7 @@ pub(in crate::card::sets) static ADARKAR_UNICORN: CardRecord = CardRecord::new(
                     ]),
                 ])
                 .with_restrictions(&[ManaRestrictionDef::Payment(
-                    crate::card::AbilityLabel::CUMULATIVE_UPKEEP,
+                    crate::card::abilities::CUMULATIVE_UPKEEP,
                 )]),
             ),
         ),

@@ -12,6 +12,10 @@ impl Game {
         if_paid: Option<ScopedEffect>,
         otherwise: Option<ScopedEffect>,
     ) {
+        if let ResolvedEffectPayment::Named(cost) = payment {
+            self.queue_named_cost(player, cost, None, definition, object, context);
+            return;
+        }
         if if_paid.is_none() && otherwise.is_none() && payment_provenance.is_none() {
             return;
         }

@@ -69,6 +69,50 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+/// The delayed half of mobilize: the tokens this attack made go away at the
+/// next end step, and it has to be exactly those. By then nothing about the
+/// board could tell them from the ones the last attack made, or from a
+/// Warrior that arrived some other way, so they are bound as they are
+/// created and this names the binding.
+static MOBILIZE_SACRIFICE: EffectDef = EffectDef::InstallTrigger(
+    crate::card::InstalledTriggerDef::once(&AbilityDef::triggered(
+        "At the beginning of the next end step, sacrifice those tokens.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::End,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+            ParentBinding,
+        ))),
+    )),
+);
+
+/// Mobilize N (CR 702.180a): "Whenever this creature attacks, create N tapped
+/// and attacking 1/1 red Warrior creature tokens. Sacrifice them at the
+/// beginning of the next end step."
+///
+/// Written out as the triggered ability it abbreviates. The caller supplies
+/// the printed text because the reminder spells the number out in words.
+#[must_use]
+pub(in crate::card::sets) const fn mobilize(count: u16, text: &'static str) -> AbilityDef {
+    AbilityDef::triggered(
+        text,
+        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+        EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
+            .with_art(crate::card::CardArt::new(
+                "7edc0515-a130-45a7-aa09-0e23bba41587",
+                "Forrest Imel",
+            ))
+            .with_amount(count)
+            .entering_tapped()
+            .entering_attacking()
+            .with_created_tokens(CreatedTokensDef {
+                binding: ParentBinding,
+                then: &MOBILIZE_SACRIFICE,
+            }),
+    )
+}
+
 // TDM 1 — Ugin, Eye of the Storms
 /// "Up to one target permanent that's one or more colors": colorless is what
 /// Ugin does not touch, which is the whole bargain of the deck built around
@@ -372,7 +416,7 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new(
     // instant your opponent was holding for the turn you attack.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Bard"], 1, 3)
         .with_abilities(&[
-            abilities::mobilize(
+            mobilize(
                 2,
                 "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
                  creature tokens. Sacrifice them at the beginning of the next end step.)",
@@ -453,7 +497,7 @@ pub(in crate::card::sets) static SHOCK_BRIGADE: CardRecord = CardRecord::new(
     // this attack rather than a board.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Soldier"], 1, 3).with_abilities(&[
         abilities::menace(),
-        abilities::mobilize(
+        mobilize(
             1,
             "Mobilize 1 (Whenever this creature attacks, create a tapped and attacking 1/1 red \
              Warrior creature token. Sacrifice it at the beginning of the next end step.)",

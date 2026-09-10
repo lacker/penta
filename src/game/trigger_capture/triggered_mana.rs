@@ -97,7 +97,6 @@ impl Game {
                 | crate::card::GameActionDef::MoveToZone { .. },
             )
             | EffectDef::ShuffleLibrary { .. }
-            | EffectDef::BuryGraveyard { .. }
             | EffectDef::EmptyManaPool { .. }
             | EffectDef::LoseLife { .. }
             | EffectDef::LoseTheGame { .. }
@@ -160,7 +159,6 @@ impl Game {
             | EffectDef::ScheduleTurnPhases(_)
             | EffectDef::TakeExtraTurn { .. }
             | EffectDef::PutSourceOntoBattlefieldAttacking
-            | EffectDef::Forage { .. }
             | EffectDef::BecomeMonarch { .. }
             | EffectDef::VoteForPermanentToExile { .. }
             | EffectDef::DamageCannotBePreventedThisTurn

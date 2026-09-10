@@ -250,6 +250,7 @@ impl Game {
         payment: ResolvedEffectPayment,
     ) -> bool {
         match payment {
+            ResolvedEffectPayment::Named(_) => false, // Its linear window validates the authored candidates.
             ResolvedEffectPayment::Action(ref action) => {
                 self.action_payment_candidates(player, action).len() >= usize::from(action.amount)
             }

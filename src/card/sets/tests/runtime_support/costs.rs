@@ -215,7 +215,12 @@ pub(in super::super) fn shared_spell_additional_cost(cost: Option<CostDef>) -> b
 
 fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
     match cost {
-        CostDef::Forage | CostDef::Mana(_) | CostDef::PayLife(_) | CostDef::DiscardCards(_) => true,
+        CostDef::Named { .. } => cost.named_choices().is_some_and(|choices| {
+            choices
+                .iter()
+                .all(|cost| shared_spell_additional_cost_def(*cost))
+        }),
+        CostDef::Mana(_) | CostDef::PayLife(_) | CostDef::DiscardCards(_) => true,
         CostDef::SacrificePermanent {
             object,
             controller: PlayerRelation::You,
@@ -254,6 +259,11 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
         CostDef::Choice(costs) => {
             !costs.is_empty()
                 && costs.iter().copied().all(shared_spell_additional_cost_def)
+                // The cast wire records objects, not mechanic-branch IDs.
+                // Until it can distinguish those, a choice involving a named
+                // action may have only one object-bearing alternative.
+                && (!costs.iter().copied().any(contains_named_cost)
+                    || costs.iter().copied().filter(|cost| !spell_cost_can_be_objectless(*cost)).count() <= 1)
                 // Cast actions currently carry the selected objects, not a
                 // separate cost-branch ID. Two objectless branches would
                 // therefore serialize identically and could not be replayed
@@ -267,6 +277,38 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
         }
         _ => false,
     }
+}
+
+fn contains_named_cost(cost: CostDef) -> bool {
+    match cost {
+        CostDef::Named { .. } => true,
+        CostDef::All(costs) | CostDef::Choice(costs) => {
+            costs.iter().copied().any(contains_named_cost)
+        }
+        _ => false,
+    }
+}
+
+#[test]
+fn named_costs_reject_spell_branches_the_wire_cannot_distinguish() {
+    const NAMED: CostDef = CostDef::named(
+        crate::card::MechanicId::from_name("test:branch"),
+        &CostDef::Sacrifice {
+            object: ObjectPredicateDef::Any,
+            quantity: crate::card::CostQuantityDef::Fixed(1),
+        },
+    );
+    assert!(shared_spell_additional_cost_def(CostDef::Choice(&[
+        NAMED,
+        CostDef::PayLife(1)
+    ])));
+    assert!(!shared_spell_additional_cost_def(CostDef::Choice(&[
+        NAMED,
+        CostDef::Sacrifice {
+            object: ObjectPredicateDef::Any,
+            quantity: crate::card::CostQuantityDef::Fixed(1)
+        }
+    ])));
 }
 
 fn spell_cost_can_be_objectless(cost: CostDef) -> bool {

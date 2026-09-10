@@ -1,3 +1,6 @@
+pub const CUMULATIVE_UPKEEP: crate::card::MechanicId =
+    crate::card::MechanicId::from_name("mtg:cumulative-upkeep");
+
 /// Cumulative upkeep (CR 702.24): one age counter, then one indivisible
 /// payment containing the unit cost once for each age counter on the source.
 ///
@@ -20,7 +23,7 @@ pub const fn cumulative_upkeep(costs: &'static [CostDef]) -> AbilityDef {
             effect: &CUMULATIVE_UPKEEP_PROGRAM,
         },
     )
-    .labeled(crate::card::AbilityLabel::CUMULATIVE_UPKEEP)
+    .labeled(crate::card::abilities::CUMULATIVE_UPKEEP)
 }
 
 const fn mana_cost_is_generic(cost: ManaCost, amount: u16) -> bool {
@@ -111,7 +114,7 @@ static CUMULATIVE_UPKEEP_PROGRAM: EffectDef = EffectDef::IfCondition {
                 )],
                 &EffectDef::sacrifice(EffectRecipientDef::Source),
             )
-            .labeled(crate::card::AbilityLabel::CUMULATIVE_UPKEEP),
+            .labeled(crate::card::abilities::CUMULATIVE_UPKEEP),
         ),
     ]),
 };

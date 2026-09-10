@@ -127,8 +127,11 @@ impl Game {
         controller: Option<PlayerId>,
     ) -> bool {
         match (definition, event) {
-            (TriggerEventDef::Foraged(relation), CommittedTriggerEvent::Foraged { player }) => {
-                controller.is_some_and(|controller| {
+            (
+                TriggerEventDef::MechanicPerformed { mechanic, player: relation },
+                CommittedTriggerEvent::MechanicPerformed { mechanic: actual, player },
+            ) => {
+                mechanic == *actual && controller.is_some_and(|controller| {
                     self.player_relation_matches(*player, relation, controller, event.context())
                 })
             }

@@ -36,6 +36,15 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
         PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
     ) && shared_effect_recipient(EffectRecipientDef::players(payment.payer))
         && payment.costs.iter().all(|cost| match *cost {
+            cost @ crate::card::CostDef::Named { .. } => {
+                payment.costs.len() == 1
+                    && cost.named_choices().is_some_and(|choices| {
+                        choices.iter().all(|cost| {
+                            cost.named_object_selection()
+                                .is_some_and(|(object, _, _)| shared_object_predicate(object))
+                        })
+                    })
+            }
             crate::card::CostDef::Perform(program) => {
                 shared_program_cost(crate::card::CostDef::Perform(program))
             }
@@ -377,7 +386,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                             || shared_stack_effect_at_position(**effect, true)
                     })
         }
-        EffectDef::Forage { .. } => deferred_decision_allowed,
         EffectDef::WithCosts { costs, effect } => costs.iter().all(|cost| shared_program_cost(*cost)) && shared_stack_effect_at_position(*effect, deferred_decision_allowed),
         // A spell copying itself asks its chooser for targets, which is a
         // decision window like any other. Proliferate asks over permanents
@@ -443,7 +451,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::AddPlayerCounters { recipient, .. }
         | EffectDef::DrawCards { recipient, .. }
         | EffectDef::ShuffleLibrary { player: recipient }
-        | EffectDef::BuryGraveyard { player: recipient }
         | EffectDef::EmptyManaPool { player: recipient }
         | EffectDef::TakeExtraTurn { player: recipient }
         | EffectDef::LoseLife { recipient, .. }

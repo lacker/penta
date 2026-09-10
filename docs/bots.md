@@ -400,12 +400,11 @@ same open-world schema before building a `Game`. Catalog-owned executable data
 is represented by semantic locators, while hidden-zone identities are supplied
 only by the separate hypothesis above.
 
-Forage decisions use the ordinary public choice shape: first choose a payment
-method or decline, then select exactly three graveyard cards or one controlled
-Food. The additive `forage` checkpoint continuation retains the payer,
-optionality, and selection stage, and reconstruction validates the offered
-choices against that stage. Protocol and checkpoint versions are unchanged;
-the simulation fingerprint guards exact reconstruction compatibility.
+Named object-cost decisions use the ordinary public choice shape: first choose
+a payment method or decline, then select its exact object group. Forage uses
+three graveyard cards or one controlled Food. The `namedCost` checkpoint
+continuation retains the payer, selected branch, and authored effect locator;
+reconstruction validates the program and offers against that stage.
 
 A private pending decision is reconstructible only from its choosing seat's
 observation. Other seats receive neither the decision nor its continuation in
@@ -1197,6 +1196,15 @@ can now be two-brid (`2/B`), Phyrexian (`R/P`), Phyrexian hybrid (`G/U/P`), or
 colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
+
+### Migrating checkpoint format 15 to 16
+
+Format 16 replaces `forage` decisions with generic `namedCost` selections
+reconstructed from their authored PayOr. Mechanic and payment identities now
+use fixed-width hexadecimal numeric IDs instead of human-readable names.
+Consumers must require `reconstruction.checkpoint.v16` and regenerate older
+checkpoints. The ordinary bot protocol and replay format are unchanged;
+exact reconstruction still requires the simulation fingerprint.
 
 ### Migrating checkpoint format 14 to 15
 

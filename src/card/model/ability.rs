@@ -330,7 +330,7 @@ impl AbilityDef {
             DeclarativeAbilityDef::Activated(ActivatedAbilityDef::new(costs)),
             effect,
         )
-        .labeled(super::AbilityLabel::CYCLING)
+        .labeled(crate::card::abilities::CYCLING)
     }
 
     /// "Choose one --" on an activated ability, which chooses its modes as

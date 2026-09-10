@@ -2,6 +2,76 @@
 
 use super::*;
 
+#[test]
+fn named_costs_use_authored_identity_filter_and_quantity() {
+    const RECLAIM: crate::card::MechanicId = crate::card::MechanicId::from_name("test:reclaim");
+    static RULES: [AbilityDef; 2] = [
+        AbilityDef::triggered(
+            "You may reclaim two lands",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::named(
+                    RECLAIM,
+                    &CostDef::Exile {
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        from: ZoneKind::Graveyard,
+                        quantity: crate::card::CostQuantityDef::Fixed(2),
+                    },
+                )],
+                &EffectDef::None,
+            )),
+        ),
+        AbilityDef::triggered(
+            "Whenever you reclaim, gain 4 life",
+            TriggerEventDef::MechanicPerformed {
+                mechanic: RECLAIM,
+                player: PlayerRelation::You,
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ),
+    ];
+    for prepared in [false, true] {
+        let (mut game, _) = super::composed_mechanic_programs::staged(&RULES);
+        game.set_prepared_engine_enabled(prepared);
+        for (index, definition) in [cards::FOREST, cards::SWAMP, cards::LIGHTNING_BOLT]
+            .into_iter()
+            .enumerate()
+        {
+            game.players[0].graveyard.push(card(
+                181_000 + u32::try_from(index).unwrap(),
+                definition,
+                PlayerId::One,
+            ));
+        }
+        super::composed_mechanic_programs::start(&mut game);
+        game = reconstruct(&game);
+        game.set_prepared_engine_enabled(prepared);
+        choose(&mut game, vec![1]);
+        assert_eq!(game.pending_decisions[0].observation.options.len(), 2);
+        assert_eq!(game.pending_decisions[0].observation.minimum, 2);
+        game = reconstruct(&game);
+        game.set_prepared_engine_enabled(prepared);
+        choose(&mut game, vec![0, 1]);
+        drain_pending(&mut game);
+        assert_eq!(
+            game.players[0].life, 24,
+            "one named occurrence, not one per object"
+        );
+        assert_eq!(game.players[0].graveyard.len(), 1);
+        assert_eq!(
+            game.players[0].graveyard[0].definition,
+            cards::LIGHTNING_BOLT
+        );
+        assert_eq!(game.players[0].exile.len(), 2);
+    }
+}
+
 fn staged(graveyard_cards: u32) -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready_game();
     let cultivator = game
@@ -51,7 +121,7 @@ fn begin_combat(game: &mut Game) {
     }
     assert!(matches!(
         game.pending_decisions[0].continuation,
-        DecisionContinuation::Forage { from: None, .. }
+        DecisionContinuation::NamedCost { branch: None, .. }
     ));
 }
 

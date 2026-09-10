@@ -48,6 +48,7 @@ pub(super) struct SacrificeDeclined {
 /// resolving effect suspends behind a decision.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum ResolvedEffectPayment {
+    Named(crate::card::CostDef),
     Action(Box<super::game_actions::payments::ActionPayment>),
     All(Vec<Self>),
     Choice(Vec<Self>),
@@ -233,10 +234,13 @@ pub(super) enum CounteredSpellZone {
 
 #[derive(Clone, Debug)]
 pub(super) enum DecisionContinuation {
-    Forage {
+    NamedCost {
         player: PlayerId,
-        optional: bool,
-        from: Option<ZoneKind>,
+        cost: crate::card::CostDef,
+        branch: Option<usize>,
+        definition: ScopedEffect,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
     },
     /// The chooser may take any remaining opening-hand action, in any order,
     /// or answer this zero-option decision to finish their window.

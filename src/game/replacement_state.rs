@@ -115,7 +115,8 @@ pub(super) struct PendingBattlefieldExitBatch {
 /// the optional box.
 #[derive(Clone, Debug)]
 pub(super) enum BattlefieldExitCompletion {
-    Foraged {
+    MechanicPerformed {
+        mechanic: crate::card::MechanicId,
         player: PlayerId,
     },
     Completions(Vec<BattlefieldExitCompletion>),

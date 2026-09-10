@@ -2,7 +2,7 @@ use super::*;
 use crate::card::sets;
 use crate::card::{AbilityLabel, AbilityPredicateDef, PayOrDef};
 
-const MAINTENANCE: AbilityLabel = AbilityLabel("test maintenance");
+const MAINTENANCE: AbilityLabel = AbilityLabel::from_name("test:maintenance");
 static PAY: EffectDef = EffectDef::PayOr(
     PayOrDef::optional_or(
         &[CostDef::repeated(
@@ -240,7 +240,10 @@ fn composed_mechanic_programs_keep_multiple_named_ability_instances() {
         game.pending_triggers[1].source.ability
     );
     for ability in TWO_UPKEEPS {
-        assert!(AbilityPredicateDef::Label(&AbilityLabel::CUMULATIVE_UPKEEP).matches(&ability));
+        assert!(
+            AbilityPredicateDef::Label(&crate::card::abilities::CUMULATIVE_UPKEEP)
+                .matches(&ability)
+        );
     }
     assert!(
         game.pending_triggers

@@ -338,7 +338,6 @@ fn validate_effect_target_shapes(
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ShuffleLibrary { player }
-        | EffectDef::BuryGraveyard { player }
         | EffectDef::EmptyManaPool { player }
         | EffectDef::LoseTheGame { player }
         | EffectDef::WinTheGame { player }
@@ -679,7 +678,6 @@ fn validate_effect_target_shapes(
         | EffectDef::ModifyCost(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
-        | EffectDef::Forage { .. }
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MayPlayWithoutPaying { .. }

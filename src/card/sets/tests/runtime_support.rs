@@ -559,7 +559,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::SelectAtRandomFromZone { .. }
                     | EffectDef::ForEachInBinding { .. }
                     | EffectDef::PayOr(_)
-                    | EffectDef::Forage { .. }
                     | EffectDef::WithCosts { .. }
                     | EffectDef::PreventDamage { .. }
                     | EffectDef::May { .. }
@@ -582,7 +581,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                         | crate::card::GameActionDef::MoveToZone { .. },
                     )
                     | EffectDef::ShuffleLibrary { .. }
-                    | EffectDef::BuryGraveyard { .. }
                     | EffectDef::EmptyManaPool { .. }
                     | EffectDef::LoseLife { .. }
                     | EffectDef::LoseTheGame { .. }

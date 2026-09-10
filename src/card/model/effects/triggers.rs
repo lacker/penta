@@ -57,8 +57,11 @@ pub struct StackObjectEventMatcherDef {
 /// The committed event observed by a triggered ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerEventDef {
-    /// A player completed the forage keyword action, including as a cost.
-    Foraged(PlayerRelation),
+    /// A named action completed, independently of the ability that requested it.
+    MechanicPerformed {
+        mechanic: crate::card::MechanicId,
+        player: PlayerRelation,
+    },
     /// This source's labeled cost was paid. The trigger amount is
     /// how many mana spent on that payment had one of the named colors.
     PaymentPaid {

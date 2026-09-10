@@ -61,7 +61,7 @@ impl Game {
                     .into_iter()
                     .collect()
             }
-            CostDef::Forage => self.spell_forage_payments(card, player, scale),
+            CostDef::Named { .. } => self.spell_named_cost_payments(cost, card, player, scale),
             CostDef::Choice(costs) => costs
                 .iter()
                 .flat_map(|cost| {
@@ -98,33 +98,29 @@ impl Game {
         }
     }
 
-    fn spell_forage_payments(
+    fn spell_named_cost_payments(
         &self,
+        named: CostDef,
         card: &CardInstance,
         player: PlayerId,
         scale: CastScale,
     ) -> Vec<SpellAdditionalCostPayment> {
-        let forage = [
-            CostDef::exile(
-                crate::card::ObjectPredicateDef::Any,
-                ZoneKind::Graveyard,
-                crate::card::CostQuantityDef::Fixed(3),
-            ),
-            CostDef::sacrifice(
-                crate::card::ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Food")),
-                crate::card::CostQuantityDef::Fixed(1),
-            ),
-        ];
-        forage
-            .into_iter()
-            .flat_map(|cost| self.spell_additional_cost_payment_options(cost, card, player, scale))
-            .map(|mut payment| {
-                // These objects pay the forage action, whose event
-                // must survive lowering to concrete payment choices.
-                for (_, cost) in &mut payment.objects {
-                    *cost = CostDef::Forage;
-                }
-                payment
+        let CostDef::Named { mechanic, .. } = named else {
+            return Vec::new();
+        };
+        named
+            .named_choices()
+            .unwrap_or_default()
+            .iter()
+            .flat_map(|cost| {
+                self.spell_additional_cost_payment_options(*cost, card, player, scale)
+                    .into_iter()
+                    .map(move |mut payment| {
+                        for (_, paid_cost) in &mut payment.objects {
+                            *paid_cost = CostDef::Named { mechanic, cost };
+                        }
+                        payment
+                    })
             })
             .collect()
     }

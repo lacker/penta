@@ -6,12 +6,19 @@ use super::{
 use crate::ids::{Binding, TargetIndex};
 
 include!("costs/quantities.rs");
+include!("costs/named.rs");
 
 /// A cost expression shared by casting, activation, and resolving payment
 /// procedures. The surrounding procedure determines who pays it, what object
 /// is its source, and whether it supports the expression's required choices.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostDef {
+    /// A named occurrence completed by one selected cost program. The current
+    /// object-payment adapter admits fixed sacrifice/graveyard-exile choices.
+    Named {
+        mechanic: super::MechanicId,
+        cost: &'static CostDef,
+    },
     /// Perform a shared game-action program as a complete payment obligation.
     /// Each payment procedure validates the program shapes it can plan.
     Perform(&'static super::GameActionDef),
@@ -247,9 +254,6 @@ pub enum CostDef {
         object: ObjectPredicateDef,
         zone: ZoneKind,
     },
-    /// Forage (CR 701.59): exile three cards from the graveyard or sacrifice
-    /// a Food.
-    Forage,
     /// Pay every child cost as one cost expression.
     All(&'static [CostDef]),
     /// Choose exactly one child cost to pay.
@@ -422,8 +426,8 @@ impl CostDef {
     }
 
     #[must_use]
-    pub const fn forage() -> Self {
-        Self::Forage
+    pub const fn named(mechanic: super::MechanicId, cost: &'static Self) -> Self {
+        Self::Named { mechanic, cost }
     }
 
     #[must_use]

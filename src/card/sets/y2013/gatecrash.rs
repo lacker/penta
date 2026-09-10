@@ -160,6 +160,18 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+/// Battalion. Like exalted it is a keyword defined as a triggered ability, so
+/// it takes the effect its card prints rather than being one fixed clause.
+#[must_use]
+pub(in crate::card::sets) const fn battalion(text: &'static str, effect: EffectDef) -> AbilityDef {
+    AbilityDef::triggered(text, BATTALION_EVENT, effect)
+}
+
+/// "This creature and at least two other creatures attack" -- three in all,
+/// with this one among them.
+const BATTALION_EVENT: TriggerEventDef =
+    TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 3, None);
+
 // GTC 1 — Aerial Maneuver
 pub(in crate::card::sets) static AERIAL_MANEUVER: CardRecord = CardRecord::new(
     "Aerial Maneuver",
@@ -293,7 +305,7 @@ pub(in crate::card::sets) static BOROS_ELITE: CardRecord = CardRecord::new(
     "a03974e6-aced-4664-8c5c-3190bb1eb233",
     "Willian Murai",
 CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_abilities(&[
-        abilities::battalion(
+        battalion(
             "Battalion — Whenever this creature and at least two other creatures attack, this creature gets +2/+2 until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -337,7 +349,7 @@ pub(in crate::card::sets) static DARING_SKYJEK: CardRecord = CardRecord::new(
     "6c28412d-9add-4911-8487-c84559006fb0",
     "Jason Chan",
 CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 3, 1).with_abilities(&[
-        abilities::battalion(
+        battalion(
             "Battalion — Whenever this creature and at least two other creatures attack, this creature gains flying until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -669,7 +681,7 @@ pub(in crate::card::sets) static NAV_SQUAD_COMMANDOS: CardRecord = CardRecord::n
     "9d81d7f8-375f-40f5-98cd-08be08580bef",
     "Steve Prescott",
     CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Soldier"], 3, 5).with_ability(
-        abilities::battalion(
+        battalion(
             "Battalion — Whenever this creature and at least two other creatures attack, this \
              creature gets +1/+1 until end of turn. Untap it.",
             EffectDef::Sequence(&[
@@ -2037,7 +2049,7 @@ pub(in crate::card::sets) static BOMBER_CORPS: CardRecord = CardRecord::new(
         AbilityDef::triggered_with_targets(
             "Battalion — Whenever this creature and at least two other creatures attack, this \
              creature deals 1 damage to any target.",
-            abilities::BATTALION_EVENT,
+            BATTALION_EVENT,
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -2084,7 +2096,7 @@ pub(in crate::card::sets) static FIREFIST_STRIKER: CardRecord = CardRecord::new(
         AbilityDef::triggered_with_targets(
             "Battalion — Whenever this creature and at least two other creatures attack, target \
              creature can't block this turn.",
-            abilities::BATTALION_EVENT,
+            BATTALION_EVENT,
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -2624,7 +2636,7 @@ pub(in crate::card::sets) static WARMIND_INFANTRY: CardRecord = CardRecord::new(
     "d8a5f801-9e55-4e14-85b0-5719521cd9d6",
     "Greg Staples",
 CardRules::new_creature(mana_cost!("{2}{R}"), &["Elemental", "Soldier"], 2, 3).with_abilities(&[
-        abilities::battalion(
+        battalion(
             "Battalion — Whenever this creature and at least two other creatures attack, this creature gets +2/+0 until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -3959,7 +3971,7 @@ pub(in crate::card::sets) static FIREMANE_AVENGER: CardRecord = CardRecord::new(
         AbilityDef::triggered_with_targets(
             "Battalion — Whenever this creature and at least two other creatures attack, this \
              creature deals 3 damage to any target and you gain 3 life.",
-            abilities::BATTALION_EVENT,
+            BATTALION_EVENT,
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -4607,7 +4619,7 @@ pub(in crate::card::sets) static ORDRUUN_VETERAN: CardRecord = CardRecord::new(
     "20fea3f6-e64a-4964-86bc-c0b8fef0ab25",
     "Greg Staples",
 CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Minotaur", "Soldier"], 3, 1).with_abilities(&[
-        abilities::battalion(
+        battalion(
             "Battalion — Whenever this creature and at least two other creatures attack, this creature gains double strike until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -5076,7 +5088,7 @@ pub(in crate::card::sets) static WOJEK_HALBERDIERS: CardRecord = CardRecord::new
     "423f0870-dc1c-4cd8-b92c-6d5f92abbaec",
     "Nic Klein",
 CardRules::new_creature(mana_cost!("{R}{W}"), &["Human", "Soldier"], 3, 2).with_abilities(&[
-        abilities::battalion(
+        battalion(
             "Battalion — Whenever this creature and at least two other creatures attack, this creature gains first strike until end of turn.",
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,

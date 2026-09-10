@@ -175,17 +175,6 @@ pub const fn extort() -> AbilityDef {
     )
 }
 
-/// Battalion. Like exalted it is a keyword defined as a triggered ability, so
-/// it takes the effect its card prints rather than being one fixed clause.
-#[must_use]
-pub const fn battalion(text: &'static str, effect: EffectDef) -> AbilityDef {
-    AbilityDef::triggered(text, BATTALION_EVENT, effect)
-}
-
-/// "This creature and at least two other creatures attack" -- three in all,
-/// with this one among them.
-pub const BATTALION_EVENT: TriggerEventDef =
-    TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 3, None);
 
 /// Unleash. The engine implements both halves from the keyword: an optional
 /// +1/+1 counter offered as the permanent enters, and no blocking for as long
@@ -515,48 +504,6 @@ pub const fn eternalize_with_costs(text: &'static str, costs: &'static [CostDef]
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
 
-/// The delayed half of mobilize: the tokens this attack made go away at the
-/// next end step, and it has to be exactly those. By then nothing about the
-/// board could tell them from the ones the last attack made, or from a
-/// Warrior that arrived some other way, so they are bound as they are
-/// created and this names the binding.
-static MOBILIZE_SACRIFICE: EffectDef =
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next end step, sacrifice those tokens.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::End,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
-            ParentBinding,
-        ))),
-    )));
-
-/// Mobilize N (CR 702.180a): "Whenever this creature attacks, create N tapped
-/// and attacking 1/1 red Warrior creature tokens. Sacrifice them at the
-/// beginning of the next end step."
-///
-/// Written out as the triggered ability it abbreviates. The caller supplies
-/// the printed text because the reminder spells the number out in words.
-#[must_use]
-pub const fn mobilize(count: u16, text: &'static str) -> AbilityDef {
-    AbilityDef::triggered(
-        text,
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
-            .with_art(crate::card::CardArt::new(
-                "7edc0515-a130-45a7-aa09-0e23bba41587",
-                "Forrest Imel",
-            ))
-            .with_amount(count)
-            .entering_tapped()
-            .entering_attacking()
-            .with_created_tokens(CreatedTokensDef {
-                binding: ParentBinding,
-                then: &MOBILIZE_SACRIFICE,
-            }),
-    )
-}
 
 /// Boast (CR 702.141): the two restrictions the keyword abbreviates, applied
 /// to an activated ability the caller has already built.
@@ -656,35 +603,4 @@ static CREW_COSTS: [[CostDef; 1]; 10] = [
 
 const fn crew_tap(minimum: u8) -> [CostDef; 1] {
     [CostDef::TapCreaturesWithTotalPower { minimum }]
-}
-
-/// "Battle cry (Whenever this creature attacks, each other attacking creature
-/// gets +1/+0 until end of turn.)"
-///
-/// Written out as the triggered ability it abbreviates. Each printed instance
-/// triggers independently and boosts only the creatures attacking alongside
-/// its own source.
-#[must_use]
-pub const fn battle_cry() -> AbilityDef {
-    AbilityDef::triggered(
-        "Battle cry (Whenever this creature attacks, each other attacking creature gets +1/+0 \
-         until end of turn.)",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Attacking,
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                ]),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(1),
-                ValueDef::Constant(0),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    )
 }

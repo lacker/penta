@@ -142,6 +142,7 @@ impl Game {
             // means a caller lost that answer.
             ResolvedEffectPayment::Action(_)
             | ResolvedEffectPayment::Choice(_)
+            | ResolvedEffectPayment::Named(_)
             | ResolvedEffectPayment::DiscardMatching(_)
             | ResolvedEffectPayment::DiscardCards(_)
             | ResolvedEffectPayment::ChosenGenericMana
@@ -189,6 +190,7 @@ impl Game {
             ResolvedEffectPayment::Action(ref action) => {
                 format!("{} {} object(s)", action.verb(), action.amount)
             }
+            ResolvedEffectPayment::Named(_) => "Perform the named action".to_string(),
             ResolvedEffectPayment::All(_) | ResolvedEffectPayment::Choice(_) => {
                 "Pay the cost".into()
             }

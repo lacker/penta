@@ -64,7 +64,7 @@ pub use card::{
     InstalledTriggerLifetimeDef, IntrinsicCounter, KeywordAbility, KeywordCounter, LikelihoodDef,
     ManaCost, ManaCostParseError, ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef,
     ManaSpendEffectDef, ManaSplit, ManaTypeDef, ManaTypeFilterDef, ManaTypeSetDef,
-    ManaTypeSourceDef, MeldComponentDef, MeldRecipeDef, MeldResultDef, ModalModeListDef,
+    ManaTypeSourceDef, MechanicId, MeldComponentDef, MeldRecipeDef, MeldResultDef, ModalModeListDef,
     ModalSpellDef, ModeDef, ModeSetDef, NO_COSTS, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayActionKind,
     PlayActionMatcherDef, PlayOptionDef, PlayRestriction, PlayRestrictionDef, PlayerRefDef,

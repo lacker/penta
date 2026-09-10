@@ -44,7 +44,7 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         // The cycled card is in the graveyard by the time the trigger goes
         // on the stack, but nothing reads it as an object, so it names no
         // zone at all.
-        TriggerEventDef::Foraged(_)
+        TriggerEventDef::MechanicPerformed { .. }
         | TriggerEventDef::CommittedCrime(_)
         | TriggerEventDef::CoinFlipWon(_)
         | TriggerEventDef::CoinFlipLost(_)

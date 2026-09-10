@@ -69,17 +69,11 @@ fn continuation_snapshot(
     visible_rebindings: &[GameObjectId],
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
-        DecisionContinuation::Forage {
-            player,
-            optional,
-            from,
-        } => {
-            DecisionContinuationSnapshot::Forage {
-                player: player.index(),
-                optional: *optional,
-                from: from.map(zone_kind_snapshot),
-            }
-        }
+        DecisionContinuation::NamedCost { player, branch, definition, object, context, .. } =>
+            DecisionContinuationSnapshot::NamedCost {
+                player: player.index(), branch: *branch,
+                continuation: effect_continuation_snapshot(game, viewer, object, context, *definition, visible_rebindings)?,
+            },
         DecisionContinuation::PregameActions { player, actions } => {
             DecisionContinuationSnapshot::PregameActions {
                 player: player.index(),
@@ -577,7 +571,7 @@ fn continuation_snapshot(
             DecisionContinuationSnapshot::PayOr {
                 player: player.index(),
                 payment: resolved_effect_payment_snapshot(payment.clone()),
-                payment_provenance: payment_provenance.map(|p| p.label.0.to_owned()),
+                payment_provenance: payment_provenance.map(|p| p.label.to_string()),
                 object: detached_stack_snapshot_allowing(game, viewer, object, visible_rebindings)?,
                 ability,
                 context: effect_resolution_context_snapshot(context),

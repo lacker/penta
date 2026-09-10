@@ -7,7 +7,7 @@ use syn::visit::Visit;
 use super::{parse_header, printed_set_files};
 
 #[test]
-fn card_local_definition_helpers_are_reused_or_recursive() {
+fn card_local_definition_helpers_preserve_local_readability() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut violations = Vec::new();
 
@@ -48,7 +48,7 @@ fn card_local_definition_helpers_are_reused_or_recursive() {
     let omitted = violations.len().saturating_sub(100);
     assert!(
         violations.is_empty(),
-        "inline card-local helpers unless they are reused or recursive ({} violations; showing up to 100):\n{shown}{}",
+        "inline card-local data helpers unless reused ({} violations; showing up to 100):\n{shown}{}",
         violations.len(),
         if omitted == 0 {
             String::new()
@@ -78,12 +78,7 @@ fn card_local_helper_declarations(source: &str) -> Vec<ValueDeclaration> {
         let value = line
             .strip_prefix("static ")
             .or_else(|| line.strip_prefix("const "));
-        let function = line
-            .strip_prefix("const fn ")
-            .and_then(|body| body.split_once('(').map(|(name, _)| name));
-        let name = value
-            .and_then(|body| body.split_once(':').map(|(name, _)| name))
-            .or(function);
+        let name = value.and_then(|body| body.split_once(':').map(|(name, _)| name));
         let Some(name) = name else {
             continue;
         };
@@ -99,6 +94,31 @@ fn card_local_helper_declarations(source: &str) -> Vec<ValueDeclaration> {
     }
 
     declarations
+}
+
+#[test]
+fn local_procedures_need_no_marker_but_comments_do_not_exempt_data_helpers() {
+    let declarations = card_local_helper_declarations(
+        "// TST 1 — Test Card\n\
+         const fn local_program(amount: ValueDef) -> EffectDef { todo!() }\n\
+         // A comment cannot exempt a one-use constant.\n\
+         const AMOUNT: i32 = 1;\n\
+         fn unexplained() -> EffectDef { todo!() }\n\
+         const fn tiny_wrapper() -> EffectDef { todo!() }\n",
+    );
+    assert_eq!(declarations.len(), 1);
+    assert_eq!(declarations[0].name, "AMOUNT");
+}
+
+#[test]
+fn set_preamble_helpers_do_not_need_card_local_exceptions() {
+    let declarations = card_local_helper_declarations(
+        "const fn set_mechanic() -> EffectDef { todo!() }\n\
+         // TST 1 — Test Card\n\
+         static ONE_USE_VALUE: i32 = 1;\n",
+    );
+    assert_eq!(declarations.len(), 1);
+    assert_eq!(declarations[0].name, "ONE_USE_VALUE");
 }
 
 struct PathUseCounter<'a> {

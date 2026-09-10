@@ -175,7 +175,7 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
         ),
         AbilityDef::triggered(
             "When you cycle this card, you may pay {X}. If you do, create X 1/1 white Soldier creature tokens.",
-            TriggerEventDef::DiscardedToActivate(crate::card::AbilityLabel::CYCLING),
+            TriggerEventDef::DiscardedToActivate(crate::card::abilities::CYCLING),
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::ChosenGenericMana], // The cycling half: X is settled by the payment rather than by a cast, so
                 // the branch that makes the tokens reads back what was actually paid.
@@ -584,7 +584,7 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
         ),
         AbilityDef::triggered_with_targets(
             "When you cycle this card, you may counter target spell.",
-            TriggerEventDef::DiscardedToActivate(crate::card::AbilityLabel::CYCLING),
+            TriggerEventDef::DiscardedToActivate(crate::card::abilities::CYCLING),
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Spell,
                 zones: &[ZoneKind::Stack],

@@ -11,12 +11,12 @@ mod bound_outputs;
 mod copy;
 mod damage;
 mod exile_to_play;
-mod forage;
 mod hand_and_library;
 mod installed_triggers;
 mod linked_exiles;
 mod mana;
 mod move_to_zone;
+mod named_costs;
 mod object_collections;
 mod permanent_state;
 mod player_state;
@@ -35,9 +35,6 @@ impl Game {
         let context = context.into();
         match scoped.effect {
             EffectDef::Perform(action) => self.resolve_game_action(action, object, context, scoped),
-            EffectDef::Forage { optional } => {
-                self.queue_forage(object.controller, optional, None, object.source);
-            }
             EffectDef::WithRule { rule, effect } => {
                 self.resolve_effect_def(
                     scoped.with_rule(rule).with_effect(*effect),
@@ -268,7 +265,6 @@ impl Game {
             }
             EffectDef::DrawCards { .. }
             | EffectDef::ShuffleLibrary { .. }
-            | EffectDef::BuryGraveyard { .. }
             | EffectDef::Discard { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileOneFromEachZone(_)

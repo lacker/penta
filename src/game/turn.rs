@@ -705,6 +705,7 @@ impl Game {
                 permanent.resolving_control_timestamp = None;
                 permanent.controller = owner;
                 permanent.suspend_haste = false;
+                permanent.entered_controller_turn = self.turns_started[owner.index()];
             }
             permanent.destroy_at_end = false;
             permanent.regeneration_shields = 0;

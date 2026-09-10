@@ -44,6 +44,7 @@ pub(super) const fn step_name(step: Step) -> &'static str {
 pub(super) const fn decision_visibility_name(visibility: DecisionVisibility) -> &'static str {
     match visibility {
         DecisionVisibility::Public => "Public",
+        DecisionVisibility::PublicNotice => "PublicNotice",
         DecisionVisibility::Private => "Private",
     }
 }

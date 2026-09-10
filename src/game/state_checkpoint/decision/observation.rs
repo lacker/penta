@@ -8,13 +8,10 @@ pub(super) fn decision_snapshot(
     viewer: PlayerId,
     pending: &PendingDecision,
 ) -> Option<DecisionStateSnapshot> {
-    // A private decision is absent from this viewer's ordinary observation.
-    // Serializing its continuation anyway would expose raw candidate ids and
-    // effect-local bindings through the checkpoint, so fail reconstruction
-    // closed for the non-choosing seat instead.
-    if pending.observation.visibility == DecisionVisibility::Private
-        && pending.observation.player != viewer
-    {
+    // A public notice conveys that a choice is pending, not its candidates.
+    // Neither it nor an entirely private choice may disclose options or
+    // effect-local bindings through the reconstruction continuation.
+    if !pending.observation.options_visible_to(viewer) {
         return None;
     }
     let card_origins = visible_decision_card_origins(game, viewer, pending);

@@ -4,6 +4,43 @@ import test from "node:test";
 
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
 
+test("naming choices expose a pending notice and then the selected answer", async () => {
+  await initializeWasm();
+  const game = new WebGame(
+    "Anderson Omnidoor Thragfire", "Braun-Duin Naya Midrange",
+    "External", false, 0, "isd-m14-standard",
+  );
+  try {
+    for (let step = 0; step < 30; step++) {
+      const view = JSON.parse(game.opponentObserveJson());
+      const cavern = view.hand.find(card => card.name === "Cavern of Souls");
+      const play = view.legalActions.find(action => action.type === "PlayLand" && action.card === cavern?.objectId);
+      if (play) { game.opponentAct(play.index); break; }
+      const botAction = view.legalActions.find(action => action.type === "KeepHand")
+        ?? view.legalActions.find(action => action.type === "PassPriority");
+      if (botAction) { game.opponentAct(botAction.index); continue; }
+      const state = JSON.parse(game.state_json());
+      const humanAction = state.actions.find(action => action.label === "Keep this hand")
+        ?? state.actions.find(action => action.kind === "pass");
+      assert.ok(humanAction, "the setup can advance to Cavern");
+      game.act(humanAction.index);
+    }
+    const waiting = JSON.parse(game.state_json()).decision;
+    assert.equal(waiting.visibility, "PublicNotice");
+    assert.equal(waiting.optionsVisible, false);
+    assert.deepEqual(waiting.options, []);
+    assert.equal(waiting.prompt, "Choose a creature type");
+    const chooser = JSON.parse(game.opponentObserveJson()).decision;
+    const angel = chooser.options.find(option => option.label === "Angel");
+    assert.ok(angel, "the choosing bot receives its full menu");
+    game.opponentChooseDecision(chooser.id, JSON.stringify([angel.id]));
+    const after = JSON.parse(game.state_json());
+    assert.equal(after.decision, null);
+    assert.ok(after.battlefield.some(card => card.chosenCreatureType === "Angel"));
+    assert.ok(after.opponentActions.some(action => action.label === "Angel"));
+  } finally { game.free(); }
+});
+
 test("The Deck exposes colored costs and control rules to the browser", async () => {
   await initializeWasm();
 

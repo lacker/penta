@@ -97,8 +97,10 @@ use observation_json::{decision_json, stack_object_json};
 /// alternatives on cast actions. Version 29 removes the `isd-dgm-standard`
 /// format value; use the final pre-Theros `isd-m14-standard` profile. Version
 /// 30 replaces the card implementation-status values `partial` and
-/// `metadataOnly` with the single whole-card value `unsupported`.
-pub const PROTOCOL_VERSION: u32 = 30;
+/// `metadataOnly` with the single whole-card value `unsupported`. Version 31
+/// adds the `PublicNotice` decision visibility: opponents receive the pending
+/// question but no selection payload or reconstructible continuation.
+pub const PROTOCOL_VERSION: u32 = 31;
 
 /// The engine package release. This is ordinary Cargo `SemVer`, not an exact
 /// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model

@@ -20,7 +20,11 @@ pub enum DecisionOrderSemantics {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum DecisionVisibility {
+    /// The question and its options are rules-public information.
     Public,
+    /// The question is public, but only the chooser sees the selection menu.
+    /// The completed answer is disclosed by the resolving rules procedure.
+    PublicNotice,
     Private,
 }
 
@@ -98,4 +102,28 @@ pub struct DecisionObservation {
     pub maximum: usize,
     pub cancellable: bool,
     pub options: Vec<DecisionOption>,
+}
+
+impl DecisionObservation {
+    /// Whether this viewer may receive selection data rather than a notice.
+    #[must_use]
+    pub fn options_visible_to(&self, viewer: PlayerId) -> bool {
+        self.player == viewer || self.visibility == DecisionVisibility::Public
+    }
+
+    pub(super) fn for_viewer(&self, viewer: PlayerId) -> Option<Self> {
+        if self.visibility == DecisionVisibility::Private && self.player != viewer {
+            return None;
+        }
+        let mut observation = self.clone();
+        if !self.options_visible_to(viewer) {
+            observation.options.clear();
+            observation.preference = DecisionPreference::Neutral;
+            observation.minimum = 0;
+            observation.maximum = 0;
+            observation.cancellable = false;
+            observation.order_semantics = None;
+        }
+        Some(observation)
+    }
 }

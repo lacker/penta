@@ -6,7 +6,7 @@ historical Standard windows, and two cubes. This guide is for writing a program
 that plays it: from Python, C, C++, or Rust, against the included bots or
 against itself.
 
-This guide describes the current development wire contract, **protocol 30**,
+This guide describes the current development wire contract, **protocol 31**,
 which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
@@ -402,6 +402,8 @@ A private pending decision is reconstructible only from its choosing seat's
 observation. Other seats receive neither the decision nor its continuation in
 their checkpoint; `hasDeferredState` is true, so importing that checkpoint
 fails closed instead of exposing private candidates or effect-local bindings.
+The same reconstruction restriction applies to a `PublicNotice` decision:
+the opponent receives its pending question, but no options or continuation.
 The first successful draw of each turn always takes the same private
 draw-action path. Its empty selection means "take no draw action"; only the
 drawing seat receives the candidate payload that says whether Reveal is also
@@ -485,7 +487,7 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 30 objects are open-world, but an epoch mismatch requires migration |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 31 objects are open-world, but an epoch mismatch requires migration |
 | `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v15`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
@@ -779,7 +781,7 @@ Every decision has a `kind`:
   active-player/nonactive-player placement order, before priority returns.
 
 These arrive as a `decision` object with `id`, chooser `seat`, `prompt`,
-`visibility` (`Public` or `Private`), `minimum`/`maximum` counts,
+`visibility` (`Public`, `PublicNotice`, or `Private`), `minimum`/`maximum` counts,
 `cancellable`, and `options`. When a resolving permanent ability created the
 choice, additive `sourceObjectId` names that battlefield object even though
 the ability has already left the stack. Each option has its own `id`, `label`, nullable
@@ -795,6 +797,24 @@ the reported bounds. When `cancellable` is true, `CancelDecision` is a
 distinct legal action; cancelling is not the same as choosing zero options.
 `OutsideGame` is a provenance value used for a privately offered sideboard
 card; it is not a Magic zone and sideboards are not added to observations.
+
+`PublicNotice` separates a public pending question from its private selection
+menu. Naming a card (including Pithing Needle), choosing a creature type
+(including Cavern of Souls), and other scalar choices use this visibility.
+The chooser receives the complete options and valid selection bounds. Other
+seats receive only the decision identity, chooser, source, and prompt; their
+options are empty, bounds are zero, cancellation is false, and no decision
+continuation is included in the checkpoint. This is a waiting notice, not a
+zero-option choice the observing bot can answer. After resolution, the chosen
+value is disclosed through the resulting public game state. `Public` remains
+available for procedures whose candidate payload is itself rules-public;
+`Private` withholds the entire pending question from other seats.
+
+Protocol 31 adds the `PublicNotice` visibility tag. Consumers must accept this
+tag and distinguish a pending opponent notice from their own actionable
+decision. The browser adapter also supplies `optionsVisible` for rendering a
+waiting notice without selection controls. Exact reconstruction still requires
+the same simulation fingerprint; the checkpoint encoding version is unchanged.
 
 For most decisions the submitted list is a set: which options you picked
 matters and the order you list them does not. One shape reads the order too.
@@ -1462,10 +1482,10 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
-# This bot consumes the protocol-30 indexed-action vocabulary and no optional
+# This bot consumes the protocol-31 indexed-action vocabulary and no optional
 # facilities. Do not echo capabilities from the server unless you implement them.
 COMPATIBILITY = {
-    "protocolVersion": 30,
+    "protocolVersion": 31,
     "capabilities": [],
     "requiredCapabilities": [],
     # Trained bots may require the exact server artifact they target:

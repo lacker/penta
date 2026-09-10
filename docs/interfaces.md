@@ -41,6 +41,12 @@ hidden zones. Rules-driven disclosures can add the known, possibly stale
 expose cards the player has not learned. `GameEvent` is an omniscient debugging
 and replay stream; it must not be used as a player observation.
 
+Pending naming and scalar decisions use `PublicNotice`: the chooser receives
+the selection menu, while other seats receive only a public waiting notice.
+Their observations and checkpoints contain neither the options nor the
+continuation. The completed choice appears in the resulting public game state.
+This distinction is shared by native callers, bots, bindings, and browsers.
+
 `PermanentObservation.characteristics` reports effective copiable values.
 `physical_face` separately reports the public topology and side of a face-up
 physical double-faced permanent, so consumers must not infer transformability

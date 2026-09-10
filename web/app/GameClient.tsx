@@ -288,6 +288,7 @@ export function GameClient({
   const currentOpponentAction = currentStep?.kind === "action" ? currentStep.action : null;
   const turnBanner = currentStep?.kind === "banner" ? currentStep.banner : null;
   const watchingOpponent = currentStep !== null;
+  const awaitingOpponentDecision = state?.decision?.optionsVisible === false;
   const clockWarning = clockWarningText(state?.moveClock, clockNow);
   // Drawing for the turn is something the game does, not something the
   // opponent chose, so it stays out of the "N actions" count.
@@ -2188,14 +2189,16 @@ export function GameClient({
           <aside
             className={`decision-panel ${watchingOpponent ? "is-watching-opponent" : ""}`}
             aria-label="Legal actions"
-            aria-busy={watchingOpponent}
+            aria-busy={watchingOpponent || awaitingOpponentDecision}
           >
             <div className="decision-heading">
               <div>
-                <span>{watchingOpponent ? "OPPONENT ACTING" : "YOUR DECISION"}</span>
+                <span>{watchingOpponent || awaitingOpponentDecision ? "OPPONENT ACTING" : "YOUR DECISION"}</span>
                 {clockWarning && <em className="move-clock">{clockWarning}</em>}
                 <strong>
-                  {watchingOpponent
+                  {awaitingOpponentDecision
+                    ? "Waiting for a choice"
+                    : watchingOpponent
                     ? actionStepsRemaining > 0
                       ? `${actionStepsRemaining} action${actionStepsRemaining === 1 ? "" : "s"}`
                       : "New turn"
@@ -2283,7 +2286,14 @@ export function GameClient({
                 </div>
               )}
               {state.decision && (
-                isTriggerOrderDecision(state.decision) ? (
+                state.decision.optionsVisible === false ? (
+                  <div className="engine-decision" role="status">
+                    <div className="target-prompt">
+                      <strong>Opponent is choosing</strong>
+                      <span>{state.decision.prompt}</span>
+                    </div>
+                  </div>
+                ) : isTriggerOrderDecision(state.decision) ? (
                   <div
                     className="engine-decision trigger-order-decision"
                     role="group"

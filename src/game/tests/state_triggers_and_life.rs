@@ -223,7 +223,9 @@ fn zealous_conscripts_borrows_a_permanent_and_gives_it_back_at_cleanup() {
     {
         permanent.entered_controller_turn = 0;
     }
-    game.turns_started = [2, 2];
+    // The borrowing player has begun their second turn, while the original
+    // controller's second turn starts only after this cleanup.
+    game.turns_started = [2, 1];
 
     game.put_onto_battlefield(PlayerId::One, cards::ZEALOUS_CONSCRIPTS)
         .expect("cataloged");
@@ -294,6 +296,15 @@ fn zealous_conscripts_borrows_a_permanent_and_gives_it_back_at_cleanup() {
         !game.permanent_has_executable_keyword(returned, KeywordAbility::Haste),
         "and the granted haste is gone with it"
     );
+    assert_eq!(game.active_player, PlayerId::Two);
+    assert!(
+        game.can_attack(returned),
+        "returning during cleanup permits attacking on the controller's next turn"
+    );
+    game.step = Step::DeclareAttackers;
+    assert!(game.legal_actions(PlayerId::Two).iter().any(|action| {
+        matches!(action, Action::DeclareAttacker { attacker, .. } if *attacker == stolen)
+    }));
 }
 
 #[test]

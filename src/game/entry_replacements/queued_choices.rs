@@ -81,7 +81,7 @@ impl Game {
         self.queue_decision(
             player,
             "Replace one basic land type with another",
-            DecisionVisibility::Public,
+            DecisionVisibility::PublicNotice,
             DecisionPreference::Neutral,
             1..=1,
             false,
@@ -153,7 +153,7 @@ impl Game {
         self.queue_decision(
             controller,
             "Choose a color to add",
-            DecisionVisibility::Public,
+            DecisionVisibility::PublicNotice,
             DecisionPreference::Neutral,
             1..=1,
             false,
@@ -212,7 +212,7 @@ impl Game {
         self.queue_decision(
             player,
             "Choose a color",
-            DecisionVisibility::Public,
+            DecisionVisibility::PublicNotice,
             DecisionPreference::Neutral,
             1..=1,
             false,

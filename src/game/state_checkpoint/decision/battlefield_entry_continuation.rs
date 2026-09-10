@@ -168,7 +168,7 @@ fn parse_battlefield_entry_continuation(
                 observation,
                 owner,
                 prompt,
-                DecisionVisibility::Public,
+                DecisionVisibility::PublicNotice,
                 DecisionPreference::Neutral,
                 1,
                 1,

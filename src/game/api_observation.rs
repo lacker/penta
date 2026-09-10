@@ -100,9 +100,7 @@ impl Game {
                 })
                 .collect(),
             decision: self.match_decision().filter(|decision| decision.player == viewer).or_else(|| (!self.between_games()).then(|| self.pending_decisions.first()).flatten().and_then(|decision| {
-                (decision.observation.visibility == DecisionVisibility::Public
-                    || decision.observation.player == viewer)
-                    .then(|| decision.observation.clone())
+                decision.observation.for_viewer(viewer)
             })),
             result: self.result(),
             legal_actions: self.legal_actions(viewer),

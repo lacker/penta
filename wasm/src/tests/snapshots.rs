@@ -1,6 +1,68 @@
 use super::*;
 
 #[test]
+fn naming_choices_deliver_a_waiting_notice_then_the_public_answer() {
+    for (definition, answer) in [
+        (penta::card::cards::CAVERN_OF_SOULS, "Angel"),
+        (penta::card::cards::PITHING_NEEDLE, "Black Lotus"),
+    ] {
+        let mut game = WebGame::new(
+            "Braun-Duin Naya Midrange",
+            "Anderson Omnidoor Thragfire",
+            "External",
+            true,
+            42,
+            Some("isd-m14-standard".into()),
+        )
+        .expect("game starts");
+        while game.session.engine_mut().in_pregame() {
+            apply_engine_action(game.session.engine_mut(), |action| {
+                matches!(action, Action::KeepHand)
+            });
+        }
+        let opponent = game.human.opponent();
+        game.session
+            .engine_mut()
+            .put_onto_battlefield(opponent, definition)
+            .expect("naming permanent is cataloged");
+        let observation = game.session.observe(opponent);
+        let choice = observation.decision.expect("the chooser has a menu");
+        let selected = choice
+            .options
+            .iter()
+            .find(|option| option.label == answer)
+            .expect("answer is offered")
+            .id;
+        let waiting = game.snapshot();
+        assert_eq!(waiting["decision"]["prompt"], choice.prompt);
+        assert_eq!(waiting["decision"]["visibility"], "PublicNotice");
+        assert_eq!(waiting["decision"]["optionsVisible"], false);
+        assert_eq!(waiting["decision"]["options"], json!([]));
+        game.opponent_choose_decision(choice.id, &json!([selected]).to_string())
+            .expect("the opponent answers their own choice");
+        let after = game.snapshot();
+        assert!(after["decision"].is_null());
+        assert_eq!(
+            after["opponentActions"][0]["label"], answer,
+            "the completed selection is announced without its unused options"
+        );
+        let field = if definition == penta::card::cards::CAVERN_OF_SOULS {
+            "chosenCreatureType"
+        } else {
+            "chosenCardName"
+        };
+        assert!(
+            after["battlefield"]
+                .as_array()
+                .expect("battlefield is an array")
+                .iter()
+                .any(|permanent| permanent[field] == answer),
+            "the selected name is public after resolution"
+        );
+    }
+}
+
+#[test]
 fn the_pass_label_stops_where_the_opponents_attack_decision_begins() {
     // The button must not answer a question that belongs to the opponent.
     // Promising "their end step" would predict that they decline to

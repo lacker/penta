@@ -32,6 +32,7 @@ const fn step_name(step: penta::Step) -> &'static str {
 const fn decision_visibility_name(visibility: penta::DecisionVisibility) -> &'static str {
     match visibility {
         penta::DecisionVisibility::Public => "Public",
+        penta::DecisionVisibility::PublicNotice => "PublicNotice",
         penta::DecisionVisibility::Private => "Private",
     }
 }
@@ -467,6 +468,7 @@ impl WebGame {
                 "maximum": decision.maximum,
                 "cancellable": decision.cancellable,
                 "visibility": decision_visibility_name(decision.visibility),
+                "optionsVisible": decision.options_visible_to(observation.viewer),
                 "options": decision.options.iter().map(|option| json!({
                     "id": option.id,
                     "triggerId": matches!(decision.kind, DecisionKind::TriggerOrder).then_some(option.id),

@@ -43,7 +43,7 @@ impl Game {
         self.queue_decision(
             player,
             "Each land of the first type becomes the second until end of turn",
-            super::DecisionVisibility::Public,
+            super::DecisionVisibility::PublicNotice,
             super::DecisionPreference::Neutral,
             1..=1,
             false,

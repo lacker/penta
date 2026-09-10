@@ -186,7 +186,7 @@ impl Game {
         self.queue_decision(
             player,
             prompt,
-            DecisionVisibility::Public,
+            DecisionVisibility::PublicNotice,
             DecisionPreference::Neutral,
             1..=1,
             false,

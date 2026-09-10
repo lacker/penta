@@ -236,6 +236,8 @@ export type DecisionState = {
   maximum: number;
   cancellable: boolean;
   visibility: string;
+  /** False when this viewer receives only a public pending-choice notice. */
+  optionsVisible?: boolean;
   options: DecisionOption[];
 };
 

@@ -2,8 +2,8 @@ use super::continuous_effects::StaticEffectKind;
 use super::{
     AbilityDef, AbilityOrigin, Action, ActionError, ActivationChoices, CardCounterObservation,
     CardStructure, CardType, CharacteristicContext, CombatDamageStage, ControlFlow, CounterKind,
-    CounterObservation, DecisionVisibility, DoubleFacedKind, EmblemObservation, Game, GameEvent,
-    GameObjectId, GameResult, ManaActivationChoices, ObjectCharacteristics, ObjectKind, Permanent,
+    CounterObservation, DoubleFacedKind, EmblemObservation, Game, GameEvent, GameObjectId,
+    GameResult, ManaActivationChoices, ObjectCharacteristics, ObjectKind, Permanent,
     PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerId, PlayerObservation,
     Pregame, PregameAbilityAction, StackObservation, Step, WinReason, ZoneKind, combinations,
     public_cards,

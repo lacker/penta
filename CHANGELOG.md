@@ -20,6 +20,14 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.
+  Opponents see that a choice is pending, then its public result; candidate
+  options, ordering, policy hints, and checkpoint continuations stay with the
+  chooser. This closes Cavern of Souls' hand-dependent option-order leak and
+  applies equally to Pithing Needle and other naming choices. The browser
+  presents an opponent waiting notice without selection controls.
+- Temporary control effects now restore the returning controller's turn count
+  during cleanup, so borrowed creatures can attack on that player's next turn.
 - Add opt-in `first-to-two-wins` matches to the shared game lifecycle, bindings,
   browser, hosted rooms and headless runner. Registrations stay fixed; private
   sideboarding follows each nonterminal conclusion, draws score separately,

@@ -63,6 +63,7 @@ fn parse_decision_observation(
         prompt: str_field(value, "prompt")?.to_owned(),
         visibility: match str_field(value, "visibility")? {
             "Public" => DecisionVisibility::Public,
+            "PublicNotice" => DecisionVisibility::PublicNotice,
             "Private" => DecisionVisibility::Private,
             other => return Err(format!("unknown decision visibility {other}")),
         },

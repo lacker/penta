@@ -1,5 +1,95 @@
 use super::*;
 
+#[test]
+fn naming_choices_show_opponents_only_a_pending_notice_and_the_final_name() {
+    for (definition, answer) in [
+        (cards::CAVERN_OF_SOULS, "Angel"),
+        (cards::PITHING_NEEDLE, "Black Lotus"),
+    ] {
+        let mut opponent_views = Vec::new();
+        for hidden_card in [cards::RESTORATION_ANGEL, cards::THRAGTUSK] {
+            let mut game = ready_game();
+            game.players[0]
+                .hand
+                .push(card(19_088, hidden_card, PlayerId::One));
+            game.put_onto_battlefield(PlayerId::One, definition)
+                .expect("naming permanent is cataloged");
+            let chooser = game.observe(PlayerId::One);
+            let decision = chooser.decision.expect("the chooser receives a menu");
+            let option = decision
+                .options
+                .iter()
+                .find(|option| option.label == answer)
+                .expect("the requested answer is offered")
+                .id;
+            let opponent = game.observe(PlayerId::Two);
+            let notice = opponent
+                .decision
+                .as_ref()
+                .expect("the opponent sees a pending choice");
+            assert_eq!(notice.player, PlayerId::One);
+            assert_eq!(notice.prompt, decision.prompt);
+            assert!(
+                notice.options.is_empty(),
+                "opponents must not receive the selection menu"
+            );
+            assert!(
+                opponent
+                    .legal_actions
+                    .iter()
+                    .all(|action| matches!(action, Action::Concede))
+            );
+            assert!(
+                game.apply(
+                    PlayerId::Two,
+                    Action::ChooseDecision {
+                        decision: decision.id,
+                        options: vec![option],
+                    }
+                )
+                .is_err(),
+                "the opponent cannot answer the notice"
+            );
+            assert!(opponent.checkpoint["decisionState"].is_null());
+            assert_eq!(opponent.checkpoint["hasDeferredState"], true);
+            opponent_views.push(crate::protocol::observation_json_for_format(
+                &game.catalog,
+                game.format,
+                &opponent,
+                game.in_pregame(),
+                &[],
+            ));
+            game.apply(
+                PlayerId::One,
+                Action::ChooseDecision {
+                    decision: decision.id,
+                    options: vec![option],
+                },
+            )
+            .expect("the chooser can submit the full menu's option ID");
+            let after = game.observe(PlayerId::Two);
+            assert!(after.decision.is_none());
+            let permanent = after
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.characteristics.card_definition() == Some(definition))
+                .expect("the permanent enters after the choice");
+            assert_eq!(
+                permanent
+                    .chosen_creature_type
+                    .as_deref()
+                    .or(permanent.chosen_card_name.as_deref()),
+                Some(answer),
+                "the selected value becomes public",
+            );
+        }
+        assert_eq!(
+            opponent_views[0], opponent_views[1],
+            "changing the hidden hand must not change the pending notice or checkpoint"
+        );
+    }
+}
+
 fn acceptance_play_cavern_choosing(game: &mut Game, creature_type: &str) -> GameObjectId {
     let cavern = card(19_000, cards::CAVERN_OF_SOULS, PlayerId::One);
     game.players[0].hand.push(cavern.clone());

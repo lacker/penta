@@ -2483,12 +2483,13 @@ pub(in crate::card::sets) static DEMONLORD_OF_ASHMOUTH: CardRecord = CardRecord:
         abilities::enters_trigger(
             "When this creature enters, exile it unless you sacrifice another creature.",
             EffectDef::PayOr(PayOrDef::unless(
-                &[crate::card::CostDef::SacrificePermanentMatching(
-                    ObjectPredicateDef::All(&[
+                &[crate::card::CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
-                )],
+                    controller: PlayerRelation::You,
+                }],
                 &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
                     zone: ZoneKind::Exile,

@@ -55,7 +55,10 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
             | crate::card::CostDef::ChosenEnergy
             | crate::card::CostDef::MovePermanentMatching { .. }
             | crate::card::CostDef::DiscardMatching(_)
-            | crate::card::CostDef::SacrificePermanentMatching(_) => true,
+            | crate::card::CostDef::SacrificePermanent {
+                controller: PlayerRelation::You,
+                ..
+            } => true,
             _ => false,
         })
 }

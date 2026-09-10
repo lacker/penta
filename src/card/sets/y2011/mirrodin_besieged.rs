@@ -1473,9 +1473,10 @@ pub(in crate::card::sets) static KULDOTHA_FLAMEFIEND: CardRecord = CardRecord::n
                 chooser: TargetChooserDef::Controller,
             }],
             EffectDef::PayOr(PayOrDef::optional(
-                &[CostDef::SacrificePermanentMatching(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                )],
+                &[CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    controller: PlayerRelation::You,
+                }],
                 &EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::DividedAmongTargets,

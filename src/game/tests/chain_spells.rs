@@ -58,10 +58,11 @@ fn chain_of_silence_sacrifices_then_copies_and_prevents_each_targets_damage() {
     let first = creature(170_000, cards::SERRA_ANGEL, PlayerId::Two);
     let second = creature(170_001, cards::SAVANNAH_LIONS, PlayerId::One);
     let land = creature(170_002, cards::MOUNTAIN, PlayerId::Two);
+    let casters_land = creature(170_004, cards::ISLAND, PlayerId::One);
     let first_id = first.card.id;
     let second_id = second.card.id;
     let land_id = land.card.id;
-    game.battlefield.extend([first, second, land]);
+    game.battlefield.extend([first, second, land, casters_land]);
 
     let chain = card(170_003, cards::CHAIN_OF_SILENCE, PlayerId::One);
     let chain_id = chain.id;
@@ -75,6 +76,27 @@ fn chain_of_silence_sacrifices_then_copies_and_prevents_each_targets_damage() {
     .expect("Chain of Silence is castable");
     pass_priority_pair(&mut game);
 
+    let decision = game.observe(PlayerId::Two).decision.unwrap();
+    assert_eq!(
+        decision
+            .options
+            .iter()
+            .filter_map(|option| option.card.map(|(id, _)| id))
+            .collect::<Vec<_>>(),
+        vec![land_id],
+        "the matching land must be controlled by the payer",
+    );
+    let (wire, hidden) = checkpoint_fixture(&game, PlayerId::Two);
+    game = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &hidden,
+        170_100,
+    )
+    .expect("the unified sacrifice cost restores its pending payment");
+    assert_eq!(game.observe(PlayerId::Two).decision, Some(decision));
+
     choose_first_non_decline(&mut game, PlayerId::Two);
     assert!(
         game.battlefield
@@ -85,6 +107,7 @@ fn chain_of_silence_sacrifices_then_copies_and_prevents_each_targets_damage() {
     choose_decision_by_label(&mut game, PlayerId::Two, "Do it");
     choose_copy_target(&mut game, PlayerId::Two, Target::Permanent(second_id));
     pass_priority_pair(&mut game);
+    choose_decision_by_label(&mut game, PlayerId::One, "Decline");
 
     assert_eq!(
         game.damage_target_from(Some(first_id), Some(Target::Player(PlayerId::One)), 4,),

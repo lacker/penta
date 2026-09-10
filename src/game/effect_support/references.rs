@@ -142,7 +142,10 @@ impl Game {
             Cost::Energy(amount) => Resolved::Energy(amount),
             Cost::MillCards(amount) => Resolved::Mill(amount),
             Cost::DiscardCards(amount) => Resolved::Discard(amount),
-            Cost::SacrificePermanentMatching(predicate) => {
+            Cost::SacrificePermanent {
+                object: predicate,
+                controller: crate::card::PlayerRelation::You,
+            } => {
                 Resolved::SacrificePermanentMatching(predicate)
             }
             Cost::SacrificeCreaturesWithTotalPower(total) => {

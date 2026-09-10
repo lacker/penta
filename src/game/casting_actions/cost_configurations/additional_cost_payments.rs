@@ -246,8 +246,7 @@ impl Game {
             CostDef::DiscardMatching(object) | CostDef::DiscardCardMatching(object) => {
                 CostDef::discard(object, Quantity::Fixed(1))
             }
-            CostDef::SacrificePermanentMatching(object)
-            | CostDef::SacrificePermanent {
+            CostDef::SacrificePermanent {
                 object,
                 controller: crate::card::PlayerRelation::You,
             } => CostDef::sacrifice(object, Quantity::Fixed(1)),

@@ -1765,6 +1765,13 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
 
+- **Single-permanent sacrifice costs share one declaration.** Native callers
+  should replace `CostDef::SacrificePermanentMatching(object)` with
+  `CostDef::SacrificePermanent { object, controller: PlayerRelation::You }`.
+  `You` refers to the payer, including when a resolving spell asks another
+  player to pay. Activation and resolution retain their existing selection
+  timing, and the checkpoint payment tag and bot protocol are unchanged.
+
 - **Reusable ability constructors own their canonical text.**
   `AbilityDef::override_text` now changes a shared clause's presentation
   without rebuilding its semantic definition. Constructors for opening-hand

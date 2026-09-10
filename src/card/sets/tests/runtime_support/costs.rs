@@ -215,7 +215,6 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
         CostDef::Forage | CostDef::Mana(_) | CostDef::PayLife(_) | CostDef::DiscardCards(_) => true,
         CostDef::DiscardMatching(object)
         | CostDef::DiscardCardMatching(object)
-        | CostDef::SacrificePermanentMatching(object)
         | CostDef::SacrificePermanent {
             object,
             controller: PlayerRelation::You,
@@ -339,7 +338,6 @@ pub(in super::super) fn shared_special_action_costs(costs: &'static [crate::Cost
         | CostDef::MillCards(_) => true,
         CostDef::DiscardMatching(object)
         | CostDef::DiscardCardMatching(object)
-        | CostDef::SacrificePermanentMatching(object)
         | CostDef::SacrificePermanent {
             object,
             controller: PlayerRelation::You,

@@ -113,9 +113,10 @@ pub(in crate::card::sets) static ANGELIC_RENEWAL: CardRecord = CardRecord::new(
             Some(ZoneKind::Graveyard),
         ),
         EffectDef::PayOr(PayOrDef::optional(
-            &[crate::card::CostDef::SacrificePermanentMatching(
-                ObjectPredicateDef::Source,
-            )],
+            &[crate::card::CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::Source,
+                controller: PlayerRelation::You,
+            }],
             &EffectDef::MoveToZone {
                 object: EffectRecipientDef::TriggeringZoneChangeResult,
                 zone: ZoneKind::Battlefield,
@@ -2812,9 +2813,10 @@ pub(in crate::card::sets) static ROGUE_ELEPHANT: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, sacrifice it unless you sacrifice a Forest.",
             EffectDef::PayOr(PayOrDef::unless(
-                &[crate::card::CostDef::SacrificePermanentMatching(
-                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                )],
+                &[crate::card::CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    controller: PlayerRelation::You,
+                }],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

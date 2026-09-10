@@ -759,7 +759,7 @@ fn validate_payment_cost_references(
             validate_recipient_target_references(*object, target_count, scope)
         }
         CostDef::DiscardMatching(object)
-        | CostDef::SacrificePermanentMatching(object)
+        | CostDef::SacrificePermanent { object, .. }
         | CostDef::MovePermanentMatching { object, .. } => {
             validate_object_predicate_references(object, target_count, scope)
         }

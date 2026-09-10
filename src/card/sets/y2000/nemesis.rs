@@ -188,7 +188,7 @@ pub(in crate::card::sets) static NETTER_EN_DAL: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{W}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -767,7 +767,7 @@ pub(in crate::card::sets) static STRONGHOLD_BIOLOGIST: CardRecord = CardRecord::
             &[
                 CostDef::Mana(mana_cost!("{U}{U}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             &const {
                 [AbilityTargetDef::exactly_one(
@@ -805,7 +805,7 @@ pub(in crate::card::sets) static STRONGHOLD_MACHINIST: CardRecord = CardRecord::
             &[
                 CostDef::Mana(mana_cost!("{U}{U}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             &const {
                 [AbilityTargetDef::exactly_one(
@@ -1144,7 +1144,7 @@ pub(in crate::card::sets) static PLAGUE_WITCH: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{B}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
@@ -1359,7 +1359,7 @@ pub(in crate::card::sets) static BOLA_WARRIOR: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{R}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(

@@ -166,9 +166,10 @@ fn resolve(cost: CostDef, x: u16, printed: Option<ManaCost>) -> Option<ResolvedE
         CostDef::PayLife(amount) => ResolvedEffectPayment::Life(amount),
         CostDef::Energy(amount) => ResolvedEffectPayment::Energy(amount),
         CostDef::DiscardCards(amount) => ResolvedEffectPayment::DiscardCards(amount),
-        CostDef::DiscardMatching(object) | CostDef::DiscardCardMatching(object) => {
-            ResolvedEffectPayment::DiscardMatching(object)
-        }
+        CostDef::Discard {
+            object,
+            quantity: crate::card::CostQuantityDef::Fixed(1),
+        } => ResolvedEffectPayment::DiscardMatching(object),
         CostDef::SacrificePermanent {
             object,
             controller: crate::PlayerRelation::You,

@@ -662,7 +662,7 @@ pub(in crate::card::sets) static PEGASUS_REFUGE: CardRecord = CardRecord::new(
         "{2}, Discard a card: Create a 1/1 white Pegasus creature token with flying.",
         &[
             CostDef::Mana(mana_cost!("{2}")),
-            CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            CostDef::discard(ObjectPredicateDef::Any),
         ],
         EffectDef::create_creature_token(&["Pegasus"], &[ManaColor::White], 1, 1)
             .with_abilities(&[abilities::flying()]),
@@ -2913,7 +2913,7 @@ pub(in crate::card::sets) static SKYSHROUD_VAMPIRE: CardRecord = CardRecord::new
         abilities::flying(),
         AbilityDef::activated(
             "Discard a creature card: This creature gets +2/+2 until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+            &[CostDef::discard(ObjectPredicateDef::HasType(
                 CardType::Creature,
             ))],
             EffectDef::Apply {
@@ -3822,10 +3822,7 @@ pub(in crate::card::sets) static SCORCHED_EARTH: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            CostDef::discard(
-                ObjectPredicateDef::HasType(CardType::Land),
-                CostQuantityDef::ChosenX,
-            ),
+            CostDef::discard(ObjectPredicateDef::HasType(CardType::Land)).with_quantity(CostQuantityDef::ChosenX),
             EffectDef::Destroy {
                 object: EffectRecipientDef::target_objects(TargetIndex::PRIMARY),
                 then: None,
@@ -5784,7 +5781,7 @@ pub(in crate::card::sets) static PATCHWORK_GNOMES: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Gnome"], 2, 1).with_ability(
         abilities::regenerate_self(
             "Discard a card: Regenerate this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
         ),
     ),
 );

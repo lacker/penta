@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, CostDef, CostQuantityDef, CreatureTypeSetDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, abilities,
+    CardArt, CardRules, CardSet, CardType, CostDef, CreatureTypeSetDef, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerConditionDef, ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -59,12 +59,7 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
         AbilityDef::alternative_cast(
             &[
                 CostDef::ManaCostOf(crate::ObjectRefDef::Source),
-                const {
-                    CostDef::discard(
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        CostQuantityDef::Fixed(1),
-                    )
-                },
+                const { CostDef::discard(ObjectPredicateDef::HasType(CardType::Land)) },
             ],
             AlternativeCastKindDef::Retrace,
             Some(

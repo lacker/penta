@@ -1414,9 +1414,9 @@ pub(in crate::card::sets) static HIDDEN_HORROR: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, sacrifice it unless you discard a creature card.",
             EffectDef::PayOr(PayOrDef::unless(
-                &[crate::card::CostDef::DiscardMatching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
+                &[crate::card::CostDef::discard(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                ))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -2014,10 +2014,7 @@ pub(in crate::card::sets) static FIRESTORM: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_chosen_x(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            CostDef::discard(
-                ObjectPredicateDef::Any,
-                CostQuantityDef::ChosenX,
-            ),
+            CostDef::discard(ObjectPredicateDef::Any).with_quantity(CostQuantityDef::ChosenX),
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::ChosenX,
@@ -2578,9 +2575,9 @@ pub(in crate::card::sets) static FALLOW_WURM: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, sacrifice it unless you discard a land card.",
             EffectDef::PayOr(PayOrDef::unless(
-                &[crate::card::CostDef::DiscardMatching(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                )],
+                &[crate::card::CostDef::discard(ObjectPredicateDef::HasType(
+                    CardType::Land,
+                ))],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

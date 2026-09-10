@@ -1466,7 +1466,7 @@ pub(in crate::card::sets) static BODY_SNATCHER: CardRecord = CardRecord::new(
             abilities::enters_trigger(
                 "When this creature enters, exile it unless you discard a creature card.",
                 EffectDef::PayOr(PayOrDef::unless(
-                    &[CostDef::DiscardMatching(ObjectPredicateDef::HasType(
+                    &[CostDef::discard(ObjectPredicateDef::HasType(
                         CardType::Creature,
                     ))],
                     &EffectDef::MoveToZone {

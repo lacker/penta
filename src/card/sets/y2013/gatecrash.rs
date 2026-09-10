@@ -2674,7 +2674,7 @@ pub(in crate::card::sets) static TIN_STREET_MARKET: CardRecord = CardRecord::new
                         "{T}, Discard a card: Draw a card.",
                         &[
                             CostDef::TapSource,
-                            CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                            CostDef::discard(ObjectPredicateDef::Any),
                         ],
                         EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
@@ -3573,9 +3573,7 @@ pub(in crate::card::sets) static BORBORYGMOS_ENRAGED: CardRecord = CardRecord::n
         ),
         AbilityDef::activated_with_targets(
             "Discard a land card: Borborygmos Enraged deals 3 damage to any target.",
-            &[CostDef::DiscardCardMatching(
-                ObjectPredicateDef::HasType(CardType::Land),
-            )],
+            &[CostDef::discard(ObjectPredicateDef::HasType(CardType::Land))],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),

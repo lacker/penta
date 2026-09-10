@@ -18,10 +18,13 @@ fn cost_lists_preserve_the_complete_pending_payment_in_checkpoints() {
 #[test]
 fn cost_lists_reconstruct_pending_special_action_payments() {
     use crate::game::tests::{card, cost_lists::game_with_cost_rules};
-    use crate::{AbilityDef, Action, CardRules, CostDef, PlayerId};
-    static COSTS: [CostDef; 2] = [CostDef::PayLife(2), CostDef::DiscardCards(1)];
+    use crate::{AbilityDef, Action, CardRules, CardType, CostDef, ObjectPredicateDef, PlayerId};
+    static COSTS: [CostDef; 2] = [
+        CostDef::PayLife(2),
+        CostDef::discard(ObjectPredicateDef::HasType(CardType::Land)),
+    ];
     static ABILITIES: [AbilityDef; 1] = [crate::card::abilities::suspend(
-        "Suspend 2—Pay 2 life, discard a card.",
+        "Suspend 2—Pay 2 life, discard a land card.",
         &crate::card::SuspendAbilityDef::fixed(2, &COSTS),
     )];
     let (mut game, id) = game_with_cost_rules(

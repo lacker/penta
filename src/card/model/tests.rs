@@ -224,7 +224,7 @@ fn spree_modes_derive_costs_and_complete_rules_text() {
 
 #[test]
 fn modal_escalate_spell_derives_its_mode_range_and_attaches_its_cost() {
-    const COST: CostDef = CostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1));
+    const COST: CostDef = CostDef::discard(ObjectPredicateDef::Any);
     const MODES: [AbilityDef; 3] = [
         AbilityDef::spell("First mode.", EffectDef::None),
         AbilityDef::spell("Second mode.", EffectDef::None),

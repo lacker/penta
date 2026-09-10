@@ -1870,7 +1870,7 @@ pub(in crate::card::sets) static PACK_RAT: CardRecord = CardRecord::new(
             "{2}{B}, Discard a card: Create a token that's a copy of this creature.",
             &[
                 CostDef::Mana(mana_cost!("{2}{B}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
                 object: &EffectRecipientDef::Source,
@@ -4617,7 +4617,7 @@ pub(in crate::card::sets) static LOTLETH_TROLL: CardRecord = CardRecord::new(
         abilities::trample(),
         AbilityDef::activated(
             "Discard a creature card: Put a +1/+1 counter on this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+            &[CostDef::discard(ObjectPredicateDef::HasType(
                 CardType::Creature,
             ))],
             EffectDef::AddCounters {

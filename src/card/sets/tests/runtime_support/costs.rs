@@ -38,7 +38,7 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[CostDef]) -> boo
                     | CostDef::ReturnUnblockedAttackerToHand
                     | CostDef::TapPermanents { .. }
                     | CostDef::MoveToZone(_)
-                    | CostDef::DiscardCardMatching(_)
+                    | CostDef::Discard { .. }
                     | CostDef::RevealCardFromHand(_)
                     | CostDef::ExileCardFromHand(_)
             )
@@ -133,7 +133,10 @@ pub(in super::super) fn shared_activated_costs(zones: &[ZoneKind], costs: &[Cost
                 (battlefield || exile) && shared_object_predicate(*object)
             }
             CostDef::SacrificePermanents { object, .. }
-            | CostDef::DiscardCardMatching(object)
+            | CostDef::Discard {
+                object,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            }
             | CostDef::RevealCardFromHand(object)
             | CostDef::ExileCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
@@ -213,9 +216,7 @@ pub(in super::super) fn shared_spell_additional_cost(cost: Option<CostDef>) -> b
 fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
     match cost {
         CostDef::Forage | CostDef::Mana(_) | CostDef::PayLife(_) | CostDef::DiscardCards(_) => true,
-        CostDef::DiscardMatching(object)
-        | CostDef::DiscardCardMatching(object)
-        | CostDef::SacrificePermanent {
+        CostDef::SacrificePermanent {
             object,
             controller: PlayerRelation::You,
         }
@@ -336,8 +337,10 @@ pub(in super::super) fn shared_special_action_costs(costs: &'static [crate::Cost
         | CostDef::Energy(_)
         | CostDef::DiscardCards(_)
         | CostDef::MillCards(_) => true,
-        CostDef::DiscardMatching(object)
-        | CostDef::DiscardCardMatching(object)
+        CostDef::Discard {
+            object,
+            quantity: crate::card::CostQuantityDef::Fixed(1),
+        }
         | CostDef::SacrificePermanent {
             object,
             controller: PlayerRelation::You,

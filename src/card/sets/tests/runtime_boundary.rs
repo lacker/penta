@@ -151,6 +151,34 @@ fn activated_cost_boundary_is_specific_to_the_source_zone() {
 }
 
 #[test]
+fn discard_cost_quantities_follow_each_payment_procedure() {
+    static COSTS: [[CostDef; 1]; 4] = [
+        [CostDef::discard(ObjectPredicateDef::Any)
+            .with_quantity(crate::card::CostQuantityDef::Fixed(0))],
+        [CostDef::discard(ObjectPredicateDef::Any)],
+        [CostDef::discard(ObjectPredicateDef::Any)
+            .with_quantity(crate::card::CostQuantityDef::Fixed(2))],
+        [CostDef::discard(ObjectPredicateDef::Any)
+            .with_quantity(crate::card::CostQuantityDef::ChosenX)],
+    ];
+    for (index, costs) in COSTS.iter().enumerate() {
+        assert_eq!(shared_spell_additional_cost(Some(costs[0])), index != 0);
+        assert_eq!(
+            shared_activated_costs(&[ZoneKind::Battlefield], costs),
+            index == 1
+        );
+        assert_eq!(shared_special_action_costs(costs), index == 1);
+        assert_eq!(
+            shared_stack_effect(EffectDef::PayOr(PayOrDef::optional(
+                costs,
+                &EffectDef::None
+            ))),
+            index == 1
+        );
+    }
+}
+
+#[test]
 fn triggered_mana_conditions_stay_outside_the_shared_runtime_boundary() {
     static CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
         query: ObjectQueryDef::matching(

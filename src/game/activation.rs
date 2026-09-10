@@ -423,7 +423,7 @@ impl Game {
                     | CostDef::MillCards(_)
                     | CostDef::ExileTopCards(_)
                     | CostDef::DiscardCards(_)
-                    | CostDef::DiscardCardMatching(_)
+                    | CostDef::Discard { .. }
                     | CostDef::RevealCardFromHand(_)
                     | CostDef::ExileCardFromHand(_)
                     | CostDef::DiscardCardsAtRandom(_)
@@ -712,7 +712,7 @@ impl Game {
                     CostDef::PayLife(amount) => {
                         self.lose_life(player, *amount);
                     }
-                    CostDef::DiscardCardMatching(_) => {
+                    CostDef::Discard { quantity: crate::card::CostQuantityDef::Fixed(1), .. } => {
                         self.discard_cards(player, cost_objects);
                     }
                     CostDef::RevealCardFromHand(_) => {

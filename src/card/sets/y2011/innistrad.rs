@@ -6219,7 +6219,7 @@ pub(in crate::card::sets) static GRIMOIRE_OF_THE_DEAD: CardRecord = CardRecord::
                 &[
                     CostDef::Mana(mana_cost!("{1}")),
                     CostDef::TapSource,
-                    CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                    CostDef::discard(ObjectPredicateDef::Any),
                 ],
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,

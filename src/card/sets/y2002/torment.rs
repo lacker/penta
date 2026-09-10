@@ -7,9 +7,9 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, ConditionDef, CostDef, CostQuantityDef,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, ConditionDef, CostDef, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
     SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
@@ -43,7 +43,7 @@ pub(in crate::card::sets) static AVEN_TROOPER: CardRecord = CardRecord::new(
             "{2}{W}, Discard a card: This creature gets +1/+2 until end of turn.",
             &[
                 CostDef::Mana(mana_cost!("{2}{W}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -528,7 +528,7 @@ pub(in crate::card::sets) static GHOSTLY_WINGS: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "Discard a card: Return enchanted creature to its owner's hand.",
-                &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+                &[CostDef::discard(ObjectPredicateDef::Any)],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::AttachedPermanent,
                     zone: ZoneKind::Hand,
@@ -630,7 +630,7 @@ pub(in crate::card::sets) static SKYWING_AVEN: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
@@ -1255,7 +1255,7 @@ pub(in crate::card::sets) static WASTE_AWAY: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )]
             },
-            CostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
+            CostDef::discard(ObjectPredicateDef::Any),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(

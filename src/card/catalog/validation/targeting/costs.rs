@@ -20,7 +20,7 @@ fn validate_payment_cost_references(
         | CostDef::RemoveAnyNumberOfCounters { object, .. } => {
             validate_recipient_target_references(*object, target_count, scope)
         }
-        CostDef::DiscardMatching(object)
+        CostDef::Discard { object, .. }
         | CostDef::SacrificePermanent { object, .. }
         | CostDef::MovePermanentMatching { object, .. } => {
             validate_object_predicate_references(object, target_count, scope)
@@ -50,7 +50,7 @@ fn validate_payment_cost_shape(
         | CostDef::RemoveAnyNumberOfCounters { object, .. } => {
             validate_recipient_shape(*object, targets, RecipientExpectation::Object)
         }
-        CostDef::DiscardMatching(object)
+        CostDef::Discard { object, .. }
         | CostDef::SacrificePermanent { object, .. }
         | CostDef::MovePermanentMatching { object, .. } => {
             validate_object_predicate_shape(object, targets)

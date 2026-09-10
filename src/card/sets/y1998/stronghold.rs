@@ -1310,7 +1310,7 @@ pub(in crate::card::sets) static TORTURED_EXISTENCE: CardRecord = CardRecord::ne
             "{B}, Discard a creature card: Return target creature card from your graveyard to your hand.",
             &[
                 CostDef::Mana(mana_cost!("{B}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+                CostDef::discard(ObjectPredicateDef::HasType(
                     CardType::Creature,
                 )),
             ],
@@ -2455,7 +2455,7 @@ pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_
                     payer: PlayerSetDef::Related(PlayerRelation::You),
                     // A land card from hand, which is the whole cost. A hand with none cannot
                     // pay at all, and the Mox goes straight to the graveyard.
-                    costs: &[CostDef::DiscardMatching(ObjectPredicateDef::HasType(CardType::Land))],
+                    costs: &[CostDef::discard(ObjectPredicateDef::HasType(CardType::Land))],
                 },
                 // Paying changes nothing about the entry: the Mox arrives as it was
                 // going to. Declining is what redirects it.

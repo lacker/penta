@@ -1070,10 +1070,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                                         ObjectPredicateDef::HasType(CardType::Sorcery),
                                     ]),
                                     ability: &AbilityDef::alternative_cast(
-                                        &[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::discard(
-                                            ObjectPredicateDef::HasType(CardType::Land),
-                                            CostQuantityDef::Fixed(1),
-                                        )],
+                                        &[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::discard(ObjectPredicateDef::HasType(CardType::Land))],
                                         AlternativeCastKindDef::Retrace,
                                         Some(
                                             "Retrace (You may cast this card from your graveyard by discarding a land card in \

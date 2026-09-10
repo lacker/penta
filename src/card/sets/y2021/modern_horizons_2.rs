@@ -367,10 +367,7 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
                     ObjectPredicateDef::HasType(CardType::Creature),
                     CostQuantityDef::Fixed(1),
                 ),
-                CostDef::discard(
-                    ObjectPredicateDef::Any,
-                    CostQuantityDef::Fixed(1),
-                ),
+                CostDef::discard(ObjectPredicateDef::Any),
             ]),
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

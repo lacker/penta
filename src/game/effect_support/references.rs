@@ -175,7 +175,7 @@ impl Game {
                     object: crate::GameObjectId(0),
                     kind,
                 }),
-            Cost::DiscardMatching(predicate) => Resolved::DiscardMatching(predicate),
+            Cost::Discard { object: predicate, quantity: crate::card::CostQuantityDef::Fixed(1) } => Resolved::DiscardMatching(predicate),
             _ => unreachable!("unsupported resolving payment cost reached execution"),
         }
     }

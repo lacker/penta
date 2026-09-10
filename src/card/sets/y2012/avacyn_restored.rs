@@ -3699,7 +3699,7 @@ pub(in crate::card::sets) static MAD_PROPHET: CardRecord = CardRecord::new_with_
             "{T}, Discard a card: Draw a card.",
             &[
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

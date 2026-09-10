@@ -68,6 +68,13 @@ fn paying_discards_the_land_and_deals_the_damage() {
 
     game.apply(PlayerId::One, at_opponent)
         .expect("the land pays for it");
+    assert_eq!(game.players[1].life, 20, "the ability has not resolved");
+    assert_eq!(
+        game.players[0].graveyard.len(),
+        1,
+        "the discard is paid on activation"
+    );
+    assert_eq!(game.players[0].graveyard[0].definition, cards::MOUNTAIN);
     pass_priority_pair(&mut game);
 
     assert_eq!(game.players[1].life, 18, "two damage to the opponent");

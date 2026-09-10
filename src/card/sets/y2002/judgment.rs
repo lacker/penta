@@ -983,7 +983,7 @@ pub(in crate::card::sets) static EARSPLITTING_RATS: CardRecord = CardRecord::new
         ),
         abilities::regenerate_self(
             "Discard a card: Regenerate this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
         ),
     ]),
 );
@@ -2158,7 +2158,7 @@ pub(in crate::card::sets) static TUNNELER_WURM: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{6}{G}{G}"), &["Wurm"], 6, 6).with_ability(
         abilities::regenerate_self(
             "Discard a card: Regenerate this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
         ),
     ),
 );

@@ -139,7 +139,10 @@ pub enum CostDef {
         object: ObjectPredicateDef,
         quantity: CostQuantityDef,
     },
-    /// Discard a computed number of matching cards.
+    /// Discard a computed number of matching cards from the payer's hand.
+    /// The surrounding procedure owns selection and supports only quantities
+    /// it can pay. Casting carries the chosen cards; activation currently
+    /// supports one card, as do resolving and special-action payments.
     Discard {
         object: ObjectPredicateDef,
         quantity: CostQuantityDef,
@@ -188,11 +191,6 @@ pub enum CostDef {
     /// it comes back to be cast again, which is the whole shape of
     /// Attunement: the card is the cost and the card is reusable.
     ReturnSourceToHand,
-    /// Discard a matching card from the payer's own hand, chosen as the
-    /// ability is activated. Unlike [`Self::DiscardCards`] the card travels
-    /// with the activation rather than being counted, which is what "discard
-    /// a card" and "discard a land card" both need.
-    DiscardCardMatching(ObjectPredicateDef),
     /// Reveal one matching card from the payer's hand as the ability is
     /// activated, without moving it. The chosen object travels with the
     /// activation so its name can be read during resolution.
@@ -252,8 +250,6 @@ pub enum CostDef {
         object: ObjectPredicateDef,
         zone: ZoneKind,
     },
-    /// Discard one matching card as part of a resolving payment.
-    DiscardMatching(ObjectPredicateDef),
     /// Forage (CR 701.59): exile three cards from the graveyard or sacrifice
     /// a Food.
     Forage,
@@ -386,9 +382,28 @@ impl CostDef {
         Self::Sacrifice { object, quantity }
     }
 
+    /// Discard one matching card. Use [`Self::with_quantity`] for another
+    /// fixed or computed quantity.
     #[must_use]
-    pub const fn discard(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
-        Self::Discard { object, quantity }
+    pub const fn discard(object: ObjectPredicateDef) -> Self {
+        Self::Discard {
+            object,
+            quantity: CostQuantityDef::Fixed(1),
+        }
+    }
+
+    /// Override the quantity of a matching-card discard cost.
+    ///
+    /// # Panics
+    ///
+    /// Panics when called on a cost other than [`Self::Discard`].
+    #[must_use]
+    pub const fn with_quantity(mut self, value: CostQuantityDef) -> Self {
+        let Self::Discard { quantity, .. } = &mut self else {
+            panic!("with_quantity() requires a discard cost");
+        };
+        *quantity = value;
+        self
     }
 
     #[must_use]

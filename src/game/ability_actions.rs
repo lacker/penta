@@ -389,7 +389,7 @@ impl Game {
                         // Payability is decided by whether any card qualifies,
                         // which the choice list below answers.
                         | CostDef::MoveToZone(_)
-                        | CostDef::DiscardCardMatching(_)
+                        | CostDef::Discard { quantity: crate::card::CostQuantityDef::Fixed(1), .. }
                         | CostDef::RevealCardFromHand(_)
                         | CostDef::ExileCardFromHand(_) => false,
                         _ => true,
@@ -423,7 +423,10 @@ impl Game {
                             | CostDef::ReturnUnblockedAttackerToHand
                             | CostDef::TapPermanents { .. }
                             | CostDef::MoveToZone(_)
-                            | CostDef::DiscardCardMatching(_)
+                            | CostDef::Discard {
+                                quantity: crate::card::CostQuantityDef::Fixed(1),
+                                ..
+                            }
                             | CostDef::RevealCardFromHand(_)
                             | CostDef::ExileCardFromHand(_)
                     )
@@ -503,7 +506,10 @@ impl Game {
                         };
                         Self::object_combinations(&candidates, usize::from(count))
                     }
-                    Some(CostDef::DiscardCardMatching(object)) => self.players[player.index()]
+                    Some(CostDef::Discard {
+                        object,
+                        quantity: crate::card::CostQuantityDef::Fixed(1),
+                    }) => self.players[player.index()]
                         .hand
                         .iter()
                         .filter(|card| {

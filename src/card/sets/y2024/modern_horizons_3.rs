@@ -1520,10 +1520,7 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                                 ObjectPredicateDef::HasType(CardType::Planeswalker),
                             ]),
                             ability: &AbilityDef::alternative_cast(
-                                &[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::discard(
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    CostQuantityDef::Fixed(1),
-                                )],
+                                &[CostDef::ManaCostOf(crate::ObjectRefDef::Source), CostDef::discard(ObjectPredicateDef::HasType(CardType::Land))],
                                 AlternativeCastKindDef::Retrace,
                                 Some(
                                     "Retrace (You may cast this card from your graveyard by discarding a land card in \
@@ -1851,7 +1848,7 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
         // allows and flies as often as the graveyard does.
         AbilityDef::activated(
             "Discard a card: Put a +1/+1 counter on this creature.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,

@@ -50,7 +50,7 @@ impl Game {
                 | CostDef::ReturnSourceToHand
                 | CostDef::DiscardSource
                 | CostDef::DiscardCards(_)
-                | CostDef::DiscardCardMatching(_)
+                | CostDef::Discard { .. }
                 | CostDef::RevealCardFromHand(_)
                 | CostDef::ExileCardFromHand(_)
                 | CostDef::DiscardCardsAtRandom(_)

@@ -287,6 +287,11 @@ while `&[CostDef::Mana(mana_cost!("{1}")), CostDef::DiscardCards(1)]` asks for b
 payments. Use authored text when a complex predicate needs wording the shared
 cost renderer cannot derive.
 
+`CostDef::discard(predicate)` discards one matching card by default. Use
+`.with_quantity(CostQuantityDef::Fixed(2))` for two cards, or a computed
+quantity such as `.with_quantity(CostQuantityDef::ChosenX)` where the payment
+procedure supports it.
+
 `PayOrDef::optional(costs, if_paid)`, `optional_or(costs, if_paid, otherwise)`,
 and `unless(costs, otherwise)` ask the effect controller to pay by default.
 Use `.with_payer(...)` when the text names another player, such as the controller

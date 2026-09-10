@@ -202,7 +202,7 @@ pub(in crate::card::sets) static BITTER_TRIUMPH: CardRecord = CardRecord::new(
             // One cost with two ways to pay it. The life is the way a deck with an
             // empty hand still casts this, which is what keeps it playable late.
             CostDef::choice(&[
-                CostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
+                CostDef::discard(ObjectPredicateDef::Any),
                 CostDef::pay_life(CostQuantityDef::Fixed(3)),
             ]),
             EffectDef::destroy_target(TargetIndex::PRIMARY),

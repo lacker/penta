@@ -10,10 +10,7 @@ impl Game {
     ) -> Vec<SpellAdditionalCostPayment> {
         if let CostDef::DiscardCards(amount) = cost {
             return self.spell_object_additional_cost_payments_for_count(
-                CostDef::discard(
-                    crate::card::ObjectPredicateDef::Any,
-                    crate::card::CostQuantityDef::Fixed(1),
-                ),
+                CostDef::discard(crate::card::ObjectPredicateDef::Any),
                 usize::from(amount),
                 card,
                 player,
@@ -243,9 +240,6 @@ impl Game {
     fn canonical_spell_cost(cost: CostDef) -> CostDef {
         use crate::card::CostQuantityDef as Quantity;
         match cost {
-            CostDef::DiscardMatching(object) | CostDef::DiscardCardMatching(object) => {
-                CostDef::discard(object, Quantity::Fixed(1))
-            }
             CostDef::SacrificePermanent {
                 object,
                 controller: crate::card::PlayerRelation::You,

@@ -289,10 +289,7 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
             "Escalate—Discard a card. (Pay this cost for each mode chosen beyond the \
              first.)",
             // One mode is free; taking all three costs two discarded cards.
-            CostDef::discard(
-                ObjectPredicateDef::Any,
-                CostQuantityDef::Fixed(1),
-            ),
+            CostDef::discard(ObjectPredicateDef::Any),
             // Each mode declares its own target slot, so a Brutality that takes two
             // modes points at two things.
             &[

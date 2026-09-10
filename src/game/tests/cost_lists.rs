@@ -363,9 +363,14 @@ fn spree_mode_costs_can_be_nonmana() {
 
 #[test]
 fn special_actions_pay_nonmana_lists_and_keep_the_source_out_of_discard_choices() {
-    static COSTS: [CostDef; 2] = [CostDef::PayLife(2), CostDef::DiscardCards(1)];
+    static COSTS: [CostDef; 2] = [
+        CostDef::PayLife(2),
+        CostDef::discard(ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+            CardType::Creature,
+        ))),
+    ];
     static SUSPEND: [AbilityDef; 1] = [abilities::suspend(
-        "Suspend 2—Pay 2 life, discard a card.",
+        "Suspend 2—Pay 2 life, discard a noncreature card.",
         &crate::card::SuspendAbilityDef::fixed(2, &COSTS),
     )];
     for plot in [false, true] {
@@ -388,6 +393,13 @@ fn special_actions_pay_nonmana_lists_and_keep_the_source_out_of_discard_choices(
         assert!(
             find(&game).is_none(),
             "the card taking the special action cannot discard itself"
+        );
+        game.players[0]
+            .hand
+            .push(card(230_103, cards::GRIZZLY_BEARS, PlayerId::One));
+        assert!(
+            find(&game).is_none(),
+            "a creature cannot pay the discard cost"
         );
         game.players[0]
             .hand
@@ -416,7 +428,7 @@ fn special_actions_pay_nonmana_lists_and_keep_the_source_out_of_discard_choices(
         )
         .unwrap();
         assert_eq!(game.players[0].life, 18);
-        assert_eq!(game.players[0].hand.len(), 1);
+        assert_eq!(game.players[0].hand.len(), 2);
         assert_eq!(game.players[0].graveyard.len(), 1);
         assert_eq!(game.players[0].exile.len(), 1);
         assert_eq!(

@@ -1143,7 +1143,7 @@ pub(in crate::card::sets) static MESMERIC_TRANCE: CardRecord = CardRecord::new(
             "{U}, Discard a card: Draw a card.",
             &[
                 CostDef::Mana(mana_cost!("{U}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

@@ -48,6 +48,10 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
             crate::card::CostDef::RemoveAnyNumberOfCounters { object, .. } => {
                 shared_effect_recipient(*object)
             }
+            crate::card::CostDef::Discard {
+                object,
+                quantity: crate::card::CostQuantityDef::Fixed(1),
+            } => shared_object_predicate(object),
             crate::card::CostDef::Parameter
             | crate::card::CostDef::Mana(_)
             | crate::card::CostDef::GenericMana(_)
@@ -61,7 +65,6 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
             | crate::card::CostDef::ChosenGenericMana
             | crate::card::CostDef::ChosenEnergy
             | crate::card::CostDef::MovePermanentMatching { .. }
-            | crate::card::CostDef::DiscardMatching(_)
             | crate::card::CostDef::SacrificePermanent {
                 controller: PlayerRelation::You,
                 ..

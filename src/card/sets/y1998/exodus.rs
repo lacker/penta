@@ -302,7 +302,7 @@ pub(in crate::card::sets) static PEACE_OF_MIND: CardRecord = CardRecord::new(
         "{W}, Discard a card: You gain 3 life.",
         &[
             CostDef::Mana(mana_cost!("{W}")),
-            CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            CostDef::discard(ObjectPredicateDef::Any),
         ],
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
@@ -682,10 +682,7 @@ pub(in crate::card::sets) static AETHER_TIDE: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            CostDef::discard(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                CostQuantityDef::ChosenX,
-            ),
+            CostDef::discard(ObjectPredicateDef::HasType(CardType::Creature)).with_quantity(CostQuantityDef::ChosenX),
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
@@ -731,7 +728,7 @@ pub(in crate::card::sets) static EPHEMERON: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
@@ -817,10 +814,7 @@ pub(in crate::card::sets) static FORBID: CardRecord = CardRecord::new(
     crate::card::CardSet::Exodus,
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
         abilities::buyback(
-            &[CostDef::discard(
-                ObjectPredicateDef::Any,
-                CostQuantityDef::Fixed(2),
-            )],
+            &[CostDef::discard(ObjectPredicateDef::Any).with_quantity(CostQuantityDef::Fixed(2))],
         ).override_text("Buyback—Discard two cards. (You may discard two cards in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)"),
         AbilityDef::counter_target(
             "Counter target spell.",
@@ -908,7 +902,7 @@ pub(in crate::card::sets) static MIND_OVER_MATTER: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}{U}{U}")).with_ability(
         AbilityDef::activated_with_targets(
             "Discard a card: You may tap or untap target artifact, creature, or land.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -1106,7 +1100,7 @@ pub(in crate::card::sets) static THALAKOS_DRIFTERS: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Thalakos"], 3, 3).with_ability(
         AbilityDef::activated(
             "Discard a card: This creature gains shadow until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::shadow() }),
@@ -1132,7 +1126,7 @@ pub(in crate::card::sets) static THALAKOS_SCOUT: CardRecord = CardRecord::new(
         abilities::shadow(),
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
@@ -1862,7 +1856,7 @@ pub(in crate::card::sets) static VAMPIRE_HOUNDS: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Dog"], 2, 2).with_ability(
         AbilityDef::activated(
             "Discard a creature card: This creature gets +2/+2 until end of turn.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+            &[CostDef::discard(ObjectPredicateDef::HasType(
                 CardType::Creature,
             ))],
             EffectDef::Apply {
@@ -1896,7 +1890,7 @@ pub(in crate::card::sets) static VOLRATH_S_DUNGEON: CardRecord = CardRecord::new
         .with_activation_timing(ActivationTimingDef::YourTurn),
         AbilityDef::activated_with_targets(
             "Discard a card: Target player puts a card from their hand on top of their library. Activate only as a sorcery.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::discard(ObjectPredicateDef::Any)],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
@@ -2434,7 +2428,7 @@ pub(in crate::card::sets) static SEISMIC_ASSAULT: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{R}{R}{R}")).with_ability(
         AbilityDef::activated_with_targets(
             "Discard a land card: This enchantment deals 2 damage to any target.",
-            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+            &[CostDef::discard(ObjectPredicateDef::HasType(
                 CardType::Land,
             ))],
             &[AbilityTargetDef::exactly_one(
@@ -3201,7 +3195,7 @@ pub(in crate::card::sets) static SURVIVAL_OF_THE_FITTEST: CardRecord = CardRecor
         "{G}, Discard a creature card: Search your library for a creature card, reveal that card, put it into your hand, then shuffle.",
         &[
             CostDef::Mana(mana_cost!("{G}")),
-            CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(CardType::Creature)),
+            CostDef::discard(ObjectPredicateDef::HasType(CardType::Creature)),
         ],
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
@@ -3303,7 +3297,7 @@ pub(in crate::card::sets) static MEDICINE_BAG: CardRecord = CardRecord::new(
         &[
             CostDef::Mana(mana_cost!("{1}")),
             CostDef::TapSource,
-            CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            CostDef::discard(ObjectPredicateDef::Any),
         ],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
@@ -3345,7 +3339,7 @@ pub(in crate::card::sets) static MINDLESS_AUTOMATON: CardRecord = CardRecord::ne
             "{1}, Discard a card: Put a +1/+1 counter on this creature.",
             &[
                 CostDef::Mana(mana_cost!("{1}")),
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,

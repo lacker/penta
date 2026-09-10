@@ -1,10 +1,69 @@
-//! Discarding a chosen card as an activation cost.
+//! Discarding chosen cards as casting and activation costs.
 //!
 //! The card travels with the activation rather than being a mid-payment
 //! decision, so the enumerator offers one action per discardable card and an
 //! empty hand offers none at all.
 
 use super::*;
+
+#[test]
+fn casting_discard_quantity_spends_exactly_that_many_matching_cards() {
+    use crate::card::CostQuantityDef;
+
+    for quantity in [CostQuantityDef::Fixed(2), CostQuantityDef::ChosenX] {
+        for x in [1, 2] {
+            let (mut game, spell) = super::cost_lists::game_with_cost_rules(
+                &CardRules::new_sorcery(mana_cost!("{X}{B}")).with_ability(
+                    AbilityDef::spell_with_additional_cost(
+                        "Discard matching cards as an additional cost.",
+                        &[],
+                        CostDef::discard(ObjectPredicateDef::HasType(CardType::Land))
+                            .with_quantity(quantity),
+                        EffectDef::None,
+                    ),
+                ),
+            );
+            let lands = [GameObjectId(231_010), GameObjectId(231_011)];
+            for id in lands {
+                game.players[0]
+                    .hand
+                    .push(card(id.0, cards::SWAMP, PlayerId::One));
+            }
+            let nonland = GameObjectId(231_012);
+            game.players[0]
+                .hand
+                .push(card(nonland.0, cards::GRIZZLY_BEARS, PlayerId::One));
+            game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+            game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 2);
+            let expected = match quantity {
+                CostQuantityDef::Fixed(amount) => usize::from(amount),
+                _ => usize::from(x),
+            };
+            let casts = game
+                .legal_actions(PlayerId::One)
+                .into_iter()
+                .filter(|action| {
+                    matches!(action, Action::CastSpell { card, choices, .. }
+                    if *card == spell && choices.x() == x)
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(casts.len(), if expected == 1 { 2 } else { 1 });
+            for action in &casts {
+                let Action::CastSpell { sacrifices, .. } = action else {
+                    unreachable!()
+                };
+                assert_eq!(sacrifices.len(), expected);
+                assert!(sacrifices.iter().all(|id| lands.contains(id)));
+            }
+            game.apply(PlayerId::One, casts[0].clone())
+                .expect("the matching cards pay the complete cost");
+            assert_eq!(game.stack.len(), 1);
+            assert_eq!(game.players[0].graveyard.len(), expected);
+            assert_eq!(game.players[0].hand.len(), 3 - expected);
+            assert!(game.players[0].hand.iter().any(|card| card.id == nonland));
+        }
+    }
+}
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -25,6 +84,44 @@ fn activations(game: &Game, source: GameObjectId) -> Vec<Action> {
             matches!(action, Action::ActivateAbility { source: actual, .. } if *actual == source)
         })
         .collect()
+}
+
+#[test]
+fn unsupported_discard_quantities_offer_no_activation() {
+    static COSTS: [[CostDef; 1]; 3] = [
+        [CostDef::discard(ObjectPredicateDef::Any)
+            .with_quantity(crate::card::CostQuantityDef::Fixed(0))],
+        [CostDef::discard(ObjectPredicateDef::Any)
+            .with_quantity(crate::card::CostQuantityDef::Fixed(2))],
+        [CostDef::discard(ObjectPredicateDef::Any)
+            .with_quantity(crate::card::CostQuantityDef::ChosenX)],
+    ];
+    for costs in &COSTS {
+        let (mut game, source) = super::cost_lists::game_with_cost_rules(
+            &CardRules::new_creature(mana_cost!("{1}"), &["Human"], 1, 1).with_ability(
+                AbilityDef::activated(
+                    "Discard cards: You gain 1 life.",
+                    costs,
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ),
+            ),
+        );
+        let definition = game.players[0].hand.remove(0).definition;
+        game.battlefield
+            .push(creature(source.0, definition, PlayerId::One));
+        for index in 0..3 {
+            game.players[0]
+                .hand
+                .push(card(231_000 + index, cards::SWAMP, PlayerId::One));
+        }
+        assert!(
+            activations(&game, source).is_empty(),
+            "unsupported quantities must not be treated as one card: {costs:?}"
+        );
+    }
 }
 
 /// One activation per card in hand, because each is a different cost.

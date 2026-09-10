@@ -73,7 +73,7 @@ impl Game {
                 | CostDef::SacrificeObject(_)
                 | CostDef::MoveToZone(_)
                 | CostDef::DiscardCards(_)
-                | CostDef::DiscardCardMatching(_)
+                | CostDef::Discard { .. }
                 | CostDef::RevealCardFromHand(_)
                 | CostDef::DiscardCardsAtRandom(_)
                 | CostDef::MillCards(_)

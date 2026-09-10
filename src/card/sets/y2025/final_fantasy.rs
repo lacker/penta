@@ -149,10 +149,10 @@ pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
                 // effect. A creature that shrugs the three off is still exiled if
                 // something else finishes it before the turn ends.
                 EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(3),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(3),
+                    ),
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
@@ -242,10 +242,7 @@ pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_wit
                         kind: CounterKind::PlusOnePlusOne,
                         amount: ValueDef::Constant(1),
                     },
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Opponent,
-                        amount: ValueDef::Constant(1),
-                    },
+                    EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
                 ]),
             ),
         ]),

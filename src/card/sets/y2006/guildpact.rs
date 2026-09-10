@@ -163,10 +163,10 @@ pub(in crate::card::sets) static LEYLINE_OF_LIGHTNING: CardRecord = CardRecord::
                     PlayerSetDef::Related(PlayerRelation::You),
                     mana_cost!("{1}"),
                 ),
-                &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             )),
         ),
     ]),
@@ -188,10 +188,10 @@ pub(in crate::card::sets) static SCORCHED_RUSALKA: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );

@@ -654,10 +654,10 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
                     AbilityTargetPredicate::AnyTarget,
                 )],
                 EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::TriggerEventAmount,
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::TriggerEventAmount,
+                    ),
                     // Throwing Boo is the payoff the card is built around, so
                     // the draw asks what was sacrificed rather than what is
                     // still on the battlefield.
@@ -749,17 +749,17 @@ pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
              each creature they control instead.",
                 EffectDef::IfElseCondition {
                     condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Exile),
-                    then: &EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-                        amount: ValueDef::Constant(5),
-                    },
+                    then: &EffectDef::damage(
+                        EffectRecipientDef::EachOpponentAndTheirCreatures,
+                        ValueDef::Constant(5),
+                    ),
                     // Two damage as the baseline and five when it was foretold, which is the
                     // whole of the card: the two mana spent a turn earlier buy three damage and
                     // one mana off the price.
-                    otherwise: &EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-                        amount: ValueDef::Constant(2),
-                    },
+                    otherwise: &EffectDef::damage(
+                        EffectRecipientDef::EachOpponentAndTheirCreatures,
+                        ValueDef::Constant(2),
+                    ),
                 },
             ),
             abilities::foretell(mana_cost!("{4}{R}{R}")),

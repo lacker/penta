@@ -417,10 +417,7 @@ pub(in crate::card::sets) static SERENDIB_EFREET: CardRecord = CardRecord::new_w
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
         ),
     ]),
 );
@@ -519,10 +516,7 @@ pub(in crate::card::sets) static ERG_RAIDERS: CardRecord = CardRecord::new_with_
                     ObjectPredicateDef::Not(&ObjectPredicateDef::CameUnderControlThisTurn),
                 ]),
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(2)),
         ),
     ),
 );
@@ -572,10 +566,7 @@ pub(in crate::card::sets) static HASRAN_OGRESS: CardRecord = CardRecord::new_wit
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::PayOr(PayOrDef::unless_mana(
                 mana_cost!("{2}"),
-                &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(3),
-                },
+                &EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(3)),
             )),
         ),
     ]),
@@ -620,10 +611,7 @@ pub(in crate::card::sets) static JUZAM_DJINN: CardRecord = CardRecord::new_with_
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
         ),
     ]),
 );
@@ -956,18 +944,18 @@ pub(in crate::card::sets) static CYCLONE: CardRecord = CardRecord::new_with_lega
                 // The damage is one number dealt twice over: every creature and every
                 // player, including its own controller and their own board.
                 if_paid: Some(&EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::matching_objects(
+                    EffectDef::damage(
+                        EffectRecipientDef::matching_objects(
                             ObjectPredicateDef::HasType(CardType::Creature),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
-                        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
-                    },
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::EachPlayer,
-                        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
-                    },
+                        ValueDef::CountersOnSource(CounterKind::named("wind")),
+                    ),
+                    EffectDef::damage(
+                        EffectRecipientDef::EachPlayer,
+                        ValueDef::CountersOnSource(CounterKind::named("wind")),
+                    ),
                 ])),
                 otherwise: Some(&EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -1060,8 +1048,8 @@ pub(in crate::card::sets) static IFH_BIFF_EFREET: CardRecord = CardRecord::new_w
             // Hurricane in miniature, and it catches the Efreet too: it flies, so its
             // own ability hits it.
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
                             ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
@@ -1069,12 +1057,9 @@ pub(in crate::card::sets) static IFH_BIFF_EFREET: CardRecord = CardRecord::new_w
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
+                EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(1)),
             ]),
         )
         .open_to_any_player(),
@@ -1111,8 +1096,8 @@ pub(in crate::card::sets) static SANDSTORM: CardRecord = CardRecord::new_with_le
     CardSet::ArabianNights,
     CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[AbilityDef::spell(
         "Sandstorm deals 1 damage to each attacking creature.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Attacking,
@@ -1120,8 +1105,8 @@ pub(in crate::card::sets) static SANDSTORM: CardRecord = CardRecord::new_with_le
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::Constant(1),
-        },
+            ValueDef::Constant(1),
+        ),
     )]),
 );
 
@@ -1200,10 +1185,10 @@ pub(in crate::card::sets) static ALADDINS_RING: CardRecord = CardRecord::new_wit
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
     ]),
 );
@@ -1222,10 +1207,7 @@ pub(in crate::card::sets) static BOTTLE_OF_SULEIMAN: CardRecord = CardRecord::ne
         EffectDef::FlipCoin {
             on_win: &EffectDef::create_artifact_creature_token(&["Djinn"], &[], 5, 5)
                 .with_abilities(&[abilities::flying()]),
-            on_loss: &EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(5),
-            },
+            on_loss: &EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(5)),
         },
     )),
 );
@@ -1575,10 +1557,7 @@ pub(in crate::card::sets) static CITY_OF_BRASS: CardRecord = CardRecord::new_wit
         AbilityDef::triggered(
             "Whenever this land becomes tapped, it deals 1 damage to you.",
             TriggerEventDef::tapped(ObjectPredicateDef::Source),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
         ),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
@@ -1611,10 +1590,10 @@ pub(in crate::card::sets) static DESERT: CardRecord = CardRecord::new_with_legac
                         ObjectPredicateDef::Attacking,
                     ]),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             )
             .with_activation_timing(ActivationTimingDef::EndOfCombat),
         ]),

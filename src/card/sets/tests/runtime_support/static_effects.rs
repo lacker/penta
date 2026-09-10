@@ -371,10 +371,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::None
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
-        | EffectDef::DealDamage { .. }
-        | EffectDef::DealDamageFrom { .. }
-        | EffectDef::DealDamageAndApply { .. }
-        | EffectDef::DealDamageWithFollowUp(_)
+        | EffectDef::DealDamage(_)
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::SetLifeTotal { .. }
@@ -468,7 +465,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::TakeExtraTurn { .. }
         | EffectDef::CreateMyriadTokens
-        | EffectDef::DealDamageSimultaneously(_)
         | EffectDef::Fight { .. }
         | EffectDef::Special(_) => false,
     }

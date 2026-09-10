@@ -1778,12 +1778,12 @@ pub(in crate::card::sets) static CHOKING_SANDS: CardRecord = CardRecord::new(
                     }
                 },
                 then: &const {
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    EffectDef::damage(
+                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                             ObjectRefDef::Target(TargetIndex::PRIMARY),
                         )),
-                        amount: ValueDef::Constant(2),
-                    }
+                        ValueDef::Constant(2),
+                    )
                 },
             },
         ]),
@@ -2593,10 +2593,10 @@ pub(in crate::card::sets) static CHAOS_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Target creature gains haste until end of turn.",
@@ -2774,10 +2774,10 @@ pub(in crate::card::sets) static FLAME_ELEMENTAL: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::SourcePower,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::SourcePower,
+            ),
         ),
     ),
 );
@@ -2855,10 +2855,10 @@ pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new_w
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Source,
-                    amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Source,
+                    ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                ),
             ]),
         ),
     ),
@@ -2915,10 +2915,10 @@ pub(in crate::card::sets) static KAERVEK_S_TORCH: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ChosenX,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ChosenX,
+            ),
         ),
     ]),
 );
@@ -2980,16 +2980,13 @@ pub(in crate::card::sets) static RECKLESS_EMBERMAGE: CardRecord = CardRecord::ne
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
                 // The self-damage is unconditional, so it happens even when
                 // the chosen target has already left.
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Source,
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(EffectRecipientDef::Source, ValueDef::Constant(1)),
             ]),
         ),
     ),
@@ -3054,8 +3051,8 @@ pub(in crate::card::sets) static SUBTERRANEAN_SPIRIT: CardRecord = CardRecord::n
             AbilityDef::activated(
                 "{T}: This creature deals 1 damage to each creature without flying.",
                 &[CostDef::TapSource],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
@@ -3065,8 +3062,8 @@ pub(in crate::card::sets) static SUBTERRANEAN_SPIRIT: CardRecord = CardRecord::n
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -3317,10 +3314,10 @@ pub(in crate::card::sets) static FEMEREF_ARCHERS: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
     ),
 );
@@ -3549,10 +3546,7 @@ pub(in crate::card::sets) static NETTLETOOTH_DJINN: CardRecord = CardRecord::new
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
         ),
     ),
 );
@@ -3846,10 +3840,10 @@ pub(in crate::card::sets) static UNYARO_BEE_STING: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -4134,16 +4128,16 @@ pub(in crate::card::sets) static KAERVEK_S_PURGE: CardRecord = CardRecord::new(
             // indestructible creature deals no damage.
             then: Some(DestroyFollowUpDef {
                 binding: ParentBinding,
-                effect: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                        ObjectRefDef::Target(TargetIndex::PRIMARY),
-                    )),
-                    amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
                         objects: ObjectSetDef::Binding(ParentBinding),
                         select: ObjectValueDef::Power,
                         operation: AggregateOperationDef::Sum,
                     }),
-                },
+                ),
             }),
         },
     )),
@@ -4249,14 +4243,14 @@ pub(in crate::card::sets) static SAVAGE_TWISTER: CardRecord = CardRecord::new(
     crate::card::CardSet::Mirage,
     CardRules::new_sorcery(mana_cost!("{X}{R}{G}")).with_ability(AbilityDef::spell(
         "Savage Twister deals X damage to each creature.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::ChosenX,
-        },
+            ValueDef::ChosenX,
+        ),
     )),
 );
 
@@ -4296,10 +4290,10 @@ pub(in crate::card::sets) static SHAUKU_S_MINION: CardRecord = CardRecord::new(
                     ObjectPredicateDef::Color(ManaColor::White),
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -4891,10 +4885,10 @@ pub(in crate::card::sets) static TELIM_TOR_S_DARTS: CardRecord = CardRecord::new
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(1),
+        ),
     )),
 );
 

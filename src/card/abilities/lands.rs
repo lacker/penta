@@ -241,10 +241,10 @@ pub const fn desert_entry_ping() -> AbilityDef {
                 PlayerRelation::Opponent,
             ))]
         },
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(1),
+        ),
     )
 }
 

@@ -2465,8 +2465,8 @@ pub(in crate::card::sets) static BREATH_OF_DARIGAAZ: CardRecord = CardRecord::ne
                 then: &EffectDef::Sequence(
                     &const {
                         [
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::matching_objects(
+                            EffectDef::damage(
+                                EffectRecipientDef::matching_objects(
                                     ObjectPredicateDef::All(&[
                                         ObjectPredicateDef::HasType(CardType::Creature),
                                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
@@ -2476,20 +2476,20 @@ pub(in crate::card::sets) static BREATH_OF_DARIGAAZ: CardRecord = CardRecord::ne
                                     &[ZoneKind::Battlefield],
                                     PlayerRelation::Any,
                                 ),
-                                amount: ValueDef::Constant(4),
-                            },
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::EachPlayer,
-                                amount: ValueDef::Constant(4),
-                            },
+                                ValueDef::Constant(4),
+                            ),
+                            EffectDef::damage(
+                                EffectRecipientDef::EachPlayer,
+                                ValueDef::Constant(4),
+                            ),
                         ]
                     },
                 ),
                 otherwise: &EffectDef::Sequence(
                     &const {
                         [
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::matching_objects(
+                            EffectDef::damage(
+                                EffectRecipientDef::matching_objects(
                                     ObjectPredicateDef::All(&[
                                         ObjectPredicateDef::HasType(CardType::Creature),
                                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
@@ -2499,12 +2499,12 @@ pub(in crate::card::sets) static BREATH_OF_DARIGAAZ: CardRecord = CardRecord::ne
                                     &[ZoneKind::Battlefield],
                                     PlayerRelation::Any,
                                 ),
-                                amount: ValueDef::Constant(1),
-                            },
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::EachPlayer,
-                                amount: ValueDef::Constant(1),
-                            },
+                                ValueDef::Constant(1),
+                            ),
+                            EffectDef::damage(
+                                EffectRecipientDef::EachPlayer,
+                                ValueDef::Constant(1),
+                            ),
                         ]
                     },
                 ),
@@ -3249,10 +3249,10 @@ pub(in crate::card::sets) static ZAP: CardRecord = CardRecord::new(
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -3338,8 +3338,8 @@ pub(in crate::card::sets) static CANOPY_SURGE: CardRecord = CardRecord::new(
                 then: &EffectDef::Sequence(
                     &const {
                         [
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::matching_objects(
+                            EffectDef::damage(
+                                EffectRecipientDef::matching_objects(
                                     ObjectPredicateDef::All(&[
                                         ObjectPredicateDef::HasType(CardType::Creature),
                                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
@@ -3347,20 +3347,20 @@ pub(in crate::card::sets) static CANOPY_SURGE: CardRecord = CardRecord::new(
                                     &[ZoneKind::Battlefield],
                                     PlayerRelation::Any,
                                 ),
-                                amount: ValueDef::Constant(4),
-                            },
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::EachPlayer,
-                                amount: ValueDef::Constant(4),
-                            },
+                                ValueDef::Constant(4),
+                            ),
+                            EffectDef::damage(
+                                EffectRecipientDef::EachPlayer,
+                                ValueDef::Constant(4),
+                            ),
                         ]
                     },
                 ),
                 otherwise: &EffectDef::Sequence(
                     &const {
                         [
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::matching_objects(
+                            EffectDef::damage(
+                                EffectRecipientDef::matching_objects(
                                     ObjectPredicateDef::All(&[
                                         ObjectPredicateDef::HasType(CardType::Creature),
                                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
@@ -3368,12 +3368,12 @@ pub(in crate::card::sets) static CANOPY_SURGE: CardRecord = CardRecord::new(
                                     &[ZoneKind::Battlefield],
                                     PlayerRelation::Any,
                                 ),
-                                amount: ValueDef::Constant(1),
-                            },
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::EachPlayer,
-                                amount: ValueDef::Constant(1),
-                            },
+                                ValueDef::Constant(1),
+                            ),
+                            EffectDef::damage(
+                                EffectRecipientDef::EachPlayer,
+                                ValueDef::Constant(1),
+                            ),
                         ]
                     },
                 ),
@@ -4664,10 +4664,10 @@ pub(in crate::card::sets) static METEOR_STORM: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
     ),
 );
@@ -4790,10 +4790,10 @@ pub(in crate::card::sets) static RECKLESS_ASSAULT: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -5820,10 +5820,10 @@ pub(in crate::card::sets) static KELDON_NECROPOLIS: CardRecord = CardRecord::new
                     AbilityTargetPredicate::AnyTarget,
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );

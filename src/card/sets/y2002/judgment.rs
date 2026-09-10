@@ -1174,10 +1174,10 @@ pub(in crate::card::sets) static ARCANE_TEACHINGS: CardRecord = CardRecord::new(
                             &const {
                                 [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)]
                             },
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(1),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(1),
+                            ),
                         )
                     }),
                 ]),
@@ -1309,10 +1309,10 @@ pub(in crate::card::sets) static EMBER_SHOT: CardRecord = CardRecord::new(
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -1365,10 +1365,10 @@ pub(in crate::card::sets) static GORETUSK_FIREBEAST: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         )),
 );
 
@@ -1406,10 +1406,10 @@ pub(in crate::card::sets) static JESKA_WARRIOR_ADEPT: CardRecord = CardRecord::n
                         AbilityTargetPredicate::AnyTarget,
                     )]
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -1533,10 +1533,10 @@ pub(in crate::card::sets) static SWELTER: CardRecord = CardRecord::new(
             },
             ValueDef::Constant(2),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(2),
+        ),
     )),
 );
 

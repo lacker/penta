@@ -757,10 +757,7 @@ fn merged_effect_vocabulary_preserves_local_target_bounds() {
     }
 
     static VALID_SEQUENCE: [EffectDef; 2] = [
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::DividedAmongTargets,
-        },
+        EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::DividedAmongTargets),
         EffectDef::ScheduleTurnPhases(&[crate::card::TurnPhaseDef::Combat]),
     ];
     super::validate_ability_targets(&TARGETS, EffectDef::Sequence(&VALID_SEQUENCE))

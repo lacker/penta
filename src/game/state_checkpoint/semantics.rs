@@ -454,8 +454,12 @@ fn collect_applied_effects_from_effect(effect: EffectDef, found: &mut Vec<Applie
         }
         | EffectDef::StaticApply {
             effect: applied, ..
+        } => collect_applied_effect(applied, found),
+        EffectDef::DealDamage(damage) => {
+            if let Some(effect) = damage.applied_effect() {
+                collect_applied_effect(effect, found);
+            }
         }
-        | EffectDef::DealDamageAndApply { applied, .. } => collect_applied_effect(applied, found),
         _ => {}
     }
     for child in child_effects(effect) {
@@ -830,8 +834,10 @@ fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static Abil
         EffectDef::Apply { effect, .. } | EffectDef::StaticApply { effect, .. } => {
             collect_applied_abilities(effect, abilities);
         }
-        EffectDef::DealDamageAndApply { applied, .. } => {
-            collect_applied_abilities(applied, abilities);
+        EffectDef::DealDamage(damage) => {
+            if let Some(effect) = damage.applied_effect() {
+                collect_applied_abilities(effect, abilities);
+            }
         }
         EffectDef::InstallTrigger(installed) => abilities.push(installed.ability),
         EffectDef::CreateOngoingEffect(ongoing) => abilities.push(ongoing.ability),

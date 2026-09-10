@@ -504,10 +504,10 @@ pub(in crate::card::sets) static DIVE_BOMBER: CardRecord = CardRecord::new(
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]))]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );
@@ -3268,10 +3268,10 @@ pub(in crate::card::sets) static FEVER_CHARM: CardRecord = CardRecord::new(
                         ObjectPredicateDef::Subtype("Wizard"),
                     ]),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
         ],
     )),
@@ -3412,10 +3412,10 @@ pub(in crate::card::sets) static GOBLIN_SHARPSHOOTER: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -3686,10 +3686,10 @@ pub(in crate::card::sets) static SEARING_FLESH: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(7),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(7),
+        ),
     )),
 );
 
@@ -3739,10 +3739,10 @@ AbilityDef::triggered_with_targets(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
             },
         ),
         ]),
@@ -3835,10 +3835,10 @@ AbilityDef::triggered_with_targets(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             },
         ),
         ]),
@@ -3881,14 +3881,14 @@ pub(in crate::card::sets) static SPARKSMITH: CardRecord = CardRecord::new(
             // Both halves read the same count once, at resolution: nothing
             // between them can change how many Goblins there are.
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
+                ),
+                EffectDef::damage(
+                    EffectRecipientDef::Controller,
+                    ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
+                ),
             ]),
         ),
     ),

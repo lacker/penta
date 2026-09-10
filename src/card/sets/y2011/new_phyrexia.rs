@@ -314,8 +314,8 @@ pub(in crate::card::sets) static MARROW_SHARDS: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_instant(mana_cost!("{W/P}")).with_ability(AbilityDef::spell(
         "This spell deals 1 damage to each attacking creature.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Attacking,
@@ -323,8 +323,8 @@ pub(in crate::card::sets) static MARROW_SHARDS: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::Constant(1),
-        },
+            ValueDef::Constant(1),
+        ),
     )),
 );
 
@@ -1417,13 +1417,13 @@ pub(in crate::card::sets) static ENSLAVE: CardRecord = CardRecord::new(
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                EffectDef::DealDamageFrom {
-                    source: ObjectRefDef::AttachedToSource,
-                    recipient: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
+                EffectDef::damage_from(
+                    ObjectRefDef::AttachedToSource,
+                    EffectRecipientDef::player(PlayerRefDef::OwnerOf(
                         ObjectRefDef::AttachedToSource,
                     )),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -1994,10 +1994,10 @@ pub(in crate::card::sets) static ARTILLERIZE: CardRecord = CardRecord::new(
                 ]),
                 CostQuantityDef::Fixed(1),
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(5),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
         ),
     ),
 );
@@ -2072,10 +2072,10 @@ pub(in crate::card::sets) static FALLEN_FERROMANCER: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -2103,11 +2103,11 @@ pub(in crate::card::sets) static FURNACE_SCAMP: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 object: ObjectPredicateDef::Source,
                 count: ValueDef::Constant(1),
-                then: Some(&EffectDef::DealDamageFrom {
-                        source: ObjectRefDef::Source,
-                        recipient: EffectRecipientDef::EventPlayer,
-                        amount: ValueDef::Constant(3),
-                    }),
+                then: Some(&EffectDef::damage_from(
+                    ObjectRefDef::Source,
+                    EffectRecipientDef::EventPlayer,
+                    ValueDef::Constant(3),
+                )),
                 amount: SacrificedAmountDef::Power,
                 otherwise: None,
                 optional: true,
@@ -2146,10 +2146,10 @@ pub(in crate::card::sets) static GUT_SHOT: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(1),
+        ),
     )),
 );
 
@@ -2279,14 +2279,14 @@ pub(in crate::card::sets) static SCRAPYARD_SALVO: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 )),
-            },
+            ),
         ),
     ),
 );
@@ -2451,10 +2451,10 @@ pub(in crate::card::sets) static VOLT_CHARGE: CardRecord = CardRecord::new(
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
             EffectDef::Proliferate,
         ]),
     )),
@@ -2478,8 +2478,8 @@ pub(in crate::card::sets) static WHIPFLARE: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
         "This spell deals 2 damage to each nonartifact creature.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
@@ -2487,8 +2487,8 @@ pub(in crate::card::sets) static WHIPFLARE: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::Constant(2),
-        },
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -2637,8 +2637,8 @@ pub(in crate::card::sets) static CORROSIVE_GALE: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_sorcery(mana_cost!("{X}{G/P}")).with_ability(AbilityDef::spell(
         "This spell deals X damage to each creature with flying.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
@@ -2646,8 +2646,8 @@ pub(in crate::card::sets) static CORROSIVE_GALE: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::ChosenX,
-        },
+            ValueDef::ChosenX,
+        ),
     )),
 );
 
@@ -3270,11 +3270,11 @@ pub(in crate::card::sets) static GREMLIN_MINE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 ]),
             )],
-            EffectDef::DealDamageFrom {
-                source: ObjectRefDef::Source,
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage_from(
+                ObjectRefDef::Source,
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{1}, {T}, Sacrifice this artifact: Remove up to four charge counters from target noncreature artifact.",
@@ -3602,11 +3602,11 @@ pub(in crate::card::sets) static SHRINE_OF_BURNING_RAGE: CardRecord = CardRecord
                 CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamageFrom {
-                source: ObjectRefDef::Source,
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
-            },
+            EffectDef::damage_from(
+                ObjectRefDef::Source,
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::CountersOnSource(CounterKind::named("charge")),
+            ),
         ),
     ]),
 );
@@ -3879,13 +3879,13 @@ pub(in crate::card::sets) static SWORD_OF_WAR_AND_PEACE: CardRecord = CardRecord
                 "Whenever equipped creature deals combat damage to a player, this Equipment deals damage to that player equal to the number of cards in their hand and you gain 1 life for each card in your hand.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
                 EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::EventPlayer,
-                        amount: ValueDef::CardsInHandAbove {
+                    EffectDef::damage(
+                        EffectRecipientDef::EventPlayer,
+                        ValueDef::CardsInHandAbove {
                             player: PlayerRelation::EventPlayer,
                             threshold: 0,
                         },
-                    },
+                    ),
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::CardsInHandAbove {

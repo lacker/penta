@@ -57,14 +57,14 @@ static MULTI_SLOT_ACTIVATION_TARGETS: [AbilityTargetDef; 2] = [
     }),
 ];
 static MULTI_SLOT_ACTIVATION_EFFECTS: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex(1)),
-        amount: ValueDef::Constant(1),
-    },
+    EffectDef::damage(
+        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        ValueDef::Constant(1),
+    ),
+    EffectDef::damage(
+        EffectRecipientDef::Target(TargetIndex(1)),
+        ValueDef::Constant(1),
+    ),
 ];
 static MULTI_SLOT_ACTIVATION_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_with_targets(
     "Sacrifice this artifact: It deals 1 damage to target opponent and 1 damage to target creature that player controls.",
@@ -186,10 +186,10 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         "Deal 1 damage to up to two target creatures an opponent controls.",
         &[],
         &TARGETS,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(1),
+        ),
     )];
 
     let definition_id = CardDefinitionId::new(10_064);
@@ -354,10 +354,10 @@ fn declarative_clause_uses_its_own_resolver_among_multiple_clauses() {
             "Deal 1 damage to any target.",
             &[],
             &TARGETS,
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
         AbilityDef::activated("A separate clause.", &[], EffectDef::None),
     ];
@@ -394,7 +394,7 @@ fn declarative_clause_uses_its_own_resolver_among_multiple_clauses() {
             .as_ref()
             .map(|ability| ability.resolver),
         Some(StackAbilityResolver::Declarative(ScopedEffect {
-            effect: EffectDef::DealDamage { .. },
+            effect: EffectDef::DealDamage(_),
             ..
         }))
     ));
@@ -584,14 +584,14 @@ static TWO_SLOT_TARGETS: [AbilityTargetDef; 2] = [
     }),
 ];
 static TWO_SLOT_EFFECTS: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex(1)),
-        amount: ValueDef::Constant(1),
-    },
+    EffectDef::damage(
+        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        ValueDef::Constant(1),
+    ),
+    EffectDef::damage(
+        EffectRecipientDef::Target(TargetIndex(1)),
+        ValueDef::Constant(1),
+    ),
 ];
 
 #[test]

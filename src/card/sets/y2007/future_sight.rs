@@ -205,10 +205,10 @@ pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 crate::card::AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         )
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
             &[(CounterKind::named("time"), 3)],

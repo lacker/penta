@@ -146,6 +146,33 @@ from effect-output bindings; `ParentBinding` cannot name a cost.
 `SourceCastWith` instead asks about a cost family such as escape. External
 alternatives such as Omniscience do not acquire the card's cost bindings.
 
+### Damage instructions and follow-ups
+
+Use `EffectDef::DealDamage(DamageDef)` for ordinary damage instructions. Use
+`EffectDef::damage(recipient, amount)` for the resolving spell or ability's
+source, `EffectDef::damage_from(source, recipient, amount)` for an explicit
+source, or `EffectDef::damage_simultaneously(assignments)` for several
+assignments in one event. These constructors share one evaluator. An explicit
+source retains its identity and last-known information even after sacrifice.
+Every assignment is evaluated before any damage in that event is committed;
+separate damage effects in a `Sequence` still represent separate events.
+
+Attach an outcome-dependent rider with `DamageDef::with_follow_up`:
+
+- `DamageFollowUpDef::IfDealtToIntended(then)` runs once if any intended
+  recipient actually took damage. Use it for wording such as Mishra's War
+  Machine's "If it deals damage to you this way". Full prevention or redirection
+  entirely elsewhere skips the continuation; life-total changes are not a
+  substitute for damage dealt.
+- `DamageFollowUpDef::ApplyToDamaged { effect, duration }` applies to the actual
+  damage recipients, including recipients reached by redirection. Use it for
+  wording such as "a creature dealt damage this way".
+
+Both riders work with ordinary sources, explicit sources, and simultaneous
+batches. Use an ordinary `Sequence` for an unconditional instruction following
+damage. Keep `EffectDef::Fight` for fighting: it requires both participants to
+be creatures and snapshots their powers before either deals damage.
+
 ### Temporary self effects
 
 Use `abilities::apply_to_self_until_end_of_turn` for activated stat changes,

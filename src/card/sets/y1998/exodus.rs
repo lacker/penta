@@ -1988,11 +1988,11 @@ pub(in crate::card::sets) static DIZZYING_GAZE: CardRecord = CardRecord::new(
                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                     ]),
                 )],
-                EffectDef::DealDamageFrom {
-                    source: ObjectRefDef::AttachedToSource,
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage_from(
+                    ObjectRefDef::AttachedToSource,
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -2098,10 +2098,10 @@ pub(in crate::card::sets) static MAGE_IL_VEC: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -2205,10 +2205,10 @@ pub(in crate::card::sets) static OGRE_SHAMAN: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -2253,11 +2253,11 @@ pub(in crate::card::sets) static PANDEMONIUM: CardRecord = CardRecord::new(
                 1,
             )
             .chosen_by_event_player()],
-            EffectDef::DealDamageFrom {
-                source: ObjectRefDef::TriggeringObject,
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::TriggeringObjectPower,
-            },
+            EffectDef::damage_from(
+                ObjectRefDef::TriggeringObject,
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::TriggeringObjectPower,
+            ),
         ),
     ),
 );
@@ -2414,19 +2414,17 @@ pub(in crate::card::sets) static SCALDING_SALAMANDER: CardRecord = CardRecord::n
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
-                                KeywordAbility::Flying,
-                            )),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(KeywordAbility::Flying)),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::DefendingPlayer,
                     ),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             },
         ),
     ),
@@ -2449,10 +2447,10 @@ pub(in crate::card::sets) static SEISMIC_ASSAULT: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -2497,10 +2495,10 @@ pub(in crate::card::sets) static SPELLSHOCK: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(AbilityDef::triggered(
         "Whenever a player casts a spell, this enchantment deals 2 damage to that player.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::ControllerOfTriggeringObject,
+            ValueDef::Constant(2),
+        ),
     )),
 );
 

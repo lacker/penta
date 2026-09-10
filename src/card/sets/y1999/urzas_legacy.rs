@@ -111,10 +111,10 @@ pub(in crate::card::sets) static EXPENDABLE_TROOPS: CardRecord = CardRecord::new
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]))]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );
@@ -729,10 +729,10 @@ pub(in crate::card::sets) static THORNWIND_FAERIES: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -1348,10 +1348,10 @@ pub(in crate::card::sets) static GHITU_FIRE_EATER: CardRecord = CardRecord::new(
                     AbilityTargetPredicate::AnyTarget,
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::SourcePower,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::SourcePower,
+            ),
         ),
     ),
 );
@@ -1372,10 +1372,10 @@ pub(in crate::card::sets) static GHITU_SLINGER: CardRecord = CardRecord::new(
         abilities::enters_trigger_with_targets(
             "When this creature enters, it deals 2 damage to any target.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );
@@ -1407,10 +1407,10 @@ pub(in crate::card::sets) static GOBLIN_MEDICS: CardRecord = CardRecord::new(
                     AbilityTargetPredicate::AnyTarget,
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -1502,10 +1502,10 @@ pub(in crate::card::sets) static PARCH: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Parch deals 4 damage to target blue creature.",
@@ -1515,10 +1515,10 @@ pub(in crate::card::sets) static PARCH: CardRecord = CardRecord::new(
                         ObjectPredicateDef::Color(ManaColor::Blue),
                     ]),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(4),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(4),
+                ),
             ),
         ],
     )),
@@ -2477,10 +2477,10 @@ pub(in crate::card::sets) static TICKING_GNOMES: CardRecord = CardRecord::new(
         "Sacrifice this creature: It deals 1 damage to any target.",
         &[CostDef::SacrificeSource],
         &const { [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)] },
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(1),
+        ),
     ),
     ]),
 );

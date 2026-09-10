@@ -211,10 +211,7 @@ pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
             // is the reason the one-drop is played and the Blood is what it leaves
             // behind.
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Opponent,
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
                 EffectDef::create_token(crate::card::tokens::blood()),
             ]),
         ),

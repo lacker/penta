@@ -1711,10 +1711,10 @@ pub(in crate::card::sets) static FESTERING_WOUND: CardRecord = CardRecord::new(
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::ControllerOfAttachedPermanent,
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EventPlayer,
-                    amount: ValueDef::CountersOnSource(CounterKind::named("infection")),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::EventPlayer,
+                    ValueDef::CountersOnSource(CounterKind::named("infection")),
+                ),
             ),
         ]),
 );
@@ -2073,10 +2073,10 @@ pub(in crate::card::sets) static AETHER_STING: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
         ])),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::ControllerOfTriggeringObject,
+            ValueDef::Constant(1),
+        ),
     )),
 );
 
@@ -2122,10 +2122,10 @@ pub(in crate::card::sets) static CINDER_SEER: CardRecord = CardRecord::new(
                         input: ObjectSetDef::Binding(ParentBinding),
                         then: &EffectDef::None,
                     }),
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::BoundObjectCount(ParentBinding),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::BoundObjectCount(ParentBinding),
+                    ),
                 ]),
             }),
         ),
@@ -2198,10 +2198,10 @@ pub(in crate::card::sets) static FLAME_JET: CardRecord = CardRecord::new(
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         ),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -2349,10 +2349,7 @@ pub(in crate::card::sets) static IMPATIENCE: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(2)),
         )),
 );
 
@@ -2389,10 +2386,10 @@ pub(in crate::card::sets) static INCENDIARY: CardRecord = CardRecord::new(
                     Some(ZoneKind::Graveyard),
                 ),
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::CountersOnSource(CounterKind::named("fuse")),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::CountersOnSource(CounterKind::named("fuse")),
+                ),
             ),
         ]),
 );
@@ -2415,10 +2412,10 @@ pub(in crate::card::sets) static KELDON_CHAMPION: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
         ]),
 );
@@ -2465,10 +2462,10 @@ pub(in crate::card::sets) static LANDSLIDE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                 CostQuantityDef::ChosenX,
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ChosenX,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ChosenX,
+            ),
         )),
 );
 
@@ -2524,10 +2521,10 @@ pub(in crate::card::sets) static RECKLESS_ABANDON: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
             CostQuantityDef::Fixed(1),
         ),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(4),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(4),
+        ),
     )),
 );
 
@@ -2569,10 +2566,10 @@ pub(in crate::card::sets) static SCENT_OF_CINDER: CardRecord = CardRecord::new(
                         input: ObjectSetDef::Binding(ParentBinding),
                         then: &EffectDef::None,
                     }),
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::BoundObjectCount(ParentBinding),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::BoundObjectCount(ParentBinding),
+                    ),
                 ]),
             }),
         )),
@@ -3451,10 +3448,7 @@ pub(in crate::card::sets) static CALTROPS: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::triggered(
         "Whenever a creature attacks, this artifact deals 1 damage to it.",
         TriggerEventDef::attacks(ObjectPredicateDef::HasType(CardType::Creature)),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::TriggeringObject,
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(EffectRecipientDef::TriggeringObject, ValueDef::Constant(1)),
     )),
 );
 
@@ -3507,10 +3501,10 @@ pub(in crate::card::sets) static FODDER_CANNON: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(4),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(4),
+        ),
     )),
 );
 
@@ -3594,10 +3588,10 @@ pub(in crate::card::sets) static MASTICORE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
         abilities::regenerate_self(
             "{2}: Regenerate this creature.",

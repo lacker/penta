@@ -532,12 +532,13 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         EffectDef::ConditionalStatic(conditional) => {
             assert_nested_definition_applied_effect(card_name, conditional.then.effect);
         }
-        EffectDef::StaticApply { effect, .. }
-        | EffectDef::Apply { effect, .. }
-        | EffectDef::DealDamageAndApply {
-            applied: effect, ..
-        } => {
+        EffectDef::StaticApply { effect, .. } | EffectDef::Apply { effect, .. } => {
             assert_nested_definition_applied_effect(card_name, effect);
+        }
+        EffectDef::DealDamage(damage) => {
+            if let Some(effect) = damage.applied_effect() {
+                assert_nested_definition_applied_effect(card_name, effect);
+            }
         }
         EffectDef::BecomeCopyOf { exceptions, .. } => {
             for addition in exceptions.added_abilities {

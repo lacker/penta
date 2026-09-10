@@ -614,10 +614,10 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
                         excludes_source: false,
                         chooser: TargetChooserDef::Controller,
                     }],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::DividedAmongTargets,
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::DividedAmongTargets,
+                    ),
                 ),
             ],
             abilities::evoke(CostDef::exile(
@@ -670,10 +670,10 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
                     owner: None,
                 },
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(5),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
         ),
     ]),
 );
@@ -743,18 +743,17 @@ pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_
                 owner: None,
             },
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            // Delirium changes the amount, not the effect, so it is a conditional value
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY), // Delirium changes the amount, not the effect, so it is a conditional value
             // rather than a second clause: four card types in your own graveyard, and
             // the same spell deals six.
-            amount: ValueDef::IfCardTypesAmongGraveyards(&GraveyardTypeConditionDef {
+            ValueDef::IfCardTypesAmongGraveyards(&GraveyardTypeConditionDef {
                 player: PlayerRelation::You,
                 minimum: 4,
                 then: ValueDef::Constant(6),
                 otherwise: ValueDef::Constant(2),
             }),
-        },
+        ),
     )),
 );
 

@@ -161,10 +161,7 @@ pub(in crate::card::sets) static MANA_CRYPT: CardRecord = CardRecord::new_with_l
                 // Losing the flip is the whole cost of the card, and it is paid to the
                 // artifact itself: three damage from a source its controller chose to keep
                 // around.
-                on_loss: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(3),
-                },
+                on_loss: &EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(3)),
             },
         ),
         AbilityDef::activated_mana(

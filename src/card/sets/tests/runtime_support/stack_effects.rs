@@ -423,18 +423,15 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             ..
         }) => deferred_decision_allowed && shared_mana_effect(effect, true),
         EffectDef::AddMana(_) => shared_mana_effect(effect, false),
-        EffectDef::DealDamageFrom {
-            source, recipient, ..
-        } => {
-            shared_effect_recipient(EffectRecipientDef::object(source))
-                && shared_effect_recipient(recipient)
+        EffectDef::DealDamage(damage) => {
+            damage.assignments().iter().all(|assignment| {
+                assignment.source.is_none_or(|source| {
+                    shared_effect_recipient(EffectRecipientDef::object(source))
+                }) && shared_effect_recipient(assignment.recipient)
+            }) && damage.continuation().is_none_or(|then| {
+                shared_stack_effect_at_position(*then, deferred_decision_allowed)
+            })
         }
-        EffectDef::DealDamageSimultaneously(assignments) => assignments.iter().all(|assignment| {
-            assignment
-                .source
-                .is_none_or(|source| shared_effect_recipient(EffectRecipientDef::object(source)))
-                && shared_effect_recipient(assignment.recipient)
-        }),
         EffectDef::Fight {
             first,
             second,
@@ -450,9 +447,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                         )
                 })
         }
-        EffectDef::DealDamage { recipient, .. }
-        | EffectDef::DealDamageAndApply { recipient, .. }
-        | EffectDef::DrainLife { recipient, .. }
+        EffectDef::DrainLife { recipient, .. }
         | EffectDef::GainLife { recipient, .. }
         | EffectDef::SetLifeTotal { recipient, .. }
         | EffectDef::AddPlayerCounters { recipient, .. }
@@ -523,8 +518,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             object: recipient,
             then,
             ..
-        }
-        | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { recipient, then, .. }) => {
+        } => {
             shared_effect_recipient(recipient)
                 && shared_stack_effect_at_position(*then, deferred_decision_allowed)
         }

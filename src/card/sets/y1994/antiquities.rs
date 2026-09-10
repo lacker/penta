@@ -540,10 +540,10 @@ pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new_with_leg
                         then: None,
                     },
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    amount: ValueDef::ChosenX,
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    ValueDef::ChosenX,
+                ),
             ]),
         ),
     ]),
@@ -608,10 +608,10 @@ pub(in crate::card::sets) static ORCISH_MECHANICS: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );
@@ -848,10 +848,10 @@ pub(in crate::card::sets) static ARMAGEDDON_CLOCK: CardRecord = CardRecord::new_
                 step: TurnStepDef::Draw,
                 player: PlayerRelation::You,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::CountersOnSource(CounterKind::named("doom")),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::EachPlayer,
+                ValueDef::CountersOnSource(CounterKind::named("doom")),
+            ),
         ),
         // Everyone can wind it back, and only in an upkeep -- which is after
         // the counter goes on and before the draw step it pays for.
@@ -1199,10 +1199,10 @@ pub(in crate::card::sets) static GRAPESHOT_CATAPULT: CardRecord = CardRecord::ne
                     ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -1324,14 +1324,16 @@ pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::
             EffectDef::PayOr(PayOrDef {
                 payment: EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
                 if_paid: None,
-                otherwise: Some(&EffectDef::DealDamageWithFollowUp(
-                    crate::card::DamageFollowUpDef {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(3),
-                        then: &EffectDef::Tap {
+                otherwise: Some(&EffectDef::DealDamage(
+                    crate::card::DamageDef::new(
+                        EffectRecipientDef::Controller,
+                        ValueDef::Constant(3),
+                    )
+                    .with_follow_up(
+                        crate::card::DamageFollowUpDef::IfDealtToIntended(&EffectDef::Tap {
                             object: EffectRecipientDef::Source,
-                        },
-                    },
+                        }),
+                    ),
                 )),
                 visibility: ChoiceVisibilityDef::Public,
                 condition: None,
@@ -1723,10 +1725,10 @@ pub(in crate::card::sets) static TRISKELION: CardRecord = CardRecord::new_with_l
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );

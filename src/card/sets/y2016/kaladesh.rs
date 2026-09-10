@@ -109,10 +109,7 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                         // "If you don't" is the whole of the first ability's tension: the exile
                         // happens either way, and the card is either spent now at its own cost or
                         // traded for two damage.
-                        otherwise: Some(&EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Opponent,
-                            amount: ValueDef::Constant(2),
-                        }),
+                        otherwise: Some(&EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(2))),
                     },
                 ),
                 // A loyalty ability is never a mana ability (CR 605.1a), so this one uses
@@ -128,10 +125,10 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::HasType(CardType::Creature),
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(4),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(4),
+                    ),
                 ),
                 AbilityDef::activated(
                     "−7: You get an emblem with \"Whenever you cast a spell, this emblem deals 5 damage to \
@@ -145,10 +142,10 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                                 &[AbilityTargetDef::exactly_one(
                                     AbilityTargetPredicate::AnyTarget,
                                 )],
-                                EffectDef::DealDamage {
-                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                    amount: ValueDef::Constant(5),
-                                },
+                                EffectDef::damage(
+                                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    ValueDef::Constant(5),
+                                ),
                             )],
                     ),
                 ),

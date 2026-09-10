@@ -994,10 +994,10 @@ pub(in crate::card::sets) static DEADAPULT: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -1018,10 +1018,10 @@ pub(in crate::card::sets) static FLAMETONGUE_KAVU: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
     ),
 );
@@ -1083,12 +1083,10 @@ pub(in crate::card::sets) static INSOLENCE: CardRecord = CardRecord::new(
             AbilityDef::triggered(
             "Whenever enchanted creature becomes tapped, this Aura deals 2 damage to that creature's controller.",
             TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                    ObjectRefDef::AttachedToSource,
-                )),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::AttachedToSource)),
+                ValueDef::Constant(2),
+            ),
         ),
         ]),
 );
@@ -1229,10 +1227,10 @@ pub(in crate::card::sets) static SLINGSHOT_GOBLIN: CardRecord = CardRecord::new(
                     ]),
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -1253,10 +1251,10 @@ pub(in crate::card::sets) static STRAFE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Red)),
             ]),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(3),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(3),
+        ),
     )),
 );
 
@@ -1714,10 +1712,10 @@ pub(in crate::card::sets) static DARIGAAZ_S_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Target creature gets +3/+3 until end of turn.",

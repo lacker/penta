@@ -231,38 +231,8 @@ impl Game {
                     .fold(0_u16, u16::saturating_add);
                 self.gain_life(object.controller, gained);
             }
-            EffectDef::DealDamage { recipient, amount } => {
-                self.deal_effect_damage(recipient, amount, object, &context, scoped);
-            }
-            EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
-                recipient,
-                amount,
-                then,
-            }) => {
-                let intended = self.effect_recipients(recipient, object, &context, scoped);
-                let damaged = self.deal_effect_damage(recipient, amount, object, &context, scoped);
-                if damaged.iter().any(|target| intended.contains(target)) {
-                    self.resolve_effect_def(scoped.with_effect(*then), object, context);
-                }
-            }
-            EffectDef::DealDamageSimultaneously(assignments) => {
-                self.deal_simultaneous_effect_damage(assignments, object, &context, scoped);
-            }
-            EffectDef::DealDamageFrom {
-                source,
-                recipient,
-                amount,
-            } => {
-                self.deal_effect_damage_from(source, recipient, amount, object, &context, scoped);
-            }
-            EffectDef::DealDamageAndApply {
-                recipient,
-                amount,
-                applied,
-                duration,
-            } => {
-                let damaged = self.deal_effect_damage(recipient, amount, object, &context, scoped);
-                self.apply_effect_to_targets(&damaged, applied, duration, object, &context, scoped);
+            EffectDef::DealDamage(damage) => {
+                self.resolve_damage_effect(damage, object, context, scoped);
             }
             EffectDef::Fight {
                 first,

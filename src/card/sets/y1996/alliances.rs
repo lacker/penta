@@ -1688,10 +1688,10 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
                 excludes_source: false,
                 chooser: TargetChooserDef::Controller,
             }],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::DividedAmongTargets,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::DividedAmongTargets,
+            ),
         ),
     ]),
 );
@@ -1993,7 +1993,7 @@ pub(in crate::card::sets) static HAIL_STORM: CardRecord = CardRecord::new(
     crate::card::CardSet::Alliances,
     CardRules::new_instant(mana_cost!("{1}{G}{G}")).with_ability(AbilityDef::spell(
         "Hail Storm deals 2 damage to each attacking creature and 1 damage to you and each creature you control.",
-        EffectDef::DealDamageSimultaneously(&[
+        EffectDef::damage_simultaneously(&[
             DamageAssignmentDef::from_effect(
                 EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
@@ -2005,10 +2005,7 @@ pub(in crate::card::sets) static HAIL_STORM: CardRecord = CardRecord::new(
                 ),
                 ValueDef::Constant(2),
             ),
-            DamageAssignmentDef::from_effect(
-                EffectRecipientDef::Controller,
-                ValueDef::Constant(1),
-            ),
+            DamageAssignmentDef::from_effect(EffectRecipientDef::Controller, ValueDef::Constant(1)),
             DamageAssignmentDef::from_effect(
                 EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -2082,10 +2079,10 @@ pub(in crate::card::sets) static SPLINTERING_WIND: CardRecord = CardRecord::new(
                 CardType::Creature,
             ))],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
                 EffectDef::create_token(
                     TokenCharacteristics::creature(&["Splinter"], &[ManaColor::Green], 1, 1)
                         .with_abilities(&[
@@ -2100,11 +2097,8 @@ pub(in crate::card::sets) static SPLINTERING_WIND: CardRecord = CardRecord::new(
                                     Some(ZoneKind::Battlefield),
                                     None,
                                 ),
-                                EffectDef::DealDamageSimultaneously(&[
-                                    DamageAssignmentDef::from_effect(
-                                        EffectRecipientDef::Controller,
-                                        ValueDef::Constant(1),
-                                    ),
+                                EffectDef::damage_simultaneously(&[
+                                    DamageAssignmentDef::from_effect(EffectRecipientDef::Controller, ValueDef::Constant(1)),
                                     DamageAssignmentDef::from_effect(
                                         EffectRecipientDef::matching_objects(
                                             ObjectPredicateDef::HasType(CardType::Creature),
@@ -2555,10 +2549,7 @@ pub(in crate::card::sets) static PHYREXIAN_WAR_BEAST: CardRecord = CardRecord::n
                     otherwise: None,
                     optional: false,
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
             ]),
         )),
 );

@@ -1224,10 +1224,10 @@ pub(in crate::card::sets) static BLISTERSTICK_SHAMAN: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -1244,19 +1244,19 @@ pub(in crate::card::sets) static BURN_THE_IMPURE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::TargetMatches {
                         slot: TargetIndex::PRIMARY,
                         object: ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
                     },
-                then: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                then: &EffectDef::damage(
+                    EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             },
         ]),
     )),
@@ -1275,10 +1275,10 @@ pub(in crate::card::sets) static CONCUSSIVE_BOLT: CardRecord = CardRecord::new(
                 PlayerRelation::Any,
             ))],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(4),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(4),
+                ),
                 EffectDef::IfCondition {
                     condition: &METALCRAFT,
                     then: &EffectDef::Apply {
@@ -1476,10 +1476,10 @@ pub(in crate::card::sets) static KULDOTHA_FLAMEFIEND: CardRecord = CardRecord::n
                         ObjectPredicateDef::HasType(CardType::Artifact),
                     ),
                 },
-                &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::DividedAmongTargets,
-                },
+                &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::DividedAmongTargets,
+                ),
             )),
         ),
     ),
@@ -1575,12 +1575,16 @@ pub(in crate::card::sets) static RED_SUN_S_ZENITH: CardRecord = CardRecord::new(
         .with_ability(AbilityDef::spell_with_targets(
             "Red Sun's Zenith deals X damage to any target. If a creature dealt damage this way would die this turn, exile it instead.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamageAndApply {
-                amount: ValueDef::ChosenX,
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                applied: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            EffectDef::DealDamage(
+                crate::card::DamageDef::new(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::ChosenX,
+                )
+                .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                }),
+            ),
         )
         .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled)),
 );
@@ -1596,21 +1600,18 @@ pub(in crate::card::sets) static SLAGSTORM: CardRecord = CardRecord::new(
         &[
             AbilityDef::spell(
                 "Slagstorm deals 3 damage to each creature.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::HasType(CardType::Creature),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    amount: ValueDef::Constant(3),
-                },
+                    ValueDef::Constant(3),
+                ),
             ),
             AbilityDef::spell(
                 "Slagstorm deals 3 damage to each player.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(3)),
             ),
         ],
     )),
@@ -2423,10 +2424,10 @@ pub(in crate::card::sets) static MAGNETIC_MINE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Artifact),
             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
         ]),
-        EffectDef::DealDamage {
-            amount: ValueDef::Constant(2),
-            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-        },
+        EffectDef::damage(
+            EffectRecipientDef::ControllerOfTriggeringObject,
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -2484,10 +2485,10 @@ pub(in crate::card::sets) static MORTARPOD: CardRecord = CardRecord::new_with_le
                             "Sacrifice this creature: This creature deals 1 damage to any target.",
                             &[CostDef::SacrificeSource],
                             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(1),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(1),
+                            ),
                         )),
                     ]),
                 },

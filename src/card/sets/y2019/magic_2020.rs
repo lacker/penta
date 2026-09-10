@@ -113,10 +113,7 @@ pub(in crate::card::sets) static LEYLINE_OF_COMBUSTION: CardRecord = CardRecord:
                 ]),
                 StackTargetAggregationDef::OneOrMoreMatchingTargets,
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(2)),
         ),
     ]),
 );

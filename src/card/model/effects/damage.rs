@@ -44,13 +44,119 @@ pub struct FightExcessDef {
     pub then: &'static EffectDef,
 }
 
-/// Deals damage, then resolves `then` once if at least one of the original
-/// recipients actually took damage from this instruction. Fully prevented
-/// damage and damage redirected entirely elsewhere do not run the follow-up.
-/// This checks damage dealt, not life lost.
+/// Storage for one assignment or an authored list. Both forms resolve as one
+/// simultaneous event through the same pipeline; the inline form lets const
+/// constructors build ordinary damage without allocating a static slice.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct DamageFollowUpDef {
-    pub recipient: EffectRecipientDef,
-    pub amount: ValueDef,
-    pub then: &'static EffectDef,
+pub enum DamageAssignmentsDef {
+    One(DamageAssignmentDef),
+    Many(&'static [DamageAssignmentDef]),
+}
+
+/// One damage instruction. Source, assignment count, and outcome handling are
+/// independent: an explicit source or simultaneous batch can use either rider.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct DamageDef {
+    pub assignments: DamageAssignmentsDef,
+    pub follow_up: Option<DamageFollowUpDef>,
+}
+
+impl DamageDef {
+    #[must_use]
+    pub const fn new(recipient: EffectRecipientDef, amount: ValueDef) -> Self {
+        Self {
+            assignments: DamageAssignmentsDef::One(DamageAssignmentDef::from_effect(
+                recipient, amount,
+            )),
+            follow_up: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn from_source(
+        source: ObjectRefDef,
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+    ) -> Self {
+        Self {
+            assignments: DamageAssignmentsDef::One(DamageAssignmentDef::from(
+                source, recipient, amount,
+            )),
+            follow_up: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn simultaneous(assignments: &'static [DamageAssignmentDef]) -> Self {
+        Self {
+            assignments: DamageAssignmentsDef::Many(assignments),
+            follow_up: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn with_follow_up(mut self, follow_up: DamageFollowUpDef) -> Self {
+        self.follow_up = Some(follow_up);
+        self
+    }
+
+    #[must_use]
+    pub fn assignments(&self) -> &[DamageAssignmentDef] {
+        match &self.assignments {
+            DamageAssignmentsDef::One(assignment) => std::slice::from_ref(assignment),
+            DamageAssignmentsDef::Many(assignments) => assignments,
+        }
+    }
+
+    pub(crate) const fn continuation(self) -> Option<&'static EffectDef> {
+        match self.follow_up {
+            Some(DamageFollowUpDef::IfDealtToIntended(then)) => Some(then),
+            Some(DamageFollowUpDef::ApplyToDamaged { .. }) | None => None,
+        }
+    }
+
+    pub(crate) const fn applied_effect(self) -> Option<AppliedEffectDef> {
+        match self.follow_up {
+            Some(DamageFollowUpDef::ApplyToDamaged { effect, .. }) => Some(effect),
+            Some(DamageFollowUpDef::IfDealtToIntended(_)) | None => None,
+        }
+    }
+}
+
+/// An outcome-dependent rider. The original recipients and the actual damage
+/// recipients can differ after prevention or redirection, so these consumers
+/// deliberately ask different questions of the completed damage event.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum DamageFollowUpDef {
+    /// Run once if any intended recipient actually took damage. Full
+    /// prevention or redirection entirely elsewhere skips this continuation.
+    /// Life lost is not a substitute for damage dealt (for example, lifelink).
+    IfDealtToIntended(&'static EffectDef),
+    /// Apply to every actual damage recipient, including redirected damage.
+    /// The applied effect determines which kinds of recipients it affects.
+    ApplyToDamaged {
+        effect: AppliedEffectDef,
+        duration: ResolvedEffectDurationDef,
+    },
+}
+
+impl EffectDef {
+    #[must_use]
+    pub const fn damage(recipient: EffectRecipientDef, amount: ValueDef) -> Self {
+        Self::DealDamage(DamageDef::new(recipient, amount))
+    }
+
+    #[must_use]
+    pub const fn damage_from(
+        source: ObjectRefDef,
+        recipient: EffectRecipientDef,
+        amount: ValueDef,
+    ) -> Self {
+        Self::DealDamage(DamageDef::from_source(source, recipient, amount))
+    }
+
+    #[must_use]
+    pub const fn damage_simultaneously(assignments: &'static [DamageAssignmentDef]) -> Self {
+        Self::DealDamage(DamageDef::simultaneous(assignments))
+    }
 }

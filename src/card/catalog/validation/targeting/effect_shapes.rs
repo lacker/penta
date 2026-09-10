@@ -226,21 +226,12 @@ fn validate_effect_target_shapes(
             }
             validate_value_shape(prevention.amount, targets)
         }
-        EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { recipient, amount, then }) => {
-            validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
-            validate_value_shape(amount, targets)?;
-            validate_effect_target_shapes(*then, targets, triggering_object_zone)
-        }
-        EffectDef::DealDamage { recipient, amount }
-        | EffectDef::DealDamageAndApply {
-            recipient, amount, ..
-        }
-        | EffectDef::DrainLife { recipient, amount } => {
+        EffectDef::DrainLife { recipient, amount } => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
             validate_value_shape(amount, targets)
         }
-        EffectDef::DealDamageSimultaneously(assignments) => {
-            for assignment in assignments {
+        EffectDef::DealDamage(damage) => {
+            for assignment in damage.assignments() {
                 if let Some(source) = assignment.source {
                     validate_object_reference_shape(source, targets)?;
                 }
@@ -250,6 +241,9 @@ fn validate_effect_target_shapes(
                     RecipientExpectation::Any,
                 )?;
                 validate_value_shape(assignment.amount, targets)?;
+            }
+            if let Some(then) = damage.continuation() {
+                validate_effect_target_shapes(*then, targets, triggering_object_zone)?;
             }
             Ok(())
         }
@@ -265,15 +259,6 @@ fn validate_effect_target_shapes(
                 validate_effect_target_shapes(*excess.then, targets, triggering_object_zone)?;
             }
             Ok(())
-        }
-        EffectDef::DealDamageFrom {
-            source,
-            recipient,
-            amount,
-        } => {
-            validate_object_reference_shape(source, targets)?;
-            validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
-            validate_value_shape(amount, targets)
         }
         EffectDef::ExchangeControl {
             first,

@@ -46,10 +46,7 @@ pub(in crate::card::sets) static TRANSPOSE: CardRecord = CardRecord::new(
                             ObjectPredicateDef::NoncreatureSpell,
                             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                         ])),
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Opponent,
-                            amount: ValueDef::Constant(1),
-                        },
+                        EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
                     )]),
                 },
             ]),
@@ -93,10 +90,7 @@ pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new_w
                 // and again as the ability resolves. A graveyard that gave a card up and
                 // then got it back is still a graveyard a card left.
                 &TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn,
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Opponent,
-                    amount: ValueDef::SourcePower,
-                },
+                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::SourcePower),
             ),
         ]),
 );

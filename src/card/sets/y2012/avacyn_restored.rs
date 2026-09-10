@@ -905,10 +905,10 @@ pub(in crate::card::sets) static RIGHTEOUS_BLOW: CardRecord = CardRecord::new_wi
                 ObjectPredicateDef::AttackingOrBlocking,
             ]),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -3178,17 +3178,22 @@ pub(in crate::card::sets) static AGGRAVATE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Any,
             ))],
-            EffectDef::DealDamageAndApply {
-                recipient: EffectRecipientDef::objects_controlled_by_target(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    TargetIndex::PRIMARY,
-                ),
-                amount: ValueDef::Constant(1),
-                applied: AppliedEffectDef::add_ability(
-                    &abilities::attacks_each_combat_if_able().override_text("This creature attacks this turn if able."),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            EffectDef::DealDamage(
+                crate::card::DamageDef::new(
+                    EffectRecipientDef::objects_controlled_by_target(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        TargetIndex::PRIMARY,
+                    ),
+                    ValueDef::Constant(1),
+                )
+                .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
+                    effect: AppliedEffectDef::add_ability(
+                        &abilities::attacks_each_combat_if_able()
+                            .override_text("This creature attacks this turn if able."),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                }),
+            ),
         ),
     ),
 );
@@ -3272,14 +3277,17 @@ pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord:
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::ChosenX,
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::objects_controlled_by_target(ObjectPredicateDef::HasType(CardType::Creature), TargetIndex::PRIMARY),
-                    amount: ValueDef::ChosenX,
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::ChosenX,
+                ),
+                EffectDef::damage(
+                    EffectRecipientDef::objects_controlled_by_target(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        TargetIndex::PRIMARY,
+                    ),
+                    ValueDef::ChosenX,
+                ),
             ]),
         ),
         abilities::miracle(mana_cost!("{X}{R}")),
@@ -3400,10 +3408,10 @@ pub(in crate::card::sets) static FALKENRATH_EXTERMINATOR: CardRecord = CardRecor
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
+            ),
         ),
     ]),
 );
@@ -3444,10 +3452,10 @@ pub(in crate::card::sets) static GANG_OF_DEVILS: CardRecord = CardRecord::new_wi
                 another: false,
                 excludes_source: false,
                 chooser: TargetChooserDef::Controller,
-            }], EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::DividedAmongTargets,
-            }),
+            }], EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::DividedAmongTargets,
+            )),
     ),
 );
 
@@ -3582,14 +3590,14 @@ pub(in crate::card::sets) static KESSIG_MALCONTENTS: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 3, 1).with_ability(
         abilities::enters_trigger_with_targets("When this creature enters, it deals damage to target player or planeswalker equal to the number of Humans you control.", &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
-            )], EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+            )], EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::Subtype("Human"),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 )),
-            }),
+            )),
     ),
 );
 
@@ -3672,10 +3680,10 @@ pub(in crate::card::sets) static LIGHTNING_PROWESS: CardRecord = CardRecord::new
                             &[AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::AnyTarget,
                             )],
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(1),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(1),
+                            ),
                         )),
                     ]),
                 },
@@ -3756,12 +3764,16 @@ pub(in crate::card::sets) static PILLAR_OF_FLAME: CardRecord = CardRecord::new_w
     CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
             "Pillar of Flame deals 2 damage to any target. If a creature dealt damage this way would die this turn, exile it instead.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamageAndApply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-                applied: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            EffectDef::DealDamage(
+                crate::card::DamageDef::new(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                )
+                .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                }),
+            ),
         )),
 );
 
@@ -3870,10 +3882,10 @@ pub(in crate::card::sets) static SCALDING_DEVIL: CardRecord = CardRecord::new_wi
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -3891,10 +3903,7 @@ pub(in crate::card::sets) static SOMBERWALD_VIGILANTE: CardRecord = CardRecord::
             TriggerEventDef::BecomesBlockedBy {
                 blocker: ObjectPredicateDef::HasType(CardType::Creature),
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::TriggeringObject,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::TriggeringObject, ValueDef::Constant(1)),
         ),
     ),
 );
@@ -3978,10 +3987,10 @@ pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new_with_
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Thunderbolt deals 4 damage to target creature with flying.",
@@ -3991,10 +4000,10 @@ pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new_with_
                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                     ]),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(4),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(4),
+                ),
             ),
         ],
     )),
@@ -4012,10 +4021,10 @@ pub(in crate::card::sets) static THUNDEROUS_WRATH: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(5),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
         ),
         abilities::miracle(mana_cost!("{R}")),
     ]),
@@ -4096,10 +4105,10 @@ pub(in crate::card::sets) static VIGILANTE_JUSTICE: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );

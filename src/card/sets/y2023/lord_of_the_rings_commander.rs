@@ -132,10 +132,10 @@ pub(in crate::card::sets) static LEGOLASS_QUICK_REFLEXES: CardRecord = CardRecor
                                 },
                                 1,
                             )],
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::SourcePower,
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::SourcePower,
+                            ),
                         )),
                     ]),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,

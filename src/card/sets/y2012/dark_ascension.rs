@@ -1305,15 +1305,13 @@ pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
             abilities::enchant_player(),
             abilities::enchanted_player_upkeep(
                 "At the beginning of enchanted player's upkeep, this Aura deals damage to that player equal to the number of Curses attached to them.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EnchantedPlayer,
-                    amount: ValueDef::CountMatchingPlayerAttachments(
-                        &PlayerAttachmentQueryDef::new(
-                            PlayerRelation::EnchantedPlayer,
-                            ObjectPredicateDef::Subtype("Curse"),
-                        ),
-                    ),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::EnchantedPlayer,
+                    ValueDef::CountMatchingPlayerAttachments(&PlayerAttachmentQueryDef::new(
+                        PlayerRelation::EnchantedPlayer,
+                        ObjectPredicateDef::Subtype("Curse"),
+                    )),
+                ),
             ),
         ]),
 );
@@ -1698,13 +1696,11 @@ pub(in crate::card::sets) static SPITEFUL_SHADOWS: CardRecord = CardRecord::new(
                 TriggerEventDef::DamageDealt(DamageEventMatcherDef::to(
                     EffectRecipientDef::AttachedPermanent,
                 )),
-                EffectDef::DealDamageFrom {
-                    source: ObjectRefDef::DamagedObject,
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                        ObjectRefDef::DamagedObject,
-                    )),
-                    amount: ValueDef::TriggerEventAmount,
-                },
+                EffectDef::damage_from(
+                    ObjectRefDef::DamagedObject,
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::DamagedObject)),
+                    ValueDef::TriggerEventAmount,
+                ),
             ),
         ]),
 );
@@ -1879,12 +1875,10 @@ pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::ne
                                                 },
                                             },
                                         ),
-                                        then: &EffectDef::DealDamage {
-                                            recipient: EffectRecipientDef::ControllerOfTarget(
-                                                TargetIndex::PRIMARY,
-                                            ),
-                                            amount: ValueDef::Constant(3),
-                                        },
+                                        then: &EffectDef::damage(
+                                            EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                                            ValueDef::Constant(3),
+                                        ),
                                     },
                                 }),
                             },
@@ -1924,14 +1918,14 @@ pub(in crate::card::sets) static BLOOD_FEUD: CardRecord = CardRecord::new_with_l
                 )),
             ],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                    amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::TargetPower(TargetIndex(1)),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex(1)),
+                    ValueDef::TargetPower(TargetIndex::PRIMARY),
+                ),
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::TargetPower(TargetIndex(1)),
+                ),
             ]),
         ),
     ),
@@ -1952,10 +1946,10 @@ pub(in crate::card::sets) static BURNING_OIL: CardRecord = CardRecord::new_with_
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         ),
         abilities::flashback(mana_cost!("{3}{W}")),
     ]),
@@ -2029,10 +2023,10 @@ pub(in crate::card::sets) static FIRES_OF_UNDEATH: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
         abilities::flashback(mana_cost!("{5}{B}")),
     ]),
@@ -2060,11 +2054,11 @@ pub(in crate::card::sets) static FLAYER_OF_THE_HATEBOUND: CardRecord = CardRecor
                 Some(ZoneKind::Battlefield),
             ),
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamageFrom {
-                source: ObjectRefDef::TriggeringObject,
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::TriggeringObjectPower,
-            },
+            EffectDef::damage_from(
+                ObjectRefDef::TriggeringObject,
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::TriggeringObjectPower,
+            ),
         ),
     ]),
 );
@@ -2083,12 +2077,12 @@ pub(in crate::card::sets) static FLING: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ObjectPower(ObjectRefDef::AdditionalCostObject(
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ObjectPower(ObjectRefDef::AdditionalCostObject(
                     AdditionalCostObjectIndex::PRIMARY,
                 )),
-            },
+            ),
         ),
     ),
 );
@@ -2106,14 +2100,11 @@ pub(in crate::card::sets) static FORGE_DEVIL: CardRecord = CardRecord::new_with_
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
             ]),
         ),
     ),
@@ -2161,13 +2152,13 @@ pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new_with_le
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::DealDamage {
+            EffectDef::damage(
                 // Read off each attacker rather than off Hellrider, which
                 // defends nothing itself: attackers split across a player and
                 // their planeswalkers each ping what they were declared at.
-                recipient: EffectRecipientDef::DefenderOfTriggeringObject,
-                amount: ValueDef::Constant(1),
-            },
+                EffectRecipientDef::DefenderOfTriggeringObject,
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -2317,10 +2308,10 @@ pub(in crate::card::sets) static MONDRONEN_SHAMAN: CardRecord = CardRecord::new_
                         TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
                             PlayerRelation::Opponent,
                         )),
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-                            amount: ValueDef::Constant(2),
-                        },
+                        EffectDef::damage(
+                            EffectRecipientDef::ControllerOfTriggeringObject,
+                            ValueDef::Constant(2),
+                        ),
                     ),
                     WEREWOLF_BACK_TRANSFORM,
                 ]),
@@ -2417,8 +2408,8 @@ pub(in crate::card::sets) static SCORCH_THE_FIELDS: CardRecord = CardRecord::new
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Subtype("Human"),
@@ -2426,8 +2417,8 @@ pub(in crate::card::sets) static SCORCH_THE_FIELDS: CardRecord = CardRecord::new
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(1),
-            },
+                ValueDef::Constant(1),
+            ),
         ]),
     )),
 );
@@ -2534,11 +2525,11 @@ pub(in crate::card::sets) static WRACK_WITH_MADNESS: CardRecord = CardRecord::ne
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::DealDamageFrom {
-            source: ObjectRefDef::Target(TargetIndex::PRIMARY),
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-        },
+        EffectDef::damage_from(
+            ObjectRefDef::Target(TargetIndex::PRIMARY),
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::TargetPower(TargetIndex::PRIMARY),
+        ),
     )),
 );
 
@@ -3336,14 +3327,14 @@ pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord =
                                 ),
                             ] },
                             EffectDef::Sequence(&const { [
-                                EffectDef::DealDamage {
-                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                    amount: ValueDef::Constant(2),
-                                },
-                                EffectDef::DealDamage {
-                                    recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                                    amount: ValueDef::Constant(2),
-                                },
+                                EffectDef::damage(
+                                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    ValueDef::Constant(2),
+                                ),
+                                EffectDef::damage(
+                                    EffectRecipientDef::Target(TargetIndex(1)),
+                                    ValueDef::Constant(2),
+                                ),
                             ] }),
                         ),
                         AbilityDef::triggered_if(
@@ -3692,10 +3683,10 @@ pub(in crate::card::sets) static WOLFHUNTERS_QUIVER: CardRecord = CardRecord::ne
                             &[AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::AnyTarget,
                             )],
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(1),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(1),
+                            ),
                         )),
                         AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
                             "{T}: This creature deals 3 damage to target Werewolf creature.",
@@ -3706,10 +3697,10 @@ pub(in crate::card::sets) static WOLFHUNTERS_QUIVER: CardRecord = CardRecord::ne
                                     ObjectPredicateDef::Subtype("Werewolf"),
                                 ]),
                             )],
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(3),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(3),
+                            ),
                         )),
                     ]),
                 },

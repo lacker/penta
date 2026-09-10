@@ -445,11 +445,11 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     // Counted as this resolves, and the target itself counts
                     // when it is one of yours.
-                    amount: ValueDef::Scaled(
+                    ValueDef::Scaled(
                         &const {
                             ScaledValueDef {
                                 value: ValueDef::CountMatchingObjects(
@@ -465,7 +465,7 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
                             }
                         },
                     ),
-                },
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Destroy target enchantment.",
@@ -1012,10 +1012,10 @@ pub(in crate::card::sets) static GALVANIC_DISCHARGE: CardRecord = CardRecord::ne
                 // "That much damage": the amount the payment settled, which is what makes
                 // the three energy it hands out into three damage the turn it is cast and
                 // more than that on a board that has been banking it.
-                &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::PaidAmount,
-                },
+                &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::PaidAmount,
+                ),
             )),
         ]),
     )),
@@ -1328,11 +1328,11 @@ pub(in crate::card::sets) static HORRIFIC_ASSAULT: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             // One-sided, so the damage is dealt by the chosen creature
             // rather than by this spell.
-            EffectDef::DealDamageFrom {
-                source: ObjectRefDef::Target(TargetIndex::PRIMARY),
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-            },
+            EffectDef::damage_from(
+                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ValueDef::TargetPower(TargetIndex::PRIMARY),
+            ),
             EffectDef::IfCondition {
                 // Read as this resolves, and the creature that dealt the
                 // damage may itself be the Eldrazi being counted.
@@ -1833,10 +1833,10 @@ pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
                         AbilityTargetPredicate::AnyTarget,
                     )],
                     EffectDef::Sequence(&[
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::Constant(3),
-                        },
+                        EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::Constant(3),
+                        ),
                         EffectDef::GainLife {
                             recipient: EffectRecipientDef::Controller,
                             amount: ValueDef::Constant(3),
@@ -2462,14 +2462,18 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
                                         comparison: ComparisonDef::GreaterOrEqual,
                                         amount: 1,
                                     },
-                                    then: &EffectDef::DealDamage {
-                                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                        amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                                            ObjectPredicateDef::HasType(CardType::Creature),
-                                            &const { [ZoneKind::Battlefield] },
-                                            PlayerRelation::You,
-                                        )),
-                                    },
+                                    then: &EffectDef::damage(
+                                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                        ValueDef::CountMatchingObjects(
+                                            &const {
+                                                ObjectQueryDef::matching(
+                                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                                    &const { [ZoneKind::Battlefield] },
+                                                    PlayerRelation::You,
+                                                )
+                                            },
+                                        ),
+                                    ),
                                 },
                             ] }),
                         ),
@@ -3020,10 +3024,10 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                         &const { [AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
                         )] },
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::LifeGainedThisTurn(PlayerRelation::You),
-                        },
+                        EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::LifeGainedThisTurn(PlayerRelation::You),
+                        ),
                     ),
                     AbilityDef::activated_with_targets(
                         "\u{2212}6: Gain control of target creature. It becomes a Vampire in addition to its \

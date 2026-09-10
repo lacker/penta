@@ -212,9 +212,9 @@ pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::AttackingOrBlocking,
             ]),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Sum(&SumValueDef::new(
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Sum(&SumValueDef::new(
                 ValueDef::Constant(2),
                 ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     // A Spacecraft that has stationed up is already a
@@ -228,7 +228,7 @@ pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
                     PlayerRelation::You,
                 )),
             )),
-        },
+        ),
     )),
 );
 

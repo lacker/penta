@@ -905,10 +905,10 @@ pub(in crate::card::sets) static CHAINSAW: CardRecord = CardRecord::new(
                     },
                     1,
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
             // One counter for the batch rather than one per creature, which is what
             // "one or more" means: a board wipe revs it once.
@@ -968,12 +968,16 @@ pub(in crate::card::sets) static SCREAMING_NEMESIS: CardRecord = CardRecord::new
             // The damage and the rider are one effect rather than a sequence, because
             // the rider is about what actually took the damage: prevented damage stops
             // nothing from being gained.
-            EffectDef::DealDamageAndApply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::TriggerEventAmount,
-                applied: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
-                duration: ResolvedEffectDurationDef::Permanent,
-            },
+            EffectDef::DealDamage(
+                crate::card::DamageDef::new(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::TriggerEventAmount,
+                )
+                .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                }),
+            ),
         ),
     ]),
 );

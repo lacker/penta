@@ -755,10 +755,10 @@ pub(in crate::card::sets) static MARJHAN: CardRecord = CardRecord::new(
                     ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ]),
         ),
         AbilityDef::triggered_if(
@@ -914,10 +914,10 @@ pub(in crate::card::sets) static REVEKA_WIZARD_SAVANT: CardRecord = CardRecord::
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
                 EffectDef::SkipNextUntapSteps {
                     object: EffectRecipientDef::Source,
                     count: 1,
@@ -1114,18 +1114,18 @@ pub(in crate::card::sets) static DRY_SPELL: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell(
         "Dry Spell deals 1 damage to each creature and each player.",
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(1),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::players(PlayerSetDef::All),
-                amount: ValueDef::Constant(1),
-            },
+                ValueDef::Constant(1),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::players(PlayerSetDef::All),
+                ValueDef::Constant(1),
+            ),
         ]),
     )),
 );
@@ -1599,10 +1599,10 @@ pub(in crate::card::sets) static ANABA_SHAMAN: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -1735,8 +1735,8 @@ pub(in crate::card::sets) static EVAPORATE: CardRecord = CardRecord::new(
     crate::card::CardSet::Homelands,
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
         "Evaporate deals 1 damage to each white and/or blue creature.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::AnyOf(&[
@@ -1747,8 +1747,8 @@ pub(in crate::card::sets) static EVAPORATE: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::Constant(1),
-        },
+            ValueDef::Constant(1),
+        ),
     )),
 );
 
@@ -1850,12 +1850,10 @@ pub(in crate::card::sets) static ORCISH_MINE: CardRecord = CardRecord::new(
                         object: EffectRecipientDef::AttachedPermanent,
                         then: None,
                     },
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                            ObjectRefDef::AttachedToSource,
-                        )),
-                        amount: ValueDef::Constant(2),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::AttachedToSource)),
+                        ValueDef::Constant(2),
+                    ),
                 ]),
             ),
         ]),
@@ -1881,18 +1879,15 @@ pub(in crate::card::sets) static WINTER_SKY: CardRecord = CardRecord::new(
         "Flip a coin. If you win the flip, Winter Sky deals 1 damage to each creature and each player. If you lose the flip, each player draws a card.",
         EffectDef::FlipCoin {
             on_win: &EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::HasType(CardType::Creature),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
+                EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(1)),
             ]),
             on_loss: &EffectDef::DrawCards {
                 recipient: EffectRecipientDef::EachPlayer,
@@ -2175,9 +2170,9 @@ pub(in crate::card::sets) static PRIMAL_ORDER: CardRecord = CardRecord::new(
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::Any,
         },
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        EffectDef::damage(
+            EffectRecipientDef::EventPlayer,
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Land),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
@@ -2185,7 +2180,7 @@ pub(in crate::card::sets) static PRIMAL_ORDER: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::EventPlayer,
             )),
-        },
+        ),
     )),
 );
 

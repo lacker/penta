@@ -25,6 +25,15 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Mishra's War Machine taps only when its upkeep damage reaches its controller.**
+  Full prevention and complete redirection skip the tap; partial prevention and
+  lifelink still allow it. Native card definitions consolidate damage into
+  `EffectDef::DealDamage(DamageDef)`, with independent source, simultaneous
+  assignment, and outcome-dependent follow-up options. The `damage`,
+  `damage_from`, and `damage_simultaneously` constructors replace the previous
+  separate damage variants. Protocol and checkpoint versions are unchanged;
+  the simulation fingerprint identifies the updated engine.
+
 - **Face-down cards keep their identities private.** Public target decisions and
   stack observations mask printed names, previews, and casting signatures.
   Face-down permanents override double-faced mana values; face-down spells use

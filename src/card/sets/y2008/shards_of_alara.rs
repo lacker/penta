@@ -108,10 +108,10 @@ pub(in crate::card::sets) static HISSING_IGUANAR: CardRecord = CardRecord::new(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             },
         ),
     ),
@@ -131,10 +131,10 @@ pub(in crate::card::sets) static BLIGHTNING: CardRecord = CardRecord::new(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
             // A target naming a player resolves to that player, so one
             // recipient says both halves of "that player or that
             // planeswalker's controller".
@@ -168,10 +168,10 @@ pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
                             ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                         ]),
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(3),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(3),
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Branching Bolt deals 3 damage to target creature without flying.",
@@ -183,10 +183,10 @@ pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
                             )),
                         ]),
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(3),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(3),
+                    ),
                 ),
             ],
         )

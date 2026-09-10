@@ -88,10 +88,10 @@ pub(in crate::card::sets) static ARBALEST_ELITE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::AttackingOrBlocking,
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
                 EffectDef::SkipNextUntapSteps {
                     object: EffectRecipientDef::Source,
                     count: 1,
@@ -1451,10 +1451,10 @@ pub(in crate::card::sets) static CONSUME_SPIRIT: CardRecord = CardRecord::new(
                 "This spell deals X damage to any target and you gain X life.",
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
                 EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::ChosenX,
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::ChosenX,
+                    ),
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::ChosenX,
@@ -1792,10 +1792,10 @@ pub(in crate::card::sets) static SORIN_S_THIRST: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -1820,10 +1820,10 @@ pub(in crate::card::sets) static SORIN_S_VENGEANCE: CardRecord = CardRecord::new
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(10),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(10),
+                ),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(10),
@@ -1847,10 +1847,10 @@ pub(in crate::card::sets) static TASTE_OF_BLOOD: CardRecord = CardRecord::new(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -1947,10 +1947,7 @@ pub(in crate::card::sets) static CIRCLE_OF_FLAME: CardRecord = CardRecord::new(
             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
             ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(KeywordAbility::Flying)),
         ])),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::TriggeringObject,
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(EffectRecipientDef::TriggeringObject, ValueDef::Constant(1)),
     )),
 );
 
@@ -2055,14 +2052,11 @@ pub(in crate::card::sets) static GOBLIN_BANGCHUCKERS: CardRecord = CardRecord::n
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
             EffectDef::FlipCoin {
-                on_win: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
-                on_loss: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Source,
-                    amount: ValueDef::Constant(2),
-                },
+                on_win: &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
+                on_loss: &EffectDef::damage(EffectRecipientDef::Source, ValueDef::Constant(2)),
             },
         )),
 );
@@ -2112,10 +2106,10 @@ pub(in crate::card::sets) static GOBLIN_FIRESLINGER: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -2241,10 +2235,10 @@ pub(in crate::card::sets) static INFERNO_TITAN: CardRecord = CardRecord::new(
                 excludes_source: false,
                 chooser: TargetChooserDef::Controller,
             }],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::DividedAmongTargets,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::DividedAmongTargets,
+            ),
         ),
     ]),
 );
@@ -2409,11 +2403,11 @@ pub(in crate::card::sets) static WARSTORM_SURGE: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
             ),
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamageFrom {
-                source: ObjectRefDef::TriggeringObject,
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::TriggeringObjectPower,
-            },
+            EffectDef::damage_from(
+                ObjectRefDef::TriggeringObject,
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::TriggeringObjectPower,
+            ),
         ),
     ),
 );
@@ -3177,15 +3171,17 @@ pub(in crate::card::sets) static SCEPTER_OF_EMPIRES: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::IfCondition(&ConditionValueDef {
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::IfCondition(&ConditionValueDef {
                     condition: &TriggerConditionDef::All(&[
                         TriggerConditionDef::ObjectCount {
                             query: ObjectQueryDef::matching(
                                 ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Artifact),
-                                    ObjectPredicateDef::NameEquals(CardNameDef::Literal("Crown of Empires")),
+                                    ObjectPredicateDef::NameEquals(CardNameDef::Literal(
+                                        "Crown of Empires",
+                                    )),
                                 ]),
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
@@ -3197,7 +3193,9 @@ pub(in crate::card::sets) static SCEPTER_OF_EMPIRES: CardRecord = CardRecord::ne
                             query: ObjectQueryDef::matching(
                                 ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Artifact),
-                                    ObjectPredicateDef::NameEquals(CardNameDef::Literal("Throne of Empires")),
+                                    ObjectPredicateDef::NameEquals(CardNameDef::Literal(
+                                        "Throne of Empires",
+                                    )),
                                 ]),
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
@@ -3209,7 +3207,7 @@ pub(in crate::card::sets) static SCEPTER_OF_EMPIRES: CardRecord = CardRecord::ne
                     then: ValueDef::Constant(3),
                     otherwise: ValueDef::Constant(1),
                 }),
-            },
+            ),
         ),
     ),
 );

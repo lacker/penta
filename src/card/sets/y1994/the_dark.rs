@@ -339,10 +339,10 @@ pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new_with
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{1}{W}{W}, {T}: Return target creature an opponent controls to its owner's hand.",
@@ -453,10 +453,7 @@ pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new_with
     CardRules::new_creature(mana_cost!("{U}"), &["Fish"], 1, 1).with_abilities(&[
         abilities::enters_trigger(
             "When this creature enters, it deals 1 damage to you.",
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
         ),
         AbilityDef::activated(
             "{R}{R}: This creature gets +2/+0 until end of turn and deals 1 damage to you.",
@@ -470,10 +467,7 @@ pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new_with
                     ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
             ]),
         ),
     ]),
@@ -808,10 +802,7 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new_wi
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(5),
-                },
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(5)),
             ]),
         ),
     ]),
@@ -880,12 +871,12 @@ pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new_wi
                     then: None,
                     // The declined branch. "That player" is the artifact's controller, so
                     // stealing the artifact moves both the choice and the damage with it.
-                    otherwise: Some(&EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    otherwise: Some(&EffectDef::damage(
+                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                             ObjectRefDef::AttachedToSource,
                         )),
-                        amount: ValueDef::Constant(2),
-                    }),
+                        ValueDef::Constant(2),
+                    )),
                     amount: SacrificedAmountDef::Power,
                     optional: true,
                 },
@@ -960,16 +951,15 @@ pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new_with_
             EffectDef::RevealHand {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                // Counted after the reveal, from the hand itself: the damage is whatever is
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY), // Counted after the reveal, from the hand itself: the damage is whatever is
                 // there when the spell resolves, not what the caster saw earlier.
-                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::owned_by(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::owned_by(
                     ObjectPredicateDef::Color(ManaColor::White),
                     &[ZoneKind::Hand],
                     PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                 )),
-            },
+            ),
         ]),
     )),
 );
@@ -1199,14 +1189,11 @@ pub(in crate::card::sets) static BROTHERS_OF_FIRE: CardRecord = CardRecord::new_
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
             ]),
         ),
     ]),
@@ -1265,19 +1252,18 @@ pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new_wit
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                // Rounded up, so an odd Mountain count costs the extra point rather than
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::Controller, // Rounded up, so an odd Mountain count costs the extra point rather than
                 // saving it -- one Mountain is one damage each way.
-                amount: ValueDef::Halved(&HalvedValueDef::new(
+                ValueDef::Halved(&HalvedValueDef::new(
                     ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
                     RoundingDef::Up,
                 )),
-            },
+            ),
         ]),
     )),
 );
@@ -1461,14 +1447,14 @@ pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_wit
                     Some(ZoneKind::Battlefield),
                     None,
                 ),
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::Subtype("Goblin"),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -1556,18 +1542,15 @@ pub(in crate::card::sets) static INFERNO: CardRecord = CardRecord::new_with_lega
     CardRules::new_instant(mana_cost!("{5}{R}{R}")).with_abilities(&[AbilityDef::spell(
         "Inferno deals 6 damage to each creature and each player.",
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(6),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::Constant(6),
-            },
+                ValueDef::Constant(6),
+            ),
+            EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(6)),
         ]),
     )]),
 );
@@ -1970,14 +1953,14 @@ pub(in crate::card::sets) static TRACKER: CardRecord = CardRecord::new_with_lega
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::SourcePower,
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Source,
-                    amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::SourcePower,
+                ),
+                EffectDef::damage(
+                    EffectRecipientDef::Source,
+                    ValueDef::TargetPower(TargetIndex::PRIMARY),
+                ),
             ]),
         ),
     ]),
@@ -2036,10 +2019,7 @@ const fn wormwood_clause(land_type: BasicLandType) -> [EffectDef; 2] {
             }),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(2)),
     ]
 }
 

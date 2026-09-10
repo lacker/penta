@@ -245,10 +245,10 @@ pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new
                     AbilityTargetPredicate::AnyTarget,
                 )],
                 EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(1),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(1),
+                    ),
                     // The token is made first so that the choice below always has something
                     // to find; with an Army already out, nothing new arrives.
                     EffectDef::IfCondition {
@@ -345,10 +345,10 @@ pub(in crate::card::sets) static IMPROVISED_CLUB: CardRecord = CardRecord::new(
                 ]),
                 CostQuantityDef::Fixed(1),
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
     ),
 );
@@ -575,10 +575,10 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_wit
                     &[AbilityTargetDef::exactly_one_permanent(
                             ObjectPredicateDef::HasType(CardType::Creature),
                         )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(5),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(5),
+                    ),
                 ),
             ],
         )

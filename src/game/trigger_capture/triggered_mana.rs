@@ -70,9 +70,7 @@ EffectDef::ChooseForEachPlayer(_) | EffectDef::ChooseCardName { .. } |
 EffectDef::SelectAtRandomFromZone { .. } |
 EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) | EffectDef::CumulativeUpkeep(_) |
 EffectDef::PreventDamage { .. } |
-EffectDef::DealDamage { .. } | EffectDef::DealDamageSimultaneously(_) |
-EffectDef::DealDamageFrom { .. } | EffectDef::DealDamageAndApply { .. } |
-EffectDef::DealDamageWithFollowUp(_) |
+EffectDef::DealDamage(_) |
 EffectDef::Fight { .. } | EffectDef::DrainLife { .. } |
 EffectDef::GainLife { .. } | EffectDef::AddPlayerCounters { .. } |
 EffectDef::DrawCards { .. } | EffectDef::Discard { .. } |

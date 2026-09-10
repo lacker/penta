@@ -155,20 +155,20 @@ pub(in crate::card::sets) static KARPLUSAN_MINOTAUR: CardRecord = CardRecord::ne
                 "Whenever you win a coin flip, this creature deals 1 damage to any target.",
                 TriggerEventDef::CoinFlipWon(PlayerRelation::You),
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ),
             AbilityDef::triggered_with_targets(
                 "Whenever you lose a coin flip, this creature deals 1 damage to any target of an opponent's choice.",
                 TriggerEventDef::CoinFlipLost(PlayerRelation::You),
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)
                     .chosen_by_opponent()],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );

@@ -488,16 +488,7 @@ fn validate_effect_references(
             }
             validate_value_target_references(prevention.amount, target_count, scope)
         }
-        EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { recipient, amount, then }) => {
-            validate_recipient_target_references(recipient, target_count, scope)?;
-            validate_value_target_references(amount, target_count, scope)?;
-            validate_effect_references(*then, target_count, scope)
-        }
-        EffectDef::DealDamage { recipient, amount }
-        | EffectDef::DealDamageAndApply {
-            recipient, amount, ..
-        }
-        | EffectDef::DrainLife { recipient, amount }
+        EffectDef::DrainLife { recipient, amount }
         | EffectDef::GainLife { recipient, amount }
         | EffectDef::AddPlayerCounters {
             recipient, amount, ..
@@ -507,8 +498,8 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)
         }
-        EffectDef::DealDamageSimultaneously(assignments) => {
-            for assignment in assignments {
+        EffectDef::DealDamage(damage) => {
+            for assignment in damage.assignments() {
                 if let Some(source) = assignment.source {
                     validate_object_reference(source, target_count, scope)?;
                 }
@@ -518,6 +509,9 @@ fn validate_effect_references(
                     scope,
                 )?;
                 validate_value_target_references(assignment.amount, target_count, scope)?;
+            }
+            if let Some(then) = damage.continuation() {
+                validate_effect_references(*then, target_count, scope)?;
             }
             Ok(())
         }
@@ -537,15 +531,6 @@ fn validate_effect_references(
         EffectDef::SetLifeTotal { recipient, total } => {
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(total, target_count, scope)
-        }
-        EffectDef::DealDamageFrom {
-            source,
-            recipient,
-            amount,
-        } => {
-            validate_object_reference(source, target_count, scope)?;
-            validate_recipient_target_references(recipient, target_count, scope)?;
-            validate_value_target_references(amount, target_count, scope)
         }
         EffectDef::ExchangeControl {
             first,

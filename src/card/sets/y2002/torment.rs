@@ -1404,10 +1404,10 @@ pub(in crate::card::sets) static CRACKLING_CLUB: CardRecord = CardRecord::new(
                         ObjectPredicateDef::HasType(CardType::Creature),
                     )]
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -1496,10 +1496,10 @@ pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_w
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );

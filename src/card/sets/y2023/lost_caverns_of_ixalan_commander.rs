@@ -37,16 +37,15 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                // Two plus what was thrown. The sacrifice is a cost, so the permanent is
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY), // Two plus what was thrown. The sacrifice is a cost, so the permanent is
                 // gone before the ability is even on the stack: what it was worth is read
                 // back from the payment rather than from the board.
-                amount: ValueDef::Sum(&SumValueDef {
+                ValueDef::Sum(&SumValueDef {
                     left: ValueDef::Constant(2),
                     right: ValueDef::SacrificedManaValue,
                 }),
-            },
+            ),
         )),
     ]),
 );

@@ -220,10 +220,10 @@ pub(in crate::card::sets) static DAVENANT_ARCHER: CardRecord = CardRecord::new_w
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         )),
 );
 
@@ -1024,10 +1024,7 @@ pub(in crate::card::sets) static ELDER_SPAWN: CardRecord = CardRecord::new_with_
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
                     },
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(6),
-                    },
+                    EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(6)),
                 ])),
                 amount: SacrificedAmountDef::Power,
                 optional: true,
@@ -1338,14 +1335,11 @@ pub(in crate::card::sets) static PSIONIC_ENTITY: CardRecord = CardRecord::new_wi
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Source,
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
+                EffectDef::damage(EffectRecipientDef::Source, ValueDef::Constant(3)),
             ]),
         ),
     ),
@@ -1451,10 +1445,10 @@ pub(in crate::card::sets) static RELIC_BIND: CardRecord = CardRecord::new(
                         &[AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                         )],
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::Constant(1),
-                        },
+                        EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::Constant(1),
+                        ),
                     ),
                     AbilityDef::spell_with_targets(
                         "Target player gains 1 life.",
@@ -2531,10 +2525,7 @@ pub(in crate::card::sets) static UNDERWORLD_DREAMS: CardRecord = CardRecord::new
         // recipient is read off the event so a multiplayer table hits the
         // right one.
         TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(1)),
     )),
 );
 
@@ -2752,10 +2743,10 @@ pub(in crate::card::sets) static CHAIN_LIGHTNING: CardRecord = CardRecord::new_w
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef::mana(
                     PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
@@ -2816,10 +2807,10 @@ pub(in crate::card::sets) static CRIMSON_MANTICORE: CardRecord = CardRecord::new
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -3240,10 +3231,7 @@ pub(in crate::card::sets) static PRIMORDIAL_OOZE: CardRecord = CardRecord::new_w
                         EffectDef::Tap {
                             object: EffectRecipientDef::Source,
                         },
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: PRIMORDIAL_OOZE_X,
-                        },
+                        EffectDef::damage(EffectRecipientDef::Controller, PRIMORDIAL_OOZE_X),
                     ])),
                     visibility: ChoiceVisibilityDef::Private,
                     condition: None,
@@ -3271,10 +3259,10 @@ pub(in crate::card::sets) static PYROTECHNICS: CardRecord = CardRecord::new_with
             excludes_source: false,
             chooser: TargetChooserDef::Controller,
         }],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::DividedAmongTargets,
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::DividedAmongTargets,
+        ),
     )),
 );
 
@@ -4177,14 +4165,14 @@ pub(in crate::card::sets) static TYPHOON: CardRecord = CardRecord::new_with_lega
     CardSet::Legends,
     CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
         "Typhoon deals damage to each opponent equal to the number of Islands that player controls.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Opponent,
-            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        EffectDef::damage(
+            EffectRecipientDef::Opponent,
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                 ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Opponent,
             )),
-        },
+        ),
     )),
 );
 
@@ -4445,10 +4433,10 @@ pub(in crate::card::sets) static AXELROD_GUNNARSON: CardRecord = CardRecord::new
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ]),
         ),
     ]),
@@ -4777,10 +4765,10 @@ pub(in crate::card::sets) static LADY_CALERIA: CardRecord = CardRecord::new_with
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         )),
 );
 
@@ -5277,10 +5265,10 @@ pub(in crate::card::sets) static TOR_WAUKI: CardRecord = CardRecord::new_with_le
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         )),
 );
 

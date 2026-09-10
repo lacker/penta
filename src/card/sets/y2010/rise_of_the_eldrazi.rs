@@ -190,10 +190,10 @@ pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new_with_
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(4),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(4),
+        ),
     )),
 );
 
@@ -213,12 +213,12 @@ pub(in crate::card::sets) static RAID_BOMBARDMENT: CardRecord = CardRecord::new(
             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
         ])),
-        EffectDef::DealDamage {
+        EffectDef::damage(
             // Read off the attacker rather than off this enchantment, which
             // is not in combat and defends nothing.
-            recipient: EffectRecipientDef::DefenderOfTriggeringObject,
-            amount: ValueDef::Constant(1),
-        },
+            EffectRecipientDef::DefenderOfTriggeringObject,
+            ValueDef::Constant(1),
+        ),
     )),
 );
 

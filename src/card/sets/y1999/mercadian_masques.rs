@@ -290,10 +290,10 @@ pub(in crate::card::sets) static CROSSBOW_INFANTRY: CardRecord = CardRecord::new
                     ]),
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         )),
 );
 
@@ -1685,10 +1685,10 @@ pub(in crate::card::sets) static STINGING_BARRIER: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -2721,18 +2721,15 @@ pub(in crate::card::sets) static THRASHING_WUMPUS: CardRecord = CardRecord::new(
             "{B}: This creature deals 1 damage to each creature and each player.",
             &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::HasType(CardType::Creature),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
+                EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(1)),
             ]),
         ),
     ),
@@ -3111,10 +3108,10 @@ pub(in crate::card::sets) static KRIS_MAGE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -3170,10 +3167,10 @@ pub(in crate::card::sets) static KYREN_NEGOTIATIONS: CardRecord = CardRecord::ne
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -3201,10 +3198,10 @@ pub(in crate::card::sets) static KYREN_SNIPER: CardRecord = CardRecord::new(
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &const {
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(1),
-                    }
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(1),
+                    )
                 },
             },
         ),
@@ -3280,14 +3277,14 @@ pub(in crate::card::sets) static LUNGE: CardRecord = CardRecord::new(
             )),
         ],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ValueDef::Constant(2),
+            ),
         ]),
     )),
 );
@@ -3403,10 +3400,10 @@ pub(in crate::card::sets) static SHOCK_TROOPS: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -3421,10 +3418,7 @@ pub(in crate::card::sets) static SIZZLE: CardRecord = CardRecord::new(
     // costs when it does not hurt you.
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
         "Sizzle deals 3 damage to each opponent.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Opponent,
-            amount: ValueDef::Constant(3),
-        },
+        EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(3)),
     )),
 );
 
@@ -4301,8 +4295,8 @@ pub(in crate::card::sets) static SQUALL: CardRecord = CardRecord::new(
     // Half a Needle Storm at the same cost, which is what a common gets.
     CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell(
         "Squall deals 2 damage to each creature with flying.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
@@ -4310,8 +4304,8 @@ pub(in crate::card::sets) static SQUALL: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::Constant(2),
-        },
+            ValueDef::Constant(2),
+        ),
     )]),
 );
 

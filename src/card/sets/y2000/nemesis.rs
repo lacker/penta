@@ -1267,10 +1267,10 @@ pub(in crate::card::sets) static SPITEFUL_BULLY: CardRecord = CardRecord::new(
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]))]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         )),
 );
 
@@ -1301,10 +1301,10 @@ pub(in crate::card::sets) static VICIOUS_HUNGER: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -1396,10 +1396,7 @@ pub(in crate::card::sets) static FLAME_RIFT: CardRecord = CardRecord::new(
     // deck that was going to lose the long game anyway.
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
         "Flame Rift deals 4 damage to each player.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::EachPlayer,
-            amount: ValueDef::Constant(4),
-        },
+        EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(4)),
     )),
 );
 
@@ -1722,10 +1719,10 @@ pub(in crate::card::sets) static SEAL_OF_FIRE: CardRecord = CardRecord::new_with
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -2416,10 +2413,10 @@ pub(in crate::card::sets) static RATH_S_EDGE: CardRecord = CardRecord::new(
                     AbilityTargetPredicate::AnyTarget,
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );

@@ -19,10 +19,7 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
             controller: PlayerRelation::You,
         }],
         &TARGETS,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(EffectRecipientDef::Target(TargetIndex::PRIMARY), ValueDef::Constant(2)),
     );
     static GRANTED_TO: EffectRecipientDef = EffectRecipientDef::matching_objects(
         ObjectPredicateDef::HasType(CardType::Creature),
@@ -100,7 +97,7 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
     assert!(matches!(
         payload.resolver,
         StackAbilityResolver::Declarative(ScopedEffect {
-            effect: EffectDef::DealDamage { .. },
+            effect: EffectDef::DealDamage(_),
             ..
         })
     ));

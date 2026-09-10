@@ -1440,10 +1440,10 @@ pub(in crate::card::sets) static FLAMEWAVE_INVOKER: CardRecord = CardRecord::new
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(5),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
         ),
     ),
 );
@@ -1493,16 +1493,15 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    // Every Goblin on the battlefield, whoever controls it -- the count is of
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY), // Every Goblin on the battlefield, whoever controls it -- the count is of
                     // the board, not of your side of it.
-                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype("Goblin"),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                },
+                ),
             },
         ),
     ]),

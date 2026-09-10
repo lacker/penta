@@ -44,10 +44,10 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Destroy target artifact.",
@@ -78,12 +78,10 @@ pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
                 ObjectPredicateDef::NoncreatureSpell,
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
-                    PlayerRelation::Opponent,
-                )),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );

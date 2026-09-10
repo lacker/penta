@@ -1541,10 +1541,10 @@ pub(in crate::card::sets) static ZURAN_SPELLCASTER: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -1864,12 +1864,12 @@ pub(in crate::card::sets) static ICEQUAKE: CardRecord = CardRecord::new(
                     }
                 },
                 then: &const {
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    EffectDef::damage(
+                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                             ObjectRefDef::Target(TargetIndex::PRIMARY),
                         )),
-                        amount: ValueDef::Constant(1),
-                    }
+                        ValueDef::Constant(1),
+                    )
                 },
             },
         ]),
@@ -2314,10 +2314,10 @@ pub(in crate::card::sets) static TOUCH_OF_DEATH: CardRecord = CardRecord::new(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -2618,10 +2618,10 @@ pub(in crate::card::sets) static FLARE: CardRecord = CardRecord::new(
         "This spell deals 1 damage to any target.\nDraw a card at the beginning of the next turn's upkeep.",
         &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
             DRAW_AT_NEXT_UPKEEP,
         ]),
     )),
@@ -2729,12 +2729,16 @@ pub(in crate::card::sets) static INCINERATE: CardRecord = CardRecord::new_with_l
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamageAndApply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-                applied: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            EffectDef::DealDamage(
+                crate::card::DamageDef::new(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                )
+                .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                }),
+            ),
         ),
     ),
 );
@@ -2906,14 +2910,11 @@ pub(in crate::card::sets) static ORCISH_CANNONEERS: CardRecord = CardRecord::new
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(3)),
             ]),
         ),
     ),
@@ -3065,14 +3066,14 @@ pub(in crate::card::sets) static PYROCLASM: CardRecord = CardRecord::new(
     crate::card::CardSet::IceAge,
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
         "This spell deals 2 damage to each creature.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::Constant(2),
-        },
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -3232,12 +3233,12 @@ pub(in crate::card::sets) static WORD_OF_BLASTING: CardRecord = CardRecord::new(
             // The damage is its own sentence, so it happens whether or not
             // the Wall actually died; the mana value is read from last-known
             // information either way.
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                    ObjectRefDef::Target(TargetIndex::PRIMARY),
-                )),
-                amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+            ),
         ]),
     )),
 );
@@ -3768,12 +3769,12 @@ pub(in crate::card::sets) static MADDENING_WIND: CardRecord = CardRecord::new(
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted creature's controller, this Aura \
                  deals 2 damage to that player.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                         ObjectRefDef::AttachedToSource,
                     )),
-                    amount: ValueDef::Constant(2),
-                },
+                    ValueDef::Constant(2),
+                ),
             ),
         ]),
 );
@@ -4240,10 +4241,10 @@ pub(in crate::card::sets) static CENTAUR_ARCHER: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -4356,10 +4357,10 @@ pub(in crate::card::sets) static FIRE_COVENANT: CardRecord = CardRecord::new(
                 excludes_source: false,
                 chooser: TargetChooserDef::Controller,
             }],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::DividedAmongTargets,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::DividedAmongTargets,
+            ),
         )
         .with_spell_additional_cost(&CostDef::pay_life(CostQuantityDef::ChosenX)),
     ),
@@ -4570,10 +4571,10 @@ pub(in crate::card::sets) static STORM_SPIRIT: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
             ),
         ]),
 );
@@ -4597,10 +4598,10 @@ pub(in crate::card::sets) static STORMBIND: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -5120,10 +5121,10 @@ pub(in crate::card::sets) static SKULL_CATAPULT: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -5239,18 +5240,18 @@ pub(in crate::card::sets) static TIME_BOMB: CardRecord = CardRecord::new(
                 CostDef::SacrificeSource,
             ],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::HasType(CardType::Creature),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    amount: ValueDef::CountersOnSource(CounterKind::named("time")),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::CountersOnSource(CounterKind::named("time")),
-                },
+                    ValueDef::CountersOnSource(CounterKind::named("time")),
+                ),
+                EffectDef::damage(
+                    EffectRecipientDef::EachPlayer,
+                    ValueDef::CountersOnSource(CounterKind::named("time")),
+                ),
             ]),
         ),
     ]),

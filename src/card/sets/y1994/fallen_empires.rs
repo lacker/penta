@@ -78,10 +78,10 @@ pub(in crate::card::sets) static FARRELS_ZEALOT: CardRecord = CardRecord::new_wi
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(3),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(3),
+                    ),
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
                         effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
@@ -184,10 +184,10 @@ pub(in crate::card::sets) static ICATIAN_JAVELINEERS: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -242,10 +242,7 @@ pub(in crate::card::sets) static ICATIAN_MONEYCHANGER: CardRecord = CardRecord::
         ),
         abilities::enters_trigger(
             "When this creature enters, it deals 3 damage to you.",
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(3)),
         ),
         AbilityDef::triggered(
             "At the beginning of your upkeep, put a credit counter on this creature.",
@@ -1356,10 +1353,10 @@ pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new_wi
                 ObjectPredicateDef::Subtype("Goblin"),
                 CostQuantityDef::Fixed(1),
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(5),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
         ),
     ]),
 );
@@ -2097,10 +2094,10 @@ pub(in crate::card::sets) static THORN_THALLID: CardRecord = CardRecord::new_wit
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -2128,10 +2125,10 @@ pub(in crate::card::sets) static AEOLIPILE: CardRecord = CardRecord::new_with_le
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );

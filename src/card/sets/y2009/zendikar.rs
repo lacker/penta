@@ -319,14 +319,14 @@ pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
                     crate::AdditionalCostIndex::PRIMARY,
                     ValueDef::Constant(4),
                     ValueDef::Constant(2),
                 )),
-            },
+            ),
         ),
     ]),
 );
@@ -500,11 +500,11 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_wit
                         &[AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
                         )],
-                        EffectDef::DealDamageFrom {
-                            source: ObjectRefDef::AbilityGrantSource,
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::Constant(2),
-                        },
+                        EffectDef::damage_from(
+                            ObjectRefDef::AbilityGrantSource,
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::Constant(2),
+                        ),
                     )),
                 },
             ),

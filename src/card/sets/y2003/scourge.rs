@@ -305,10 +305,10 @@ pub(in crate::card::sets) static GUILTY_CONSCIENCE: CardRecord = CardRecord::new
             AbilityDef::triggered(
             "Whenever enchanted creature deals damage, this Aura deals that much damage to that creature.",
             TriggerEventDef::damage_dealt_by(ObjectPredicateDef::AttachedToSource),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::AttachedPermanent,
-                amount: ValueDef::TriggerEventAmount,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::AttachedPermanent,
+                ValueDef::TriggerEventAmount,
+            ),
         ),
         ]),
 );
@@ -1438,10 +1438,10 @@ pub(in crate::card::sets) static EXTRA_ARMS: CardRecord = CardRecord::new(
                         AbilityTargetPredicate::AnyTarget,
                     )]
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
             ),
         ]),
 );
@@ -1462,10 +1462,10 @@ pub(in crate::card::sets) static FORM_OF_THE_DRAGON: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(5),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
         ),
         AbilityDef::triggered(
             "At the beginning of each end step, your life total becomes 5.",
@@ -1587,10 +1587,10 @@ pub(in crate::card::sets) static PYROSTATIC_PILLAR: CardRecord = CardRecord::new
         "Whenever a player casts a spell with mana value 3 or less, this enchantment deals 2 \
          damage to that player.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::ManaValueAtMost(3)),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::ControllerOfTriggeringObject,
+            ValueDef::Constant(2),
+        ),
     )),
 );
 
@@ -1647,10 +1647,10 @@ pub(in crate::card::sets) static SIEGE_GANG_COMMANDER: CardRecord = CardRecord::
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );
@@ -1681,10 +1681,10 @@ pub(in crate::card::sets) static SPARK_SPRAY: CardRecord = CardRecord::new(
                     AbilityTargetPredicate::AnyTarget,
                 )]
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
         abilities::cycling(
             "Cycling {R} ({R}, Discard this card: Draw a card.)",
@@ -1814,8 +1814,8 @@ pub(in crate::card::sets) static CLAWS_OF_WIREWOOD: CardRecord = CardRecord::new
             EffectDef::Sequence(
                 &const {
                     [
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::matching_objects(
+                        EffectDef::damage(
+                            EffectRecipientDef::matching_objects(
                                 ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Creature),
                                     ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
@@ -1823,12 +1823,9 @@ pub(in crate::card::sets) static CLAWS_OF_WIREWOOD: CardRecord = CardRecord::new
                                 &[ZoneKind::Battlefield],
                                 PlayerRelation::Any,
                             ),
-                            amount: ValueDef::Constant(3),
-                        },
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::EachPlayer,
-                            amount: ValueDef::Constant(3),
-                        },
+                            ValueDef::Constant(3),
+                        ),
+                        EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(3)),
                     ]
                 },
             ),

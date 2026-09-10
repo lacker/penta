@@ -1821,10 +1821,10 @@ pub(in crate::card::sets) static BOMBER_CORPS: CardRecord = CardRecord::new_with
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -1846,10 +1846,10 @@ pub(in crate::card::sets) static CINDER_ELEMENTAL: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ChosenX,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ChosenX,
+            ),
         ),
     ),
 );
@@ -1863,10 +1863,7 @@ pub(in crate::card::sets) static CRACKLING_PERIMETER: CardRecord = CardRecord::n
     CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(AbilityDef::activated(
         "Tap an untapped Gate you control: This enchantment deals 1 damage to each opponent.",
         &[TAP_A_GATE],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Opponent,
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
     )),
 );
 
@@ -1985,8 +1982,8 @@ pub(in crate::card::sets) static HOMING_LIGHTNING: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+            EffectDef::damage(
+                EffectRecipientDef::objects(ObjectSetDef::Union(&[
                     ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                     ObjectSetDef::Query(ObjectQueryDef::new(
                         ObjectPredicateDef::All(&[
@@ -1998,8 +1995,8 @@ pub(in crate::card::sets) static HOMING_LIGHTNING: CardRecord = CardRecord::new_
                         &[ZoneKind::Battlefield],
                     )),
                 ])),
-                amount: ValueDef::Constant(4),
-            },
+                ValueDef::Constant(4),
+            ),
         ),
     ),
 );
@@ -2061,14 +2058,14 @@ pub(in crate::card::sets) static MASSIVE_RAID: CardRecord = CardRecord::new_with
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
-        },
+        ),
     )),
 );
 
@@ -2123,10 +2120,10 @@ pub(in crate::card::sets) static MUGGING: CardRecord = CardRecord::new_with_lega
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
@@ -3003,10 +3000,10 @@ pub(in crate::card::sets) static BOROS_CHARM: CardRecord = CardRecord::new_with_
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(4),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(4),
+                ),
             ),
             AbilityDef::spell(
                 "Permanents you control gain indestructible until end of turn.",
@@ -3090,10 +3087,10 @@ pub(in crate::card::sets) static CLAN_DEFIANCE: CardRecord = CardRecord::new_wit
                             ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
                         ]),
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::ChosenX,
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::ChosenX,
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Clan Defiance deals X damage to target creature without flying.",
@@ -3105,20 +3102,20 @@ pub(in crate::card::sets) static CLAN_DEFIANCE: CardRecord = CardRecord::new_wit
                             )),
                         ]),
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::ChosenX,
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::ChosenX,
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Clan Defiance deals X damage to target player or planeswalker.",
                     &[AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::ChosenX,
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::ChosenX,
+                    ),
                 ),
             ],
         )
@@ -3382,10 +3379,10 @@ pub(in crate::card::sets) static FIREMANE_AVENGER: CardRecord = CardRecord::new_
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(3),
@@ -3446,14 +3443,14 @@ pub(in crate::card::sets) static FOUNDRY_CHAMPION: CardRecord = CardRecord::new_
         4,
     )
     .with_abilities(&[
-        abilities::enters_trigger_with_targets("When this creature enters, it deals damage to any target equal to the number of creatures you control.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)], EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                )),
-            }),
+        abilities::enters_trigger_with_targets("When this creature enters, it deals damage to any target equal to the number of creatures you control.", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)], EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        )),
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
             &[CostDef::Mana(mana_cost!("{R}"))],
@@ -3563,14 +3560,14 @@ pub(in crate::card::sets) static GROUND_ASSAULT: CardRecord = CardRecord::new_wi
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                 ObjectPredicateDef::HasType(CardType::Land),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
-        },
+        ),
     )),
 );
 
@@ -4371,10 +4368,10 @@ pub(in crate::card::sets) static ARROWS_OF_JUSTICE: CardRecord = CardRecord::new
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::AttackingOrBlocking,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(4),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(4),
+        ),
     )),
 );
 
@@ -4439,10 +4436,10 @@ pub(in crate::card::sets) static BOROS_RECKONER: CardRecord = CardRecord::new_wi
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::TriggerEventAmount,
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::TriggerEventAmount,
+                ),
             ),
             abilities::apply_to_self_until_end_of_turn(
                 "{R/W}: This creature gains first strike until end of turn.",
@@ -4855,10 +4852,10 @@ pub(in crate::card::sets) static RAZORTIP_WHIP: CardRecord = CardRecord::new_wit
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(1),
+        ),
     )),
 );
 

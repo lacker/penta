@@ -1038,10 +1038,7 @@ pub(in crate::card::sets) static MEGRIM: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{2}{B}")).with_ability(AbilityDef::triggered(
         "Whenever an opponent discards a card, this enchantment deals 2 damage to that player.",
         TriggerEventDef::Discarded(PlayerRelation::Opponent),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(2)),
     )),
 );
 
@@ -1419,10 +1416,10 @@ pub(in crate::card::sets) static FANNING_THE_FLAMES: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ChosenX,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ChosenX,
+            ),
         ),
     ]),
 );
@@ -1586,14 +1583,14 @@ pub(in crate::card::sets) static MOB_JUSTICE: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
-        },
+        ),
     )),
 );
 
@@ -1736,10 +1733,10 @@ pub(in crate::card::sets) static SPITTING_HYDRA: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -2221,10 +2218,10 @@ pub(in crate::card::sets) static ACIDIC_SLIVER: CardRecord = CardRecord::new(
                     "{2}, Sacrifice this permanent: This permanent deals 2 damage to any target.",
                     &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
                     &const { [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)] },
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(2),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(2),
+                    ),
                 ) }),
             },
         ),

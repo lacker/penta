@@ -81,21 +81,18 @@ pub(in crate::card::sets) static FIERY_CONFLUENCE: CardRecord = CardRecord::new(
                     // "Deals 1 damage to each creature": everything on the battlefield, yours
                     // included, which is what makes the sweeper half a cost as well as an
                     // answer.
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::matching_objects(
+                    EffectDef::damage(
+                        EffectRecipientDef::matching_objects(
                             ObjectPredicateDef::HasType(CardType::Creature),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
-                        amount: ValueDef::Constant(1),
-                    },
+                        ValueDef::Constant(1),
+                    ),
                 ),
                 AbilityDef::spell(
                     "Fiery Confluence deals 2 damage to each opponent.",
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Opponent,
-                        amount: ValueDef::Constant(2),
-                    },
+                    EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(2)),
                 ),
                 AbilityDef::spell_with_targets(
                     "Destroy target artifact.",

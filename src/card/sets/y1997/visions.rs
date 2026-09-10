@@ -1412,10 +1412,10 @@ pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_le
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
         AbilityDef::alternative_cast(
             crate::mana_cost!("{0}"),
@@ -1698,8 +1698,8 @@ pub(in crate::card::sets) static TREMOR: CardRecord = CardRecord::new(
     // one-mana answer to a whole deck of X/1s.
     CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell(
         "Tremor deals 1 damage to each creature without flying.",
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::matching_objects(
+        EffectDef::damage(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
@@ -1709,8 +1709,8 @@ pub(in crate::card::sets) static TREMOR: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            amount: ValueDef::Constant(1),
-        },
+            ValueDef::Constant(1),
+        ),
     )),
 );
 
@@ -2264,13 +2264,13 @@ pub(in crate::card::sets) static SIMOON: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Opponent),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::objects_controlled_by_target(
+        EffectDef::damage(
+            EffectRecipientDef::objects_controlled_by_target(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 TargetIndex::PRIMARY,
             ),
-            amount: ValueDef::Constant(1),
-        },
+            ValueDef::Constant(1),
+        ),
     )),
 );
 

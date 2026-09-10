@@ -93,10 +93,10 @@ pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::ne
                     &[AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::AnyTarget,
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(2),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(2),
+                    ),
                 ),
             ],
         )

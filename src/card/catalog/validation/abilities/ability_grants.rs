@@ -42,12 +42,13 @@ fn collect_ability_grants(
         EffectDef::ConditionalStatic(conditional) => {
             collect_applied_ability_grants(conditional.then.effect, grants);
         }
-        EffectDef::StaticApply { effect, .. }
-        | EffectDef::Apply { effect, .. }
-        | EffectDef::DealDamageAndApply {
-            applied: effect, ..
-        } => {
+        EffectDef::StaticApply { effect, .. } | EffectDef::Apply { effect, .. } => {
             collect_applied_ability_grants(effect, grants);
+        }
+        EffectDef::DealDamage(damage) => {
+            if let Some(effect) = damage.applied_effect() {
+                collect_applied_ability_grants(effect, grants);
+            }
         }
         EffectDef::CreateToken { token, copy, .. } => match copy {
             Some(copy) => grants.extend(
@@ -175,11 +176,12 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         EffectDef::ConditionalStatic(conditional) => {
             applied_ability_grant_sites(conditional.then.effect)
         }
-        EffectDef::StaticApply { effect, .. }
-        | EffectDef::Apply { effect, .. }
-        | EffectDef::DealDamageAndApply {
-            applied: effect, ..
-        } => applied_ability_grant_sites(effect),
+        EffectDef::StaticApply { effect, .. } | EffectDef::Apply { effect, .. } => {
+            applied_ability_grant_sites(effect)
+        }
+        EffectDef::DealDamage(damage) => damage
+            .applied_effect()
+            .map_or(0, applied_ability_grant_sites),
         EffectDef::BecomeCopyOf { exceptions, .. } => exceptions.added_abilities.len(),
         EffectDef::CreateToken {
             copy: Some(copy), ..

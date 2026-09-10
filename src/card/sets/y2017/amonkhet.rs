@@ -104,10 +104,10 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
     ]),
 );

@@ -205,10 +205,10 @@ pub(in crate::card::sets) static ELITE_ARCHERS: CardRecord = CardRecord::new(
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         )),
 );
 
@@ -2636,17 +2636,17 @@ pub(in crate::card::sets) static CRATER_HELLION: CardRecord = CardRecord::new(
             "Echo {4}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
             mana_cost!("{4}{R}{R}"),
         ),
-        abilities::enters_trigger("When this creature enters, it deals 4 damage to each other creature.", EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                amount: ValueDef::Constant(4),
-            }),
+        abilities::enters_trigger("When this creature enters, it deals 4 damage to each other creature.", EffectDef::damage(
+            EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            ValueDef::Constant(4),
+        )),
     ]),
 );
 
@@ -2766,8 +2766,8 @@ pub(in crate::card::sets) static FIRE_ANTS: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{T}: This creature deals 1 damage to each other creature without flying.",
             &[CostDef::TapSource],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
@@ -2778,8 +2778,8 @@ pub(in crate::card::sets) static FIRE_ANTS: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(1),
-            },
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );
@@ -2978,10 +2978,10 @@ pub(in crate::card::sets) static HEAT_RAY: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::ChosenX,
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::ChosenX,
+        ),
     )),
 );
 
@@ -3222,10 +3222,10 @@ pub(in crate::card::sets) static SHIVAN_HELLKITE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );
@@ -3278,14 +3278,14 @@ pub(in crate::card::sets) static SHOWER_OF_SPARKS: CardRecord = CardRecord::new(
             )),
         ],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ValueDef::Constant(1),
+            ),
         ]),
     )),
 );
@@ -3377,18 +3377,15 @@ pub(in crate::card::sets) static STEAM_BLAST: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
         "Steam Blast deals 2 damage to each creature and each player.",
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(2),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::Constant(2),
-            },
+                ValueDef::Constant(2),
+            ),
+            EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(2)),
         ]),
     )),
 );
@@ -4869,12 +4866,10 @@ pub(in crate::card::sets) static SHIVAN_GORGE: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{2}{R}, {T}: This land deals 1 damage to each opponent.",
                 &[CostDef::Mana(mana_cost!("{2}{R}")), CostDef::TapSource],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
-                        PlayerRelation::Opponent,
-                    )),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );

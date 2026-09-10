@@ -819,10 +819,10 @@ fn granted_ability_validation_checks_zones_mana_targets_and_target_slots() {
         "An activated ability.",
         &[],
         &MANA_TARGETS,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex(1)),
-            amount: crate::ValueDef::Constant(1),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex(1)),
+            crate::ValueDef::Constant(1),
+        ),
     );
 
     let cases = [

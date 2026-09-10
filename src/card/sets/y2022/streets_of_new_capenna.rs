@@ -114,12 +114,10 @@ pub(in crate::card::sets) static WITTY_ROASTMASTER: CardRecord = CardRecord::new
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
-                    PlayerRelation::Opponent,
-                )),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+                ValueDef::Constant(1),
+            ),
         ),
     ),
 );

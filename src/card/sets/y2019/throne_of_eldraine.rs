@@ -353,10 +353,7 @@ const fn bonecrusher_rules() -> CardRules {
         .with_ability(AbilityDef::triggered(
             "Whenever this creature becomes the target of a spell, this creature deals 2 damage to that spell's controller.",
             TriggerEventDef::becomes_targeted(ObjectPredicateDef::Spell),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(2)),
         ))
 }
 
@@ -378,10 +375,10 @@ fn bonecrusher_composition() -> CardComposition {
                     &const {
                         [
                             EffectDef::DamageCannotBePreventedThisTurn,
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(2),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(2),
+                            ),
                         ]
                     },
                 ),
@@ -1094,10 +1091,10 @@ pub(in crate::card::sets) static QUESTING_BEAST: CardRecord = CardRecord::new(
                         owner: None,
                     },
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::TriggerEventAmount,
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::TriggerEventAmount,
+                ),
             ),
         ]),
 );

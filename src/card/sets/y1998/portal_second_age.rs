@@ -145,10 +145,10 @@ pub(in crate::card::sets) static BLAZE: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::ChosenX,
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::ChosenX,
+        ),
     )),
 );
 
@@ -198,14 +198,14 @@ pub(in crate::card::sets) static GOBLIN_WAR_STRIKE: CardRecord = CardRecord::new
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                 ObjectPredicateDef::Subtype("Goblin"),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
-        },
+        ),
     )),
 );
 
@@ -226,10 +226,10 @@ pub(in crate::card::sets) static JAGGED_LIGHTNING: CardRecord = CardRecord::new(
             },
             ValueDef::Constant(2),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(3),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(3),
+        ),
     )),
 );
 
@@ -264,10 +264,10 @@ pub(in crate::card::sets) static VOLCANIC_HAMMER: CardRecord = CardRecord::new_w
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(3),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(3),
+        ),
     )),
 );
 
@@ -289,14 +289,14 @@ pub(in crate::card::sets) static WILDFIRE: CardRecord = CardRecord::new(
                 otherwise: None,
                 optional: false,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(4),
-            },
+                ValueDef::Constant(4),
+            ),
         ]),
     )),
 );

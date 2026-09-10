@@ -77,10 +77,10 @@ pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::White)),
             ]),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(3),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(3),
+        ),
     )),
 );
 

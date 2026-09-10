@@ -53,14 +53,13 @@ impl Game {
     pub(super) fn effect_applies_to_source(effect: EffectDef, expected: AppliedEffectDef) -> bool {
         match effect {
             EffectDef::BindOutput { effect, .. }
-            | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
-                then: effect,
-                ..
-            })
             | EffectDef::WithBattlefieldArrival { effect, .. }
             | EffectDef::WithRule { effect, .. } => {
                 Self::effect_applies_to_source(*effect, expected)
             }
+            EffectDef::DealDamage(damage) => damage
+                .continuation()
+                .is_some_and(|then| Self::effect_applies_to_source(*then, expected)),
             EffectDef::WithZoneMoveResult { effect, then, .. } => {
                 Self::effect_applies_to_source(*effect, expected)
                     || Self::effect_applies_to_source(*then, expected)
@@ -153,10 +152,6 @@ impl Game {
             | EffectDef::PreventDamage { .. }
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
-            | EffectDef::DealDamage { .. }
-            | EffectDef::DealDamageSimultaneously(_)
-            | EffectDef::DealDamageFrom { .. }
-            | EffectDef::DealDamageAndApply { .. }
             | EffectDef::Fight { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }

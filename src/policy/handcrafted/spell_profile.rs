@@ -299,6 +299,12 @@ impl HandcraftedPolicy {
     /// still kills a zero-cost artifact, so this reports false for it, as it
     /// does for any effect whose behavior at X=0 is not obviously nothing.
     fn is_empty_without_x(effect: EffectDef) -> bool {
+        let zero_without_x = |amount| {
+            amount == ValueDef::ChosenX
+                || matches!(amount, ValueDef::Quotient(quotient)
+                if quotient.numerator == ValueDef::ChosenX
+                    && quotient.denominator == ValueDef::ResolvedRecipientCount)
+        };
         match effect {
             EffectDef::WithRule { effect, .. } => Self::is_empty_without_x(*effect),
             EffectDef::Sequence(effects) => {
@@ -310,28 +316,18 @@ impl HandcraftedPolicy {
             EffectDef::BindOutput { effect, .. } | EffectDef::May { effect, .. } => {
                 Self::is_empty_without_x(*effect)
             }
-            EffectDef::DealDamage { amount, .. }
-            | EffectDef::DealDamageFrom { amount, .. }
-            | EffectDef::DealDamageAndApply { amount, .. }
-            | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
-                amount, ..
-            })
-            | EffectDef::DrainLife { amount, .. }
+            EffectDef::DrainLife { amount, .. }
             | EffectDef::DrawCards { amount, .. }
             | EffectDef::Discard { amount, .. }
             | EffectDef::Mill { amount, .. }
             | EffectDef::GainLife { amount, .. }
-            | EffectDef::LoseLife { amount, .. } => {
-                amount == ValueDef::ChosenX
-                    || matches!(amount, ValueDef::Quotient(quotient)
-                        if quotient.numerator == ValueDef::ChosenX
-                            && quotient.denominator == ValueDef::ResolvedRecipientCount)
-            }
-            EffectDef::DealDamageSimultaneously(assignments) => {
-                !assignments.is_empty()
-                    && assignments
+            | EffectDef::LoseLife { amount, .. } => zero_without_x(amount),
+            EffectDef::DealDamage(damage) => {
+                !damage.assignments().is_empty()
+                    && damage
+                        .assignments()
                         .iter()
-                        .all(|assignment| assignment.amount == ValueDef::ChosenX)
+                        .all(|assignment| zero_without_x(assignment.amount))
             }
             _ => false,
         }
@@ -442,32 +438,20 @@ impl HandcraftedPolicy {
                 Self::collect_spell_effect_profile(*effect, x, targets, profile);
                 Self::collect_spell_effect_profile(*then, x, targets, profile);
             }
-            EffectDef::DealDamage { recipient, amount }
-            | EffectDef::DealDamageFrom {
-                recipient, amount, ..
-            }
-            | EffectDef::DealDamageAndApply {
-                recipient, amount, ..
-            }
-            | EffectDef::DrainLife { recipient, amount } => {
+            EffectDef::DrainLife { recipient, amount } => {
                 Self::collect_damage_profile(recipient, amount, x, profile);
             }
-            EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
-                recipient,
-                amount,
-                then,
-            }) => {
-                Self::collect_damage_profile(recipient, amount, x, profile);
-                Self::collect_spell_effect_profile(*then, x, targets, profile);
-            }
-            EffectDef::DealDamageSimultaneously(assignments) => {
-                for assignment in assignments {
+            EffectDef::DealDamage(damage) => {
+                for assignment in damage.assignments() {
                     Self::collect_damage_profile(
                         assignment.recipient,
                         assignment.amount,
                         x,
                         profile,
                     );
+                }
+                if let Some(then) = damage.continuation() {
+                    Self::collect_spell_effect_profile(*then, x, targets, profile);
                 }
             }
             EffectDef::DrawCards { recipient, amount } => {

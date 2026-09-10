@@ -414,20 +414,20 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(4),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(4),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "This spell deals 3 damage to target opponent or planeswalker.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
         ],
     )),
@@ -462,23 +462,23 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "This spell deals 1 damage to each creature target opponent controls.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::objects_controlled_by_target(
+                EffectDef::damage(
+                    EffectRecipientDef::objects_controlled_by_target(
                         ObjectPredicateDef::HasType(CardType::Creature),
                         TargetIndex::PRIMARY,
                     ),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ],
     )),

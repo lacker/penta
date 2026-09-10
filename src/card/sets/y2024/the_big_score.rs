@@ -78,10 +78,10 @@ pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new_w
         abilities::enters_trigger_with_targets(
             "When this artifact enters, it deals 2 damage to any target.",
             &ANY_TARGET,
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
         AbilityDef::activated(
             "{2}, {T}, Sacrifice another artifact: Create a 3/3 colorless Golem artifact creature \
@@ -150,10 +150,10 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
                     CostDef::TapSource,
                 ],
                 &ANY_TARGET,
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             )
             .exhausting(),
         ]),
@@ -206,16 +206,15 @@ pub(in crate::card::sets) static GENEROUS_PLUNDERER: CardRecord = CardRecord::ne
                 "Whenever this creature attacks, it deals damage to defending player equal to the number \
                  of artifacts they control.",
                 TriggerEventDef::attack_declared(ObjectPredicateDef::Source, 1, None),
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Opponent,
-                    // Artifacts they control as the trigger resolves, which is what makes the
+                EffectDef::damage(
+                    EffectRecipientDef::Opponent, // Artifacts they control as the trigger resolves, which is what makes the
                     // Treasure handed over on the upkeep into damage on the attack.
-                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::HasType(CardType::Artifact),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Opponent,
                     )),
-                },
+                ),
             ),
         ]),
 );

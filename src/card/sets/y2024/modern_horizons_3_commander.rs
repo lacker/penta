@@ -136,11 +136,11 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_leg
                 // is both where the amount is read and what the damage is from, so
                 // protection and redirection answer the right object when the one
                 // entering is some other Lhurgoyf.
-                EffectDef::DealDamageFrom {
-                    source: ObjectRefDef::TriggeringObject,
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::TriggeringObjectPower,
-                },
+                EffectDef::damage_from(
+                    ObjectRefDef::TriggeringObject,
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::TriggeringObjectPower,
+                ),
             ),
         ]),
 );

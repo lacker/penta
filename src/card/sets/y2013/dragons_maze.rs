@@ -826,14 +826,14 @@ pub(in crate::card::sets) static PUNISH_THE_ENEMY: CardRecord = CardRecord::new_
                 )),
             ],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex(1)),
+                    ValueDef::Constant(3),
+                ),
             ]),
         ),
     ),
@@ -1284,14 +1284,14 @@ pub(in crate::card::sets) static BLAST_OF_GENIUS: CardRecord = CardRecord::new(
                     then: Some(DiscardFollowUpDef {
                         counted: ObjectPredicateDef::Any,
                         bound: Some(ParentBinding),
-                        effect: &EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        effect: &EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
                                 objects: ObjectSetDef::Binding(ParentBinding),
                                 select: ObjectValueDef::ManaValue,
                                 operation: AggregateOperationDef::Sum,
                             }),
-                        },
+                        ),
                     }),
                 },
             ]),
@@ -2051,14 +2051,14 @@ pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new_with
                     placement: ZonePlacement::Top,
                 },
                 binding: ParentBinding,
-                then: &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                    amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                then: &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex(1)),
+                    ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
                         objects: ObjectSetDef::Binding(ParentBinding),
                         select: ObjectValueDef::Power,
                         operation: AggregateOperationDef::Sum,
                     }),
-                },
+                ),
             },
         ),
     ),
@@ -2291,10 +2291,10 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
                 "−2: Ral Zarek deals 3 damage to any target.",
                 &[CostDef::Loyalty(-2)],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(3),
+                ),
             ),
             AbilityDef::activated(
                 "−7: Flip five coins. Take an extra turn after this one for each coin that comes up heads.",
@@ -2424,12 +2424,12 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
         AbilityDef::triggered(
             "Whenever a player casts a noncreature spell, Ruric Thar deals 6 damage to that player.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::NoncreatureSpell),
-            EffectDef::DealDamage {
+            EffectDef::damage(
                 // Whoever cast it, which is what the event names; this hits
                 // its own controller too.
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::Constant(6),
-            },
+                EffectRecipientDef::EventPlayer,
+                ValueDef::Constant(6),
+            ),
         ),
     ]),
 );
@@ -2493,10 +2493,10 @@ pub(in crate::card::sets) static SHOWSTOPPER: CardRecord = CardRecord::new_with_
                         owner: None,
                     },
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
             )),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -2826,10 +2826,10 @@ pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new_
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(4),
@@ -2907,10 +2907,7 @@ pub(in crate::card::sets) static ZHUR_TAA_DRUID: CardRecord = CardRecord::new_wi
         AbilityDef::triggered(
             "Whenever you tap this creature for mana, it deals 1 damage to each opponent.",
             TriggerEventDef::tapped_for_mana(ObjectPredicateDef::Source),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Opponent,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
         ),
     ]),
 );
@@ -3311,11 +3308,11 @@ pub(in crate::card::sets) static FLESH_BLOOD: CardRecord = CardRecord::new_fuse(
                         }),
                         AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget),
                     ],
-                    EffectDef::DealDamageFrom {
-                        source: ObjectRefDef::Target(TargetIndex::PRIMARY),
-                        recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                        amount: ValueDef::ObjectPower(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                    },
+                    EffectDef::damage_from(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        EffectRecipientDef::Target(TargetIndex(1)),
+                        ValueDef::ObjectPower(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    ),
                 ),
             ),
         ),
@@ -3532,10 +3529,10 @@ pub(in crate::card::sets) static TURN_BURN: CardRecord = CardRecord::new_fuse_wi
                     &[AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::AnyTarget,
                     )],
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(2),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(2),
+                    ),
                 ),
             ),
         ),

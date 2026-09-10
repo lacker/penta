@@ -707,14 +707,14 @@ pub(in crate::card::sets) static KARMA: CardRecord = CardRecord::new_with_legacy
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::Any,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+            EffectDef::damage(
+                EffectRecipientDef::EventPlayer,
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::EventPlayer,
                 )),
-            },
+            ),
         ),
     ]),
 );
@@ -1273,12 +1273,12 @@ pub(in crate::card::sets) static CREATURE_BOND: CardRecord = CardRecord::new_wit
                 // Both halves read the creature that died, so both come from
                 // last-known information: it is already in the graveyard by
                 // the time this resolves.
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                         ObjectRefDef::TriggeringObject,
                     )),
-                    amount: ValueDef::TriggeringObjectToughness,
-                },
+                    ValueDef::TriggeringObjectToughness,
+                ),
             ),
         ]),
 );
@@ -1306,12 +1306,12 @@ pub(in crate::card::sets) static FEEDBACK: CardRecord = CardRecord::new_with_leg
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted enchantment's controller, this Aura \
                  deals 1 damage to that player.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                         ObjectRefDef::AttachedToSource,
                     )),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -1540,10 +1540,10 @@ pub(in crate::card::sets) static PIRATE_SHIP: CardRecord = CardRecord::new_with_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
         AbilityDef::triggered_if(
             "When you control no Islands, sacrifice this creature.",
@@ -1589,10 +1589,10 @@ pub(in crate::card::sets) static PRODIGAL_SORCERER: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         )]),
 );
 
@@ -1608,14 +1608,11 @@ pub(in crate::card::sets) static PSIONIC_BLAST: CardRecord = CardRecord::new_wit
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(2)),
         ]),
     )]),
 );
@@ -1634,12 +1631,12 @@ pub(in crate::card::sets) static PSYCHIC_VENOM: CardRecord = CardRecord::new_wit
                 "Whenever enchanted land becomes tapped, this Aura deals 2 damage to that \
                  land's controller.",
                 TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                         ObjectRefDef::AttachedToSource,
                     )),
-                    amount: ValueDef::Constant(2),
-                },
+                    ValueDef::Constant(2),
+                ),
             ),
         ]),
 );
@@ -2116,12 +2113,12 @@ pub(in crate::card::sets) static CURSED_LAND: CardRecord = CardRecord::new_with_
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted land's controller, this Aura \
                  deals 1 damage to that player.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                         ObjectRefDef::AttachedToSource,
                     )),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -2605,14 +2602,15 @@ pub(in crate::card::sets) static PESTILENCE: CardRecord = CardRecord::new_with_l
             "{B}: This enchantment deals 1 damage to each creature and each player.",
             &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
-                    amount: ValueDef::Constant(1),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    ValueDef::Constant(1),
+                ),
+                EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(1)),
             ]),
         ),
     ]),
@@ -2804,10 +2802,10 @@ pub(in crate::card::sets) static SIMULACRUM: CardRecord = CardRecord::new_with_l
                 recipient: EffectRecipientDef::Controller,
                 amount: DAMAGE_DEALT_TO_YOU_THIS_TURN,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: DAMAGE_DEALT_TO_YOU_THIS_TURN,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                DAMAGE_DEALT_TO_YOU_THIS_TURN,
+            ),
         ]),
     )),
 );
@@ -2914,12 +2912,12 @@ pub(in crate::card::sets) static WARP_ARTIFACT: CardRecord = CardRecord::new_wit
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted artifact's controller, this Aura \
                  deals 1 damage to that player.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                         ObjectRefDef::AttachedToSource,
                     )),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -3183,8 +3181,8 @@ pub(in crate::card::sets) static EARTHQUAKE: CardRecord = CardRecord::new_with_l
     CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[AbilityDef::spell(
         "Earthquake deals X damage to each creature without flying and each player.",
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
@@ -3194,12 +3192,9 @@ pub(in crate::card::sets) static EARTHQUAKE: CardRecord = CardRecord::new_with_l
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::ChosenX,
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::ChosenX,
-            },
+                ValueDef::ChosenX,
+            ),
+            EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::ChosenX),
         ]),
     )]),
 );
@@ -3240,14 +3235,14 @@ pub(in crate::card::sets) static FIREBALL: CardRecord = CardRecord::new_with_leg
             &[AbilityTargetDef::any_number(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Quotient(&QuotientValueDef::new(
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Quotient(&QuotientValueDef::new(
                     ValueDef::ChosenX,
                     ValueDef::ResolvedRecipientCount,
                     RoundingDef::Down,
                 )),
-            },
+            ),
         )
         .with_spell_additional_cost(&CostDef::pay_mana_times(
             mana_cost!("{1}"),
@@ -3486,10 +3481,10 @@ pub(in crate::card::sets) static LIGHTNING_BOLT: CardRecord = CardRecord::new_wi
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(3),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(3),
+        ),
     )]),
 );
 
@@ -3522,10 +3517,7 @@ pub(in crate::card::sets) static MANABARBS: CardRecord = CardRecord::new_with_le
     CardRules::new_enchantment(mana_cost!("{3}{R}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player taps a land for mana, this enchantment deals 1 damage to that player.",
         TriggerEventDef::tapped_for_mana(ObjectPredicateDef::HasType(CardType::Land)),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(1)),
     )]),
 );
 
@@ -3552,14 +3544,11 @@ pub(in crate::card::sets) static ORCISH_ARTILLERY: CardRecord = CardRecord::new_
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::Sequence(&[
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(3),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(3)),
             ]),
         ),
     ]),
@@ -4138,10 +4127,7 @@ pub(in crate::card::sets) static FASTBOND: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::GreaterOrEqual,
                 right: ValueDef::Constant(2),
             }),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
         ),
     ]),
 );
@@ -4181,10 +4167,7 @@ pub(in crate::card::sets) static FORCE_OF_NATURE: CardRecord = CardRecord::new_w
                 },
                 EffectDef::PayOr(PayOrDef::unless_mana(
                     mana_cost!("{G}{G}{G}{G}"),
-                    &EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(8),
-                    },
+                    &EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(8)),
                 )),
             ),
         ]),
@@ -4305,8 +4288,8 @@ pub(in crate::card::sets) static HURRICANE: CardRecord = CardRecord::new_with_le
     CardRules::new_sorcery(mana_cost!("{X}{G}")).with_abilities(&[AbilityDef::spell(
         "Hurricane deals X damage to each creature with flying and each player.",
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
@@ -4314,12 +4297,9 @@ pub(in crate::card::sets) static HURRICANE: CardRecord = CardRecord::new_with_le
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::ChosenX,
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::ChosenX,
-            },
+                ValueDef::ChosenX,
+            ),
+            EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::ChosenX),
         ]),
     )]),
 );
@@ -4827,12 +4807,12 @@ pub(in crate::card::sets) static WANDERLUST: CardRecord = CardRecord::new_with_l
             abilities::enchanted_controller_upkeep(
                 "At the beginning of the upkeep of enchanted creature's controller, this Aura \
                  deals 1 damage to that player.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                         ObjectRefDef::AttachedToSource,
                     )),
-                    amount: ValueDef::Constant(1),
-                },
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -4906,10 +4886,10 @@ pub(in crate::card::sets) static ANKH_OF_MISHRA: CardRecord = CardRecord::new_wi
             None,
             Some(ZoneKind::Battlefield),
         ),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::ControllerOfTriggeringObject,
+            ValueDef::Constant(2),
+        ),
     )]),
 );
 
@@ -4974,13 +4954,13 @@ pub(in crate::card::sets) static BLACK_VISE: CardRecord = CardRecord::new_with_l
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::ChosenPlayer,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::EventPlayer,
-                amount: ValueDef::CardsInHandAbove {
+            EffectDef::damage(
+                EffectRecipientDef::EventPlayer,
+                ValueDef::CardsInHandAbove {
                     player: PlayerRelation::EventPlayer,
                     threshold: 4,
                 },
-            },
+            ),
         ),
     ]),
 );
@@ -5084,10 +5064,7 @@ pub(in crate::card::sets) static COPPER_TABLET: CardRecord = CardRecord::new_wit
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::Any,
         },
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::Constant(1),
-        },
+        EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(1)),
     )]),
 );
 
@@ -5132,10 +5109,10 @@ pub(in crate::card::sets) static DINGUS_EGG: CardRecord = CardRecord::new_with_l
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a land is put into a graveyard from the battlefield, this artifact deals 2 damage to that land's controller.",
         TriggerEventDef::zone_changed(ObjectPredicateDef::HasType(CardType::Land), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)),
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-            amount: ValueDef::Constant(2),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::ControllerOfTriggeringObject,
+            ValueDef::Constant(2),
+        ),
     )]),
 );
 
@@ -5532,10 +5509,7 @@ pub(in crate::card::sets) static MANA_VAULT: CardRecord = CardRecord::new_with_l
                 player: PlayerRelation::You,
             },
             &TriggerConditionDef::SourceIsTapped,
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}{C}.",
@@ -5670,10 +5644,10 @@ pub(in crate::card::sets) static ROD_OF_RUIN: CardRecord = CardRecord::new_with_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
     ]),
 );

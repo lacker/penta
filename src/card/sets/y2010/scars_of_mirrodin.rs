@@ -1829,14 +1829,14 @@ pub(in crate::card::sets) static ARC_TRAIL: CardRecord = CardRecord::new(
             AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget).another(),
         ],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ValueDef::Constant(1),
+            ),
         ]),
     )),
 );
@@ -1879,10 +1879,10 @@ pub(in crate::card::sets) static BARRAGE_OGRE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -1930,10 +1930,10 @@ pub(in crate::card::sets) static BLOODSHOT_TRAINEE: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         )
         .with_activation_condition(&TriggerConditionDef::SourceMatches {
             object: ObjectPredicateDef::PowerAtLeast(4),
@@ -1972,10 +1972,10 @@ pub(in crate::card::sets) static EMBERSMITH: CardRecord = CardRecord::new(
                     PlayerSetDef::Related(PlayerRelation::You),
                     mana_cost!("{1}"),
                 ),
-                &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             )),
         ),
     ),
@@ -2040,10 +2040,10 @@ pub(in crate::card::sets) static FURNACE_CELEBRATION: CardRecord = CardRecord::n
                     PlayerSetDef::Related(PlayerRelation::You),
                     mana_cost!("{2}"),
                 ),
-                &EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
+                &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
             )),
         ),
     ),
@@ -2063,10 +2063,10 @@ pub(in crate::card::sets) static GALVANIC_BLAST: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::IfMatchingObjectCount(&metalcraft_value(4, 2)),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::IfMatchingObjectCount(&metalcraft_value(4, 2)),
+        ),
     )),
 );
 
@@ -2205,10 +2205,10 @@ pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::ne
                             &[AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::AnyTarget,
                             )],
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(1),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(1),
+                            ),
                         )),
                     },
                 )]),
@@ -2282,10 +2282,10 @@ pub(in crate::card::sets) static MELT_TERRAIN: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ]),
     )),
 );
@@ -2372,10 +2372,10 @@ pub(in crate::card::sets) static SPIKESHOT_ELDER: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::SourcePower,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::SourcePower,
+            ),
         ),
     ),
 );
@@ -3813,10 +3813,10 @@ pub(in crate::card::sets) static HEAVY_ARBALEST: CardRecord = CardRecord::new(
                         &[AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
                         )],
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::Constant(2),
-                        },
+                        EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::Constant(2),
+                        ),
                     )),
                 },
             ),
@@ -4026,10 +4026,10 @@ pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
                         &[AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
                         )],
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::Constant(2),
-                        },
+                        EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::Constant(2),
+                        ),
                     )),
                 },
             ),
@@ -4136,10 +4136,10 @@ pub(in crate::card::sets) static MOLTEN_TAIL_MASTICORE: CardRecord = CardRecord:
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
         ),
         abilities::regenerate_self(
             "{2}: Regenerate this creature.",
@@ -4255,10 +4255,10 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
                         // "The player or planeswalker it's attacking": whichever the
                         // declaration named, read off the Battlesphere rather than off the
                         // trigger, which carries only the player.
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::DefenderOfSource,
-                            amount: ValueDef::BoundObjectCount(ParentBinding),
-                        },
+                        EffectDef::damage(
+                            EffectRecipientDef::DefenderOfSource,
+                            ValueDef::BoundObjectCount(ParentBinding),
+                        ),
                     ]),
                 }),
             ),
@@ -4574,10 +4574,10 @@ pub(in crate::card::sets) static PERILOUS_MYR: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -4962,10 +4962,10 @@ pub(in crate::card::sets) static TOWER_OF_CALAMITIES: CardRecord = CardRecord::n
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(12),
-        },
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(12),
+        ),
     )),
 );
 
@@ -5317,10 +5317,10 @@ pub(in crate::card::sets) static VULSHOK_REPLICA: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         ),
     ),
 );

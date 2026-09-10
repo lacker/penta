@@ -2629,12 +2629,12 @@ pub(in crate::card::sets) static CORPSE_LUNGE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EXILE_A_CREATURE_CARD,
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ObjectPower(ObjectRefDef::AdditionalCostObject(
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ObjectPower(ObjectRefDef::AdditionalCostObject(
                     AdditionalCostObjectIndex::PRIMARY,
                 )),
-            },
+            ),
         ),
     ),
 );
@@ -3533,10 +3533,7 @@ pub(in crate::card::sets) static ASHMOUTH_HOUND: CardRecord = CardRecord::new(
                 creature: ObjectPredicateDef::Source,
                 other: ObjectPredicateDef::HasType(CardType::Creature),
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::TriggeringObject,
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(EffectRecipientDef::TriggeringObject, ValueDef::Constant(1)),
         ),
     ),
 );
@@ -3552,10 +3549,14 @@ pub(in crate::card::sets) static BALEFIRE_DRAGON: CardRecord = CardRecord::new_w
         AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, it deals that much damage to each creature that player controls.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Opponent),
-                amount: ValueDef::TriggerEventAmount,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                ValueDef::TriggerEventAmount,
+            ),
         ),
     ]),
 );
@@ -3581,14 +3582,14 @@ pub(in crate::card::sets) static BLASPHEMOUS_ACT: CardRecord = CardRecord::new_w
         .with_source_zones(&[ZoneKind::Hand]),
         AbilityDef::spell(
             "Blasphemous Act deals 13 damage to each creature.",
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(13),
-            },
+                ValueDef::Constant(13),
+            ),
         ),
     ]),
 );
@@ -3625,13 +3626,13 @@ pub(in crate::card::sets) static BRIMSTONE_VOLLEY: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
                     then: ValueDef::Constant(5),
                     otherwise: ValueDef::Constant(3),
                 }),
-            },
+            ),
         ),
     ),
 );
@@ -3655,10 +3656,10 @@ pub(in crate::card::sets) static BURNING_VENGEANCE: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -3814,10 +3815,10 @@ pub(in crate::card::sets) static CURSE_OF_THE_PIERCED_HEART: CardRecord = CardRe
                         PlayerRelation::EnchantedPlayer,
                     ),
                 )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                },
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
             ),
         ]),
 );
@@ -3860,10 +3861,10 @@ pub(in crate::card::sets) static DEVILS_PLAY: CardRecord = CardRecord::new_with_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ChosenX,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ChosenX,
+            ),
         ),
         abilities::flashback(mana_cost!("{X}{R}{R}{R}")),
     ]),
@@ -3965,10 +3966,10 @@ pub(in crate::card::sets) static GEISTFLAME: CardRecord = CardRecord::new_with_l
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
         ),
         abilities::flashback(mana_cost!("{3}{R}")),
     ]),
@@ -4028,10 +4029,10 @@ pub(in crate::card::sets) static HARVEST_PYRE: CardRecord = CardRecord::new(
                 ZoneKind::Graveyard,
                 CostQuantityDef::ChosenX,
             ),
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::ChosenX,
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::ChosenX,
+            ),
         ),
     ),
 );
@@ -4057,14 +4058,14 @@ pub(in crate::card::sets) static HERETIC_S_PUNISHMENT: CardRecord = CardRecord::
                     },
                     binding: Binding!("milled_cards"),
                 },
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
                         objects: ObjectSetDef::Binding(Binding!("milled_cards")),
                         select: ObjectValueDef::ManaValue,
                         operation: AggregateOperationDef::Maximum,
                     }),
-                },
+                ),
             ]),
         ),
     ),
@@ -4192,10 +4193,10 @@ pub(in crate::card::sets) static INTO_THE_MAW_OF_HELL: CardRecord = CardRecord::
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::Constant(13),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ValueDef::Constant(13),
+            ),
         ]),
     )),
 );
@@ -4348,10 +4349,10 @@ pub(in crate::card::sets) static PITCHBURN_DEVILS: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         ),
     ),
 );
@@ -4372,10 +4373,10 @@ pub(in crate::card::sets) static RAGE_THROWER: CardRecord = CardRecord::new_with
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -4450,8 +4451,8 @@ pub(in crate::card::sets) static ROLLING_TEMBLOR: CardRecord = CardRecord::new_w
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
         AbilityDef::spell(
             "Rolling Temblor deals 2 damage to each creature without flying.",
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::matching_objects(
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
@@ -4461,8 +4462,8 @@ pub(in crate::card::sets) static ROLLING_TEMBLOR: CardRecord = CardRecord::new_w
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                amount: ValueDef::Constant(2),
-            },
+                ValueDef::Constant(2),
+            ),
         ),
         abilities::flashback(mana_cost!("{4}{R}{R}")),
     ]),
@@ -4515,10 +4516,10 @@ pub(in crate::card::sets) static SKIRSDAG_CULTIST: CardRecord = CardRecord::new_
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ),
 );
@@ -4788,45 +4789,56 @@ pub(in crate::card::sets) static DARKTHICKET_WOLF: CardRecord = CardRecord::new_
 );
 
 // ISD 176 — Daybreak Ranger // Nightfall Predator
-pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord =
-    CardRecord::new_dfc_with_legacy_id(
-        939,
-        "Daybreak Ranger // Nightfall Predator",
-        CardArt::new("25b54a1d-e201-453b-9173-b04e06ee6fb7", "Steve Prescott"),
-        CardSet::Innistrad,
-        &[
-            (
-                "Daybreak Ranger",
-                const {
-                    CardRules::new_creature(
-                mana_cost!("{2}{G}"),
-                &const { ["Human", "Archer", "Ranger", "Werewolf"] },
-                2,
-                2,
-            )
-            .with_abilities(&const { [
-                AbilityDef::activated_with_targets(
-                    "{T}: This creature deals 2 damage to target creature with flying.",
-                    &const { [CostDef::TapSource] },
-                    &const { [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::All(&const { [
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
-                        ] }),
-                    )] },
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(2),
+pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord = CardRecord::new_dfc_with_legacy_id(
+    939,
+    "Daybreak Ranger // Nightfall Predator",
+    CardArt::new("25b54a1d-e201-453b-9173-b04e06ee6fb7", "Steve Prescott"),
+    CardSet::Innistrad,
+    &[
+        (
+            "Daybreak Ranger",
+            const {
+                CardRules::new_creature(
+                    mana_cost!("{2}{G}"),
+                    &const { ["Human", "Archer", "Ranger", "Werewolf"] },
+                    2,
+                    2,
+                )
+                .with_abilities(
+                    &const {
+                        [
+                            AbilityDef::activated_with_targets(
+                                "{T}: This creature deals 2 damage to target creature with flying.",
+                                &const { [CostDef::TapSource] },
+                                &const {
+                                    [AbilityTargetDef::exactly_one_permanent(
+                                        ObjectPredicateDef::All(
+                                            &const {
+                                                [
+                                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                                    ObjectPredicateDef::HasKeyword(
+                                                        crate::card::KeywordAbility::Flying,
+                                                    ),
+                                                ]
+                                            },
+                                        ),
+                                    )]
+                                },
+                                EffectDef::damage(
+                                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    ValueDef::Constant(2),
+                                ),
+                            ),
+                            WEREWOLF_FRONT_TRANSFORM,
+                        ]
                     },
-                ),
-                WEREWOLF_FRONT_TRANSFORM,
-            ] })
-                },
-            ),
-            (
-                "Nightfall Predator",
-                const {
-                    CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 4, 4)
+                )
+            },
+        ),
+        (
+            "Nightfall Predator",
+            const {
+                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 4, 4)
                         .printed_colors(&const { [ManaColor::Green] })
                         .with_abilities(
                             &const {
@@ -4847,18 +4859,14 @@ pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord =
                                         EffectDef::Sequence(
                                             &const {
                                                 [
-                                                    EffectDef::DealDamage {
-                                                        recipient: EffectRecipientDef::Target(
-                                                            TargetIndex::PRIMARY,
-                                                        ),
-                                                        amount: ValueDef::SourcePower,
-                                                    },
-                                                    EffectDef::DealDamage {
-                                                        recipient: EffectRecipientDef::Source,
-                                                        amount: ValueDef::TargetPower(
-                                                            TargetIndex::PRIMARY,
-                                                        ),
-                                                    },
+                                                    EffectDef::damage(
+                                                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                                        ValueDef::SourcePower,
+                                                    ),
+                                                    EffectDef::damage(
+                                                        EffectRecipientDef::Source,
+                                                        ValueDef::TargetPower(TargetIndex::PRIMARY),
+                                                    ),
                                                 ]
                                             },
                                         ),
@@ -4867,10 +4875,10 @@ pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord =
                                 ]
                             },
                         )
-                },
-            ),
-        ],
-    );
+            },
+        ),
+    ],
+);
 
 // ISD 177 — Elder of Laurels
 pub(in crate::card::sets) static ELDER_OF_LAURELS: CardRecord = CardRecord::new_with_legacy_id(
@@ -5010,14 +5018,14 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                         // resolved, which is why the loyalty it costs Garruk is read off
                         // the target rather than printed.
                         EffectDef::Sequence(&const { [
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(3),
-                            },
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Source,
-                                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(3),
+                            ),
+                            EffectDef::damage(
+                                EffectRecipientDef::Source,
+                                ValueDef::TargetPower(TargetIndex::PRIMARY),
+                            ),
                         ] }),
                     ),
                     AbilityDef::activated(
@@ -5557,14 +5565,14 @@ pub(in crate::card::sets) static PREY_UPON: CardRecord = CardRecord::new_with_le
             }),
         ],
         EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::TargetPower(TargetIndex(1)),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ValueDef::TargetPower(TargetIndex::PRIMARY),
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::TargetPower(TargetIndex(1)),
+            ),
         ]),
     )),
 );
@@ -5969,10 +5977,10 @@ pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
                     ]),
                 )],
                 EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(1),
-                    },
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(1),
+                    ),
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         effect: AppliedEffectDef::add_creature_types(
@@ -6162,10 +6170,10 @@ pub(in crate::card::sets) static GEISTCATCHERS_RIG: CardRecord = CardRecord::new
                 owner: None,
             },
             1,
-        )], EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(4),
-        })),
+        )], EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(4),
+        ))),
 );
 
 // ISD 224 — Ghoulcaller's Bell
@@ -6857,10 +6865,10 @@ pub(in crate::card::sets) static STENSIA_BLOODHALL: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
             )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
         ),
     ]),
 );

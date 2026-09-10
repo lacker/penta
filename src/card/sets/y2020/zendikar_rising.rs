@@ -364,20 +364,15 @@ pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
                         EffectDef::IfCondition {
                             condition: &omnath_resolution(3),
                             then: &EffectDef::Sequence(&[
-                                EffectDef::DealDamage {
-                                    recipient: EffectRecipientDef::Opponent,
-                                    amount: ValueDef::Constant(4),
-                                },
-                                EffectDef::DealDamage {
-                                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
-                                        ObjectQueryDef::matching(
-                                            ObjectPredicateDef::HasType(CardType::Planeswalker),
-                                            &[ZoneKind::Battlefield],
-                                            PlayerRelation::NotYou,
-                                        ),
-                                    )),
-                                    amount: ValueDef::Constant(4),
-                                },
+                                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(4)),
+                                EffectDef::damage(
+                                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::NotYou,
+                                    ))),
+                                    ValueDef::Constant(4),
+                                ),
                             ]),
                         },
                     ]),

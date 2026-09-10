@@ -495,13 +495,12 @@ impl Game {
             // Both of these carry a nested procedure the same way a sequence
             // does, so an Attach inside one is still part of the clause.
             EffectDef::ForEachInBinding { effect, .. }
-            | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
-                then: effect,
-                ..
-            })
             | EffectDef::WithBattlefieldArrival { effect, .. }
             | EffectDef::WithRule { effect, .. }
             | EffectDef::BindOutput { effect, .. } => Self::immediate_attachment_target(*effect),
+            EffectDef::DealDamage(damage) => damage
+                .continuation()
+                .and_then(|then| Self::immediate_attachment_target(*then)),
             EffectDef::PutOntoBattlefieldThen { then, .. } => {
                 Self::immediate_attachment_target(*then)
             }
@@ -664,19 +663,13 @@ impl Game {
     }
 
     fn damage_effect_never_attaches(effect: EffectDef) -> bool {
-        if let EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { then, .. }) =
-            effect
-        {
-            return Self::effect_never_attaches(*then);
+        match effect {
+            EffectDef::DealDamage(damage) => damage
+                .continuation()
+                .is_none_or(|then| Self::effect_never_attaches(*then)),
+            EffectDef::Fight { .. } => true,
+            _ => false,
         }
-        matches!(
-            effect,
-            EffectDef::DealDamage { .. }
-                | EffectDef::DealDamageSimultaneously(_)
-                | EffectDef::DealDamageFrom { .. }
-                | EffectDef::DealDamageAndApply { .. }
-                | EffectDef::Fight { .. }
-        )
     }
 
     /// Whether this Aura prints the exception that keeps it attached through

@@ -283,40 +283,8 @@ pub enum EffectDef {
         object: EffectRecipientDef,
         amount: ValueDef,
     },
-    DealDamage {
-        recipient: EffectRecipientDef,
-        amount: ValueDef,
-    },
-    DealDamageWithFollowUp(DamageFollowUpDef),
-    /// One simultaneous damage event evaluated from a shared pre-damage state.
-    DealDamageSimultaneously(&'static [DamageAssignmentDef]),
-    /// Deals damage using an explicitly named source rather than the
-    /// resolving spell or ability's ordinary source.
-    ///
-    /// The reference is resolved as an object identity and may name a
-    /// permanent that paid a sacrifice cost. Damage attribution then reads
-    /// that identity through last-known information.
-    DealDamageFrom {
-        source: ObjectRefDef,
-        recipient: EffectRecipientDef,
-        amount: ValueDef,
-    },
-    /// Deals damage exactly as [`Self::DealDamage`] does, then applies
-    /// `applied` for `duration` to each object that actually took damage.
-    ///
-    /// The two sets are not the same. Prevention, redirection, and a
-    /// recipient that has already left the battlefield all mean a chosen
-    /// recipient can end up dealt nothing, and a rider that reads "a creature
-    /// dealt damage this way" must not touch it when that happens. That
-    /// linkage is why this is one effect rather than a sequence of two: an
-    /// ordinary sequence would have to name the recipients again, and naming
-    /// them is precisely what loses the distinction.
-    DealDamageAndApply {
-        recipient: EffectRecipientDef,
-        amount: ValueDef,
-        applied: AppliedEffectDef,
-        duration: ResolvedEffectDurationDef,
-    },
+    /// One damage event, with optional source overrides and an outcome-dependent rider.
+    DealDamage(DamageDef),
     /// Two creatures simultaneously deal noncombat damage equal to their powers.
     Fight {
         first: ObjectRefDef,

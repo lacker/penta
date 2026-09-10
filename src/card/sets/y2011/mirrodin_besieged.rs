@@ -17,7 +17,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, ScaledValueDef, SpellResolutionDestinationDef, TargetChooserDef,
     TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZoneMoveCauseDef, ZonePlacement, abilities,
+    ZoneMoveCauseDef, ZonePlacement, abilities, actions,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -400,13 +400,14 @@ pub(in crate::card::sets) static CORRUPTED_CONSCIENCE: CardRecord = CardRecord::
             abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    controller: PlayerRefDef::EffectController,
-                    duration: ControlDurationDef::WhileSourceRemains {
+                actions::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                }),
+                )
+                .as_effect(),
             ),
             AbilityDef::static_ability(
                 "Enchanted creature has infect.",
@@ -1510,11 +1511,12 @@ pub(in crate::card::sets) static METALLIC_MASTERY: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
             EffectDef::Sequence(&[
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    controller: PlayerRefDef::EffectController,
-                    duration: ControlDurationDef::UntilEndOfTurn,
-                }),
+                actions::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::UntilEndOfTurn,
+                )
+                .as_effect(),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -3230,11 +3232,12 @@ pub(in crate::card::sets) static CONTESTED_WAR_ZONE: CardRecord = CardRecord::ne
             TriggerEventDef::DamageDealt(DamageEventMatcherDef::combat_to(
                 EffectRecipientDef::Controller,
             )),
-            EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                object: EffectRecipientDef::Source,
-                controller: PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
-                duration: ControlDurationDef::Indefinitely,
-            }),
+            actions::gain_control(
+                EffectRecipientDef::Source,
+                PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
+                ControlDurationDef::Indefinitely,
+            )
+            .as_effect(),
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}.",

@@ -12,7 +12,7 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ZonePlacement, abilities, actions,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -296,9 +296,7 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_wit
                     kind: CounterKind::named("fade"),
                     amount: ValueDef::Constant(1),
                 },
-                otherwise: &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                otherwise: &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             },
         ),
         AbilityDef::activated_with_targets(
@@ -571,11 +569,12 @@ pub(in crate::card::sets) static DOMINATE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
                 ]),
             )],
-            EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                duration: ControlDurationDef::Indefinitely,
-                controller: PlayerRefDef::EffectController,
-            }),
+            actions::gain_control(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                PlayerRefDef::EffectController,
+                ControlDurationDef::Indefinitely,
+            )
+            .as_effect(),
         ),
     ),
 );
@@ -1015,13 +1014,12 @@ pub(in crate::card::sets) static DEATH_PIT_OFFERING: CardRecord = CardRecord::ne
     CardRules::new_enchantment(mana_cost!("{2}{B}{B}")).with_abilities(&[
         abilities::enters_trigger(
             "When this enchantment enters, sacrifice all creatures you control.",
-            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                object: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                ),
-            }),
+            actions::sacrifice(EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ))
+            .as_effect(),
         ),
         AbilityDef::static_ability(
             "Creatures you control get +2/+2.",
@@ -1835,9 +1833,7 @@ pub(in crate::card::sets) static BLASTODERM: CardRecord = CardRecord::new(
                     kind: CounterKind::named("fade"),
                     amount: ValueDef::Constant(1),
                 },
-                otherwise: &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                otherwise: &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             },
         ),
     ]),

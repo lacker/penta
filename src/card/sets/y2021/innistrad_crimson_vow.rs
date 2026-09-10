@@ -7,7 +7,7 @@ use crate::card::{
     EffectRecipientDef, ExilePlayDurationDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, tokens,
+    ZonePlacement, abilities, actions, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -149,9 +149,10 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
                                     // draw as well as the discard: an Eye that looked and took nothing leaves
                                     // the opponent with the hand they had.
                                     effect: &EffectDef::Sequence(&const { [
-                                        EffectDef::Perform(crate::card::GameActionDef::DiscardCards {
-                                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                                        }),
+                                        actions::discard_cards(EffectRecipientDef::object(
+                                                ObjectRefDef::Binding(ParentBinding),
+                                            ))
+                                            .as_effect(),
                                         EffectDef::DrawCards {
                                             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                             amount: ValueDef::Constant(1),

@@ -87,7 +87,7 @@ pub use model::{
     TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnKindDef,
     TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef,
     ZoneChangeObservationDef, ZoneKind, ZoneMoveCauseDef, ZonePickDef, ZonePickModeDef,
-    ZonePlacement, ZoneRelativePositionDef,
+    ZonePlacement, ZoneRelativePositionDef, actions,
 };
 pub use model::{
     DamageAssignmentDef, DamageAssignmentsDef, DamageDef, DamageFollowUpDef, FightExcessDef,

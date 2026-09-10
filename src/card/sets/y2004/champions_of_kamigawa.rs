@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules,
     CardSet, CardSupertype, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -126,9 +126,8 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
                                                 step: TurnStepDef::End,
                                                 player: PlayerRelation::Any,
                                             },
-                                            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                                                object: EffectRecipientDef::Source,
-                                            }),
+                                            actions::sacrifice(EffectRecipientDef::Source)
+                                                    .as_effect(),
                                         )
                                     }),
                                 ]

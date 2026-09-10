@@ -10,7 +10,7 @@ use crate::card::{
     ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     RandomizeObjectOrderDef, ReplacementConditionDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -320,9 +320,7 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
                 step: TurnStepDef::End,
                 player: PlayerRelation::Any,
             },
-            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            }),
+            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
         ),
     ]),
 );
@@ -387,9 +385,7 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
                         TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
                     ]),
                 ),
-                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             ),
             AbilityDef::triggered(
                 "Whenever Uro enters or attacks, you gain 3 life and draw a card, then you may put a \

@@ -5,10 +5,13 @@
 //! validate the complete obligation before committing any of its actions.
 
 use super::{
-    ChoiceVisibilityDef, ControlDurationDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ValueDef, ZoneKind,
+    ChoiceVisibilityDef, ControlDurationDef, CostDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ValueDef, ZoneKind,
 };
 use crate::ids::Binding;
+
+pub mod actions;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum GameActionDef {
@@ -47,53 +50,75 @@ pub struct GameActionChoiceDef {
 }
 
 impl GameActionDef {
+    /// Require this program as a complete resolving payment obligation.
+    ///
+    /// The surrounding payment procedure still validates which program shapes
+    /// it can plan. Static card declarations can call this directly on an inline
+    /// constructor or composition; no separately named program is necessary.
     #[must_use]
-    pub const fn choose_discard(object: ObjectPredicateDef, amount: ValueDef) -> Self {
-        Self::Choose(GameActionChoiceDef {
-            binding: crate::ids::ParentBinding,
-            chooser: PlayerRefDef::EffectController,
-            candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                object,
-                &[ZoneKind::Hand],
-                PlayerSetDef::Related(PlayerRelation::You),
-            )),
-            amount,
-            visibility: ChoiceVisibilityDef::Private,
-            then: &DISCARD_CHOSEN,
-        })
+    pub const fn as_cost(&'static self) -> CostDef {
+        CostDef::Perform(self)
     }
 
+    /// Resolve this program, doing as much as possible.
     #[must_use]
-    pub const fn choose_sacrifice(object: ObjectPredicateDef, amount: ValueDef) -> Self {
-        Self::Choose(GameActionChoiceDef {
-            binding: crate::ids::ParentBinding,
-            chooser: PlayerRefDef::EffectController,
-            candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
-                object,
-                &[ZoneKind::Battlefield],
-                PlayerSetDef::Related(PlayerRelation::You),
-            )),
-            amount,
-            visibility: ChoiceVisibilityDef::Public,
-            then: &SACRIFICE_CHOSEN,
-        })
+    pub const fn as_effect(self) -> EffectDef {
+        EffectDef::Perform(self)
     }
 
-    /// Gain control indefinitely; a separate instruction may later return it.
+    /// Set the predicate of a query-based selection, retaining its zone,
+    /// ownership, and control constraints.
+    ///
+    /// # Panics
+    ///
+    /// Panics unless this is a `Choose` action with query candidates.
     #[must_use]
-    pub const fn choose_gain_control(object: ObjectPredicateDef, amount: ValueDef) -> Self {
-        Self::Choose(GameActionChoiceDef {
-            binding: crate::ids::ParentBinding,
-            chooser: PlayerRefDef::EffectController,
-            candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
-                object,
-                &[ZoneKind::Battlefield],
-                PlayerSetDef::Related(PlayerRelation::NotYou),
-            )),
-            amount,
-            visibility: ChoiceVisibilityDef::Public,
-            then: &GAIN_CONTROL_OF_CHOSEN,
-        })
+    pub const fn matching(mut self, object: ObjectPredicateDef) -> Self {
+        let ObjectSetDef::Query(query) = &mut self.choice_mut().candidates else {
+            panic!("matching() requires query candidates");
+        };
+        query.object = object;
+        self
+    }
+
+    /// Set a fixed or computed selection quantity.
+    ///
+    /// # Panics
+    ///
+    /// Panics unless this is a `Choose` action.
+    #[must_use]
+    pub const fn with_amount(mut self, amount: ValueDef) -> Self {
+        self.choice_mut().amount = amount;
+        self
+    }
+
+    /// Set who selects the objects, independently of the candidate set.
+    ///
+    /// # Panics
+    ///
+    /// Panics unless this is a `Choose` action.
+    #[must_use]
+    pub const fn with_chooser(mut self, chooser: PlayerRefDef) -> Self {
+        self.choice_mut().chooser = chooser;
+        self
+    }
+
+    /// Set who may observe a selection.
+    ///
+    /// # Panics
+    ///
+    /// Panics unless this is a `Choose` action.
+    #[must_use]
+    pub const fn with_visibility(mut self, visibility: ChoiceVisibilityDef) -> Self {
+        self.choice_mut().visibility = visibility;
+        self
+    }
+
+    const fn choice_mut(&mut self) -> &mut GameActionChoiceDef {
+        let Self::Choose(choice) = self else {
+            panic!("selection builders require a Choose action");
+        };
+        choice
     }
 
     /// The first payment slice supports independent exact object selections.
@@ -143,15 +168,3 @@ impl GameActionDef {
         }
     }
 }
-
-const DISCARD_CHOSEN: GameActionDef = GameActionDef::DiscardCards {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::ids::ParentBinding)),
-};
-const SACRIFICE_CHOSEN: GameActionDef = GameActionDef::SacrificeYours {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::ids::ParentBinding)),
-};
-const GAIN_CONTROL_OF_CHOSEN: GameActionDef = GameActionDef::GainControl {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::ids::ParentBinding)),
-    controller: PlayerRefDef::EffectController,
-    duration: ControlDurationDef::Indefinitely,
-};

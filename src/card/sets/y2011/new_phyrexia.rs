@@ -15,7 +15,7 @@ use crate::card::{
     ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ZonePlacement, abilities, actions,
 };
 use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
@@ -1403,13 +1403,14 @@ pub(in crate::card::sets) static ENSLAVE: CardRecord = CardRecord::new(
             abilities::aura_spell("Enchant creature", &abilities::ENCHANT_CREATURE_TARGET),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    controller: PlayerRefDef::EffectController,
-                    duration: ControlDurationDef::WhileSourceRemains {
+                actions::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                }),
+                )
+                .as_effect(),
             ),
             AbilityDef::triggered(
                 "At the beginning of your upkeep, enchanted creature deals 1 damage to its owner.",
@@ -1959,11 +1960,12 @@ pub(in crate::card::sets) static ACT_OF_AGGRESSION: CardRecord = CardRecord::new
                 owner: None,
             })],
             EffectDef::Sequence(&[
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    controller: PlayerRefDef::EffectController,
-                    duration: ControlDurationDef::UntilEndOfTurn,
-                }),
+                actions::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::UntilEndOfTurn,
+                )
+                .as_effect(),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },

@@ -20,7 +20,7 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerRuleDef, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, tokens,
+    ZoneKind, ZonePlacement, abilities, actions, tokens,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -1153,13 +1153,14 @@ pub(in crate::card::sets) static ANNEX: CardRecord = CardRecord::new(
             abilities::enchant_land(),
             AbilityDef::static_ability(
                 "You control enchanted land.",
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    duration: ControlDurationDef::WhileSourceRemains {
+                actions::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                    controller: PlayerRefDef::EffectController,
-                }),
+                )
+                .as_effect(),
             ),
         ]),
 );

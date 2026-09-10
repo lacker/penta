@@ -10,7 +10,7 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -443,9 +443,7 @@ static EMERGENCE_REPLACEMENT: AbilityDef = AbilityDef::replacement_for(
     ReplacementEffectDef::Sequence(&[
         ReplacementEffectDef::ReplaceEventWithNothing,
         ReplacementEffectDef::Perform(&EffectDef::Sequence(&[
-            EffectDef::Perform(crate::card::GameActionDef::SacrificeYours {
-                object: EffectRecipientDef::Source,
-            }),
+            actions::sacrifice_yours(EffectRecipientDef::Source).as_effect(),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::TriggeringObject,
                 effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
@@ -839,9 +837,10 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                             // player's to choose, so the discard is a choice with a floor of none and
                             // what is drawn is however many that turned out to be.
                             then: &EffectDef::Sequence(&const { [
-                                EffectDef::Perform(crate::card::GameActionDef::DiscardCards {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                                }),
+                                actions::discard_cards(EffectRecipientDef::objects(
+                                        ObjectSetDef::Binding(ParentBinding),
+                                    ))
+                                    .as_effect(),
                                 EffectDef::DrawCards {
                                     recipient: EffectRecipientDef::Controller,
                                     amount: ValueDef::BoundObjectCount(ParentBinding),
@@ -900,11 +899,10 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                                         step: TurnStepDef::End,
                                         player: PlayerRelation::Any,
                                     },
-                                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                            ParentBinding,
-                                        )),
-                                    }),
+                                    actions::sacrifice(EffectRecipientDef::objects(
+                                            ObjectSetDef::Binding(ParentBinding),
+                                        ))
+                                        .as_effect(),
                                 )
                             }))
                         },

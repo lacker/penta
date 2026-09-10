@@ -109,9 +109,7 @@ static CUMULATIVE_UPKEEP_PROGRAM: EffectDef = EffectDef::IfCondition {
                     &[CostDef::Parameter],
                     &ValueDef::CountersOnSource(CounterKind::named("age")),
                 )],
-                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             )
             .labeled(crate::card::AbilityLabel::CUMULATIVE_UPKEEP),
         ),

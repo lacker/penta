@@ -25,7 +25,7 @@ use crate::card::{
     ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     ScaledValueDef, SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1640,13 +1640,14 @@ pub(in crate::card::sets) static STEAL_ENCHANTMENT: CardRecord = CardRecord::new
             abilities::enchant_enchantment(),
             AbilityDef::static_ability(
                 "You control enchanted enchantment.",
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    duration: ControlDurationDef::WhileSourceRemains {
+                actions::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                    controller: PlayerRefDef::EffectController,
-                }),
+                )
+                .as_effect(),
             ),
         ]),
 );
@@ -3913,13 +3914,12 @@ pub(in crate::card::sets) static STARKE_OF_RATH: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
                 },
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::Source,
-                    controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                        TargetIndex::PRIMARY,
-                    )),
-                    duration: crate::card::ControlDurationDef::Indefinitely,
-                }),
+                actions::gain_control(
+                    EffectRecipientDef::Source,
+                    PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    crate::card::ControlDurationDef::Indefinitely,
+                )
+                .as_effect(),
             ]),
         )),
 );
@@ -5323,9 +5323,7 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             )),
             &TriggerConditionDef::SourceOnBattlefield,
             EffectDef::Sequence(&[
-                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
                 EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(10)),
             ]),
         ),
@@ -5620,13 +5618,12 @@ pub(in crate::card::sets) static HELM_OF_POSSESSION: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                controller: PlayerRefDef::EffectController,
-                duration: crate::card::ControlDurationDef::WhileSourceRemains {
-                    while_tapped: true,
-                },
-            }),
+            actions::gain_control(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                PlayerRefDef::EffectController,
+                crate::card::ControlDurationDef::WhileSourceRemains { while_tapped: true },
+            )
+            .as_effect(),
         ),
     ]),
 );
@@ -5669,11 +5666,12 @@ pub(in crate::card::sets) static JINXED_IDOL: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
-            EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                object: EffectRecipientDef::Source,
-                controller: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                duration: crate::card::ControlDurationDef::Indefinitely,
-            }),
+            actions::gain_control(
+                EffectRecipientDef::Source,
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                crate::card::ControlDurationDef::Indefinitely,
+            )
+            .as_effect(),
         ),
     ]),
 );

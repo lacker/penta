@@ -14,7 +14,7 @@ use crate::card::{
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellResolutionDestinationDef, StaticApplyDef,
     TapEventMatcherDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ValueDef, ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -969,13 +969,14 @@ pub(in crate::card::sets) static MASTER_THIEF: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
-            EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                controller: crate::card::PlayerRefDef::EffectController,
-                duration: ControlDurationDef::WhileSourceRemains {
+            actions::gain_control(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                crate::card::PlayerRefDef::EffectController,
+                ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
-            }),
+            )
+            .as_effect(),
         ),
     ),
 );
@@ -1044,13 +1045,14 @@ pub(in crate::card::sets) static MIND_CONTROL: CardRecord = CardRecord::new(
             abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    duration: ControlDurationDef::WhileSourceRemains {
+                actions::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                    controller: PlayerRefDef::EffectController,
-                }),
+                )
+                .as_effect(),
             ),
         ]),
 );
@@ -1093,9 +1095,7 @@ pub(in crate::card::sets) static PHANTASMAL_BEAR: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "When this creature becomes the target of a spell or ability, sacrifice it.",
             TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
-            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            }),
+            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
         ),
     ),
 );
@@ -1112,9 +1112,7 @@ pub(in crate::card::sets) static PHANTASMAL_DRAGON: CardRecord = CardRecord::new
             AbilityDef::triggered(
                 "When this creature becomes the target of a spell or ability, sacrifice it.",
                 TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
-                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             ),
         ],
     ),
@@ -1124,9 +1122,7 @@ pub(in crate::card::sets) static PHANTASMAL_DRAGON: CardRecord = CardRecord::new
 static PHANTASMAL_IMAGE_SACRIFICE: AbilityDef = AbilityDef::triggered(
     "When this creature becomes the target of a spell or ability, sacrifice it.",
     TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
-    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    }),
+    actions::sacrifice(EffectRecipientDef::Source).as_effect(),
 );
 
 pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_with_legacy_id(
@@ -2887,11 +2883,12 @@ pub(in crate::card::sets) static CROWN_OF_EMPIRES: CardRecord = CardRecord::new(
                         amount: 1,
                     },
                 ]),
-                then: &EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    controller: crate::card::PlayerRefDef::EffectController,
-                    duration: ControlDurationDef::Indefinitely,
-                }),
+                then: &actions::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    crate::card::PlayerRefDef::EffectController,
+                    ControlDurationDef::Indefinitely,
+                )
+                .as_effect(),
                 otherwise: &EffectDef::Tap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -2917,9 +2914,7 @@ pub(in crate::card::sets) static CRUMBLING_COLOSSUS: CardRecord = CardRecord::ne
                     step: TurnStepDef::EndOfCombat,
                     player: PlayerRelation::Any,
                 },
-                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             ))),
         ),
     ]),

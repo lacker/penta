@@ -123,7 +123,7 @@ fn scalar_batch_cost(cost: CostDef) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::card::{AbilityLabel, PayOrDef};
+    use crate::card::{AbilityLabel, PayOrDef, actions};
 
     const SCALAR_CHOICES: &[CostDef] = &[
         CostDef::PayLife(1),
@@ -144,17 +144,20 @@ mod tests {
 
     #[test]
     fn game_action_programs_reject_unplannable_payments() {
-        use crate::card::{EffectRecipientDef, GameActionDef, ObjectPredicateDef};
-        static DISCARD: GameActionDef =
-            GameActionDef::choose_discard(ObjectPredicateDef::Any, ValueDef::Constant(3));
-        static CHOICE: [CostDef; 1] = [CostDef::Perform(&DISCARD)];
-        assert!(validate_program_cost(CostDef::Perform(&DISCARD), None, true, false).is_ok());
+        use crate::card::{EffectRecipientDef, GameActionDef};
+        static DISCARD: GameActionDef = actions::choose_discard(3);
+        static CHOICE: [CostDef; 1] = [DISCARD.as_cost()];
+        const OPPONENT_CHOOSES: CostDef = actions::choose_discard(3)
+            .with_chooser(crate::card::PlayerRefDef::Opponent)
+            .as_cost();
+        assert!(validate_program_cost(DISCARD.as_cost(), None, true, false).is_ok());
         assert!(validate_program_cost(CostDef::Choice(&CHOICE), None, false, false).is_err());
         assert!(
             validate_program_cost(
-                CostDef::Perform(&GameActionDef::SacrificeYours {
+                GameActionDef::SacrificeYours {
                     object: EffectRecipientDef::Source,
-                }),
+                }
+                .as_cost(),
                 None,
                 false,
                 false
@@ -170,8 +173,12 @@ mod tests {
         };
         let invalid = Box::leak(Box::new(GameActionDef::Choose(choice)));
         assert!(
-            validate_program_cost(CostDef::Perform(invalid), None, false, false).is_err(),
+            validate_program_cost(invalid.as_cost(), None, false, false).is_err(),
             "payment must execute the exact objects it selects"
+        );
+        assert!(
+            validate_program_cost(OPPONENT_CHOOSES, None, false, false,).is_err(),
+            "cost conversion preserves the payment planner's chooser boundary"
         );
     }
 

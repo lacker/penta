@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ControlDurationDef, CostDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TriggerEventDef, ValueDef,
+    PlayerRelation, TriggerEventDef, ValueDef, actions,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -82,11 +82,12 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    controller: PlayerRefDef::EffectController,
-                    duration: ControlDurationDef::Indefinitely,
-                }),
+                actions::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::Indefinitely,
+                )
+                .as_effect(),
             ),
             AbilityDef::activated(
                 "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
@@ -99,13 +100,14 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                         ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::Any),
                     ])),
-                    EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                        object: EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
+                    actions::gain_control(
+                        EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
                             ObjectRefDef::TriggeringObject,
                         )),
-                        controller: PlayerRefDef::EffectController,
-                        duration: ControlDurationDef::Indefinitely,
-                    }),
+                        PlayerRefDef::EffectController,
+                        ControlDurationDef::Indefinitely,
+                    )
+                    .as_effect(),
                 )]),
             ),
         ]),

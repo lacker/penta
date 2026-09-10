@@ -22,7 +22,7 @@ use crate::card::{
     ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ValueDef, ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1710,13 +1710,14 @@ pub(in crate::card::sets) static PERSUASION: CardRecord = CardRecord::new(
             abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    duration: ControlDurationDef::WhileSourceRemains {
+                actions::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                    controller: PlayerRefDef::EffectController,
-                }),
+                )
+                .as_effect(),
             ),
         ]),
 );
@@ -1886,9 +1887,7 @@ pub(in crate::card::sets) static STANDSTILL: CardRecord = CardRecord::new_with_l
         // resolve against you. In a two-player game that is the opponent alone.
         EffectDef::Sequence(&const {
             [
-                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::players(PlayerSetDef::Related(
                         PlayerRelation::Opponent,

@@ -18,7 +18,7 @@ use crate::card::{
     PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TopOfLibraryCostDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ZonePlacement, abilities, actions,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -945,11 +945,12 @@ pub(in crate::card::sets) static SMELT_WARD_GATEKEEPERS: CardRecord = CardRecord
                 },
             )],
             EffectDef::Sequence(&[
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    duration: ControlDurationDef::UntilEndOfTurn,
-                    controller: PlayerRefDef::EffectController,
-                }),
+                actions::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::UntilEndOfTurn,
+                )
+                .as_effect(),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -3121,11 +3122,12 @@ pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new_fus
                         ObjectPredicateDef::Any,
                     )],
                     EffectDef::Sequence(&[
-                        EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            duration: ControlDurationDef::UntilEndOfTurn,
-                            controller: PlayerRefDef::EffectController,
-                        }),
+                        actions::gain_control(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            PlayerRefDef::EffectController,
+                            ControlDurationDef::UntilEndOfTurn,
+                        )
+                        .as_effect(),
                         EffectDef::Untap {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         },
@@ -3156,11 +3158,10 @@ pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new_fus
                     visibility: ChoiceVisibilityDef::Public,
                     chosen: Binding!("release_sacrificed_permanents"),
                     unchosen: Binding!("release_spared_permanents"),
-                    then: &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                            "release_sacrificed_permanents"
-                        ))),
-                    }),
+                    then: &actions::sacrifice(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(Binding!("release_sacrificed_permanents")),
+                    ))
+                    .as_effect(),
                 }),
             )),
         ),

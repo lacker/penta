@@ -5,10 +5,10 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ColorSet, ComparisonDef, ControlDurationDef, CostDef, CounterKind, EffectDef,
-    EffectRecipientDef, GameActionDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, ScaledValueDef, TokenCharacteristics, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, actions,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -52,7 +52,7 @@ pub(in crate::card::sets) static VEXING_SPHINX: CardRecord = CardRecord::new(
     CardSet::Coldsnap,
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Sphinx"], 4, 4).with_abilities(&[
         abilities::flying(),
-        abilities::cumulative_upkeep(&[CostDef::Perform(&GameActionDef::choose_discard(ObjectPredicateDef::Any, ValueDef::Constant(1)))])
+        abilities::cumulative_upkeep(&[actions::choose_discard(1).as_cost()])
             .override_text("Cumulative upkeep—Discard a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"),
         abilities::dies_trigger(
             "When this creature dies, draw a card for each age counter on it.",
@@ -112,9 +112,11 @@ pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new
     CardSet::Coldsnap,
     CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(&[
         abilities::flying(),
-        abilities::cumulative_upkeep(&[CostDef::Perform(&GameActionDef::choose_gain_control(
-            ObjectPredicateDef::HasType(CardType::Land), ValueDef::Constant(1),
-        ))])
+        abilities::cumulative_upkeep(&[
+            actions::choose_gain_control(1)
+                .matching(ObjectPredicateDef::HasType(CardType::Land))
+                .as_cost(),
+        ])
         .override_text("Cumulative upkeep—Gain control of a land you don't control."),
         AbilityDef::static_ability(
             "This creature gets +1/+1 for each land you control but don't own.",
@@ -142,11 +144,12 @@ pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new
                 &EffectDef::ForEachInBinding {
                     objects: ParentBinding,
                     binding: ParentBinding,
-                    effect: &EffectDef::Perform(GameActionDef::GainControl {
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                        controller: PlayerRefDef::OwnerOf(ObjectRefDef::Binding(ParentBinding)),
-                        duration: ControlDurationDef::Indefinitely,
-                    }),
+                    effect: &actions::gain_control(
+                        EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(ParentBinding)),
+                        ControlDurationDef::Indefinitely,
+                    )
+                    .as_effect(),
                 },
             ),
         ),
@@ -267,10 +270,9 @@ pub(in crate::card::sets) static PHYREXIAN_SOULGORGER: CardRecord = CardRecord::
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Phyrexian", "Construct"], 8, 8)
         .with_supertype(CardSupertype::Snow)
         .with_ability(
-            abilities::cumulative_upkeep(&[CostDef::Perform(&GameActionDef::choose_sacrifice(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ValueDef::Constant(1),
-            ))])
+            abilities::cumulative_upkeep(&[actions::choose_sacrifice(1)
+                .matching(ObjectPredicateDef::HasType(CardType::Creature))
+                .as_cost()])
             .override_text("Cumulative upkeep—Sacrifice a creature."),
         ),
 );
@@ -324,9 +326,7 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceOnBattlefield,
                     then: &EffectDef::Sequence(&[
-                        EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                            object: EffectRecipientDef::Source,
-                        }),
+                        actions::sacrifice(EffectRecipientDef::Source).as_effect(),
                         // Twenty power for no mana at all, which is what the ten counters are
                         // paying for. Legendary, so a second one is not a plan.
                         EffectDef::create_token(TokenCharacteristics::creature(&["Avatar"], &[ManaColor::Black], 20, 20)

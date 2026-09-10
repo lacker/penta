@@ -15,7 +15,7 @@ use crate::card::{
     EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::mana_cost;
 
@@ -744,9 +744,7 @@ pub(in crate::card::sets) static SPINDRIFT_DRAKE: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{U}"))],
-                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             )),
         ),
     ]),

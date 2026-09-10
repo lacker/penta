@@ -14,7 +14,7 @@ use crate::card::{
     DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
     ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation, PlayerRuleDef,
     ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -558,9 +558,7 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
                             }
                         },
                         then: &const {
-                            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                                object: EffectRecipientDef::Source,
-                            })
+                            actions::sacrifice(EffectRecipientDef::Source).as_effect()
                         },
                     },
                 ]

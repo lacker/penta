@@ -1,22 +1,8 @@
 use super::composed_mechanic_programs::{staged, start};
 use super::*;
-use crate::card::{GameActionChoiceDef, GameActionDef};
+use crate::card::{GameActionChoiceDef, GameActionDef, actions};
 
-pub(in crate::game) const DISCARD_THREE: GameActionDef =
-    GameActionDef::Choose(GameActionChoiceDef {
-        binding: Binding!("cards"),
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::Any,
-            &[ZoneKind::Hand],
-            PlayerSetDef::Related(PlayerRelation::You),
-        )),
-        amount: ValueDef::Constant(3),
-        visibility: ChoiceVisibilityDef::Private,
-        then: &GameActionDef::DiscardCards {
-            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("cards"))),
-        },
-    });
+pub(in crate::game) const DISCARD_THREE: GameActionDef = actions::choose_discard(3);
 
 pub(in crate::game) static DISCARD_COST: [AbilityDef; 1] = [AbilityDef::triggered(
     "Discard three as a cost",
@@ -25,7 +11,7 @@ pub(in crate::game) static DISCARD_COST: [AbilityDef; 1] = [AbilityDef::triggere
         player: PlayerRelation::You,
     },
     EffectDef::PayOr(PayOrDef::optional(
-        &[CostDef::Perform(&DISCARD_THREE)],
+        &[DISCARD_THREE.as_cost()],
         &EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(5),
@@ -39,7 +25,7 @@ pub(in crate::game) static DISCARD_EFFECT: [AbilityDef; 1] = [AbilityDef::trigge
         step: TurnStepDef::Upkeep,
         player: PlayerRelation::You,
     },
-    EffectDef::Perform(DISCARD_THREE),
+    DISCARD_THREE.as_effect(),
 )];
 
 pub(in crate::game) static SACRIFICE_COST: [AbilityDef; 1] = [AbilityDef::triggered(
@@ -49,22 +35,21 @@ pub(in crate::game) static SACRIFICE_COST: [AbilityDef; 1] = [AbilityDef::trigge
         player: PlayerRelation::You,
     },
     EffectDef::PayOr(PayOrDef::optional(
-        &[CostDef::Perform(&GameActionDef::Choose(
-            GameActionChoiceDef {
-                binding: Binding!("objects"),
-                chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                    &[ZoneKind::Battlefield],
-                    PlayerSetDef::Related(PlayerRelation::You),
-                )),
-                amount: ValueDef::Constant(1),
-                visibility: ChoiceVisibilityDef::Public,
-                then: &GameActionDef::SacrificeYours {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("objects"))),
-                },
+        &[GameActionDef::Choose(GameActionChoiceDef {
+            binding: Binding!("objects"),
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerSetDef::Related(PlayerRelation::You),
+            )),
+            amount: ValueDef::Constant(1),
+            visibility: ChoiceVisibilityDef::Public,
+            then: &GameActionDef::SacrificeYours {
+                object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("objects"))),
             },
-        ))],
+        })
+        .as_cost()],
         &EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(5),
@@ -164,10 +149,9 @@ pub(in crate::game) static DRAW_THEN_ACTION: [AbilityDef; 1] = [AbilityDef::trig
     EffectDef::PayOr(PayOrDef::optional(
         &[
             CostDef::repeated(&[CostDef::DrawCards(1)], &ValueDef::Constant(1)),
-            CostDef::Perform(&GameActionDef::choose_sacrifice(
-                ObjectPredicateDef::HasType(CardType::Land),
-                ValueDef::Constant(1),
-            )),
+            actions::choose_sacrifice(1)
+                .matching(ObjectPredicateDef::HasType(CardType::Land))
+                .as_cost(),
         ],
         &EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
@@ -183,16 +167,12 @@ static SEQUENTIAL_COST: [AbilityDef; 1] = [AbilityDef::triggered(
         player: PlayerRelation::You,
     },
     EffectDef::PayOr(PayOrDef::optional(
-        &[CostDef::Perform(&GameActionDef::Sequence(&[
-            GameActionDef::choose_sacrifice(
-                ObjectPredicateDef::HasType(CardType::Enchantment),
-                ValueDef::Constant(2),
-            ),
-            GameActionDef::choose_sacrifice(
-                ObjectPredicateDef::HasType(CardType::Land),
-                ValueDef::Constant(1),
-            ),
-        ]))],
+        &[actions::sequence(&[
+            actions::choose_sacrifice(2)
+                .matching(ObjectPredicateDef::HasType(CardType::Enchantment)),
+            actions::choose_sacrifice(1).matching(ObjectPredicateDef::HasType(CardType::Land)),
+        ])
+        .as_cost()],
         &EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(5),
@@ -247,7 +227,7 @@ static OPPONENT_DISCARDS: [AbilityDef; 1] = [AbilityDef::triggered(
     },
     EffectDef::PayOr(
         PayOrDef::optional(
-            &[CostDef::Perform(&DISCARD_THREE)],
+            &[DISCARD_THREE.as_cost()],
             &EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(5),
@@ -291,4 +271,108 @@ fn game_action_programs_prepared_fallback_matches_reference_execution() {
         reference.checkpoint_json(PlayerId::One),
         prepared.checkpoint_json(PlayerId::One)
     );
+}
+
+const CUSTOM_DISCARD: GameActionDef = actions::choose(
+    Binding!("cards"),
+    ObjectSetDef::Query(ObjectQueryDef::owned_by(
+        ObjectPredicateDef::Any,
+        &[ZoneKind::Hand],
+        PlayerSetDef::Related(PlayerRelation::You),
+    )),
+    &actions::discard_cards(EffectRecipientDef::objects(ObjectSetDef::Binding(
+        Binding!("cards"),
+    ))),
+)
+.matching(ObjectPredicateDef::HasType(CardType::Land))
+.with_amount(ValueDef::SourcePower)
+.with_visibility(ChoiceVisibilityDef::Private);
+
+static CUSTOM_DISCARD_COST: [AbilityDef; 1] = [AbilityDef::triggered(
+    "Discard lands equal to this creature's power to gain life",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    EffectDef::PayOr(PayOrDef::optional(
+        &[CUSTOM_DISCARD.as_cost()],
+        &EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(5),
+        },
+    )),
+)];
+
+static CUSTOM_DISCARD_EFFECT: [AbilityDef; 1] = [AbilityDef::triggered(
+    "An opponent chooses lands from your hand equal to this creature's power to discard",
+    TriggerEventDef::StepBegins {
+        step: TurnStepDef::Upkeep,
+        player: PlayerRelation::You,
+    },
+    CUSTOM_DISCARD
+        .with_chooser(PlayerRefDef::Opponent)
+        .as_effect(),
+)];
+
+#[test]
+fn game_action_programs_custom_cost_preserves_filter_binding_and_computed_amount() {
+    for count in 1..=2 {
+        let (mut game, _) = staged(&CUSTOM_DISCARD_COST);
+        add_hand(&mut game, count);
+        game.players[0]
+            .hand
+            .push(card(31_300, cards::GIANT_GROWTH, PlayerId::One));
+        start(&mut game);
+        assert_eq!(game.players[0].hand.len(), count as usize + 1);
+        assert_eq!(game.players[0].life, 20);
+        if count == 1 {
+            assert_eq!(game.pending_decisions[0].observation.options.len(), 1);
+            choose_decision_by_label(&mut game, PlayerId::One, "Decline");
+            assert!(game.players[0].graveyard.is_empty());
+        } else {
+            choose_decision_by_label(&mut game, PlayerId::One, "Discard Island, Island");
+            assert_eq!(game.players[0].graveyard.len(), 2);
+            assert_eq!(game.players[0].hand.len(), 1);
+            assert_eq!(game.players[0].hand[0].id, GameObjectId(31_300));
+            assert_eq!(game.players[0].life, 25);
+        }
+    }
+}
+
+#[test]
+fn game_action_programs_custom_effect_keeps_candidates_independent_of_chooser() {
+    let (mut game, _) = staged(&CUSTOM_DISCARD_EFFECT);
+    add_hand(&mut game, 3);
+    game.players[0]
+        .hand
+        .push(card(31_300, cards::GIANT_GROWTH, PlayerId::One));
+    game.players[1]
+        .hand
+        .push(card(31_301, cards::FOREST, PlayerId::Two));
+    start(&mut game);
+    let decision = game.observe(PlayerId::Two).decision.unwrap();
+    assert_eq!(decision.options.len(), 3, "only your lands are candidates");
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: decision
+                .options
+                .iter()
+                .take(2)
+                .map(|option| option.id)
+                .collect(),
+        },
+    )
+    .unwrap();
+    assert_eq!(game.players[0].graveyard.len(), 2);
+    assert_eq!(game.players[0].hand.len(), 2);
+    assert!(
+        game.players[0]
+            .hand
+            .iter()
+            .any(|card| card.id == GameObjectId(31_300))
+    );
+    assert_eq!(game.players[1].hand.len(), 1);
+    assert!(game.players[1].graveyard.is_empty());
 }

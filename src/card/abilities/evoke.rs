@@ -62,9 +62,7 @@ const fn evoke_expansion(costs: &'static [CostDef], text: Option<&'static str>) 
                 Some(ZoneKind::Battlefield),
             ),
             &EVOKE_PAID,
-            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            }),
+            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
         ),
     ]
 }

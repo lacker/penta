@@ -8,7 +8,7 @@ use crate::card::{
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, abilities,
+    ValueDef, ZoneKind, abilities, actions,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -185,11 +185,12 @@ pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new
                 ]),
             )],
             EffectDef::Sequence(&[
-                EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    controller: PlayerRefDef::EffectController,
-                    duration: ControlDurationDef::Indefinitely,
-                }),
+                actions::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::Indefinitely,
+                )
+                .as_effect(),
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::TargetMatches {
                         slot: TargetIndex::PRIMARY,

@@ -8,7 +8,7 @@ use crate::card::{
     InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef,
     PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TokenCharacteristics,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    abilities, actions,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -188,11 +188,12 @@ pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
             ]),
         )],
         EffectDef::Sequence(&[
-            EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                duration: ControlDurationDef::UntilEndOfTurn,
-                controller: PlayerRefDef::EffectController,
-            }),
+            actions::gain_control(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                PlayerRefDef::EffectController,
+                ControlDurationDef::UntilEndOfTurn,
+            )
+            .as_effect(),
             EffectDef::Untap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },

@@ -14,7 +14,7 @@ use crate::card::{
     PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     RevealAndClassifyCardsDef, SacrificedAmountDef, SumValueDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -773,9 +773,7 @@ pub(in crate::card::sets) static MARJHAN: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            }),
+            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
         ),
     ]),
 );
@@ -2083,9 +2081,7 @@ pub(in crate::card::sets) static HUNGRY_MIST: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{G}{G}"))],
-                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                }),
+                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
             )),
         ),
     ),
@@ -2659,9 +2655,7 @@ pub(in crate::card::sets) static SERRATED_ARROWS: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            }),
+            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
         ),
         AbilityDef::activated_with_targets(
             "{T}, Remove an arrowhead counter from this artifact: Put a -1/-1 counter on target creature.",

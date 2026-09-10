@@ -12,7 +12,7 @@ use crate::card::{
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetChooserDef, TokenCharacteristics,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZonePlacement, abilities,
+    ZoneKind, ZonePlacement, abilities, actions,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
@@ -913,11 +913,10 @@ pub(in crate::card::sets) static BALDUVIAN_DEAD: CardRecord = CardRecord::new(
                             step: TurnStepDef::End,
                             player: PlayerRelation::Any,
                         },
-                        EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                crate::ParentBinding,
-                            )),
-                        }),
+                        actions::sacrifice(EffectRecipientDef::objects(
+                            ObjectSetDef::Binding(crate::ParentBinding),
+                        ))
+                        .as_effect(),
                     ),
                 )),
             }),
@@ -1254,11 +1253,12 @@ pub(in crate::card::sets) static RITUAL_OF_THE_MACHINE: CardRecord = CardRecord:
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
             ),
-            EffectDef::Perform(crate::card::GameActionDef::GainControl {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                duration: ControlDurationDef::Indefinitely,
-                controller: PlayerRefDef::EffectController,
-            }),
+            actions::gain_control(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                PlayerRefDef::EffectController,
+                ControlDurationDef::Indefinitely,
+            )
+            .as_effect(),
         ),
     ),
 );
@@ -1774,9 +1774,7 @@ pub(in crate::card::sets) static VARCHILD_S_CRUSADER: CardRecord = CardRecord::n
                         step: TurnStepDef::End,
                         player: PlayerRelation::Any,
                     },
-                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
-                        object: EffectRecipientDef::Source,
-                    }),
+                    actions::sacrifice(EffectRecipientDef::Source).as_effect(),
                 ))),
             ]),
         ),

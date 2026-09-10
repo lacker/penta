@@ -7,18 +7,84 @@ obligation. The wrapper determines the execution contract. The action retains
 its rules identity, including discard and sacrifice events, last-known
 information, and replacement handling.
 
-For example, the same program can appear in either position:
+Card declarations construct actions first, then choose their execution
+contract with `as_cost()` or `as_effect()`. For example:
 
 ```rust
-const DISCARD_THREE: GameActionDef = GameActionDef::choose_discard(
-    ObjectPredicateDef::Any,
-    ValueDef::Constant(3),
-);
+use penta::card::{
+    actions, abilities, AbilityDef, CardType, CostDef, EffectDef, ObjectPredicateDef,
+};
+
 // Discard as many as possible during resolution:
-EffectDef::Perform(DISCARD_THREE)
+const EFFECT: EffectDef = actions::choose_discard(3).as_effect();
 // Require all three cards for payment:
-CostDef::Perform(&DISCARD_THREE)
+const COST: CostDef = actions::choose_discard(3).as_cost();
+
+// Herald of Leshrac's unit upkeep obligation:
+const UPKEEP: AbilityDef = abilities::cumulative_upkeep(&[
+    actions::choose_gain_control(1)
+        .matching(ObjectPredicateDef::HasType(CardType::Land))
+        .as_cost(),
+])
+.override_text("Cumulative upkeep—Gain control of a land you don't control.");
 ```
+
+These `const` constructors return the ordinary `GameActionDef` directly;
+there is no separate authoring representation or interpreter. The conversion
+methods also work on explicit `GameActionDef::Choose` and `Sequence` programs.
+`as_cost()` borrows a static program, including an inline expression promoted
+within a static card declaration, while `as_effect()` takes the action by
+value. Outside constant evaluation, `as_cost()` requires an existing static
+program or an explicit `const { ... }` expression. The stored wrappers and
+payment validation are unchanged.
+
+`choose_discard(n)`, `choose_sacrifice(n)`, and `choose_gain_control(n)` supply
+the ordinary candidate zones, player relations, visibility, and binding.
+`matching(predicate)` replaces the candidate query's predicate while retaining
+its ownership and control constraints. `with_amount(value)` accepts computed
+quantities; `with_chooser(player)` and `with_visibility(visibility)` override
+the corresponding selection fields. Setting a chooser does not change which
+player's objects the query describes. Selection builders require a `Choose`
+action; `matching` additionally requires query candidates. Misuse fails during
+constant evaluation in a static declaration.
+
+For a one-off selection, `actions::choose(binding, candidates, then)` defaults
+to one public choice by the executing player. The body explicitly names that
+binding, and all ordinary selection builders remain available:
+
+```rust
+use penta::card::{
+    actions, ChoiceVisibilityDef, CostDef, EffectRecipientDef, ObjectQueryDef,
+    ObjectPredicateDef, ObjectSetDef, PlayerRelation, PlayerSetDef, ValueDef, ZoneKind,
+};
+use penta::Binding;
+
+const CUSTOM_COST: CostDef = actions::choose(
+    Binding!("cards"),
+    ObjectSetDef::Query(ObjectQueryDef::owned_by(
+        ObjectPredicateDef::HasType(penta::card::CardType::Creature),
+        &[ZoneKind::Hand],
+        PlayerSetDef::Related(PlayerRelation::You),
+    )),
+    &actions::discard_cards(EffectRecipientDef::objects(
+        ObjectSetDef::Binding(Binding!("cards")),
+    )),
+)
+.with_amount(ValueDef::SourcePower)
+.with_visibility(ChoiceVisibilityDef::Private)
+.as_cost();
+```
+
+`discard_cards`, `sacrifice`, `sacrifice_yours`, and `gain_control` operate on
+already identified objects. They introduce no selection. `gain_control`
+keeps the recipient player and duration explicit. `actions::sequence(&[...])`
+composes actions before either conversion; custom trees can always be written
+inline using the full definitions. Cost conversion does not make an unsupported
+composition payable; the validation boundary below still applies.
+
+Mechanic text helpers retain their ordinary defaults. Use `override_text()`
+on the resulting ability for uncommon wording; exact printed phrasing does
+not require a new semantic action constructor.
 
 `Choose(GameActionChoiceDef)` contains the chooser, candidate query, count,
 visibility, binding, and action to perform on that binding. `Sequence` composes

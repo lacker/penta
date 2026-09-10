@@ -7,7 +7,7 @@ use crate::card::{
     DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
     ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities, actions,
+    TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -431,7 +431,7 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_l
             EffectDef::PayOr(
                 PayOrDef::unless(
                     &[CostDef::MillCards(2)],
-                    &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                    &EffectDef::sacrifice(EffectRecipientDef::Source),
                 )
                 .with_visibility(ChoiceVisibilityDef::Public),
             ),
@@ -748,7 +748,7 @@ pub(in crate::card::sets) static VODALIAN_KNIGHTS: CardRecord = CardRecord::new_
                     comparison: ComparisonDef::Equal,
                     amount: 0,
                 },
-                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                EffectDef::sacrifice(EffectRecipientDef::Source),
             ),
         ],
     ),
@@ -870,7 +870,7 @@ pub(in crate::card::sets) static BREEDING_PIT: CardRecord = CardRecord::new_with
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{B}{B}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::triggered(
@@ -979,7 +979,7 @@ pub(in crate::card::sets) static MINDSTAB_THRULL: CardRecord = CardRecord::new_w
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Sequence(&[
-                    actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                    EffectDef::sacrifice(EffectRecipientDef::Source),
                     EffectDef::Discard {
                         recipient: EffectRecipientDef::Opponent,
                         amount: ValueDef::Constant(3),
@@ -1020,7 +1020,7 @@ pub(in crate::card::sets) static NECRITE: CardRecord = CardRecord::new_with_lega
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Sequence(&[
-                    actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                    EffectDef::sacrifice(EffectRecipientDef::Source),
                     // The prohibition modifies only this destruction; it does not last
                     // for the rest of the turn.
                     EffectDef::WithRule {
@@ -1115,14 +1115,13 @@ pub(in crate::card::sets) static THRULL_CHAMPION: CardRecord = CardRecord::new_w
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Subtype("Thrull"),
             )],
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 PlayerRefDef::EffectController,
                 ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
-            )
-            .as_effect(),
+            ),
         ),
     ]),
 );
@@ -1398,10 +1397,9 @@ pub(in crate::card::sets) static GOBLIN_KITES: CardRecord = CardRecord::new_with
                     },
                     EffectDef::FlipCoin {
                         on_win: &EffectDef::None,
-                        on_loss: &actions::sacrifice_yours(EffectRecipientDef::Target(
+                        on_loss: &EffectDef::sacrifice_yours(EffectRecipientDef::Target(
                             TargetIndex::PRIMARY,
-                        ))
-                        .as_effect(),
+                        )),
                     },
                 ))),
             ]),

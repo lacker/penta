@@ -26,7 +26,7 @@ use crate::card::{
     ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
     PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerRuleDef,
     PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, TurnStepDef, mana_cost};
 
@@ -2653,7 +2653,7 @@ pub(in crate::card::sets) static MOLTING_HARPY: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -2922,7 +2922,7 @@ pub(in crate::card::sets) static SKULKING_FUGITIVE: CardRecord = CardRecord::new
             // Any spell or ability, including its controller's own: a
             // pump spell kills it just as surely as removal does.
             TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ),
 );
@@ -3791,7 +3791,7 @@ pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
                 &[CostDef::sacrifice_permanent(
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                 )],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ),

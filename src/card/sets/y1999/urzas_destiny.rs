@@ -18,7 +18,7 @@ use crate::card::{
     ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
     ScaledValueDef, SetOperationDef, StackTargetAggregationDef, StackTargetFilterDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, actions,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -592,7 +592,7 @@ pub(in crate::card::sets) static TETHERED_GRIFFIN: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );
@@ -670,7 +670,7 @@ pub(in crate::card::sets) static AURA_THIEF: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::dies_trigger(
             "When this creature dies, you gain control of all enchantments.",
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Enchantment),
                     &[ZoneKind::Battlefield],
@@ -678,8 +678,7 @@ pub(in crate::card::sets) static AURA_THIEF: CardRecord = CardRecord::new(
                 ),
                 PlayerRefDef::EffectController,
                 ControlDurationDef::Indefinitely,
-            )
-            .as_effect(),
+            ),
         ),
     ]),
 );
@@ -845,12 +844,11 @@ pub(in crate::card::sets) static DONATE: CardRecord = CardRecord::new(
                 owner: None,
             }),
         ],
-        actions::gain_control(
+        EffectDef::gain_control(
             EffectRecipientDef::Target(TargetIndex(1)),
             PlayerRefDef::Target(TargetIndex::PRIMARY),
             ControlDurationDef::Indefinitely,
-        )
-        .as_effect(),
+        ),
     )),
 );
 
@@ -1338,14 +1336,13 @@ pub(in crate::card::sets) static TREACHERY: CardRecord = CardRecord::new(
             abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::AttachedPermanent,
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                )
-                .as_effect(),
+                ),
             ),
             abilities::enters_trigger(
                 "When this Aura enters, untap up to five lands.",
@@ -1417,10 +1414,9 @@ pub(in crate::card::sets) static APPRENTICE_NECROMANCER: CardRecord = CardRecord
                             step: TurnStepDef::End,
                             player: PlayerRelation::Any,
                         },
-                        actions::sacrifice_yours(
+                        EffectDef::sacrifice_yours(
                             EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                        )
-                        .as_effect(),
+                        ),
                     ))),
                 ]),
             },
@@ -1951,7 +1947,7 @@ pub(in crate::card::sets) static SKITTERING_HORROR: CardRecord = CardRecord::new
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ),
 );
@@ -2165,7 +2161,7 @@ pub(in crate::card::sets) static COVETOUS_DRAGON: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );
@@ -2731,7 +2727,7 @@ pub(in crate::card::sets) static EMPEROR_CROCODILE: CardRecord = CardRecord::new
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ),
 );
@@ -3563,7 +3559,7 @@ pub(in crate::card::sets) static MASTICORE: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::DiscardCards(1)],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated_with_targets(

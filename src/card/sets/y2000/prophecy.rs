@@ -8,7 +8,7 @@ use crate::card::{
     DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -1012,7 +1012,7 @@ pub(in crate::card::sets) static BOG_ELEMENTAL: CardRecord = CardRecord::new(
                 &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
                     CardType::Land,
                 ))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -1280,7 +1280,7 @@ pub(in crate::card::sets) static PIT_RAPTOR: CardRecord = CardRecord::new(
             },
                 EffectDef::PayOr(PayOrDef::unless(
                     &[CostDef::Mana(mana_cost!("{2}{B}{B}"))],
-                    &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                    &EffectDef::sacrifice(EffectRecipientDef::Source),
                 )),
             ),
         ],
@@ -1461,7 +1461,7 @@ pub(in crate::card::sets) static WHIPSTITCHED_ZOMBIE: CardRecord = CardRecord::n
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{B}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ),
@@ -1979,7 +1979,7 @@ pub(in crate::card::sets) static DARBA: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{G}{G}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ),

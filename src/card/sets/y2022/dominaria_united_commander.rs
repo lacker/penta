@@ -6,7 +6,7 @@ use crate::card::{
     CardType, CopyExceptionsDef, CreatedTokensDef, EffectDef, EffectRecipientDef,
     InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRelation,
     PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, abilities, actions,
+    ZoneKind, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::mana_cost;
@@ -66,10 +66,9 @@ pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::n
                                     step: TurnStepDef::End,
                                     player: PlayerRelation::Any,
                                 },
-                                actions::sacrifice(EffectRecipientDef::objects(
+                                EffectDef::sacrifice(EffectRecipientDef::objects(
                                         ObjectSetDef::Binding(ParentBinding),
-                                    ))
-                                    .as_effect(),
+                                    )),
                             ))),
                         ]),
                     }),

@@ -16,7 +16,7 @@ use crate::card::{
     ObjectSetPredicateDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef,
     PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetConditionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{AdditionalCostObjectIndex, TargetIndex};
 use crate::{ParentBinding, mana_cost, value_if_condition};
@@ -690,12 +690,11 @@ pub(in crate::card::sets) static BEGUILER_OF_WILLS: CardRecord = CardRecord::new
                     right: ValueDef::Constant(1),
                 })),
             ]))],
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 PlayerRefDef::EffectController,
                 ControlDurationDef::Indefinitely,
-            )
-            .as_effect(),
+            ),
         )),
 );
 

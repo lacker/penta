@@ -24,10 +24,9 @@ pub const fn greatest_power_you_control() -> ValueDef {
     ValueDef::AggregateObjectValues(&GREATEST_POWER_YOU_CONTROL)
 }
 
-static DISCARD_CHOSEN_HAND_CARD: EffectDef = actions::discard_cards(EffectRecipientDef::object(ObjectRefDef::Binding(
+static DISCARD_CHOSEN_HAND_CARD: EffectDef = EffectDef::discard_cards(EffectRecipientDef::object(ObjectRefDef::Binding(
     ParentBinding,
-)))
-.as_effect();
+)));
 
 static EXILE_CHOSEN_HAND_CARD: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),

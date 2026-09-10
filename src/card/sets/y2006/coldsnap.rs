@@ -144,12 +144,11 @@ pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new
                 &EffectDef::ForEachInBinding {
                     objects: ParentBinding,
                     binding: ParentBinding,
-                    effect: &actions::gain_control(
+                    effect: &EffectDef::gain_control(
                         EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                         PlayerRefDef::OwnerOf(ObjectRefDef::Binding(ParentBinding)),
                         ControlDurationDef::Indefinitely,
-                    )
-                    .as_effect(),
+                    ),
                 },
             ),
         ),
@@ -326,7 +325,7 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceOnBattlefield,
                     then: &EffectDef::Sequence(&[
-                        actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                        EffectDef::sacrifice(EffectRecipientDef::Source),
                         // Twenty power for no mana at all, which is what the ten counters are
                         // paying for. Legendary, so a second one is not a plan.
                         EffectDef::create_token(TokenCharacteristics::creature(&["Avatar"], &[ManaColor::Black], 20, 20)

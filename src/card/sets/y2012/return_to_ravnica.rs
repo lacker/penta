@@ -17,7 +17,7 @@ use crate::card::{
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
     SacrificedAmountDef, SpellResolutionDestinationDef, StaticApplyDef, TokenStatsDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities, actions,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -656,7 +656,7 @@ pub(in crate::card::sets) static SOUL_TITHE: CardRecord = CardRecord::new(
                         &[CostDef::GenericMana(ValueDef::ObjectManaValue(
                             ObjectRefDef::AttachedToSource,
                         ))],
-                        &actions::sacrifice(EffectRecipientDef::AttachedPermanent).as_effect(),
+                        &EffectDef::sacrifice(EffectRecipientDef::AttachedPermanent),
                     )
                     .with_payer(PlayerSetDef::Related(
                         PlayerRelation::ControllerOfAttachedPermanent,
@@ -1056,7 +1056,7 @@ pub(in crate::card::sets) static FAERIE_IMPOSTOR: CardRecord = CardRecord::new(
                     ]),
                     zone: ZoneKind::Hand,
                 }],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -2792,12 +2792,11 @@ pub(in crate::card::sets) static TRAITOROUS_INSTINCT: CardRecord = CardRecord::n
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::Sequence(&[
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::UntilEndOfTurn,
-                )
-                .as_effect(),
+                ),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -6290,7 +6289,7 @@ pub(in crate::card::sets) static VOLATILE_RIG: CardRecord = CardRecord::new(
             TriggerEventDef::damage_to_source(),
             EffectDef::FlipCoin {
                 on_win: &EffectDef::None,
-                on_loss: &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                on_loss: &EffectDef::sacrifice(EffectRecipientDef::Source),
             },
         ),
         abilities::dies_trigger(
@@ -6498,7 +6497,7 @@ pub(in crate::card::sets) static TRANSGUILD_PROMENADE: CardRecord = CardRecord::
             "When this land enters, sacrifice it unless you pay {1}.",
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{1}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated_mana(

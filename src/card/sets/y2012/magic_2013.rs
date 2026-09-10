@@ -29,7 +29,7 @@ use crate::card::{
     PartitionGroupDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
     StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, actions,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -3052,12 +3052,11 @@ pub(in crate::card::sets) static MARK_OF_MUTINY: CardRecord = CardRecord::new_wi
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 PlayerRefDef::EffectController,
                 ControlDurationDef::UntilEndOfTurn,
-            )
-            .as_effect(),
+            ),
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: CounterKind::PlusOnePlusOne,
@@ -4278,12 +4277,11 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                 "−2: Gain control of target creature.",
                 &[CostDef::Loyalty(-2)],
                 &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))],
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::Indefinitely,
-                )
-                .as_effect(),
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "−9: Nicol Bolas deals 7 damage to target player or planeswalker. That player or that planeswalker's controller discards seven then sacrifices seven permanents of their choice.",

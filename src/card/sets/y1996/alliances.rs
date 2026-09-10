@@ -12,7 +12,7 @@ use crate::card::{
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetChooserDef, TokenCharacteristics,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZonePlacement, abilities, actions,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
@@ -913,10 +913,9 @@ pub(in crate::card::sets) static BALDUVIAN_DEAD: CardRecord = CardRecord::new(
                             step: TurnStepDef::End,
                             player: PlayerRelation::Any,
                         },
-                        actions::sacrifice(EffectRecipientDef::objects(
+                        EffectDef::sacrifice(EffectRecipientDef::objects(
                             ObjectSetDef::Binding(crate::ParentBinding),
-                        ))
-                        .as_effect(),
+                        )),
                     ),
                 )),
             }),
@@ -1253,12 +1252,11 @@ pub(in crate::card::sets) static RITUAL_OF_THE_MACHINE: CardRecord = CardRecord:
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
             ),
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 PlayerRefDef::EffectController,
                 ControlDurationDef::Indefinitely,
-            )
-            .as_effect(),
+            ),
         ),
     ),
 );
@@ -1774,7 +1772,7 @@ pub(in crate::card::sets) static VARCHILD_S_CRUSADER: CardRecord = CardRecord::n
                         step: TurnStepDef::End,
                         player: PlayerRelation::Any,
                     },
-                    actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                    EffectDef::sacrifice(EffectRecipientDef::Source),
                 ))),
             ]),
         ),

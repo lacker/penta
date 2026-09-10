@@ -20,7 +20,7 @@ use crate::card::{
     PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
     TargetChooserDef, TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{AdditionalCostObjectIndex, Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -3028,10 +3028,9 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
                         chosen: LILIANA_CHOSEN_PILE,
                         unchosen: Binding!("liliana_spared_pile"),
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &actions::sacrifice(EffectRecipientDef::objects(
+                        then: &EffectDef::sacrifice(EffectRecipientDef::objects(
                             ObjectSetDef::Binding(LILIANA_CHOSEN_PILE),
-                        ))
-                        .as_effect(),
+                        )),
                     }) },
                 }),
             ),
@@ -4594,12 +4593,11 @@ pub(in crate::card::sets) static TRAITOROUS_BLOOD: CardRecord = CardRecord::new_
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::Sequence(&[
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::UntilEndOfTurn,
-                )
-                .as_effect(),
+                ),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -6003,14 +6001,13 @@ pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Subtype("Vampire"),
                 )],
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                )
-                .as_effect(),
+                ),
             ),
         ]),
 );

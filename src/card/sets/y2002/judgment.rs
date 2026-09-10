@@ -14,7 +14,7 @@ use crate::card::{
     ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, StaticApplyDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, TurnStepDef, mana_cost};
@@ -901,7 +901,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
                 EffectDef::RevealHand {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
-                actions::discard_cards(EffectRecipientDef::objects(
+                EffectDef::discard_cards(EffectRecipientDef::objects(
                     ObjectSetDef::Query(ObjectQueryDef::owned_by(
                         ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
                             "cabal_therapy_name"
@@ -909,8 +909,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
                         &[ZoneKind::Hand],
                         PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                     )),
-                ))
-                .as_effect(),
+                )),
             ]),
         ),
         AbilityDef::alternative_cast(

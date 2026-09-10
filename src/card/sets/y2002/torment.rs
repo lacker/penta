@@ -12,7 +12,7 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
     SacrificedAmountDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, actions,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -929,7 +929,7 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
                 step: TurnStepDef::End,
                 player: PlayerRelation::Any,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
         AbilityDef::triggered_if(
             "At the beginning of your upkeep, if this card is in your graveyard, you may exile a black creature card other than this card from your graveyard. If you do, return this card to the battlefield.",

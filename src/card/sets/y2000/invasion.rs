@@ -24,7 +24,7 @@ use crate::card::{
     PartitionGroupDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     RevealObjectsDef, SacrificedAmountDef, ScaledValueDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -3085,7 +3085,7 @@ pub(in crate::card::sets) static SKIZZIK: CardRecord = CardRecord::new(
                     AlternativeCastKindDef::Kicked,
                 ))
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );

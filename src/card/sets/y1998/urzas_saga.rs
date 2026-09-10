@@ -19,7 +19,7 @@ use crate::card::{
     OngoingEffectDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, actions,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1037,7 +1037,7 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
             )], EffectDef::ExchangeControl {
                 first: EffectRecipientDef::Source,
                 second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                otherwise: Some(&actions::sacrifice(EffectRecipientDef::Source).as_effect()),
+                otherwise: Some(&EffectDef::sacrifice(EffectRecipientDef::Source)),
             })
             .resolves_with_illegal_targets(),
     ]),
@@ -2331,12 +2331,11 @@ pub(in crate::card::sets) static SPINED_FLUKE: CardRecord = CardRecord::new(
             "When this creature enters, sacrifice a creature.",
             // Not "another creature", so with nothing else out it eats
             // itself, which is the drawback the body is priced on.
-            actions::sacrifice(EffectRecipientDef::matching_objects(
+            EffectDef::sacrifice(EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
-            ))
-            .as_effect(),
+            )),
         ),
         abilities::regenerate_self(
             "{B}: Regenerate this creature.",
@@ -3347,10 +3346,9 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
                                             step: TurnStepDef::End,
                                             player: PlayerRelation::Any,
                                         },
-                                        actions::sacrifice_yours(EffectRecipientDef::objects(
+                                        EffectDef::sacrifice_yours(EffectRecipientDef::objects(
                                                 ObjectSetDef::Binding(ParentBinding),
-                                            ))
-                                            .as_effect(),
+                                            )),
                                     )
                                 })),
                             ]

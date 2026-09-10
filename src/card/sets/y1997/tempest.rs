@@ -25,7 +25,7 @@ use crate::card::{
     ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     ScaledValueDef, SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1640,14 +1640,13 @@ pub(in crate::card::sets) static STEAL_ENCHANTMENT: CardRecord = CardRecord::new
             abilities::enchant_enchantment(),
             AbilityDef::static_ability(
                 "You control enchanted enchantment.",
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::AttachedPermanent,
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                )
-                .as_effect(),
+                ),
             ),
         ]),
 );
@@ -3914,12 +3913,11 @@ pub(in crate::card::sets) static STARKE_OF_RATH: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
                 },
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Source,
                     PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                     crate::card::ControlDurationDef::Indefinitely,
-                )
-                .as_effect(),
+                ),
             ]),
         )),
 );
@@ -5323,7 +5321,7 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             )),
             &TriggerConditionDef::SourceOnBattlefield,
             EffectDef::Sequence(&[
-                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                EffectDef::sacrifice(EffectRecipientDef::Source),
                 EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(10)),
             ]),
         ),
@@ -5618,12 +5616,11 @@ pub(in crate::card::sets) static HELM_OF_POSSESSION: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 PlayerRefDef::EffectController,
                 crate::card::ControlDurationDef::WhileSourceRemains { while_tapped: true },
-            )
-            .as_effect(),
+            ),
         ),
     ]),
 );
@@ -5666,12 +5663,11 @@ pub(in crate::card::sets) static JINXED_IDOL: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Source,
                 PlayerRefDef::Target(TargetIndex::PRIMARY),
                 crate::card::ControlDurationDef::Indefinitely,
-            )
-            .as_effect(),
+            ),
         ),
     ]),
 );

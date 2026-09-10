@@ -24,7 +24,7 @@ use super::model::{
     ResolvedEffectDurationDef, RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef,
     ScaledValueDef, SpellCostConditionDef, SpellCostModificationDef, SpellResolutionDestinationDef,
     SuspendAbilityDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, actions,
+    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 
@@ -584,7 +584,7 @@ pub const fn echo(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     )
 }
 
-static SACRIFICE_SOURCE: EffectDef = actions::sacrifice(EffectRecipientDef::Source).as_effect();
+static SACRIFICE_SOURCE: EffectDef = EffectDef::sacrifice(EffectRecipientDef::Source);
 
 /// Implementation for the [`bloodrush!`] constructor after its costs are composed.
 #[doc(hidden)]

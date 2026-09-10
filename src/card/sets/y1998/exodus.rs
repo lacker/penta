@@ -16,7 +16,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, StaticApplyDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, actions,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -202,10 +202,9 @@ pub(in crate::card::sets) static LIMITED_RESOURCES: CardRecord = CardRecord::new
                 visibility: ChoiceVisibilityDef::Public,
                 chosen: Binding!("limited_resources_lands_kept"),
                 unchosen: Binding!("limited_resources_lands_sacrificed"),
-                then: &actions::sacrifice(EffectRecipientDef::objects(
+                then: &EffectDef::sacrifice(EffectRecipientDef::objects(
                     ObjectSetDef::Binding(Binding!("limited_resources_lands_sacrificed")),
-                ))
-                .as_effect(),
+                )),
             }),
         ),
         AbilityDef::static_ability(
@@ -1053,7 +1052,7 @@ pub(in crate::card::sets) static SCHOOL_OF_PIRANHA: CardRecord = CardRecord::new
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{1}{U}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ),
@@ -1585,10 +1584,9 @@ pub(in crate::card::sets) static MIND_MAGGOTS: CardRecord = CardRecord::new(
                 maximum: usize::MAX,
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::Sequence(&[
-                    actions::discard_cards(EffectRecipientDef::objects(
+                    EffectDef::discard_cards(EffectRecipientDef::objects(
                         ObjectSetDef::Binding(ParentBinding),
-                    ))
-                    .as_effect(),
+                    )),
                     EffectDef::AddCounters {
                         object: EffectRecipientDef::Source,
                         kind: CounterKind::PlusOnePlusOne,
@@ -1666,7 +1664,7 @@ pub(in crate::card::sets) static PIT_SPAWN: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(crate::card::PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{B}{B}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::triggered(
@@ -1831,10 +1829,9 @@ pub(in crate::card::sets) static THRULL_SURGEON: CardRecord = CardRecord::new(
                     minimum: 1,
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Private,
-                    then: &actions::discard_cards(EffectRecipientDef::object(
+                    then: &EffectDef::discard_cards(EffectRecipientDef::object(
                         ObjectRefDef::Binding(ParentBinding),
-                    ))
-                    .as_effect(),
+                    )),
                 }),
             ]),
         )
@@ -3561,7 +3558,7 @@ pub(in crate::card::sets) static CITY_OF_TRAITORS: CardRecord = CardRecord::new(
                 land: ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 player: PlayerRelation::You,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}.",

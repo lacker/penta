@@ -11,7 +11,7 @@ use crate::card::{
     PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, actions,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -2340,7 +2340,7 @@ pub(in crate::card::sets) static CROSIS_S_CATACOMBS: CardRecord = CardRecord::ne
                     ]),
                     zone: ZoneKind::Hand,
                 }],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated_mana(
@@ -2376,7 +2376,7 @@ pub(in crate::card::sets) static DARIGAAZ_S_CALDERA: CardRecord = CardRecord::ne
                     ]),
                     zone: ZoneKind::Hand,
                 }],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated_mana(
@@ -2412,7 +2412,7 @@ pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
                     ]),
                     zone: ZoneKind::Hand,
                 }],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated_mana(
@@ -2526,7 +2526,7 @@ pub(in crate::card::sets) static RITH_S_GROVE: CardRecord = CardRecord::new(
                     ]),
                     zone: ZoneKind::Hand,
                 }],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated_mana(
@@ -2600,7 +2600,7 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
                 ]),
                 zone: ZoneKind::Hand,
             }],
-            &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            &EffectDef::sacrifice(EffectRecipientDef::Source),
         ))),
         AbilityDef::activated_mana(
             "{T}: Add {G}, {W}, or {U}.",

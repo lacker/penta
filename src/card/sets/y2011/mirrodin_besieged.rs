@@ -17,7 +17,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, ScaledValueDef, SpellResolutionDestinationDef, TargetChooserDef,
     TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZoneMoveCauseDef, ZonePlacement, abilities, actions,
+    ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -400,14 +400,13 @@ pub(in crate::card::sets) static CORRUPTED_CONSCIENCE: CardRecord = CardRecord::
             abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::AttachedPermanent,
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                )
-                .as_effect(),
+                ),
             ),
             AbilityDef::static_ability(
                 "Enchanted creature has infect.",
@@ -1511,12 +1510,11 @@ pub(in crate::card::sets) static METALLIC_MASTERY: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
             EffectDef::Sequence(&[
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::UntilEndOfTurn,
-                )
-                .as_effect(),
+                ),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -3232,12 +3230,11 @@ pub(in crate::card::sets) static CONTESTED_WAR_ZONE: CardRecord = CardRecord::ne
             TriggerEventDef::DamageDealt(DamageEventMatcherDef::combat_to(
                 EffectRecipientDef::Controller,
             )),
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Source,
                 PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
                 ControlDurationDef::Indefinitely,
-            )
-            .as_effect(),
+            ),
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}.",

@@ -5,7 +5,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ControlDurationDef, CostDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TriggerEventDef, ValueDef, actions,
+    PlayerRelation, TriggerEventDef, ValueDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -82,12 +82,11 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::Indefinitely,
-                )
-                .as_effect(),
+                ),
             ),
             AbilityDef::activated(
                 "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
@@ -100,14 +99,13 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                         ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::Any),
                     ])),
-                    actions::gain_control(
+                    EffectDef::gain_control(
                         EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
                             ObjectRefDef::TriggeringObject,
                         )),
                         PlayerRefDef::EffectController,
                         ControlDurationDef::Indefinitely,
-                    )
-                    .as_effect(),
+                    ),
                 )]),
             ),
         ]),

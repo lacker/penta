@@ -14,7 +14,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, QuotientValueDef, ReplacementAbilityDef, ReplacementChoiceDef,
     ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     RoundingDef, SourceMatchValueDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -120,10 +120,9 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_lega
                 visibility: ChoiceVisibilityDef::Public,
                 chosen: Binding!("balance_lands_kept"),
                 unchosen: Binding!("balance_lands_sacrificed"),
-                then: &actions::sacrifice(EffectRecipientDef::objects(
+                then: &EffectDef::sacrifice(EffectRecipientDef::objects(
                     ObjectSetDef::Binding(Binding!("balance_lands_sacrificed")),
-                ))
-                .as_effect(),
+                )),
             }),
             EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                 player: EffectRecipientDef::EachPlayer,
@@ -143,10 +142,9 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_lega
                 visibility: ChoiceVisibilityDef::Private,
                 chosen: Binding!("balance_hand_kept"),
                 unchosen: Binding!("balance_hand_discarded"),
-                then: &actions::discard_cards(EffectRecipientDef::objects(
+                then: &EffectDef::discard_cards(EffectRecipientDef::objects(
                     ObjectSetDef::Binding(Binding!("balance_hand_discarded")),
-                ))
-                .as_effect(),
+                )),
             }),
             EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                 player: EffectRecipientDef::EachPlayer,
@@ -166,10 +164,9 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_lega
                 visibility: ChoiceVisibilityDef::Public,
                 chosen: Binding!("balance_creatures_kept"),
                 unchosen: Binding!("balance_creatures_sacrificed"),
-                then: &actions::sacrifice(EffectRecipientDef::objects(
+                then: &EffectDef::sacrifice(EffectRecipientDef::objects(
                     ObjectSetDef::Binding(Binding!("balance_creatures_sacrificed")),
-                ))
-                .as_effect(),
+                )),
             }),
         ]),
     )),
@@ -382,7 +379,7 @@ pub(in crate::card::sets) static CONVERSION: CardRecord = CardRecord::new_with_l
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{W}{W}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::static_ability(
@@ -1191,14 +1188,13 @@ pub(in crate::card::sets) static CONTROL_MAGIC: CardRecord = CardRecord::new_wit
             abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::AttachedPermanent,
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                )
-                .as_effect(),
+                ),
             ),
         ]),
 );
@@ -1487,7 +1483,7 @@ pub(in crate::card::sets) static PHANTASMAL_FORCES: CardRecord = CardRecord::new
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{U}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -1539,7 +1535,7 @@ pub(in crate::card::sets) static PIRATE_SHIP: CardRecord = CardRecord::new_with_
             "When you control no Islands, sacrifice this creature.",
             TriggerEventDef::StateCondition,
             &YOU_CONTROL_NO_ISLANDS,
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );
@@ -1644,7 +1640,7 @@ pub(in crate::card::sets) static SEA_SERPENT: CardRecord = CardRecord::new_with_
             "When you control no Islands, sacrifice this creature.",
             TriggerEventDef::StateCondition,
             &YOU_CONTROL_NO_ISLANDS,
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );
@@ -1719,7 +1715,7 @@ pub(in crate::card::sets) static STASIS: CardRecord = CardRecord::new_with_legac
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{U}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -1737,14 +1733,13 @@ pub(in crate::card::sets) static STEAL_ARTIFACT: CardRecord = CardRecord::new_wi
             abilities::enchant_artifact(),
             AbilityDef::static_ability(
                 "You control enchanted artifact.",
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::AttachedPermanent,
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                )
-                .as_effect(),
+                ),
             ),
         ]),
 );
@@ -2011,7 +2006,7 @@ pub(in crate::card::sets) static ANIMATE_DEAD: CardRecord = CardRecord::new(
                     Some(ZoneKind::Battlefield),
                     None,
                 ),
-                actions::sacrifice(EffectRecipientDef::AttachedPermanent).as_effect(),
+                EffectDef::sacrifice(EffectRecipientDef::AttachedPermanent),
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets -1/-0.",
@@ -2577,7 +2572,7 @@ pub(in crate::card::sets) static PESTILENCE: CardRecord = CardRecord::new_with_l
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
         AbilityDef::activated(
             "{B}: This enchantment deals 1 damage to each creature and each player.",
@@ -3075,7 +3070,7 @@ pub(in crate::card::sets) static DRAGON_WHELP: CardRecord = CardRecord::new_with
                                 step: TurnStepDef::End,
                                 player: PlayerRelation::Any,
                             },
-                            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                            EffectDef::sacrifice(EffectRecipientDef::Source),
                         ))),
                     },
                 ]),

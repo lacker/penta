@@ -9,7 +9,7 @@ use crate::card::{
     ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
     RoundingDef, SacrificedAmountDef, StackTargetChangeDef, TargetChooserDef, TargetPredicate,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, actions,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -381,14 +381,13 @@ pub(in crate::card::sets) static AMNESIA: CardRecord = CardRecord::new_with_lega
                 // "All nonland cards" is not a count, so the hand is queried rather than
                 // a number of discards being asked for. The reveal above is what makes
                 // the selection public knowledge.
-                actions::discard_cards(EffectRecipientDef::objects(ObjectSetDef::Query(
+                EffectDef::discard_cards(EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::owned_by(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                         &[ZoneKind::Hand],
                         PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                     ),
-                )))
-                .as_effect(),
+                ))),
             ]),
         ),
     ),
@@ -570,7 +569,7 @@ pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new_with_
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );
@@ -678,7 +677,7 @@ pub(in crate::card::sets) static SUNKEN_CITY: CardRecord = CardRecord::new_with_
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{U}{U}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::static_ability(
@@ -1139,7 +1138,7 @@ pub(in crate::card::sets) static BALL_LIGHTNING: CardRecord = CardRecord::new_wi
                 step: TurnStepDef::End,
                 player: PlayerRelation::Any,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );
@@ -1516,7 +1515,7 @@ pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::
                 comparison: ComparisonDef::GreaterOrEqual,
                 amount: 1,
             },
-            actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+            EffectDef::sacrifice(EffectRecipientDef::Source),
         ),
     ]),
 );

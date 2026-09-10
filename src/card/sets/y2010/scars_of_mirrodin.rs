@@ -16,7 +16,7 @@ use crate::card::{
     ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RevealAndClassifyCardsDef, SacrificedAmountDef, ScaledValueDef,
     TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
@@ -301,7 +301,7 @@ pub(in crate::card::sets) static GLINT_HAWK: CardRecord = CardRecord::new(
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
                     zone: ZoneKind::Hand,
                 }],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -992,8 +992,7 @@ pub(in crate::card::sets) static SHAPE_ANEW: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
             EffectDef::Sequence(&[
-                actions::sacrifice(EffectRecipientDef::Target(TargetIndex::PRIMARY))
-                        .as_effect(),
+                EffectDef::sacrifice(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
                 EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
                     source: ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
                         player: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
@@ -1281,14 +1280,13 @@ pub(in crate::card::sets) static VOLITION_REINS: CardRecord = CardRecord::new(
             ),
             AbilityDef::static_ability(
                 "You control enchanted permanent.",
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::AttachedPermanent,
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                )
-                .as_effect(),
+                ),
             ),
         ]),
 );
@@ -3082,7 +3080,7 @@ pub(in crate::card::sets) static PUTREFAX: CardRecord = CardRecord::new(
                     step: TurnStepDef::End,
                     player: PlayerRelation::Any,
                 },
-                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                EffectDef::sacrifice(EffectRecipientDef::Source),
             ),
         ]),
 );
@@ -4403,7 +4401,7 @@ pub(in crate::card::sets) static MOLTEN_TAIL_MASTICORE: CardRecord = CardRecord:
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::DiscardCards(1)],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated_with_targets(

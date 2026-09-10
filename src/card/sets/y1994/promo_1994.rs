@@ -7,7 +7,7 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
     CardSet, CardType, ComparisonDef, CostDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
     ObjectPredicateDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, actions,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -100,7 +100,7 @@ pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new_w
                             step: TurnStepDef::End,
                             player: PlayerRelation::Any,
                         },
-                        actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                        EffectDef::sacrifice(EffectRecipientDef::Source),
                     ))),
                 },
             ]),

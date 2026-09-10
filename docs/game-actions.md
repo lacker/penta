@@ -7,8 +7,23 @@ obligation. The wrapper determines the execution contract. The action retains
 its rules identity, including discard and sacrifice events, last-known
 information, and replacement handling.
 
-Card declarations construct actions first, then choose their execution
-contract with `as_cost()` or `as_effect()`. For example:
+For ordinary effects, prefer the thin constructors on `EffectDef`:
+
+```rust
+use penta::card::{EffectDef, EffectRecipientDef};
+
+const SACRIFICE: EffectDef = EffectDef::sacrifice(EffectRecipientDef::Source);
+```
+
+`EffectDef::sacrifice(x)` is exactly `actions::sacrifice(x).as_effect()`.
+`discard_cards`, `sacrifice_yours`, and `gain_control` provide the same shortcuts
+for the other shared primitives. These constructors operate on already
+identified objects, preserving the distinct sacrifice actors and the explicit
+controller and duration of control changes. They add no selection or separate
+runtime implementation.
+
+When composing a custom program or describing a cost, construct actions first,
+then choose the execution contract with `as_cost()` or `as_effect()`. For example:
 
 ```rust
 use penta::card::{

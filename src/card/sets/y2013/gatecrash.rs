@@ -22,7 +22,6 @@ use crate::card::{
     QuantifierDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, RevealObjectsDef, SumValueDef, TokenStatsDef, TriggerConditionDef,
     TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-    actions,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1541,10 +1540,9 @@ pub(in crate::card::sets) static DEVOUR_FLESH: CardRecord = CardRecord::new_with
             // The life follows the sacrifice, so it belongs to the same continuation --
             // and it goes to the player who paid, not to whoever cast the spell.
             then: &EffectDef::Sequence(&[
-                actions::sacrifice(EffectRecipientDef::objects(
+                EffectDef::sacrifice(EffectRecipientDef::objects(
                     ObjectSetDef::Binding(ParentBinding),
-                ))
-                .as_effect(),
+                )),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
@@ -2087,12 +2085,11 @@ pub(in crate::card::sets) static ACT_OF_TREASON: CardRecord = CardRecord::new_wi
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::Sequence(&[
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::UntilEndOfTurn,
-                )
-                .as_effect(),
+                ),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -2290,7 +2287,7 @@ pub(in crate::card::sets) static HELLKITE_TYRANT: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, gain control of all artifacts that player controls.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     &[ZoneKind::Battlefield],
@@ -2298,8 +2295,7 @@ pub(in crate::card::sets) static HELLKITE_TYRANT: CardRecord = CardRecord::new(
                 ),
                 PlayerRefDef::EffectController,
                 ControlDurationDef::Indefinitely,
-            )
-            .as_effect(),
+            ),
         ),
         AbilityDef::triggered_if(
             "At the beginning of your upkeep, if you control twenty or more artifacts, you win the game.",
@@ -2486,12 +2482,11 @@ pub(in crate::card::sets) static MOLTEN_PRIMORDIAL: CardRecord = CardRecord::new
                 },
                 1,
             )], EffectDef::Sequence(&[
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::UntilEndOfTurn,
-                )
-                .as_effect(),
+                ),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -2632,10 +2627,9 @@ pub(in crate::card::sets) static STRUCTURAL_COLLAPSE: CardRecord = CardRecord::n
                 chosen: ParentBinding,
                 unchosen: Binding!("objects_2"),
                 then: &EffectDef::Sequence(&[
-                    actions::sacrifice(EffectRecipientDef::objects(
+                    EffectDef::sacrifice(EffectRecipientDef::objects(
                         ObjectSetDef::Binding(ParentBinding),
-                    ))
-                    .as_effect(),
+                    )),
                     EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         candidates: ObjectPredicateDef::HasType(CardType::Land),
@@ -2645,10 +2639,9 @@ pub(in crate::card::sets) static STRUCTURAL_COLLAPSE: CardRecord = CardRecord::n
                         chosen: ParentBinding,
                         unchosen: Binding!("objects"),
                         then: &EffectDef::Sequence(&[
-                            actions::sacrifice(EffectRecipientDef::objects(
+                            EffectDef::sacrifice(EffectRecipientDef::objects(
                                 ObjectSetDef::Binding(ParentBinding),
-                            ))
-                            .as_effect(),
+                            )),
                             EffectDef::damage(
                                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                 ValueDef::Constant(2),
@@ -4356,7 +4349,7 @@ pub(in crate::card::sets) static GRUUL_CHARM: CardRecord = CardRecord::new(
             ),
             AbilityDef::spell(
                 "Gain control of all permanents you own",
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
                         ObjectPredicateDef::Any,
                         &[ZoneKind::Battlefield],
@@ -4364,8 +4357,7 @@ pub(in crate::card::sets) static GRUUL_CHARM: CardRecord = CardRecord::new(
                     ))),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::Indefinitely,
-                )
-                .as_effect(),
+                ),
             ),
             AbilityDef::spell(
                 "Gruul Charm deals 3 damage to each creature with flying",
@@ -5147,7 +5139,7 @@ pub(in crate::card::sets) static SPARK_TROOPER: CardRecord = CardRecord::new_wit
                     step: TurnStepDef::End,
                     player: PlayerRelation::Any,
                 },
-                actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                EffectDef::sacrifice(EffectRecipientDef::Source),
             ),
         ]),
 );

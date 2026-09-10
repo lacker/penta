@@ -6,7 +6,7 @@ use crate::card::{
     ComparisonDef, ControlDurationDef, CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, abilities, actions,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -52,12 +52,11 @@ pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::Opponent,
                     amount: ValueDef::Constant(3),
                 },
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Source,
                     PlayerRefDef::Opponent,
                     ControlDurationDef::Indefinitely,
-                )
-                .as_effect(),
+                ),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Source,
                 },

@@ -9,7 +9,7 @@ use crate::card::{
     ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SumValueDef,
     TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, actions,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -223,7 +223,7 @@ pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new_with_
                     EffectDef::PayOr(PayOrDef::unless(
                         &[CostDef::Mana(mana_cost!("{2}"))],
                         &const {
-                            actions::sacrifice(EffectRecipientDef::Source).as_effect()
+                            EffectDef::sacrifice(EffectRecipientDef::Source)
                         },
                     )),
                 )
@@ -1168,15 +1168,14 @@ pub(in crate::card::sets) static GOLGOTHIAN_SYLEX: CardRecord = CardRecord::new_
             CostDef::Mana(mana_cost!("{1}")),
             CostDef::TapSource,
         ],
-        actions::sacrifice(EffectRecipientDef::matching_objects(
+        EffectDef::sacrifice(EffectRecipientDef::matching_objects(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                 ObjectPredicateDef::DebutSet(CardSet::Antiquities),
             ]),
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
-        ))
-        .as_effect(),
+        )),
     )]),
 );
 

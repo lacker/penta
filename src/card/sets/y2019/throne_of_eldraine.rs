@@ -13,7 +13,7 @@ use crate::card::{
     ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, SpellForm,
     SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, actions, tokens,
+    ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
@@ -331,14 +331,13 @@ pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new
                     binding: None,
                     then: None,
                 },
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Source,
                     PlayerRefDef::Opponent,
                     // Nothing holds the change and no cleanup ends it: the artifact is
                     // theirs from here (CR 611.2b).
                     ControlDurationDef::Indefinitely,
-                )
-                .as_effect(),
+                ),
             ]),
         )
         .with_activation_timing(ActivationTimingDef::YourTurn),

@@ -13,7 +13,7 @@ use crate::card::{
     PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellResolutionDestinationDef,
     SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, actions,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1021,7 +1021,7 @@ pub(in crate::card::sets) static ELDER_SPAWN: CardRecord = CardRecord::new_with_
                 // The declined branch: the Spawn goes and takes six with it. Reached when
                 // the controller says no *and* when there is no Island to say yes with.
                 otherwise: Some(&EffectDef::Sequence(&[
-                    actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                    EffectDef::sacrifice(EffectRecipientDef::Source),
                     EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(6)),
                 ])),
                 amount: SacrificedAmountDef::Power,
@@ -2457,7 +2457,7 @@ pub(in crate::card::sets) static THE_WRETCHED: CardRecord = CardRecord::new_with
                 step: TurnStepDef::EndOfCombat,
                 player: PlayerRelation::Any,
             },
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::BlockingSource,
                     &[ZoneKind::Battlefield],
@@ -2467,8 +2467,7 @@ pub(in crate::card::sets) static THE_WRETCHED: CardRecord = CardRecord::new_with
                 ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
-            )
-            .as_effect(),
+            ),
         ),
     ),
 );
@@ -2852,12 +2851,11 @@ pub(in crate::card::sets) static DISHARMONY: CardRecord = CardRecord::new_with_l
                     EffectDef::Untap {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     },
-                    actions::gain_control(
+                    EffectDef::gain_control(
                         EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         PlayerRefDef::EffectController,
                         ControlDurationDef::UntilEndOfTurn,
-                    )
-                    .as_effect(),
+                    ),
                     EffectDef::RemoveFromCombat {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     },
@@ -3551,7 +3549,7 @@ pub(in crate::card::sets) static COCOON: CardRecord = CardRecord::new_with_legac
                             effect: AppliedEffectDef::add_ability(&abilities::flying()),
                             duration: ResolvedEffectDurationDef::Permanent,
                         },
-                        actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                        EffectDef::sacrifice(EffectRecipientDef::Source),
                     ]),
                 },
             ),
@@ -4236,12 +4234,11 @@ pub(in crate::card::sets) static WILLOW_SATYR: CardRecord = CardRecord::new_with
                     ObjectPredicateDef::Supertype(CardSupertype::Legendary),
                 ]),
             )],
-            actions::gain_control(
+            EffectDef::gain_control(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 PlayerRefDef::EffectController,
                 ControlDurationDef::WhileSourceRemains { while_tapped: true },
-            )
-            .as_effect(),
+            ),
         ),
     ]),
 );
@@ -4351,7 +4348,7 @@ pub(in crate::card::sets) static ARCADES_SABBOTH: CardRecord = CardRecord::new_w
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{G}{W}{U}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::static_ability(
@@ -4496,7 +4493,7 @@ pub(in crate::card::sets) static CHROMIUM: CardRecord = CardRecord::new_with_leg
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{W}{U}{B}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -4872,7 +4869,7 @@ pub(in crate::card::sets) static NICOL_BOLAS: CardRecord = CardRecord::new_with_
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{U}{B}{R}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::triggered(
@@ -4915,7 +4912,7 @@ pub(in crate::card::sets) static PALLADIA_MORS: CardRecord = CardRecord::new_wit
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{R}{G}{W}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
     ]),
@@ -5075,12 +5072,11 @@ pub(in crate::card::sets) static RUBINIA_SOULSINGER: CardRecord = CardRecord::ne
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                actions::gain_control(
+                EffectDef::gain_control(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     PlayerRefDef::EffectController,
                     ControlDurationDef::WhileSourceRemains { while_tapped: true },
-                )
-                .as_effect(),
+                ),
             ),
         ]),
 );
@@ -5326,7 +5322,7 @@ pub(in crate::card::sets) static VAEVICTIS_ASMADI: CardRecord = CardRecord::new_
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{B}{R}{G}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::activated(
@@ -5520,7 +5516,7 @@ pub(in crate::card::sets) static FORETHOUGHT_AMULET: CardRecord = CardRecord::ne
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{3}"))],
-                &actions::sacrifice(EffectRecipientDef::Source).as_effect(),
+                &EffectDef::sacrifice(EffectRecipientDef::Source),
             )),
         ),
         AbilityDef::static_ability(

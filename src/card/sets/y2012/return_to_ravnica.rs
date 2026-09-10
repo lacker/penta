@@ -3398,11 +3398,14 @@ pub(in crate::card::sets) static SLIME_MOLDING: CardRecord = CardRecord::new(
     crate::card::CardSet::ReturnToRavnica,
     CardRules::new_sorcery(mana_cost!("{X}{G}")).with_ability(AbilityDef::spell(
         "Create an X/X green Ooze creature token.",
-        EffectDef::create_creature_token(&["Ooze"], &[ManaColor::Green], 0, 0)
-            .with_variable_token_stats(&TokenStatsDef {
+        EffectDef::create_creature_token_with_stats(
+            &["Ooze"],
+            &[ManaColor::Green],
+            &TokenStatsDef {
                 power: ValueDef::ChosenX,
                 toughness: ValueDef::ChosenX,
-            }),
+            },
+        ),
     )),
 );
 

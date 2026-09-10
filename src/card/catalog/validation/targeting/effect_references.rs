@@ -919,8 +919,9 @@ fn validate_effect_references(
         // The chosen player is recorded on the permanent, not read from a
         // target slot.
         // A prohibition names a card shape, never a target.
-        EffectDef::CumulativeUpkeep(costs) => costs.iter().try_for_each(|cost| validate_upkeep_cost_references(*cost, target_count, scope)),
-
+        EffectDef::CumulativeUpkeep(costs) => costs.iter().try_for_each(|cost| {
+            validate_upkeep_cost_references(*cost, target_count, scope)
+        }),
         EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)
@@ -963,7 +964,7 @@ fn validate_upkeep_cost_references(
         | crate::card::CostDef::GainControlPermanents { object, .. } => {
             validate_object_predicate_references(object, target_count, scope)
         }
-        crate::card::CostDef::CreateTokens { token, .. } => match token.variable_stats {
+        crate::card::CostDef::CreateTokens { token, .. } => match token.creation_stats {
             Some(stats) => {
                 validate_value_target_references(stats.power, target_count, scope)?;
                 validate_value_target_references(stats.toughness, target_count, scope)

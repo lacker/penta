@@ -4,25 +4,24 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1998::stronghold as catalog_sth;
 use crate::card::sets::y2001::odyssey as catalog_ody;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldArrivalDef,
-    BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef,
-    ChooseDef, ChooseForEachPlayerDef, ClassifyObjectsDef, CollectionInspectionDef,
-    ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
-    CopyExceptionsDef, CostDef, CounterKind, CounterKindDef, CounterOperationDef,
-    CreatureTypeSetDef, DamageAssignmentDef, DamageEventMatcherDef, DamageKindDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef,
-    DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef, IfNoObjectsDef,
-    InstalledTriggerDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaTypeSetDef, MillUntilDef,
-    MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCounterValueDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PerPlayerSelectionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, SumValueDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef,
-    TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, BattlefieldArrivalDef, BattlefieldEntryModificationDef,
+    BattlefieldEntryScalarChoiceDef, CardArt, CardNameDef, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef,
+    ChooseForEachPlayerDef, ClassifyObjectsDef, CollectionInspectionDef, ColorChoiceOperationDef,
+    ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef,
+    CounterKind, CounterKindDef, CounterOperationDef, CreatureTypeSetDef, DamageAssignmentDef,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectChoiceDef, EffectDef,
+    EffectRecipientDef, IfNoObjectsDef, InstalledTriggerDef, KeywordAbility, LookAtObjectsDef,
+    ManaColor, ManaTypeSetDef, MillUntilDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectCollectionSourceDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
+    ObjectValueDef, PerPlayerSelectionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    QuantifierDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RevealObjectsDef, SumValueDef, TokenStatsDef, TriggerConditionDef,
+    TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -351,7 +350,7 @@ pub(in crate::card::sets) static GIDEON_CHAMPION_OF_JUSTICE: CardRecord = CardRe
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Put a loyalty counter on Gideon for each creature target opponent controls.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                     PlayerRelation::Opponent,
                 ))],
@@ -367,7 +366,7 @@ pub(in crate::card::sets) static GIDEON_CHAMPION_OF_JUSTICE: CardRecord = CardRe
             ),
             AbilityDef::activated(
                 "0: Until end of turn, Gideon becomes a Human Soldier creature with power and toughness each equal to the number of loyalty counters on him and gains indestructible. He's still a planeswalker. Prevent all damage that would be dealt to him this turn.",
-                &[AbilityCostDef::Loyalty(0)],
+                &[CostDef::Loyalty(0)],
                 EffectDef::Sequence(&[
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
@@ -406,7 +405,7 @@ pub(in crate::card::sets) static GIDEON_CHAMPION_OF_JUSTICE: CardRecord = CardRe
             ),
             AbilityDef::activated(
                 "−15: Exile all other permanents.",
-                &[AbilityCostDef::Loyalty(-15)],
+                &[CostDef::Loyalty(-15)],
                 abilities::bind_objects_then(
                     ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
                         ObjectQueryDef::new(
@@ -1085,7 +1084,6 @@ pub(in crate::card::sets) static RAPID_HYBRIDIZATION: CardRecord = CardRecord::n
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: false,
                 then: None,
             },
             EffectDef::create_creature_token(
@@ -1223,10 +1221,7 @@ pub(in crate::card::sets) static SIMIC_FLUXMAGE: CardRecord = CardRecord::new(
         abilities::evolve(),
         AbilityDef::activated_with_targets(
             "{1}{U}, {T}: Move a +1/+1 counter from this creature onto target creature.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}{U}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1997,7 +1992,7 @@ pub(in crate::card::sets) static THRULL_PARASITE: CardRecord = CardRecord::new(
         abilities::extort(),
         AbilityDef::activated_with_targets(
             "{T}, Pay 2 life: Remove a counter from target nonland permanent.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::PayLife(2)],
+            &[CostDef::TapSource, CostDef::PayLife(2)],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
             )],
@@ -2217,7 +2212,7 @@ pub(in crate::card::sets) static FIVE_ALARM_FIRE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_with_targets(
             "Remove five blaze counters from this enchantment: It deals 5 damage to any target.",
-            &[AbilityCostDef::RemoveCountersFromSource {
+            &[CostDef::RemoveCountersFromSource {
                 kind: CounterKind::named("blaze"),
                 amount: 5,
             }],
@@ -3133,7 +3128,6 @@ pub(in crate::card::sets) static RUST_SCARAB: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             },
@@ -3285,7 +3279,6 @@ pub(in crate::card::sets) static SYLVAN_PRIMORDIAL: CardRecord = CardRecord::new
             })],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: Some(DestroyFollowUpDef {
                     binding: ParentBinding,
                     effect: &EffectDef::IfNoObjects(IfNoObjectsDef {
@@ -3580,7 +3573,7 @@ pub(in crate::card::sets) static BORBORYGMOS_ENRAGED: CardRecord = CardRecord::n
         ),
         AbilityDef::activated_with_targets(
             "Discard a land card: Borborygmos Enraged deals 3 damage to any target.",
-            &[AbilityCostDef::DiscardCardMatching(
+            &[CostDef::DiscardCardMatching(
                 ObjectPredicateDef::HasType(CardType::Land),
             )],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
@@ -3759,7 +3752,9 @@ pub(in crate::card::sets) static CONSUMING_ABERRATION: CardRecord = CardRecord::
             TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
             EffectDef::MillUntil(&MillUntilDef {
                 player: EffectRecipientDef::Opponent,
-                object: ObjectPredicateDef::HasType(CardType::Land),
+                until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::HasType(
+                    CardType::Land,
+                )),
                 matched_zone: ZoneKind::Graveyard,
             }),
         ),
@@ -3786,16 +3781,18 @@ pub(in crate::card::sets) static DEATHPACT_ANGEL: CardRecord = CardRecord::new(
                 .with_abilities(&[AbilityDef::activated(
                     "{3}{W}{B}{B}, {T}, Sacrifice this token: Return a card named Deathpact Angel from your graveyard to the battlefield.",
                     &[
-                        AbilityCostDef::Mana(mana_cost!("{3}{W}{B}{B}")),
-                        AbilityCostDef::TapSource,
-                        AbilityCostDef::SacrificeSource,
+                        CostDef::Mana(mana_cost!("{3}{W}{B}{B}")),
+                        CostDef::TapSource,
+                        CostDef::SacrificeSource,
                     ],
                     EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Object(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
-                            ObjectPredicateDef::Named("Deathpact Angel"),
+                            ObjectPredicateDef::NameEquals(CardNameDef::Literal(
+                                "Deathpact Angel",
+                            )),
                             &[ZoneKind::Graveyard],
                             PlayerRelation::You,
                         )),
@@ -3848,7 +3845,6 @@ pub(in crate::card::sets) static DIMIR_CHARM: CardRecord = CardRecord::new(
                 ]))],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -4035,7 +4031,7 @@ pub(in crate::card::sets) static DUSKMANTLE_GUILDMAGE: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{U}{B}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
         AbilityDef::activated(
             "{1}{U}{B}: Whenever a card is put into an opponent's graveyard from anywhere this turn, that player loses 1 life.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{U}{B}"))],
+            &[CostDef::Mana(mana_cost!("{1}{U}{B}"))],
             EffectDef::InstallTrigger(InstalledTriggerDef::this_turn(&AbilityDef::triggered(
                 "Whenever a card is put into an opponent's graveyard from anywhere this turn, that player loses 1 life.",
                 TriggerEventDef::zone_changed(
@@ -4051,7 +4047,7 @@ pub(in crate::card::sets) static DUSKMANTLE_GUILDMAGE: CardRecord = CardRecord::
         ),
         AbilityDef::activated_with_targets(
             "{2}{U}{B}: Target player mills two cards.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}{U}{B}"))],
+            &[CostDef::Mana(mana_cost!("{2}{U}{B}"))],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Any,
             ))],
@@ -5073,7 +5069,7 @@ pub(in crate::card::sets) static SKARRG_GUILDMAGE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{R}{G}"), &["Human", "Shaman"], 2, 2).with_abilities(&[
         AbilityDef::activated(
             "{R}{G}: Creatures you control gain trample until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}{G}"))],
+            &[CostDef::Mana(mana_cost!("{R}{G}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -5086,7 +5082,7 @@ pub(in crate::card::sets) static SKARRG_GUILDMAGE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_with_targets(
             "{1}{R}{G}: Target land you control becomes a 4/4 Elemental creature until end of turn. It's still a land.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{R}{G}"))],
+            &[CostDef::Mana(mana_cost!("{1}{R}{G}"))],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Land),
                 zones: &[ZoneKind::Battlefield],
@@ -5296,7 +5292,7 @@ pub(in crate::card::sets) static VIZKOPA_GUILDMAGE: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{W}{B}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{1}{W}{B}: Target creature gains lifelink until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{W}{B}"))],
+            &[CostDef::Mana(mana_cost!("{1}{W}{B}"))],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -5308,7 +5304,7 @@ pub(in crate::card::sets) static VIZKOPA_GUILDMAGE: CardRecord = CardRecord::new
         ),
         AbilityDef::activated(
             "{1}{W}{B}: Whenever you gain life this turn, each opponent loses that much life.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{W}{B}"))],
+            &[CostDef::Mana(mana_cost!("{1}{W}{B}"))],
             EffectDef::InstallTrigger(InstalledTriggerDef::this_turn(&AbilityDef::triggered(
                 "Whenever you gain life this turn, each opponent loses that much life.",
                 TriggerEventDef::LifeGained(PlayerRelation::You),

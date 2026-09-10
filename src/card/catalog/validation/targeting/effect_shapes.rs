@@ -649,7 +649,6 @@ fn validate_effect_target_shapes(
         EffectDef::CumulativeUpkeep(costs) => costs
             .iter()
             .try_for_each(|cost| validate_upkeep_cost_shape(*cost, targets)),
-
         EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::ModifyCost(_)
@@ -687,7 +686,7 @@ fn validate_upkeep_cost_shape(
         | crate::card::CostDef::GainControlPermanents { object, .. } => {
             validate_object_predicate_shape(object, targets)
         }
-        crate::card::CostDef::CreateTokens { token, .. } => match token.variable_stats {
+        crate::card::CostDef::CreateTokens { token, .. } => match token.creation_stats {
             Some(stats) => {
                 validate_value_shape(stats.power, targets)?;
                 validate_value_shape(stats.toughness, targets)

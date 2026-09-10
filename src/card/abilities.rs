@@ -584,9 +584,9 @@ pub const fn echo(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     )
 }
 
-static SACRIFICE_SOURCE: EffectDef = EffectDef::Sacrifice {
+static SACRIFICE_SOURCE: EffectDef = EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
     object: EffectRecipientDef::Source,
-};
+});
 
 /// Implementation for the [`bloodrush!`] constructor after its costs are composed.
 #[doc(hidden)]

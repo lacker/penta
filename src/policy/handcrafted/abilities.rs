@@ -262,7 +262,8 @@ impl HandcraftedPolicy {
         {
             return None;
         }
-        let EffectDef::Sacrifice { object } = *choice.then else {
+        let EffectDef::Perform(crate::card::GameActionDef::Sacrifice { object }) = *choice.then
+        else {
             return None;
         };
         (object

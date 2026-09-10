@@ -87,8 +87,26 @@ impl Game {
         context: EffectResolutionContext,
         scoped: ScopedEffect,
     ) {
-        let Some(state) = self.effect_choice_decision_state(definition, object, &context, scoped)
-        else {
+        self.queue_effect_choice_with_continuation(
+            definition,
+            *definition.then,
+            object,
+            context,
+            scoped,
+        );
+    }
+
+    pub(super) fn queue_effect_choice_with_continuation(
+        &mut self,
+        definition: ChooseDef,
+        then: EffectDef,
+        object: &StackObject,
+        context: EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) {
+        let Some(state) = self.effect_choice_decision_state_with_continuation(
+            definition, then, object, &context, scoped,
+        ) else {
             return;
         };
 
@@ -112,13 +130,13 @@ impl Game {
                 context.bind_object_group(unchosen, Vec::new());
             }
             Self::bind_effect_choice(&mut context, definition.binding, state.candidates);
-            self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
+            self.resolve_effect_def(scoped.with_effect(then), object, context);
             return;
         }
 
         self.queue_decision(
             state.chooser,
-            effect_choice_prompt(*definition.then, definition.binding),
+            effect_choice_prompt(then, definition.binding),
             effect_choice_visibility(definition.visibility),
             state.preference,
             state.minimum..=state.maximum,
@@ -130,7 +148,7 @@ impl Game {
                 object: Box::new(object.clone()),
                 context,
                 candidates: state.candidates,
-                effect: scoped.with_effect(*definition.then),
+                effect: scoped.with_effect(then),
             },
         );
         if matches!(
@@ -152,6 +170,23 @@ impl Game {
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> Option<EffectChoiceDecisionState> {
+        self.effect_choice_decision_state_with_continuation(
+            definition,
+            *definition.then,
+            object,
+            context,
+            scoped,
+        )
+    }
+
+    pub(super) fn effect_choice_decision_state_with_continuation(
+        &self,
+        definition: ChooseDef,
+        then: EffectDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Option<EffectChoiceDecisionState> {
         let chooser = self.effect_player_reference(definition.chooser, object, context, scoped)?;
         let excluded = definition.exclude.and_then(|reference| {
             self.effect_object_reference_id(reference, object, context, scoped)
@@ -166,7 +201,7 @@ impl Game {
             .enumerate()
             .map(|(index, candidate)| self.effect_target_option(index, candidate))
             .collect();
-        let preference = if effect_removes_binding(*definition.then, definition.binding) {
+        let preference = if effect_removes_binding(then, definition.binding) {
             if candidates.iter().all(|candidate| {
                 matches!(candidate, Target::Permanent(id)
                     if self.permanent_controller(*id) == Some(chooser))
@@ -405,8 +440,10 @@ fn recipient_uses_binding(recipient: EffectRecipientDef, binding: ObjectChoiceBi
 pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBindingDef) -> bool {
     match effect {
         EffectDef::Destroy { object, .. }
-        | EffectDef::Sacrifice { object }
-        | EffectDef::DiscardCards { object }
+        | EffectDef::Perform(
+            crate::card::GameActionDef::Sacrifice { object }
+            | crate::card::GameActionDef::DiscardCards { object },
+        )
         | EffectDef::MoveToZone {
             object,
             zone: ZoneKind::Graveyard | ZoneKind::Exile,
@@ -499,7 +536,9 @@ fn effect_matches_group_operation(
         {
             definition.input == ObjectSetDef::Binding(binding)
         }
-        EffectDef::Sacrifice { object } if matches!(operation, GroupOperation::Sacrifice) => {
+        EffectDef::Perform(crate::card::GameActionDef::Sacrifice { object })
+            if matches!(operation, GroupOperation::Sacrifice) =>
+        {
             recipient_matches(object)
         }
         EffectDef::InstallTrigger(installed) => installed

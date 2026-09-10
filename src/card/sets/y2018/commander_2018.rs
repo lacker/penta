@@ -52,11 +52,11 @@ pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::Opponent,
                     amount: ValueDef::Constant(3),
                 },
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::Source,
                     controller: PlayerRefDef::Opponent,
                     duration: ControlDurationDef::Indefinitely,
-                },
+                }),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Source,
                 },

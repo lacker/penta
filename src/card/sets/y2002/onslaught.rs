@@ -1153,13 +1153,13 @@ pub(in crate::card::sets) static ANNEX: CardRecord = CardRecord::new(
             abilities::enchant_land(),
             AbilityDef::static_ability(
                 "You control enchanted land.",
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::AttachedPermanent,
                     duration: ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
                     controller: PlayerRefDef::EffectController,
-                },
+                }),
             ),
         ]),
 );

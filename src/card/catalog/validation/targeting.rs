@@ -1,4 +1,3 @@
-use crate::card::ZoneRelativePositionDef;
 use crate::card::catalog::{EffectSubjectKind, GrantedAbilityValidationError};
 use crate::card::{
     AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
@@ -15,6 +14,7 @@ use crate::card::{
     SpellCostModificationDef, StackObjectEventDef, StackTargetFilterDef, TriggerConditionDef,
     TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
+use crate::card::{GameActionDef, ZoneRelativePositionDef};
 use crate::{Binding, TargetIndex};
 
 include!("targeting/references.rs");

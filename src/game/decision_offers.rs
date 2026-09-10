@@ -178,9 +178,9 @@ impl Game {
                 self.pay_matching_discard(player, predicate, card)
                     .then_some(SettledEffectPayment::without_mana(0))
             }
-            payment @ (ResolvedEffectPayment::DiscardCards(_)
-            | ResolvedEffectPayment::SacrificePermanents { .. }
-            | ResolvedEffectPayment::GainControlPermanents { .. }) => {
+            payment @ (ResolvedEffectPayment::Action(_)
+            | ResolvedEffectPayment::DiscardCards(_)
+            | ResolvedEffectPayment::SacrificePermanents { .. }) => {
                 self.settle_group_payment_decision(player, &payment, chosen, options)
             }
             payment => (chosen == 1)
@@ -250,6 +250,9 @@ impl Game {
         payment: ResolvedEffectPayment,
     ) -> bool {
         match payment {
+            ResolvedEffectPayment::Action(ref action) => {
+                self.action_payment_candidates(player, action).len() >= usize::from(action.amount)
+            }
             ResolvedEffectPayment::Choice(choices) => !self
                 .cost_list_payment_plans(player, &[ResolvedEffectPayment::Choice(choices)])
                 .is_empty(),
@@ -357,11 +360,6 @@ impl Game {
             ResolvedEffectPayment::SacrificePermanents { object, amount } => {
                 self.matching_permanents_controlled(player, object).len() >= usize::from(amount)
             }
-            ResolvedEffectPayment::GainControlPermanents { object, amount, .. } => {
-                self.matching_permanents_not_controlled(player, object)
-                    .len()
-                    >= usize::from(amount)
-            }
         }
     }
 
@@ -402,27 +400,6 @@ impl Game {
         self.battlefield
             .iter()
             .filter(|permanent| permanent.controller == player)
-            .filter(|permanent| {
-                self.trigger_object_matches_for_controller(
-                    predicate,
-                    &self.trigger_event_object(permanent),
-                    permanent.card.id,
-                    false,
-                    Some(player),
-                )
-            })
-            .map(|permanent| permanent.card.id)
-            .collect()
-    }
-
-    pub(super) fn matching_permanents_not_controlled(
-        &self,
-        player: PlayerId,
-        predicate: ObjectPredicateDef,
-    ) -> Vec<GameObjectId> {
-        self.battlefield
-            .iter()
-            .filter(|permanent| permanent.controller != player)
             .filter(|permanent| {
                 self.trigger_object_matches_for_controller(
                     predicate,

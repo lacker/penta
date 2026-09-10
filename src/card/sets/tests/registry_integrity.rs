@@ -535,13 +535,13 @@ fn attached_control_changes_are_static_abilities() {
     fn changes_attached_control(effect: EffectDef) -> bool {
         matches!(
             effect,
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::AttachedPermanent,
                 duration: ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
                 ..
-            }
+            })
         ) || child_effects(effect)
             .into_iter()
             .any(changes_attached_control)

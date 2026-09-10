@@ -767,9 +767,10 @@ fn duress_observes_the_hand_without_asking_when_nothing_can_be_discarded() {
 
 #[test]
 fn a_thoughtseize_shaped_sequence_loses_life_after_the_generic_hand_choice() {
-    static DISCARD_CHOSEN: EffectDef = EffectDef::DiscardCards {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-    };
+    static DISCARD_CHOSEN: EffectDef =
+        EffectDef::Perform(crate::card::GameActionDef::DiscardCards {
+            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+        });
     static CHOOSE_NONLAND: EffectDef = EffectDef::Choose(ChooseDef {
         binding: ObjectChoiceBindingDef::Object(ParentBinding),
         unchosen: None,

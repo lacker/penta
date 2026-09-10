@@ -744,9 +744,9 @@ pub(in crate::card::sets) static SPINDRIFT_DRAKE: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{U}"))],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
     ]),

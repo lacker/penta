@@ -25,6 +25,15 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
 
+- Discard, sacrifice, and gain-control operations now share `GameActionDef`,
+  executed by `EffectDef::Perform` or planned through `CostDef::Perform`.
+  Resolving action payments require complete selections and finish replacement
+  work before publishing payment results. The specialized gain-control cost is
+  removed; casting and activation retain their existing cost forms. See
+  [shared action programs](docs/game-actions.md). Checkpoint format 15 adds an
+  action-payment tag and resolving-control timestamp; protocol and replay
+  versions are unchanged, with exact reconstruction gated by the fingerprint.
+
 - Cycling and cumulative upkeep now use named ordinary ability programs.
   Cumulative upkeep composes counter placement with `CostDef::Repeated`;
   restricted mana and payment triggers inspect semantic labels. Shared payment
@@ -43,6 +52,11 @@ distinguishes snapshots of the covered source and build inputs.
   Alluring Scoundrel's free spell keeps its ordinary destination. The additive
   checkpoint member preserves that rider; protocol and replay versions are
   unchanged.
+
+- Herald of Leshrac now returns lands through its printed leave-the-battlefield
+  trigger, including lands acquired through other effects. Its upkeep's control
+  effect persists until that trigger resolves. A later indefinite control effect
+  supersedes older control durations and older static Aura control claims.
 
 - **Mishra's War Machine taps only when its upkeep damage reaches its controller.**
   Full prevention and complete redirection skip the tap; partial prevention and

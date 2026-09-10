@@ -1012,9 +1012,9 @@ pub(in crate::card::sets) static BOG_ELEMENTAL: CardRecord = CardRecord::new(
                 &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
                     CardType::Land,
                 ))],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
     ]),
@@ -1282,9 +1282,9 @@ pub(in crate::card::sets) static PIT_RAPTOR: CardRecord = CardRecord::new(
             },
                 EffectDef::PayOr(PayOrDef::unless(
                     &[CostDef::Mana(mana_cost!("{2}{B}{B}"))],
-                    &EffectDef::Sacrifice {
+                    &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                         object: EffectRecipientDef::Source,
-                    },
+                    }),
                 )),
             ),
         ],
@@ -1465,9 +1465,9 @@ pub(in crate::card::sets) static WHIPSTITCHED_ZOMBIE: CardRecord = CardRecord::n
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{B}"))],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
     ),
@@ -1985,9 +1985,9 @@ pub(in crate::card::sets) static DARBA: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{G}{G}"))],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
     ),

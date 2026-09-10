@@ -8,6 +8,12 @@ use super::EffectDef;
 #[allow(clippy::too_many_lines)]
 pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
     match effect {
+        EffectDef::Perform(crate::card::GameActionDef::Choose(choice)) => {
+            vec![EffectDef::Perform(*choice.then)]
+        }
+        EffectDef::Perform(crate::card::GameActionDef::Sequence(actions)) => {
+            actions.iter().copied().map(EffectDef::Perform).collect()
+        }
         EffectDef::Sequence(effects) => effects.to_vec(),
         EffectDef::DealDamage(damage) => damage.continuation().into_iter().copied().collect(),
         EffectDef::Randomized {
@@ -41,10 +47,13 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             .into_iter()
             .chain(payment.otherwise)
             .copied()
+            .chain(cost_action_effects(payment.payment.costs))
+            .collect(),
+        EffectDef::WithCosts { costs, effect } => std::iter::once(*effect)
+            .chain(cost_action_effects(costs))
             .collect(),
         EffectDef::BindOutput { effect, .. }
         | EffectDef::WithRule { effect, .. }
-        | EffectDef::WithCosts { effect, .. }
         | EffectDef::ForEachInBinding { effect, .. }
         | EffectDef::May { effect, .. }
         | EffectDef::ChooseCounterKind { then: effect, .. }
@@ -134,7 +143,12 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::CreateMyriadTokens
         | EffectDef::Destroy { then: None, .. }
         | EffectDef::Detain { .. }
-        | EffectDef::DiscardCards { .. }
+        | EffectDef::Perform(
+            crate::card::GameActionDef::DiscardCards { .. }
+            | crate::card::GameActionDef::GainControl { .. }
+            | crate::card::GameActionDef::Sacrifice { .. }
+            | crate::card::GameActionDef::SacrificeYours { .. },
+        )
         | EffectDef::DrainLife { .. }
         | EffectDef::DrawCards { .. }
         | EffectDef::EmptyManaPool { .. }
@@ -142,7 +156,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::ExileGrantingOwnerPlay { .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
-        | EffectDef::GainControl { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::SetLifeTotal { .. }
         | EffectDef::SearchZonesAndExileRest { .. }
@@ -180,8 +193,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Explore { .. }
         | EffectDef::Proliferate
         | EffectDef::ReturnLinkedExiles { .. }
-        | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeYours { .. }
         | EffectDef::ScheduleTurnPhases(_)
         | EffectDef::BuryGraveyard { .. }
         | EffectDef::ShuffleLibrary { .. }
@@ -196,6 +207,22 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Untap { .. } => Vec::new(),
         EffectDef::ChooseForEachPlayer(definition) => vec![*definition.then],
     }
+}
+
+/// Cost action bodies are authored semantic programs too. Expose them to
+/// locators so committed payment actions can use the ordinary effect
+/// continuation and checkpoint machinery after their selection is frozen.
+fn cost_action_effects(costs: &'static [crate::card::CostDef]) -> Vec<EffectDef> {
+    costs
+        .iter()
+        .flat_map(|cost| match cost {
+            crate::card::CostDef::Perform(program) => vec![EffectDef::Perform(**program)],
+            crate::card::CostDef::All(costs)
+            | crate::card::CostDef::Choice(costs)
+            | crate::card::CostDef::Repeated { costs, .. } => cost_action_effects(costs),
+            _ => Vec::new(),
+        })
+        .collect()
 }
 
 #[cfg(test)]

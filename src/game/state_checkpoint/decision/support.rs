@@ -694,6 +694,10 @@ pub(super) fn resolved_effect_payment_snapshot(
     payment: ResolvedEffectPayment,
 ) -> ResolvedEffectPaymentSnapshot {
     match payment {
+        ResolvedEffectPayment::Action(payment) => ResolvedEffectPaymentSnapshot::Action {
+            source: payment.source.0,
+            amount: payment.amount,
+        },
         ResolvedEffectPayment::Choice(payments) => ResolvedEffectPaymentSnapshot::Choice(
             payments
                 .into_iter()
@@ -763,12 +767,7 @@ pub(super) fn resolved_effect_payment_snapshot(
         ResolvedEffectPayment::OpponentCreatesTokens { amount, .. } => {
             ResolvedEffectPaymentSnapshot::OpponentCreatesTokens(amount)
         }
-        ResolvedEffectPayment::GainControlPermanents { source, amount, .. } => {
-            ResolvedEffectPaymentSnapshot::GainControlPermanents {
-                source: source.0,
-                amount,
-            }
-        }
+
         ResolvedEffectPayment::FlipCoins(amount) => {
             ResolvedEffectPaymentSnapshot::FlipCoins(amount)
         }

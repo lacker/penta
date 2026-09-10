@@ -33,6 +33,16 @@ fn validate_effect_target_shapes(
     triggering_object_zone: Option<ZoneKind>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
+        EffectDef::Perform(GameActionDef::Sequence(effects)) => {
+            for effect in effects {
+                validate_effect_target_shapes(
+                    EffectDef::Perform(*effect),
+                    targets,
+                    triggering_object_zone,
+                )?;
+            }
+            Ok(())
+        }
         EffectDef::Sequence(effects) => {
             for effect in effects {
                 validate_effect_target_shapes(*effect, targets, triggering_object_zone)?;
@@ -95,6 +105,16 @@ fn validate_effect_target_shapes(
                 validate_object_reference_shape(excluded, targets)?;
             }
             validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
+        }
+        EffectDef::Perform(GameActionDef::Choose(choice)) => {
+            validate_player_reference_shape(choice.chooser, targets)?;
+            validate_object_set_shape(choice.candidates, targets)?;
+            validate_value_shape(choice.amount, targets)?;
+            validate_effect_target_shapes(
+                EffectDef::Perform(*choice.then),
+                targets,
+                triggering_object_zone,
+            )
         }
         EffectDef::ChooseExact(choice) => {
             validate_player_reference_shape(choice.chooser, targets)?;
@@ -389,7 +409,12 @@ fn validate_effect_target_shapes(
             validate_player_reference_shape(player, targets)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
-        EffectDef::DiscardCards { object }
+        EffectDef::Perform(
+            GameActionDef::DiscardCards { object }
+            | GameActionDef::Sacrifice { object }
+            | GameActionDef::SacrificeYours { object }
+            | GameActionDef::GainControl { object, .. },
+        )
         | EffectDef::Explore { object }
         | EffectDef::Regenerate { object }
         | EffectDef::Tap { object }
@@ -408,15 +433,12 @@ fn validate_effect_target_shapes(
         | EffectDef::DoubleCounters { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::SkipNextUntapSteps { object, .. }
-        | EffectDef::Sacrifice { object }
-        | EffectDef::SacrificeYours { object }
         | EffectDef::ChangeTextBasicLandType { object }
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
-        | EffectDef::GainControl { object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::Counter { object, .. }
@@ -647,7 +669,9 @@ fn validate_effect_target_shapes(
         },
         // The ballot is a predicate, not a target: nothing is pointed at.
         EffectDef::WithCosts { costs, effect } => {
-            costs.iter().try_for_each(|cost| validate_program_cost_shape(*cost, targets))?;
+            costs
+                .iter()
+                .try_for_each(|cost| validate_program_cost_shape(*cost, targets))?;
             validate_effect_target_shapes(*effect, targets, triggering_object_zone)
         }
         EffectDef::PutSourceOntoBattlefieldAttacking

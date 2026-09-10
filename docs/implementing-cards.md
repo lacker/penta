@@ -5,6 +5,8 @@ This guide describes where card behavior belongs in the current engine. The
 are preferences rather than purity requirements. The source-layout rules in
 this guide are invariants.
 
+The [shared game action guide](game-actions.md) describes cost and effect wrappers
+for discard, sacrifice, and gain-control programs.
 The [named mechanic programs draft](composed-mechanics.md) describes the current
 cycling and cumulative-upkeep composition slice and its payment boundaries.
 

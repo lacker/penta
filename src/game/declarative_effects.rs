@@ -34,6 +34,7 @@ impl Game {
     ) {
         let context = context.into();
         match scoped.effect {
+            EffectDef::Perform(action) => self.resolve_game_action(action, object, context, scoped),
             EffectDef::Forage { optional } => {
                 self.queue_forage(object.controller, optional, None, object.source);
             }
@@ -269,7 +270,6 @@ impl Game {
             | EffectDef::ShuffleLibrary { .. }
             | EffectDef::BuryGraveyard { .. }
             | EffectDef::Discard { .. }
-            | EffectDef::DiscardCards { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileOneFromEachZone(_)
             | EffectDef::MillWhileMatching(_)
@@ -339,46 +339,6 @@ impl Game {
                     scoped.has_rule(AppliedRuleDef::CannotRegenerate),
                     completion,
                 );
-            }
-            // Audit: whoever controls a named permanent is treated as the
-            // "Is sacrificed by its controller": whoever controls the
-            // permanent gives it up, whoever caused it. An instruction that
-            // says "you sacrifice it" is `SacrificeYours` below, because CR
-            // 701.17a lets a player sacrifice only what they control.
-            EffectDef::Sacrifice { object: recipient } => {
-                let permanents = self
-                    .effect_recipients(recipient, object, &context, scoped)
-                    .into_iter()
-                    .filter_map(|target| match target {
-                        Target::Permanent(permanent) => Some(permanent),
-                        Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
-                    })
-                    .filter(|permanent| {
-                        self.permanent_controller(*permanent)
-                            .is_none_or(|controller| {
-                                self.can_be_forced_to_sacrifice(controller, object.controller)
-                            })
-                    })
-                    .collect::<Vec<_>>();
-                self.sacrifice_permanents(&permanents);
-            }
-            // "You sacrifice it." The ability's controller is the one being
-            // told to, so a permanent that has left their side is no longer
-            // theirs to give up: Sneak Attack's Dragon, stolen before the end
-            // step, stays where it went.
-            EffectDef::SacrificeYours { object: recipient } => {
-                let permanents = self
-                    .effect_recipients(recipient, object, &context, scoped)
-                    .into_iter()
-                    .filter_map(|target| match target {
-                        Target::Permanent(permanent) => Some(permanent),
-                        Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
-                    })
-                    .filter(|permanent| {
-                        self.permanent_controller(*permanent) == Some(object.controller)
-                    })
-                    .collect::<Vec<_>>();
-                self.sacrifice_permanents(&permanents);
             }
             EffectDef::SacrificeOfChoice {
                 count,
@@ -657,20 +617,7 @@ impl Game {
                     }
                 }
             }
-            EffectDef::GainControl {
-                object: recipient,
-                controller,
-                duration,
-            } => {
-                // Who receives it is read where the effect resolves, so
-                // "an opponent gains control" hands it to the one player
-                // the effect's controller is not.
-                let Some(receiver) = self.player_reference(controller, object, &context, scoped)
-                else {
-                    return;
-                };
-                self.take_control_of(recipient, object, &context, scoped, duration, receiver);
-            }
+
             EffectDef::ExchangeControl {
                 first,
                 second,

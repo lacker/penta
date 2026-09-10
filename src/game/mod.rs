@@ -103,6 +103,7 @@ mod exile_permission;
 mod explore;
 mod face_down;
 mod foretell;
+mod game_actions;
 mod land_type_layers;
 mod land_type_substitution;
 mod legacy_resolution;

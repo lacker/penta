@@ -136,14 +136,14 @@ fn validate_static_effect(
         EffectDef::StaticApply { recipient, effect } => {
             validate_static_apply(source_zones, recipient, effect, position)
         }
-        EffectDef::GainControl {
+        EffectDef::Perform(crate::card::GameActionDef::GainControl {
             object: EffectRecipientDef::AttachedPermanent,
             controller: PlayerRefDef::EffectController,
             duration:
                 crate::card::ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
-        } if position == StaticPosition::Root && source_zones == [ZoneKind::Battlefield] => Ok(()),
+        }) if position == StaticPosition::Root && source_zones == [ZoneKind::Battlefield] => Ok(()),
         // A prohibition holds wherever a static clause states it, including
         // one of several the same printed sentence states -- Tamiyo says
         // "discard cards or sacrifice permanents" in one breath.

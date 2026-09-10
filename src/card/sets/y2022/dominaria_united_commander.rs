@@ -66,9 +66,9 @@ pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::n
                                     step: TurnStepDef::End,
                                     player: PlayerRelation::Any,
                                 },
-                                EffectDef::Sacrifice {
+                                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                                },
+                                }),
                             ))),
                         ]),
                     }),

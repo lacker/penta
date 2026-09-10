@@ -558,9 +558,9 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
                             }
                         },
                         then: &const {
-                            EffectDef::Sacrifice {
+                            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                 object: EffectRecipientDef::Source,
-                            }
+                            })
                         },
                     },
                 ]

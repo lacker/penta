@@ -188,11 +188,11 @@ pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
             ]),
         )],
         EffectDef::Sequence(&[
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 duration: ControlDurationDef::UntilEndOfTurn,
                 controller: PlayerRefDef::EffectController,
-            },
+            }),
             EffectDef::Untap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },

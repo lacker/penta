@@ -81,6 +81,9 @@ pub(super) fn permanent_snapshot(
         skipped_untap_steps: permanent.skipped_untap_steps,
         control_reverts_to: permanent.control_reverts_to.map(PlayerId::index),
         control_source: permanent.control_source.map(|id| id.0),
+        resolving_control_timestamp: permanent
+            .resolving_control_timestamp
+            .map(|timestamp| timestamp.0),
         control_requires_source_tapped: permanent.control_requires_source_tapped,
         control_requires_source_attached: permanent.control_requires_source_attached,
         chosen_player: permanent.chosen_player.map(PlayerId::index),

@@ -3028,11 +3028,11 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
                         chosen: LILIANA_CHOSEN_PILE,
                         unchosen: Binding!("liliana_spared_pile"),
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::Sacrifice {
+                        then: &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                             object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                                 LILIANA_CHOSEN_PILE,
                             )),
-                        },
+                        }),
                     }) },
                 }),
             ),
@@ -4595,11 +4595,11 @@ pub(in crate::card::sets) static TRAITOROUS_BLOOD: CardRecord = CardRecord::new_
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::Sequence(&[
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     duration: ControlDurationDef::UntilEndOfTurn,
                     controller: PlayerRefDef::EffectController,
-                },
+                }),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -6003,13 +6003,13 @@ pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Subtype("Vampire"),
                 )],
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     controller: PlayerRefDef::EffectController,
                     duration: ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
-                },
+                }),
             ),
         ]),
 );

@@ -467,6 +467,7 @@ impl Game {
             else {
                 continue;
             };
+            permanent.resolving_control_timestamp = None;
             permanent.control_source = None;
             permanent.control_requires_source_tapped = false;
             permanent.control_requires_source_attached = false;

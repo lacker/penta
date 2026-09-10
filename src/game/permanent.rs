@@ -61,6 +61,8 @@ struct Permanent {
     /// change. When it leaves the battlefield or changes hands, control goes
     /// back to `control_reverts_to`.
     control_source: Option<GameObjectId>,
+    /// Ordering of the current resolving control effect against static Auras.
+    resolving_control_timestamp: Option<ContinuousEffectTimestamp>,
     /// Whether that holder also has to stay tapped to keep the change.
     control_requires_source_tapped: bool,
     /// Whether the holder has to remain attached to this permanent. Static
@@ -280,6 +282,7 @@ impl Permanent {
             skipped_untap_steps: 0,
             control_reverts_to: None,
             control_source: None,
+            resolving_control_timestamp: None,
             control_requires_source_tapped: false,
             control_requires_source_attached: false,
             blocked: false,

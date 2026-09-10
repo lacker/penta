@@ -945,11 +945,11 @@ pub(in crate::card::sets) static SMELT_WARD_GATEKEEPERS: CardRecord = CardRecord
                 },
             )],
             EffectDef::Sequence(&[
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     duration: ControlDurationDef::UntilEndOfTurn,
                     controller: PlayerRefDef::EffectController,
-                },
+                }),
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -3121,11 +3121,11 @@ pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new_fus
                         ObjectPredicateDef::Any,
                     )],
                     EffectDef::Sequence(&[
-                        EffectDef::GainControl {
+                        EffectDef::Perform(crate::card::GameActionDef::GainControl {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             duration: ControlDurationDef::UntilEndOfTurn,
                             controller: PlayerRefDef::EffectController,
-                        },
+                        }),
                         EffectDef::Untap {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         },
@@ -3156,11 +3156,11 @@ pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new_fus
                     visibility: ChoiceVisibilityDef::Public,
                     chosen: Binding!("release_sacrificed_permanents"),
                     unchosen: Binding!("release_spared_permanents"),
-                    then: &EffectDef::Sacrifice {
+                    then: &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
                             "release_sacrificed_permanents"
                         ))),
-                    },
+                    }),
                 }),
             )),
         ),

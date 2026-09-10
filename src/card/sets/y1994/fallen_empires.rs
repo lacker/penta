@@ -431,9 +431,9 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_l
             EffectDef::PayOr(
                 PayOrDef::unless(
                     &[CostDef::MillCards(2)],
-                    &EffectDef::Sacrifice {
+                    &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                         object: EffectRecipientDef::Source,
-                    },
+                    }),
                 )
                 .with_visibility(ChoiceVisibilityDef::Public),
             ),
@@ -750,9 +750,9 @@ pub(in crate::card::sets) static VODALIAN_KNIGHTS: CardRecord = CardRecord::new_
                     comparison: ComparisonDef::Equal,
                     amount: 0,
                 },
-                EffectDef::Sacrifice {
+                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             ),
         ],
     ),
@@ -874,9 +874,9 @@ pub(in crate::card::sets) static BREEDING_PIT: CardRecord = CardRecord::new_with
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{B}{B}"))],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
         AbilityDef::triggered(
@@ -985,9 +985,9 @@ pub(in crate::card::sets) static MINDSTAB_THRULL: CardRecord = CardRecord::new_w
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Sequence(&[
-                    EffectDef::Sacrifice {
+                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                         object: EffectRecipientDef::Source,
-                    },
+                    }),
                     EffectDef::Discard {
                         recipient: EffectRecipientDef::Opponent,
                         amount: ValueDef::Constant(3),
@@ -1028,9 +1028,9 @@ pub(in crate::card::sets) static NECRITE: CardRecord = CardRecord::new_with_lega
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Sequence(&[
-                    EffectDef::Sacrifice {
+                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                         object: EffectRecipientDef::Source,
-                    },
+                    }),
                     // The prohibition modifies only this destruction; it does not last
                     // for the rest of the turn.
                     EffectDef::WithRule {
@@ -1125,13 +1125,13 @@ pub(in crate::card::sets) static THRULL_CHAMPION: CardRecord = CardRecord::new_w
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Subtype("Thrull"),
             )],
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 duration: ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
                 controller: PlayerRefDef::EffectController,
-            },
+            }),
         ),
     ]),
 );
@@ -1407,9 +1407,9 @@ pub(in crate::card::sets) static GOBLIN_KITES: CardRecord = CardRecord::new_with
                     },
                     EffectDef::FlipCoin {
                         on_win: &EffectDef::None,
-                        on_loss: &EffectDef::SacrificeYours {
+                        on_loss: &EffectDef::Perform(crate::card::GameActionDef::SacrificeYours {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        },
+                        }),
                     },
                 ))),
             ]),

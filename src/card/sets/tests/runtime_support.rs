@@ -644,7 +644,14 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::AddPlayerCounters { .. }
                     | EffectDef::DrawCards { .. }
                     | EffectDef::Discard { .. }
-                    | EffectDef::DiscardCards { .. }
+                    | EffectDef::Perform(
+                        crate::card::GameActionDef::Choose(_)
+                        | crate::card::GameActionDef::Sequence(_)
+                        | crate::card::GameActionDef::DiscardCards { .. }
+                        | crate::card::GameActionDef::Sacrifice { .. }
+                        | crate::card::GameActionDef::SacrificeYours { .. }
+                        | crate::card::GameActionDef::GainControl { .. },
+                    )
                     | EffectDef::ShuffleLibrary { .. }
                     | EffectDef::BuryGraveyard { .. }
                     | EffectDef::EmptyManaPool { .. }
@@ -670,8 +677,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Endure { .. }
                     | EffectDef::CreateMyriadTokens
                     | EffectDef::Destroy { .. }
-                    | EffectDef::Sacrifice { .. }
-                    | EffectDef::SacrificeYours { .. }
                     | EffectDef::SacrificeOfChoice { .. }
                     | EffectDef::ExileTopOfLibraryToPlay { .. }
                     | EffectDef::ExileTopAndMayCast { .. }
@@ -729,7 +734,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::PermitCastFromGraveyardThisTurn { .. }
                     | EffectDef::ReturnLinkedExiles { .. }
                     | EffectDef::Detain { .. }
-                    | EffectDef::GainControl { .. }
                     | EffectDef::ExchangeControl { .. }
                     | EffectDef::InstallTrigger(_)
                     | EffectDef::IfCondition { .. }

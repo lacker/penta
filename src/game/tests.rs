@@ -10,6 +10,7 @@ use crate::card::{
 };
 use crate::mana_cost;
 pub(super) mod cost_lists;
+pub(super) mod game_action_programs;
 mod intrinsic_costs;
 use crate::poc::{self, cards};
 use crate::{

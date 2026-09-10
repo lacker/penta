@@ -12,6 +12,9 @@ include!("costs/quantities.rs");
 /// is its source, and whether it supports the expression's required choices.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostDef {
+    /// Perform a shared game-action program as a complete payment obligation.
+    /// Each payment procedure validates the program shapes it can plan.
+    Perform(&'static super::GameActionDef),
     /// Expand the cost list supplied by the enclosing `WithCosts` program.
     Parameter,
     /// Repeat this cost list a computed number of times. Each repetition
@@ -228,12 +231,6 @@ pub enum CostDef {
         token: &'static TokenCharacteristics,
         amount: u16,
     },
-    /// Gain control of matching permanents not already controlled by the
-    /// payer.
-    GainControlPermanents {
-        object: ObjectPredicateDef,
-        amount: u16,
-    },
     /// Have the payer flip this many coins.
     FlipCoins(u16),
     /// Choose a positive generic-mana amount during payment.
@@ -344,11 +341,6 @@ impl CostDef {
             token,
             amount,
         }
-    }
-
-    #[must_use]
-    pub const fn gain_control_permanents(object: ObjectPredicateDef, amount: u16) -> Self {
-        Self::GainControlPermanents { object, amount }
     }
 
     #[must_use]

@@ -7,6 +7,9 @@ programs. The prepared engine may derive specialized executors from those bodies
 
 ## Design commitments
 
+Shared discard, sacrifice, and control operations now use
+[game action programs](game-actions.md), with separate cost and effect wrappers.
+
 1. A semantic label identifies an ability or payment purpose. It never selects a
    hidden reference implementation.
 2. A payment retains its purpose and repetition count. Its result records actual
@@ -127,7 +130,8 @@ Mixed lists of supported scalar and object costs use that same boundary.
 Repeated discard and sacrifice costs select their complete required group;
 different components cannot spend the same selected object. The shared
 completion procedure waits for suspended cost actions and replacement choices
-before publishing the payment result. Arbitrary action programs and choices
+before publishing the payment result. Independent exact selections in shared
+action programs use this planner too. Arbitrary action programs and choices
 between non-scalar costs still need further ordering and replacement support,
 and remain rejected for repeated/labeled payment programs. The new dynamic
 repetition node is supported by resolving payment procedures; casting and

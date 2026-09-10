@@ -1039,11 +1039,11 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
                                     generic: 2,
                                 }],
                                 &const {
-                                    EffectDef::Sacrifice {
+                                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                                             ParentBinding,
                                         )),
-                                    }
+                                    })
                                 },
                             )
                             .with_visibility(ChoiceVisibilityDef::Public),
@@ -1208,13 +1208,13 @@ pub(in crate::card::sets) static MIND_HARNESS: CardRecord = CardRecord::new(
             abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{1}"))]),
             AbilityDef::static_ability(
                 "You control enchanted creature.",
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::AttachedPermanent,
                     duration: ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
                     controller: PlayerRefDef::EffectController,
-                },
+                }),
             ),
         ]),
 );
@@ -1507,11 +1507,11 @@ pub(in crate::card::sets) static TIDAL_WAVE: CardRecord = CardRecord::new(
                                     step: TurnStepDef::End,
                                     player: PlayerRelation::Any,
                                 },
-                                EffectDef::Sacrifice {
+                                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                                         ParentBinding,
                                     )),
-                                },
+                                }),
                             )
                         },
                     ))
@@ -2286,9 +2286,9 @@ pub(in crate::card::sets) static SKULKING_GHOST: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "When this creature becomes the target of a spell or ability, sacrifice it.",
             TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
-            EffectDef::Sacrifice {
+            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                 object: EffectRecipientDef::Source,
-            },
+            }),
         ),
     ]),
 );
@@ -4789,9 +4789,9 @@ pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord:
             // its own Stifle, not to be paid for.
             abilities::enters_trigger("When this creature enters, sacrifice it unless you sacrifice any number of creatures with total power 12 or greater.", EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::SacrificeCreaturesWithTotalPower(12)],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             ))),
         ]),
 );

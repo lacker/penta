@@ -102,6 +102,24 @@ fn validate_effect_references(
                 "WithZoneMoveResult must expose a moved-object binding consumed by their continuation",
             )
         }
+        EffectDef::Perform(GameActionDef::Sequence(effects)) => {
+            let mut name_outputs = Vec::new();
+            for effect in effects {
+                durable_card_name_outputs(EffectDef::Perform(*effect), &mut name_outputs);
+            }
+            let mut scope = scope.with_known_binding_labels(&name_outputs)?;
+            for effect in effects {
+                let mut outputs = Vec::new();
+                durable_object_set_outputs(EffectDef::Perform(*effect), &mut outputs);
+                validate_effect_references(
+                    EffectDef::Perform(*effect),
+                    target_count,
+                    scope.with_escaping_object_sets(&outputs)?,
+                )?;
+                scope = scope_after_sequence_effect(EffectDef::Perform(*effect), scope)?;
+            }
+            Ok(())
+        }
         EffectDef::Sequence(effects) => {
             let mut name_outputs = Vec::new();
             for effect in effects {
@@ -230,6 +248,22 @@ fn validate_effect_references(
                 None => nested,
             };
             validate_effect_references(*choice.then, target_count, nested)
+        }
+        EffectDef::Perform(GameActionDef::Choose(choice)) => {
+            validate_player_reference(choice.chooser, target_count, scope)?;
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(choice.candidates),
+                target_count,
+                scope,
+            )?;
+            validate_value_target_references(choice.amount, target_count, scope)?;
+            validate_object_set_continuation(
+                choice.binding,
+                EffectDef::Perform(*choice.then),
+                target_count,
+                scope,
+                "Action choice continuations must expose a result binding consumed by their continuation",
+            )
         }
         EffectDef::ChooseExact(choice) => {
             validate_player_reference(choice.chooser, target_count, scope)?;
@@ -585,20 +619,20 @@ fn validate_effect_references(
         | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
         | EffectDef::PhaseOut { object }
-        | EffectDef::Destroy {
-            object, then: None, ..
-        }
-        | EffectDef::Sacrifice { object }
-        | EffectDef::SacrificeYours { object }
+        | EffectDef::Destroy { object, then: None, .. }
+        | EffectDef::Perform(
+            GameActionDef::Sacrifice { object }
+            | GameActionDef::SacrificeYours { object }
+            | GameActionDef::DiscardCards { object }
+            | GameActionDef::GainControl { object, .. },
+        )
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
-        | EffectDef::DiscardCards { object }
         | EffectDef::ChangeTextBasicLandType { object }
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::Detain { object }
-        | EffectDef::GainControl { object, .. }
         | EffectDef::Transform { object }
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::Counter { object, .. }

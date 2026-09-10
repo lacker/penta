@@ -153,14 +153,14 @@ pub(in super::super) fn shared_static_non_apply_effect(
         | EffectDef::GainClassLevel { .. }
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::LandwalkCanBeBlocked(_)
-        | EffectDef::GainControl {
+        | EffectDef::Perform(crate::card::GameActionDef::GainControl {
             object: EffectRecipientDef::AttachedPermanent,
             controller: PlayerRefDef::EffectController,
             duration:
                 ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
-        } => battlefield_only(source_zones),
+        }) => battlefield_only(source_zones),
         // Read while attackers are declared, over the battlefield, so only
         // the object predicate is left to check.
         EffectDef::CannotAttackUnless(query) | EffectDef::CannotAttackIf(query) => {
@@ -201,7 +201,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
-        | EffectDef::GainControl { .. }
+        | EffectDef::Perform(crate::card::GameActionDef::GainControl { .. })
         | EffectDef::ChooseExact(_)
         | EffectDef::Sequence(_) => shared_static_non_apply_effect(source_zones, effect),
         EffectDef::ConditionalStatic(conditional) => {
@@ -381,7 +381,13 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::AddPlayerCounters { .. }
         | EffectDef::DrawCards { .. }
         | EffectDef::Discard { .. }
-        | EffectDef::DiscardCards { .. }
+        | EffectDef::Perform(
+            crate::card::GameActionDef::Choose(_)
+            | crate::card::GameActionDef::Sequence(_)
+            | crate::card::GameActionDef::DiscardCards { .. }
+            | crate::card::GameActionDef::Sacrifice { .. }
+            | crate::card::GameActionDef::SacrificeYours { .. },
+        )
         | EffectDef::ShuffleLibrary { .. }
         | EffectDef::BuryGraveyard { .. }
         | EffectDef::EmptyManaPool { .. }
@@ -406,8 +412,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::CreateAttachedToken { .. }
         | EffectDef::Endure { .. }
         | EffectDef::Destroy { .. }
-        | EffectDef::Sacrifice { .. }
-        | EffectDef::SacrificeYours { .. }
         | EffectDef::SacrificeOfChoice { .. }
         | EffectDef::ExileTopOfLibraryToPlay { .. }
         | EffectDef::ExileTopAndMayCast { .. }

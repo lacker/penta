@@ -279,11 +279,11 @@ mod tests {
         };
         assert_eq!(
             *discard.then,
-            EffectDef::DiscardCards {
+            EffectDef::Perform(crate::card::GameActionDef::DiscardCards {
                 object: EffectRecipientDef::object(crate::card::ObjectRefDef::Binding(
                     ParentBinding,
                 )),
-            }
+            })
         );
 
         let [_, EffectDef::Choose(exile)] = reveal_hand_and_exile_chosen_card(player, object)

@@ -30,8 +30,8 @@ impl Game {
             return options;
         }
         match payment {
-            ResolvedEffectPayment::Choice(choices) => {
-                options.extend(self.cost_list_payment_options(player, &[ResolvedEffectPayment::Choice(choices)]));
+            payment @ ResolvedEffectPayment::Choice(_) => {
+                options.extend(self.cost_list_payment_options(player, &[payment]));
             }
             ResolvedEffectPayment::All(payments) => {
                 options.extend(self.cost_list_payment_options(player, &payments));
@@ -124,6 +124,17 @@ impl Game {
         payment: &ResolvedEffectPayment,
     ) -> bool {
         let (candidates, count, verb, zone) = match *payment {
+            ResolvedEffectPayment::Action(ref action) => {
+                let candidates = self.action_payment_candidates(player, action);
+                let zone = candidates.first().map_or(DecisionZone::None, |target| {
+                    self.effect_target_option(0, *target).zone
+                });
+                let members = candidates
+                    .iter()
+                    .filter_map(|target| self.effect_target_option(0, *target).card)
+                    .collect();
+                (members, action.amount, action.verb(), zone)
+            }
             ResolvedEffectPayment::DiscardCards(amount) => (
                 self.players[player.index()]
                     .hand
@@ -148,18 +159,6 @@ impl Game {
                 ),
                 amount,
                 "Sacrifice",
-                DecisionZone::Battlefield,
-            ),
-            ResolvedEffectPayment::GainControlPermanents {
-                object: predicate,
-                amount,
-                ..
-            } => (
-                self.group_payment_permanents(
-                    self.matching_permanents_not_controlled(player, predicate),
-                ),
-                amount,
-                "Gain control of",
                 DecisionZone::Battlefield,
             ),
             _ => return false,

@@ -563,7 +563,11 @@ impl Game {
                 | EffectDef::AddPlayerCounters { .. }
                 | EffectDef::DrawCards { .. }
                 | EffectDef::Discard { .. }
-                | EffectDef::DiscardCards { .. }
+                | EffectDef::Perform(
+                    crate::card::GameActionDef::DiscardCards { .. }
+                        | crate::card::GameActionDef::Sacrifice { .. }
+                        | crate::card::GameActionDef::GainControl { .. }
+                )
                 | EffectDef::ShuffleLibrary { .. }
                 | EffectDef::BuryGraveyard { .. }
                 | EffectDef::EmptyManaPool { .. }
@@ -579,7 +583,6 @@ impl Game {
                 | EffectDef::Untap { .. }
                 | EffectDef::Saddle { .. }
                 | EffectDef::Destroy { .. }
-                | EffectDef::Sacrifice { .. }
                 | EffectDef::SacrificeOfChoice { .. }
                 | EffectDef::ExileTopOfLibraryToPlay { .. }
                 | EffectDef::Mill { .. }
@@ -619,7 +622,6 @@ impl Game {
                 | EffectDef::MayPlayWithoutPaying { .. }
                 | EffectDef::ReturnLinkedExiles { .. }
                 | EffectDef::Detain { .. }
-                | EffectDef::GainControl { .. }
                 | EffectDef::IfCondition { .. }
                 | EffectDef::IfElseCondition { .. }
                 | EffectDef::InstallTrigger(_)
@@ -652,8 +654,6 @@ impl Game {
                 | EffectDef::ExileOneFromEachZone { .. }
                 | EffectDef::LookAtRandomCardInHand { .. }
                 | EffectDef::RevealAtRandomFromHand { .. }
-                // A card these let somebody cast later attaches through its
-                // own resolution, not through the clause that freed it.
                 | EffectDef::ExileGrantingOwnerPlay { .. }
                 | EffectDef::ExileTopAndMayCast { .. }
                 | EffectDef::MayCastTargetWithoutPaying { .. }

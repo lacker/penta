@@ -2653,9 +2653,9 @@ pub(in crate::card::sets) static MOLTING_HARPY: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
     ]),
@@ -2688,7 +2688,7 @@ pub(in crate::card::sets) static NOTORIOUS_ASSASSIN: CardRecord = CardRecord::ne
         &[
             CostDef::Mana(mana_cost!("{2}{B}")),
             CostDef::TapSource,
-            CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            CostDef::discard(ObjectPredicateDef::Any),
         ],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::All(&[
@@ -2924,9 +2924,9 @@ pub(in crate::card::sets) static SKULKING_FUGITIVE: CardRecord = CardRecord::new
             // Any spell or ability, including its controller's own: a
             // pump spell kills it just as surely as removal does.
             TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
-            EffectDef::Sacrifice {
+            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                 object: EffectRecipientDef::Source,
-            },
+            }),
         ),
     ),
 );
@@ -3082,7 +3082,7 @@ pub(in crate::card::sets) static UNDERTAKER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{B}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -3795,9 +3795,9 @@ pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
                 &[CostDef::sacrifice_permanent(
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                 )],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
     ),
@@ -4387,7 +4387,7 @@ pub(in crate::card::sets) static DAWNSTRIDER: CardRecord = CardRecord::new(
             &[
                 CostDef::Mana(mana_cost!("{G}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             EffectDef::PreventDamage {
                 prevention: crate::card::DamagePreventionDef::unlimited(
@@ -4966,7 +4966,7 @@ pub(in crate::card::sets) static SILVERGLADE_PATHFINDER: CardRecord = CardRecord
             &[
                 CostDef::Mana(mana_cost!("{1}{G}")),
                 CostDef::TapSource,
-                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::discard(ObjectPredicateDef::Any),
             ],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,

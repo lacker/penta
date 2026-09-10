@@ -1,6 +1,8 @@
 /// Declarative effect primitives interpreted by the rules engine.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum EffectDef {
+    /// Execute a shared game-action program under ordinary resolution rules.
+    Perform(super::GameActionDef),
     /// The controller exiles three graveyard cards or sacrifices a Food.
     Forage { optional: bool },
     /// Supply a lexical cost parameter to an inspectable effect program.
@@ -309,12 +311,7 @@ pub enum EffectDef {
         /// chosen.
         then: Option<DiscardFollowUpDef>,
     },
-    /// Discard the named card objects from their owners' hands. Selection is
-    /// expressed separately (usually with [`Self::Choose`]); this leaf is the
-    /// rules action that moves the chosen cards and emits discard events.
-    DiscardCards {
-        object: EffectRecipientDef,
-    },
+
     /// Deals damage and gains its controller that much life, but no more
     /// than the recipient had to give: a player's life total, a
     /// planeswalker's loyalty, or a creature's toughness, each read before
@@ -383,18 +380,7 @@ pub enum EffectDef {
     ExileGrantingControllerPlayThisTurn {
         object: EffectRecipientDef,
     },
-    /// Move control of the recipient for the stated duration. Source-bound
-    /// durations also remember whether the source must remain tapped.
-    ///
-    /// Almost every card that says this gives control to the effect's own
-    /// controller, which is what "gain control" means; Wishclaw Talisman
-    /// hands the permanent to an opponent instead, so who receives it is
-    /// part of the effect.
-    GainControl {
-        object: EffectRecipientDef,
-        controller: PlayerRefDef,
-        duration: ControlDurationDef,
-    },
+
     /// Swap who controls two permanents, reading both controllers before
     /// either moves. Two ordinary control changes cannot say this: whichever
     /// ran first would change the answer the second one needs, so an
@@ -812,21 +798,14 @@ pub enum EffectDef {
         /// was stolen -- which is the reason a blink is worth playing.
         controller: Option<PlayerRelation>,
     },
-    Sacrifice {
-        object: EffectRecipientDef,
-    },
-    /// "You sacrifice it": CR 701.17a lets a player sacrifice only what they
-    /// control, so a permanent the ability's controller has lost is left
-    /// alone, where [`Self::Sacrifice`] is "sacrificed by its controller".
-    SacrificeYours {
-        object: EffectRecipientDef,
-    },
+
+
     /// Several players make non-targeting permanent choices before the
     /// resulting partition is exposed to an ordinary nested effect.
     ChooseForEachPlayer(super::ChooseForEachPlayerDef),
     /// Legacy combined choice-and-sacrifice procedure. New declarations
     /// should compose [`Self::Choose`] or [`Self::ChooseForEachPlayer`] with
-    /// [`Self::Sacrifice`]; object bindings now preserve APNAP-frozen choices
+    /// [`super::GameActionDef::Sacrifice`]; object bindings now preserve APNAP-frozen choices
     /// and expose last-known characteristics to a later aggregate value. This
     /// remains while older declarations and its checkpoint continuation are
     /// migrated.

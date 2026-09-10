@@ -371,7 +371,7 @@ fn cumulative_upkeep_discard_and_sacrifice_costs_are_atomic_at_age_two() {
 }
 
 #[test]
-fn herald_upkeep_control_lasts_exactly_while_herald_remains() {
+fn herald_upkeep_control_ends_when_its_leave_trigger_resolves() {
     let mut game = ready_game();
     game.step = Step::Upkeep;
     let herald = creature(12_090, cards::HERALD_OF_LESHRAC, PlayerId::One);
@@ -391,8 +391,27 @@ fn herald_upkeep_control_lasts_exactly_while_herald_remains() {
         PlayerId::One,
     );
 
+    // The leave trigger also returns lands acquired outside the upkeep cost.
+    let borrowed = creature(12_092, cards::FOREST, PlayerId::Two);
+    let borrowed_id = borrowed.card.id;
+    let mut annex = creature(12_093, cards::ANNEX, PlayerId::One);
+    annex.attached_to = Some(borrowed_id);
+    game.battlefield.extend([borrowed, annex]);
+    game.check_state_based_actions();
+    assert_eq!(game.permanent_controller(borrowed_id), Some(PlayerId::One));
+    game.finish_cleanup();
+    assert_eq!(game.permanent_controller(land_id), Some(PlayerId::One));
+
     game.sacrifice_permanents(&[herald_id]);
     game.check_state_based_actions();
+    assert_eq!(
+        game.permanent_controller(land_id),
+        Some(PlayerId::One),
+        "the control effect remains until the separate leave trigger resolves"
+    );
+    game.finish_rules_procedure();
+    assert_eq!(game.stack.len(), 1);
+    game.resolve_stack_top();
     assert_eq!(
         game.battlefield
             .iter()
@@ -401,6 +420,14 @@ fn herald_upkeep_control_lasts_exactly_while_herald_remains() {
             .controller,
         PlayerId::Two,
     );
+    game.check_state_based_actions();
+    assert_eq!(
+        game.permanent_controller(borrowed_id),
+        Some(PlayerId::Two),
+        "the leave trigger supersedes the older Annex control effect"
+    );
+    game.finish_cleanup();
+    assert_eq!(game.permanent_controller(land_id), Some(PlayerId::Two));
 }
 
 #[test]
@@ -618,4 +645,30 @@ fn thought_lash_exiles_library_cards_as_upkeep_and_activation_costs() {
     game.resolve_stack_top();
     game.damage_target_from_kind(None, Some(Target::Player(PlayerId::One)), 2, false);
     assert_eq!(game.players[PlayerId::One.index()].life, 19);
+}
+
+#[test]
+fn herald_leave_trigger_also_establishes_control_of_your_own_lands() {
+    let mut game = ready_game();
+    let herald = creature(12_290, cards::HERALD_OF_LESHRAC, PlayerId::One);
+    let herald_id = herald.card.id;
+    let mut land = creature(12_291, cards::ISLAND, PlayerId::One);
+    let land_id = land.card.id;
+    land.controller = PlayerId::Two;
+    game.battlefield.extend([herald, land]);
+    game.take_control_of_targets(
+        &[Target::Permanent(land_id)],
+        herald_id,
+        ControlDurationDef::UntilEndOfTurn,
+        PlayerId::One,
+    );
+    game.sacrifice_permanents(&[herald_id]);
+    game.finish_rules_procedure();
+    game.resolve_stack_top();
+    game.finish_cleanup();
+    assert_eq!(
+        game.permanent_controller(land_id),
+        Some(PlayerId::One),
+        "gaining control of an already-controlled land still replaces the older duration"
+    );
 }

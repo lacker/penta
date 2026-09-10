@@ -1,7 +1,7 @@
 use super::*;
 use crate::card::{
-    ArrivalAttachmentDef, ChooseDef, DiscardSelectionDef, EffectPaymentDef, ObjectChoiceBindingDef,
-    PerPlayerSelectionDef, ValueDef,
+    ArrivalAttachmentDef, ChooseDef, DiscardSelectionDef, EffectPaymentDef, GameActionDef,
+    ObjectChoiceBindingDef, PerPlayerSelectionDef, ValueDef,
 };
 
 pub(in super::super) fn shared_stack_effect(effect: EffectDef) -> bool {
@@ -36,6 +36,9 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
         PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
     ) && shared_effect_recipient(EffectRecipientDef::players(payment.payer))
         && payment.costs.iter().all(|cost| match *cost {
+            crate::card::CostDef::Perform(program) => {
+                shared_program_cost(crate::card::CostDef::Perform(program))
+            }
             crate::card::CostDef::All(costs) => {
                 shared_effect_payment(EffectPaymentDef::new(payment.payer, costs))
             }
@@ -169,6 +172,12 @@ fn shared_sacrifice_of_choice(effect: EffectDef) -> bool {
 #[allow(clippy::too_many_lines)]
 fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed: bool) -> bool {
     match effect {
+        EffectDef::Perform(GameActionDef::Sequence(effects)) => {
+            !effects.is_empty()
+                && effects.iter().copied().all(|effect| {
+                    shared_stack_effect_at_position(EffectDef::Perform(effect), deferred_decision_allowed)
+                })
+        }
         EffectDef::Sequence(effects) => {
             !effects.is_empty()
                 && effects.iter().copied().all(|effect| {
@@ -198,6 +207,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             deferred_decision_allowed
                 && shared_choose(choice)
                 && shared_stack_effect_at_position(*choice.then, true)
+        }
+        EffectDef::Perform(GameActionDef::Choose(choice)) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(EffectRecipientDef::player(choice.chooser))
+                && shared_effect_recipient(EffectRecipientDef::objects(choice.candidates))
+                && shared_stack_effect_at_position(EffectDef::Perform(*choice.then), true)
         }
         EffectDef::ChooseExact(choice) => {
             deferred_decision_allowed
@@ -636,15 +651,17 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::Untap { object }
         | EffectDef::Saddle { object }
-        | EffectDef::Sacrifice { object }
-        | EffectDef::SacrificeYours { object }
-        | EffectDef::DiscardCards { object }
+        | EffectDef::Perform(
+            GameActionDef::Sacrifice { object }
+            | GameActionDef::SacrificeYours { object }
+            | GameActionDef::DiscardCards { object }
+            | GameActionDef::GainControl { object, .. },
+        )
         | EffectDef::ExileLinkedToSource { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
         | EffectDef::ExileGrantingControllerPlayThisTurn { object }
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
         | EffectDef::Detain { object }
-        | EffectDef::GainControl { object, .. }
         | EffectDef::AddCounters { object, .. }
         | EffectDef::ModifyCounters { object, .. }
         | EffectDef::RemoveCounters { object, .. }
@@ -655,13 +672,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::PairWithSource { object }
         | EffectDef::PhaseOut { object }
         | EffectDef::ChangeTextBasicLandType { object }
-        // The colour is named at resolution, so the declaration only has to
-        // say who receives it and for how long.
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
-        // Each waits on a deferred decision, the same as any other: the
-        // owner's answer, the offer to cast what was pointed at, and the
-        // "top of library or graveyard" a nonland explore ends in.
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::MayCastTargetWithoutPaying { object, .. }
         | EffectDef::Explore { object } => {
@@ -859,6 +871,10 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
 // this independent runtime audit also checks predicates inside a supplied cost.
 fn shared_program_cost(cost: CostDef) -> bool {
     match cost {
+        CostDef::Perform(program) => {
+            program.payment_program_supported()
+                && shared_stack_effect_at_position(EffectDef::Perform(*program), true)
+        }
         CostDef::All(costs) | CostDef::Repeated { costs, .. } => {
             costs.iter().all(|cost| shared_program_cost(*cost))
         }
@@ -868,8 +884,7 @@ fn shared_program_cost(cost: CostDef) -> bool {
             object,
             controller: PlayerRelation::You,
             ..
-        }
-        | CostDef::GainControlPermanents { object, .. } => shared_object_predicate(object),
+        } => shared_object_predicate(object),
         CostDef::AddMana(effect) => {
             matches!(
                 effect.mana,

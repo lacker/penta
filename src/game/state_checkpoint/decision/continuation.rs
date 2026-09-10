@@ -2,6 +2,7 @@ include!("pregame_continuation.rs");
 include!("counter_choice_continuation.rs");
 include!("trigger_continuation.rs");
 include!("object_collection_continuation.rs");
+include!("object_choice_continuation.rs");
 include!("pay_or_continuation.rs");
 
 #[allow(clippy::too_many_lines)]
@@ -359,129 +360,8 @@ fn parse_continuation(
                 card: GameObjectId(*card),
             }
         }
-        DecisionContinuationSnapshot::ChooseForEffect {
-            continuation: snapshot,
-        } => {
-            let continuation = parse_effect_continuation(snapshot, game)?;
-            if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
-                return Err("object-choice locator disagrees with its resolving ability".into());
-            }
-            let (state, binding, then, prompt, visibility) = match continuation.effect.effect {
-                EffectDef::Choose(definition) => {
-                    let state = game
-                        .effect_choice_decision_state(
-                            definition,
-                            &continuation.object,
-                            &continuation.context,
-                            continuation.effect,
-                        )
-                        .ok_or("object-choice authored chooser is not singular")?;
-                    if super::super::decision_permanent_choice::effect_choice_resolves_automatically(
-                        definition,
-                        state.candidates.len(),
-                    ) {
-                        return Err(
-                            "object-choice checkpoint encodes a choice that would resolve automatically"
-                                .into(),
-                        );
-                    }
-                    (
-                        state,
-                        definition.binding,
-                        definition.then,
-                        super::super::decision_permanent_choice::effect_choice_prompt(
-                            *definition.then,
-                            definition.binding,
-                        ),
-                        effect_choice_visibility(definition.visibility),
-                    )
-                }
-                EffectDef::ChooseExact(definition) => {
-                    let (fixed, state) = game
-                        .exact_effect_choice_decision_state(
-                            definition,
-                            &continuation.object,
-                            &continuation.context,
-                            continuation.effect,
-                        )
-                        .ok_or("object-choice authored chooser is not singular")?;
-                    if super::super::decision_permanent_choice::effect_choice_resolves_automatically(
-                        fixed,
-                        state.candidates.len(),
-                    ) {
-                        return Err(
-                            "object-choice checkpoint encodes a choice that would resolve automatically"
-                                .into(),
-                        );
-                    }
-                    let binding = crate::card::ObjectChoiceBindingDef::Objects(definition.binding);
-                    (
-                        state,
-                        binding,
-                        definition.then,
-                        super::super::decision_permanent_choice::effect_choice_prompt(
-                            *definition.then,
-                            binding,
-                        ),
-                        effect_choice_visibility(definition.visibility),
-                    )
-                }
-                EffectDef::ChooseCardsFromCollection(definition) => {
-                    let state = game
-                        .collection_card_choice_decision_state(
-                            definition,
-                            &continuation.object,
-                            &continuation.context,
-                            continuation.effect,
-                        )
-                        .ok_or("collection choice authored actor is not singular")?;
-                    let binding = crate::card::ObjectChoiceBindingDef::Objects(definition.chosen);
-                    let prompt = if state.candidates.is_empty() {
-                        "Continue"
-                    } else {
-                        super::super::decision_permanent_choice::effect_choice_prompt(
-                            *definition.then,
-                            binding,
-                        )
-                    };
-                    let visibility = match definition.inspection {
-                        crate::card::CollectionInspectionDef::Look => DecisionVisibility::Private,
-                        crate::card::CollectionInspectionDef::Reveal => DecisionVisibility::Public,
-                    };
-                    (state, binding, definition.then, prompt, visibility)
-                }
-                _ => {
-                    return Err("object-choice locator does not identify an authored choice".into());
-                }
-            };
-            // An ordered binding makes the live decision carry resolution
-            // order semantics, so the rebuilt one has to be allowed to as
-            // well; without this, restoring at a Sylvan Library draw-step
-            // choice fails closed on the kind alone.
-            validate_authored_choice(
-                observation,
-                state.chooser,
-                prompt,
-                visibility,
-                state.preference,
-                state.minimum,
-                state.maximum,
-                &state.options,
-                matches!(
-                    binding,
-                    crate::card::ObjectChoiceBindingDef::OrderedObjects(_)
-                )
-                .then_some(DecisionOrderSemantics::Resolution),
-                "object choice",
-            )?;
-            DecisionContinuation::ChooseForEffect {
-                definition: continuation.effect,
-                binding,
-                object: continuation.object,
-                context: continuation.context,
-                candidates: state.candidates,
-                effect: continuation.effect.with_effect(*then),
-            }
+        DecisionContinuationSnapshot::ChooseForEffect { continuation } => {
+            parse_object_choice_continuation(continuation, observation, game)?
         }
         group @ (DecisionContinuationSnapshot::ChooseObjectOrderForEffect { .. }
         | DecisionContinuationSnapshot::LookAtObjectsForEffect { .. }

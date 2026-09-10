@@ -8,6 +8,9 @@ impl Game {
     ) -> Option<SettledEffectPayment> {
         let members = selected_payment_members(chosen, options);
         match *payment {
+            ResolvedEffectPayment::Action(ref action) => self
+                .settle_action_payment(player, action, &members)
+                .then_some(SettledEffectPayment::without_mana(0)),
             ResolvedEffectPayment::DiscardCards(amount) => (members.len() == usize::from(amount)
                 && members.iter().all(|card| {
                     self.players[player.index()]
@@ -32,33 +35,7 @@ impl Game {
                     SettledEffectPayment::without_mana(0)
                 })
             }
-            ResolvedEffectPayment::GainControlPermanents {
-                source,
-                object,
-                amount,
-            } => {
-                let matching = self.matching_permanents_not_controlled(player, object);
-                (members.len() == usize::from(amount)
-                    && members.iter().all(|id| matching.contains(id)))
-                .then(|| {
-                    for id in members {
-                        if let Some(permanent) = self
-                            .battlefield
-                            .iter_mut()
-                            .find(|permanent| permanent.card.id == id)
-                        {
-                            permanent.control_reverts_to = Some(permanent.card.owner);
-                            permanent.controller = player;
-                            permanent.suspend_haste = false;
-                            permanent.control_source = Some(source);
-                            permanent.control_requires_source_tapped = false;
-                            permanent.control_requires_source_attached = false;
-                            permanent.entered_controller_turn = self.turns_started[player.index()];
-                        }
-                    }
-                    SettledEffectPayment::without_mana(0)
-                })
-            }
+
             _ => None,
         }
     }
@@ -163,7 +140,8 @@ impl Game {
             // Both are paid by [`Self::settle_payment_decision`], which knows
             // which card was named or how much was chosen. Reaching here
             // means a caller lost that answer.
-            ResolvedEffectPayment::Choice(_)
+            ResolvedEffectPayment::Action(_)
+            | ResolvedEffectPayment::Choice(_)
             | ResolvedEffectPayment::DiscardMatching(_)
             | ResolvedEffectPayment::DiscardCards(_)
             | ResolvedEffectPayment::ChosenGenericMana
@@ -172,7 +150,6 @@ impl Game {
             | ResolvedEffectPayment::MovePermanentMatching { .. }
             | ResolvedEffectPayment::SacrificePermanentMatching(_)
             | ResolvedEffectPayment::SacrificePermanents { .. }
-            | ResolvedEffectPayment::GainControlPermanents { .. }
             // Named one creature at a time by its own decision, which is
             // queued once the payer has already chosen to pay.
             | ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(_) => return None,
@@ -209,7 +186,12 @@ impl Game {
 
     pub(super) fn effect_payment_label(payment: &ResolvedEffectPayment) -> String {
         match *payment {
-            ResolvedEffectPayment::All(_) | ResolvedEffectPayment::Choice(_) => "Pay the cost".into(),
+            ResolvedEffectPayment::Action(ref action) => {
+                format!("{} {} object(s)", action.verb(), action.amount)
+            }
+            ResolvedEffectPayment::All(_) | ResolvedEffectPayment::Choice(_) => {
+                "Pay the cost".into()
+            }
             ResolvedEffectPayment::Mana(_) | ResolvedEffectPayment::LabeledMana { .. } => {
                 "Pay the cost".to_string()
             }
@@ -262,9 +244,7 @@ impl Game {
             ResolvedEffectPayment::OpponentCreatesTokens { amount, .. } => {
                 format!("Have an opponent create {amount} token(s)")
             }
-            ResolvedEffectPayment::GainControlPermanents { amount, .. } => {
-                format!("Gain control of {amount} permanent(s)")
-            }
+
             ResolvedEffectPayment::FlipCoins(amount) => format!("Flip {amount} coin(s)"),
         }
     }

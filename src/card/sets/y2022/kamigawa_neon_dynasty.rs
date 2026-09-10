@@ -443,9 +443,9 @@ static EMERGENCE_REPLACEMENT: AbilityDef = AbilityDef::replacement_for(
     ReplacementEffectDef::Sequence(&[
         ReplacementEffectDef::ReplaceEventWithNothing,
         ReplacementEffectDef::Perform(&EffectDef::Sequence(&[
-            EffectDef::SacrificeYours {
+            EffectDef::Perform(crate::card::GameActionDef::SacrificeYours {
                 object: EffectRecipientDef::Source,
-            },
+            }),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::TriggeringObject,
                 effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
@@ -839,9 +839,9 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                             // player's to choose, so the discard is a choice with a floor of none and
                             // what is drawn is however many that turned out to be.
                             then: &EffectDef::Sequence(&const { [
-                                EffectDef::DiscardCards {
+                                EffectDef::Perform(crate::card::GameActionDef::DiscardCards {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                                },
+                                }),
                                 EffectDef::DrawCards {
                                     recipient: EffectRecipientDef::Controller,
                                     amount: ValueDef::BoundObjectCount(ParentBinding),
@@ -900,11 +900,11 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                                         step: TurnStepDef::End,
                                         player: PlayerRelation::Any,
                                     },
-                                    EffectDef::Sacrifice {
+                                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                                             ParentBinding,
                                         )),
-                                    },
+                                    }),
                                 )
                             }))
                         },

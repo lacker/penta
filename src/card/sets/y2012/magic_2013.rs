@@ -3052,11 +3052,11 @@ pub(in crate::card::sets) static MARK_OF_MUTINY: CardRecord = CardRecord::new_wi
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 duration: ControlDurationDef::UntilEndOfTurn,
                 controller: PlayerRefDef::EffectController,
-            },
+            }),
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: CounterKind::PlusOnePlusOne,
@@ -4277,11 +4277,11 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                 "−2: Gain control of target creature.",
                 &[CostDef::Loyalty(-2)],
                 &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))],
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     controller: PlayerRefDef::EffectController,
                     duration: ControlDurationDef::Indefinitely,
-                },
+                }),
             ),
             AbilityDef::activated_with_targets(
                 "−9: Nicol Bolas deals 7 damage to target player or planeswalker. That player or that planeswalker's controller discards seven then sacrifices seven permanents of their choice.",

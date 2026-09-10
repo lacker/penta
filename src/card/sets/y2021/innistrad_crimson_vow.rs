@@ -149,9 +149,9 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
                                     // draw as well as the discard: an Eye that looked and took nothing leaves
                                     // the opponent with the hand they had.
                                     effect: &EffectDef::Sequence(&const { [
-                                        EffectDef::DiscardCards {
+                                        EffectDef::Perform(crate::card::GameActionDef::DiscardCards {
                                             object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                                        },
+                                        }),
                                         EffectDef::DrawCards {
                                             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                             amount: ValueDef::Constant(1),

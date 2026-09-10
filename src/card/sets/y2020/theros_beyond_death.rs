@@ -320,9 +320,9 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
                 step: TurnStepDef::End,
                 player: PlayerRelation::Any,
             },
-            EffectDef::Sacrifice {
+            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                 object: EffectRecipientDef::Source,
-            },
+            }),
         ),
     ]),
 );
@@ -387,9 +387,9 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
                         TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
                     ]),
                 ),
-                EffectDef::Sacrifice {
+                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             ),
             AbilityDef::triggered(
                 "Whenever Uro enters or attacks, you gain 3 life and draw a card, then you may put a \

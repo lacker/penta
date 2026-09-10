@@ -702,6 +702,7 @@ impl Game {
             if permanent.control_source.is_none()
                 && let Some(owner) = permanent.control_reverts_to.take()
             {
+                permanent.resolving_control_timestamp = None;
                 permanent.controller = owner;
                 permanent.suspend_haste = false;
             }

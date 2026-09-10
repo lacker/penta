@@ -412,9 +412,9 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new_wit
             },
             EffectDef::PayOr(PayOrDef::unless(
                 &[CostDef::Energy(1)],
-                &EffectDef::Sacrifice {
+                &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             )),
         ),
     ]),
@@ -685,11 +685,11 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
                                         step: TurnStepDef::End,
                                         player: PlayerRelation::Any,
                                     },
-                                    EffectDef::Sacrifice {
+                                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                                             ParentBinding,
                                         )),
-                                    },
+                                    }),
                                 ) },
                             )),
                         ] }),
@@ -1794,9 +1794,9 @@ pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
                             ),
                         ]),
                     ),
-                    EffectDef::Sacrifice {
+                    EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                         object: EffectRecipientDef::Source,
-                    },
+                    }),
                 ),
                 AbilityDef::triggered_with_targets(
                     "Whenever this creature enters or attacks, it deals 3 damage to any target and you gain \
@@ -2478,9 +2478,9 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
                                 visibility: ChoiceVisibilityDef::Public,
                                 chosen: Binding!("ugin_spared_permanents"),
                                 unchosen: Binding!("ugin_sacrificed_permanents"),
-                                then: &const { EffectDef::Sacrifice {
+                                then: &const { EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("ugin_sacrificed_permanents"))),
-                                } },
+                                }) },
                             }),
                         ),
                     ] })
@@ -3027,11 +3027,11 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                             ObjectPredicateDef::HasType(CardType::Creature),
                         )] },
                         EffectDef::Sequence(&const { [
-                            EffectDef::GainControl {
+                            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                 controller: PlayerRefDef::EffectController,
                                 duration: ControlDurationDef::Indefinitely,
-                            },
+                            }),
                             EffectDef::Apply {
                                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                 // "It becomes a Vampire in addition to its other types": added rather than

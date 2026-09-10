@@ -324,7 +324,13 @@ impl Game {
             .battlefield
             .iter()
             .chain(self.emblems.iter())
-            .map(|permanent| permanent.timestamp.0)
+            .flat_map(|permanent| {
+                std::iter::once(permanent.timestamp.0).chain(
+                    permanent
+                        .resolving_control_timestamp
+                        .map(|timestamp| timestamp.0),
+                )
+            })
             .chain(
                 self.battlefield
                     .iter()

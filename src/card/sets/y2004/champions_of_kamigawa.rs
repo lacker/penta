@@ -126,9 +126,9 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
                                                 step: TurnStepDef::End,
                                                 player: PlayerRelation::Any,
                                             },
-                                            EffectDef::Sacrifice {
+                                            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                                                 object: EffectRecipientDef::Source,
-                                            },
+                                            }),
                                         )
                                     }),
                                 ]

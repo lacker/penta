@@ -327,9 +327,9 @@ fn the_ultimate_chooses_for_each_player_then_uses_standard_sacrifice() {
     assert_eq!(selectors.len(), 4);
     assert_eq!(
         *choice.then,
-        EffectDef::Sacrifice {
+        EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
             object: EffectRecipientDef::objects(ObjectSetDef::Binding(choice.unchosen)),
-        }
+        })
     );
 }
 

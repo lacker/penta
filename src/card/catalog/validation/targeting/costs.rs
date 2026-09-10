@@ -4,6 +4,9 @@ fn validate_payment_cost_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
+        CostDef::Perform(program) => {
+            validate_effect_references(EffectDef::Perform(*program), target_count, scope)
+        }
         CostDef::Repeated { costs, count } => {
             validate_value_target_references(*count, target_count, scope)?;
             costs
@@ -34,6 +37,9 @@ fn validate_payment_cost_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
+        CostDef::Perform(program) => {
+            validate_effect_target_shapes(EffectDef::Perform(*program), targets, None)
+        }
         CostDef::Repeated { costs, count } => {
             validate_value_shape(*count, targets)?;
             costs
@@ -65,8 +71,7 @@ fn validate_program_cost_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
-        crate::card::CostDef::SacrificePermanents { object, .. }
-        | crate::card::CostDef::GainControlPermanents { object, .. } => {
+        crate::card::CostDef::SacrificePermanents { object, .. } => {
             validate_object_predicate_references(object, target_count, scope)
         }
         crate::card::CostDef::CreateTokens { token, .. } => match token.creation_stats {
@@ -94,8 +99,7 @@ fn validate_program_cost_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
-        crate::card::CostDef::SacrificePermanents { object, .. }
-        | crate::card::CostDef::GainControlPermanents { object, .. } => {
+        crate::card::CostDef::SacrificePermanents { object, .. } => {
             validate_object_predicate_shape(object, targets)
         }
         crate::card::CostDef::CreateTokens { token, .. } => match token.creation_stats {

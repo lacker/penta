@@ -76,11 +76,6 @@ impl Game {
                 token: *token,
                 amount: repeated(amount),
             },
-            Cost::GainControlPermanents { object, amount } => Resolved::GainControlPermanents {
-                source,
-                object,
-                amount: repeated(amount),
-            },
             Cost::FlipCoins(amount) => Resolved::FlipCoins(repeated(amount)),
             _ => panic!("unsupported repeated payment cost"),
         }

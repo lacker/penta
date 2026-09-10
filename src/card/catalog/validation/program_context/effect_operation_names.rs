@@ -10,12 +10,15 @@
 const fn effect_operation_name(effect: EffectDef) -> &'static str {
     match effect {
         EffectDef::None => "None",
-        EffectDef::Sequence(_) => "Sequence",
+        EffectDef::Sequence(_) | EffectDef::Perform(crate::card::GameActionDef::Sequence(_)) => {
+            "Sequence"
+        }
         EffectDef::WithRule { .. } => "WithRule",
         EffectDef::BindOutput { .. } => "BindOutput",
         EffectDef::Randomized { .. } => "Randomized",
         EffectDef::FlipCoin { .. } => "FlipCoin",
-        EffectDef::Choose(_)
+        EffectDef::Perform(crate::card::GameActionDef::Choose(_))
+        | EffectDef::Choose(_)
         | EffectDef::ChooseExact(_)
         | EffectDef::ChooseCardsFromCollection(_)
         | EffectDef::ChooseCardName { .. } => "Choose",
@@ -51,7 +54,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::BuryGraveyard { .. } => "BuryGraveyard",
         EffectDef::EmptyManaPool { .. } => "EmptyManaPool",
         EffectDef::Discard { .. } => "Discard",
-        EffectDef::DiscardCards { .. } => "DiscardCards",
+        EffectDef::Perform(crate::card::GameActionDef::DiscardCards { .. }) => "DiscardCards",
         EffectDef::LoseLife { .. } => "LoseLife",
         EffectDef::LoseTheGame { .. } => "LoseTheGame",
         EffectDef::WinTheGame { .. } => "WinTheGame",
@@ -72,8 +75,8 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Destroy { .. } => "Destroy",
         EffectDef::Detain { .. } => "Detain",
         EffectDef::Regenerate { .. } => "Regenerate",
-        EffectDef::Sacrifice { .. } => "Sacrifice",
-        EffectDef::SacrificeYours { .. } => "SacrificeYours",
+        EffectDef::Perform(crate::card::GameActionDef::Sacrifice { .. }) => "Sacrifice",
+        EffectDef::Perform(crate::card::GameActionDef::SacrificeYours { .. }) => "SacrificeYours",
         EffectDef::ChooseForEachPlayer(_) => "ChooseForEachPlayer",
         EffectDef::SacrificeOfChoice { .. } => "SacrificeOfChoice",
         EffectDef::ExileTopOfLibraryToPlay { .. } => "ExileTopOfLibraryToPlay",
@@ -125,7 +128,8 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::ExileGrantingOwnerPlay { .. } => "ExileGrantingOwnerPlay",
         EffectDef::ExileGrantingControllerPlayThisTurn { .. } => "ExileToPlayThisTurn",
         EffectDef::ReturnLinkedExiles { .. } => "ReturnLinkedExiles",
-        EffectDef::GainControl { .. } | EffectDef::ExchangeControl { .. } => "GainControl",
+        EffectDef::Perform(crate::card::GameActionDef::GainControl { .. })
+        | EffectDef::ExchangeControl { .. } => "GainControl",
         EffectDef::IfCondition { .. } => "IfCondition",
         EffectDef::IfElseCondition { .. } => "IfElseCondition",
         EffectDef::InstallTrigger(_) => "InstallTrigger",
@@ -148,9 +152,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Transform { .. } => "Transform",
         EffectDef::PutIntoLibraryBeneathTop { .. } => "PutIntoLibraryBeneathTop",
         EffectDef::MoveToZone { .. } => "MoveToZone",
-        EffectDef::WithBattlefieldArrival { .. } => {
-            "WithBattlefieldArrival"
-        }
+        EffectDef::WithBattlefieldArrival { .. } => "WithBattlefieldArrival",
         EffectDef::WithZoneMoveResult { .. } => "WithZoneMoveResult",
         EffectDef::ConditionalStatic(_) => "ConditionalStatic",
         EffectDef::StaticApply { .. } => "StaticApply",

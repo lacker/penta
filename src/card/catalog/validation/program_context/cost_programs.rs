@@ -36,6 +36,13 @@ fn validate_program_cost(
         CostDef::All(costs) => (costs, repeated_or_labeled, scalar_only),
         CostDef::Repeated { costs, .. } => (costs, true, scalar_only),
         CostDef::Choice(costs) => (costs, repeated_or_labeled, true),
+        CostDef::Perform(program) if !scalar_only => {
+            return if program.payment_program_supported() {
+                Ok(())
+            } else {
+                Err("unsupported action payment program")
+            };
+        }
         _ if scalar_only && !scalar_batch_cost(cost) => {
             return Err("unsupported non-scalar cost choice");
         }
@@ -74,7 +81,6 @@ fn repeatable_payment_cost(cost: CostDef) -> bool {
         | CostDef::ExileTopCards(_)
         | CostDef::FlipCoins(_)
         | CostDef::PutCountersOnSource { .. }
-        | CostDef::GainControlPermanents { .. }
         | CostDef::SacrificePermanents {
             controller: PlayerRelation::You,
             ..
@@ -135,6 +141,39 @@ mod tests {
         .labeled(AbilityLabel("test purpose"))
         .with_visibility(crate::card::ChoiceVisibilityDef::Public),
     );
+
+    #[test]
+    fn game_action_programs_reject_unplannable_payments() {
+        use crate::card::{EffectRecipientDef, GameActionDef, ObjectPredicateDef};
+        static DISCARD: GameActionDef =
+            GameActionDef::choose_discard(ObjectPredicateDef::Any, ValueDef::Constant(3));
+        static CHOICE: [CostDef; 1] = [CostDef::Perform(&DISCARD)];
+        assert!(validate_program_cost(CostDef::Perform(&DISCARD), None, true, false).is_ok());
+        assert!(validate_program_cost(CostDef::Choice(&CHOICE), None, false, false).is_err());
+        assert!(
+            validate_program_cost(
+                CostDef::Perform(&GameActionDef::SacrificeYours {
+                    object: EffectRecipientDef::Source,
+                }),
+                None,
+                false,
+                false
+            )
+            .is_err(),
+            "an arbitrary action body has no complete payment plan"
+        );
+        let GameActionDef::Choose(mut choice) = DISCARD else {
+            unreachable!()
+        };
+        choice.then = &GameActionDef::DiscardCards {
+            object: EffectRecipientDef::Source,
+        };
+        let invalid = Box::leak(Box::new(GameActionDef::Choose(choice)));
+        assert!(
+            validate_program_cost(CostDef::Perform(invalid), None, false, false).is_err(),
+            "payment must execute the exact objects it selects"
+        );
+    }
 
     #[test]
     fn composed_mechanic_programs_reject_unbound_and_unpayable_programs() {

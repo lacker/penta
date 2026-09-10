@@ -158,7 +158,14 @@ impl Game {
             | EffectDef::AddPlayerCounters { .. }
             | EffectDef::DrawCards { .. }
             | EffectDef::Discard { .. }
-            | EffectDef::DiscardCards { .. }
+            | EffectDef::Perform(
+                crate::card::GameActionDef::Choose(_)
+                | crate::card::GameActionDef::Sequence(_)
+                | crate::card::GameActionDef::DiscardCards { .. }
+                | crate::card::GameActionDef::Sacrifice { .. }
+                | crate::card::GameActionDef::SacrificeYours { .. }
+                | crate::card::GameActionDef::GainControl { .. },
+            )
             | EffectDef::ShuffleLibrary { .. }
             | EffectDef::BuryGraveyard { .. }
             | EffectDef::EmptyManaPool { .. }
@@ -180,8 +187,6 @@ impl Game {
             | EffectDef::PairWithSource { .. }
             | EffectDef::PhaseOut { .. }
             | EffectDef::Destroy { then: None, .. }
-            | EffectDef::Sacrifice { .. }
-            | EffectDef::SacrificeYours { .. }
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileTopAndMayCast { .. }
@@ -240,7 +245,6 @@ impl Game {
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::ReturnLinkedExiles { .. }
             | EffectDef::Detain { .. }
-            | EffectDef::GainControl { .. }
             | EffectDef::ExchangeControl { .. }
             | EffectDef::IfCondition { .. }
             | EffectDef::IfElseCondition { .. }

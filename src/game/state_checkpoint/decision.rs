@@ -372,6 +372,7 @@ fn continuation_snapshot(
                 EffectDef::Choose(_)
                     | EffectDef::ChooseExact(_)
                     | EffectDef::ChooseCardsFromCollection(_)
+                    | EffectDef::Perform(crate::card::GameActionDef::Choose(_))
             ) {
                 return None;
             }

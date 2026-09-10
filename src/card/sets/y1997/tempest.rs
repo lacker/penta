@@ -1640,13 +1640,13 @@ pub(in crate::card::sets) static STEAL_ENCHANTMENT: CardRecord = CardRecord::new
             abilities::enchant_enchantment(),
             AbilityDef::static_ability(
                 "You control enchanted enchantment.",
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::AttachedPermanent,
                     duration: ControlDurationDef::WhileSourceRemains {
                         while_tapped: false,
                     },
                     controller: PlayerRefDef::EffectController,
-                },
+                }),
             ),
         ]),
 );
@@ -3913,13 +3913,13 @@ pub(in crate::card::sets) static STARKE_OF_RATH: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
                 },
-                EffectDef::GainControl {
+                EffectDef::Perform(crate::card::GameActionDef::GainControl {
                     object: EffectRecipientDef::Source,
                     controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
                         TargetIndex::PRIMARY,
                     )),
                     duration: crate::card::ControlDurationDef::Indefinitely,
-                },
+                }),
             ]),
         )),
 );
@@ -5323,9 +5323,9 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             )),
             &TriggerConditionDef::SourceOnBattlefield,
             EffectDef::Sequence(&[
-                EffectDef::Sacrifice {
+                EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
                 EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(10)),
             ]),
         ),
@@ -5620,13 +5620,13 @@ pub(in crate::card::sets) static HELM_OF_POSSESSION: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 controller: PlayerRefDef::EffectController,
                 duration: crate::card::ControlDurationDef::WhileSourceRemains {
                     while_tapped: true,
                 },
-            },
+            }),
         ),
     ]),
 );
@@ -5669,11 +5669,11 @@ pub(in crate::card::sets) static JINXED_IDOL: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::Source,
                 controller: PlayerRefDef::Target(TargetIndex::PRIMARY),
                 duration: crate::card::ControlDurationDef::Indefinitely,
-            },
+            }),
         ),
     ]),
 );

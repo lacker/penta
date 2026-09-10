@@ -14,6 +14,7 @@ mod broad_audit;
 mod composed_mechanic_programs;
 mod effect_walkers;
 mod face_down_characteristics;
+mod game_action_programs;
 mod rare_reconstructions;
 mod rare_states;
 mod semantics_coverage;

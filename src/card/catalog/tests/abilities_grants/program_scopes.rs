@@ -102,9 +102,9 @@ fn non_targeting_choice_references_are_lexically_scoped() {
     .expect("a value query can consume a choice inside its continuation");
 
     let set_binding = Binding!("objects");
-    let sacrifice_chosen: &'static EffectDef = Box::leak(Box::new(EffectDef::Sacrifice {
+    let sacrifice_chosen: &'static EffectDef = Box::leak(Box::new(EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(set_binding)),
-    }));
+    })));
     assert_eq!(
         super::validate_ability_targets(&[], *sacrifice_chosen),
         Err(

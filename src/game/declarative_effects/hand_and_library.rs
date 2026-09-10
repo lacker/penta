@@ -435,28 +435,7 @@ impl Game {
                     }
                 }
             }
-            EffectDef::DiscardCards { object: recipient } => {
-                let recipients = self.effect_recipients(recipient, object, context, scoped);
-                let cause = ZoneMoveCause::Effect {
-                    controller: object.controller,
-                };
-                for player in [self.active_player, self.active_player.opponent()] {
-                    let cards = recipients
-                        .iter()
-                        .filter_map(|target| match target {
-                            Target::Card(card) => Some(*card),
-                            Target::Player(_) | Target::Permanent(_) | Target::Spell(_) => None,
-                        })
-                        .filter(|card| {
-                            self.players[player.index()]
-                                .hand
-                                .iter()
-                                .any(|candidate| candidate.id == *card)
-                        })
-                        .collect::<Vec<_>>();
-                    self.discard_cards_with_cause(player, &cards, cause);
-                }
-            }
+
             EffectDef::Cascade => self.cascade(object),
             EffectDef::ExileFromTopUntil {
                 player: recipient,

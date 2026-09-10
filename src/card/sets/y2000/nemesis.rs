@@ -296,9 +296,9 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_wit
                     kind: CounterKind::named("fade"),
                     amount: ValueDef::Constant(1),
                 },
-                otherwise: &EffectDef::Sacrifice {
+                otherwise: &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             },
         ),
         AbilityDef::activated_with_targets(
@@ -571,11 +571,11 @@ pub(in crate::card::sets) static DOMINATE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
                 ]),
             )],
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 duration: ControlDurationDef::Indefinitely,
                 controller: PlayerRefDef::EffectController,
-            },
+            }),
         ),
     ),
 );
@@ -1015,13 +1015,13 @@ pub(in crate::card::sets) static DEATH_PIT_OFFERING: CardRecord = CardRecord::ne
     CardRules::new_enchantment(mana_cost!("{2}{B}{B}")).with_abilities(&[
         abilities::enters_trigger(
             "When this enchantment enters, sacrifice all creatures you control.",
-            EffectDef::Sacrifice {
+            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
-            },
+            }),
         ),
         AbilityDef::static_ability(
             "Creatures you control get +2/+2.",
@@ -1835,9 +1835,9 @@ pub(in crate::card::sets) static BLASTODERM: CardRecord = CardRecord::new(
                     kind: CounterKind::named("fade"),
                     amount: ValueDef::Constant(1),
                 },
-                otherwise: &EffectDef::Sacrifice {
+                otherwise: &EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                     object: EffectRecipientDef::Source,
-                },
+                }),
             },
         ),
     ]),

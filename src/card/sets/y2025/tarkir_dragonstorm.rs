@@ -451,9 +451,9 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
                     // to choose, so the discard is a choice with a floor of none rather than a
                     // fixed number, and what is drawn is however many that turned out to be.
                     then: &EffectDef::Sequence(&[
-                        EffectDef::DiscardCards {
+                        EffectDef::Perform(crate::card::GameActionDef::DiscardCards {
                             object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                        },
+                        }),
                         EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
                             amount: ValueDef::BoundObjectCount(ParentBinding),

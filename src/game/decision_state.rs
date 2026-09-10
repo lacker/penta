@@ -48,6 +48,7 @@ pub(super) struct SacrificeDeclined {
 /// resolving effect suspends behind a decision.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum ResolvedEffectPayment {
+    Action(Box<super::game_actions::payments::ActionPayment>),
     All(Vec<Self>),
     Choice(Vec<Self>),
     Mana(ManaCost),
@@ -89,11 +90,7 @@ pub(super) enum ResolvedEffectPayment {
         token: crate::card::TokenCharacteristics,
         amount: u16,
     },
-    GainControlPermanents {
-        source: GameObjectId,
-        object: ObjectPredicateDef,
-        amount: u16,
-    },
+
     FlipCoins(u16),
     /// Energy, spent in full or not at all.
     Energy(u16),

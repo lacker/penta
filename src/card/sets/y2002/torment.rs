@@ -929,9 +929,9 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
                 step: TurnStepDef::End,
                 player: PlayerRelation::Any,
             },
-            EffectDef::Sacrifice {
+            EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
                 object: EffectRecipientDef::Source,
-            },
+            }),
         ),
         AbilityDef::triggered_if(
             "At the beginning of your upkeep, if this card is in your graveyard, you may exile a black creature card other than this card from your graveyard. If you do, return this card to the battlefield.",

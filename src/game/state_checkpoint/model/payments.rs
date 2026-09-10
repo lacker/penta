@@ -3,6 +3,7 @@
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(tag = "kind", content = "value", rename_all = "camelCase")]
 pub(super) enum ResolvedEffectPaymentSnapshot {
+    Action { source: u32, amount: u16 },
     All(Vec<Self>),
     Choice(Vec<Self>),
     Mana(ManaCostSnapshot),
@@ -33,6 +34,7 @@ pub(super) enum ResolvedEffectPaymentSnapshot {
     },
     OpponentGainsLife(u16),
     OpponentCreatesTokens(u16),
+    // Reserved legacy format-15 tag; new obligations use Action.
     GainControlPermanents {
         source: u32,
         amount: u16,

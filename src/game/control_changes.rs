@@ -22,13 +22,13 @@ impl Game {
     const fn is_attached_static_control(effect: EffectDef) -> bool {
         matches!(
             effect,
-            EffectDef::GainControl {
+            EffectDef::Perform(crate::card::GameActionDef::GainControl {
                 object: EffectRecipientDef::AttachedPermanent,
                 controller: PlayerRefDef::EffectController,
                 duration: ControlDurationDef::WhileSourceRemains {
                     while_tapped: false,
                 },
-            }
+            })
         )
     }
 
@@ -118,6 +118,12 @@ impl Game {
             else {
                 continue;
             };
+            let newer_resolving_effect = self.battlefield[index]
+                .resolving_control_timestamp
+                .is_some_and(|timestamp| timestamp > claim.timestamp);
+            if newer_resolving_effect {
+                continue;
+            }
             let held_by_another_effect = self.battlefield[index]
                 .control_source
                 .is_some_and(|source| source != claim.source)
@@ -138,29 +144,26 @@ impl Game {
                 permanent.suspend_haste = false;
                 permanent.entered_controller_turn = self.turns_started[claim.controller.index()];
             }
+            permanent.resolving_control_timestamp = None;
             permanent.control_source = Some(claim.source);
             permanent.control_requires_source_tapped = false;
             permanent.control_requires_source_attached = true;
         }
     }
 
-    /// The shared body of both control-change durations.
-    pub(super) fn take_control_of(
+    pub(super) fn take_control_of_targets(
         &mut self,
-        recipient: EffectRecipientDef,
-        object: &StackObject,
-        context: &EffectResolutionContext,
-        scoped: ScopedEffect,
+        targets: &[Target],
+        source: GameObjectId,
         duration: ControlDurationDef,
         controller: PlayerId,
     ) {
+        let timestamp = self.allocate_continuous_effect_timestamp();
         let holder = match duration {
             ControlDurationDef::UntilEndOfTurn | ControlDurationDef::Indefinitely => None,
-            ControlDurationDef::WhileSourceRemains { while_tapped } => {
-                Some((object.source.unwrap_or(object.id), while_tapped))
-            }
+            ControlDurationDef::WhileSourceRemains { while_tapped } => Some((source, while_tapped)),
         };
-        for target in self.effect_recipients(recipient, object, context, scoped) {
+        for target in targets.iter().copied() {
             let Target::Permanent(id) = target else {
                 continue;
             };
@@ -171,25 +174,26 @@ impl Game {
             else {
                 continue;
             };
-            if self.battlefield[index].controller == controller
-                || self.cannot_change_controller(&self.battlefield[index])
-            {
+            if self.cannot_change_controller(&self.battlefield[index]) {
                 continue;
             }
             let permanent = &mut self.battlefield[index];
-            // Only the first change records where control came from, so
-            // passing a permanent around and back still returns it to whoever
-            // had it before the turn started. An indefinite change records
-            // nothing: there is nothing for cleanup to give back, and an
-            // earlier turn-scoped change over the same permanent still ends
-            // the way it was going to.
-            if duration != ControlDurationDef::Indefinitely {
+            // An indefinite effect supersedes the previously tracked control
+            // duration. Its timestamp also keeps older static Aura effects
+            // from reasserting control on the next state-based check.
+            if duration == ControlDurationDef::Indefinitely {
+                permanent.control_reverts_to = None;
+            } else {
                 permanent
                     .control_reverts_to
                     .get_or_insert(permanent.controller);
             }
+            let changed_controller = permanent.controller != controller;
+            permanent.resolving_control_timestamp = Some(timestamp);
             permanent.controller = controller;
-            permanent.suspend_haste = false;
+            if changed_controller {
+                permanent.suspend_haste = false;
+            }
             permanent.control_source = holder.map(|(id, _)| id);
             permanent.control_requires_source_tapped = holder.is_some_and(|(_, tapped)| tapped);
             permanent.control_requires_source_attached = false;
@@ -197,7 +201,9 @@ impl Game {
             // turn began, so it is summoning sick unless something grants
             // haste. This is why the cards that steal a creature almost always
             // grant it too.
-            permanent.entered_controller_turn = self.turns_started[controller.index()];
+            if changed_controller {
+                permanent.entered_controller_turn = self.turns_started[controller.index()];
+            }
         }
     }
 }

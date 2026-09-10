@@ -341,6 +341,13 @@ impl HandcraftedPolicy {
         profile: &mut DeclarativeSpellProfile,
     ) {
         match effect {
+            effect @ EffectDef::Perform(
+                crate::card::GameActionDef::Choose(_) | crate::card::GameActionDef::Sequence(_),
+            ) => {
+                for child in crate::card::child_effects(effect) {
+                    Self::collect_spell_effect_profile(child, x, targets, profile);
+                }
+            }
             EffectDef::Sequence(effects) => {
                 for effect in effects {
                     Self::collect_spell_effect_profile(*effect, x, targets, profile);
@@ -543,10 +550,13 @@ impl HandcraftedPolicy {
             | EffectDef::AddPlayerCounters { .. }
             | EffectDef::LoseLife { .. }
             | EffectDef::Regenerate { .. }
-            | EffectDef::Sacrifice { .. }
-            | EffectDef::SacrificeYours { .. }
+            | EffectDef::Perform(
+                crate::card::GameActionDef::Sacrifice { .. }
+                | crate::card::GameActionDef::SacrificeYours { .. }
+                | crate::card::GameActionDef::DiscardCards { .. }
+                | crate::card::GameActionDef::GainControl { .. },
+            )
             | EffectDef::SacrificeOfChoice { .. }
-            | EffectDef::DiscardCards { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileTopAndMayCast { .. }
             | EffectDef::MayCastTargetWithoutPaying { .. }
@@ -600,7 +610,6 @@ impl HandcraftedPolicy {
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::ReturnLinkedExiles { .. }
             | EffectDef::Detain { .. }
-            | EffectDef::GainControl { .. }
             | EffectDef::ExchangeControl { .. }
             | EffectDef::InstallTrigger(_)
             | EffectDef::IfCondition { .. }

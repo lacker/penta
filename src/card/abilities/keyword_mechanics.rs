@@ -527,9 +527,9 @@ static MOBILIZE_SACRIFICE: EffectDef =
             step: TurnStepDef::End,
             player: PlayerRelation::Any,
         },
-        EffectDef::Sacrifice {
+        EffectDef::Perform(crate::card::GameActionDef::Sacrifice {
             object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-        },
+        }),
     )));
 
 /// Mobilize N (CR 702.180a): "Whenever this creature attacks, create N tapped

@@ -1,15 +1,15 @@
 //! Doctor Who cards cataloged for legend-rule coverage.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{CardArt, CardRules, CardSet};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::CardRules;
 
 // WHO 146 — The Master, Multiplied
 // Audit: unsupported — Needs a player rule that prevents triggered abilities from causing sacrifice or exile of creature tokens.
 pub(in crate::card::sets) static THE_MASTER_MULTIPLIED: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7f734ca0-91bc-4496-9bd7-2d09415e850f"),
     "The Master, Multiplied",
-    CardArt::new("7f734ca0-91bc-4496-9bd7-2d09415e850f", "Lie Setiawan"),
-    CardSet::DoctorWho,
+    "7f734ca0-91bc-4496-9bd7-2d09415e850f",
+    "Lie Setiawan",
     CardRules::unsupported(),
 );
 

@@ -1,22 +1,42 @@
 //! Aetherdrift cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    BasicLandType, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType,
-    ComparisonDef, CostDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeDef,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::BasicLandType;
+use crate::card::BattlefieldEntryScalarChoiceDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ManaTypeDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementChoiceDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // DFT 67 — Stock Up
-pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_legacy_id(
-    2179,
+pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new(
     "Stock Up",
-    CardArt::new("0a786855-6eb4-42c0-a528-4842db46809d", "Izzy"),
-    CardSet::Aetherdrift,
-    // Two cards for three mana at sorcery speed is unremarkable; seeing five
+    "0a786855-6eb4-42c0-a528-4842db46809d",
+    "Izzy",
+// Two cards for three mana at sorcery speed is unremarkable; seeing five
     // to find them is what puts it in a deck built around one or two cards.
     CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
         "Look at the top five cards of your library. Put two of them into your hand and the rest on the bottom of your library in any order.",
@@ -31,11 +51,10 @@ pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_leg
 
 // DFT 79 — Chitin Gravestalker
 pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("903b4141-04a3-44c4-9d3e-aa2a773d9883"),
     "Chitin Gravestalker",
-    CardArt::new("903b4141-04a3-44c4-9d3e-aa2a773d9883", "Slawomir Maniak"),
-    CardSet::Aetherdrift,
-    // Cycling is what makes the discount reachable: the card fills the
+    "903b4141-04a3-44c4-9d3e-aa2a773d9883",
+    "Slawomir Maniak",
+// Cycling is what makes the discount reachable: the card fills the
     // graveyard it later reads, including with copies of itself.
     CardRules::new_creature(mana_cost!("{5}{B}"), &["Insect", "Warrior"], 5, 4).with_abilities(&[
         AbilityDef::static_ability(
@@ -62,10 +81,9 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
 
 // DFT 88 — Grim Bauble
 pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9bfdf60a-6f67-4872-8961-d63776b192c3"),
     "Grim Bauble",
-    CardArt::new("9bfdf60a-6f67-4872-8961-d63776b192c3", "Wero Gallo"),
-    CardSet::Aetherdrift,
+    "9bfdf60a-6f67-4872-8961-d63776b192c3",
+    "Wero Gallo",
     // One mana kills an early creature and the artifact stays behind, which
     // is what makes the four-mana surveil a bonus rather than the plan.
     CardRules::new_artifact(mana_cost!("{B}")).with_abilities(&[
@@ -104,12 +122,11 @@ pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
 );
 
 // DFT 191 — Brightglass Gearhulk
-pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::new_with_legacy_id(
-    2301,
+pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::new(
     "Brightglass Gearhulk",
-    CardArt::new("3dea5b45-925c-4732-8e9d-fa8232792736", "José Parodi"),
-    CardSet::Aetherdrift,
-    // A 4/4 first striker with trample that also finds the two one-drops the
+    "3dea5b45-925c-4732-8e9d-fa8232792736",
+    "José Parodi",
+// A 4/4 first striker with trample that also finds the two one-drops the
     // deck is built around, which is what four coloured pips buy.
     CardRules::new_artifact_creature(mana_cost!("{G}{G}{W}{W}"), &["Construct"], 4, 4)
         .with_abilities(&[
@@ -158,10 +175,9 @@ pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::
 
 // DFT 250 — Bleachbone Verge
 pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("52dcdabd-a186-45fe-9fee-6c0f1afeaf16"),
     "Bleachbone Verge",
-    CardArt::new("52dcdabd-a186-45fe-9fee-6c0f1afeaf16", "Mark Tedin"),
-    CardSet::Aetherdrift,
+    "52dcdabd-a186-45fe-9fee-6c0f1afeaf16",
+    "Mark Tedin",
     // Untapped and free either way: the black is unconditional, and the
     // white is what the rest of the mana base is for.
     CardRules::new_land(&[]).with_abilities(&[
@@ -194,10 +210,9 @@ pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
 
 // DFT 258 — Night Market
 pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a8c1dce3-6136-4294-9d2b-5ef8527d733b"),
     "Night Market",
-    CardArt::new("a8c1dce3-6136-4294-9d2b-5ef8527d733b", "David Álvarez"),
-    CardSet::Aetherdrift,
+    "a8c1dce3-6136-4294-9d2b-5ef8527d733b",
+    "David Álvarez",
     // A tapped land that fixes one colour and cycles away once the mana is
     // there, so it is never the draw that loses the game.
     CardRules::new_land(&[]).with_abilities(&[
@@ -222,10 +237,9 @@ pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
 
 // DFT 260 — Riverpyre Verge
 pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("57a93a71-d77c-417f-85d0-cd420f573331"),
     "Riverpyre Verge",
-    CardArt::new("57a93a71-d77c-417f-85d0-cd420f573331", "Titus Lunter"),
-    CardSet::Aetherdrift,
+    "57a93a71-d77c-417f-85d0-cd420f573331",
+    "Titus Lunter",
     // Untapped and free either way: the red is unconditional, and the blue
     // is what the second land in the deck is for.
     CardRules::new_land(&[]).with_abilities(&[
@@ -258,10 +272,9 @@ pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
 
 // DFT 264 — Sunbillow Verge
 pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("94ed132f-b818-4dbf-9b4a-e5acb067e0a4"),
     "Sunbillow Verge",
-    CardArt::new("94ed132f-b818-4dbf-9b4a-e5acb067e0a4", "Pete Venters"),
-    CardSet::Aetherdrift,
+    "94ed132f-b818-4dbf-9b4a-e5acb067e0a4",
+    "Pete Venters",
     // Untapped and free either way: the white is unconditional, and the red
     // is what the rest of the mana base is for.
     CardRules::new_land(&[]).with_abilities(&[
@@ -293,11 +306,10 @@ pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
 );
 
 // DFT 268 — Wastewood Verge
-pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_with_legacy_id(
-    2196,
+pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new(
     "Wastewood Verge",
-    CardArt::new("5ceacc7d-d407-4f82-af58-9bdf8426924e", "Bartek Fedyczak"),
-    CardSet::Aetherdrift,
+    "5ceacc7d-d407-4f82-af58-9bdf8426924e",
+    "Bartek Fedyczak",
     // Untapped and free either way: the green is unconditional, and the
     // black is what the second land in the deck is for.
     CardRules::new_land(&[]).with_abilities(&[

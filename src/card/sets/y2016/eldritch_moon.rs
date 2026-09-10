@@ -1,23 +1,47 @@
 //! Eldritch Moon cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CostQuantityDef, CounterKind,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::ids::{ParentBinding, TargetIndex};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CostDef;
+use crate::card::CostQuantityDef;
+use crate::card::CounterKind;
+use crate::card::DiscardFollowUpDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SacrificedAmountDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::ids::ParentBinding;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // EMN 13 — Blessed Alliance
 pub(in crate::card::sets) static BLESSED_ALLIANCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b5805eab-9a32-4c0c-9015-7bdb74ad7634"),
     "Blessed Alliance",
-    CardArt::new("b5805eab-9a32-4c0c-9015-7bdb74ad7634", "Johann Bodin"),
-    CardSet::EldritchMoon,
+    "b5805eab-9a32-4c0c-9015-7bdb74ad7634",
+    "Johann Bodin",
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {2} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{2}")),
@@ -71,10 +95,9 @@ pub(in crate::card::sets) static BLESSED_ALLIANCE: CardRecord = CardRecord::new(
 
 // EMN 14 — Borrowed Grace
 pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f0067567-3434-4c12-9d4d-04ffc98d012c"),
     "Borrowed Grace",
-    CardArt::new("f0067567-3434-4c12-9d4d-04ffc98d012c", "Volkan Baǵa"),
-    CardSet::EldritchMoon,
+    "f0067567-3434-4c12-9d4d-04ffc98d012c",
+    "Volkan Baǵa",
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {1}{W} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{1}{W}")),
@@ -115,11 +138,10 @@ pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
 
 // EMN 17 — Collective Effort
 pub(in crate::card::sets) static COLLECTIVE_EFFORT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d85a6369-c07f-47d5-8448-72d8ec7e7898"),
     "Collective Effort",
-    CardArt::new("d85a6369-c07f-47d5-8448-72d8ec7e7898", "Eric Deschamps"),
-    CardSet::EldritchMoon,
-    CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(
+    "d85a6369-c07f-47d5-8448-72d8ec7e7898",
+    "Eric Deschamps",
+CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(
         AbilityDef::modal_escalate_spell(
             "Escalate—Tap an untapped creature you control. (Pay this cost for each mode chosen beyond the first.)",
             CostDef::tap(
@@ -161,11 +183,10 @@ pub(in crate::card::sets) static COLLECTIVE_EFFORT: CardRecord = CardRecord::new
 
 // EMN 37 — Providence
 pub(in crate::card::sets) static PROVIDENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2e5edd8d-8e10-4414-a326-95a672dfcff7"),
     "Providence",
-    CardArt::new("2e5edd8d-8e10-4414-a326-95a672dfcff7", "Zack Stella"),
-    CardSet::EldritchMoon,
-    CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
+    "2e5edd8d-8e10-4414-a326-95a672dfcff7",
+    "Zack Stella",
+CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
         AbilityDef::opening_hand_reveal(
             "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, your life total becomes 26.",
             EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
@@ -192,11 +213,10 @@ pub(in crate::card::sets) static PROVIDENCE: CardRecord = CardRecord::new(
 
 // EMN 55 — Displace
 pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8ab850c5-6f5e-41b7-ab52-094579caca12"),
     "Displace",
-    CardArt::new("8ab850c5-6f5e-41b7-ab52-094579caca12", "Clint Cearley"),
-    CardSet::EldritchMoon,
-    // Two arrival triggers at instant speed, and the exile also answers
+    "8ab850c5-6f5e-41b7-ab52-094579caca12",
+    "Clint Cearley",
+// Two arrival triggers at instant speed, and the exile also answers
     // whatever is pointed at them in the meantime.
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Exile up to two target creatures you control, then return those cards to the battlefield under their owner's control.",
@@ -232,10 +252,9 @@ pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
 
 // EMN 82 — Borrowed Malevolence
 pub(in crate::card::sets) static BORROWED_MALEVOLENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a71f123e-aad9-4f3e-9f43-1d1be359affb"),
     "Borrowed Malevolence",
-    CardArt::new("a71f123e-aad9-4f3e-9f43-1d1be359affb", "Volkan Baǵa"),
-    CardSet::EldritchMoon,
+    "a71f123e-aad9-4f3e-9f43-1d1be359affb",
+    "Volkan Baǵa",
     CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {2} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{2}")),
@@ -277,12 +296,11 @@ static AN_OPPONENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
 )];
 
-pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::new_with_legacy_id(
-    2244,
+pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::new(
     "Collective Brutality",
-    CardArt::new("cb94a02f-4660-45b6-8a39-941b710cf8f3", "Johann Bodin"),
-    CardSet::EldritchMoon,
-    // Two mana that answers three different decks, and the escalate cost is
+    "cb94a02f-4660-45b6-8a39-941b710cf8f3",
+    "Johann Bodin",
+// Two mana that answers three different decks, and the escalate cost is
     // paid in the cards those decks least want you to have anyway.
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
         AbilityDef::modal_escalate_spell(
@@ -340,10 +358,9 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
 
 // EMN 121 — Borrowed Hostility
 pub(in crate::card::sets) static BORROWED_HOSTILITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("dd91a194-6043-4c2d-afc8-427c38996ef4"),
     "Borrowed Hostility",
-    CardArt::new("dd91a194-6043-4c2d-afc8-427c38996ef4", "Volkan Baǵa"),
-    CardSet::EldritchMoon,
+    "dd91a194-6043-4c2d-afc8-427c38996ef4",
+    "Volkan Baǵa",
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {3} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{3}")),
@@ -379,10 +396,9 @@ pub(in crate::card::sets) static BORROWED_HOSTILITY: CardRecord = CardRecord::ne
 
 // EMN 123 — Collective Defiance
 pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8960883f-3813-412b-9a5b-f8cf8d566fac"),
     "Collective Defiance",
-    CardArt::new("8960883f-3813-412b-9a5b-f8cf8d566fac", "Kieran Yanner"),
-    CardSet::EldritchMoon,
+    "8960883f-3813-412b-9a5b-f8cf8d566fac",
+    "Kieran Yanner",
     CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {1} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{1}")),
@@ -432,10 +448,9 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
 
 // EMN 140 — Savage Alliance
 pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b5255da8-8511-48a7-98e5-ba43ca6e8681"),
     "Savage Alliance",
-    CardArt::new("b5255da8-8511-48a7-98e5-ba43ca6e8681", "Johann Bodin"),
-    CardSet::EldritchMoon,
+    "b5255da8-8511-48a7-98e5-ba43ca6e8681",
+    "Johann Bodin",
     CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::modal_escalate_spell(
         "Escalate {1} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{1}")),
@@ -483,11 +498,10 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
 
 // EMN 160 — Grapple with the Past
 pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d44a77a6-e8a1-4706-886f-8ab3af56b342"),
     "Grapple with the Past",
-    CardArt::new("d44a77a6-e8a1-4706-886f-8ab3af56b342", "Howard Lyon"),
-    CardSet::EldritchMoon,
-    // The mill happens first, so the three cards it just buried are part of
+    "d44a77a6-e8a1-4706-886f-8ab3af56b342",
+    "Howard Lyon",
+// The mill happens first, so the three cards it just buried are part of
     // what the choice may take back.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
         "Mill three cards, then you may return a creature or land card from your graveyard to your hand.",

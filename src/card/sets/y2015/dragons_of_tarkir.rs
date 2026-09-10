@@ -1,20 +1,31 @@
 //! Dragons of Tarkir cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::TargetIndex;
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    PlayerRelation, ResolvedEffectDurationDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
 use crate::mana_cost;
 
 // DTK 4 — Artful Maneuver
-pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new_with_legacy_id(
-    1710,
+pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new(
     "Artful Maneuver",
-    CardArt::new("7fcaf67e-ba97-4af9-8c47-dbca703cba35", "Lars Grant-West"),
-    CardSet::DragonsOfTarkir,
+    "7fcaf67e-ba97-4af9-8c47-dbca703cba35",
+    "Lars Grant-West",
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Target creature gets +2/+2 until end of turn.",
@@ -36,10 +47,9 @@ pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new_w
 
 // DTK 224 — Kolaghan's Command
 pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7c884e1e-fecb-4330-b3de-5fc2a60f7173"),
     "Kolaghan's Command",
-    CardArt::new("7c884e1e-fecb-4330-b3de-5fc2a60f7173", "Daarken"),
-    CardSet::DragonsOfTarkir,
+    "7c884e1e-fecb-4330-b3de-5fc2a60f7173",
+    "Daarken",
     // Three mana that is two cards on every board: something always comes
     // back, and something of theirs always goes.
     CardRules::new_instant(mana_cost!("{1}{B}{R}")).with_ability(

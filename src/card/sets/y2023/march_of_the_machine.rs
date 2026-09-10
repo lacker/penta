@@ -1,23 +1,45 @@
 //! March of the Machine cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, BasicLandType,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, CounterKind,
-    DrawEventMatcherDef, EffectDef, EffectRecipientDef, ExiledCastPermissionDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, PlayerSetDef,
-    TokenCountersDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
-};
-use crate::ids::{ParentBinding, TargetIndex};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::BasicLandType;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DrawEventMatcherDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ExiledCastPermissionDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::TokenCountersDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::card::tokens;
+use crate::ids::ParentBinding;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // MOM 3 — Alabaster Host Intercessor
 pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("165357cc-ec74-490f-aec3-7048bb43c8f9"),
     "Alabaster Host Intercessor",
-    CardArt::new("165357cc-ec74-490f-aec3-7048bb43c8f9", "Konstantin Porubov"),
-    CardSet::MarchOfTheMachine,
-    // Six mana for removal on a body, or two for a land: the cycling half is
+    "165357cc-ec74-490f-aec3-7048bb43c8f9",
+    "Konstantin Porubov",
+// Six mana for removal on a body, or two for a land: the cycling half is
     // what keeps it from being a dead card in the early game.
     CardRules::new_creature(mana_cost!("{5}{W}"), &["Phyrexian", "Samurai"], 3, 4).with_abilities(
         &[
@@ -45,14 +67,10 @@ pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRe
 );
 
 // MOM 40 — Sunfall
-pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_legacy_id(
-    2258,
+pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new(
     "Sunfall",
-    CardArt::new(
-        "32e29c7d-ed4b-4eff-b3c2-d99e5b63ef8d",
-        "Kasia 'Kafis' Zielińska",
-    ),
-    CardSet::MarchOfTheMachine,
+    "32e29c7d-ed4b-4eff-b3c2-d99e5b63ef8d",
+    "Kasia 'Kafis' Zielińska",
     // A wrath that exiles rather than destroys, and hands the caster the
     // biggest thing on the empty board it just made.
     CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_ability(AbilityDef::spell(
@@ -94,10 +112,9 @@ pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_lega
 
 // MOM 58 — Faerie Mastermind
 pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("52d3005f-a1c7-4ef5-911f-ccc0752f4181"),
     "Faerie Mastermind",
-    CardArt::new("52d3005f-a1c7-4ef5-911f-ccc0752f4181", "Joshua Raphael"),
-    CardSet::MarchOfTheMachine,
+    "52d3005f-a1c7-4ef5-911f-ccc0752f4181",
+    "Joshua Raphael",
     // A two-mana flash flier that is never a dead card: it taxes every
     // cantrip the other deck was going to cast anyway, and turns into a
     // draw engine once there is nothing else to spend mana on.
@@ -132,10 +149,9 @@ pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new
 
 // MOM 66 — Meeting of Minds
 pub(in crate::card::sets) static MEETING_OF_MINDS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("508b8650-c283-4e54-abdc-32ec2fb1ee34"),
     "Meeting of Minds",
-    CardArt::new("508b8650-c283-4e54-abdc-32ec2fb1ee34", "Milivoj Ćeran"),
-    CardSet::MarchOfTheMachine,
+    "508b8650-c283-4e54-abdc-32ec2fb1ee34",
+    "Milivoj Ćeran",
     // Convoke is doing all the work: a board that has already committed
     // draws two for free at instant speed, and pays four otherwise.
     CardRules::new_instant(mana_cost!("{3}{U}")).with_abilities(&[
@@ -152,10 +168,9 @@ pub(in crate::card::sets) static MEETING_OF_MINDS: CardRecord = CardRecord::new(
 
 // MOM 73 — Preening Champion
 pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("44178ece-af31-4a94-88bc-c9ce43bb4573"),
     "Preening Champion",
-    CardArt::new("44178ece-af31-4a94-88bc-c9ce43bb4573", "Alix Branwyn"),
-    CardSet::MarchOfTheMachine,
+    "44178ece-af31-4a94-88bc-c9ce43bb4573",
+    "Alix Branwyn",
     // Three mana for three power across two bodies, one of them in the air,
     // which is the rate a limited deck plays it at.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Bird", "Knight"], 2, 2).with_abilities(&[
@@ -175,19 +190,17 @@ pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new
 // MOM 173 — Wrenn's Resolve
 // Audit: unsupported — Needs an exile-play permission lasting until the end of your next turn. ExilePlayDurationDef offers ThisTurn, UntilYourNextEndStep and WhileExiled, and FreePlayDurationDef only WhileResolving and UntilEndOfTurn; none of them reaches the end of the following turn, and UntilYourNextEndStep expires a turn early when the spell is cast on your own turn.
 pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9a47999c-12d5-4e1a-a9c1-40a1757007f1"),
     "Wrenn's Resolve",
-    crate::card::CardArt::new("9a47999c-12d5-4e1a-a9c1-40a1757007f1", "Viko Menezes"),
-    crate::card::CardSet::MarchOfTheMachine,
+    "9a47999c-12d5-4e1a-a9c1-40a1757007f1",
+    "Viko Menezes",
     crate::card::CardRules::unsupported(),
 );
 
 // MOM 298 — Etali, Primal Conqueror // Etali, Primal Sickness
 pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord::new_dfc(
-    PrintingAnchor::scryfall("3e97c609-3932-4428-96d4-1c97e61f0abb"),
     "Etali, Primal Conqueror // Etali, Primal Sickness",
-    CardArt::new("3e97c609-3932-4428-96d4-1c97e61f0abb", "Yeong-Hao Han"),
-    CardSet::MarchOfTheMachine,
+    "3e97c609-3932-4428-96d4-1c97e61f0abb",
+    "Yeong-Hao Han",
     // Seven mana that casts the two best cards on the table, and a back face
     // nobody in the cube ever pays for.
     &[
@@ -256,11 +269,10 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
 
 // MOM 328 — Zephyr Winder
 pub(in crate::card::sets) static ZEPHYR_WINDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("14456a8e-016c-4407-8410-c490db3f5ea9"),
     "Zephyr Winder",
-    CardArt::new("14456a8e-016c-4407-8410-c490db3f5ea9", "Jana Schirmer"),
-    CardSet::MarchOfTheMachine,
-    // The untap is usually its own blocker coming back, which is what lets a
+    "14456a8e-016c-4407-8410-c490db3f5ea9",
+    "Jana Schirmer",
+// The untap is usually its own blocker coming back, which is what lets a
     // 2/1 flier attack into a board it could not otherwise race.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Elemental"], 2, 1).with_abilities(&[
         abilities::flying(),

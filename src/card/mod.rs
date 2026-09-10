@@ -14,6 +14,7 @@ pub mod tokens;
 
 mod catalog;
 mod characteristics;
+mod compatibility;
 mod creature_types;
 mod model;
 mod record;
@@ -35,14 +36,14 @@ pub use model::{
     BandingQuality, BasicLandType, BattlefieldArrivalDef, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, BindObjectsDef,
     BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardAbilityList,
-    CardArt, CardChoiceSourceDef, CardComposition, CardDefinition, CardEffectStatus, CardNameDef,
-    CardNameSetDef, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet, CardStructure,
-    CardSupertype, CardSupertypeSet, CardType, CardTypeSet, CastTimingPermissionDef,
-    ChangeStackTargetsDef, CharacteristicOperationDef, ChoiceVisibilityDef,
-    ChooseCardsFromCollectionDef, ChooseDef, ChooseExactDef, ChooseForEachPlayerDef,
-    ChooseGroupDef, ChooseObjectOrderDef, ChooseOneOfEachDef, ClassifyObjectsDef,
-    CollectionInspectionDef, ColorChoiceOperationDef, ColorSet, CombineObjectsDef,
-    CompanionConditionDef, ComparisonDef, ConditionDef, ConditionValueDef,
+    CardArt, CardArtPreference, CardChoiceSourceDef, CardComposition, CardDefinition,
+    CardEffectStatus, CardNameDef, CardNameSetDef, CardPart, CardPrinting, CardPrintingId,
+    CardRules, CardSet, CardStructure, CardSupertype, CardSupertypeSet, CardType, CardTypeSet,
+    CastTimingPermissionDef, ChangeStackTargetsDef, CharacteristicOperationDef,
+    ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseExactDef,
+    ChooseForEachPlayerDef, ChooseGroupDef, ChooseObjectOrderDef, ChooseOneOfEachDef,
+    ClassifyObjectsDef, CollectionInspectionDef, ColorChoiceOperationDef, ColorSet,
+    CombineObjectsDef, CompanionConditionDef, ComparisonDef, ConditionDef, ConditionValueDef,
     ConditionalStaticEffectDef, ConditionalValueDef, ControlDurationDef, CopyAbilityDef,
     CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef,
     CostModificationDef, CostQuantityDef, CountConditionDef, CounterFamily, CounterKind,

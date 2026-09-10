@@ -1,22 +1,39 @@
 //! Innistrad: Midnight Hunt cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // MID 1 — Adeline, Resplendent Cathar
 pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2280,
-        "Adeline, Resplendent Cathar",
-        CardArt::new("18092f68-b96e-4084-9eba-b240d2195d81", "Bryan Sola"),
-        CardSet::InnistradMidnightHunt,
-        // Three mana that attacks for four the turn after it lands and for more
+    CardRecord::new(
+    "Adeline, Resplendent Cathar",
+    "18092f68-b96e-4084-9eba-b240d2195d81",
+    "Bryan Sola",
+// Three mana that attacks for four the turn after it lands and for more
         // every turn after that, because each token it makes makes it bigger.
         CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 0, 4)
             .with_supertype(CardSupertype::Legendary)
@@ -61,14 +78,13 @@ pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
                         .entering_attacking(),
                 ),
             ]),
-    );
+);
 
 // MID 10 — Cathar Commando
-pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_with_legacy_id(
-    2273,
+pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new(
     "Cathar Commando",
-    CardArt::new("98cbc1c2-b76e-4da3-aa43-00e10b2ce532", "Evyn Fong"),
-    CardSet::InnistradMidnightHunt,
+    "98cbc1c2-b76e-4da3-aa43-00e10b2ce532",
+    "Evyn Fong",
     // Flash is what makes the two halves one card: it can be held up as
     // removal and cashed in as a 3/1 when nothing needs killing.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 3, 1).with_abilities(&[
@@ -89,10 +105,9 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
 
 // MID 24 — Homestead Courage
 pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("73a9c49f-fcd3-4572-bac7-6eb06fdc0815"),
     "Homestead Courage",
-    CardArt::new("73a9c49f-fcd3-4572-bac7-6eb06fdc0815", "Colin Boyer"),
-    CardSet::InnistradMidnightHunt,
+    "73a9c49f-fcd3-4572-bac7-6eb06fdc0815",
+    "Colin Boyer",
     // A counter is permanent where the vigilance is not, so the second cast
     // out of the graveyard is what the card is really priced on.
     CardRules::new_sorcery(mana_cost!("{W}")).with_abilities(&[
@@ -127,19 +142,17 @@ pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new
 // MID 32 — Search Party Captain
 // Audit: unsupported — Needs a count of the creatures that attacked this turn. Only their subtypes are recorded, and counting attackers still on the battlefield would undercount every trade, which is the line the card is cast in.
 pub(in crate::card::sets) static SEARCH_PARTY_CAPTAIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964"),
     "Search Party Captain",
-    crate::card::CardArt::new("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964", "Mike Bierek"),
-    crate::card::CardSet::InnistradMidnightHunt,
+    "cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964",
+    "Mike Bierek",
     crate::card::CardRules::unsupported(),
 );
 
 // MID 44 — Consider
 pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0b3f40a0-5f58-4157-aed9-b1a52e922c3c"),
     "Consider",
-    CardArt::new("a211d505-4d40-4914-a9da-220770d6ddbc", "Zezhou Chen"),
-    CardSet::InnistradMidnightHunt,
+    "a211d505-4d40-4914-a9da-220770d6ddbc",
+    "Zezhou Chen",
     // One mana to see two cards deep and choose which of them the deck is
     // better off having in the graveyard.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
@@ -158,19 +171,17 @@ pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
 // MID 96 — Diregraf Horde
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("153be768-ddad-44f2-bcdd-c40353c807d7"),
     "Diregraf Horde",
-    crate::card::CardArt::new("153be768-ddad-44f2-bcdd-c40353c807d7", "Alex Negrea"),
-    crate::card::CardSet::InnistradMidnightHunt,
+    "153be768-ddad-44f2-bcdd-c40353c807d7",
+    "Alex Negrea",
     crate::card::CardRules::unsupported(),
 );
 
 // MID 100 — Ecstatic Awakener // Awoken Demon
 pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new_dfc(
-    PrintingAnchor::scryfall("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9"),
     "Ecstatic Awakener // Awoken Demon",
-    CardArt::new("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9", "Tuan Duong Chu"),
-    CardSet::InnistradMidnightHunt,
+    "bbdad18e-e262-41f9-b252-1cbdcdd1b5f9",
+    "Tuan Duong Chu",
     // A one-drop that turns a spare body into a card and a 4/4, which is
     // what a sacrifice deck wants from its cheapest slot.
     &[
@@ -215,10 +226,9 @@ pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new
 
 // MID 107 — Infernal Grasp
 pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("17824929-f131-4b8d-addb-66c25323155e"),
     "Infernal Grasp",
-    CardArt::new("17824929-f131-4b8d-addb-66c25323155e", "Naomi Baker"),
-    CardSet::InnistradMidnightHunt,
+    "17824929-f131-4b8d-addb-66c25323155e",
+    "Naomi Baker",
     // Two mana, no restriction on what it answers, and the two life is the
     // whole of the price.
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
@@ -244,11 +254,10 @@ pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
 
 // MID 128 — Ardent Elementalist
 pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f58592f7-1df5-428d-9dde-e6acd9a5d1d5"),
     "Ardent Elementalist",
-    CardArt::new("f58592f7-1df5-428d-9dde-e6acd9a5d1d5", "Miguel Mercado"),
-    CardSet::InnistradMidnightHunt,
-    // Archaeomancer's trigger in red, on a body that trades rather than
+    "f58592f7-1df5-428d-9dde-e6acd9a5d1d5",
+    "Miguel Mercado",
+// Archaeomancer's trigger in red, on a body that trades rather than
     // blocks: the card it buys back is the whole reason to cast it.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Shaman"], 2, 1).with_ability(
         abilities::enters_trigger_with_targets(

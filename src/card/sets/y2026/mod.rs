@@ -6,4 +6,4 @@ pub(super) mod marvel_super_heroes_commander;
 pub(super) mod secrets_of_strixhaven;
 pub(super) mod teenage_mutant_ninja_turtles;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

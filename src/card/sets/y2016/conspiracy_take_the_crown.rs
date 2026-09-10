@@ -1,21 +1,35 @@
 //! Conspiracy: Take the Crown cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ObjectPredicateDef, PlayerRefDef, PlayerRelation, StackTargetAggregationDef,
-    StackTargetFilterDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::StackTargetAggregationDef;
+use crate::card::StackTargetFilterDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // CN2 18 — Palace Jailer
-pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new_with_legacy_id(
-    2171,
+pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new(
     "Palace Jailer",
-    CardArt::new("78cef262-c753-4658-b3ec-fec8db47f944", "David Palumbo"),
-    CardSet::ConspiracyTakeTheCrown,
-    // The crown is the card: a removal spell that also draws every turn, for
+    "78cef262-c753-4658-b3ec-fec8db47f944",
+    "David Palumbo",
+// The crown is the card: a removal spell that also draws every turn, for
     // as long as nobody can get through to take it back.
     CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Soldier"], 2, 2)
         .with_abilities(&[
@@ -64,10 +78,9 @@ pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new_wit
 
 // CN2 19 — Palace Sentinels
 pub(in crate::card::sets) static PALACE_SENTINELS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3e002a99-eb2b-4cc3-992e-f3ee42245dba"),
     "Palace Sentinels",
-    CardArt::new("3e002a99-eb2b-4cc3-992e-f3ee42245dba", "Aaron Miller"),
-    CardSet::ConspiracyTakeTheCrown,
+    "3e002a99-eb2b-4cc3-992e-f3ee42245dba",
+    "Aaron Miller",
     // A 2/4 wall attached to a card every turn, which is why the crown is
     // worth four mana on a body that does nothing else.
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier"], 2, 4).with_ability(
@@ -82,10 +95,9 @@ pub(in crate::card::sets) static PALACE_SENTINELS: CardRecord = CardRecord::new(
 
 // CN2 48 — Thorn of the Black Rose
 pub(in crate::card::sets) static THORN_OF_THE_BLACK_ROSE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2e4829c6-50d4-4602-af78-59249486a97c"),
     "Thorn of the Black Rose",
-    CardArt::new("2e4829c6-50d4-4602-af78-59249486a97c", "David Gaillet"),
-    CardSet::ConspiracyTakeTheCrown,
+    "2e4829c6-50d4-4602-af78-59249486a97c",
+    "David Gaillet",
     // Deathtouch is what defends the crown: nothing profitably attacks
     // through it, which is the whole reason the body is worth four mana.
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Human", "Assassin"], 1, 3).with_abilities(&[
@@ -102,20 +114,18 @@ pub(in crate::card::sets) static THORN_OF_THE_BLACK_ROSE: CardRecord = CardRecor
 // CN2 64 — Entourage of Trest
 // Audit: unsupported — Needs a "you are the monarch" state condition. Becoming the monarch and blocking an additional creature both exist (EffectDef::BecomeMonarch, AppliedRuleDef::MayBlockAdditionalCreatures), but nothing can ask whether the ability's controller currently holds the crown, and granting the extra block unconditionally would keep it after the crown is taken away.
 pub(in crate::card::sets) static ENTOURAGE_OF_TREST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3d7ee777-6113-43f8-883e-c7569eefb872"),
     "Entourage of Trest",
-    crate::card::CardArt::new("3d7ee777-6113-43f8-883e-c7569eefb872", "Anthony Palumbo"),
-    crate::card::CardSet::ConspiracyTakeTheCrown,
+    "3d7ee777-6113-43f8-883e-c7569eefb872",
+    "Anthony Palumbo",
     crate::card::CardRules::unsupported(),
 );
 
 // CN2 77 — Leovold, Emissary of Trest
 pub(in crate::card::sets) static LEOVOLD_EMISSARY_OF_TREST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("49bb0ad3-1082-41f1-82a4-52a4006cc9b6"),
     "Leovold, Emissary of Trest",
-    CardArt::new("49bb0ad3-1082-41f1-82a4-52a4006cc9b6", "Magali Villeneuve"),
-    CardSet::ConspiracyTakeTheCrown,
-    // Three mana that turns every draw spell they have into one card and
+    "49bb0ad3-1082-41f1-82a4-52a4006cc9b6",
+    "Magali Villeneuve",
+// Three mana that turns every draw spell they have into one card and
     // every removal spell they point at you into a replacement.
     CardRules::new_creature(mana_cost!("{B}{G}{U}"), &["Elf", "Advisor"], 3, 3)
         .with_supertype(CardSupertype::Legendary)

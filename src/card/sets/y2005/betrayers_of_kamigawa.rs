@@ -1,21 +1,62 @@
 //! Betrayers of Kamigawa cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, CounterKind, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
-    TriggerEventDef, ValueDef, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRuleDef;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// BOK 44 — Ninja of the Deep Hours
+pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecord::new(
+    "Ninja of the Deep Hours",
+    "367a67c7-54db-4336-b55a-3fa27625172a",
+    "Dan Murayama Scott",
+    // Nobody casts this for four. Two mana off an unblocked one-drop is the
+    // card: the attacker that got through goes back to be replayed, and the
+    // 2/2 that replaced it is already connecting for a card a turn.
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Ninja"], 2, 2).with_abilities(&[
+        abilities::ninjutsu!(
+            "Ninjutsu {1}{U} ({1}{U}, Return an unblocked attacker you control to hand: Put this \
+            card onto the battlefield from your hand tapped and attacking.)",
+            &[crate::CostDef::Mana(mana_cost!("{1}{U}"))],
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you may draw a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
+);
+
 // BOK 76 — Okiba-Gang Shinobi
 pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5cd9297e-301e-4e70-af9b-3218eacacf8d"),
     "Okiba-Gang Shinobi",
-    CardArt::new("5cd9297e-301e-4e70-af9b-3218eacacf8d", "Mark Zug"),
-    CardSet::BetrayersOfKamigawa,
+    "5cd9297e-301e-4e70-af9b-3218eacacf8d",
+    "Mark Zug",
     // Two cards out of their hand every time it connects, and ninjutsu is
     // what makes it connect: the attacker they chose not to block is traded
     // for the one they would have.
@@ -42,10 +83,9 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
 // BOK 104 — Fumiko the Lowblood
 pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
     CardRecord::new(
-        PrintingAnchor::scryfall("482678b8-bce6-4847-9f43-1761d61645d8"),
         "Fumiko the Lowblood",
-        CardArt::new("482678b8-bce6-4847-9f43-1761d61645d8", "Michael Sutfin"),
-        CardSet::BetrayersOfKamigawa,
+        "482678b8-bce6-4847-9f43-1761d61645d8",
+        "Michael Sutfin",
         CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Human", "Samurai"], 3, 2)
             .with_supertype(CardSupertype::Legendary)
             .with_abilities(&[
@@ -75,10 +115,9 @@ pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
     );
 // BOK 154 — Mirror Gallery
 pub(in crate::card::sets) static MIRROR_GALLERY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("00beba34-54cc-4a30-8424-71a1215647a6"),
     "Mirror Gallery",
-    CardArt::new("00beba34-54cc-4a30-8424-71a1215647a6", "Scott M. Fischer"),
-    CardSet::BetrayersOfKamigawa,
+    "00beba34-54cc-4a30-8424-71a1215647a6",
+    "Scott M. Fischer",
     CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::static_ability(
         "The \"legend rule\" doesn't apply.",
         EffectDef::StaticApply {
@@ -91,12 +130,11 @@ pub(in crate::card::sets) static MIRROR_GALLERY: CardRecord = CardRecord::new(
 );
 
 // BOK 163 — Umezawa's Jitte
-pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_with_legacy_id(
-    2188,
+pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new(
     "Umezawa's Jitte",
-    CardArt::new("d4ecc3ef-a9f2-4c4c-9c8d-b4a0e6ba4ac2", "Christopher Moeller"),
-    CardSet::BetrayersOfKamigawa,
-    CardRules::new_artifact(mana_cost!("{2}"))
+    "3b6e5956-f795-451b-bb24-56462d1ced27",
+    "Christopher Moeller",
+CardRules::new_artifact(mana_cost!("{2}"))
         .with_supertype(CardSupertype::Legendary)
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -162,6 +200,7 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &NINJA_OF_THE_DEEP_HOURS,
     &OKIBA_GANG_SHINOBI,
     &FUMIKO_THE_LOWBLOOD,
     &MIRROR_GALLERY,

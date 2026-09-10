@@ -10,6 +10,7 @@ mod premodern;
 pub mod standards;
 
 pub use old_school_9394::{
+    ADDITIONAL_ALLOWED_CARDS as OLD_SCHOOL_ADDITIONAL_ALLOWED_CARDS,
     ALLOWED_SETS as OLD_SCHOOL_ALLOWED_SETS, BANNED_CARDS as OLD_SCHOOL_BANNED_CARDS,
     RESTRICTED_CARDS as OLD_SCHOOL_RESTRICTED_CARDS,
 };
@@ -110,6 +111,8 @@ pub(super) const CUBE_RULES: FormatRules = FormatRules {
 pub struct SetFormatDefinition {
     pub rules: FormatRules,
     pub allowed_sets: &'static [CardSet],
+    /// Card identities admitted independently of a whole set.
+    pub additional_allowed_cards: &'static [&'static str],
     pub banned_cards: &'static [&'static str],
     pub restricted_cards: &'static [&'static str],
 }
@@ -231,10 +234,13 @@ impl Format {
                             .primary_part()
                             .is_some_and(|part| contains_name(definition.cards, &part.name))
             }
-            FormatDefinition::Sets(definition) => card
-                .printings
-                .iter()
-                .any(|printing| definition.allowed_sets.contains(&printing.id.set)),
+            FormatDefinition::Sets(definition) => {
+                contains_name(definition.additional_allowed_cards, &card.name)
+                    || card
+                        .printings
+                        .iter()
+                        .any(|printing| definition.allowed_sets.contains(&printing.id.set))
+            }
         }
     }
 

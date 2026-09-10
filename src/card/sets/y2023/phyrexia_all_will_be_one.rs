@@ -1,24 +1,49 @@
 //! Phyrexia: All Will Be One cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::Binding;
+use crate::ParentBinding;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseOneOfEachDef;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
 use crate::card::CostQuantityDef;
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseOneOfEachDef, ComparisonDef, CostDef, CounterKind, EffectDef,
-    EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, RandomizeObjectOrderDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, SacrificedAmountDef, TriggerConditionDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
-};
-use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::RandomizeObjectOrderDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
+use crate::card::SacrificedAmountDef;
+use crate::card::TriggerConditionDef;
+use crate::card::ValueComparisonDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // ONE 28 — Planar Disruption
 pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8ee69a1f-aeed-4eb4-8987-fa720fc99715"),
     "Planar Disruption",
-    CardArt::new("8ee69a1f-aeed-4eb4-8987-fa720fc99715", "Campbell White"),
-    CardSet::PhyrexiaAllWillBeOne,
+    "8ee69a1f-aeed-4eb4-8987-fa720fc99715",
+    "Campbell White",
     // Two mana answers a creature, a mana rock, or a planeswalker, which is
     // what a Pacifism that reads wider is worth in a format full of both.
     CardRules::new_enchantment(mana_cost!("{1}{W}"))
@@ -42,10 +67,9 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
 
 // ONE 80 — Annihilating Glare
 pub(in crate::card::sets) static ANNIHILATING_GLARE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("be5d0b95-ec12-4e8e-99a0-7aca457f9107"),
     "Annihilating Glare",
-    CardArt::new("be5d0b95-ec12-4e8e-99a0-7aca457f9107", "Konstantin Porubov"),
-    CardSet::PhyrexiaAllWillBeOne,
+    "be5d0b95-ec12-4e8e-99a0-7aca457f9107",
+    "Konstantin Porubov",
     CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_additional_cost(
         "As an additional cost to cast this spell, pay {4} or sacrifice an artifact or \
              creature.\nDestroy target creature or planeswalker.",
@@ -88,10 +112,9 @@ const fn edict(text: &'static str, object: ObjectPredicateDef) -> AbilityDef {
 }
 
 pub(in crate::card::sets) static SHEOLDRED_S_EDICT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a9225cc3-90f0-448f-a8d9-7c6c2796d077"),
     "Sheoldred's Edict",
-    CardArt::new("a9225cc3-90f0-448f-a8d9-7c6c2796d077", "Helge C. Balzer"),
-    CardSet::PhyrexiaAllWillBeOne,
+    "a9225cc3-90f0-448f-a8d9-7c6c2796d077",
+    "Helge C. Balzer",
     // Two mana at instant speed for the one creature a protected threat
     // cannot dodge, as long as it is the only one they have.
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::modal_spell(
@@ -125,10 +148,9 @@ pub(in crate::card::sets) static SHEOLDRED_S_EDICT: CardRecord = CardRecord::new
 
 // ONE 121 — Barbed Batterfist
 pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("de1d02d1-91dc-47d6-bdbe-87602428abfb"),
     "Barbed Batterfist",
-    CardArt::new("de1d02d1-91dc-47d6-bdbe-87602428abfb", "Randy Gallegos"),
-    CardSet::PhyrexiaAllWillBeOne,
+    "de1d02d1-91dc-47d6-bdbe-87602428abfb",
+    "Randy Gallegos",
     // A 3/1 for two that leaves the Equipment behind when it trades. The
     // toughness penalty is what pays for that: it makes the Rebel worse at
     // blocking than the 2/2 underneath it.
@@ -152,10 +174,9 @@ pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new
 
 // ONE 133 — Furnace Strider
 pub(in crate::card::sets) static FURNACE_STRIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("aa625ab0-1e79-4497-a5da-98fe1abfd024"),
     "Furnace Strider",
-    CardArt::new("aa625ab0-1e79-4497-a5da-98fe1abfd024", "Denis Zhbankov"),
-    CardSet::PhyrexiaAllWillBeOne,
+    "aa625ab0-1e79-4497-a5da-98fe1abfd024",
+    "Denis Zhbankov",
     // Two free haste grants attached to a body that blocks well, which is
     // what makes five mana acceptable in a deck built to go wide.
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Phyrexian", "Beast"], 4, 5).with_abilities(&[
@@ -195,12 +216,11 @@ pub(in crate::card::sets) static FURNACE_STRIDER: CardRecord = CardRecord::new(
 );
 
 // ONE 161 — Cankerbloom
-pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_legacy_id(
-    2292,
+pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new(
     "Cankerbloom",
-    CardArt::new("89b39293-6f57-4294-85fc-c718bdbb4d40", "Nicholas Gregory"),
-    CardSet::PhyrexiaAllWillBeOne,
-    // A 3/2 for two that is also the artifact removal the deck was going to
+    "89b39293-6f57-4294-85fc-c718bdbb4d40",
+    "Nicholas Gregory",
+// A 3/2 for two that is also the artifact removal the deck was going to
     // have to find room for, which is the whole reason it is in a cube.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Phyrexian", "Fungus"], 3, 2).with_ability(
         AbilityDef::modal_activated(
@@ -237,10 +257,9 @@ pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_
 
 // ONE 164 — Contagious Vorrac
 pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("18af2c85-e58f-4043-99d3-e90121348aca"),
     "Contagious Vorrac",
-    CardArt::new("18af2c85-e58f-4043-99d3-e90121348aca", "Maxime Minard"),
-    CardSet::PhyrexiaAllWillBeOne,
+    "18af2c85-e58f-4043-99d3-e90121348aca",
+    "Maxime Minard",
     // Never a blank: a land when the draw is short, and a counter on
     // whatever the oil deck already has going when it is not.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Phyrexian", "Boar", "Beast"], 3, 3)
@@ -286,11 +305,10 @@ pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new
 const ATRAXA_CHOSEN: Binding = Binding!("atraxa_chosen");
 const ATRAXA_REST: Binding = Binding!("atraxa_rest");
 pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4a1f905f-1d55-4d02-9d24-e58070793d3f"),
     "Atraxa, Grand Unifier",
-    crate::card::CardArt::new("4a1f905f-1d55-4d02-9d24-e58070793d3f", "Marta Nael"),
-    crate::card::CardSet::PhyrexiaAllWillBeOne,
-    // Seven mana across four colours for a 7/7 that blocks everything, gains
+    "4a1f905f-1d55-4d02-9d24-e58070793d3f",
+    "Marta Nael",
+// Seven mana across four colours for a 7/7 that blocks everything, gains
     // the life back, and refills the hand on the way in.
     CardRules::new_creature(mana_cost!("{3}{G}{W}{U}{B}"), &["Phyrexian", "Angel"], 7, 7)
         .with_supertype(CardSupertype::Legendary)

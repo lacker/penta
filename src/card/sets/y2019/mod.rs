@@ -6,4 +6,4 @@ pub(super) mod ravnica_allegiance;
 pub(super) mod throne_of_eldraine;
 pub(super) mod war_of_the_spark;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

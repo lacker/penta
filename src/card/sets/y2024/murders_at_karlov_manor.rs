@@ -1,15 +1,42 @@
 //! Murders at Karlov Manor cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ColorSet,
-    ComparisonDef, CostDef, CostModificationDef, CounterKind, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, tokens,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::BasicLandType;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ColorSet;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
+use crate::card::CostModificationDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SumValueDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueComparisonDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::card::tokens;
+use crate::mana_cost;
 
 static SURVEIL_LAND_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_tapped(CardType::Land),
@@ -29,11 +56,10 @@ const fn surveil_land(types: &'static [&'static str]) -> CardRules {
 
 // MKM 29 — Novice Inspector
 pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0ad38866-fc5f-4f62-89c1-afc0f50765aa"),
     "Novice Inspector",
-    CardArt::new("0ad38866-fc5f-4f62-89c1-afc0f50765aa", "Fajareka Setiawan"),
-    CardSet::MurdersAtKarlovManor,
-    // One mana for a blocker and half a card, which is the floor a white
+    "0ad38866-fc5f-4f62-89c1-afc0f50765aa",
+    "Fajareka Setiawan",
+// One mana for a blocker and half a card, which is the floor a white
     // one-drop has to clear to be playable at all.
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Detective"], 1, 2).with_ability(
         abilities::enters_trigger(
@@ -47,12 +73,11 @@ pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
 );
 
 // MKM 57 — Forensic Gadgeteer
-pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new_with_legacy_id(
-    2206,
+pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new(
     "Forensic Gadgeteer",
-    CardArt::new("97d08a15-e61c-4421-a541-c68a4f87cb74", "Volkan Baǵa"),
-    CardSet::MurdersAtKarlovManor,
-    // Every artifact you cast is a card later, and every artifact you
+    "97d08a15-e61c-4421-a541-c68a4f87cb74",
+    "Volkan Baǵa",
+// Every artifact you cast is a card later, and every artifact you
     // already have is cheaper to use -- including the Clues it just made.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Vedalken", "Artificer", "Detective"], 2, 3)
         .with_abilities(&[
@@ -85,10 +110,9 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
 
 // MKM 105 — Snarling Gorehound
 pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("93ab3e11-8584-406f-b9ae-9e1df4396cbc"),
     "Snarling Gorehound",
-    CardArt::new("93ab3e11-8584-406f-b9ae-9e1df4396cbc", "John Tedrick"),
-    CardSet::MurdersAtKarlovManor,
+    "93ab3e11-8584-406f-b9ae-9e1df4396cbc",
+    "John Tedrick",
     // A one-drop that keeps paying in a deck full of other one-drops, which
     // is exactly the deck that wants a menace body this cheap.
     CardRules::new_creature(mana_cost!("{B}"), &["Dog"], 1, 1).with_abilities(&[
@@ -115,10 +139,9 @@ pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::ne
 
 // MKM 174 — Rubblebelt Maverick
 pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b"),
     "Rubblebelt Maverick",
-    CardArt::new("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b", "Carissa Susilo"),
-    CardSet::MurdersAtKarlovManor,
+    "81c7ff67-b9e1-4d2e-b1ae-da9b946da00b",
+    "Carissa Susilo",
     // A one-drop that fills the graveyard on the way in and cashes itself
     // out of it later, so trading it away costs the deck almost nothing.
     CardRules::new_creature(mana_cost!("{G}"), &["Human", "Detective"], 1, 1).with_abilities(&[
@@ -151,19 +174,17 @@ pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::n
 // MKM 197 — Dog Walker
 // Audit: unsupported — Needs a turned-face-up trigger. Disguise itself has a cast kind and face-down characteristics, but no event fires when a permanent is turned face up, which is when this card does everything it does.
 pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a6e0adb7-a030-4dcc-9284-cd91c7598a22"),
     "Dog Walker",
-    crate::card::CardArt::new("a6e0adb7-a030-4dcc-9284-cd91c7598a22", "Milivoj Ćeran"),
-    crate::card::CardSet::MurdersAtKarlovManor,
+    "a6e0adb7-a030-4dcc-9284-cd91c7598a22",
+    "Milivoj Ćeran",
     crate::card::CardRules::unsupported(),
 );
 
 // MKM 217 — Leyline of the Guildpact
 pub(in crate::card::sets) static LEYLINE_OF_THE_GUILDPACT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bf6e59be-f959-4f4a-8c2d-b7c441e88135"),
     "Leyline of the Guildpact",
-    CardArt::new("bf6e59be-f959-4f4a-8c2d-b7c441e88135", "Daarken"),
-    CardSet::MurdersAtKarlovManor,
+    "bf6e59be-f959-4f4a-8c2d-b7c441e88135",
+    "Daarken",
     CardRules::new_enchantment(mana_cost!("{G/W}{G/U}{B/G}{R/G}")).with_abilities(&[
         abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
@@ -205,10 +226,9 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_GUILDPACT: CardRecord = CardReco
 
 // MKM 221 — No More Lies
 pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1e0c695d-62f9-4805-9e2f-7032e8464136"),
     "No More Lies",
-    CardArt::new("1e0c695d-62f9-4805-9e2f-7032e8464136", "Liiga Smilshkalne"),
-    CardSet::MurdersAtKarlovManor,
+    "1e0c695d-62f9-4805-9e2f-7032e8464136",
+    "Liiga Smilshkalne",
     // Mana Leak that eats what it catches: the exile is what makes it worth
     // a second color, since nothing gets the spell back afterwards.
     CardRules::new_instant(mana_cost!("{W}{U}")).with_ability(AbilityDef::spell_with_targets(
@@ -229,14 +249,10 @@ pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
 );
 
 // MKM 259 — Commercial District
-pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::new_with_legacy_id(
-    2275,
+pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::new(
     "Commercial District",
-    CardArt::new(
-        "bf220c06-3cce-4bdd-aa58-83940c223e9c",
-        "Julian Kok Joon Wen",
-    ),
-    CardSet::MurdersAtKarlovManor,
+    "bf220c06-3cce-4bdd-aa58-83940c223e9c",
+    "Julian Kok Joon Wen",
     // The red-green half, which wants the graveyard less than the others and
     // plays it anyway because a tapped dual is what the mana costs.
     surveil_land(&["Mountain", "Forest"]),
@@ -244,14 +260,10 @@ pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::n
 
 // MKM 261 — Escape Tunnel
 pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("93ddde4f-d35e-4128-8f43-d0eadbd715de"),
     "Escape Tunnel",
-    CardArt::new(
-        "93ddde4f-d35e-4128-8f43-d0eadbd715de",
-        "Carlos Palma Cruchaga",
-    ),
-    CardSet::MurdersAtKarlovManor,
-    // A land that taps for nothing: both halves spend the land itself, so
+    "93ddde4f-d35e-4128-8f43-d0eadbd715de",
+    "Carlos Palma Cruchaga",
+// A land that taps for nothing: both halves spend the land itself, so
     // playing it is a decision about which one the deck wants later.
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated(
@@ -299,10 +311,9 @@ pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
 
 // MKM 262 — Hedge Maze
 pub(in crate::card::sets) static HEDGE_MAZE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5260f8ae-805b-4eae-badf-62de0f768867"),
     "Hedge Maze",
-    CardArt::new("5260f8ae-805b-4eae-badf-62de0f768867", "Andrew Mar"),
-    CardSet::MurdersAtKarlovManor,
+    "5260f8ae-805b-4eae-badf-62de0f768867",
+    "Andrew Mar",
     // The green-blue half of the cycle, and the one whose deck is usually
     // happiest to see the surveil: the graveyard is where half its cards
     // want to be anyway.
@@ -310,33 +321,30 @@ pub(in crate::card::sets) static HEDGE_MAZE: CardRecord = CardRecord::new(
 );
 
 // MKM 263 — Lush Portico
-pub(in crate::card::sets) static LUSH_PORTICO: CardRecord = CardRecord::new_with_legacy_id(
-    2248,
+pub(in crate::card::sets) static LUSH_PORTICO: CardRecord = CardRecord::new(
     "Lush Portico",
-    CardArt::new("c17816e8-28b1-4295-a637-efb0e5c18873", "Kamila Szutenberg"),
-    CardSet::MurdersAtKarlovManor,
+    "c17816e8-28b1-4295-a637-efb0e5c18873",
+    "Kamila Szutenberg",
     // The green-white half of the cycle, which the decks that want it are
     // playing for the fixing rather than for the graveyard.
     surveil_land(&["Forest", "Plains"]),
 );
 
 // MKM 264 — Meticulous Archive
-pub(in crate::card::sets) static METICULOUS_ARCHIVE: CardRecord = CardRecord::new_with_legacy_id(
-    2303,
+pub(in crate::card::sets) static METICULOUS_ARCHIVE: CardRecord = CardRecord::new(
     "Meticulous Archive",
-    CardArt::new("652236c2-84ef-45e4-b5fc-ed6170bc3d6c", "Sam Burley"),
-    CardSet::MurdersAtKarlovManor,
+    "652236c2-84ef-45e4-b5fc-ed6170bc3d6c",
+    "Sam Burley",
     // The white-blue half, which wants the graveyard least of the cycle and
     // is played for the dual land the tempo decks cannot otherwise have.
     surveil_land(&["Plains", "Island"]),
 );
 
 // MKM 269 — Thundering Falls
-pub(in crate::card::sets) static THUNDERING_FALLS: CardRecord = CardRecord::new_with_legacy_id(
-    2226,
+pub(in crate::card::sets) static THUNDERING_FALLS: CardRecord = CardRecord::new(
     "Thundering Falls",
-    CardArt::new("17260fff-b239-4af4-9306-3236ae3fa5a5", "Grady Frederick"),
-    CardSet::MurdersAtKarlovManor,
+    "17260fff-b239-4af4-9306-3236ae3fa5a5",
+    "Grady Frederick",
     // A dual that costs you the turn it lands and pays a little of it back by
     // filling the graveyard the decks that want it are built around.
     surveil_land(&["Island", "Mountain"]),
@@ -344,10 +352,9 @@ pub(in crate::card::sets) static THUNDERING_FALLS: CardRecord = CardRecord::new_
 
 // MKM 270 — Undercity Sewers
 pub(in crate::card::sets) static UNDERCITY_SEWERS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2b5801fb-2026-4f25-98bc-ebb2f99684b9"),
     "Undercity Sewers",
-    CardArt::new("2b5801fb-2026-4f25-98bc-ebb2f99684b9", "Yeong-Hao Han"),
-    CardSet::MurdersAtKarlovManor,
+    "2b5801fb-2026-4f25-98bc-ebb2f99684b9",
+    "Yeong-Hao Han",
     // The blue-black half, and the one the cycle was designed for: the deck
     // playing it is already trying to fill a graveyard, so the look costs it
     // nothing it was not going to spend.
@@ -356,10 +363,9 @@ pub(in crate::card::sets) static UNDERCITY_SEWERS: CardRecord = CardRecord::new(
 
 // MKM 329 — Raucous Theater
 pub(in crate::card::sets) static RAUCOUS_THEATER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2faf0337-c7a3-45a0-bb14-c431526da2cd"),
     "Raucous Theater",
-    CardArt::new("2faf0337-c7a3-45a0-bb14-c431526da2cd", "Sergey Glushakov"),
-    CardSet::MurdersAtKarlovManor,
+    "2faf0337-c7a3-45a0-bb14-c431526da2cd",
+    "Sergey Glushakov",
     // The black-red half, which wants the graveyard for what it can cast out
     // of it rather than for a count: the look is a discard the deck was glad
     // to make.
@@ -368,10 +374,9 @@ pub(in crate::card::sets) static RAUCOUS_THEATER: CardRecord = CardRecord::new(
 
 // MKM 330 — Shadowy Backstreet
 pub(in crate::card::sets) static SHADOWY_BACKSTREET: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("27eae4ce-e0b3-482b-9136-6fc17333877e"),
     "Shadowy Backstreet",
-    CardArt::new("27eae4ce-e0b3-482b-9136-6fc17333877e", "Sergey Glushakov"),
-    CardSet::MurdersAtKarlovManor,
+    "27eae4ce-e0b3-482b-9136-6fc17333877e",
+    "Sergey Glushakov",
     // The white-black half. Its deck is the one least pleased to be given a
     // card it has to bin, which is why the look is worth reading twice.
     surveil_land(&["Plains", "Swamp"]),
@@ -379,10 +384,9 @@ pub(in crate::card::sets) static SHADOWY_BACKSTREET: CardRecord = CardRecord::ne
 
 // MKM 333 — Underground Mortuary
 pub(in crate::card::sets) static UNDERGROUND_MORTUARY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0d8938e4-bfa5-47e1-8c71-9c6583346300"),
     "Underground Mortuary",
-    CardArt::new("0d8938e4-bfa5-47e1-8c71-9c6583346300", "Sergey Glushakov"),
-    CardSet::MurdersAtKarlovManor,
+    "0d8938e4-bfa5-47e1-8c71-9c6583346300",
+    "Sergey Glushakov",
     // The black-green half, whose deck is usually pleased to bin whatever
     // the look turns up: half of what it wants is already in the graveyard.
     surveil_land(&["Swamp", "Forest"]),
@@ -390,11 +394,10 @@ pub(in crate::card::sets) static UNDERGROUND_MORTUARY: CardRecord = CardRecord::
 
 // MKM 396 — Proft's Eidetic Memory
 pub(in crate::card::sets) static PROFT_S_EIDETIC_MEMORY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a3472756-0305-4567-b425-f7dbf9b3cc7f"),
     "Proft's Eidetic Memory",
-    CardArt::new("a3472756-0305-4567-b425-f7dbf9b3cc7f", "Julie Dillon"),
-    CardSet::MurdersAtKarlovManor,
-    // Two mana that replaces itself and then turns every spare cantrip into
+    "a3472756-0305-4567-b425-f7dbf9b3cc7f",
+    "Julie Dillon",
+// Two mana that replaces itself and then turns every spare cantrip into
     // permanent power, as long as there is a creature to put it on.
     CardRules::new_enchantment(mana_cost!("{1}{U}"))
         .with_supertype(CardSupertype::Legendary)

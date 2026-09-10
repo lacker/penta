@@ -1,21 +1,41 @@
 //! Khans of Tarkir cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    TriggerEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnKindDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZoneMoveCauseDef;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // KTK 3 — Ainok Bond-Kin
 pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("22d2a844-17fc-4628-9591-684555e98f7b"),
     "Ainok Bond-Kin",
-    CardArt::new("22d2a844-17fc-4628-9591-684555e98f7b", "Jeff Simpson"),
-    CardSet::KhansOfTarkir,
+    "22d2a844-17fc-4628-9591-684555e98f7b",
+    "Chris Rahn",
     // Outlast is slow enough that the anthem is the reason to play it: a
     // counters deck gets first strike on the whole board for free.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Dog", "Soldier"], 2, 1).with_abilities(&[
@@ -51,10 +71,9 @@ pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
 
 // KTK 22 — Seeker of the Way
 pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3c17e350-44f7-4413-ad24-7c5d6616effd"),
     "Seeker of the Way",
-    CardArt::new("3c17e350-44f7-4413-ad24-7c5d6616effd", "Craig J Spearing"),
-    CardSet::KhansOfTarkir,
+    "3c17e350-44f7-4413-ad24-7c5d6616effd",
+    "Craig J Spearing",
     // Prowess and lifelink on the same trigger is what turns one cheap spell
     // into a four-point life swing, which is why this ends races.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Warrior"], 2, 2).with_abilities(&[
@@ -80,10 +99,9 @@ pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new
 
 // KTK 59 — Treasure Cruise
 pub(in crate::card::sets) static TREASURE_CRUISE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7a59d4b1-6cf4-44ec-8a96-1bb7094fea21"),
     "Treasure Cruise",
-    CardArt::new("7a59d4b1-6cf4-44ec-8a96-1bb7094fea21", "Cynthia Sheppard"),
-    CardSet::KhansOfTarkir,
+    "7a59d4b1-6cf4-44ec-8a96-1bb7094fea21",
+    "Cynthia Sheppard",
     CardRules::new_sorcery(mana_cost!("{7}{U}")).with_abilities(&[
         abilities::delve(),
         AbilityDef::spell(
@@ -98,10 +116,9 @@ pub(in crate::card::sets) static TREASURE_CRUISE: CardRecord = CardRecord::new(
 
 // KTK 78 — Mardu Skullhunter
 pub(in crate::card::sets) static MARDU_SKULLHUNTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("dd3ca5e7-96f3-4326-9315-34bb396a054c"),
     "Mardu Skullhunter",
-    CardArt::new("dd3ca5e7-96f3-4326-9315-34bb396a054c", "Jason Rainville"),
-    CardSet::KhansOfTarkir,
+    "dd3ca5e7-96f3-4326-9315-34bb396a054c",
+    "Jason Rainville",
     // The discard is the whole card; entering tapped is what it costs, since a
     // 2/1 that cannot block the turn it lands trades a tempo point for the
     // hand it stripped.
@@ -123,10 +140,9 @@ pub(in crate::card::sets) static MARDU_SKULLHUNTER: CardRecord = CardRecord::new
 
 // KTK 111 — Hordeling Outburst
 pub(in crate::card::sets) static HORDELING_OUTBURST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a5c1bf52-2737-423a-b340-07448afcaea6"),
     "Hordeling Outburst",
-    CardArt::new("a5c1bf52-2737-423a-b340-07448afcaea6", "Zoltan Boros"),
-    CardSet::KhansOfTarkir,
+    "a5c1bf52-2737-423a-b340-07448afcaea6",
+    "Zoltan Boros",
     // Three bodies from one card is what a go-wide deck is buying; the
     // sorcery speed is the price for not paying one mana each.
     CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::spell(
@@ -137,10 +153,9 @@ pub(in crate::card::sets) static HORDELING_OUTBURST: CardRecord = CardRecord::ne
 
 // KTK 118 — Monastery Swiftspear
 pub(in crate::card::sets) static MONASTERY_SWIFTSPEAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b81c6c8b-a9cf-4866-89ba-7f8ad077b836"),
     "Monastery Swiftspear",
-    CardArt::new("b81c6c8b-a9cf-4866-89ba-7f8ad077b836", "Steve Argyle"),
-    CardSet::KhansOfTarkir,
+    "b81c6c8b-a9cf-4866-89ba-7f8ad077b836",
+    "Steve Argyle",
     // Haste is what makes prowess pay on the turn it lands rather than the
     // turn after, which is the whole card.
     CardRules::new_creature(mana_cost!("{R}"), &["Human", "Monk"], 1, 2)
@@ -149,10 +164,9 @@ pub(in crate::card::sets) static MONASTERY_SWIFTSPEAR: CardRecord = CardRecord::
 
 // KTK 137 — Hooting Mandrills
 pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("090d678c-f0e4-4757-8900-93dfe67aefe9"),
     "Hooting Mandrills",
-    CardArt::new("090d678c-f0e4-4757-8900-93dfe67aefe9", "Mike Bierek"),
-    CardSet::KhansOfTarkir,
+    "090d678c-f0e4-4757-8900-93dfe67aefe9",
+    "Mike Bierek",
     // Trample is what separates this from the other delve fatties: a
     // graveyard deck casts it early, when nothing on the far side blocks it
     // profitably anyway.
@@ -161,12 +175,11 @@ pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new
 );
 
 // KTK 227 — Ugin's Nexus
-pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_legacy_id(
-    1368,
+pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new(
     "Ugin's Nexus",
-    CardArt::new("94002868-a48a-4ea8-bfce-17257078f5db", "Sam Burley"),
-    CardSet::KhansOfTarkir,
-    CardRules::new_artifact(mana_cost!("{5}"))
+    "94002868-a48a-4ea8-bfce-17257078f5db",
+    "Sam Burley",
+CardRules::new_artifact(mana_cost!("{5}"))
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::replacement_for(
@@ -196,10 +209,9 @@ pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_
 
 // KTK 242 — Scoured Barrens
 pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0824a960-dd89-45c5-90f0-3ec9eb47d9ce"),
     "Scoured Barrens",
-    CardArt::new("0824a960-dd89-45c5-90f0-3ec9eb47d9ce", "Eytan Zana"),
-    CardSet::KhansOfTarkir,
+    "0824a960-dd89-45c5-90f0-3ec9eb47d9ce",
+    "Eytan Zana",
     // A tapped dual with a life attached: the life is what a limited deck
     // is paid for the turn it loses.
     CardRules::new_land(&[]).with_abilities(&[
@@ -224,10 +236,9 @@ pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
 
 // KTK 246 — Tranquil Cove
 pub(in crate::card::sets) static TRANQUIL_COVE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0f840bd2-c4f5-4ac4-918c-91b4feeb8783"),
     "Tranquil Cove",
-    CardArt::new("0f840bd2-c4f5-4ac4-918c-91b4feeb8783", "John Avon"),
-    CardSet::KhansOfTarkir,
+    "0f840bd2-c4f5-4ac4-918c-91b4feeb8783",
+    "John Avon",
     // A gain land: the tempo is the whole cost, and the life is what makes
     // the tapped land bearable in a slow deck.
     CardRules::new_land(&[]).with_abilities(&[

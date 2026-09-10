@@ -68,8 +68,8 @@ fn card_local_helper_declarations(source: &str) -> Vec<ValueDeclaration> {
     let mut declarations = Vec::new();
 
     for (index, line) in source.lines().enumerate() {
-        if parse_header(line).is_some_and(|header| header.printing_kind.is_none()) {
-            inside_card_blocks = true;
+        if let Some(header) = parse_header(line) {
+            inside_card_blocks = header.printing_kind.is_none();
         }
         if !inside_card_blocks {
             continue;

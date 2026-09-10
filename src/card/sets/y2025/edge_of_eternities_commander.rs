@@ -1,20 +1,30 @@
 //! Edge of Eternities Commander cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, CostDef,
-    CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    ReplacementEffectDef, TriggerEventDef, ValueDef, tokens,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::tokens;
 use crate::mana_cost;
 
 // EOC 13 — Baloth Prime
 pub(in crate::card::sets) static BALOTH_PRIME: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2c723fc9-d5c9-4126-a9a6-f80c247a4b6b"),
     "Baloth Prime",
-    CardArt::new("2c723fc9-d5c9-4126-a9a6-f80c247a4b6b", "Joshua Raphael"),
-    CardSet::EdgeOfEternitiesCommander,
-    // A 10/10 for four that owes six untaps. Every land you feed him buys
+    "2c723fc9-d5c9-4126-a9a6-f80c247a4b6b",
+    "Joshua Raphael",
+// A 10/10 for four that owes six untaps. Every land you feed him buys
     // one of them back and leaves a 4/4 behind, so the six counters are a
     // schedule rather than a wall.
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Beast"], 10, 10)

@@ -70,6 +70,16 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Canonical card definitions now live in their debut English-language paper
+  sets.** Definitions authored under later reprints moved back to the first
+  English paper set while later appearances remain exact-art reprints. This
+  makes set-origin predicates used by Golgothian Sylex and City in a Bottle
+  observe the actual debut set. The 1994 Arena, Sewers of Estark, and Nalathni
+  Dragon promos use their physical PHPR and PDRC sets; Old School legality
+  admits those exact identities without admitting later cards from the same
+  promo products. Historical definition IDs remain stable through a separate
+  compatibility table.
+
 - **Paying {0} is no longer conflated with casting without paying a mana
   cost.** Generic cost lists represent the former with an explicit mana cost
   and the latter with `NO_COSTS`, preserving the CR 601.2g distinction for
@@ -134,6 +144,16 @@ distinguishes snapshots of the covered source and build inputs.
   users.
 
 ### Added
+
+- **Card rules stay with their debut set while artwork can follow the chosen
+  format.** Every built-in printing carries its exact Scryfall UUID and artist
+  independently of the canonical definition. Browser games offer debut artwork
+  or the earliest artwork-bearing printing in the selected format, preserving
+  the choice in local and hosted replays and defaulting older replays to debut
+  art. Catalog JSON adds an optional `art` object to each printing. Set modules
+  now supply debut ownership, while card declarations contain only the name,
+  debut art, artist, and rules; compatibility-only numeric IDs remain outside
+  those declarations.
 
 - **Casting and ability procedures share generic cost lists.** Alternative
   casting costs, optional and modal additional costs, Echo, Ward, cumulative

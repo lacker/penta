@@ -1,20 +1,68 @@
 //! Magic 2015 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, BlockRestrictionDef, CardArt,
-    CardRules, CardSet, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
+
+// M15 14 — Heliod's Pilgrim
+pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
+    "Heliod's Pilgrim",
+    "7ea54b97-9182-4d46-9d70-3cc7f9b18ada",
+    "Izzy",
+    // The body is beside the point: this is a three-mana tutor that an Aura
+    // deck plays for whichever Aura the board asks for.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 1, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for an Aura card, reveal it, \
+             put it into your hand, then shuffle.",
+            // Two ways to decline: the outer may, and a minimum of zero for a
+            // search that finds nothing worth taking.
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::Subtype("Aura"),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ),
+);
 
 // M15 40 — Triplicate Spirits
 pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3d6498d3-bf1f-4bf1-a602-7c21fb44c106"),
     "Triplicate Spirits",
-    CardArt::new("3d6498d3-bf1f-4bf1-a602-7c21fb44c106", "Izzy"),
-    CardSet::Magic2015,
+    "3d6498d3-bf1f-4bf1-a602-7c21fb44c106",
+    "Izzy",
     // Six mana printed, but the tokens it already made are what pay for the
     // next copy, so the real cost falls every time a token deck casts it.
     CardRules::new_sorcery(mana_cost!("{4}{W}{W}")).with_abilities(&[
@@ -28,50 +76,19 @@ pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::ne
     ]),
 );
 
-// M15 142 — Frenzied Goblin
-pub(in crate::card::sets) static FRENZIED_GOBLIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d307d8c7-b9b5-4f8f-933d-f1c64cbbf92f"),
-    "Frenzied Goblin",
-    CardArt::new("7ddfe382-3a80-45f3-a022-54739c4b69a6", "Carl Critchlow"),
-    CardSet::Magic2015,
-    // One mana an attack to push whichever blocker matters, which is what
-    // keeps a one-drop relevant into the late game.
-    CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
-        AbilityDef::triggered_with_targets(
-            "Whenever this creature attacks, you may pay {R}. If you do, target creature can't block this turn.",
-            TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            // The target is chosen as the trigger goes on the stack and the
-            // payment is offered as it resolves, so the creature is named
-            // before its controller knows whether the mana is there.
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )],
-            EffectDef::PayOr(PayOrDef::optional(
-                &[CostDef::ColoredMana {
-                    color: ManaColor::Red,
-                    amount: ValueDef::Constant(1),
-                }],
-                &const {
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
-                            BlockRestrictionDef::CANNOT_BLOCK,
-                        )),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    }
-                },
-            )),
-        ),
-    ),
+// M15 142 — Frenzied Goblin (reprint)
+const FRENZIED_GOBLIN_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2005::ravnica_city_of_guilds::FRENZIED_GOBLIN,
+    "7ddfe382-3a80-45f3-a022-54739c4b69a6",
+    "Carl Critchlow",
 );
 
 // M15 145 — Goblin Rabblemaster
-pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::new_with_legacy_id(
-    2263,
+pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::new(
     "Goblin Rabblemaster",
-    CardArt::new("ee9c697e-d2c0-413b-9142-ecf5d7cf5322", "Svetlin Velinov"),
-    CardSet::Magic2015,
-    // Three mana that makes a Goblin every turn and then sends the whole
+    "ee9c697e-d2c0-413b-9142-ecf5d7cf5322",
+    "Svetlin Velinov",
+// Three mana that makes a Goblin every turn and then sends the whole
     // pile in whether or not that was the plan.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 2, 2)
         .with_abilities(&[
@@ -133,6 +150,7 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&TRIPLICATE_SPIRITS, &FRENZIED_GOBLIN, &GOBLIN_RABBLEMASTER];
+    &[&HELIOD_S_PILGRIM, &TRIPLICATE_SPIRITS, &GOBLIN_RABBLEMASTER];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
+    &[FRENZIED_GOBLIN_REPRINT];

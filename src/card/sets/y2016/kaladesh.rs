@@ -1,22 +1,42 @@
 //! Kaladesh cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AttackEventMatcherDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectSetDef, PayOrDef, PlayerRelation, ResolvedEffectDurationDef, TargetChooserDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AttackEventMatcherDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::PayOrDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TargetChooserDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
 use crate::ids::ParentBinding;
-use crate::{TargetIndex, mana_cost};
+use crate::mana_cost;
 
 // KLD 60 — Paradoxical Outcome
-pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new_with_legacy_id(
-    2242,
+pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new(
     "Paradoxical Outcome",
-    CardArt::new("17e50157-bf49-4c5f-9b8a-bf73484e63a5", "Nils Hamm"),
-    CardSet::Kaladesh,
+    "17e50157-bf49-4c5f-9b8a-bf73484e63a5",
+    "Nils Hamm",
     // Four mana and a fistful of Moxen back, which is a bad rate for a deck
     // that has to pay for them again and a broken one for a deck that does
     // not.
@@ -89,12 +109,11 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
 
 // KLD 110 — Chandra, Torch of Defiance
 pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2217,
-        "Chandra, Torch of Defiance",
-        CardArt::new("ff8086cd-b868-4f4e-823e-2635ad7ebc07", "Magali Villeneuve"),
-        CardSet::Kaladesh,
-        // Four abilities and no bad one: she draws, she ramps, she kills, and if
+    CardRecord::new(
+    "Chandra, Torch of Defiance",
+    "ff8086cd-b868-4f4e-823e-2635ad7ebc07",
+    "Magali Villeneuve",
+// Four abilities and no bad one: she draws, she ramps, she kills, and if
         // the game somehow goes long she ends it by herself.
         CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Chandra"], 4)
             .with_supertype(CardSupertype::Legendary)
@@ -149,15 +168,14 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                     ),
                 ),
             ]),
-    );
+);
 
 // KLD 138 — Thriving Grubs
 pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bbc3184a-eeda-4f22-92de-257c20cff6e2"),
     "Thriving Grubs",
-    CardArt::new("bbc3184a-eeda-4f22-92de-257c20cff6e2", "Steve Prescott"),
-    CardSet::Kaladesh,
-    // The two energy it brings pay for exactly one attack, and everything
+    "bbc3184a-eeda-4f22-92de-257c20cff6e2",
+    "Steve Prescott",
+// The two energy it brings pay for exactly one attack, and everything
     // after that has to come from somewhere else on the board.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Gremlin"], 2, 1).with_abilities(&[
         abilities::enters_trigger(
@@ -187,10 +205,9 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
 
 // KLD 212 — Filigree Familiar
 pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9cc9ecfd-6cf0-4488-a14a-afec1bc0d253"),
     "Filigree Familiar",
-    CardArt::new("9cc9ecfd-6cf0-4488-a14a-afec1bc0d253", "Izzy"),
-    CardSet::Kaladesh,
+    "9cc9ecfd-6cf0-4488-a14a-afec1bc0d253",
+    "Izzy",
     // Colourless, so any deck plays it, and it is never a blank: the life
     // comes in and the card comes out whatever else happens to it.
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Fox"], 2, 2).with_abilities(&[
@@ -213,10 +230,9 @@ pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new
 
 // KLD 230 — Renegade Freighter
 pub(in crate::card::sets) static RENEGADE_FREIGHTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7a10e2c3-0132-4eb2-94f0-5915caca2a17"),
     "Renegade Freighter",
-    CardArt::new("7a10e2c3-0132-4eb2-94f0-5915caca2a17", "Izzy"),
-    CardSet::Kaladesh,
+    "7a10e2c3-0132-4eb2-94f0-5915caca2a17",
+    "Izzy",
     // A 5/4 trampler for three that any two power can turn on, which is what
     // made it the limited card of its format.
     CardRules::new_vehicle(mana_cost!("{3}"), 4, 3).with_abilities(&[
@@ -245,14 +261,10 @@ pub(in crate::card::sets) static RENEGADE_FREIGHTER: CardRecord = CardRecord::ne
 
 // KLD 235 — Smuggler's Copter
 pub(in crate::card::sets) static SMUGGLER_S_COPTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7832abb5-5107-4603-904e-491b221bd3e3"),
     "Smuggler's Copter",
-    CardArt::new(
-        "7832abb5-5107-4603-904e-491b221bd3e3",
-        "Florian de Gesincourt",
-    ),
-    CardSet::Kaladesh,
-    // Two mana for a 3/3 flier that any one creature can turn on, and that
+    "7832abb5-5107-4603-904e-491b221bd3e3",
+    "Florian de Gesincourt",
+// Two mana for a 3/3 flier that any one creature can turn on, and that
     // fixes every draw it connects with. Banned in Standard for exactly
     // that.
     CardRules::new_vehicle(mana_cost!("{2}"), 3, 3).with_abilities(&[
@@ -295,11 +307,10 @@ pub(in crate::card::sets) static SMUGGLER_S_COPTER: CardRecord = CardRecord::new
 );
 
 // KLD 243 — Blooming Marsh
-pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_with_legacy_id(
-    2136,
+pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new(
     "Blooming Marsh",
-    CardArt::new("90da33d4-fe9c-42fe-b326-2fe337dc3ecd", "Adam Paquette"),
-    CardSet::Kaladesh,
+    "90da33d4-fe9c-42fe-b326-2fe337dc3ecd",
+    "Adam Paquette",
     CardRules::new_land(&[]).with_abilities(&[
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
@@ -314,11 +325,10 @@ pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_wi
 );
 
 // KLD 244 — Botanical Sanctum
-pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new_with_legacy_id(
-    2137,
+pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new(
     "Botanical Sanctum",
-    CardArt::new("8744471b-a528-47d9-84d0-4526273f55e9", "Christine Choi"),
-    CardSet::Kaladesh,
+    "8744471b-a528-47d9-84d0-4526273f55e9",
+    "Christine Choi",
     CardRules::new_land(&[]).with_abilities(&[
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
@@ -333,11 +343,10 @@ pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new
 );
 
 // KLD 245 — Concealed Courtyard
-pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::new_with_legacy_id(
-    2138,
+pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::new(
     "Concealed Courtyard",
-    CardArt::new("c8769e97-aee8-4466-a9d7-0f4245ae4a97", "Jung Park"),
-    CardSet::Kaladesh,
+    "c8769e97-aee8-4466-a9d7-0f4245ae4a97",
+    "Jung Park",
     CardRules::new_land(&[]).with_abilities(&[
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
@@ -352,11 +361,10 @@ pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::n
 );
 
 // KLD 246 — Inspiring Vantage
-pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new_with_legacy_id(
-    2139,
+pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new(
     "Inspiring Vantage",
-    CardArt::new("160ac412-005f-48ca-a204-10207307c6c2", "Jonas De Ro"),
-    CardSet::Kaladesh,
+    "160ac412-005f-48ca-a204-10207307c6c2",
+    "Jonas De Ro",
     CardRules::new_land(&[]).with_abilities(&[
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
@@ -371,11 +379,10 @@ pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new
 );
 
 // KLD 249 — Spirebluff Canal
-pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new_with_legacy_id(
-    2140,
+pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new(
     "Spirebluff Canal",
-    CardArt::new("4e587ea7-0632-4789-ba75-3c410da2bb96", "Adam Paquette"),
-    CardSet::Kaladesh,
+    "4e587ea7-0632-4789-ba75-3c410da2bb96",
+    "Adam Paquette",
     CardRules::new_land(&[]).with_abilities(&[
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(

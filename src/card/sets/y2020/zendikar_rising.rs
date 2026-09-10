@@ -1,24 +1,50 @@
 //! Zendikar Rising cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
-    AppliedEffectDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, ControlDurationDef, CostDef, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, abilities,
-};
-use crate::{ParentBinding, TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::ParentBinding;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AlternativeCastKindDef;
+use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::ControlDurationDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementConditionDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TokenStatsDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // ZNR 9 — Dauntless Unity
 pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b12a4d17-68e6-4133-99fd-e501e24e6c6b"),
     "Dauntless Unity",
-    CardArt::new("b12a4d17-68e6-4133-99fd-e501e24e6c6b", "Josu Hernaiz"),
-    CardSet::ZendikarRising,
-    // The kicked mode trades a point of toughness for a point of power, so
+    "b12a4d17-68e6-4133-99fd-e501e24e6c6b",
+    "Josu Hernaiz",
+// The kicked mode trades a point of toughness for a point of power, so
     // it is the better combat trick and the worse blocking one.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::alternative_cast(
@@ -68,11 +94,10 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
 
 // ZNR 39 — Skyclave Apparition
 pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b83cfbaa-7890-4f6f-878b-4edb45677371"),
     "Skyclave Apparition",
-    crate::card::CardArt::new("b83cfbaa-7890-4f6f-878b-4edb45677371", "Donato Giancola"),
-    crate::card::CardSet::ZendikarRising,
-    // Three mana for a body and an answer, and the answer is only undone by
+    "b83cfbaa-7890-4f6f-878b-4edb45677371",
+    "Donato Giancola",
+// Three mana for a body and an answer, and the answer is only undone by
     // killing the body -- which hands back an Illusion rather than the card.
     CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Kor", "Spirit"], 2, 2)
         .with_abilities(&[
@@ -146,10 +171,9 @@ pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::n
 
 // ZNR 85 — Thieving Skydiver
 pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ff84ea71-e477-44f7-a3f8-77fef708efeb"),
     "Thieving Skydiver",
-    CardArt::new("ff84ea71-e477-44f7-a3f8-77fef708efeb", "Kieran Yanner"),
-    CardSet::ZendikarRising,
+    "ff84ea71-e477-44f7-a3f8-77fef708efeb",
+    "Kieran Yanner",
     // Two mana for a flier, or two plus X for a flier that takes the best
     // artifact on the board with it -- a Mox on turn three, a Sword on turn
     // five, and the Sword comes down already attached.
@@ -205,12 +229,11 @@ pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new
 );
 
 // ZNR 94 — Bloodchief's Thirst
-pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::new_with_legacy_id(
-    2165,
+pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::new(
     "Bloodchief's Thirst",
-    CardArt::new("059e8447-6b1c-4651-a734-a8fea2cbf7b2", "Jason Rainville"),
-    CardSet::ZendikarRising,
-    // One black kills most of what an aggressive deck leads with; four kills
+    "059e8447-6b1c-4651-a734-a8fea2cbf7b2",
+    "Jason Rainville",
+// One black kills most of what an aggressive deck leads with; four kills
     // whatever is left, which is why the card is played over a cheaper
     // removal spell that can only do the first job.
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
@@ -258,10 +281,9 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
 
 // ZNR 185 — Gnarlid Colony
 pub(in crate::card::sets) static GNARLID_COLONY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7327289d-eed8-44b1-8495-7172e2b49d5f"),
     "Gnarlid Colony",
-    CardArt::new("7327289d-eed8-44b1-8495-7172e2b49d5f", "Izzy"),
-    CardSet::ZendikarRising,
+    "7327289d-eed8-44b1-8495-7172e2b49d5f",
+    "Izzy",
     // A two-drop early or a four-power trampler late, and the anthem is what
     // pays a counters deck for playing it at either end.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Beast"], 2, 2).with_abilities(&[
@@ -310,12 +332,11 @@ const fn omnath_resolution(amount: u8) -> TriggerConditionDef {
 }
 
 pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2264,
-        "Omnath, Locus of Creation",
-        CardArt::new("4e4fb50c-a81f-44d3-93c5-fa9a0b37f617", "Chris Rahn"),
-        CardSet::ZendikarRising,
-        // Four colours for a 4/4 that replaces itself, and a deck full of
+    CardRecord::new(
+    "Omnath, Locus of Creation",
+    "4e4fb50c-a81f-44d3-93c5-fa9a0b37f617",
+    "Chris Rahn",
+// Four colours for a 4/4 that replaces itself, and a deck full of
         // fetchlands turns the third land of a turn into eight damage.
         CardRules::new_creature(mana_cost!("{R}{G}{W}{U}"), &["Elemental"], 4, 4)
             .with_supertype(CardSupertype::Legendary)
@@ -383,7 +404,7 @@ pub(in crate::card::sets) static OMNATH_LOCUS_OF_CREATION: CardRecord =
                     ]),
                 ),
             ]),
-    );
+);
 
 // ZNR 245 — Lithoform Engine
 static LITHOFORM_RETARGET_COPY: crate::card::CopyStackObjectDef = crate::card::CopyStackObjectDef {
@@ -395,11 +416,10 @@ static LITHOFORM_RETARGET_COPY: crate::card::CopyStackObjectDef = crate::card::C
 };
 
 pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6683416a-5820-4cd0-b28a-60a53239e9ef"),
     "Lithoform Engine",
-    CardArt::new("6683416a-5820-4cd0-b28a-60a53239e9ef", "Colin Boyer"),
-    CardSet::ZendikarRising,
-    CardRules::new_artifact(mana_cost!("{4}"))
+    "6683416a-5820-4cd0-b28a-60a53239e9ef",
+    "Colin Boyer",
+CardRules::new_artifact(mana_cost!("{4}"))
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::activated_with_targets(
@@ -473,10 +493,9 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
 
 // ZNR 319 — Luminarch Aspirant
 pub(in crate::card::sets) static LUMINARCH_ASPIRANT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ebe9427d-068f-487c-9263-b40366a164bc"),
     "Luminarch Aspirant",
-    CardArt::new("ebe9427d-068f-487c-9263-b40366a164bc", "Mads Ahm"),
-    CardSet::ZendikarRising,
+    "ebe9427d-068f-487c-9263-b40366a164bc",
+    "Mads Ahm",
     // Two mana that adds a counter every turn it survives, before attackers
     // are declared -- so the counter is already on whatever is about to
     // attack or block.
@@ -506,6 +525,12 @@ pub(in crate::card::sets) static LUMINARCH_ASPIRANT: CardRecord = CardRecord::ne
 );
 
 // ZNR 335 — Thieving Skydiver (alternate printing)
+const THIEVING_SKYDIVER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &THIEVING_SKYDIVER,
+    1,
+    "f8b3eb41-2351-4dca-becb-7ecb1fcfa14b",
+    "Kieran Yanner",
+);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DAUNTLESS_UNITY,
@@ -518,6 +543,5 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LUMINARCH_ASPIRANT,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::alternate(&THIEVING_SKYDIVER, 1), // ZNR 335
-];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
+    &[THIEVING_SKYDIVER_ALTERNATE_1];

@@ -1,19 +1,28 @@
 //! The Lost Caverns of Ixalan Commander card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, SumValueDef,
-    ValueDef, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::SumValueDef;
+use crate::card::ValueDef;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // LCC 86 — Broadside Bombardiers
 pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9721f8da-39ed-4ada-a571-61e08a86032b"),
     "Broadside Bombardiers",
-    CardArt::new("9721f8da-39ed-4ada-a571-61e08a86032b", "Tomek Larek"),
-    CardSet::LostCavernsOfIxalanCommander,
+    "9721f8da-39ed-4ada-a571-61e08a86032b",
+    "Tomek Larek",
     // A hasty attacker that turns whatever else is lying around into reach.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Pirate"], 2, 2).with_abilities(&[
         abilities::menace(),

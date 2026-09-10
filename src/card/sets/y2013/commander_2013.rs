@@ -1,22 +1,33 @@
 //! Commander 2013 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
 use crate::card::CostQuantityDef;
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardType, CostDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, ValueDef, ZoneKind, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::KeywordAbility;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementChoiceDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::mana_cost;
 
 // C13 25 — Unexpectedly Absent
-pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new_with_legacy_id(
-    2182,
+pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new(
     "Unexpectedly Absent",
-    CardArt::new("6dff437b-ef68-48f7-afd3-3b72d3c56187", "Min Yum"),
-    CardSet::Commander2013,
-    // X=0 is the mode that matters: two mana puts anything on top of its
+    "6dff437b-ef68-48f7-afd3-3b72d3c56187",
+    "Min Yum",
+// X=0 is the mode that matters: two mana puts anything on top of its
     // owner's library, which answers a permanent nothing else can touch and
     // costs its controller their draw step.
     CardRules::new_instant(mana_cost!("{X}{W}{W}")).with_ability(AbilityDef::spell_with_targets(
@@ -33,10 +44,9 @@ pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::n
 
 // C13 63 — True-Name Nemesis
 pub(in crate::card::sets) static TRUE_NAME_NEMESIS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e8c81cf6-e204-4fea-aaa1-4277366b31c7"),
     "True-Name Nemesis",
-    CardArt::new("e8c81cf6-e204-4fea-aaa1-4277366b31c7", "Zack Stella"),
-    CardSet::Commander2013,
+    "e8c81cf6-e204-4fea-aaa1-4277366b31c7",
+    "Zack Stella",
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Merfolk", "Rogue"], 3, 1).with_abilities(
         &[
             AbilityDef::replacement(
@@ -61,12 +71,11 @@ pub(in crate::card::sets) static TRUE_NAME_NEMESIS: CardRecord = CardRecord::new
 /// one word wider than the value it negates.
 static TOXIC_DELUGE_AMOUNT: ValueDef = ValueDef::Negate(&ValueDef::ChosenX);
 
-pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with_legacy_id(
-    2164,
+pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new(
     "Toxic Deluge",
-    CardArt::new("564caf57-4ba5-4993-a35e-945699c94eb7", "Svetlin Velinov"),
-    CardSet::Commander2013,
-    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
+    "564caf57-4ba5-4993-a35e-945699c94eb7",
+    "Svetlin Velinov",
+CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
         AbilityDef::spell(
             "As an additional cost to cast this spell, pay X life.\nAll creatures get -X/-X until end of turn.",
             EffectDef::Apply {
@@ -88,33 +97,15 @@ pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with
     ),
 );
 
-// C13 279 — Boros Garrison
-pub(in crate::card::sets) static BOROS_GARRISON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7dfe3f03-078f-44fb-89cd-efa3ebfaf637"),
-    "Boros Garrison",
-    CardArt::new("c468dd1c-6f0a-4679-9d33-17e17db8841d", "John Avon"),
-    CardSet::Commander2013,
-    // A karoo: it costs a land drop and a turn, and pays that back one mana
-    // at a time. Returning itself is legal and is what an empty board does.
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped(CardType::Land),
-        abilities::karoo_bounce(),
-        AbilityDef::activated_mana(
-            "{T}: Add {R}{W}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
-                ManaColor::Red,
-                ManaColor::White,
-            )),
-        ),
-    ]),
+// C13 279 — Boros Garrison (reprint)
+const BOROS_GARRISON_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2005::ravnica_city_of_guilds::BOROS_GARRISON,
+    "c468dd1c-6f0a-4679-9d33-17e17db8841d",
+    "John Avon",
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &UNEXPECTEDLY_ABSENT,
-    &TRUE_NAME_NEMESIS,
-    &TOXIC_DELUGE,
-    &BOROS_GARRISON,
-];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&UNEXPECTEDLY_ABSENT, &TRUE_NAME_NEMESIS, &TOXIC_DELUGE];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
+    &[BOROS_GARRISON_REPRINT];

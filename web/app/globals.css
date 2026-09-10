@@ -306,6 +306,49 @@ button {
   gap: 10px;
 }
 
+@media (max-height: 760px) and (min-width: 621px) {
+  .setup-backdrop {
+    padding: 10px 20px;
+    overflow-y: auto;
+  }
+
+  .setup-dialog {
+    padding: 18px 30px;
+  }
+
+  .setup-dialog h1 {
+    margin-top: 5px;
+    font-size: 29px;
+  }
+
+  .setup-format {
+    margin-top: 10px;
+  }
+
+  .setup-art-mode,
+  .setup-seed {
+    margin-top: 6px;
+  }
+
+  .setup-fields {
+    margin-top: 10px;
+    gap: 14px;
+  }
+
+  .setup-primary-choice {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .setup-opponent-choices {
+    gap: 10px;
+  }
+
+  .setup-actions {
+    margin-top: 14px;
+  }
+}
+
 .setup-actions button {
   min-height: 42px;
   padding: 0 18px;

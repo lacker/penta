@@ -1,18 +1,24 @@
 //! TLA card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AddManaEffectDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CostDef, EffectDef, EffectRecipientDef, ManaColor, ReplacementEffectDef, ValueDef,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AddManaEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ReplacementEffectDef;
+use crate::card::ValueDef;
 use crate::mana_cost;
 
 // TLA 144 — The Last Agni Kai
 pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("61eaebc6-7575-48ed-b212-ff8b0c7ae694"),
     "The Last Agni Kai",
-    CardArt::new("61eaebc6-7575-48ed-b212-ff8b0c7ae694", "Pablo Rivera"),
-    CardSet::AvatarTheLastAirbender,
+    "61eaebc6-7575-48ed-b212-ff8b0c7ae694",
+    "Pablo Rivera",
     // Audit: unsupported — Needs an effect-scoped mana-retention duration for only the excess mana it creates.
     CardRules::unsupported(),
 );
@@ -51,10 +57,9 @@ const fn cashable_dual_land(mana_text: &'static str, colors: &'static [ManaColor
 
 // TLA 267 — Boiling Rock Prison
 pub(in crate::card::sets) static BOILING_ROCK_PRISON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1c2e2220-54d1-4180-93a0-964e3b0ba8b8"),
     "Boiling Rock Prison",
-    CardArt::new("1c2e2220-54d1-4180-93a0-964e3b0ba8b8", "Matteo Bassini"),
-    CardSet::AvatarTheLastAirbender,
+    "1c2e2220-54d1-4180-93a0-964e3b0ba8b8",
+    "Matteo Bassini",
     // Entering tapped is the price of the two colours; cashing it in later
     // is what keeps it from being a dead draw once the mana is there.
     cashable_dual_land("{T}: Add {B} or {R}.", &[ManaColor::Black, ManaColor::Red]),
@@ -62,10 +67,9 @@ pub(in crate::card::sets) static BOILING_ROCK_PRISON: CardRecord = CardRecord::n
 
 // TLA 271 — Kyoshi Village
 pub(in crate::card::sets) static KYOSHI_VILLAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8d5f3008-2af8-4e81-8847-1c91f524e747"),
     "Kyoshi Village",
-    CardArt::new("8d5f3008-2af8-4e81-8847-1c91f524e747", "Luc Courtois"),
-    CardSet::AvatarTheLastAirbender,
+    "8d5f3008-2af8-4e81-8847-1c91f524e747",
+    "Luc Courtois",
     cashable_dual_land(
         "{T}: Add {G} or {W}.",
         &[ManaColor::Green, ManaColor::White],
@@ -74,10 +78,9 @@ pub(in crate::card::sets) static KYOSHI_VILLAGE: CardRecord = CardRecord::new(
 
 // TLA 279 — Serpent's Pass
 pub(in crate::card::sets) static SERPENT_S_PASS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ad87bff5-9b8c-44e4-a6d3-8cc71be9640a"),
     "Serpent's Pass",
-    CardArt::new("ad87bff5-9b8c-44e4-a6d3-8cc71be9640a", "Matteo Bassini"),
-    CardSet::AvatarTheLastAirbender,
+    "ad87bff5-9b8c-44e4-a6d3-8cc71be9640a",
+    "Matteo Bassini",
     cashable_dual_land("{T}: Add {U} or {B}.", &[ManaColor::Blue, ManaColor::Black]),
 );
 

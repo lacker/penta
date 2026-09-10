@@ -1,22 +1,44 @@
 //! The Brothers' War cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CharacteristicOperationDef, CostDef, CounterKind, CreatureTypeSetDef, EffectDef,
-    EffectRecipientDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef, PayOrDef,
-    PlayerRelation, ResolvedEffectDurationDef, SetOperationDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CharacteristicOperationDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::CreatureTypeSetDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::PayOrDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SetOperationDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // BRO 12 — Loran of the Third Path
 pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("59faa45d-868b-4bc7-934c-0e077642e129"),
     "Loran of the Third Path",
-    CardArt::new("59faa45d-868b-4bc7-934c-0e077642e129", "Steven Belledin"),
-    CardSet::TheBrothersWar,
+    "59faa45d-868b-4bc7-934c-0e077642e129",
+    "Steven Belledin",
     // Three mana for an answer to an artifact, a body that blocks, and a
     // symmetrical draw nobody else gets to use as often as you do.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Artificer"], 2, 1)
@@ -71,10 +93,9 @@ static AN_ARTIFACT_OR_CREATURE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&
 ]);
 
 pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ef93ac79-8575-40f8-a222-63c2ffb30f60"),
     "Weakstone's Subjugation",
-    CardArt::new("ef93ac79-8575-40f8-a222-63c2ffb30f60", "Igor Kieryluk"),
-    CardSet::TheBrothersWar,
+    "ef93ac79-8575-40f8-a222-63c2ffb30f60",
+    "Igor Kieryluk",
     // One mana to hold a permanent down permanently; the {3} is only for
     // catching one that is already untapped.
     CardRules::new_enchantment(mana_cost!("{U}"))
@@ -110,10 +131,9 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
 
 // BRO 98 — Gixian Infiltrator
 pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c94a3317-7d1f-4f29-8353-180f1ab48d18"),
     "Gixian Infiltrator",
-    CardArt::new("c94a3317-7d1f-4f29-8353-180f1ab48d18", "Peter Polach"),
-    CardSet::TheBrothersWar,
+    "c94a3317-7d1f-4f29-8353-180f1ab48d18",
+    "Peter Polach",
     // Any permanent, not just a creature, which is what makes it a payoff
     // for the artifact deck this set is built around.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Phyrexian", "Human"], 2, 1).with_ability(
@@ -137,22 +157,78 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
 // BRO 164 — Scrapwork Mutt
 // Audit: unsupported — Needs unearth; see First-Sphere Gargantua. The optional discard-then-draw entry is expressible.
 pub(in crate::card::sets) static SCRAPWORK_MUTT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4742800a-4872-4c2d-b884-01e0ba16950c"),
     "Scrapwork Mutt",
-    crate::card::CardArt::new(
-        "4742800a-4872-4c2d-b884-01e0ba16950c",
-        "Sidharth Chaturvedi",
-    ),
-    crate::card::CardSet::TheBrothersWar,
+    "4742800a-4872-4c2d-b884-01e0ba16950c",
+    "Sidharth Chaturvedi",
     crate::card::CardRules::unsupported(),
+);
+
+// BRO 174 — Bushwhack
+pub(in crate::card::sets) static BUSHWHACK: CardRecord = CardRecord::new(
+    "Bushwhack",
+    "712a0640-d9c8-46fc-b38b-bf20a40fa902",
+    "Artur Nakhodkin",
+    // One mana that is never dead: it fixes a land drop early and answers a
+    // creature late, which is what the modal split is buying.
+    CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Search your library for a basic land card, reveal it, put it into your hand, \
+                 then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature you control fights target creature you don't control. (Each \
+                 deals damage equal to its power to the other.)",
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::NotYou),
+                        owner: None,
+                    }),
+                ],
+                // Fighting is one event rather than two damage clauses, so
+                // neither creature dies before dealing its own damage.
+                EffectDef::Fight {
+                    first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    second: ObjectRefDef::Target(TargetIndex(1)),
+                    excess: None,
+                },
+            ),
+        ],
+    )),
 );
 
 // BRO 199 — Haywire Mite
 pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("847a175e-ead1-4596-baf3-5f7f57859e0b"),
     "Haywire Mite",
-    CardArt::new("847a175e-ead1-4596-baf3-5f7f57859e0b", "Izzy"),
-    CardSet::TheBrothersWar,
+    "847a175e-ead1-4596-baf3-5f7f57859e0b",
+    "Izzy",
     // One mana for a body that is never dead: it answers whichever artifact
     // or enchantment the format is afraid of this week, and every deck can
     // cast it whether or not it can pay the green.
@@ -197,10 +273,9 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
 
 // BRO 223 — Third Path Iconoclast
 pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f1a21287-e244-4960-84fb-c4f6e5c346d9"),
     "Third Path Iconoclast",
-    CardArt::new("f1a21287-e244-4960-84fb-c4f6e5c346d9", "Manuel Castañón"),
-    CardSet::TheBrothersWar,
+    "f1a21287-e244-4960-84fb-c4f6e5c346d9",
+    "Manuel Castañón",
     // Two mana for a body that turns every cantrip into an artifact
     // creature, which is what the deck around it is counting.
     CardRules::new_creature(mana_cost!("{U}{R}"), &["Human", "Monk"], 2, 1).with_ability(
@@ -221,10 +296,9 @@ pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord:
 
 // BRO 238 — The Mightstone and Weakstone
 pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("02aea379-b444-46a3-82f4-3038f698d4f4"),
     "The Mightstone and Weakstone",
-    CardArt::new("02aea379-b444-46a3-82f4-3038f698d4f4", "Ryan Pancoast"),
-    CardSet::TheBrothersWar,
+    "02aea379-b444-46a3-82f4-3038f698d4f4",
+    "Ryan Pancoast",
     // Five mana for two cards or a dead creature, and two mana a turn
     // afterwards. The meld is Urza's ability rather than this card's: the
     // parenthesis here only says which card it pairs with.
@@ -285,10 +359,9 @@ pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = Card
 
 // BRO 240 — Portal to Phyrexia
 pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5f608efc-0dbc-4cc3-aadd-ed473bfc29ab"),
     "Portal to Phyrexia",
-    CardArt::new("5f608efc-0dbc-4cc3-aadd-ed473bfc29ab", "Svetlin Velinov"),
-    CardSet::TheBrothersWar,
+    "5f608efc-0dbc-4cc3-aadd-ed473bfc29ab",
+    "Svetlin Velinov",
     // Nine mana, and the game is over: three of their creatures die on the
     // way in and one comes back for you every upkeep afterwards.
     CardRules::new_artifact(mana_cost!("{9}")).with_abilities(&[
@@ -355,10 +428,9 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
 
 // BRO 266 — Tocasia's Dig Site
 pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("23d4b90c-95b1-4828-bc08-7067da0d5364"),
     "Tocasia's Dig Site",
-    CardArt::new("23d4b90c-95b1-4828-bc08-7067da0d5364", "Nadia Hurianova"),
-    CardSet::TheBrothersWar,
+    "23d4b90c-95b1-4828-bc08-7067da0d5364",
+    "Nadia Hurianova",
     // Colourless and untapped, so the sink costs nothing to include: it is
     // a Wastes that does something on the turns nothing else does.
     CardRules::new_land(&[]).with_abilities(&[
@@ -376,6 +448,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WEAKSTONE_S_SUBJUGATION,
     &GIXIAN_INFILTRATOR,
     &SCRAPWORK_MUTT,
+    &BUSHWHACK,
     &HAYWIRE_MITE,
     &THIRD_PATH_ICONOCLAST,
     &THE_MIGHTSTONE_AND_WEAKSTONE,

@@ -1,16 +1,46 @@
 //! Shadowmoor cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CopyStackObjectDef,
-    CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::AdditionalCostIndex;
+use crate::AppliedRuleDef;
+use crate::BasicLandType;
+use crate::KeywordAbility;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CopyStackObjectDef;
+use crate::card::CostDef;
+use crate::card::CostQuantityDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::OptionalAdditionalCostAbilityDef;
+use crate::card::OptionalAdditionalCostKindDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 /// Conspire is one optional creature-tapping cast cost plus the cast trigger
 /// that copies the spell when that cost was paid. Each card supplies the
@@ -44,11 +74,10 @@ const fn conspire(spell: &'static AbilityDef, costs: &'static [CostDef]) -> [Abi
 
 // SHM 33 — Counterbore
 pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f4228b80-d87d-4ebe-ae92-04e4a7d0dc43"),
     "Counterbore",
-    CardArt::new("f4228b80-d87d-4ebe-ae92-04e4a7d0dc43", "Wayne England"),
-    CardSet::Shadowmoor,
-    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(
+    "f4228b80-d87d-4ebe-ae92-04e4a7d0dc43",
+    "Wayne England",
+CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(
         AbilityDef::spell_with_targets(
             "Counter target spell. Search its controller's graveyard, hand, and library for all cards with the same name as that spell and exile them. Then that player shuffles.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
@@ -99,11 +128,10 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
 
 // SHM 57 — Beseech the Queen
 pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("64ee0a93-0f6d-42be-bdca-1de5422d8d54"),
     "Beseech the Queen",
-    CardArt::new("64ee0a93-0f6d-42be-bdca-1de5422d8d54", "Jason Chan"),
-    CardSet::Shadowmoor,
-    CardRules::new_sorcery(mana_cost!("{2/B}{2/B}{2/B}")).with_ability(AbilityDef::spell(
+    "64ee0a93-0f6d-42be-bdca-1de5422d8d54",
+    "Jason Chan",
+CardRules::new_sorcery(mana_cost!("{2/B}{2/B}{2/B}")).with_ability(AbilityDef::spell(
         "Search your library for a card with mana value less than or equal to the number of lands you control, reveal it, put it into your hand, then shuffle.",
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
@@ -132,10 +160,9 @@ pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new
 
 // SHM 86 — Burn Trail
 pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7f01f9a0-f1d0-4241-a270-df4ed673d1fd"),
     "Burn Trail",
-    CardArt::new("7f01f9a0-f1d0-4241-a270-df4ed673d1fd", "Nils Hamm"),
-    CardSet::Shadowmoor,
+    "7f01f9a0-f1d0-4241-a270-df4ed673d1fd",
+    "Nils Hamm",
     CardRules::new_sorcery(mana_cost!("{3}{R}")).with_abilities(&conspire(
         &AbilityDef::spell_with_targets(
             "Burn Trail deals 3 damage to any target.",
@@ -157,13 +184,51 @@ pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
     )),
 );
 
+// SHM 117 — Gloomwidow
+pub(in crate::card::sets) static GLOOMWIDOW: CardRecord = CardRecord::new(
+    "Gloomwidow",
+    "99bda306-1e37-4359-a649-fcd8a5a7e2fc",
+    "Mark Tedin",
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Spider"], 3, 3).with_abilities(&[
+        abilities::reach(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
+);
+
+// SHM 119 — Howl of the Night Pack
+pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord = CardRecord::new(
+    "Howl of the Night Pack",
+    "293f7768-6279-4f26-979f-ea4e48095ae5",
+    "Lars Grant-West",
+    CardRules::new_sorcery(mana_cost!("{6}{G}")).with_ability(AbilityDef::spell(
+        "Create a 2/2 green Wolf creature token for each Forest you control.",
+        EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
+            .with_art(CardArt::new(
+                "309f1bd4-78af-4722-9d45-b5f40b001570",
+                "Lars Grant-West",
+            ))
+            .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ))),
+    )),
+);
+
 // SHM 123 — Mossbridge Troll
 pub(in crate::card::sets) static MOSSBRIDGE_TROLL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("537c39cc-44d3-4869-9e76-dd9c2c68ee90"),
     "Mossbridge Troll",
-    CardArt::new("537c39cc-44d3-4869-9e76-dd9c2c68ee90", "Jeremy Jarvis"),
-    CardSet::Shadowmoor,
-    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Troll"], 5, 5).with_abilities(&[
+    "537c39cc-44d3-4869-9e76-dd9c2c68ee90",
+    "Jeremy Jarvis",
+CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Troll"], 5, 5).with_abilities(&[
         abilities::regenerates_if_destroyed(
             "If this creature would be destroyed, regenerate it.",
         ),
@@ -184,10 +249,9 @@ pub(in crate::card::sets) static MOSSBRIDGE_TROLL: CardRecord = CardRecord::new(
 
 // SHM 135 — Woodfall Primus
 pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("43aa7e35-55ee-4e02-a8aa-ea2b267055d1"),
     "Woodfall Primus",
-    CardArt::new("43aa7e35-55ee-4e02-a8aa-ea2b267055d1", "Adam Rex"),
-    CardSet::Shadowmoor,
+    "43aa7e35-55ee-4e02-a8aa-ea2b267055d1",
+    "Adam Rex",
     // Eight mana for two Naturalizes and a trampling body that has to be
     // answered twice.
     CardRules::new_creature(mana_cost!("{5}{G}{G}{G}"), &["Treefolk", "Shaman"], 6, 6)
@@ -210,11 +274,10 @@ pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
 );
 
 // SHM 211 — Manamorphose
-pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with_legacy_id(
-    2238,
+pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new(
     "Manamorphose",
-    CardArt::new("50283122-b8c4-4fb3-8eba-6252b72222f4", "Jeff Miracola"),
-    CardSet::Shadowmoor,
+    "50283122-b8c4-4fb3-8eba-6252b72222f4",
+    "Jeff Miracola",
     // It costs nothing and does nothing, which is the point: the deck that
     // wants it wants a spell that replaces itself and moves the storm count.
     CardRules::new_instant(mana_cost!("{1}{R/G}")).with_ability(AbilityDef::spell(
@@ -242,10 +305,9 @@ pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with
 
 // SHM 224 — Barkshell Blessing
 pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("cd273ef2-4aed-4c7e-8c97-fe8b1af9ce69"),
     "Barkshell Blessing",
-    CardArt::new("cd273ef2-4aed-4c7e-8c97-fe8b1af9ce69", "Steven Belledin"),
-    CardSet::Shadowmoor,
+    "cd273ef2-4aed-4c7e-8c97-fe8b1af9ce69",
+    "Steven Belledin",
     CardRules::new_instant(mana_cost!("{G/W}")).with_abilities(&conspire(
         &AbilityDef::spell_with_targets(
             "Target creature gets +2/+2 until end of turn.",
@@ -278,6 +340,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COUNTERBORE,
     &BESEECH_THE_QUEEN,
     &BURN_TRAIL,
+    &GLOOMWIDOW,
+    &HOWL_OF_THE_NIGHT_PACK,
     &MOSSBRIDGE_TROLL,
     &WOODFALL_PRIMUS,
     &MANAMORPHOSE,

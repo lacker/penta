@@ -10,4 +10,4 @@ pub(super) mod marvels_spider_man;
 pub(super) mod tarkir_dragonstorm;
 pub(super) mod through_the_omenpaths;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

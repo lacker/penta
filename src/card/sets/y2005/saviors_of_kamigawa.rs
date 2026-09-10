@@ -1,21 +1,39 @@
 //! SOK card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, CopyAbilityDef, CopyExceptionsDef, CostDef, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardNameDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CopyAbilityDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // SOK 2 — Araba Mothrider
 pub(in crate::card::sets) static ARABA_MOTHRIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f6e4a170-1075-47e4-abe6-996b161573c1"),
     "Araba Mothrider",
-    CardArt::new("f6e4a170-1075-47e4-abe6-996b161573c1", "Anthony S. Waters"),
-    CardSet::SaviorsOfKamigawa,
+    "f6e4a170-1075-47e4-abe6-996b161573c1",
+    "Anthony S. Waters",
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Samurai"], 1, 1).with_abilities(&[
         abilities::flying(),
         abilities::bushido(ValueDef::Constant(1)),
@@ -41,11 +59,10 @@ static SAKASHIMA_RETURN: AbilityDef = AbilityDef::activated(
 );
 
 pub(in crate::card::sets) static SAKASHIMA_THE_IMPOSTOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("61dc2f54-3637-4caa-9741-36ff14dc5527"),
     "Sakashima the Impostor",
-    CardArt::new("61dc2f54-3637-4caa-9741-36ff14dc5527", "rk post"),
-    CardSet::SaviorsOfKamigawa,
-    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Rogue"], 3, 1)
+    "61dc2f54-3637-4caa-9741-36ff14dc5527",
+    "rk post",
+CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Rogue"], 3, 1)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::replacement(
@@ -64,10 +81,9 @@ pub(in crate::card::sets) static SAKASHIMA_THE_IMPOSTOR: CardRecord = CardRecord
 
 // SOK 63 — Death Denied
 pub(in crate::card::sets) static DEATH_DENIED: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8f66ddc5-f5e6-44de-8189-87b6521d1fea"),
     "Death Denied",
-    CardArt::new("8f66ddc5-f5e6-44de-8189-87b6521d1fea", "Greg Hildebrandt"),
-    CardSet::SaviorsOfKamigawa,
+    "8f66ddc5-f5e6-44de-8189-87b6521d1fea",
+    "Greg Hildebrandt",
     // Two black on top of X is a real tax, which is why this is a late-game
     // rebuild rather than a way to buy back one creature.
     CardRules::new_instant(mana_cost!("{X}{B}{B}"))
@@ -95,11 +111,10 @@ pub(in crate::card::sets) static DEATH_DENIED: CardRecord = CardRecord::new(
 
 // SOK 104 — Iizuka the Ruthless
 pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9ce461f7-385d-4379-83de-49571247c30d"),
     "Iizuka the Ruthless",
-    CardArt::new("9ce461f7-385d-4379-83de-49571247c30d", "Darrell Riche"),
-    CardSet::SaviorsOfKamigawa,
-    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
+    "9ce461f7-385d-4379-83de-49571247c30d",
+    "Darrell Riche",
+CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::bushido(ValueDef::Constant(2)),
@@ -128,11 +143,63 @@ pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::n
         ]),
 );
 
+// SOK 147 — Seek the Horizon
+pub(in crate::card::sets) static SEEK_THE_HORIZON: CardRecord = CardRecord::new(
+    "Seek the Horizon",
+    "49f8a9e7-f505-4fc5-b820-0af1ee1960c7",
+    "Eric Polak",
+CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for up to three basic land reveal them, put them into your hand, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(3),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
+);
+
+// SOK 158 — Pithing Needle
+pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new(
+    "Pithing Needle",
+    "78eb9e1d-113e-45ff-8435-32ee42fa5631",
+    "Pete Venters",
+CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this artifact enters, choose a card name.",
+            crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("pithing_needle_name"),
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::AllCardNames,
+                ),
+            },
+        ),
+        abilities::cannot_activate_nonmana_abilities_with_name(
+            "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            CardNameDef::Binding(Binding!("pithing_needle_name")),
+        ),
+    ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARABA_MOTHRIDER,
     &SAKASHIMA_THE_IMPOSTOR,
     &DEATH_DENIED,
     &IIZUKA_THE_RUTHLESS,
+    &SEEK_THE_HORIZON,
+    &PITHING_NEEDLE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

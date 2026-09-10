@@ -1,14 +1,35 @@
 //! Ikoria: Lair of Behemoths cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CompanionConditionDef, ComparisonDef,
-    CostDef, CostModificationDef, DeckConstructionDef, EffectDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CompanionConditionDef;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
+use crate::card::CostModificationDef;
+use crate::card::DeckConstructionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::GraveyardPlayPermissionDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
@@ -29,10 +50,9 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
 
 // IKO 137 — Spelleater Wolverine
 pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22"),
     "Spelleater Wolverine",
-    CardArt::new("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22", "Uriah Voth"),
-    CardSet::Ikoria,
+    "a5f03ffd-dcdb-441c-8dfc-4fe06a289b22",
+    "Uriah Voth",
     // A vanilla 3/2 until the graveyard fills, then six damage a turn: the
     // threshold is what a spells deck is being paid for.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Wolverine"], 3, 2).with_ability(
@@ -68,20 +88,18 @@ pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::
 // IKO 170 — Ram Through
 // Audit: unsupported — Needs excess-damage routing on a one-sided damage effect. DealDamage carries no excess routing option and FightExcessDef attaches only to Fight, so "if the creature you control has trample, excess damage is dealt to that creature's controller instead" cannot be said without dropping the trample clause.
 pub(in crate::card::sets) static RAM_THROUGH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ac0b24e7-14e7-45ee-b5d8-bdb8674b669c"),
     "Ram Through",
-    crate::card::CardArt::new("ac0b24e7-14e7-45ee-b5d8-bdb8674b669c", "Zoltan Boros"),
-    crate::card::CardSet::Ikoria,
+    "ac0b24e7-14e7-45ee-b5d8-bdb8674b669c",
+    "Zoltan Boros",
     crate::card::CardRules::unsupported(),
 );
 
 // IKO 226 — Lurrus of the Dream-Den
 pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5ad36fb2-c44e-4085-ba0d-54277841ad3a"),
     "Lurrus of the Dream-Den",
-    CardArt::new("5ad36fb2-c44e-4085-ba0d-54277841ad3a", "Slawomir Maniak"),
-    CardSet::Ikoria,
-    // Three mana for a lifelinking body that turns every cheap permanent in
+    "5ad36fb2-c44e-4085-ba0d-54277841ad3a",
+    "Slawomir Maniak",
+// Three mana for a lifelinking body that turns every cheap permanent in
     // the graveyard back into a card, one a turn -- which is why the decks
     // that play him keep their curve at two.
     CardRules::new_creature(mana_cost!("{1}{W/B}{W/B}"), &["Cat", "Nightmare"], 3, 2)
@@ -127,11 +145,10 @@ pub(in crate::card::sets) static LURRUS_OF_THE_DREAM_DEN: CardRecord = CardRecor
 
 // IKO 233 — Zirda, the Dawnwaker
 pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1bd8e61c-2ee8-4243-a848-7008810db8a0"),
     "Zirda, the Dawnwaker",
-    CardArt::new("1bd8e61c-2ee8-4243-a848-7008810db8a0", "Jesper Ejsing"),
-    CardSet::Ikoria,
-    // Three mana for a 3/3 that makes every activated ability on the board
+    "1bd8e61c-2ee8-4243-a848-7008810db8a0",
+    "Jesper Ejsing",
+// Three mana for a 3/3 that makes every activated ability on the board
     // two cheaper, which is what a deck full of equipment and pingers is
     // waiting for.
     CardRules::new_creature(mana_cost!("{1}{R/W}{R/W}"), &["Elemental", "Fox"], 3, 3)
@@ -178,59 +195,59 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
 );
 
 // IKO 248 — Indatha Triome
-pub(in crate::card::sets) static INDATHA_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
-    2096,
+pub(in crate::card::sets) static INDATHA_TRIOME: CardRecord = CardRecord::new(
     "Indatha Triome",
-    CardArt::new("2b74bb81-fb9a-40e5-a941-e517430b52f5", "Noah Bradley"),
-    CardSet::Ikoria,
+    "2b74bb81-fb9a-40e5-a941-e517430b52f5",
+    "Noah Bradley",
     triome(&["Plains", "Swamp", "Forest"]),
 );
 
 // IKO 250 — Ketria Triome
-pub(in crate::card::sets) static KETRIA_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
-    2097,
+pub(in crate::card::sets) static KETRIA_TRIOME: CardRecord = CardRecord::new(
     "Ketria Triome",
-    CardArt::new("a249b1f4-2b22-4b67-a207-e0c4ae95d2e1", "Sam Burley"),
-    CardSet::Ikoria,
+    "a249b1f4-2b22-4b67-a207-e0c4ae95d2e1",
+    "Sam Burley",
     triome(&["Forest", "Island", "Mountain"]),
 );
 
 // IKO 251 — Raugrin Triome
-pub(in crate::card::sets) static RAUGRIN_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
-    2098,
+pub(in crate::card::sets) static RAUGRIN_TRIOME: CardRecord = CardRecord::new(
     "Raugrin Triome",
-    CardArt::new("02138fbb-3962-4348-8d31-faaefba0b8b2", "Jonas De Ro"),
-    CardSet::Ikoria,
+    "02138fbb-3962-4348-8d31-faaefba0b8b2",
+    "Jonas De Ro",
     triome(&["Island", "Mountain", "Plains"]),
 );
 
 // IKO 253 — Savai Triome
-pub(in crate::card::sets) static SAVAI_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
-    2099,
+pub(in crate::card::sets) static SAVAI_TRIOME: CardRecord = CardRecord::new(
     "Savai Triome",
-    CardArt::new("748e6a61-9c1f-4225-9f04-e54002f63ac3", "Titus Lunter"),
-    CardSet::Ikoria,
+    "748e6a61-9c1f-4225-9f04-e54002f63ac3",
+    "Titus Lunter",
     triome(&["Mountain", "Plains", "Swamp"]),
 );
 
 // IKO 259 — Zagoth Triome
-pub(in crate::card::sets) static ZAGOTH_TRIOME: CardRecord = CardRecord::new_with_legacy_id(
-    2100,
+pub(in crate::card::sets) static ZAGOTH_TRIOME: CardRecord = CardRecord::new(
     "Zagoth Triome",
-    CardArt::new("cc520518-2063-4b57-a0d4-10cf62a7175e", "Eytan Zana"),
-    CardSet::Ikoria,
+    "cc520518-2063-4b57-a0d4-10cf62a7175e",
+    "Eytan Zana",
     triome(&["Swamp", "Forest", "Island"]),
 );
 
 // IKO 355 — Lurrus of the Dream-Den (alternate printing)
+const LURRUS_OF_THE_DREAM_DEN_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &LURRUS_OF_THE_DREAM_DEN,
+    1,
+    "2c89beb2-3467-4be0-a066-919f54331942",
+    "Slawomir Maniak",
+);
 
 // IKO 356 — Lutri, the Spellchaser
 pub(in crate::card::sets) static LUTRI_THE_SPELLCHASER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("12c01a00-2128-4b6c-874f-a206eca3a756"),
     "Lutri, the Spellchaser",
-    CardArt::new("12c01a00-2128-4b6c-874f-a206eca3a756", "Lie Setiawan"),
-    CardSet::Ikoria,
-    // Three mana at instant speed for a body and a copy of whatever you were
+    "12c01a00-2128-4b6c-874f-a206eca3a756",
+    "Lie Setiawan",
+// Three mana at instant speed for a body and a copy of whatever you were
     // already casting -- and in a singleton cube the companion clause costs
     // the deck nothing it was not already paying.
     CardRules::new_creature(mana_cost!("{1}{U/R}{U/R}"), &["Elemental", "Otter"], 3, 2)
@@ -297,6 +314,5 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LUTRI_THE_SPELLCHASER,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::alternate(&LURRUS_OF_THE_DREAM_DEN, 1), // IKO 355
-];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
+    &[LURRUS_OF_THE_DREAM_DEN_ALTERNATE_1];

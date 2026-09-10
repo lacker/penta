@@ -1,20 +1,35 @@
 //! Born of the Gods card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, PlayerSetDef, SumValueDef,
-    TopOfLibraryCostDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::SumValueDef;
+use crate::card::TopOfLibraryCostDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
 use crate::mana_cost;
 
 // BNG 119 — Courser of Kruphix
 pub(in crate::card::sets) static COURSER_OF_KRUPHIX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("da5a807f-58e8-4d92-a61c-47bb9b28977f"),
     "Courser of Kruphix",
-    crate::card::CardArt::new("da5a807f-58e8-4d92-a61c-47bb9b28977f", "Eric Deschamps"),
-    crate::card::CardSet::BornOfTheGods,
+    "da5a807f-58e8-4d92-a61c-47bb9b28977f",
+    "Eric Deschamps",
     // Two toughness past what red reaches, which is most of why the body is
     // worth three mana at all.
     CardRules::new_enchantment_creature(mana_cost!("{1}{G}{G}"), &["Centaur"], 2, 4)
@@ -80,11 +95,10 @@ static OTHER_LEGENDS_YOU_CONTROL: ValueDef = ValueDef::Sum(&SumValueDef::new(
 
 // BNG 159 — Heroes' Podium
 pub(in crate::card::sets) static HEROES_PODIUM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a3cb14f9-343c-4672-b4ee-db7f1d1a98ff"),
     "Heroes' Podium",
-    CardArt::new("a3cb14f9-343c-4672-b4ee-db7f1d1a98ff", "Willian Murai"),
-    CardSet::BornOfTheGods,
-    CardRules::new_artifact(mana_cost!("{5}"))
+    "a3cb14f9-343c-4672-b4ee-db7f1d1a98ff",
+    "Willian Murai",
+CardRules::new_artifact(mana_cost!("{5}"))
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::static_ability(

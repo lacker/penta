@@ -6,4 +6,4 @@ pub(super) mod dragons_of_tarkir;
 pub(super) mod fate_reforged;
 pub(super) mod magic_origins;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

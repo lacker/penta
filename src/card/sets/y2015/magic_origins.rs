@@ -1,20 +1,36 @@
 //! ORI card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, ComparisonDef, CostDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // ORI 60 — Jace, Vryn's Prodigy // Jace, Telepath Unbound
 pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::new_dfc(
-    PrintingAnchor::scryfall("e7b5705f-dc56-41af-a781-8a41aaa7c5b8"),
     "Jace, Vryn's Prodigy // Jace, Telepath Unbound",
-    CardArt::new("02d6d693-f1f3-4317-bcc0-c21fa8490d38", "Jaime Jones"),
-    CardSet::MagicOrigins,
+    "02d6d693-f1f3-4317-bcc0-c21fa8490d38",
+    "Jaime Jones",
     &[
         (
             "Jace, Vryn's Prodigy",
@@ -155,10 +171,9 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
 
 // ORI 62 — Jhessian Thief
 pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("33b8553d-d326-4280-bc3a-2fffdd377cd2"),
     "Jhessian Thief",
-    CardArt::new("33b8553d-d326-4280-bc3a-2fffdd377cd2", "Miles Johnston"),
-    CardSet::MagicOrigins,
+    "33b8553d-d326-4280-bc3a-2fffdd377cd2",
+    "Miles Johnston",
     // A 1/3 that gets through on its own rarely, so prowess is what turns a
     // spell-heavy turn into both a bigger body and a card.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Rogue"], 1, 3).with_abilities(&[
@@ -176,10 +191,9 @@ pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
 
 // ORI 171 — Conclave Naturalists
 pub(in crate::card::sets) static CONCLAVE_NATURALISTS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3759fc28-9adb-41ed-851c-566a3a424e09"),
     "Conclave Naturalists",
-    CardArt::new("3759fc28-9adb-41ed-851c-566a3a424e09", "Howard Lyon"),
-    CardSet::MagicOrigins,
+    "3759fc28-9adb-41ed-851c-566a3a424e09",
+    "Howard Lyon",
     // A 4/4 body that carries its own answer, so the trigger is optional
     // rather than a liability when the opponent has nothing worth breaking.
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Dryad"], 4, 4).with_ability(

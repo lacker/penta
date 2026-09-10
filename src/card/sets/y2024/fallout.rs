@@ -1,19 +1,28 @@
 //! Fallout cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
-use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, CardType, CopyExceptionsDef, CounterKind, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities,
-};
-use crate::{AdditionalCostIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::AdditionalCostIndex;
+use crate::card::AbilityDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CopyExceptionsDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // PIP 23 — Securitron Squadron
-pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new_with_legacy_id(
-    2151,
+pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new(
     "Securitron Squadron",
-    CardArt::new("b689a206-aec3-4a31-95cf-3d4b840db04c", "Jonas De Ro"),
-    CardSet::Fallout,
+    "b689a206-aec3-4a31-95cf-3d4b840db04c",
+    "Jonas De Ro",
     CardRules::new_artifact_creature(mana_cost!("{1}{W}"), &["Robot"], 2, 2).with_abilities(&[
         abilities::squad(&[crate::CostDef::Mana(mana_cost!("{3}"))]),
         abilities::vigilance(),

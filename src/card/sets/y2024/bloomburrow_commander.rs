@@ -1,21 +1,31 @@
 //! Bloomburrow Commander cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
-use crate::card::{
-    AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, ComparisonDef,
-    CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ReplacementEffectDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::ComparisonDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueComparisonDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
 use crate::mana_cost;
 
 // BLC 9 — Jacked Rabbit
-pub(in crate::card::sets) static JACKED_RABBIT: CardRecord = CardRecord::new_with_legacy_id(
-    2250,
+pub(in crate::card::sets) static JACKED_RABBIT: CardRecord = CardRecord::new(
     "Jacked Rabbit",
-    CardArt::new("2c695df6-6bf2-4e6b-8500-e3116137ca27", "Scott Murphy"),
-    CardSet::BloomburrowCommander,
-    // The counters are the body and the body is the token count, so every
+    "2c695df6-6bf2-4e6b-8500-e3116137ca27",
+    "Scott Murphy",
+// The counters are the body and the body is the token count, so every
     // mana past the second is another Rabbit on every attack.
     CardRules::new_creature(mana_cost!("{X}{1}{W}"), &["Rabbit", "Warrior"], 1, 2)
         .with_abilities(&[

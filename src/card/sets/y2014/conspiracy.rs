@@ -1,21 +1,34 @@
 //! Conspiracy cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ControlDurationDef, CostDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TriggerEventDef, ValueDef,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ControlDurationDef;
+use crate::card::CostDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::mana_cost;
 
 // CNS 16 — Council's Judgment
-pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new_with_legacy_id(
-    2175,
+pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new(
     "Council's Judgment",
-    CardArt::new("17f28b16-da65-41a8-ba4f-f1c5e104aad6", "Kev Walker"),
-    CardSet::Conspiracy,
-    // Exiling without targeting is what it is played for: shroud, hexproof,
+    "17f28b16-da65-41a8-ba4f-f1c5e104aad6",
+    "Kev Walker",
+// Exiling without targeting is what it is played for: shroud, hexproof,
     // and protection are all no answer at all. Two players usually means two
     // permanents, since a disagreement ties.
     CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(AbilityDef::spell(
@@ -32,23 +45,18 @@ pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new
 // CNS 18 — Custodi Squire
 // Audit: unsupported — Needs a will-of-the-council vote over graveyard cards that returns the winners. The only vote effect is VoteForPermanentToExile, which votes over battlefield permanents and exiles them; this votes over cards in your graveyard and returns every card tied for most votes to your hand.
 pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a9151422-8df1-409c-a686-0cd89247eb43"),
     "Custodi Squire",
-    crate::card::CardArt::new(
-        "a9151422-8df1-409c-a686-0cd89247eb43",
-        "Alex Horley-Orlandelli",
-    ),
-    crate::card::CardSet::Conspiracy,
+    "a9151422-8df1-409c-a686-0cd89247eb43",
+    "Alex Horley-Orlandelli",
     crate::card::CardRules::unsupported(),
 );
 
 // CNS 42 — Dack Fayden
-pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_legacy_id(
-    2219,
+pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
     "Dack Fayden",
-    CardArt::new("3fcb7810-1054-4001-855c-6e17939b3d3f", "Eric Deschamps"),
-    CardSet::Conspiracy,
-    // The greatest thief in the multiverse, and in a cube full of Moxen the
+    "3fcb7810-1054-4001-855c-6e17939b3d3f",
+    "Eric Deschamps",
+// The greatest thief in the multiverse, and in a cube full of Moxen the
     // minus is what he is actually here for.
     CardRules::new_planeswalker(mana_cost!("{1}{U}{R}"), &["Dack"], 3)
         .with_supertype(CardSupertype::Legendary)

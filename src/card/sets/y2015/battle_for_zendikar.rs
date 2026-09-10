@@ -1,12 +1,25 @@
 //! BFZ card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardType, CostDef, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    ZoneKind, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
@@ -23,11 +36,10 @@ static ELDRAZI_SCION_TOKEN: EffectDef =
 
 // BFZ 58 — Eldrazi Skyspawner
 pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9c9c1a10-446e-492a-95cc-a459dc6c08a0"),
     "Eldrazi Skyspawner",
-    CardArt::new("9c9c1a10-446e-492a-95cc-a459dc6c08a0", "Chase Stone"),
-    CardSet::BattleForZendikar,
-    // Three mana for two bodies and a ritual: the Scion is what turns the
+    "9c9c1a10-446e-492a-95cc-a459dc6c08a0",
+    "Chase Stone",
+// Three mana for two bodies and a ritual: the Scion is what turns the
     // flier into a fourth-turn six-drop.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Eldrazi", "Drone"], 2, 1).with_abilities(&[
         abilities::devoid(),
@@ -41,11 +53,10 @@ pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::ne
 
 // BFZ 106 — Carrier Thrall
 pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bd2ab895-9225-4eba-90c3-4023db4f8b70"),
     "Carrier Thrall",
-    CardArt::new("bd2ab895-9225-4eba-90c3-4023db4f8b70", "Lius Lasahido"),
-    CardSet::BattleForZendikar,
-    // Two mana that trades and still leaves a mana behind, which is why the
+    "bd2ab895-9225-4eba-90c3-4023db4f8b70",
+    "Lius Lasahido",
+// Two mana that trades and still leaves a mana behind, which is why the
     // body is aggressive and the death trigger is not.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire"], 2, 1).with_abilities(&[
         abilities::devoid(),
@@ -58,11 +69,10 @@ pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
 
 // BFZ 168 — Unnatural Aggression
 pub(in crate::card::sets) static UNNATURAL_AGGRESSION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8293c66d-9a9b-4817-9bc3-ffd57fda290c"),
     "Unnatural Aggression",
-    CardArt::new("8293c66d-9a9b-4817-9bc3-ffd57fda290c", "James Ryman"),
-    CardSet::BattleForZendikar,
-    CardRules::new_instant(mana_cost!("{2}{G}"))
+    "8293c66d-9a9b-4817-9bc3-ffd57fda290c",
+    "James Ryman",
+CardRules::new_instant(mana_cost!("{2}{G}"))
         .printed_colors(&[])
         .with_abilities(&[
             abilities::devoid(),

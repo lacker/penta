@@ -1,21 +1,34 @@
 //! Commander 2017 card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardType, CopyExceptionsDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef,
-    PlayerRefDef, PlayerRelation, PlayerRuleDef, ResolvedEffectDurationDef,
-    SpellResolutionDestinationDef, ZoneKind, ZonePlacement,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CopyExceptionsDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerRuleDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::mana_cost;
 
 // C17 8 — Teferi's Protection
 pub(in crate::card::sets) static TEFERIS_PROTECTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("77f130c7-0138-4a1a-9f67-62d2c302dc48"),
     "Teferi's Protection",
-    CardArt::new("77f130c7-0138-4a1a-9f67-62d2c302dc48", "Chase Stone"),
-    CardSet::Commander2017,
-    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
+    "77f130c7-0138-4a1a-9f67-62d2c302dc48",
+    "Chase Stone",
+CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
         AbilityDef::spell(
             "Until your next turn, your life total can't change and you gain protection from everything. All permanents you control phase out. (While they're phased out, they're treated as though they don't exist. They phase in before you untap during your untap step.)\nExile Teferi's Protection.",
             EffectDef::Sequence(&[
@@ -46,10 +59,9 @@ pub(in crate::card::sets) static TEFERIS_PROTECTION: CardRecord = CardRecord::ne
 
 // C17 37 — Fractured Identity
 pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b2f73f5d-1aad-48c2-9e74-5f7bdd87900f"),
     "Fractured Identity",
-    CardArt::new("b2f73f5d-1aad-48c2-9e74-5f7bdd87900f", "Yongjae Choi"),
-    CardSet::Commander2017,
+    "b2f73f5d-1aad-48c2-9e74-5f7bdd87900f",
+    "Yongjae Choi",
     // Five mana that answers anything and keeps it: what leaves their board
     // arrives on yours, which is why the card is played over the cheaper
     // exile effects beside it.

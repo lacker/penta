@@ -5,4 +5,4 @@ pub(super) mod portal_second_age;
 pub(super) mod stronghold;
 pub(super) mod urzas_saga;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

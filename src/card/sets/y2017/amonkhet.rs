@@ -1,19 +1,32 @@
 //! Amonkhet cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, CardArt, CardRules,
-    CardSet, CardType, ConditionalValueDef, CostDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ConditionalValueDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // AKH 75 — Vizier of Tumbling Sands
 pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ce4ff0f5-abee-4f3e-89ae-1b7ee771ec68"),
     "Vizier of Tumbling Sands",
-    CardArt::new("ce4ff0f5-abee-4f3e-89ae-1b7ee771ec68", "Josu Hernaiz"),
-    CardSet::Amonkhet,
+    "ce4ff0f5-abee-4f3e-89ae-1b7ee771ec68",
+    "Josu Hernaiz",
     // Two ways to untap something out of one card: the body unlocks a land
     // every turn, and cycling unlocks one the turn you gave up on the body.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Cleric"], 1, 3).with_abilities(&[
@@ -48,10 +61,9 @@ pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardReco
 
 // AKH 81 — Bone Picker
 pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bdc6a825-43f7-40a4-95f0-335dc538b6cd"),
     "Bone Picker",
-    CardArt::new("bdc6a825-43f7-40a4-95f0-335dc538b6cd", "Yeong-Hao Han"),
-    CardSet::Amonkhet,
+    "bdc6a825-43f7-40a4-95f0-335dc538b6cd",
+    "Yeong-Hao Han",
     // A one-mana flying deathtouch blocker after any trade, which is why the
     // full four mana is a price the card almost never pays.
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Bird"], 3, 2).with_abilities(&[
@@ -76,10 +88,9 @@ pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
 
 // AKH 134 — Glorybringer
 pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3277ad99-5682-4baa-b106-de15721876a6"),
     "Glorybringer",
-    CardArt::new("3277ad99-5682-4baa-b106-de15721876a6", "Sam Burley"),
-    CardSet::Amonkhet,
+    "3277ad99-5682-4baa-b106-de15721876a6",
+    "Sam Burley",
     // Five mana that attacks the turn it lands for four in the air and kills
     // something on the way in. What exerting costs is the next attack, which
     // is the only thing keeping it honest.
@@ -114,11 +125,10 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
 
 // AKH 241 — Cradle of the Accursed
 pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("41713e82-c3d3-4c2f-b075-f684cbd68ce8"),
     "Cradle of the Accursed",
-    CardArt::new("41713e82-c3d3-4c2f-b075-f684cbd68ce8", "Noah Bradley"),
-    CardSet::Amonkhet,
-    // Untapped and colourless, so the body it eventually becomes costs the
+    "41713e82-c3d3-4c2f-b075-f684cbd68ce8",
+    "Noah Bradley",
+// Untapped and colourless, so the body it eventually becomes costs the
     // deck nothing but the land slot.
     CardRules::new_land(&["Desert"]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),

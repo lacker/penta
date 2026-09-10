@@ -329,6 +329,7 @@ mod replay_journal {
         let replay: serde_json::Value =
             serde_json::from_str(&game.replay_json()).expect("replay is JSON");
         assert_eq!(replay["replayVersion"], REPLAY_VERSION);
+        assert_eq!(replay["config"]["artPreference"], "debut");
         assert_eq!(
             replay["simulationFingerprint"],
             penta::protocol::SIMULATION_FINGERPRINT
@@ -347,6 +348,17 @@ mod replay_journal {
             WebGame::from_replay_json(&wrong_simulation.to_string()).is_err(),
             "different rules are refused before commands apply"
         );
+
+        let mut older_config = replay.clone();
+        older_config["config"]
+            .as_object_mut()
+            .expect("fixture config is an object")
+            .remove("artPreference");
+        let rebuilt = WebGame::from_replay_json(&older_config.to_string())
+            .expect("a replay from before the presentation option defaults to debut art");
+        let rebuilt_replay: Value =
+            serde_json::from_str(&rebuilt.replay_json()).expect("rebuilt replay is JSON");
+        assert_eq!(rebuilt_replay["config"]["artPreference"], "debut");
 
         let mut diagnostic_changes = replay;
         diagnostic_changes["engineVersion"] = serde_json::json!("99.0.0");
@@ -417,6 +429,7 @@ mod replay_journal {
             ("botPolicy", serde_json::json!(false)),
             ("humanFirst", serde_json::json!("true")),
             ("seed", serde_json::json!("11")),
+            ("artPreference", serde_json::json!(false)),
         ] {
             let mut malformed = replay.clone();
             malformed["config"][field] = wrong_type;

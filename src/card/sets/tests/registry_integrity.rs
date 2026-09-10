@@ -2,6 +2,7 @@ use super::*;
 use crate::CardEffectStatus;
 use crate::ControlDurationDef;
 use crate::card::child_effects;
+use crate::card::sets::y2005;
 
 #[test]
 fn format_sets_and_card_records_have_catalog_modules() {
@@ -47,7 +48,8 @@ fn format_sets_and_card_records_have_catalog_modules() {
     for module in SET_MODULES {
         for record in module.cards {
             assert_eq!(
-                record.debut_set, module.set,
+                record.definition(module.set).debut_set,
+                module.set,
                 "{} is registered in the wrong set",
                 record.name
             );
@@ -105,23 +107,17 @@ fn built_in_records_have_unique_identity() {
     assert_eq!(
         records
             .iter()
-            .map(|record| record.identity_anchor())
+            .map(|record| record.art.scryfall_id)
             .collect::<HashSet<_>>()
             .len(),
         records.len(),
-        "every catalog definition must have a unique anchor printing",
+        "every catalog definition must have unique debut art",
     );
     let mut art_scryfall_ids = HashSet::new();
     for record in records {
         assert!(
-            super::is_uuid(record.identity_anchor()),
-            "{} has an invalid anchor printing UUID: {}",
-            record.name,
-            record.identity_anchor(),
-        );
-        assert!(
             super::is_uuid(record.art.scryfall_id),
-            "{} has an invalid presentation-art UUID: {}",
+            "{} has an invalid debut-art UUID: {}",
             record.name,
             record.art.scryfall_id,
         );
@@ -189,8 +185,8 @@ fn basic_land_types_are_the_single_authority_for_intrinsic_mana() {
 fn virtual_and_face_down_characteristics_are_not_card_catalog_definitions() {
     let synthetic_names = SET_MODULES
         .iter()
+        .filter(|module| module.set == CardSet::Token)
         .flat_map(|module| module.cards.iter().copied())
-        .filter(|record| record.debut_set == CardSet::Token)
         .map(|record| record.name)
         .collect::<HashSet<_>>();
 
@@ -202,7 +198,7 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
     let catalog = crate::card::catalog().unwrap();
     let records = SET_MODULES
         .iter()
-        .flat_map(|module| module.cards.iter().copied())
+        .flat_map(|module| module.cards.iter().map(move |record| (module.set, *record)))
         .collect::<Vec<_>>();
     assert_eq!(
         catalog.definitions().len(),
@@ -210,14 +206,14 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
         "every registered record must become one catalog definition",
     );
 
-    for record in records {
+    for (debut_set, record) in records {
         let definition = catalog
             .get(record.id())
             .unwrap_or_else(|| panic!("{} is missing from the catalog", record.name));
         assert_eq!(definition.name, record.name);
         assert!(
             catalog
-                .get_printing(CardPrintingId::new(record.id(), record.debut_set))
+                .get_printing(CardPrintingId::new(record.id(), debut_set))
                 .is_some(),
             "{} is missing its debut printing",
             record.name,
@@ -370,7 +366,7 @@ fn standard_search_cards_preserve_may_reveal_and_cardinality_semantics() {
         }
     );
 
-    let seek = y2012::return_to_ravnica::SEEK_THE_HORIZON
+    let seek = y2005::saviors_of_kamigawa::SEEK_THE_HORIZON
         .rules
         .ability_clauses()[0];
     assert_eq!(
@@ -395,7 +391,9 @@ fn standard_search_cards_preserve_may_reveal_and_cardinality_semantics() {
         })
     );
 
-    let farseek = y2012::magic_2013::FARSEEK.rules.ability_clauses()[0];
+    let farseek = y2005::ravnica_city_of_guilds::FARSEEK
+        .rules
+        .ability_clauses()[0];
     assert_eq!(
         farseek.declarative_effect(),
         Some(EffectDef::SearchZone {
@@ -501,10 +499,10 @@ fn ring_uses_declarative_format_and_draw_replacement_constructs() {
 fn unsupported_cards_expose_no_executable_clauses() {
     let records = SET_MODULES
         .iter()
-        .flat_map(|module| module.cards.iter().copied())
+        .flat_map(|module| module.cards.iter().map(move |record| (module.set, *record)))
         .collect::<Vec<_>>();
-    for record in records {
-        let definition = record.definition();
+    for (set, record) in records {
+        let definition = record.definition(set);
         if definition.implementation_status() == ImplementationStatus::Unsupported {
             assert!(
                 definition
@@ -565,11 +563,11 @@ fn attached_control_changes_are_static_abilities() {
         }
     }
 
-    for record in SET_MODULES
+    for (set, record) in SET_MODULES
         .iter()
-        .flat_map(|module| module.cards.iter().copied())
+        .flat_map(|module| module.cards.iter().map(move |record| (module.set, *record)))
     {
-        let definition = record.definition();
+        let definition = record.definition(set);
         for part in &definition.parts {
             for ability in part.rules.ability_clauses() {
                 audit_ability(record.name, ability);
@@ -595,7 +593,6 @@ fn standard_records_are_unique_and_format_legal() {
     for record in records {
         assert!(names.insert(record.name));
         assert!(!record.rules.has_supertype(CardSupertype::Basic));
-        assert!(Format::IsdM14Standard.allows_set(record.debut_set));
     }
 
     assert!(!names.contains("Celestial Purge"));

@@ -1,21 +1,58 @@
 //! Eventide cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, CostDef, CreatureTypeSetDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, ValueDef, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::ManaColor;
+use crate::ZoneKind;
+use crate::ZonePlacement;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AlternativeCastKindDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::ValueDef;
+use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+// EVE 1 — Archon of Justice
+pub(in crate::card::sets) static ARCHON_OF_JUSTICE: CardRecord = CardRecord::new(
+    "Archon of Justice",
+    "ab707e7f-8ab5-43f1-9428-6a17c1b672fa",
+    "Jason Chan",
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Archon"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, exile target permanent.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
+);
+
 // EVE 6 — Flickerwisp
 pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5bb3cb5c-8d66-4f5e-a9a9-917e6045f024"),
     "Flickerwisp",
-    CardArt::new("5bb3cb5c-8d66-4f5e-a9a9-917e6045f024", "Jeremy Enecio"),
-    CardSet::Eventide,
+    "5bb3cb5c-8d66-4f5e-a9a9-917e6045f024",
+    "Jeremy Enecio",
     // Three mana for a 3/1 flier that also answers something for a turn:
     // an attacker, a blocker, a land on the turn it matters, or one of your
     // own permanents that would rather enter again.
@@ -37,10 +74,9 @@ pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
 
 // EVE 41 — Raven's Crime
 pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7ced5797-5de0-43ca-9dc9-e48912333a70"),
     "Raven's Crime",
-    CardArt::new("7ced5797-5de0-43ca-9dc9-e48912333a70", "Warren Mahy"),
-    CardSet::Eventide,
+    "7ced5797-5de0-43ca-9dc9-e48912333a70",
+    "Warren Mahy",
     // Retrace turns every excess land into another discard, which is why a
     // land-heavy deck treats this one card as an engine.
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
@@ -73,23 +109,56 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
     ]),
 );
 
+// EVE 67 — Duskdale Wurm
+pub(in crate::card::sets) static DUSKDALE_WURM: CardRecord = CardRecord::new(
+    "Duskdale Wurm",
+    "8d10736d-047b-423f-9017-f59732d446bf",
+    "Dan Dos Santos",
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Wurm"], 7, 7)
+        .with_abilities(&[abilities::trample()]),
+);
+
+// EVE 82 — Beckon Apparition
+pub(in crate::card::sets) static BECKON_APPARITION: CardRecord = CardRecord::new(
+    "Beckon Apparition",
+    "3bae1a3b-881b-4b10-ac5f-822c809edc36",
+    "Larry MacDougall",
+CardRules::new_instant(mana_cost!("{W/B}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Exile target card from a graveyard. Create a 1/1 white and black Spirit creature token with flying.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+},
+                EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White, ManaColor::Black], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new("91f3a4b0-0992-4245-b245-033ad1083a93", "Cliff Childs")),
+            ]),
+        ),
+    ),
+);
+
 // EVE 119 — Desecrator Hag
 // Audit: unsupported — Needs a value that aggregates over a query to be readable inside a query filter. "The creature card with the greatest power" is expressible as a choice among the cards nothing beats, but the maximum is an AggregateObjectValues over the graveyard and a predicate cannot evaluate one, so the comparison silently fails and its negation admits every creature card.
 pub(in crate::card::sets) static DESECRATOR_HAG: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("74d2e092-c805-447c-b784-1896b69524e0"),
     "Desecrator Hag",
-    crate::card::CardArt::new("74d2e092-c805-447c-b784-1896b69524e0", "Fred Harper"),
-    crate::card::CardSet::Eventide,
+    "74d2e092-c805-447c-b784-1896b69524e0",
+    "Fred Harper",
     crate::card::CardRules::unsupported(),
 );
 
 // EVE 139 — Figure of Destiny
-pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new_with_legacy_id(
-    2260,
+pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new(
     "Figure of Destiny",
-    CardArt::new("0da69523-cece-425a-b08a-fb27fac29374", "Scott M. Fischer"),
-    CardSet::Eventide,
-    // A one-drop that is never a dead draw: it is a 1/1 on turn one and an
+    "0da69523-cece-425a-b08a-fb27fac29374",
+    "Scott M. Fischer",
+// A one-drop that is never a dead draw: it is a 1/1 on turn one and an
     // 8/8 flier on turn six, and every point of mana in between goes into it.
     CardRules::new_creature(mana_cost!("{R/W}"), &["Kithkin"], 1, 1)
         .with_abilities(&[
@@ -160,8 +229,11 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ARCHON_OF_JUSTICE,
     &FLICKERWISP,
     &RAVEN_S_CRIME,
+    &DUSKDALE_WURM,
+    &BECKON_APPARITION,
     &DESECRATOR_HAG,
     &FIGURE_OF_DESTINY,
 ];

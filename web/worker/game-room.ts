@@ -43,6 +43,7 @@ interface GameConfig {
   seed: number;
   matchMode?: "one-conclusion" | "first-to-two-wins";
   format?: string;
+  artPreference?: "debut" | "format-matching";
   /**
    * The human seat's own opt-in to open decklists: it is willing to have
    * `humanDeck` named to a bot opponent who has also opted in. Off by
@@ -506,13 +507,14 @@ export class GameRoom {
     }
     // Built before it is stored, so a bad deck is rejected rather than
     // written down as a room that can never open.
-    const game = new WebGame(
+    const game = WebGame.withArtPreference(
       config.humanDeck,
       config.botDeck,
       config.botPolicy,
       config.humanFirst,
       config.seed,
       config.format,
+      config.artPreference,
     );
     if (config.matchMode === "first-to-two-wins") game.enable_match();
     else if (config.matchMode && config.matchMode !== "one-conclusion") throw new Error("unknown match mode");
@@ -576,13 +578,14 @@ export class GameRoom {
         simulationFingerprint,
       });
       if (refused) return { refused };
-      const game = new WebGame(
+      const game = WebGame.withArtPreference(
         stored.config.humanDeck,
         stored.config.botDeck,
         stored.config.botPolicy,
         stored.config.humanFirst,
         stored.config.seed,
         stored.config.format,
+        stored.config.artPreference,
       );
       if (stored.config.matchMode === "first-to-two-wins") game.enable_match();
       // Replaying also recovers the last safe boundary for rooms created

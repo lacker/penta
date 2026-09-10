@@ -1,24 +1,48 @@
 //! Bloomburrow cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CostDef, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
+use crate::card::AlternativeCastKindDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::CopyStackObjectDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueComparisonDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // BLB 54 — Kitsa, Otterball Elite
 pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2"),
     "Kitsa, Otterball Elite",
-    CardArt::new("c8ff751a-ec64-41d5-b22c-2a483ad9a9b2", "Zoltan Boros"),
-    CardSet::Bloomburrow,
-    // Two mana for a body that loots every turn it has nothing better to
+    "c8ff751a-ec64-41d5-b22c-2a483ad9a9b2",
+    "Zoltan Boros",
+// Two mana for a body that loots every turn it has nothing better to
     // do, and copies the spell that made it big enough on the turns it
     // does. Vigilance is why the tap is not a real cost.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Otter", "Wizard"], 1, 3)
@@ -93,12 +117,11 @@ static MAKE_AN_OTTER: EffectDef =
             "Julia Griffin",
         ));
 
-pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::new_with_legacy_id(
-    2232,
+pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::new(
     "Stormchaser's Talent",
-    CardArt::new("a36e682d-b43d-4e08-bf5b-70d7e924dbe5", "Christina Kraus"),
-    CardSet::Bloomburrow,
-    // One mana for a body, and a mana sink that buys back a spell and then
+    "a36e682d-b43d-4e08-bf5b-70d7e924dbe5",
+    "Christina Kraus",
+// One mana for a body, and a mana sink that buys back a spell and then
     // turns every cantrip afterwards into another creature.
     CardRules::new_enchantment(mana_cost!("{U}"))
         .with_subtypes(&["Class"])
@@ -189,10 +212,9 @@ static TRAINER_ARRIVES: TriggerEventDef = TriggerEventDef::zone_changed(
 );
 
 pub(in crate::card::sets) static THUNDERTRAP_TRAINER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9cf3af94-b7c8-415c-a5a1-d89967fd0bba"),
     "Thundertrap Trainer",
-    CardArt::new("9cf3af94-b7c8-415c-a5a1-d89967fd0bba", "Matt Stewart"),
-    CardSet::Bloomburrow,
+    "9cf3af94-b7c8-415c-a5a1-d89967fd0bba",
+    "Matt Stewart",
     // Two mana to dig four cards deep for the spell you want, or six for two
     // bodies and two looks.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Otter", "Wizard"], 1, 2).with_abilities(&[
@@ -240,10 +262,9 @@ pub(in crate::card::sets) static THUNDERTRAP_TRAINER: CardRecord = CardRecord::n
 
 // BLB 94 — Feed the Cycle
 pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7e017ff8-2936-4a1b-bece-00004cfbad06"),
     "Feed the Cycle",
-    CardArt::new("7e017ff8-2936-4a1b-bece-00004cfbad06", "Donato Giancola"),
-    CardSet::Bloomburrow,
+    "7e017ff8-2936-4a1b-bece-00004cfbad06",
+    "Donato Giancola",
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, forage or pay {B}. (To forage, exile \
@@ -264,19 +285,17 @@ pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
 // BLB 208 — Cindering Cutthroat
 // Audit: unsupported — Needs an "an opponent lost life this turn" replacement condition. ReplacementConditionDef offers only OpponentWasDealtDamageThisTurn, which is bloodthirst's damage reading: life lost to a payment, a drain, or an effect that says "loses life" would not count, so the counter would be missing in cases the printed card grants it.
 pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b2ea10dd-21ea-4622-be27-79d03a802b85"),
     "Cindering Cutthroat",
-    crate::card::CardArt::new("b2ea10dd-21ea-4622-be27-79d03a802b85", "Wayne Reynolds"),
-    crate::card::CardSet::Bloomburrow,
+    "b2ea10dd-21ea-4622-be27-79d03a802b85",
+    "Wayne Reynolds",
     crate::card::CardRules::unsupported(),
 );
 
 // BLB 210 — Corpseberry Cultivator
 pub(in crate::card::sets) static CORPSEBERRY_CULTIVATOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c911a759-ed7b-452b-88a3-663478357610"),
     "Corpseberry Cultivator",
-    CardArt::new("c911a759-ed7b-452b-88a3-663478357610", "Izzy"),
-    CardSet::Bloomburrow,
+    "c911a759-ed7b-452b-88a3-663478357610",
+    "Izzy",
     CardRules::new_creature(mana_cost!("{1}{B/G}{B/G}"), &["Squirrel", "Warlock"], 2, 3)
         .with_abilities(&[
             AbilityDef::triggered(
@@ -302,10 +321,9 @@ pub(in crate::card::sets) static CORPSEBERRY_CULTIVATOR: CardRecord = CardRecord
 
 // BLB 235 — Tempest Angler
 pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("850daae4-f0b7-4604-95e7-ad044ec165c3"),
     "Tempest Angler",
-    CardArt::new("850daae4-f0b7-4604-95e7-ad044ec165c3", "Raluca Marinescu"),
-    CardSet::Bloomburrow,
+    "850daae4-f0b7-4604-95e7-ad044ec165c3",
+    "Raluca Marinescu",
     // Counters rather than prowess: what it grows it keeps, so a slow turn
     // of cheap spells leaves a threat rather than a one-turn swing.
     CardRules::new_creature(mana_cost!("{1}{U/R}{U/R}"), &["Otter", "Wizard"], 2, 2).with_ability(
@@ -326,10 +344,9 @@ pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
 
 // BLB 254 — Hidden Grotto
 pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4ba8f2e7-8357-4862-97dc-1942d066023a"),
     "Hidden Grotto",
-    CardArt::new("4ba8f2e7-8357-4862-97dc-1942d066023a", "Fiona Hsieh"),
-    CardSet::Bloomburrow,
+    "4ba8f2e7-8357-4862-97dc-1942d066023a",
+    "Fiona Hsieh",
     // Untapped and colourless by default, so the fixing costs a mana rather
     // than a turn -- and the surveil pays for playing it over a basic.
     CardRules::new_land(&[]).with_abilities(&[
@@ -348,14 +365,19 @@ pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
 );
 
 // BLB 307 — Thundertrap Trainer (alternate printing)
+const THUNDERTRAP_TRAINER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &THUNDERTRAP_TRAINER,
+    1,
+    "54ec3510-c168-4acc-aee8-65529d0f5ad7",
+    "Iain McCaig",
+);
 
 // BLB 322 — Keen-Eyed Curator
 pub(in crate::card::sets) static KEEN_EYED_CURATOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("004a67ce-60ef-4cc2-9f4d-f30e3029d80a"),
     "Keen-Eyed Curator",
-    CardArt::new("004a67ce-60ef-4cc2-9f4d-f30e3029d80a", "Mariah Tekulve"),
-    CardSet::Bloomburrow,
-    // Two mana for a 3/3 that answers a graveyard a card at a time, and
+    "004a67ce-60ef-4cc2-9f4d-f30e3029d80a",
+    "Mariah Tekulve",
+// Two mana for a 3/3 that answers a graveyard a card at a time, and
     // turns into a 7/7 trampler for having done it four kinds of times.
     CardRules::new_creature(mana_cost!("{G}{G}"), &["Raccoon", "Scout"], 3, 3)
         .with_abilities(&[
@@ -423,6 +445,5 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KEEN_EYED_CURATOR,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::alternate(&THUNDERTRAP_TRAINER, 1), // BLB 307
-];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
+    &[THUNDERTRAP_TRAINER_ALTERNATE_1];

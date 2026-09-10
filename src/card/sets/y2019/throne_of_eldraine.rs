@@ -1,22 +1,67 @@
 //! Throne of Eldraine cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::CardPartId;
+use crate::PlayOptionId;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityPredicateDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::AlternateSpellKind;
+use crate::card::AlternativeCastKindDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::BasicLandType;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::BlockRestrictionDef;
+use crate::card::BlockRestrictionMatchDef;
+use crate::card::BlockRestrictionSubjectDef;
+use crate::card::CardArt;
+use crate::card::CardComposition;
+use crate::card::CardEffectStatus;
+use crate::card::CardPart;
+use crate::card::CardRules;
+use crate::card::CardStructure;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CardTypeSet;
+use crate::card::ColorSet;
+use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
+use crate::card::ControlDurationDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::CreatureTypeSetDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ExilePlayConditionDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::KeywordAbility;
+use crate::card::ManaColor;
+use crate::card::ObjectCountConditionDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayOptionDef;
-use crate::card::{
-    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AlternateSpellKind, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
-    BlockRestrictionSubjectDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules,
-    CardSet, CardStructure, CardSupertype, CardType, CardTypeSet, ColorSet, ComparisonDef,
-    ConditionDef, ControlDurationDef, CostDef, CounterKind, CreatureTypeSetDef, EffectDef,
-    EffectRecipientDef, ExilePlayConditionDef, ExilePlayDurationDef, KeywordAbility, ManaColor,
-    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, SpellForm,
-    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
-};
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SpellForm;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueComparisonDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::card::tokens;
 use crate::ids::ParentBinding;
-use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
+use crate::mana_cost;
 
 // ELD 5 — Ardenvale Tactician
 const fn ardenvale_tactician_rules() -> CardRules {
@@ -92,10 +137,9 @@ fn ardenvale_tactician_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c7d5e394-8e41-442e-ae97-a478a61e1b9d"),
     "Ardenvale Tactician",
-    CardArt::new("c7d5e394-8e41-442e-ae97-a478a61e1b9d", "Jason Rainville"),
-    CardSet::ThroneOfEldraine,
+    "c7d5e394-8e41-442e-ae97-a478a61e1b9d",
+    "Jason Rainville",
     // Clear two blockers now and cast the flier later: one card that buys a
     // turn of tempo and then a body.
     ardenvale_tactician_rules(),
@@ -176,10 +220,9 @@ fn faerie_guidemother_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e8bbece8-9620-44d9-b991-350fe952538a"),
     "Faerie Guidemother",
-    CardArt::new("e8bbece8-9620-44d9-b991-350fe952538a", "Mila Pesic"),
-    CardSet::ThroneOfEldraine,
+    "e8bbece8-9620-44d9-b991-350fe952538a",
+    "Mila Pesic",
     // A combat trick that leaves a flier behind, which is the whole appeal
     // of the cheap end of the Adventure cycle.
     faerie_guidemother_rules(),
@@ -273,10 +316,9 @@ fn brazen_borrower_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c2089ec9-0665-448f-bfe9-d181de127814"),
     "Brazen Borrower",
-    CardArt::new("c2089ec9-0665-448f-bfe9-d181de127814", "Eric Deschamps"),
-    CardSet::ThroneOfEldraine,
+    "c2089ec9-0665-448f-bfe9-d181de127814",
+    "Eric Deschamps",
     // Bounce something at the end of their turn, then flash in the body it
     // came back on: one card that answers a threat and becomes one.
     brazen_borrower_rules(),
@@ -284,12 +326,11 @@ pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
 .with_composition(brazen_borrower_composition);
 
 // ELD 110 — Wishclaw Talisman
-pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new_with_legacy_id(
-    2166,
+pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new(
     "Wishclaw Talisman",
-    CardArt::new("07c17b01-ee5d-491a-8403-b3f819b778c4", "Daarken"),
-    CardSet::ThroneOfEldraine,
-    // Two mana for any card in the deck, and the price is handing the rest of
+    "07c17b01-ee5d-491a-8403-b3f819b778c4",
+    "Daarken",
+// Two mana for any card in the deck, and the price is handing the rest of
     // the artifact to the person it will be used against. The decks that play
     // it intend to win before that matters.
     CardRules::new_artifact(mana_cost!("{1}{B}")).with_abilities(&[
@@ -418,14 +459,10 @@ fn bonecrusher_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
-pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new_with_legacy_id(
-    2167,
+pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new(
     "Bonecrusher Giant",
-    CardArt::new(
-        "09fd2d9c-1793-4beb-a3fb-7a869f660cd4",
-        "Victor Adame Minguez",
-    ),
-    CardSet::ThroneOfEldraine,
+    "09fd2d9c-1793-4beb-a3fb-7a869f660cd4",
+    "Victor Adame Minguez",
     bonecrusher_rules(),
 )
 .with_composition(bonecrusher_composition);
@@ -494,15 +531,13 @@ fn embereth_shieldbreaker_composition() -> CardComposition {
     .with_derived_spell_targets()
 }
 
-pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2208,
-        "Embereth Shieldbreaker",
-        CardArt::new("6cc73d16-5ed7-4104-91f6-0997a2080e2e", "Randy Vargas"),
-        CardSet::ThroneOfEldraine,
-        embereth_shieldbreaker_rules(),
-    )
-    .with_composition(embereth_shieldbreaker_composition);
+pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord = CardRecord::new(
+    "Embereth Shieldbreaker",
+    "6cc73d16-5ed7-4104-91f6-0997a2080e2e",
+    "Randy Vargas",
+    embereth_shieldbreaker_rules(),
+)
+.with_composition(embereth_shieldbreaker_composition);
 
 // ELD 137 — Rimrock Knight
 const fn rimrock_knight_rules() -> CardRules {
@@ -575,10 +610,9 @@ fn rimrock_knight_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static RIMROCK_KNIGHT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a3d13d84-01e4-4429-93db-e5afff811527"),
     "Rimrock Knight",
-    CardArt::new("a3d13d84-01e4-4429-93db-e5afff811527", "Chris Rallis"),
-    CardSet::ThroneOfEldraine,
+    "a3d13d84-01e4-4429-93db-e5afff811527",
+    "Chris Rallis",
     // Three power for two that only ever attacks, and a trick that turns a
     // stalled board into damage: an aggressive deck wants both halves.
     rimrock_knight_rules(),
@@ -587,10 +621,9 @@ pub(in crate::card::sets) static RIMROCK_KNIGHT: CardRecord = CardRecord::new(
 
 // ELD 138 — Robber of the Rich
 pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0ecbe097-ba51-42e5-957c-382eb66c08f0"),
     "Robber of the Rich",
-    CardArt::new("0ecbe097-ba51-42e5-957c-382eb66c08f0", "Paul Scott Canavan"),
-    CardSet::ThroneOfEldraine,
+    "0ecbe097-ba51-42e5-957c-382eb66c08f0",
+    "Paul Scott Canavan",
     // Two mana for a hasty reaching body that also takes a card off the top
     // of whoever is holding more, and hands it back to you on any turn your
     // Rogues have been out attacking.
@@ -636,10 +669,9 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
 
 // ELD 169 — Once Upon a Time
 pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4034e5ba-9974-43e3-bde7-8d9b4586c3a4"),
     "Once Upon a Time",
-    CardArt::new("4034e5ba-9974-43e3-bde7-8d9b4586c3a4", "Matt Stewart"),
-    CardSet::ThroneOfEldraine,
+    "4034e5ba-9974-43e3-bde7-8d9b4586c3a4",
+    "Matt Stewart",
     // A free spell that finds a land or a creature, which is why every green
     // deck played it and why it is banned in the format it was printed for.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
@@ -682,11 +714,10 @@ pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
 
 // ELD 197 — Oko, Thief of Crowns
 pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3462a3d0-5552-49fa-9eb7-100960c55891"),
     "Oko, Thief of Crowns",
-    CardArt::new("3462a3d0-5552-49fa-9eb7-100960c55891", "Yongjae Choi"),
-    CardSet::ThroneOfEldraine,
-    // Three mana that answers a permanent every turn and gains loyalty for
+    "3462a3d0-5552-49fa-9eb7-100960c55891",
+    "Yongjae Choi",
+// Three mana that answers a permanent every turn and gains loyalty for
     // doing it. What it answers with is a 3/3 Elk, which is the joke and the
     // reason it was banned everywhere.
     CardRules::new_planeswalker(mana_cost!("{1}{G}{U}"), &["Oko"], 4)
@@ -776,10 +807,9 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
 
 // ELD 219 — Gingerbrute
 pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f55fe038-c903-4d92-b689-72dd6d041a91"),
     "Gingerbrute",
-    CardArt::new("f55fe038-c903-4d92-b689-72dd6d041a91", "Andrea Radeck"),
-    CardSet::ThroneOfEldraine,
+    "f55fe038-c903-4d92-b689-72dd6d041a91",
+    "Vincent Proce",
     // One mana for a hasty evasive body that is also a Food, which is why
     // an artifact deck plays it over a bigger one-drop.
     CardRules::new_artifact_creature(mana_cost!("{1}"), &["Food", "Golem"], 1, 1).with_abilities(
@@ -822,10 +852,9 @@ pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
 
 // ELD 235 — Stonecoil Serpent
 pub(in crate::card::sets) static STONECOIL_SERPENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b34bf7fd-9fe3-43e2-8cfe-7ce7cff08afe"),
     "Stonecoil Serpent",
-    CardArt::new("b34bf7fd-9fe3-43e2-8cfe-7ce7cff08afe", "Mark Poole"),
-    CardSet::ThroneOfEldraine,
+    "b34bf7fd-9fe3-43e2-8cfe-7ce7cff08afe",
+    "Mark Poole",
     CardRules::new_artifact_creature(mana_cost!("{X}"), &["Snake"], 0, 0).with_abilities(&[
         AbilityDef::as_enters(
             "This creature enters with X +1/+1 counters on it.",
@@ -843,10 +872,9 @@ pub(in crate::card::sets) static STONECOIL_SERPENT: CardRecord = CardRecord::new
 
 // ELD 247 — Mystic Sanctuary
 pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("170e792c-80d5-4775-ad95-37614574ab84"),
     "Mystic Sanctuary",
-    CardArt::new("170e792c-80d5-4775-ad95-37614574ab84", "Randy Vargas"),
-    CardSet::ThroneOfEldraine,
+    "170e792c-80d5-4775-ad95-37614574ab84",
+    "Randy Vargas",
     // An Island, so its mana ability is the subtype's rather than a printed
     // clause -- which is why the card prints that line in parentheses.
     //
@@ -921,11 +949,10 @@ pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
 
 // ELD 249 — Witch's Cottage
 pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b87891cd-b457-4dff-8d18-a7eaf6748fc6"),
     "Witch's Cottage",
-    CardArt::new("b87891cd-b457-4dff-8d18-a7eaf6748fc6", "Gabor Szikszai"),
-    CardSet::ThroneOfEldraine,
-    // A Swamp, so its mana ability is the subtype's rather than a printed
+    "b87891cd-b457-4dff-8d18-a7eaf6748fc6",
+    "Gabor Szikszai",
+// A Swamp, so its mana ability is the subtype's rather than a printed
     // clause -- which is why the card prints that line in parentheses.
     CardRules::new_land(&["Swamp"]).with_abilities(&[
         AbilityDef::as_enters(
@@ -987,11 +1014,10 @@ pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
 
 // ELD 342 — Emry, Lurker of the Loch
 pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("157f343d-8583-4827-a77d-d916e6a5caa1"),
     "Emry, Lurker of the Loch",
-    CardArt::new("157f343d-8583-4827-a77d-d916e6a5caa1", "Livia Prima"),
-    CardSet::ThroneOfEldraine,
-    // A one-mana 1/2 on any board with two artifacts, and the mill she
+    "157f343d-8583-4827-a77d-d916e6a5caa1",
+    "Livia Prima",
+// A one-mana 1/2 on any board with two artifacts, and the mill she
     // arrives with is where she finds what to recast.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Wizard"], 1, 2)
         .with_supertype(CardSupertype::Legendary)
@@ -1039,11 +1065,10 @@ pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecor
 
 // ELD 372 — Questing Beast
 pub(in crate::card::sets) static QUESTING_BEAST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5357e802-2d25-48d3-a188-101c142787b7"),
     "Questing Beast",
-    CardArt::new("5357e802-2d25-48d3-a188-101c142787b7", "Igor Kieryluk"),
-    CardSet::ThroneOfEldraine,
-    // Four mana for a 4/4 that attacks the turn it lands, kills whatever
+    "5357e802-2d25-48d3-a188-101c142787b7",
+    "Igor Kieryluk",
+// Four mana for a 4/4 that attacks the turn it lands, kills whatever
     // blocks it, cannot be chump-blocked, and takes a planeswalker down
     // with the player.
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 4, 4)
@@ -1101,10 +1126,9 @@ pub(in crate::card::sets) static QUESTING_BEAST: CardRecord = CardRecord::new(
 
 // ELD 391 — Fabled Passage
 pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("57645743-27fa-4a75-9511-acfc32dd349a"),
     "Fabled Passage",
-    crate::card::CardArt::new("57645743-27fa-4a75-9511-acfc32dd349a", "Howard Lyon"),
-    crate::card::CardSet::ThroneOfEldraine,
+    "57645743-27fa-4a75-9511-acfc32dd349a",
+    "Howard Lyon",
     // Evolving Wilds that stops costing you the turn once the game is old
     // enough: the tapped land is only tapped while you are still behind.
     CardRules::new_land(&[]).with_ability(AbilityDef::activated(

@@ -1,23 +1,32 @@
 //! Phyrexia: All Will Be One Commander cards cataloged for the Vintage Cube
 //! pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
 use crate::mana_cost;
 
 // ONC 6 — Glimmer Lens
 pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c9262000-e6f3-4da1-ad1c-038f65d3bef6"),
     "Glimmer Lens",
-    CardArt::new(
-        "c9262000-e6f3-4da1-ad1c-038f65d3bef6",
-        "Sidharth Chaturvedi",
-    ),
-    CardSet::PhyrexiaAllWillBeOneCommander,
+    "c9262000-e6f3-4da1-ad1c-038f65d3bef6",
+    "Sidharth Chaturvedi",
     CardRules::new_artifact(mana_cost!("{1}{W}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -41,13 +50,12 @@ pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
         ]),
 );
 
-// ONC 39 — Otharri, Suns\' Glory
+// ONC 39 — Otharri, Suns' Glory
 pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("348e0927-1d8f-4723-879d-f7e95ac60c27"),
-    "Otharri, Suns\' Glory",
-    CardArt::new("348e0927-1d8f-4723-879d-f7e95ac60c27", "Marta Nael"),
-    CardSet::PhyrexiaAllWillBeOneCommander,
-    // Five mana for a hasty lifelinking flier that pays out more every time
+    "Otharri, Suns' Glory",
+    "348e0927-1d8f-4723-879d-f7e95ac60c27",
+    "Marta Nael",
+// Five mana for a hasty lifelinking flier that pays out more every time
     // it connects, and buys itself back out of the graveyard with what it
     // left behind.
     CardRules::new_creature(mana_cost!("{3}{R}{W}"), &["Phoenix"], 3, 3)
@@ -108,11 +116,10 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
 
 // ONC 48 — Staff of the Storyteller
 pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("17be11f2-f2db-40c4-8fc1-2ed7173f9a1a"),
     "Staff of the Storyteller",
-    CardArt::new("17be11f2-f2db-40c4-8fc1-2ed7173f9a1a", "Dan Murayama Scott"),
-    CardSet::PhyrexiaAllWillBeOneCommander,
-    // Two mana for a flier, and a card for every turn the deck keeps making
+    "17be11f2-f2db-40c4-8fc1-2ed7173f9a1a",
+    "Dan Murayama Scott",
+// Two mana for a flier, and a card for every turn the deck keeps making
     // tokens afterwards.
     CardRules::new_artifact(mana_cost!("{1}{W}")).with_abilities(&[
         abilities::enters_trigger(

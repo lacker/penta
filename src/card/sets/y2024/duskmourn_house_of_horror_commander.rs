@@ -1,20 +1,35 @@
 //! Duskmourn: House of Horror Commander cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardChoiceSourceDef, CardRules, CardSet, CardType, CostDef, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    TokenCountersDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TokenCountersDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // DSC 21 — Metamorphosis Fanatic
 pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("16448d95-ee21-4def-b880-26f6f159c213"),
     "Metamorphosis Fanatic",
-    CardArt::new("16448d95-ee21-4def-b880-26f6f159c213", "Andreas Zafiratos"),
-    CardSet::DuskmournHouseOfHorrorCommander,
+    "16448d95-ee21-4def-b880-26f6f159c213",
+    "Andreas Zafiratos",
     // Six mana for a 4/4 that reanimates is a fair rate and nothing more.
     // Two mana for it off the top of your library is what puts the card in
     // a cube -- and the body it brings back is the half that wins games.
@@ -58,12 +73,11 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
 );
 
 // DSC 36 — Ursine Monstrosity
-pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new_with_legacy_id(
-    2195,
+pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new(
     "Ursine Monstrosity",
-    CardArt::new("73cc6df4-3564-4ace-bf8a-eac3e62d725a", "Carlos Palma Cruchaga"),
-    CardSet::DuskmournHouseOfHorrorCommander,
-    // The bear feeds itself: every combat mills one more card, and every
+    "73cc6df4-3564-4ace-bf8a-eac3e62d725a",
+    "Carlos Palma Cruchaga",
+// The bear feeds itself: every combat mills one more card, and every
     // card type that turns up is another point in both directions.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Bear", "Mutant"], 3, 3).with_abilities(&[
         abilities::trample(),
@@ -103,86 +117,32 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
     ]),
 );
 
-// DSC 88 — Growth Spiral
-pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("288ed3e9-4485-44ad-8561-efa09ed96f34"),
-    "Growth Spiral",
-    CardArt::new("1e10e2b4-9639-41ae-8b8e-253224d3d513", "Nicholas Gregory"),
-    CardSet::DuskmournHouseOfHorrorCommander,
-    // Ramping at instant speed is the point: the land drop it hands out is
-    // extra, so this is a cantrip on a turn where the land would rot in hand.
-    CardRules::new_instant(mana_cost!("{G}{U}")).with_ability(AbilityDef::spell(
-        "Draw a card. You may put a land card from your hand onto the battlefield.",
-        EffectDef::Sequence(&[
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
-            // "You may put": the card drawn can itself be the land, and
-            // declining matters when the only land in hand is one you would
-            // rather keep for a real land drop.
-            EffectDef::ChooseCards {
-                player: EffectRecipientDef::Controller,
-                sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
-                object: ObjectPredicateDef::HasType(CardType::Land),
-                minimum: 0,
-                maximum: 1,
-                reveal: false,
-                destination: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
-        ]),
-    )),
+// DSC 88 — Growth Spiral (reprint)
+const GROWTH_SPIRAL_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2019::ravnica_allegiance::GROWTH_SPIRAL,
+    "1e10e2b4-9639-41ae-8b8e-253224d3d513",
+    "Nicholas Gregory",
 );
 
-// DSC 270 — Dimir Aqueduct
-pub(in crate::card::sets) static DIMIR_AQUEDUCT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("df3c3d56-8291-407e-87a1-94b7d12811fd"),
-    "Dimir Aqueduct",
-    CardArt::new("84bf9d60-64b8-4209-acfe-e07eefc6bf1f", "John Avon"),
-    CardSet::DuskmournHouseOfHorrorCommander,
-    // The blue-black karoo; only the two colours below are its own.
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped(CardType::Land),
-        abilities::karoo_bounce(),
-        AbilityDef::activated_mana(
-            "{T}: Add {U}{B}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
-                ManaColor::Blue,
-                ManaColor::Black,
-            )),
-        ),
-    ]),
+// DSC 270 — Dimir Aqueduct (reprint)
+const DIMIR_AQUEDUCT_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2005::ravnica_city_of_guilds::DIMIR_AQUEDUCT,
+    "84bf9d60-64b8-4209-acfe-e07eefc6bf1f",
+    "John Avon",
 );
 
-// DSC 279 — Golgari Rot Farm
-pub(in crate::card::sets) static GOLGARI_ROT_FARM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("104364d5-ede8-4ac5-900f-19947f51bbc1"),
-    "Golgari Rot Farm",
-    CardArt::new("725fab98-558b-4b0c-a0a4-ef0eec92eebb", "John Avon"),
-    CardSet::DuskmournHouseOfHorrorCommander,
-    // The black-green karoo; only the two colours below are its own.
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped(CardType::Land),
-        abilities::karoo_bounce(),
-        AbilityDef::activated_mana(
-            "{T}: Add {B}{G}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
-                ManaColor::Black,
-                ManaColor::Green,
-            )),
-        ),
-    ]),
+// DSC 279 — Golgari Rot Farm (reprint)
+const GOLGARI_ROT_FARM_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2005::ravnica_city_of_guilds::GOLGARI_ROT_FARM,
+    "725fab98-558b-4b0c-a0a4-ef0eec92eebb",
+    "John Avon",
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &METAMORPHOSIS_FANATIC,
-    &URSINE_MONSTROSITY,
-    &GROWTH_SPIRAL,
-    &DIMIR_AQUEDUCT,
-    &GOLGARI_ROT_FARM,
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&METAMORPHOSIS_FANATIC, &URSINE_MONSTROSITY];
+
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    GROWTH_SPIRAL_REPRINT,
+    DIMIR_AQUEDUCT_REPRINT,
+    GOLGARI_ROT_FARM_REPRINT,
 ];
-
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

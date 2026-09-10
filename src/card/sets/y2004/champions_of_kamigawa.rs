@@ -1,31 +1,47 @@
 //! Champions of Kamigawa cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules,
-    CardSet, CardSupertype, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::ids::{ParentBinding, TargetIndex};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardChoiceSourceDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::ids::ParentBinding;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // CHK 7 — Devoted Retainer
 pub(in crate::card::sets) static DEVOTED_RETAINER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fc41d6d6-d7e5-4874-b6e2-fa4c72454f15"),
     "Devoted Retainer",
-    CardArt::new("fc41d6d6-d7e5-4874-b6e2-fa4c72454f15", "Greg Hildebrandt"),
-    CardSet::ChampionsOfKamigawa,
+    "fc41d6d6-d7e5-4874-b6e2-fa4c72454f15",
+    "Greg Hildebrandt",
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Samurai"], 1, 1)
         .with_ability(abilities::bushido(ValueDef::Constant(1))),
 );
 
 // CHK 30 — Konda, Lord of Eiganjo
 pub(in crate::card::sets) static KONDA_LORD_OF_EIGANJO: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5edab171-94b9-4e5e-ab61-bd8c6c8cfc38"),
     "Konda, Lord of Eiganjo",
-    CardArt::new("5edab171-94b9-4e5e-ab61-bd8c6c8cfc38", "John Bolton"),
-    CardSet::ChampionsOfKamigawa,
+    "5edab171-94b9-4e5e-ab61-bd8c6c8cfc38",
+    "John Bolton",
     CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Human", "Samurai"], 3, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -37,10 +53,9 @@ pub(in crate::card::sets) static KONDA_LORD_OF_EIGANJO: CardRecord = CardRecord:
 
 // CHK 107 — Cursed Ronin
 pub(in crate::card::sets) static CURSED_RONIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b8f24fe9-22c4-4e53-9d7a-3cbf5533ac9b"),
     "Cursed Ronin",
-    CardArt::new("b8f24fe9-22c4-4e53-9d7a-3cbf5533ac9b", "Carl Critchlow"),
-    CardSet::ChampionsOfKamigawa,
+    "b8f24fe9-22c4-4e53-9d7a-3cbf5533ac9b",
+    "Carl Critchlow",
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Human", "Samurai"], 1, 1).with_abilities(&[
         abilities::bushido(ValueDef::Constant(1)),
         AbilityDef::activated(
@@ -58,12 +73,30 @@ pub(in crate::card::sets) static CURSED_RONIN: CardRecord = CardRecord::new(
     ]),
 );
 
+// CHK 111 — Distress
+pub(in crate::card::sets) static DISTRESS: CardRecord = CardRecord::new(
+    "Distress",
+    "8130a902-3a03-4473-a64f-84cf3590f4c6",
+    "Michael Sutfin",
+CardRules::new_sorcery(mana_cost!("{B}{B}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Target player reveals their hand. You choose a nonland card from it. That player discards that card.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+                crate::card::PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            )),
+        ),
+    ),
+);
+
 // CHK 156 — Battle-Mad Ronin
 pub(in crate::card::sets) static BATTLE_MAD_RONIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a6e4394a-fa91-4cf9-99c1-dc0bc1011c5b"),
     "Battle-Mad Ronin",
-    CardArt::new("a6e4394a-fa91-4cf9-99c1-dc0bc1011c5b", "Wayne England"),
-    CardSet::ChampionsOfKamigawa,
+    "a6e4394a-fa91-4cf9-99c1-dc0bc1011c5b",
+    "Wayne England",
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Samurai"], 1, 1).with_abilities(&[
         abilities::bushido(ValueDef::Constant(2)),
         abilities::attacks_each_combat_if_able(),
@@ -73,20 +106,18 @@ pub(in crate::card::sets) static BATTLE_MAD_RONIN: CardRecord = CardRecord::new(
 // CHK 160a — Brothers Yamazaki
 // Audit: unsupported — Needs bushido plus a static legend-rule exemption gated on exactly two same-named permanents across the battlefield.
 pub(in crate::card::sets) static BROTHERS_YAMAZAKI: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("acef8c94-469b-4a76-b507-25b51f2501ab"),
     "Brothers Yamazaki",
-    CardArt::new("acef8c94-469b-4a76-b507-25b51f2501ab", "Ron Spears"),
-    CardSet::ChampionsOfKamigawa,
+    "acef8c94-469b-4a76-b507-25b51f2501ab",
+    "Ron Spears",
     CardRules::unsupported(),
 );
 
 // CHK 193 — Through the Breach
-pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new_with_legacy_id(
-    2190,
+pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new(
     "Through the Breach",
-    CardArt::new("6da09e6a-2965-4855-bd41-41b41ba188fb", "Hugh Jamieson"),
-    CardSet::ChampionsOfKamigawa,
-    CardRules::new_instant(mana_cost!("{4}{R}"))
+    "6da09e6a-2965-4855-bd41-41b41ba188fb",
+    "Hugh Jamieson",
+CardRules::new_instant(mana_cost!("{4}{R}"))
         .with_subtypes(&["Arcane"])
         .with_abilities(&[
             AbilityDef::spell(
@@ -148,10 +179,9 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
 
 // CHK 239 — Sakura-Tribe Elder
 pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("91c7707a-bae0-4196-bf26-d276f57b7369"),
     "Sakura-Tribe Elder",
-    CardArt::new("91c7707a-bae0-4196-bf26-d276f57b7369", "Carl Critchlow"),
-    CardSet::ChampionsOfKamigawa,
+    "91c7707a-bae0-4196-bf26-d276f57b7369",
+    "Carl Critchlow",
     // The sacrifice is not part of a tap, which is the whole card: it blocks,
     // and then it ramps after damage is already on the stack.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Snake", "Shaman"], 1, 1).with_ability(
@@ -186,10 +216,9 @@ pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::ne
 
 // CHK 268 — Sensei's Divining Top
 pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4a08ca06-58db-4ce6-b490-be4bea8956a1"),
     "Sensei's Divining Top",
-    CardArt::new("4a08ca06-58db-4ce6-b490-be4bea8956a1", "Michael Sutfin"),
-    CardSet::ChampionsOfKamigawa,
+    "4a08ca06-58db-4ce6-b490-be4bea8956a1",
+    "Michael Sutfin",
     // One mana that fixes every draw for the rest of the game: the tap
     // trades the card it just arranged for itself, and the {1} sets up the
     // next one.
@@ -229,10 +258,9 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
 
 // CHK 279 — Minamo, School at Water's Edge
 pub(in crate::card::sets) static MINAMO_SCHOOL_AT_WATERS_EDGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7536292c-da25-41c8-ba28-1e35758a7f3d"),
     "Minamo, School at Water's Edge",
-    CardArt::new("7536292c-da25-41c8-ba28-1e35758a7f3d", "Jeremy Jarvis"),
-    CardSet::ChampionsOfKamigawa,
+    "7536292c-da25-41c8-ba28-1e35758a7f3d",
+    "Jeremy Jarvis",
     CardRules::new_land(&[])
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -254,6 +282,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEVOTED_RETAINER,
     &KONDA_LORD_OF_EIGANJO,
     &CURSED_RONIN,
+    &DISTRESS,
     &BATTLE_MAD_RONIN,
     &BROTHERS_YAMAZAKI,
     &THROUGH_THE_BREACH,

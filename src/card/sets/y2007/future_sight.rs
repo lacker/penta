@@ -1,24 +1,47 @@
 //! Future Sight cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, CounterKind, CreatureStats, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellResolutionDestinationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::ArrivalAttachmentDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::CreatureStats;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementConditionDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // FUT 43 — Reality Strobe
-pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_with_legacy_id(
-    1709,
+pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new(
     "Reality Strobe",
-    CardArt::new("8e6d881a-f7b1-471f-bc0b-64a79bb491c9", "Dan Murayama Scott"),
-    CardSet::FutureSight,
-    CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_abilities(&[
+    "8e6d881a-f7b1-471f-bc0b-64a79bb491c9",
+    "Dan Murayama Scott",
+CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Return target permanent to its owner's hand. Exile Reality Strobe with three time counters on it.",
             &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
@@ -40,10 +63,9 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
 
 // FUT 46 — Venser, Shaper Savant
 pub(in crate::card::sets) static VENSER_SHAPER_SAVANT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0e84fc99-4045-4518-b588-512a675f2933"),
     "Venser, Shaper Savant",
-    CardArt::new("0e84fc99-4045-4518-b588-512a675f2933", "Aleksi Briclot"),
-    CardSet::FutureSight,
+    "0e84fc99-4045-4518-b588-512a675f2933",
+    "Aleksi Briclot",
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Wizard"], 2, 2)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -77,10 +99,9 @@ pub(in crate::card::sets) static VENSER_SHAPER_SAVANT: CardRecord = CardRecord::
 
 // FUT 47 — Venser's Diffusion
 pub(in crate::card::sets) static VENSERS_DIFFUSION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fbedfc40-7c2f-4a6e-8157-219cafca3548"),
     "Venser's Diffusion",
-    CardArt::new("fbedfc40-7c2f-4a6e-8157-219cafca3548", "Hideaki Takamura"),
-    CardSet::FutureSight,
+    "fbedfc40-7c2f-4a6e-8157-219cafca3548",
+    "Hideaki Takamura",
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Return target nonland permanent or suspended card to its owner's hand.",
         &[AbilityTargetDef::exactly_one(
@@ -109,11 +130,10 @@ pub(in crate::card::sets) static VENSERS_DIFFUSION: CardRecord = CardRecord::new
 
 // FUT 54 — Narcomoeba
 pub(in crate::card::sets) static NARCOMOEBA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f76b3746-2e2c-4560-a2d2-e7b5b92833b2"),
     "Narcomoeba",
-    CardArt::new("f76b3746-2e2c-4560-a2d2-e7b5b92833b2", "Matt Stewart"),
-    CardSet::FutureSight,
-    CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 1, 1).with_abilities(&[
+    "f76b3746-2e2c-4560-a2d2-e7b5b92833b2",
+    "Matt Stewart",
+CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 1, 1).with_abilities(&[
         abilities::flying(),
         AbilityDef::triggered(
             "When this card is put into your graveyard from your library, you may put it onto the battlefield.",
@@ -140,10 +160,9 @@ pub(in crate::card::sets) static NARCOMOEBA: CardRecord = CardRecord::new(
 // FUT 76 — Shimian Specter
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e6faa406-aa7a-49ce-a42e-00e98f3fb74e"),
     "Shimian Specter",
-    crate::card::CardArt::new("e6faa406-aa7a-49ce-a42e-00e98f3fb74e", "Anthony S. Waters"),
-    crate::card::CardSet::FutureSight,
+    "e6faa406-aa7a-49ce-a42e-00e98f3fb74e",
+    "Anthony S. Waters",
     crate::card::CardRules::unsupported(),
 );
 
@@ -152,14 +171,10 @@ static BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD: TriggerConditionDef =
 
 // FUT 81 — Bridge from Below
 pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("52c44610-6d4b-4c14-839f-2c085badec90"),
     "Bridge from Below",
-    CardArt::new(
-        "52c44610-6d4b-4c14-839f-2c085badec90",
-        "Greg Hildebrandt & Tim Hildebrandt",
-    ),
-    CardSet::FutureSight,
-    CardRules::new_enchantment(mana_cost!("{B}{B}{B}")).with_abilities(&[
+    "52c44610-6d4b-4c14-839f-2c085badec90",
+    "Greg Hildebrandt & Tim Hildebrandt",
+CardRules::new_enchantment(mana_cost!("{B}{B}{B}")).with_abilities(&[
         AbilityDef::triggered_if(
             "Whenever a nontoken creature is put into your graveyard from the battlefield, if this card is in your graveyard, create a 2/2 black Zombie creature token.",
             TriggerEventDef::zone_changed(
@@ -198,11 +213,10 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
 
 // FUT 83 — Deepcavern Imp
 pub(in crate::card::sets) static DEEPCAVERN_IMP: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b66cc281-3fa9-4d7b-a32b-41c0a93059ba"),
     "Deepcavern Imp",
-    CardArt::new("b66cc281-3fa9-4d7b-a32b-41c0a93059ba", "Scott Altmann"),
-    CardSet::FutureSight,
-    CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp", "Rebel"], 2, 2)
+    "b66cc281-3fa9-4d7b-a32b-41c0a93059ba",
+    "Scott Altmann",
+CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp", "Rebel"], 2, 2)
         .with_abilities(&[
             abilities::flying(),
             abilities::haste(),
@@ -215,11 +229,10 @@ pub(in crate::card::sets) static DEEPCAVERN_IMP: CardRecord = CardRecord::new(
 
 // FUT 94 — Arc Blade
 pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4d1c04fb-213f-4be1-9bba-94c737826bf8"),
     "Arc Blade",
-    CardArt::new("4d1c04fb-213f-4be1-9bba-94c737826bf8", "Shishizaru"),
-    CardSet::FutureSight,
-    CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_abilities(&[
+    "4d1c04fb-213f-4be1-9bba-94c737826bf8",
+    "Shishizaru",
+CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Arc Blade deals 2 damage to any target. Exile Arc Blade with three time counters on it.",
             &[AbilityTargetDef::exactly_one(
@@ -242,20 +255,68 @@ pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
 
 // FUT 95 — Bogardan Lancer
 pub(in crate::card::sets) static BOGARDAN_LANCER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("44814464-e5b6-46c6-ac2e-d7234add43f4"),
     "Bogardan Lancer",
-    CardArt::new("44814464-e5b6-46c6-ac2e-d7234add43f4", "Jim Murray"),
-    CardSet::FutureSight,
+    "44814464-e5b6-46c6-ac2e-d7234add43f4",
+    "Jim Murray",
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Knight"], 1, 1)
         .with_abilities(&[abilities::bloodthirst(1), abilities::flanking()]),
 );
 
+// FUT 110 — Bloodshot Trainee
+pub(in crate::card::sets) static BLOODSHOT_TRAINEE: CardRecord = CardRecord::new(
+    "Bloodshot Trainee",
+    "b930b146-d132-454f-b35d-4a247c14c054",
+    "Lucio Parrillo",
+CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Warrior"], 2, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: This creature deals 4 damage to target creature. Activate only if this creature's power is 4 or greater.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
+        )
+        .with_activation_condition(&TriggerConditionDef::SourceMatches {
+            object: ObjectPredicateDef::PowerAtLeast(4),
+        }),
+    ),
+);
+
+// FUT 137 — Rites of Flourishing
+pub(in crate::card::sets) static RITES_OF_FLOURISHING: CardRecord = CardRecord::new(
+    "Rites of Flourishing",
+    "811458c7-dcdc-43ef-8c3e-a90e21ce315e",
+    "Brandon Kitkouski",
+    CardRules::new_enchantment(mana_cost!("{2}{G}")).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of each player's draw step, that player draws an additional card.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Draw,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Each player may play an additional land on each of their turns.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayAdditionalLands(1)),
+            },
+        ),
+    ]),
+);
+
 // FUT 138 — Sprout Swarm
 pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0b915355-4e98-44df-81bd-961a3d3c86b8"),
     "Sprout Swarm",
-    CardArt::new("0b915355-4e98-44df-81bd-961a3d3c86b8", "Chippy"),
-    CardSet::FutureSight,
+    "0b915355-4e98-44df-81bd-961a3d3c86b8",
+    "Chippy",
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         abilities::convoke(),
         abilities::buyback(&[CostDef::Mana(mana_cost!("{3}"))]),
@@ -268,11 +329,10 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
 
 // FUT 157 — Jhoira of the Ghitu
 pub(in crate::card::sets) static JHOIRA_OF_THE_GHITU: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1f437128-3a87-4958-97d0-3940d8761cba"),
     "Jhoira of the Ghitu",
-    CardArt::new("1f437128-3a87-4958-97d0-3940d8761cba", "Kev Walker"),
-    CardSet::FutureSight,
-    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Human", "Wizard"], 2, 2)
+    "1f437128-3a87-4958-97d0-3940d8761cba",
+    "Kev Walker",
+CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Human", "Wizard"], 2, 2)
         .with_supertype(crate::card::CardSupertype::Legendary)
         .with_ability(AbilityDef::activated(
             "{2}, Exile a nonland card from your hand: Put four time counters on the exiled card. If it doesn't have suspend, it gains suspend.",
@@ -304,13 +364,36 @@ pub(in crate::card::sets) static JHOIRA_OF_THE_GHITU: CardRecord = CardRecord::n
         )),
 );
 
+// FUT 159 — Akroma's Memorial
+pub(in crate::card::sets) static AKROMAS_MEMORIAL: CardRecord = CardRecord::new(
+    "Akroma's Memorial",
+    "d2cb3bdf-dff5-4285-ad67-ae7ca84c9fbc",
+    "Dan Murayama Scott",
+CardRules::new_artifact(mana_cost!("{7}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::static_ability(
+            "Creatures you control have flying, first strike, vigilance, trample, haste, and protection from black and from red.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                    AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Black)),
+                    AppliedEffectDef::add_ability(&abilities::protection_from_color(ManaColor::Red)),
+                ]),
+            },
+        )),
+);
+
 // FUT 161 — Coalition Relic
-pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_with_legacy_id(
-    2197,
+pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new(
     "Coalition Relic",
-    CardArt::new("7a7c98b0-d64d-4d0a-b284-1187a8e7095e", "Donato Giancola"),
-    CardSet::FutureSight,
-    // Three mana that fixes on the turn it lands and ramps on every one
+    "7a7c98b0-d64d-4d0a-b284-1187a8e7095e",
+    "Donato Giancola",
+// Three mana that fixes on the turn it lands and ramps on every one
     // after, provided nothing needs the Relic tapped for mana that turn.
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::activated_mana(
@@ -354,11 +437,10 @@ pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_w
 
 // FUT 162 — Epochrasite
 pub(in crate::card::sets) static EPOCHRASITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7971f6a6-c26c-4f8f-8de7-afc40563967d"),
     "Epochrasite",
-    CardArt::new("7971f6a6-c26c-4f8f-8de7-afc40563967d", "Michael Bruinsma"),
-    CardSet::FutureSight,
-    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 1, 1).with_abilities(&[
+    "7971f6a6-c26c-4f8f-8de7-afc40563967d",
+    "Michael Bruinsma",
+CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 1, 1).with_abilities(&[
         AbilityDef::as_enters_if(
             "This creature enters with three +1/+1 counters on it if you didn't cast it from your hand.",
             ReplacementConditionDef::SourceNotCastFrom(ZoneKind::Hand),
@@ -400,12 +482,11 @@ pub(in crate::card::sets) static EPOCHRASITE: CardRecord = CardRecord::new(
 );
 
 // FUT 165 — Sword of the Meek
-pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new_with_legacy_id(
-    2220,
+pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new(
     "Sword of the Meek",
-    CardArt::new("e9f13705-6ede-4c29-a2b4-a082bf69e9c5", "Franz Vohwinkel"),
-    CardSet::FutureSight,
-    // On its own it is a bad Equipment. Beside anything that makes 1/1s for
+    "e9f13705-6ede-4c29-a2b4-a082bf69e9c5",
+    "Franz Vohwinkel",
+// On its own it is a bad Equipment. Beside anything that makes 1/1s for
     // free it is an engine that never runs out of Swords.
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
@@ -471,12 +552,11 @@ pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new
 );
 
 // FUT 167 — Darksteel Garrison
-pub(in crate::card::sets) static DARKSTEEL_GARRISON: CardRecord = CardRecord::new_with_legacy_id(
-    1702,
+pub(in crate::card::sets) static DARKSTEEL_GARRISON: CardRecord = CardRecord::new(
     "Darksteel Garrison",
-    CardArt::new("e77eaaa0-40f9-40e4-b0ba-5a8addd764d3", "David Martin"),
-    CardSet::FutureSight,
-    CardRules::new_artifact(mana_cost!("{2}"))
+    "e77eaaa0-40f9-40e4-b0ba-5a8addd764d3",
+    "David Martin",
+CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Fortification"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -509,11 +589,10 @@ pub(in crate::card::sets) static DARKSTEEL_GARRISON: CardRecord = CardRecord::ne
 );
 
 // FUT 174 — Dryad Arbor
-pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new_with_legacy_id(
-    252,
+pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new(
     "Dryad Arbor",
-    CardArt::new("8cee476d-42e1-4997-87af-73e18f542167", "Eric Fortune"),
-    CardSet::FutureSight,
+    "8cee476d-42e1-4997-87af-73e18f542167",
+    "Eric Fortune",
     CardRules::new_land(&[])
         .with_type(CardType::Creature)
         .with_subtypes(&["Forest", "Dryad"])
@@ -525,11 +604,10 @@ pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new_with_
 );
 
 // FUT 177 — Horizon Canopy
-pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_with_legacy_id(
-    2285,
+pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new(
     "Horizon Canopy",
-    CardArt::new("d5dfc25d-a17b-4ead-9484-e8a18b8fa176", "Michael Komarck"),
-    CardSet::FutureSight,
+    "d5dfc25d-a17b-4ead-9484-e8a18b8fa176",
+    "Michael Komarck",
     // The original of the cycle Modern Horizons finished twelve years later,
     // and still the one the cube wants: a dual that costs life to use and a
     // card when there is nothing left to use it on.
@@ -549,8 +627,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEEPCAVERN_IMP,
     &ARC_BLADE,
     &BOGARDAN_LANCER,
+    &BLOODSHOT_TRAINEE,
+    &RITES_OF_FLOURISHING,
     &SPROUT_SWARM,
     &JHOIRA_OF_THE_GHITU,
+    &AKROMAS_MEMORIAL,
     &COALITION_RELIC,
     &EPOCHRASITE,
     &SWORD_OF_THE_MEEK,

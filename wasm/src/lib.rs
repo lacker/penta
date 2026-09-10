@@ -12,9 +12,10 @@ mod snapshot;
 use penta::card;
 use penta::game::{DecisionKind, DecisionOrderSemantics};
 use penta::{
-    AbilityOrigin, Action, BattlefieldExit, CardCatalog, CardDefinitionId, CardInstanceId, Format,
-    Game, GameEvent, GameResult, HandcraftedPolicy, ModeId, ObjectCharacteristics, PlayOptionId,
-    PlayerId, PlayerObservation, Policy, RandomPolicy, Step, Target,
+    AbilityOrigin, Action, BattlefieldExit, CardArtPreference, CardCatalog, CardDefinitionId,
+    CardInstanceId, Format, Game, GameEvent, GameResult, HandcraftedPolicy, ModeId,
+    ObjectCharacteristics, PlayOptionId, PlayerId, PlayerObservation, Policy, RandomPolicy, Step,
+    Target,
 };
 use presentation::deck_by_name;
 use serde_json::{Value, json};
@@ -49,6 +50,21 @@ const REPLAY_VERSION: u32 = 2;
 /// any other reason, and recognised here so that the ordinary ending keeps
 /// the win-reason table's seat-aware wording rather than this bare phrase.
 const DEFAULT_TIMEOUT_REASON: &str = "ran out of time";
+
+fn parse_art_preference(value: Option<&str>) -> Result<CardArtPreference, JsValue> {
+    match value.unwrap_or("debut") {
+        "debut" => Ok(CardArtPreference::Debut),
+        "format-matching" => Ok(CardArtPreference::FormatMatching),
+        other => Err(js_error(format!("unknown card art preference {other:?}"))),
+    }
+}
+
+const fn art_preference_slug(preference: CardArtPreference) -> &'static str {
+    match preference {
+        CardArtPreference::Debut => "debut",
+        CardArtPreference::FormatMatching => "format-matching",
+    }
+}
 
 fn required_json_field<'a>(
     object: &'a serde_json::Map<String, Value>,
@@ -183,6 +199,7 @@ pub struct WebGame {
     /// attaches.
     journal: Vec<Value>,
     catalog: CardCatalog,
+    art_preference: CardArtPreference,
     human: PlayerId,
     bot: BotPolicy,
     opponent_actions: Vec<Value>,
@@ -726,6 +743,11 @@ impl WebGame {
         let config = required_json_object(envelope, "replay", "config")?;
         for field in ["format", "humanDeck", "botDeck", "botPolicy"] {
             required_json_string(config, "replay.config", field)?;
+        }
+        if let Some(value) = config.get("artPreference") {
+            value
+                .as_str()
+                .ok_or_else(|| js_error("replay.config.artPreference must be a string"))?;
         }
         required_json_bool(config, "replay.config", "humanFirst")?;
         required_json_u32(config, "replay.config", "seed")?;

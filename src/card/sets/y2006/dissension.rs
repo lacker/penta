@@ -1,34 +1,77 @@
 //! DIS card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AddManaEffectDef, BasicLandType, BattlefieldEntryScalarChoiceDef,
-    CardArt, CardRules, CardSet, CardType, ClassifyObjectsDef, CostDef, EffectDef, KeywordAbility,
-    ManaColor, ManaTypeDef, MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
-    ReplacementChoiceDef, ReplacementEffectDef, RevealObjectsDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
-};
-use crate::ids::{Binding, ParentBinding};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::AbilityTargetPredicate;
+use crate::CardSupertype;
+use crate::DiscardSelectionDef;
+use crate::EffectRecipientDef;
+use crate::PlayerRelation;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AddManaEffectDef;
+use crate::card::BasicLandType;
+use crate::card::BattlefieldEntryScalarChoiceDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ClassifyObjectsDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::KeywordAbility;
+use crate::card::ManaColor;
+use crate::card::ManaTypeDef;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::ReplacementChoiceDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::RevealObjectsDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::ids::Binding;
+use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // DIS 10 — Guardian of the Guildpact
 pub(in crate::card::sets) static GUARDIAN_OF_THE_GUILDPACT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c8dd004b-01e4-4fe1-a164-9f2ea8d7d88e"),
     "Guardian of the Guildpact",
-    CardArt::new("c8dd004b-01e4-4fe1-a164-9f2ea8d7d88e", "Wayne England"),
-    CardSet::Dissension,
+    "c8dd004b-01e4-4fe1-a164-9f2ea8d7d88e",
+    "Fred Hooper",
     // Nearly unkillable and nearly unblockable in a two-colour format: only
     // a gold or colourless source touches it, which is the whole card.
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Spirit"], 2, 3)
         .with_ability(abilities::protection_from_monocolored()),
 );
 
+// DIS 58 — Wit's End
+pub(in crate::card::sets) static WITS_END: CardRecord = CardRecord::new(
+    "Wit's End",
+    "68f8e20c-6d8e-45a1-aabd-176d8df843db",
+    "Kev Walker",
+    CardRules::new_sorcery(mana_cost!("{5}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards their hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(i32::MAX),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: None,
+        },
+    )),
+);
+
 // DIS 99 — Utopia Sprawl
 pub(in crate::card::sets) static UTOPIA_SPRAWL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5047e271-fbf1-402c-9eb9-0806e5988f76"),
     "Utopia Sprawl",
-    CardArt::new("5047e271-fbf1-402c-9eb9-0806e5988f76", "Ron Spears"),
-    CardSet::Dissension,
+    "5047e271-fbf1-402c-9eb9-0806e5988f76",
+    "Ron Spears",
     // One mana of ramp that also fixes, at the cost of only ever going on a
     // Forest -- which is why it is a green deck's card and nobody else's.
     CardRules::new_enchantment(mana_cost!("{G}"))
@@ -66,13 +109,9 @@ pub(in crate::card::sets) static UTOPIA_SPRAWL: CardRecord = CardRecord::new(
 
 // DIS 105 — Azorius First-Wing
 pub(in crate::card::sets) static AZORIUS_FIRST_WING: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b675c1e6-add5-4959-a5be-f2571ccebcb4"),
     "Azorius First-Wing",
-    CardArt::new(
-        "b675c1e6-add5-4959-a5be-f2571ccebcb4",
-        "Alex Horley-Orlandelli",
-    ),
-    CardSet::Dissension,
+    "b675c1e6-add5-4959-a5be-f2571ccebcb4",
+    "Alex Horley-Orlandelli",
     CardRules::new_creature(mana_cost!("{W}{U}"), &["Griffin"], 2, 2).with_abilities(&[
         abilities::flying(),
         AbilityDef::keyword(
@@ -87,11 +126,10 @@ const ORACLE_LAND: Binding = Binding!("oracle_land");
 const ORACLE_NONLAND: Binding = Binding!("oracle_nonland");
 
 pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0c7b0fa1-bfc2-4b15-80ea-47e41a17aa2c"),
     "Coiling Oracle",
-    CardArt::new("55a6ba2a-b372-4b15-9a1e-09b41316eab7", "Mark Zug"),
-    CardSet::Dissension,
-    // Either a land drop or a card, decided by the top of the library
+    "55a6ba2a-b372-4b15-9a1e-09b41316eab7",
+    "Mark Zug",
+// Either a land drop or a card, decided by the top of the library
     // rather than by its controller -- which is why it is a ramp spell in a
     // land-heavy deck and a cantrip in every other one.
     CardRules::new_creature(mana_cost!("{G}{U}"), &["Snake", "Elf", "Druid"], 1, 1).with_ability(
@@ -142,12 +180,99 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
     ),
 );
 
+// DIS 170 — Azorius Chancery
+pub(in crate::card::sets) static AZORIUS_CHANCERY: CardRecord = CardRecord::new(
+    "Azorius Chancery",
+    "e58365d2-e4db-444b-b1a9-795668ad3038",
+    "John Avon",
+    // The blue-white karoo. Only the two colours below are its own; the rest
+    // of the cycle prints the same two clauses word for word.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::karoo_bounce(),
+        AbilityDef::activated_mana(
+            "{T}: Add {W}{U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+                ManaColor::White,
+                ManaColor::Blue,
+            )),
+        ),
+    ]),
+);
+
+// DIS 171 — Blood Crypt
+pub(in crate::card::sets) static BLOOD_CRYPT: CardRecord = CardRecord::new(
+    "Blood Crypt",
+    "f281e16f-0fe1-4095-bd63-0a4479f75c11",
+    "Rob Alexander",
+    CardRules::new_land(&["Swamp", "Mountain"]).with_ability(abilities::shock_land_enters()),
+);
+
+// DIS 172 — Breeding Pool
+pub(in crate::card::sets) static BREEDING_POOL: CardRecord = CardRecord::new(
+    "Breeding Pool",
+    "b98b2a35-ec2b-47fe-903d-dd292e469a3c",
+    "Rob Alexander",
+    CardRules::new_land(&["Forest", "Island"]).with_ability(abilities::shock_land_enters()),
+);
+
+// DIS 173 — Ghost Quarter
+pub(in crate::card::sets) static GHOST_QUARTER: CardRecord = CardRecord::new(
+    "Ghost Quarter",
+    "893eb7e4-5d8d-477b-aaa7-fb85ef2a54fc",
+    "Heather Hudson",
+CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets("{T}, Sacrifice this land: Destroy target land. Its controller may search their library for a basic land card, put it onto the battlefield, then shuffle.", &[CostDef::TapSource, CostDef::SacrificeSource], &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )], EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                // Declining the printed "may" skips the entire search, including
+                // its shuffle. If accepted, the qualified hidden-zone search
+                // may still legally fail to find. The controller is read after
+                // destruction from last-known information.
+                EffectDef::May {
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                },
+            ])),
+    ]),
+);
+
+// DIS 174 — Hallowed Fountain
+pub(in crate::card::sets) static HALLOWED_FOUNTAIN: CardRecord = CardRecord::new(
+    "Hallowed Fountain",
+    "c28aea19-2a39-4934-afda-909e234fa3ba",
+    "Rob Alexander",
+    CardRules::new_land(&["Plains", "Island"]).with_ability(abilities::shock_land_enters()),
+);
+
 // DIS 178 — Rakdos Carnarium
 pub(in crate::card::sets) static RAKDOS_CARNARIUM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("34f146f3-6541-4d2a-96e3-a3cd680c0a1e"),
     "Rakdos Carnarium",
-    CardArt::new("34f146f3-6541-4d2a-96e3-a3cd680c0a1e", "John Avon"),
-    CardSet::Dissension,
+    "34f146f3-6541-4d2a-96e3-a3cd680c0a1e",
+    "John Avon",
     // The black-red karoo; only the two colours below are its own.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
@@ -165,10 +290,9 @@ pub(in crate::card::sets) static RAKDOS_CARNARIUM: CardRecord = CardRecord::new(
 
 // DIS 180 — Simic Growth Chamber
 pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("407d0a0c-a6be-4bd5-8355-1715698c6bde"),
     "Simic Growth Chamber",
-    CardArt::new("407d0a0c-a6be-4bd5-8355-1715698c6bde", "John Avon"),
-    CardSet::Dissension,
+    "407d0a0c-a6be-4bd5-8355-1715698c6bde",
+    "John Avon",
     // The green-blue karoo; only the two colours below are its own.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
@@ -186,9 +310,15 @@ pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUARDIAN_OF_THE_GUILDPACT,
+    &WITS_END,
     &UTOPIA_SPRAWL,
     &AZORIUS_FIRST_WING,
     &COILING_ORACLE,
+    &AZORIUS_CHANCERY,
+    &BLOOD_CRYPT,
+    &BREEDING_POOL,
+    &GHOST_QUARTER,
+    &HALLOWED_FOUNTAIN,
     &RAKDOS_CARNARIUM,
     &SIMIC_GROWTH_CHAMBER,
 ];

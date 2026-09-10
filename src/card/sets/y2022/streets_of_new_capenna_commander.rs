@@ -1,13 +1,30 @@
 //! Streets of New Capenna Commander cards cataloged for the Vintage Cube
 //! pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, tokens,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CostDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::tokens;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
 
@@ -21,11 +38,10 @@ static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::MoveToZone {
 };
 
 pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("187b6719-e5ed-4615-a00b-3313ceca055b"),
     "Currency Converter",
-    CardArt::new("187b6719-e5ed-4615-a00b-3313ceca055b", "Sean Murray"),
-    CardSet::StreetsOfNewCapennaCommander,
-    // One mana for a bank: every card you throw away is held rather than
+    "187b6719-e5ed-4615-a00b-3313ceca055b",
+    "Sean Murray",
+// One mana for a bank: every card you throw away is held rather than
     // spent, and later it comes back out as a Treasure or a body.
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::triggered(

@@ -1,20 +1,36 @@
 //! M19 card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CharacteristicOperationDef, CostDef,
-    EffectDef, EffectRecipientDef, ExilePlayDurationDef, LAND_SUBTYPES, ObjectPredicateDef,
-    PlayerRelation, ResolvedEffectDurationDef, SetOperationDef, ValueDef, ZoneKind, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityPredicateDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CharacteristicOperationDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::LAND_SUBTYPES;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SetOperationDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // M19 29 — Militia Bugler
 pub(in crate::card::sets) static MILITIA_BUGLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("43c5bf25-937c-4e17-9ed4-b4c4579fa9dc"),
     "Militia Bugler",
-    CardArt::new("43c5bf25-937c-4e17-9ed4-b4c4579fa9dc", "David Gaillet"),
-    CardSet::CoreSet2019,
+    "43c5bf25-937c-4e17-9ed4-b4c4579fa9dc",
+    "David Gaillet",
     // The power restriction is what keeps this honest: it finds the small
     // creatures a white deck is already full of, and none of the payoffs.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 2, 3).with_abilities(&[
@@ -40,10 +56,9 @@ pub(in crate::card::sets) static MILITIA_BUGLER: CardRecord = CardRecord::new(
 
 // M19 125 — Vampire Sovereign
 pub(in crate::card::sets) static VAMPIRE_SOVEREIGN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ee338221-ead9-4b89-8b0c-12745c4ca13d"),
     "Vampire Sovereign",
-    CardArt::new("ee338221-ead9-4b89-8b0c-12745c4ca13d", "Volkan Baǵa"),
-    CardSet::CoreSet2019,
+    "ee338221-ead9-4b89-8b0c-12745c4ca13d",
+    "Volkan Baǵa",
     // A six-point swing attached to a flier, which is what makes five mana
     // a fair price in a format where the race is the game.
     CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Vampire", "Noble"], 3, 4).with_abilities(
@@ -71,11 +86,10 @@ pub(in crate::card::sets) static VAMPIRE_SOVEREIGN: CardRecord = CardRecord::new
 
 // M19 128 — Alpine Moon
 pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2435c810-2baf-4e3b-80ce-542b94694901"),
     "Alpine Moon",
-    crate::card::CardArt::new("2435c810-2baf-4e3b-80ce-542b94694901", "Alayna Danner"),
-    crate::card::CardSet::CoreSet2019,
-    CardRules::new_enchantment(mana_cost!("{R}")).with_abilities(&[
+    "2435c810-2baf-4e3b-80ce-542b94694901",
+    "Alayna Danner",
+CardRules::new_enchantment(mana_cost!("{R}")).with_abilities(&[
         AbilityDef::as_enters(
             "As this enchantment enters, choose a nonbasic land card name.",
             crate::card::ReplacementEffectDef::BindOutput {
@@ -116,14 +130,10 @@ pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
 
 // M19 134 — Dark-Dweller Oracle
 pub(in crate::card::sets) static DARK_DWELLER_ORACLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("69a57bfc-1de2-4b3a-84bc-19ec41087f0d"),
     "Dark-Dweller Oracle",
-    CardArt::new(
-        "69a57bfc-1de2-4b3a-84bc-19ec41087f0d",
-        "Deruchenko Alexander",
-    ),
-    CardSet::CoreSet2019,
-    // A sacrifice outlet that turns each body into a look at the top card,
+    "69a57bfc-1de2-4b3a-84bc-19ec41087f0d",
+    "Deruchenko Alexander",
+// A sacrifice outlet that turns each body into a look at the top card,
     // and it can eat itself once the board is empty.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Shaman"], 2, 2).with_ability(
         AbilityDef::activated(
@@ -153,10 +163,9 @@ pub(in crate::card::sets) static DARK_DWELLER_ORACLE: CardRecord = CardRecord::n
 
 // M19 143 — Goblin Motivator
 pub(in crate::card::sets) static GOBLIN_MOTIVATOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("94b3a4fb-9024-45ef-a54b-cf3a9fa5b9c2"),
     "Goblin Motivator",
-    CardArt::new("94b3a4fb-9024-45ef-a54b-cf3a9fa5b9c2", "Johann Bodin"),
-    CardSet::CoreSet2019,
+    "94b3a4fb-9024-45ef-a54b-cf3a9fa5b9c2",
+    "Johann Bodin",
     // Any creature, not only yours, though the haste is only worth giving
     // to something that just arrived on your own side.
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_ability(

@@ -1,18 +1,26 @@
 //! Innistrad: Crimson Vow Commander cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
-use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ValueDef, abilities,
-};
-use crate::{ParentBinding, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::ParentBinding;
+use crate::card::AbilityDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::DiscardFollowUpDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ValueDef;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // VOC 14 — Occult Epiphany
-pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new_with_legacy_id(
-    2235,
+pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new(
     "Occult Epiphany",
-    CardArt::new("6920c895-bc98-4871-a53f-219fa27a74e5", "Jason Rainville"),
-    CardSet::InnistradCrimsonVowCommander,
+    "6920c895-bc98-4871-a53f-219fa27a74e5",
+    "Jason Rainville",
     // The draw is a wash and the Spirits are the card: a hand with five
     // types in it turns X of nothing into five fliers.
     CardRules::new_instant(mana_cost!("{X}{U}")).with_ability(AbilityDef::spell(

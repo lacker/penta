@@ -1,16 +1,44 @@
 //! Dominaria cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, CopyExceptionsDef, CostDef, CounterKind,
-    CreatedTokensDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
-};
-use crate::ids::{Binding, ParentBinding, TargetIndex};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::CreatedTokensDef;
+use crate::card::DrawEventMatcherDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::ids::Binding;
+use crate::ids::ParentBinding;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // DOM 1 — Karn, Scion of Urza
@@ -28,11 +56,10 @@ static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("07a3d9e8-8597-498b-869c-cff79e0df516"),
     "Karn, Scion of Urza",
-    CardArt::new("07a3d9e8-8597-498b-869c-cff79e0df516", "Chase Stone"),
-    CardSet::Dominaria,
-    // Colorless, so every deck can play him: a card every turn that the
+    "07a3d9e8-8597-498b-869c-cff79e0df516",
+    "Chase Stone",
+// Colorless, so every deck can play him: a card every turn that the
     // other player picks, the pile of leftovers he can cash in later, and a
     // body that grows with the artifacts the deck is made of.
     CardRules::new_planeswalker(mana_cost!("{4}"), &["Karn"], 5)
@@ -136,13 +163,28 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
         ]),
 );
 
+// DOM 81 — Cast Down
+pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
+    "Cast Down",
+    "116ce944-6871-4f51-a889-d9c4a5d7cff2",
+    "Bastien L. Deharme",
+    // Two mana for unconditional removal, priced by the one exception it
+    // makes -- which is exactly the thing the opponent built around.
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::destroy_target(
+        "Destroy target nonlegendary creature.",
+        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
+        ])),
+    )),
+);
+
 // DOM 207 — Teferi, Hero of Dominaria
 pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5d10b752-d9cb-419d-a5c4-d4ee1acb655e"),
     "Teferi, Hero of Dominaria",
-    crate::card::CardArt::new("5d10b752-d9cb-419d-a5c4-d4ee1acb655e", "Chris Rallis"),
-    crate::card::CardSet::Dominaria,
-    // Five mana that draws a card and leaves two lands up, so the turn he
+    "5d10b752-d9cb-419d-a5c4-d4ee1acb655e",
+    "Chris Rallis",
+// Five mana that draws a card and leaves two lands up, so the turn he
     // lands is not the turn he costs you: the plus pays for the counterspell
     // held behind him.
     CardRules::new_planeswalker(mana_cost!("{3}{W}{U}"), &["Teferi"], 4)
@@ -228,20 +270,18 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
 // DOM 213 — Damping Sphere
 // Audit: unsupported — Needs a static replacement changing a land ability producing two or more mana into exactly {C}.
 pub(in crate::card::sets) static DAMPING_SPHERE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a5c7d16b-8f4e-42b9-be24-3cb091932d7c"),
     "Damping Sphere",
-    CardArt::new("a5c7d16b-8f4e-42b9-be24-3cb091932d7c", "Adam Paquette"),
-    CardSet::Dominaria,
+    "a5c7d16b-8f4e-42b9-be24-3cb091932d7c",
+    "Adam Paquette",
     CardRules::unsupported(),
 );
 
 // DOM 217 — Helm of the Host
 pub(in crate::card::sets) static HELM_OF_THE_HOST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1d65d20c-09e5-4139-838b-7e0e48eb2b2b"),
     "Helm of the Host",
-    CardArt::new("1d65d20c-09e5-4139-838b-7e0e48eb2b2b", "Igor Kieryluk"),
-    CardSet::Dominaria,
-    CardRules::new_artifact(mana_cost!("{4}"))
+    "1d65d20c-09e5-4139-838b-7e0e48eb2b2b",
+    "Igor Kieryluk",
+CardRules::new_artifact(mana_cost!("{4}"))
         .with_supertype(CardSupertype::Legendary)
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -273,6 +313,7 @@ pub(in crate::card::sets) static HELM_OF_THE_HOST: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KARN_SCION_OF_URZA,
+    &CAST_DOWN,
     &TEFERI_HERO_OF_DOMINARIA,
     &DAMPING_SPHERE,
     &HELM_OF_THE_HOST,

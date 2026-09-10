@@ -1,26 +1,46 @@
 //! Modern Horizons 3 Commander cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostDef, EffectDef, EffectRecipientDef, ManaColor, NONBASIC_LAND_SUBTYPES,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SumValueDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::ids::ParentBinding;
-use crate::{TargetIndex, mana_cost};
-
 use super::super::y2020::theros_beyond_death::escape;
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::NONBASIC_LAND_SUBTYPES;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::SumValueDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
+use crate::ids::ParentBinding;
+use crate::mana_cost;
 
 // M3C 4 — Ulalek, Fused Atrocity
 // Audit: unsupported — Needs grouped copying of every controlled spell and nonmana stack ability with independent target reselection.
 pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c"),
     "Ulalek, Fused Atrocity",
-    CardArt::new("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c", "Alex Konstad"),
-    CardSet::ModernHorizons3Commander,
+    "fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c",
+    "Alex Konstad",
     CardRules::unsupported(),
 );
 
@@ -34,12 +54,11 @@ static GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS: SumValueDef = SumValueDef::new(
 // M3C 50 — Barrowgoyf
 /// Where the chosen card is saved, kept apart from the milled pile so that
 /// "them" and "the one you took" are two different sets.
-pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_legacy_id(
-    2213,
+pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new(
     "Barrowgoyf",
-    CardArt::new("f979fc86-2c7e-49b3-965e-607a203cbfb1", "Igor Kieryluk"),
-    CardSet::ModernHorizons3Commander,
-    // Deathtouch and lifelink on a body that grows with every graveyard,
+    "f979fc86-2c7e-49b3-965e-607a203cbfb1",
+    "Igor Kieryluk",
+// Deathtouch and lifelink on a body that grows with every graveyard,
     // and every hit digs for the next one.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Lhurgoyf"], 0, 1).with_abilities(&[
         abilities::deathtouch(),
@@ -100,12 +119,11 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_l
 );
 
 // M3C 59 — Pyrogoyf
-pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_legacy_id(
-    2141,
+pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new(
     "Pyrogoyf",
-    CardArt::new("f60be310-4461-4b84-95f0-b2095108bd79", "Xabi Gaztelua"),
-    CardSet::ModernHorizons3Commander,
-    // The printed 0/1 is only what the corner says; the ability below is
+    "f60be310-4461-4b84-95f0-b2095108bd79",
+    "Xabi Gaztelua",
+// The printed 0/1 is only what the corner says; the ability below is
     // what it is, wherever it is.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Lhurgoyf"], 0, 1)
         .with_abilities(&[
@@ -146,11 +164,10 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_leg
 );
 
 // M3C 70 — Bloodbraid Challenger
-pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord::new_with_legacy_id(
-    2255,
+pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord::new(
     "Bloodbraid Challenger",
-    CardArt::new("4b39d43d-2a02-4edb-915a-6a7c002c945f", "Lie Setiawan"),
-    CardSet::ModernHorizons3Commander,
+    "4b39d43d-2a02-4edb-915a-6a7c002c945f",
+    "Lie Setiawan",
     // Five mana for a hasty 4/3 and a free spell, and the graveyard keeps
     // handing it back for five more.
     CardRules::new_creature(mana_cost!("{3}{R}{G}"), &["Elf", "Berserker"], 4, 3).with_abilities(
@@ -171,10 +188,9 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
 
 // M3C 80 — Planar Nexus
 pub(in crate::card::sets) static PLANAR_NEXUS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("28603c1c-f9b4-4001-bc56-d1453d5cacf5"),
     "Planar Nexus",
-    CardArt::new("28603c1c-f9b4-4001-bc56-d1453d5cacf5", "Sam Burley"),
-    CardSet::ModernHorizons3Commander,
+    "28603c1c-f9b4-4001-bc56-d1453d5cacf5",
+    "Sam Burley",
     CardRules::new_land(NONBASIC_LAND_SUBTYPES).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
@@ -189,14 +205,11 @@ pub(in crate::card::sets) static PLANAR_NEXUS: CardRecord = CardRecord::new(
     ]),
 );
 
-// M3C 132 — Planar Nexus (alternate printing)
-
 // M3C 134 — Talon Gates of Madara
 pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c565f8fe-acf7-40dd-8100-8f692d1e232c"),
     "Talon Gates of Madara",
-    CardArt::new("c565f8fe-acf7-40dd-8100-8f692d1e232c", "Steven Belledin"),
-    CardSet::ModernHorizons3Commander,
+    "c565f8fe-acf7-40dd-8100-8f692d1e232c",
+    "Steven Belledin",
     // A land that answers a creature on the way in, and four mana that puts
     // it there on a turn the land drop is already spent.
     CardRules::new_land(&["Gate"]).with_abilities(&[
@@ -241,44 +254,11 @@ pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord:
     ]),
 );
 
-// M3C 320 — Basilisk Gate
-pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4a306025-d429-4006-b7ed-bdb287e83f57"),
-    "Basilisk Gate",
-    CardArt::new("935f3dfa-7d8d-459a-8ac2-37892cb9545f", "Jorge Jacinto"),
-    CardSet::ModernHorizons3Commander,
-    // A colourless land that ends games once the Gates deck has enough of
-    // them, which is the whole reason to run the worse lands beside it.
-    CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated_with_targets(
-            "{2}, {T}: Target creature gets +X/+X until end of turn, where X is the number of \
-             Gates you control. Activate only as a sorcery.",
-            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                // This land is itself a Gate, so the count is never zero
-                // while the ability can be activated at all.
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::CountMatchingObjects(&GATES_YOU_CONTROL),
-                    ValueDef::CountMatchingObjects(&GATES_YOU_CONTROL),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
-        )
-        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-    ]),
-);
-
-/// "The number of Gates you control", read twice by the pump above: once for
-/// power and once for toughness.
-static GATES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Gate"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
+// M3C 320 — Basilisk Gate (reprint)
+const BASILISK_GATE_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &catalog_clb::BASILISK_GATE,
+    "935f3dfa-7d8d-459a-8ac2-37892cb9545f",
+    "Jorge Jacinto",
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
@@ -288,9 +268,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLOODBRAID_CHALLENGER,
     &PLANAR_NEXUS,
     &TALON_GATES_OF_MADARA,
-    &BASILISK_GATE,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::alternate(&PLANAR_NEXUS, 1), // M3C 132
-];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[BASILISK_GATE_REPRINT];

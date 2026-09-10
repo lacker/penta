@@ -1,21 +1,35 @@
 //! Theros cards cataloged as cross-format rules-engine test cases.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardType, ColorChoiceOperationDef, CostDef,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    ValueDef, ZoneKind, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::BasicLandType;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ColorChoiceOperationDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // THS 16 — Gods Willing
 pub(in crate::card::sets) static GODS_WILLING: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b"),
     "Gods Willing",
-    CardArt::new("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b", "Mark Winters"),
-    CardSet::Theros,
+    "abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b",
+    "Mark Winters",
     // One mana that beats a removal spell and pushes damage through, and the
     // scry is what keeps it from being a dead card when neither is needed.
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
@@ -43,12 +57,59 @@ pub(in crate::card::sets) static GODS_WILLING: CardRecord = CardRecord::new(
     )),
 );
 
+// THS 89 — Gray Merchant of Asphodel
+pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRecord::new(
+    "Gray Merchant of Asphodel",
+    "b06078ce-f534-4e16-9a70-d51620a33eb2",
+    "Robbie Trevino",
+// Its own two black pips count, so the Merchant is never worth less than
+    // two even on an otherwise empty board.
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Zombie"], 2, 4).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, each opponent loses X life, where X is your devotion to black. You gain life equal to the life lost this way.",
+            // Devotion is counted once for the whole resolution, so both
+            // halves read the same number and the gain always matches the
+            // loss.
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::Opponent,
+                    )),
+                    amount: ValueDef::DevotionTo(ManaColor::Black),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::DevotionTo(ManaColor::Black),
+                },
+            ]),
+        ),
+    ),
+);
+
+// THS 127 — Lightning Strike
+pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
+    "Lightning Strike",
+    "bbb03f2e-2b92-4aa1-afae-301ed5d151d3",
+    "Adam Paquette",
+    // Lightning Bolt at two mana, which is the rate every later red burn
+    // spell is measured against.
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Lightning Strike deals 3 damage to any target.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(3),
+        ),
+    )),
+);
+
 // THS 169 — Nylea's Presence
-pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new_with_legacy_id(
-    253,
+pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new(
     "Nylea's Presence",
-    CardArt::new("e68f1fd4-1a2f-405b-a592-6c4af6214eae", "Ralph Horsley"),
-    CardSet::Theros,
+    "e68f1fd4-1a2f-405b-a592-6c4af6214eae",
+    "Ralph Horsley",
     CardRules::new_enchantment(mana_cost!("{1}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
@@ -84,11 +145,10 @@ pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new_w
 );
 
 // THS 180 — Sylvan Caryatid
-pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new_with_legacy_id(
-    2228,
+pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new(
     "Sylvan Caryatid",
-    CardArt::new("d40b65c1-b24d-492d-81b9-d8474ebdc08c", "Chase Stone"),
-    CardSet::Theros,
+    "d40b65c1-b24d-492d-81b9-d8474ebdc08c",
+    "Chase Stone",
     // Hexproof is what separates it from every other two-mana accelerant: the
     // removal that answers a mana creature cannot be pointed at this one, and
     // a 0/3 wall survives most of what is left.
@@ -103,7 +163,12 @@ pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new_w
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&GODS_WILLING, &NYLEAS_PRESENCE, &SYLVAN_CARYATID];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &GODS_WILLING,
+    &GRAY_MERCHANT_OF_ASPHODEL,
+    &LIGHTNING_STRIKE,
+    &NYLEAS_PRESENCE,
+    &SYLVAN_CARYATID,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

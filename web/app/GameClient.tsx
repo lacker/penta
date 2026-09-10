@@ -4,7 +4,11 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { createPortal } from "react-dom";
 import { MatchResult } from "./MatchResult";
 import { CardArt } from "./CardArt";
-import { isScryfallId, type CardArtMode } from "./card-art-mode";
+import {
+  isScryfallId,
+  type CardArtMode,
+  type CardArtPreference,
+} from "./card-art-mode";
 import {
   battlefieldWithObservedUntap,
   cardPileStateKey,
@@ -89,6 +93,11 @@ const initialDeckPair = (format: FormatId) => {
 
 const initialHumanFirst = () =>
   new URLSearchParams(window.location.search).get("first") !== "false";
+
+const initialArtPreference = (): CardArtPreference =>
+  new URLSearchParams(window.location.search).get("art") === "format-matching"
+    ? "format-matching"
+    : "debut";
 
 const cardName = (state: GameState | null, id: number) =>
   state?.battlefield.find((card) => card.id === id)?.name ?? "this attacker";
@@ -211,6 +220,7 @@ export function GameClient({
   const [botDeck, setBotDeck] = useState(placeholderDeckForFormat(defaultFormat));
   const [policy, setPolicy] = useState("Handcrafted");
   const [humanFirst, setHumanFirst] = useState(true);
+  const [artPreference, setArtPreference] = useState<CardArtPreference>("debut");
   // The engine prepares a table behind the initial setup dialog. Keep that
   // table image-free until Deal commits the player's draft choice, otherwise
   // choosing "Symbols only" would come after the first Scryfall requests.
@@ -223,6 +233,8 @@ export function GameClient({
   const [firstToTwo, setFirstToTwo] = useState(false);
   const [draftFirstToTwo, setDraftFirstToTwo] = useState(false);
   const [draftCardArtMode, setDraftCardArtMode] = useState<CardArtMode>(defaultCardArtMode);
+  const [draftArtPreference, setDraftArtPreference] =
+    useState<CardArtPreference>("debut");
   /**
    * The seed field as typed. Blank means "roll one", so it is text rather
    * than a number: a number could not tell an empty field from zero.
@@ -515,6 +527,7 @@ export function GameClient({
       nextHumanFirst = humanFirst,
       nextFormat = format,
       nextFirstToTwo = firstToTwo,
+      nextArtPreference = artPreference,
     ) => {
       if (!wasmReady.current) return false;
       const dealtHumanDeck = resolveDeck(nextFormat, nextHumanDeck);
@@ -532,6 +545,7 @@ export function GameClient({
         matchUrl.searchParams.set("deck", dealtHumanDeck);
         matchUrl.searchParams.set("seed", String(nextSeed));
         matchUrl.searchParams.set("first", String(nextHumanFirst));
+        matchUrl.searchParams.set("art", nextArtPreference);
         matchUrl.searchParams.set("hosted", "new");
         matchUrl.searchParams.set("matchMode", nextFirstToTwo ? "first-to-two-wins" : "one-conclusion");
         if (challengedBot) {
@@ -547,6 +561,7 @@ export function GameClient({
         // then leave the current board intact and the setup dialog open.
         const replacement = createEngineGame({
           format: nextFormat,
+          artPreference: nextArtPreference,
           humanDeck: dealtHumanDeck,
           botDeck: dealtBotDeck,
           policy: nextPolicy,
@@ -565,6 +580,7 @@ export function GameClient({
         game.current = replacement;
         setSeed(nextSeed);
         setFormat(nextFormat);
+        setArtPreference(nextArtPreference);
         setHumanDeck(dealtHumanDeck);
         setBotDeck(dealtBotDeck);
         finalStateAfterOpponentActions.current = null;
@@ -575,6 +591,7 @@ export function GameClient({
         matchUrl.searchParams.set("deck", dealtHumanDeck);
         matchUrl.searchParams.set("seed", String(nextSeed));
         matchUrl.searchParams.set("first", String(nextHumanFirst));
+        matchUrl.searchParams.set("art", nextArtPreference);
         window.history.replaceState(null, "", matchUrl);
         return true;
       } catch (cause) {
@@ -582,7 +599,7 @@ export function GameClient({
         return false;
       }
     },
-    [firstToTwo, botDeckChoice, format, humanDeckChoice, humanFirst, policy, refresh],
+    [artPreference, firstToTwo, botDeckChoice, format, humanDeckChoice, humanFirst, policy, refresh],
   );
 
   // A hosted room's clock only needs ticking while it is close to expiring,
@@ -624,6 +641,7 @@ export function GameClient({
         const startingHumanDeck = resolveDeck(startingFormat, startingChoices.humanDeck);
         const startingBotDeck = resolveDeck(startingFormat, startingChoices.botDeck);
         const startingHumanFirst = initialHumanFirst();
+        const startingArtPreference = initialArtPreference();
         setSeed(startingSeed);
         // A seed on the address bar was asked for, so the first deal keeps it
         // and the form shows that it will. A rolled one stays out of the
@@ -639,6 +657,8 @@ export function GameClient({
         setBotDeck(startingBotDeck);
         setHumanFirst(startingHumanFirst);
         setDraftHumanFirst(startingHumanFirst);
+        setArtPreference(startingArtPreference);
+        setDraftArtPreference(startingArtPreference);
         wasmReady.current = true;
         setEngineReady(true);
         const hostedAgain =
@@ -661,6 +681,7 @@ export function GameClient({
           game.current = await RemoteEngineGame.connect({
             gameId: roomId,
             format: startingFormat,
+            artPreference: startingArtPreference,
             humanDeck: startingHumanDeck,
             botDeck: hostedBotDeck,
             botPolicy: url.searchParams.get("hostedBot") ?? "Handcrafted",
@@ -705,6 +726,7 @@ export function GameClient({
         } else {
           game.current = createEngineGame({
             format: startingFormat,
+            artPreference: startingArtPreference,
             humanDeck: startingHumanDeck,
             botDeck: startingBotDeck,
             policy: "Handcrafted",
@@ -1608,6 +1630,7 @@ export function GameClient({
     setDraftHumanFirst(humanFirst);
     setDraftFirstToTwo(firstToTwo);
     setDraftCardArtMode(cardArtMode);
+    setDraftArtPreference(artPreference);
     // Reopening the form asks for a new game, and a new game rolls a new deal
     // unless the player types one. The seed that just played is in the menu.
     setDraftSeed("");
@@ -1628,6 +1651,7 @@ export function GameClient({
       draftHumanFirst,
       draftFormat,
       draftFirstToTwo,
+      draftArtPreference,
     );
     if (!started) return;
     setHumanDeckChoice(draftHumanDeck);
@@ -1635,6 +1659,7 @@ export function GameClient({
     setPolicy(draftPolicy);
     setHumanFirst(draftHumanFirst);
     setCardArtMode(draftCardArtMode);
+    setArtPreference(draftArtPreference);
     setSetupDismissible(true);
     setSetupOpen(false);
   };
@@ -1704,6 +1729,23 @@ export function GameClient({
                   : draftCardArtMode === "cropped"
                     ? "Place the illustration inside Penta’s card frame."
                     : "Do not request card images."}
+              </small>
+            </label>
+            <label className="setup-format setup-art-mode">
+              <span>Card editions</span>
+              <select
+                value={draftArtPreference}
+                onChange={(event) =>
+                  setDraftArtPreference(event.target.value as CardArtPreference)
+                }
+              >
+                <option value="debut">Debut printing</option>
+                <option value="format-matching">Match selected format</option>
+              </select>
+              <small>
+                {draftArtPreference === "debut"
+                  ? "Use each card’s debut-set artwork."
+                  : "Use artwork from the earliest printing legal in this format."}
               </small>
             </label>
             <label className="setup-format setup-seed">

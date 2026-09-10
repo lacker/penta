@@ -1,21 +1,43 @@
 //! Fifth Dawn cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType,
-    CostDef, CounterKind, EffectDef, EffectRecipientDef, GraveyardPlayPermissionDef, ManaColor,
-    ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation,
-    ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::ResolvedEffectDurationDef;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CardTypeSet;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::CreatureTypeSetDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::GraveyardPlayPermissionDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // 5DN 27 — Condescend
 pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e8303b80-e29a-46b8-90b0-c0cfe551b435"),
     "Condescend",
-    CardArt::new("e8303b80-e29a-46b8-90b0-c0cfe551b435", "Ron Spears"),
-    CardSet::FifthDawn,
+    "e8303b80-e29a-46b8-90b0-c0cfe551b435",
+    "Ron Spears",
     // The scry is what keeps this live once X is too small to counter
     // anything, which is why a tempo deck can cast it for one.
     CardRules::new_instant(mana_cost!("{X}{U}")).with_ability(AbilityDef::spell_with_targets(
@@ -43,10 +65,9 @@ pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
 
 // 5DN 36 — Serum Visions
 pub(in crate::card::sets) static SERUM_VISIONS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("77e241f0-4cdc-4e37-b5b1-6f47f385d381"),
     "Serum Visions",
-    CardArt::new("4bc61952-88ba-447a-835a-f1e9643fcd0d", "Ben Thompson"),
-    CardSet::FifthDawn,
+    "4bc61952-88ba-447a-835a-f1e9643fcd0d",
+    "Ben Thompson",
     // The draw comes first and the scry second, which is the whole
     // difference from Preordain: this fixes the next two draws, not this one.
     CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
@@ -62,12 +83,41 @@ pub(in crate::card::sets) static SERUM_VISIONS: CardRecord = CardRecord::new(
     )),
 );
 
+// 5DN 39 — Trinket Mage
+pub(in crate::card::sets) static TRINKET_MAGE: CardRecord = CardRecord::new(
+    "Trinket Mage",
+    "4c5a41ab-1840-4abb-a8bb-f0b1e7d1b450",
+    "Mark A. Nelson",
+CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for an artifact card with mana value 1 or less, reveal that card, put it into your hand, then shuffle.",
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ManaValueAtMost(1),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
+);
+
 // 5DN 55 — Night's Whisper
-pub(in crate::card::sets) static NIGHTS_WHISPER: CardRecord = CardRecord::new_with_legacy_id(
-    2300,
+pub(in crate::card::sets) static NIGHTS_WHISPER: CardRecord = CardRecord::new(
     "Night's Whisper",
-    CardArt::new("61f0c6f6-b90d-4eb1-a5db-86e0a3997501", "David Martin"),
-    CardSet::FifthDawn,
+    "61f0c6f6-b90d-4eb1-a5db-86e0a3997501",
+    "David Martin",
     // Two mana and two life for two which is the rate every black
     // deck in the cube is happy to pay and no other colour is offered.
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell(
@@ -88,13 +138,34 @@ pub(in crate::card::sets) static NIGHTS_WHISPER: CardRecord = CardRecord::new_wi
     )),
 );
 
+// 5DN 65 — Furnace Whelp
+pub(in crate::card::sets) static FURNACE_WHELP: CardRecord = CardRecord::new(
+    "Furnace Whelp",
+    "a1726eba-c471-40bd-a487-40d910b75d64",
+    "Matt Cavotta",
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Dragon"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
+);
+
 // 5DN 85 — Dawn's Reflection
 pub(in crate::card::sets) static DAWNS_REFLECTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("131a124f-f11e-4ea1-a7b2-b94eea988d4e"),
     "Dawn's Reflection",
-    CardArt::new("131a124f-f11e-4ea1-a7b2-b94eea988d4e", "John Avon"),
-    CardSet::FifthDawn,
-    CardRules::new_enchantment(mana_cost!("{3}{G}"))
+    "131a124f-f11e-4ea1-a7b2-b94eea988d4e",
+    "John Avon",
+CardRules::new_enchantment(mana_cost!("{3}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_land(),
@@ -110,11 +181,10 @@ pub(in crate::card::sets) static DAWNS_REFLECTION: CardRecord = CardRecord::new(
 );
 
 // 5DN 86 — Eternal Witness
-pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new_with_legacy_id(
-    2266,
+pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new(
     "Eternal Witness",
-    CardArt::new("c7e10ca7-1e5d-4224-82cf-798a4d436d72", "Terese Nielsen"),
-    CardSet::FifthDawn,
+    "c7e10ca7-1e5d-4224-82cf-798a4d436d72",
+    "Terese Nielsen",
     // A 2/1 body nobody plays it for. What it is worth is the card, and
     // every way of making it enter again is worth another one.
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Human", "Shaman"], 2, 1).with_ability(
@@ -150,13 +220,9 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new_w
 
 // 5DN 110 — Clock of Omens
 pub(in crate::card::sets) static CLOCK_OF_OMENS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0ffce71b-eb60-4649-a62b-a1b4acaa9d2d"),
     "Clock of Omens",
-    CardArt::new(
-        "0ffce71b-eb60-4649-a62b-a1b4acaa9d2d",
-        "Alex Horley-Orlandelli",
-    ),
-    CardSet::FifthDawn,
+    "0ffce71b-eb60-4649-a62b-a1b4acaa9d2d",
+    "Alex Horley-Orlandelli",
     // Two artifacts tapped to untap one, which is only a gain when the one
     // being untapped is worth more than the two that paid for it.
     CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_with_targets(
@@ -176,11 +242,10 @@ pub(in crate::card::sets) static CLOCK_OF_OMENS: CardRecord = CardRecord::new(
 );
 
 // 5DN 114 — Crucible of Worlds
-pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::new_with_legacy_id(
-    2203,
+pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::new(
     "Crucible of Worlds",
-    CardArt::new("312a6058-de08-487d-95bd-b3c56807fdd6", "Ron Spencer"),
-    CardSet::FifthDawn,
+    "312a6058-de08-487d-95bd-b3c56807fdd6",
+    "Ron Spencer",
     // One line, and it turns every fetchland, every Wasteland, and every
     // land anything made you discard back into a land drop.
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::static_ability(
@@ -199,13 +264,36 @@ pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::ne
     )),
 );
 
+// 5DN 115 — Door to Nothingness
+pub(in crate::card::sets) static DOOR_TO_NOTHINGNESS: CardRecord = CardRecord::new(
+    "Door to Nothingness",
+    "c92ffeae-6b51-4426-a080-b1b065b1290d",
+    "Puddnhead",
+CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
+        abilities::enters_tapped(CardType::Artifact),
+        AbilityDef::activated_with_targets(
+            "{W}{W}{U}{U}{B}{B}{R}{R}{G}{G}, {T}, Sacrifice this artifact: Target player loses the game.",
+            &[
+                CostDef::Mana(mana_cost!("{W}{W}{U}{U}{B}{B}{R}{R}{G}{G}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::LoseTheGame {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
+);
+
 // 5DN 118 — Engineered Explosives
 pub(in crate::card::sets) static ENGINEERED_EXPLOSIVES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8492a272-e595-4f94-a6eb-08d29f211fd6"),
     "Engineered Explosives",
-    CardArt::new("8492a272-e595-4f94-a6eb-08d29f211fd6", "Ron Spears"),
-    CardSet::FifthDawn,
-    CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
+    "8492a272-e595-4f94-a6eb-08d29f211fd6",
+    "Ron Spears",
+CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
             AbilityDef::as_enters(
                 "Sunburst (This artifact enters with a charge counter on it for each color of mana spent to cast it.)",
                 ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -238,13 +326,52 @@ pub(in crate::card::sets) static ENGINEERED_EXPLOSIVES: CardRecord = CardRecord:
         ]),
 );
 
+// 5DN 128 — Guardian Idol
+pub(in crate::card::sets) static GUARDIAN_IDOL: CardRecord = CardRecord::new(
+    "Guardian Idol",
+    "a6a62a73-b7db-47ec-9b68-65dd7c1a06a5",
+    "Edward P. Beard, Jr.",
+    // A mana rock that stops being a dead draw late, which is what the two
+    // mana of animation buys -- and entering tapped is what it costs.
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters tapped.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated(
+            "{2}: This artifact becomes a 2/2 Golem artifact creature until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // It is already an artifact, so adding the type again is
+                // harmless and keeps the clause reading as printed.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Creature).with(CardType::Artifact),
+                    ),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Golem"])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
+);
+
 // 5DN 143 — Pentad Prism
 pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("672b9b16-daef-44e6-9a3a-cfd9f3c78bc7"),
     "Pentad Prism",
-    CardArt::new("672b9b16-daef-44e6-9a3a-cfd9f3c78bc7", "David Martin"),
-    CardSet::FifthDawn,
-    // Two mana of two colours for two mana of any colours, later: a ritual
+    "672b9b16-daef-44e6-9a3a-cfd9f3c78bc7",
+    "David Martin",
+// Two mana of two colours for two mana of any colours, later: a ritual
     // that waits, which is why it wants a deck already casting things in
     // more than one colour on turn two.
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
@@ -272,12 +399,16 @@ pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONDESCEND,
     &SERUM_VISIONS,
+    &TRINKET_MAGE,
     &NIGHTS_WHISPER,
+    &FURNACE_WHELP,
     &DAWNS_REFLECTION,
     &ETERNAL_WITNESS,
     &CLOCK_OF_OMENS,
     &CRUCIBLE_OF_WORLDS,
+    &DOOR_TO_NOTHINGNESS,
     &ENGINEERED_EXPLOSIVES,
+    &GUARDIAN_IDOL,
     &PENTAD_PRISM,
 ];
 

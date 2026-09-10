@@ -1,22 +1,38 @@
 //! Commander 2018 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AddManaEffectDef, CardArt, CardNameSetDef, CardRules, CardSet, CardType,
-    ComparisonDef, ControlDurationDef, CostDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
-    ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AddManaEffectDef;
+use crate::card::CardNameSetDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::ControlDurationDef;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetCountConditionDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::ObjectSetPredicateDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
 use crate::mana_cost;
 
 // C18 54 — Coveted Jewel
 pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f83ed433-fae3-4fa5-acad-bb8a5b535ce3"),
     "Coveted Jewel",
-    CardArt::new("f83ed433-fae3-4fa5-acad-bb8a5b535ce3", "Jason A. Engle"),
-    CardSet::Commander2018,
-    // Six mana for three cards and a Gilded Lotus, held only as long as you
+    "f83ed433-fae3-4fa5-acad-bb8a5b535ce3",
+    "Jason A. Engle",
+// Six mana for three cards and a Gilded Lotus, held only as long as you
     // can stop them getting through -- and they untap it on the way out.
     CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
         abilities::enters_trigger(
@@ -67,11 +83,10 @@ pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
 
 // C18 55 — Endless Atlas
 pub(in crate::card::sets) static ENDLESS_ATLAS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d2547a42-b2b9-4887-8671-4cf63a7b0eff"),
     "Endless Atlas",
-    CardArt::new("d2547a42-b2b9-4887-8671-4cf63a7b0eff", "Titus Lunter"),
-    CardSet::Commander2018,
-    CardRules::new_artifact(mana_cost!("{2}")).with_ability(
+    "d2547a42-b2b9-4887-8671-4cf63a7b0eff",
+    "Titus Lunter",
+CardRules::new_artifact(mana_cost!("{2}")).with_ability(
         AbilityDef::activated(
             "{2}, {T}: Draw a card. Activate only if you control three or more lands with the same name.",
             &[
@@ -114,10 +129,9 @@ pub(in crate::card::sets) static ENDLESS_ATLAS: CardRecord = CardRecord::new(
 
 // C18 57 — Retrofitter Foundry
 pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5da578b8-19e6-4068-9336-e7cd33c585f1"),
     "Retrofitter Foundry",
-    crate::card::CardArt::new("5da578b8-19e6-4068-9336-e7cd33c585f1", "Dmitry Burmak"),
-    crate::card::CardSet::Commander2018,
+    "5da578b8-19e6-4068-9336-e7cd33c585f1",
+    "Dmitry Burmak",
     // One mana on turn one and a mana sink for the rest of the game, which
     // is why it is played in decks with no other artifacts at all.
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[

@@ -1,20 +1,30 @@
 //! Adventures in the Forgotten Realms cards cataloged for the Vintage Cube
 //! pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ResolvedEffectDurationDef, ValueDef, ZoneKind, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // AFR 33 — Portable Hole
-pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_with_legacy_id(
-    2256,
+pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new(
     "Portable Hole",
-    CardArt::new("80fca8c0-ae3e-439e-b202-228b9f360e9a", "John Stanko"),
-    CardSet::AdventuresInTheForgottenRealms,
+    "80fca8c0-ae3e-439e-b202-228b9f360e9a",
+    "John Stanko",
     // One white mana answers most of what a fast deck opens on, and it
     // answers it at instant speed on the other player's turn only because
     // somebody flashed it in -- otherwise the Hole is simply the cheapest
@@ -43,10 +53,9 @@ pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_wit
 
 // AFR 42 — You Hear Something on Watch
 pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("76e939ab-9d0c-4685-805c-c8bc4e6af163"),
     "You Hear Something on Watch",
-    CardArt::new("76e939ab-9d0c-4685-805c-c8bc4e6af163", "Zezhou Chen"),
-    CardSet::AdventuresInTheForgottenRealms,
+    "76e939ab-9d0c-4685-805c-c8bc4e6af163",
+    "Zezhou Chen",
     // A combat trick or a removal spell for the same two mana, chosen after
     // blockers, which is what makes holding it up rarely wrong.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::modal_spell(
@@ -86,10 +95,9 @@ pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardR
 
 // AFR 198 — Owlbear
 pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("12b19309-a7f6-44da-b856-d12da11156e8"),
     "Owlbear",
-    CardArt::new("30e8a00f-8131-470d-8072-4c23b812281a", "Ilse Gort"),
-    CardSet::AdventuresInTheForgottenRealms,
+    "30e8a00f-8131-470d-8072-4c23b812281a",
+    "Ilse Gort",
     // "Keen Senses" is an ability word: flavour on the front of the clause
     // that changes nothing about how it works.
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Bird", "Bear"], 4, 4).with_abilities(&[
@@ -104,7 +112,53 @@ pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&PORTABLE_HOLE, &YOU_HEAR_SOMETHING_ON_WATCH, &OWLBEAR];
+// AFR 215 — You Meet in a Tavern
+pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::new(
+    "You Meet in a Tavern",
+    "593aa59a-4025-4df8-9f27-188fc7712fde",
+    "Zoltan Boros",
+    // Refuel or finish, chosen on the turn it is cast, which is what four
+    // mana buys in a deck that is sometimes ahead and sometimes empty.
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Form a Party — Look at the top five cards of your library. You may reveal any \
+                 number of creature cards from among them and put them into your hand. Put the \
+                 rest on the bottom of your library in a random order.",
+                // "Any number" is nought through five, so a whiff takes
+                // nothing and still buries the five.
+                abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                    ValueDef::Constant(5),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    0,
+                    5,
+                ),
+            ),
+            AbilityDef::spell(
+                "Start a Brawl — Creatures you control get +2/+2 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &PORTABLE_HOLE,
+    &YOU_HEAR_SOMETHING_ON_WATCH,
+    &OWLBEAR,
+    &YOU_MEET_IN_A_TAVERN,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

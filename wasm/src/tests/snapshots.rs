@@ -399,6 +399,50 @@ fn standard_visible_cards_include_nested_scryfall_metadata() {
 }
 
 #[test]
+fn visible_card_art_can_follow_the_selected_format() {
+    let mut debut = WebGame::new_with_art_preference(
+        "Sligh",
+        "GAT",
+        "Handcrafted",
+        true,
+        1,
+        Some("premodern".into()),
+        Some("debut".into()),
+    )
+    .expect("premodern game starts");
+    debut
+        .session
+        .engine_mut()
+        .set_hand(debut.human, &[penta::card::cards::MOUNTAIN])
+        .expect("Mountain is cataloged");
+
+    let mut matching = WebGame::new_with_art_preference(
+        "Sligh",
+        "GAT",
+        "Handcrafted",
+        true,
+        1,
+        Some("premodern".into()),
+        Some("format-matching".into()),
+    )
+    .expect("premodern game starts");
+    matching
+        .session
+        .engine_mut()
+        .set_hand(matching.human, &[penta::card::cards::MOUNTAIN])
+        .expect("Mountain is cataloged");
+
+    assert_eq!(
+        debut.snapshot_value(false)["human"]["hand"][0]["art"]["scryfallId"],
+        "eace2c85-976c-425e-9800-5a6ccbd91b56",
+    );
+    assert_eq!(
+        matching.snapshot_value(false)["human"]["hand"][0]["art"]["scryfallId"],
+        "0c5c9379-b686-4823-b85a-eaf2c4b63205",
+    );
+}
+
+#[test]
 fn shock_land_entry_stays_prospective_until_the_browser_choice_commits_it() {
     let mut game = WebGame::new(
         "Briksza Naya Midrange",

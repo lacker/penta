@@ -1,12 +1,27 @@
 //! Marvel Super Heroes Commander cards used for legend-rule coverage.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, CopyExceptionsDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    PlayerRelation, PlayerRuleDef, PlayerSetDef, SpellCastQueryDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerRuleDef;
+use crate::card::PlayerSetDef;
+use crate::card::SpellCastQueryDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueComparisonDef;
+use crate::card::ValueDef;
 use crate::mana_cost;
 
 static NONCREATURE_SPELLS_YOU_CAST: SpellCastQueryDef = SpellCastQueryDef {
@@ -22,14 +37,10 @@ static CAST_A_NONCREATURE_SPELL_THIS_TURN: ValueComparisonDef = ValueComparisonD
 
 // MSC 28 — Council of Reeds
 pub(in crate::card::sets) static COUNCIL_OF_REEDS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a0d824ea-75d2-4de5-923b-813bba44e80b"),
     "Council of Reeds",
-    CardArt::new(
-        "a0d824ea-75d2-4de5-923b-813bba44e80b",
-        "Vlad Petruchik",
-    ),
-    CardSet::MarvelSuperHeroesCommander,
-    CardRules::new_creature(
+    "a0d824ea-75d2-4de5-923b-813bba44e80b",
+    "Vlad Petruchik",
+CardRules::new_creature(
         mana_cost!("{2}{U}"),
         &["Human", "Scientist", "Hero"],
         2,

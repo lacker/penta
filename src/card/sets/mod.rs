@@ -1,6 +1,4 @@
-//! Built-in card records grouped by release year and set.
-//! Canonical cards live in one set module; reprints and alternate art point back to it.
-//! Unsupported entries carry explicit audit reasons.
+//! Built-in card records, reprints, alternate art, and unsupported entries grouped by set.
 
 mod y1993;
 mod y1994;
@@ -37,7 +35,7 @@ mod y2024;
 mod y2025;
 mod y2026;
 
-use super::record::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::record::{CardRecord, PrintingRecord};
 use crate::card::{CardDefinition, CardPrinting, CardSet};
 
 #[cfg(test)]
@@ -63,9 +61,7 @@ impl SetModule {
     }
 }
 
-/// Every cataloged set has one source module. `cards` contains definitions
-/// introduced by that module; `additional_printings` contains reprints and
-/// further variants of definitions introduced elsewhere.
+/// Every cataloged set has one source module for definitions and additional printings.
 const SET_MODULES: &[SetModule] = &[
     SetModule::new(
         CardSet::Alpha,
@@ -123,9 +119,14 @@ const SET_MODULES: &[SetModule] = &[
         y1994::fallen_empires::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
-        CardSet::Promo1994,
-        y1994::promo_1994::CARDS,
-        y1994::promo_1994::ADDITIONAL_PRINTINGS,
+        CardSet::HarperPrismBookPromos,
+        y1994::harper_prism_book_promos::CARDS,
+        y1994::harper_prism_book_promos::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::DragonCon,
+        y1994::dragon_con::CARDS,
+        y1994::dragon_con::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
         CardSet::FourthEdition,
@@ -151,6 +152,11 @@ const SET_MODULES: &[SetModule] = &[
         CardSet::Mirage,
         y1996::mirage::CARDS,
         y1996::mirage::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Portal,
+        y1997::portal::CARDS,
+        y1997::portal::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
         CardSet::Visions,
@@ -196,6 +202,11 @@ const SET_MODULES: &[SetModule] = &[
         CardSet::MercadianMasques,
         y1999::mercadian_masques::CARDS,
         y1999::mercadian_masques::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Starter1999,
+        y1999::starter_1999::CARDS,
+        y1999::starter_1999::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
         CardSet::Nemesis,
@@ -293,6 +304,11 @@ const SET_MODULES: &[SetModule] = &[
         y2007::lorwyn::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::Morningtide,
+        y2008::morningtide::CARDS,
+        y2008::morningtide::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::MirrodinBesieged,
         y2011::mirrodin_besieged::CARDS,
         y2011::mirrodin_besieged::ADDITIONAL_PRINTINGS,
@@ -338,9 +354,19 @@ const SET_MODULES: &[SetModule] = &[
         y2010::scars_of_mirrodin::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::Magic2010,
+        y2009::magic_2010::CARDS,
+        y2009::magic_2010::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::Magic2011,
         y2010::magic_2011::CARDS,
         y2010::magic_2011::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::Archenemy,
+        y2010::archenemy::CARDS,
+        y2010::archenemy::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
         CardSet::RiseOfTheEldrazi,
@@ -793,6 +819,11 @@ const SET_MODULES: &[SetModule] = &[
         y2016::shadows_over_innistrad::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::OathOfTheGatewatch,
+        y2016::oath_of_the_gatewatch::CARDS,
+        y2016::oath_of_the_gatewatch::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::HourOfDevastation,
         y2017::hour_of_devastation::CARDS,
         y2017::hour_of_devastation::ADDITIONAL_PRINTINGS,
@@ -801,6 +832,11 @@ const SET_MODULES: &[SetModule] = &[
         CardSet::CoreSet2019,
         y2018::core_set_2019::CARDS,
         y2018::core_set_2019::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::RivalsOfIxalan,
+        y2018::rivals_of_ixalan::CARDS,
+        y2018::rivals_of_ixalan::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
         CardSet::Commander2018,
@@ -816,6 +852,11 @@ const SET_MODULES: &[SetModule] = &[
         CardSet::Commander2020,
         y2020::commander_2020::CARDS,
         y2020::commander_2020::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::CoreSet2021,
+        y2020::core_set_2021::CARDS,
+        y2020::core_set_2021::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
         CardSet::MagicFoundations,
@@ -933,7 +974,12 @@ pub(super) fn definitions() -> Vec<CardDefinition> {
     let capacity = SET_MODULES.iter().map(|module| module.cards.len()).sum();
     let mut definitions = Vec::with_capacity(capacity);
     for module in SET_MODULES {
-        definitions.extend(module.cards.iter().map(|record| record.definition()));
+        definitions.extend(
+            module
+                .cards
+                .iter()
+                .map(|record| record.definition(module.set)),
+        );
     }
     definitions
 }

@@ -1,23 +1,50 @@
 //! Innistrad: Crimson Vow cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostDef, EffectDef,
-    EffectRecipientDef, ExilePlayDurationDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, tokens,
-};
-use crate::ids::{ParentBinding, TargetIndex};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldArrivalDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ScaledValueDef;
+use crate::card::TokenCountersDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::card::tokens;
+use crate::ids::ParentBinding;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // VOW 55 — Cruel Witness
 pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5bf2c686-efb0-46c7-b34e-c77987914b96"),
     "Cruel Witness",
-    CardArt::new("5bf2c686-efb0-46c7-b34e-c77987914b96", "Vincent Proce"),
-    CardSet::InnistradCrimsonVow,
+    "5bf2c686-efb0-46c7-b34e-c77987914b96",
+    "Vincent Proce",
     // A four-mana flier that also fixes every draw afterwards, in a deck
     // already casting the spells that turn it on.
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Bird", "Horror"], 3, 3).with_abilities(&[
@@ -37,10 +64,9 @@ pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
 
 // VOW 95 — Blood Fountain
 pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("dd03651e-ada0-41dc-8722-0eba476943e3"),
     "Blood Fountain",
-    CardArt::new("dd03651e-ada0-41dc-8722-0eba476943e3", "Evyn Fong"),
-    CardSet::InnistradCrimsonVow,
+    "dd03651e-ada0-41dc-8722-0eba476943e3",
+    "Evyn Fong",
     // One mana smooths the draw now; the same card buys back two creatures
     // later, which is why a graveyard deck runs it over a plain rummage.
     CardRules::new_artifact(mana_cost!("{B}")).with_abilities(&[
@@ -79,10 +105,9 @@ pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
 
 // VOW 101 — Concealing Curtains // Revealing Eye
 pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::new_dfc(
-    PrintingAnchor::scryfall("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1"),
     "Concealing Curtains // Revealing Eye",
-    CardArt::new("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1", "Brian Valeza"),
-    CardSet::InnistradCrimsonVow,
+    "612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1",
+    "Brian Valeza",
     &[
         (
             "Concealing Curtains",
@@ -167,12 +192,68 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
     ],
 );
 
+// VOW 134 — Undying Malice
+pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
+    "Undying Malice",
+    "8eb38041-043a-4b18-9d9a-f1283684e8f1",
+    "Igor Kieryluk",
+    // One mana that answers removal, wins a combat, and re-triggers an
+    // arrival, all by making the creature's death a profit.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Until end of turn, target creature gains \"When this creature dies, return it to the \
+         battlefield tapped under its owner's control with a +1/+1 counter on it.\"",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            // Granted to the creature rather than kept on this spell, which
+            // is what the printed quotation marks mean: the ability leaves
+            // with the creature and comes back with the new object.
+            effect: AppliedEffectDef::add_ability(
+                &const {
+                    AbilityDef::triggered(
+                        "When this creature dies, return it to the battlefield tapped under its \
+                     owner's control with a +1/+1 counter on it.",
+                        TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::Source,
+                            Some(ZoneKind::Battlefield),
+                            Some(ZoneKind::Graveyard),
+                        ),
+                        // Tapped and countered on arrival rather than afterwards:
+                        // the permanent is never briefly untapped.
+                        EffectDef::WithBattlefieldArrival {
+                            effect: &const {
+                                EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::Source,
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                }
+                            },
+                            arrival: BattlefieldArrivalDef {
+                                modifications: &[BattlefieldEntryModificationDef::Tapped],
+                                counters: Some(TokenCountersDef {
+                                    kind: CounterKind::PlusOnePlusOne,
+                                    amount: ValueDef::Constant(1),
+                                }),
+                                // "Under its owner's control", which the default
+                                // already is.
+                                ..BattlefieldArrivalDef::DEFAULT
+                            },
+                        },
+                    )
+                },
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
+);
+
 // VOW 174 — Reckless Impulse
 pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546"),
     "Reckless Impulse",
-    CardArt::new("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546", "Mathias Kollros"),
-    CardSet::InnistradCrimsonVow,
+    "6943c07f-ab0d-4f5a-bbe9-c0a83dc98546",
+    "Mathias Kollros",
     // Two cards for two mana in a colour that does not draw them. The extra
     // turn is what makes it a real two-for-one: a red deck casting this on
     // three still has the mana to spend both halves before they lapse.
@@ -196,10 +277,9 @@ pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
 
 // VOW 182 — Voldaren Epicure
 pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ae154e64-f626-45fb-bd52-840c1c27b2d3"),
     "Voldaren Epicure",
-    CardArt::new("ae154e64-f626-45fb-bd52-840c1c27b2d3", "Martina Fačková"),
-    CardSet::InnistradCrimsonVow,
+    "ae154e64-f626-45fb-bd52-840c1c27b2d3",
+    "Martina Fačková",
     // One mana for a body, a point of damage, and a card the Blood turns a
     // dead draw into later.
     CardRules::new_creature(mana_cost!("{R}"), &["Vampire"], 1, 1).with_ability(
@@ -220,10 +300,9 @@ pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
 
 // VOW 189 — Bramble Wurm
 pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8f16f137-4ceb-469c-a381-e575d58f456b"),
     "Bramble Wurm",
-    CardArt::new("8f16f137-4ceb-469c-a381-e575d58f456b", "Lars Grant-West"),
-    CardSet::InnistradCrimsonVow,
+    "8f16f137-4ceb-469c-a381-e575d58f456b",
+    "Lars Grant-West",
     // Seven mana is more than most decks reach, so the graveyard half is
     // what the card usually does: five life for three, from the bin.
     CardRules::new_creature(mana_cost!("{6}{G}"), &["Wurm"], 7, 6).with_abilities(&[
@@ -250,10 +329,9 @@ pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
 
 // VOW 225 — Ulvenwald Oddity // Ulvenwald Behemoth
 pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_dfc(
-    PrintingAnchor::scryfall("5fdf5fc4-69c8-4a59-9095-c2feefb64371"),
     "Ulvenwald Oddity // Ulvenwald Behemoth",
-    CardArt::new("5fdf5fc4-69c8-4a59-9095-c2feefb64371", "Brent Hollowell"),
-    CardSet::InnistradCrimsonVow,
+    "5fdf5fc4-69c8-4a59-9095-c2feefb64371",
+    "Brent Hollowell",
     &[
         (
             "Ulvenwald Oddity",
@@ -331,11 +409,10 @@ static HARVESTER_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
 ));
 
 pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("01182501-2b50-4b87-835a-fea3c5e6e330"),
     "Bloodtithe Harvester",
-    crate::card::CardArt::new("01182501-2b50-4b87-835a-fea3c5e6e330", "Sami Makkonen"),
-    crate::card::CardSet::InnistradCrimsonVow,
-    // Two mana for a 3/2 that replaces itself with a card later, and can
+    "01182501-2b50-4b87-835a-fea3c5e6e330",
+    "Sami Makkonen",
+// Two mana for a 3/2 that replaces itself with a card later, and can
     // instead be spent as removal the turn it stops attacking.
     CardRules::new_creature(mana_cost!("{B}{R}"), &["Vampire"], 3, 2)
         .with_abilities(&[
@@ -366,6 +443,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CRUEL_WITNESS,
     &BLOOD_FOUNTAIN,
     &CONCEALING_CURTAINS,
+    &UNDYING_MALICE,
     &RECKLESS_IMPULSE,
     &VOLDAREN_EPICURE,
     &BRAMBLE_WURM,

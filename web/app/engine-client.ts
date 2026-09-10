@@ -5,6 +5,7 @@ import initWasm, { WebGame as RustWebGame } from "./wasm/penta_wasm.js";
 import wasmUrl from "./wasm/penta_wasm_bg.wasm?url";
 import type { GameState } from "./game-types";
 import type { FormatId } from "./game-config";
+import type { CardArtPreference } from "./card-art-mode";
 
 /**
  * What the React app needs from an engine, local or hosted: the command
@@ -27,6 +28,7 @@ export interface EngineGame {
 
 export type EngineConfig = {
   format: FormatId;
+  artPreference: CardArtPreference;
   humanDeck: string;
   botDeck: string;
   policy: string;
@@ -40,13 +42,14 @@ export async function initializeEngine(): Promise<void> {
 }
 
 export function createEngineGame(config: EngineConfig): EngineGame {
-  return new RustWebGame(
+  return RustWebGame.withArtPreference(
     config.humanDeck,
     config.botDeck,
     config.policy,
     config.humanFirst,
     config.seed,
     config.format,
+    config.artPreference,
   );
 }
 

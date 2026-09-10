@@ -1,26 +1,40 @@
 //! Dominaria United Commander card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CopyExceptionsDef, CreatedTokensDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRelation,
-    PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CopyExceptionsDef;
+use crate::card::CreatedTokensDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerRuleDef;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // DMC 10 — Cadric, Soul Kindler
 pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f82f8cab-5039-4e3a-a2ba-cbf829db80ed"),
     "Cadric, Soul Kindler",
-    CardArt::new(
-        "f82f8cab-5039-4e3a-a2ba-cbf829db80ed",
-        "Joseph Weston",
-    ),
-    CardSet::DominariaUnitedCommander,
-    CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Dwarf", "Wizard"], 4, 3)
+    "f82f8cab-5039-4e3a-a2ba-cbf829db80ed",
+    "Joseph Weston",
+CardRules::new_creature(mana_cost!("{2}{R}{W}"), &["Dwarf", "Wizard"], 4, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -79,11 +93,10 @@ pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::n
 
 // DMC 47 — Torsten, Founder of Benalia
 pub(in crate::card::sets) static TORSTEN_FOUNDER_OF_BENALIA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0783b426-a527-42c1-9271-be28b229e1c6"),
     "Torsten, Founder of Benalia",
-    CardArt::new("0783b426-a527-42c1-9271-be28b229e1c6", "Volkan Baǵa"),
-    CardSet::DominariaUnitedCommander,
-    // Seven mana, and the two halves answer the two ways it goes wrong: it
+    "0783b426-a527-42c1-9271-be28b229e1c6",
+    "Volkan Baǵa",
+// Seven mana, and the two halves answer the two ways it goes wrong: it
     // refills your hand the turn it lands, and leaves seven bodies behind if
     // somebody kills it.
     CardRules::new_creature(mana_cost!("{5}{G}{W}"), &["Human", "Soldier"], 7, 7)

@@ -1,24 +1,52 @@
 //! Outlaws of Thunder Junction cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AggregateOperationDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ChangeStackTargetsDef,
-    CopyStackObjectDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, StackTargetChangeDef,
-    TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
-};
-use crate::{ParentBinding, TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::ParentBinding;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ChangeStackTargetsDef;
+use crate::card::CopyStackObjectDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DiscardSelectionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
+use crate::card::ScaledValueDef;
+use crate::card::StackTargetChangeDef;
+use crate::card::TokenStatsDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // OTJ 27 — Rustler Rampage
 pub(in crate::card::sets) static RUSTLER_RAMPAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("33ed7ca3-894b-45f4-a15f-51b6bcd3f474"),
     "Rustler Rampage",
-    CardArt::new("33ed7ca3-894b-45f4-a15f-51b6bcd3f474", "Josu Hernaiz"),
-    CardSet::OutlawsOfThunderJunction,
+    "33ed7ca3-894b-45f4-a15f-51b6bcd3f474",
+    "Josu Hernaiz",
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spree(&[
         (
             &[CostDef::Mana(mana_cost!("{1}"))],
@@ -52,12 +80,11 @@ pub(in crate::card::sets) static RUSTLER_RAMPAGE: CardRecord = CardRecord::new(
 );
 
 // OTJ 45 — Duelist of the Mind
-pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::new_with_legacy_id(
-    2200,
+pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::new(
     "Duelist of the Mind",
-    CardArt::new("2b58e47b-c165-4a58-aa2a-033a35645adc", "Darren Tan"),
-    CardSet::OutlawsOfThunderJunction,
-    // A 0/3 flier that grows with every draw and feeds itself once a turn,
+    "2b58e47b-c165-4a58-aa2a-033a35645adc",
+    "Darren Tan",
+// A 0/3 flier that grows with every draw and feeds itself once a turn,
     // provided you point something at your opponent.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Advisor"], 0, 3)
         .with_abilities(&[
@@ -103,10 +130,9 @@ pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::n
 
 // OTJ 61 — Phantom Interference
 pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("00bf4dd1-5468-4594-9c7b-0737610f19d4"),
     "Phantom Interference",
-    CardArt::new("00bf4dd1-5468-4594-9c7b-0737610f19d4", "Ruxing Gao"),
-    CardSet::OutlawsOfThunderJunction,
+    "00bf4dd1-5468-4594-9c7b-0737610f19d4",
+    "Ruxing Gao",
     // Two mana to counter, four to do both, and never dead: spree is what
     // lets one card be a Spirit on the turn nothing needs answering.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spree(&[
@@ -142,11 +168,10 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
 /// The reveal itself: one card off the top, shown to everybody, into your
 /// hand, and then the clause above reads what it cost.
 pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e9a268ba-c442-4fe4-90b4-2810c8474f4e"),
     "Caustic Bronco",
-    CardArt::new("e9a268ba-c442-4fe4-90b4-2810c8474f4e", "Brent Hollowell"),
-    CardSet::OutlawsOfThunderJunction,
-    // Two mana for a 2/2 that draws you an extra card every attack. Whether
+    "e9a268ba-c442-4fe4-90b4-2810c8474f4e",
+    "Brent Hollowell",
+// Two mana for a 2/2 that draws you an extra card every attack. Whether
     // that card costs you or them is what the saddle buys.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Snake", "Horse", "Mount"], 2, 2)
         .with_abilities(&[
@@ -210,10 +235,9 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
 
 // OTJ 122 — Explosive Derailment
 pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f0e3df9c-0a86-4e6f-a3c7-84a883328a3d"),
     "Explosive Derailment",
-    CardArt::new("f0e3df9c-0a86-4e6f-a3c7-84a883328a3d", "Leon Tukker"),
-    CardSet::OutlawsOfThunderJunction,
+    "f0e3df9c-0a86-4e6f-a3c7-84a883328a3d",
+    "Leon Tukker",
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spree(&[
         (
             &[CostDef::Mana(mana_cost!("{2}"))],
@@ -242,11 +266,10 @@ pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::
 
 // OTJ 142 — Return the Favor
 pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a9cc02d1-799d-42aa-9bc2-4c05452b63b4"),
     "Return the Favor",
-    CardArt::new("a9cc02d1-799d-42aa-9bc2-4c05452b63b4", "Eli Minaya"),
-    CardSet::OutlawsOfThunderJunction,
-    CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
+    "a9cc02d1-799d-42aa-9bc2-4c05452b63b4",
+    "Eli Minaya",
+CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
                 "Copy target instant spell, sorcery spell, activated ability, or triggered ability. You may choose new targets for the copy.",
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
@@ -295,12 +318,11 @@ pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
 
 // OTJ 157 — Bristly Bill, Spine Sower
 pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2177,
-        "Bristly Bill, Spine Sower",
-        CardArt::new("52eef0d6-24b7-40b7-8403-e8e863d0cd55", "Daniel Zrom"),
-        CardSet::OutlawsOfThunderJunction,
-        // The counters accumulate for free off lands, and then the activation
+    CardRecord::new(
+    "Bristly Bill, Spine Sower",
+    "52eef0d6-24b7-40b7-8403-e8e863d0cd55",
+    "Daniel Zrom",
+// The counters accumulate for free off lands, and then the activation
         // turns a slow board into a lethal one in a single turn.
         CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Druid"], 2, 2)
             .with_supertype(CardSupertype::Legendary)
@@ -339,7 +361,7 @@ pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
                     },
                 ),
             ]),
-    );
+);
 
 // OTJ 160 — Dance of the Tumbleweeds
 static DANCE_LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -348,14 +370,10 @@ static DANCE_LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("caf0e715-befb-4904-82e6-d3f8c7fbd454"),
     "Dance of the Tumbleweeds",
-    CardArt::new(
-        "caf0e715-befb-4904-82e6-d3f8c7fbd454",
-        "Dan Murayama Scott",
-    ),
-    CardSet::OutlawsOfThunderJunction,
-    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell(
+    "caf0e715-befb-4904-82e6-d3f8c7fbd454",
+    "Dan Murayama Scott",
+CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell(
                 "Search your library for a basic land card or a Desert card, put it onto the battlefield, then shuffle.",
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
@@ -396,13 +414,9 @@ pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardReco
 
 // OTJ 188 — Voracious Varmint
 pub(in crate::card::sets) static VORACIOUS_VARMINT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("99b74fa3-c1d7-4780-977d-f2d6663a529a"),
     "Voracious Varmint",
-    CardArt::new(
-        "99b74fa3-c1d7-4780-977d-f2d6663a529a",
-        "Adrián Rodríguez Pérez",
-    ),
-    CardSet::OutlawsOfThunderJunction,
+    "99b74fa3-c1d7-4780-977d-f2d6663a529a",
+    "Adrián Rodríguez Pérez",
     // Maindeckable artifact and enchantment removal that is a body until it
     // is needed, which is what vigilance is doing on a two-drop.
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Varmint"], 2, 2).with_abilities(&[
@@ -426,10 +440,9 @@ pub(in crate::card::sets) static VORACIOUS_VARMINT: CardRecord = CardRecord::new
 
 // OTJ 224 — Pillage the Bog
 pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fa3b415f-7901-4ab4-84fe-60b90d40ac90"),
     "Pillage the Bog",
-    CardArt::new("fa3b415f-7901-4ab4-84fe-60b90d40ac90", "Forrest Imel"),
-    CardSet::OutlawsOfThunderJunction,
+    "fa3b415f-7901-4ab4-84fe-60b90d40ac90",
+    "Forrest Imel",
     // Two mana to find the one card the deck is built around, and plot is
     // what makes the two mana free: pay three on a turn with nothing to do,
     // and dig for nothing on the turn it matters.
@@ -467,12 +480,11 @@ pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
 );
 
 // OTJ 243 — Lavaspur Boots
-pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_with_legacy_id(
-    2252,
+pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new(
     "Lavaspur Boots",
-    CardArt::new("e50709de-e6ef-4dbc-af1e-290fed279f34", "Mila Pesic"),
-    CardSet::OutlawsOfThunderJunction,
-    CardRules::new_artifact(mana_cost!("{1}"))
+    "e50709de-e6ef-4dbc-af1e-290fed279f34",
+    "Mila Pesic",
+CardRules::new_artifact(mana_cost!("{1}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -501,10 +513,9 @@ pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_wi
 
 // OTJ 251 — Abraded Bluffs
 pub(in crate::card::sets) static ABRADED_BLUFFS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("19e96521-b4ce-4a36-a887-200e05ccc804"),
     "Abraded Bluffs",
-    CardArt::new("19e96521-b4ce-4a36-a887-200e05ccc804", "Piotr Dura"),
-    CardSet::OutlawsOfThunderJunction,
+    "19e96521-b4ce-4a36-a887-200e05ccc804",
+    "Piotr Dura",
     // The red-white Desert; only the two colours below are its own.
     CardRules::new_land(&["Desert"]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
@@ -522,10 +533,9 @@ pub(in crate::card::sets) static ABRADED_BLUFFS: CardRecord = CardRecord::new(
 
 // OTJ 253 — Bristling Backwoods
 pub(in crate::card::sets) static BRISTLING_BACKWOODS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d61dfeb7-7f6b-4601-8396-2cbb98165489"),
     "Bristling Backwoods",
-    CardArt::new("d61dfeb7-7f6b-4601-8396-2cbb98165489", "Viko Menezes"),
-    CardSet::OutlawsOfThunderJunction,
+    "d61dfeb7-7f6b-4601-8396-2cbb98165489",
+    "Viko Menezes",
     // A tapped dual that pays a point of damage for the tempo, and a Desert
     // for whatever cares about that.
     CardRules::new_land(&["Desert"]).with_abilities(&[
@@ -544,10 +554,9 @@ pub(in crate::card::sets) static BRISTLING_BACKWOODS: CardRecord = CardRecord::n
 
 // OTJ 254 — Conduit Pylons
 pub(in crate::card::sets) static CONDUIT_PYLONS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5ffa48cc-b991-4d47-b7ec-cf678915c758"),
     "Conduit Pylons",
-    CardArt::new("5ffa48cc-b991-4d47-b7ec-cf678915c758", "Raymond Bonilla"),
-    CardSet::OutlawsOfThunderJunction,
+    "5ffa48cc-b991-4d47-b7ec-cf678915c758",
+    "Raymond Bonilla",
     // Untapped and colourless by default, so the fixing costs a mana rather
     // than a turn: the Desert deck plays it as a land that is never dead.
     CardRules::new_land(&["Desert"]).with_abilities(&[
@@ -571,10 +580,9 @@ pub(in crate::card::sets) static CONDUIT_PYLONS: CardRecord = CardRecord::new(
 
 // OTJ 256 — Eroded Canyon
 pub(in crate::card::sets) static ERODED_CANYON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5c9d080f-28d7-41d6-a4e0-5b3e3a5ed770"),
     "Eroded Canyon",
-    CardArt::new("5c9d080f-28d7-41d6-a4e0-5b3e3a5ed770", "Piotr Dura"),
-    CardSet::OutlawsOfThunderJunction,
+    "5c9d080f-28d7-41d6-a4e0-5b3e3a5ed770",
+    "Piotr Dura",
     // The blue-red Desert; only the two colours below are its own.
     CardRules::new_land(&["Desert"]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
@@ -589,10 +597,9 @@ pub(in crate::card::sets) static ERODED_CANYON: CardRecord = CardRecord::new(
 
 // OTJ 335 — Slickshot Show-Off
 pub(in crate::card::sets) static SLICKSHOT_SHOW_OFF: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("304523e7-f332-4c1d-9590-ff9a70daff26"),
     "Slickshot Show-Off",
-    CardArt::new("304523e7-f332-4c1d-9590-ff9a70daff26", "Augusto Quirino"),
-    CardSet::OutlawsOfThunderJunction,
+    "304523e7-f332-4c1d-9590-ff9a70daff26",
+    "Augusto Quirino",
     // Two mana for a hasty flier that grows with every spell after it, and
     // a plot cost that pays the two a turn early so the whole of a later
     // turn's mana can go into the spells it grows on.
@@ -621,6 +628,12 @@ pub(in crate::card::sets) static SLICKSHOT_SHOW_OFF: CardRecord = CardRecord::ne
 );
 
 // OTJ 359 — Pillage the Bog (alternate printing)
+const PILLAGE_THE_BOG_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &PILLAGE_THE_BOG,
+    1,
+    "c05939b7-1877-4464-98fe-d3b9ae754fb9",
+    "Forrest Imel",
+);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RUSTLER_RAMPAGE,
@@ -641,6 +654,5 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SLICKSHOT_SHOW_OFF,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::alternate(&PILLAGE_THE_BOG, 1), // OTJ 359
-];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
+    &[PILLAGE_THE_BOG_ALTERNATE_1];

@@ -1,28 +1,61 @@
 //! Wilds of Eldraine cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::AdditionalCostIndex;
+use crate::CardPartId;
+use crate::PlayOptionId;
+use crate::card::AbilityDef;
+use crate::card::AbilityOperationDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AdditionalCostValueDef;
+use crate::card::AlternateSpellKind;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::BlockRestrictionDef;
+use crate::card::CardComposition;
+use crate::card::CardEffectStatus;
+use crate::card::CardPart;
+use crate::card::CardRules;
+use crate::card::CardStructure;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CharacteristicOperationDef;
+use crate::card::CostDef;
+use crate::card::CostModificationDef;
+use crate::card::CostQuantityDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::OptionalAdditionalCostAbilityDef;
+use crate::card::OptionalAdditionalCostKindDef;
 use crate::card::PlayOptionDef;
-use crate::card::{
-    AbilityDef, AbilityOperationDef, AbilityTargetDef, AbilityTargetPredicate,
-    AdditionalCostValueDef, AlternateSpellKind, AppliedEffectDef, AppliedRuleDef,
-    BlockRestrictionDef, CardArt, CardComposition, CardEffectStatus, CardPart, CardRules, CardSet,
-    CardStructure, CardSupertype, CardType, CharacteristicOperationDef, CostDef,
-    CostModificationDef, CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
-};
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SpellForm;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
 use crate::ids::TargetIndex;
-use crate::{CardPartId, PlayOptionId, mana_cost};
+use crate::mana_cost;
 
 // WOE 62 — Mocking Sprite
 pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e595014d-4ff4-4561-b7f2-a9bd56300b01"),
     "Mocking Sprite",
-    CardArt::new("e595014d-4ff4-4561-b7f2-a9bd56300b01", "Ben Hill"),
-    CardSet::WildsOfEldraine,
+    "e595014d-4ff4-4561-b7f2-a9bd56300b01",
+    "Ben Hill",
     // The discount is read off the battlefield, so an evasive body that
     // survives is what makes it pay -- and flying is why it does.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Faerie", "Rogue"], 2, 1).with_abilities(&[
@@ -43,10 +76,9 @@ pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
 
 // WOE 83 — Candy Grapple
 pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("190d97bc-dbef-496d-9bd1-b785bdf8a964"),
     "Candy Grapple",
-    CardArt::new("190d97bc-dbef-496d-9bd1-b785bdf8a964", "Konstantin Porubov"),
-    CardSet::WildsOfEldraine,
+    "190d97bc-dbef-496d-9bd1-b785bdf8a964",
+    "Konstantin Porubov",
     // Two mana kills most of what a limited deck plays, and the Food this
     // set hands out is what turns the rest into targets too.
     CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
@@ -113,11 +145,10 @@ static DEFENSELESS_RAT_TOKEN: EffectDef =
 
 // WOE 116 — Voracious Vermin
 pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8059be65-3c73-49bb-a3b6-c346ce2f9fa4"),
     "Voracious Vermin",
-    CardArt::new("8059be65-3c73-49bb-a3b6-c346ce2f9fa4", "Milivoj Ćeran"),
-    CardSet::WildsOfEldraine,
-    // The Rat it brings is also the first thing to feed it: a sacrifice
+    "8059be65-3c73-49bb-a3b6-c346ce2f9fa4",
+    "Milivoj Ćeran",
+// The Rat it brings is also the first thing to feed it: a sacrifice
     // outlet turns the token into a counter.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Rat"], 2, 1).with_abilities(&[
         abilities::enters_trigger(
@@ -146,11 +177,10 @@ pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
 
 // WOE 131 — Gnawing Crescendo
 pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("254fc64a-9734-44a6-8869-ab03512f1a99"),
     "Gnawing Crescendo",
-    CardArt::new("254fc64a-9734-44a6-8869-ab03512f1a99", "Alexey Kruglov"),
-    CardSet::WildsOfEldraine,
-    // The pump is what wins the combat; the watcher is what stops the
+    "254fc64a-9734-44a6-8869-ab03512f1a99",
+    "Alexey Kruglov",
+// The pump is what wins the combat; the watcher is what stops the
     // opponent from blocking profitably to answer it.
     CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
         "Creatures you control get +2/+0 until end of turn. Whenever a nontoken creature you \
@@ -194,10 +224,9 @@ pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new
 
 // WOE 142 — Monstrous Rage
 pub(in crate::card::sets) static MONSTROUS_RAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("eef5a0ae-5907-42c9-a097-3f973737e392"),
     "Monstrous Rage",
-    CardArt::new("eef5a0ae-5907-42c9-a097-3f973737e392", "Borja Pindado"),
-    CardSet::WildsOfEldraine,
+    "eef5a0ae-5907-42c9-a097-3f973737e392",
+    "Borja Pindado",
     // One mana for three power and trample this turn, two of which stay
     // afterwards on the back of the Role.
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
@@ -261,12 +290,11 @@ pub(in crate::card::sets) static MONSTROUS_RAGE: CardRecord = CardRecord::new(
 );
 
 // WOE 242 — Agatha's Soul Cauldron
-pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord::new_with_legacy_id(
-    2251,
+pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord::new(
     "Agatha's Soul Cauldron",
-    CardArt::new("019b51b0-e5c6-4208-922b-7736686dddcd", "Jason A. Engle"),
-    CardSet::WildsOfEldraine,
-    CardRules::new_artifact(mana_cost!("{2}"))
+    "019b51b0-e5c6-4208-922b-7736686dddcd",
+    "Jason A. Engle",
+CardRules::new_artifact(mana_cost!("{2}"))
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::static_ability(
@@ -358,10 +386,9 @@ pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord:
 
 // WOE 243 — Candy Trail
 pub(in crate::card::sets) static CANDY_TRAIL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1a860925-d912-49e5-9ddc-41ab26916bb3"),
     "Candy Trail",
-    CardArt::new("1a860925-d912-49e5-9ddc-41ab26916bb3", "Alix Branwyn"),
-    CardSet::WildsOfEldraine,
+    "1a860925-d912-49e5-9ddc-41ab26916bb3",
+    "Alix Branwyn",
     // A one-mana artifact that smooths the draw now and replaces itself
     // later, which is what makes it a fine card in a deck that just wants
     // its land drops.
@@ -485,10 +512,9 @@ fn virtue_of_loyalty_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static VIRTUE_OF_LOYALTY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9622e597-dc7c-4198-9ce5-4df53bb0c96c"),
     "Virtue of Loyalty",
-    CardArt::new("9622e597-dc7c-4198-9ce5-4df53bb0c96c", "Keith Garletts"),
-    CardSet::WildsOfEldraine,
+    "9622e597-dc7c-4198-9ce5-4df53bb0c96c",
+    "Keith Garletts",
     virtue_of_loyalty_rules(),
 )
 .with_composition(virtue_of_loyalty_composition);

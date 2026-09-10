@@ -1,16 +1,47 @@
 //! Coldsnap card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ColorSet, ComparisonDef, ControlDurationDef, CostDef, CounterKind, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, ScaledValueDef, TokenCharacteristics, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, actions,
-};
-use crate::{ParentBinding, TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::ParentBinding;
+use crate::TargetIndex;
+use crate::ZonePlacement;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ColorSet;
+use crate::card::ComparisonDef;
+use crate::card::ControlDurationDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ScaledValueDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::abilities;
+use crate::card::actions;
+use crate::mana_cost;
 
 const AGE_COUNTERS: ValueDef = ValueDef::CountersOnSource(CounterKind::named("age"));
 
@@ -18,22 +49,17 @@ const AGE_COUNTERS: ValueDef = ValueDef::CountersOnSource(CounterKind::named("ag
 // Audit: unsupported — Needs one per-source combat-damage prevention budget
 // that can be divided across damage assigned to you and your creatures.
 pub(in crate::card::sets) static COVER_OF_WINTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("91d9bb89-d8f8-4dff-8b94-3f7b8aa8f299"),
     "Cover of Winter",
-    CardArt::new("91d9bb89-d8f8-4dff-8b94-3f7b8aa8f299", "Wayne Reynolds"),
-    CardSet::Coldsnap,
+    "91d9bb89-d8f8-4dff-8b94-3f7b8aa8f299",
+    "Wayne Reynolds",
     CardRules::unsupported(),
 );
 
 // CSP 23 — Wall of Shards
 pub(in crate::card::sets) static WALL_OF_SHARDS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("884ee8d8-4c0d-4e44-8321-bccd18195693"),
     "Wall of Shards",
-    CardArt::new(
-        "884ee8d8-4c0d-4e44-8321-bccd18195693",
-        "Alex Horley-Orlandelli",
-    ),
-    CardSet::Coldsnap,
+    "884ee8d8-4c0d-4e44-8321-bccd18195693",
+    "Alex Horley-Orlandelli",
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Wall"], 1, 8)
         .with_supertype(CardSupertype::Snow)
         .with_abilities(&[
@@ -44,13 +70,41 @@ pub(in crate::card::sets) static WALL_OF_SHARDS: CardRecord = CardRecord::new(
         ]),
 );
 
+// CSP 33 — Flashfreeze
+pub(in crate::card::sets) static FLASHFREEZE: CardRecord = CardRecord::new(
+    "Flashfreeze",
+    "cefd9955-a195-4855-a00e-3809b96ca92b",
+    "Brian Despain",
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target red or green spell.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::Red),
+                        ObjectPredicateDef::Color(ManaColor::Green),
+                    ]),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Counter {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Graveyard,
+            placement: ZonePlacement::Top,
+        },
+    )),
+);
+
 // CSP 50 — Vexing Sphinx
 pub(in crate::card::sets) static VEXING_SPHINX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("81cc1248-85c8-428f-ba08-96d188167eaa"),
     "Vexing Sphinx",
-    CardArt::new("81cc1248-85c8-428f-ba08-96d188167eaa", "Lars Grant-West"),
-    CardSet::Coldsnap,
-    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Sphinx"], 4, 4).with_abilities(&[
+    "81cc1248-85c8-428f-ba08-96d188167eaa",
+    "Lars Grant-West",
+CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Sphinx"], 4, 4).with_abilities(&[
         abilities::flying(),
         abilities::cumulative_upkeep(&[actions::choose_discard(1).as_cost()])
             .override_text("Cumulative upkeep—Discard a card. (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)"),
@@ -66,11 +120,10 @@ pub(in crate::card::sets) static VEXING_SPHINX: CardRecord = CardRecord::new(
 
 // CSP 51 — Balduvian Fallen
 pub(in crate::card::sets) static BALDUVIAN_FALLEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6a52b952-6e3b-403b-b355-2af47a282ab6"),
     "Balduvian Fallen",
-    CardArt::new("6a52b952-6e3b-403b-b355-2af47a282ab6", "Dave Kendall"),
-    CardSet::Coldsnap,
-    CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 3, 5).with_abilities(&[
+    "6a52b952-6e3b-403b-b355-2af47a282ab6",
+    "Dave Kendall",
+CardRules::new_creature(mana_cost!("{3}{B}"), &["Zombie"], 3, 5).with_abilities(&[
         abilities::cumulative_upkeep(
             &[CostDef::mana(mana_cost!("{1}"))],
         ),
@@ -91,6 +144,29 @@ pub(in crate::card::sets) static BALDUVIAN_FALLEN: CardRecord = CardRecord::new(
     ]),
 );
 
+// CSP 54 — Deathmark
+pub(in crate::card::sets) static DEATHMARK: CardRecord = CardRecord::new(
+    "Deathmark",
+    "e72e8728-d0a0-4ee5-87c3-092ca94225e0",
+    "Jeremy Jarvis",
+    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target green or white creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ]),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )),
+);
+
 // CSP 62 — Herald of Leshrac
 const LANDS_YOU_CONTROL_BUT_DONT_OWN: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef {
     object: ObjectPredicateDef::HasType(CardType::Land),
@@ -103,14 +179,10 @@ const LANDS_YOU_CONTROL_BUT_DONT_OWN: ValueDef = ValueDef::CountMatchingObjects(
 });
 
 pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ad6080b1-b032-4172-8594-4d894a60a80d"),
     "Herald of Leshrac",
-    CardArt::new(
-        "ad6080b1-b032-4172-8594-4d894a60a80d",
-        "Alex Horley-Orlandelli",
-    ),
-    CardSet::Coldsnap,
-    CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(&[
+    "ad6080b1-b032-4172-8594-4d894a60a80d",
+    "Alex Horley-Orlandelli",
+CardRules::new_creature(mana_cost!("{6}{B}"), &["Avatar"], 2, 4).with_abilities(&[
         abilities::flying(),
         abilities::cumulative_upkeep(&[
             actions::choose_gain_control(1)
@@ -157,13 +229,9 @@ pub(in crate::card::sets) static HERALD_OF_LESHRAC: CardRecord = CardRecord::new
 
 // CSP 78 — Braid of Fire
 pub(in crate::card::sets) static BRAID_OF_FIRE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("41bab8de-6e0f-4ccd-a303-01e9c8c82d3f"),
     "Braid of Fire",
-    CardArt::new(
-        "41bab8de-6e0f-4ccd-a303-01e9c8c82d3f",
-        "Cyril Van Der Haegen",
-    ),
-    CardSet::Coldsnap,
+    "41bab8de-6e0f-4ccd-a303-01e9c8c82d3f",
+    "Cyril Van Der Haegen",
     CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
         abilities::cumulative_upkeep(&[CostDef::add_mana(&AddManaEffectDef::one(ManaColor::Red))])
             .override_text("Cumulative upkeep—Add {R}."),
@@ -172,11 +240,10 @@ pub(in crate::card::sets) static BRAID_OF_FIRE: CardRecord = CardRecord::new(
 
 // CSP 86 — Karplusan Minotaur
 pub(in crate::card::sets) static KARPLUSAN_MINOTAUR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("963f45d7-ce84-47af-ae1c-727172a31f0f"),
     "Karplusan Minotaur",
-    CardArt::new("963f45d7-ce84-47af-ae1c-727172a31f0f", "Wayne England"),
-    CardSet::Coldsnap,
-    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
+    "963f45d7-ce84-47af-ae1c-727172a31f0f",
+    "Wayne England",
+CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
         .with_abilities(&[
             abilities::cumulative_upkeep(
                 &[CostDef::flip_coins(1)],
@@ -206,10 +273,9 @@ pub(in crate::card::sets) static KARPLUSAN_MINOTAUR: CardRecord = CardRecord::ne
 
 // CSP 102 — Arctic Nishoba
 pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8da62ada-b7cd-4110-a213-281f00fca3e7"),
     "Arctic Nishoba",
-    CardArt::new("8da62ada-b7cd-4110-a213-281f00fca3e7", "Dave Kendall"),
-    CardSet::Coldsnap,
+    "8da62ada-b7cd-4110-a213-281f00fca3e7",
+    "Dave Kendall",
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Cat", "Warrior"], 6, 6).with_abilities(&[
         abilities::trample(),
         abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{G/W}"))])
@@ -226,10 +292,9 @@ pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
 
 // CSP 138 — Mishra's Bauble
 pub(in crate::card::sets) static MISHRA_S_BAUBLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8a720448-017f-4f4a-9501-678245eaed17"),
     "Mishra's Bauble",
-    CardArt::new("8a720448-017f-4f4a-9501-678245eaed17", "Chippy"),
-    CardSet::Coldsnap,
+    "8a720448-017f-4f4a-9501-678245eaed17",
+    "Chippy",
     // A free artifact that replaces itself a turn later. The looking is
     // incidental; what the card is played for is being an artifact that cost
     // nothing and a card that comes back.
@@ -262,10 +327,9 @@ pub(in crate::card::sets) static MISHRA_S_BAUBLE: CardRecord = CardRecord::new(
 
 // CSP 141 — Phyrexian Soulgorger
 pub(in crate::card::sets) static PHYREXIAN_SOULGORGER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9d4325ea-2e84-4871-a8d6-a42b1d3d6765"),
     "Phyrexian Soulgorger",
-    CardArt::new("9d4325ea-2e84-4871-a8d6-a42b1d3d6765", "Brian Snõddy"),
-    CardSet::Coldsnap,
+    "9d4325ea-2e84-4871-a8d6-a42b1d3d6765",
+    "Brian Snõddy",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Phyrexian", "Construct"], 8, 8)
         .with_supertype(CardSupertype::Snow)
         .with_ability(
@@ -278,11 +342,10 @@ pub(in crate::card::sets) static PHYREXIAN_SOULGORGER: CardRecord = CardRecord::
 
 // CSP 145 — Dark Depths
 pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("92409c3a-fb1a-4205-9fe1-0f5affc7b21d"),
     "Dark Depths",
-    CardArt::new("92409c3a-fb1a-4205-9fe1-0f5affc7b21d", "Stephan Martiniere"),
-    CardSet::Coldsnap,
-    // Thirty mana the long way round, or none at all if something else takes
+    "92409c3a-fb1a-4205-9fe1-0f5affc7b21d",
+    "Stephan Martiniere",
+// Thirty mana the long way round, or none at all if something else takes
     // the counters off.
     CardRules::new_land(&[])
         .with_supertype(CardSupertype::Legendary)
@@ -341,8 +404,10 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COVER_OF_WINTER,
     &WALL_OF_SHARDS,
+    &FLASHFREEZE,
     &VEXING_SPHINX,
     &BALDUVIAN_FALLEN,
+    &DEATHMARK,
     &HERALD_OF_LESHRAC,
     &BRAID_OF_FIRE,
     &KARPLUSAN_MINOTAUR,

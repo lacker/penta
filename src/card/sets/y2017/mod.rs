@@ -6,4 +6,4 @@ pub(super) mod commander_2017;
 pub(super) mod hour_of_devastation;
 pub(super) mod ixalan;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

@@ -1,20 +1,33 @@
 //! Commander 2014 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ZoneKind,
-    ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
+use crate::card::TriggerEventDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // C14 5 — Containment Priest
-pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::new_with_legacy_id(
-    2156,
+pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::new(
     "Containment Priest",
-    CardArt::new("c2c794b9-09da-49be-b258-b0e21f1663e3", "John Stanko"),
-    CardSet::Commander2014,
+    "c2c794b9-09da-49be-b258-b0e21f1663e3",
+    "John Stanko",
     // Flash is half the card: it is held up like a counterspell and answers
     // the reanimation on the stack rather than the creature on the board.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 2, 2).with_abilities(&[
@@ -39,12 +52,11 @@ pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::ne
 
 // C14 50 — Titania, Protector of Argoth
 pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2296,
-        "Titania, Protector of Argoth",
-        CardArt::new("224d904a-5972-4152-878a-9a922e7a55b6", "Magali Villeneuve"),
-        CardSet::Commander2014,
-        // Five mana that gives a land back on the way in and then turns every
+    CardRecord::new(
+    "Titania, Protector of Argoth",
+    "224d904a-5972-4152-878a-9a922e7a55b6",
+    "Magali Villeneuve",
+// Five mana that gives a land back on the way in and then turns every
         // fetchland the deck was already playing into five power.
         CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elemental"], 5, 3)
             .with_supertype(CardSupertype::Legendary)
@@ -84,7 +96,7 @@ pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
                     ),
                 ),
             ]),
-    );
+);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
     &[&CONTAINMENT_PRIEST, &TITANIA_PROTECTOR_OF_ARGOTH];

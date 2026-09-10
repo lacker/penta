@@ -1,16 +1,41 @@
 //! Aether Revolt cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ControlDurationDef, CostDef, CounterKind, CreatedTokensDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
-};
-use crate::ids::{ParentBinding, TargetIndex};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ControlDurationDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::CreatedTokensDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::PayOrDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::ids::ParentBinding;
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 /// "When this creature enters, you get {E}{E} (two energy counters)." --
@@ -43,10 +68,9 @@ const fn servo_for_two_energy_on_attack() -> AbilityDef {
 
 // AER 51 — Aether Poisoner
 pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c9b217f1-1621-40d1-8a98-24c1f7cba800"),
     "Aether Poisoner",
-    CardArt::new("c9b217f1-1621-40d1-8a98-24c1f7cba800", "Yongjae Choi"),
-    CardSet::AetherRevolt,
+    "c9b217f1-1621-40d1-8a98-24c1f7cba800",
+    "Yongjae Choi",
     // Deathtouch is what makes the attack safe: a 1/1 the defender cannot
     // profitably block keeps making Servos.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 1, 1).with_abilities(&[
@@ -62,11 +86,10 @@ static PUSH_IT: EffectDef = EffectDef::Destroy {
     then: None,
 };
 
-pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_legacy_id(
-    2233,
+pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new(
     "Fatal Push",
-    CardArt::new("b5e81649-9954-424c-89d1-f87d73b66047", "Eric Deschamps"),
-    CardSet::AetherRevolt,
+    "b5e81649-9954-424c-89d1-f87d73b66047",
+    "Eric Deschamps",
     // One black mana answers most of what a fast deck plays, and a fetchland
     // cracked on the way in stretches it over almost everything else.
     CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
@@ -101,10 +124,9 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
 
 // AER 76 — Aether Chaser
 pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("290cde84-d97a-4737-aff2-c443a4e43f7d"),
     "Aether Chaser",
-    CardArt::new("290cde84-d97a-4737-aff2-c443a4e43f7d", "Jason Rainville"),
-    CardSet::AetherRevolt,
+    "290cde84-d97a-4737-aff2-c443a4e43f7d",
+    "Jason Rainville",
     // The red half of the same pair. First strike does for a 2/1 what
     // deathtouch does for the 1/1: it makes attacking into a bigger board
     // survivable often enough to keep the energy flowing.
@@ -117,11 +139,10 @@ pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
 
 // AER 87 — Kari Zev, Skyship Raider
 pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("72495879-39ce-449d-ad2f-ef32ea46f3aa"),
     "Kari Zev, Skyship Raider",
-    CardArt::new("72495879-39ce-449d-ad2f-ef32ea46f3aa", "Brad Rigney"),
-    CardSet::AetherRevolt,
-    // Two mana that attacks as three power across two bodies, one of which
+    "72495879-39ce-449d-ad2f-ef32ea46f3aa",
+    "Brad Rigney",
+// Two mana that attacks as three power across two bodies, one of which
     // is hard to block and the other of which is gone by the second main
     // phase.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Pirate"], 1, 3)
@@ -171,11 +192,10 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
 
 // AER 101 — Wrangle
 pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5ea93a49-5a7c-4d15-8548-a57c9460e0f0"),
     "Wrangle",
-    CardArt::new("5ea93a49-5a7c-4d15-8548-a57c9460e0f0", "Jason Rainville"),
-    CardSet::AetherRevolt,
-    // A Threaten capped at power four, which is what keeps it from simply
+    "5ea93a49-5a7c-4d15-8548-a57c9460e0f0",
+    "Jason Rainville",
+// A Threaten capped at power four, which is what keeps it from simply
     // stealing the thing the opponent spent their turn on.
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
         "Gain control of target creature with power 4 or less until end of turn. Untap that creature. It gains haste until end of turn.",
@@ -207,20 +227,18 @@ pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
 
 // AER 151 — Foundry Assembler
 pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e83a2862-a2d7-4d87-a4b8-def9f441f5fa"),
     "Foundry Assembler",
-    CardArt::new("e83a2862-a2d7-4d87-a4b8-def9f441f5fa", "Karl Kopinski"),
-    CardSet::AetherRevolt,
+    "e83a2862-a2d7-4d87-a4b8-def9f441f5fa",
+    "Karl Kopinski",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Assembly-Worker"], 3, 3)
         .with_ability(crate::card::abilities::improvise()),
 );
 
 // AER 181 — Walking Ballista
-pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_with_legacy_id(
-    2237,
+pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new(
     "Walking Ballista",
-    CardArt::new("329a8738-3e17-403a-857a-0ba529ce8cd1", "Daniel Ljunggren"),
-    CardSet::AetherRevolt,
+    "329a8738-3e17-403a-857a-0ba529ce8cd1",
+    "Daniel Ljunggren",
     // Two mana per point, which is a bad rate and never a dead card: it is
     // removal, a mana sink, and a creature, and it needs no colours at all.
     CardRules::new_artifact_creature(mana_cost!("{X}{X}"), &["Construct"], 0, 0).with_abilities(&[

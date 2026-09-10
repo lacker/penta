@@ -555,11 +555,11 @@ fn composite_uncounterability_stays_within_the_shared_runtime_boundary() {
 
 #[test]
 fn fully_declarative_clauses_stay_within_the_shared_runtime_boundary() {
-    for record in SET_MODULES
+    for (set, record) in SET_MODULES
         .iter()
-        .flat_map(|module| module.cards.iter().copied())
+        .flat_map(|module| module.cards.iter().map(move |record| (module.set, *record)))
     {
-        let definition = record.definition();
+        let definition = record.definition(set);
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
                 let ability_id = attached.id;

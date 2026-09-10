@@ -143,6 +143,11 @@ export function installRoomGlobals({
   presence = {},
   replayCompatibilityError = () => null,
 }) {
+  // Most room tests model only the engine methods relevant to their scenario.
+  // Give those small fakes the current game-construction entry point while
+  // preserving a suite's explicit implementation when it wants to inspect
+  // the art preference itself.
+  WebGame.withArtPreference ??= (...args) => new WebGame(...args);
   globalThis.Response = TestResponse;
   globalThis.WebSocketPair = TestWebSocketPair;
   globalThis.__gameRoomEngine = async () => ({ WebGame, HostedGame });

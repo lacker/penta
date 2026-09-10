@@ -1,19 +1,31 @@
 //! ARB card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // ARB 29 — Soul Manipulation
 pub(in crate::card::sets) static SOUL_MANIPULATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bcd3cb05-c6f9-435a-a0e7-1f85da4a36eb"),
     "Soul Manipulation",
-    CardArt::new("bcd3cb05-c6f9-435a-a0e7-1f85da4a36eb", "Carl Critchlow"),
-    CardSet::AlaraReborn,
+    "bcd3cb05-c6f9-435a-a0e7-1f85da4a36eb",
+    "Carl Critchlow",
     // Three mana for a counterspell is a poor rate and three for a regrowth
     // is worse; taking both at once is the whole card.
     CardRules::new_instant(mana_cost!("{1}{U}{B}")).with_ability(
@@ -61,10 +73,9 @@ pub(in crate::card::sets) static SOUL_MANIPULATION: CardRecord = CardRecord::new
 
 // ARB 95 — Putrid Leech
 pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("aaa47568-5668-4a9f-ad1c-9a13010ffc2b"),
     "Putrid Leech",
-    CardArt::new("aaa47568-5668-4a9f-ad1c-9a13010ffc2b", "Dave Allsop"),
-    CardSet::AlaraReborn,
+    "aaa47568-5668-4a9f-ad1c-9a13010ffc2b",
+    "Dave Allsop",
     // A two-mana 4/4 that costs two life a turn to be one, and the life is
     // paid before blockers rather than after.
     CardRules::new_creature(mana_cost!("{B}{G}"), &["Zombie", "Leech"], 2, 2).with_ability(
@@ -79,10 +90,9 @@ pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
 
 // ARB 133 — Thopter Foundry
 pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("42b8d797-b01d-49cf-9818-d84bba17029d"),
     "Thopter Foundry",
-    CardArt::new("42b8d797-b01d-49cf-9818-d84bba17029d", "Ralph Horsley"),
-    CardSet::AlaraReborn,
+    "42b8d797-b01d-49cf-9818-d84bba17029d",
+    "Ralph Horsley",
     // Two mana for a machine that turns every spent artifact into a flier
     // and a life, which is why it is played beside the artifacts that come
     // back on their own.

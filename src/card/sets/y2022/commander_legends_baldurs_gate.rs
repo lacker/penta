@@ -1,28 +1,65 @@
 //! Commander Legends: Battle for Baldur's Gate cards cataloged for the
 //! Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternateSpellKind,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition, CardEffectStatus, CardNameDef,
-    CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType, ComparisonDef, CostDef,
-    CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
-};
-use crate::ids::{CardPartId, PlayOptionId};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::ActivationTimingDef;
+use crate::card::AlternateSpellKind;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardArt;
+use crate::card::CardComposition;
+use crate::card::CardEffectStatus;
+use crate::card::CardNameDef;
+use crate::card::CardPart;
+use crate::card::CardRules;
+use crate::card::CardStructure;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::CostDef;
+use crate::card::CounterKind;
+use crate::card::DeckConstructionDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::KeywordAbility;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::PlayOptionDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::SacrificedAmountDef;
+use crate::card::SpellCastQueryDef;
+use crate::card::SpellForm;
+use crate::card::SpellResolutionDestinationDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueComparisonDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::card::sets::y2021::adventures_in_the_forgotten_realms as catalog_afr;
+use crate::ids::CardPartId;
+use crate::ids::PlayOptionId;
+use crate::mana_cost;
 
 // CLB 8 — Banishment
 pub(in crate::card::sets) static BANISHMENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a71caadb-31ab-4b7f-b304-e7d3e8f9d132"),
     "Banishment",
-    CardArt::new("a71caadb-31ab-4b7f-b304-e7d3e8f9d132", "Darek Zabrocki"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    CardRules::new_enchantment(mana_cost!("{3}{W}")).with_abilities(&[
+    "a71caadb-31ab-4b7f-b304-e7d3e8f9d132",
+    "Darek Zabrocki",
+CardRules::new_enchantment(mana_cost!("{3}{W}")).with_abilities(&[
         abilities::flash(),
         abilities::enters_trigger_with_targets(
             "When this enchantment enters, exile target nonland permanent an opponent controls and all other nonland permanents your opponents control with the same name until this enchantment leaves the battlefield.",
@@ -149,10 +186,9 @@ fn blessed_hippogriff_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b4590e53-ca8d-4896-a8cf-6af1e4bc456f"),
     "Blessed Hippogriff",
-    CardArt::new("b4590e53-ca8d-4896-a8cf-6af1e4bc456f", "Leanna Crossan"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
+    "b4590e53-ca8d-4896-a8cf-6af1e4bc456f",
+    "Leanna Crossan",
     // A one-mana combat trick early and a flier that carries the team over
     // blockers later: the Adventure is why the body costs four.
     blessed_hippogriff_rules(),
@@ -161,10 +197,9 @@ pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::ne
 
 // CLB 22 — Greatsword of Tyr
 pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("50088a60-642b-47ed-a289-ef0b617b688f"),
     "Greatsword of Tyr",
-    CardArt::new("50088a60-642b-47ed-a289-ef0b617b688f", "Titus Lunter"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
+    "50088a60-642b-47ed-a289-ef0b617b688f",
+    "Titus Lunter",
     // One white to move it and a counter every swing, so the Equipment is
     // the threat and whichever creature carries it is interchangeable.
     CardRules::new_artifact(mana_cost!("{1}{W}"))
@@ -301,10 +336,9 @@ fn sword_coast_serpent_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static SWORD_COAST_SERPENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0bbfb7ae-9a32-428d-903c-99d0d8669b8d"),
     "Sword Coast Serpent",
-    CardArt::new("0bbfb7ae-9a32-428d-903c-99d0d8669b8d", "Caio Monteiro"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
+    "0bbfb7ae-9a32-428d-903c-99d0d8669b8d",
+    "Caio Monteiro",
     // Seven mana for a body that only connects in a deck already casting
     // cheap spells -- which is the deck the Adventure half is for.
     sword_coast_serpent_rules(),
@@ -377,10 +411,9 @@ fn young_blue_dragon_composition() -> CardComposition {
 }
 
 pub(in crate::card::sets) static YOUNG_BLUE_DRAGON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("56b0f66b-dca9-4a01-9394-20a513c2b225"),
     "Young Blue Dragon",
-    CardArt::new("56b0f66b-dca9-4a01-9394-20a513c2b225", "Tuan Duong Chu"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
+    "56b0f66b-dca9-4a01-9394-20a513c2b225",
+    "Tuan Duong Chu",
     // A cantrip early and a flier later, which is the deal the whole
     // Adventure cycle offers: two cards' worth of turns from one card.
     young_blue_dragon_rules(),
@@ -389,10 +422,9 @@ pub(in crate::card::sets) static YOUNG_BLUE_DRAGON: CardRecord = CardRecord::new
 
 // CLB 113 — Arms of Hadar
 pub(in crate::card::sets) static ARMS_OF_HADAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("db1fd431-8f6d-4ca5-bc0c-53881c500da1"),
     "Arms of Hadar",
-    CardArt::new("db1fd431-8f6d-4ca5-bc0c-53881c500da1", "Mirko Failoni"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
+    "db1fd431-8f6d-4ca5-bc0c-53881c500da1",
+    "Mirko Failoni",
     // A one-sided sweeper at sorcery speed, and it names a player rather
     // than the creatures, so a board built after it resolves is untouched.
     CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
@@ -414,29 +446,18 @@ pub(in crate::card::sets) static ARMS_OF_HADAR: CardRecord = CardRecord::new(
     )),
 );
 
-// CLB 119 — Cast Down
-pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("116ce944-6871-4f51-a889-d9c4a5d7cff2"),
-    "Cast Down",
-    CardArt::new("aba79021-39af-4e74-beb5-f2f508c865b2", "Tyler Walpole"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    // Two mana for unconditional removal, priced by the one exception it
-    // makes -- which is exactly the thing the opponent built around.
-    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::destroy_target(
-        "Destroy target nonlegendary creature.",
-        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
-        ])),
-    )),
+// CLB 119 — Cast Down (reprint)
+const CAST_DOWN_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2018::dominaria::CAST_DOWN,
+    "aba79021-39af-4e74-beb5-f2f508c865b2",
+    "Tyler Walpole",
 );
 
 // CLB 130 — Guildsworn Prowler
 pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d7efb10f-c760-431c-8ac6-904965d850dc"),
     "Guildsworn Prowler",
-    CardArt::new("d7efb10f-c760-431c-8ac6-904965d850dc", "Fariba Khamseh"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
+    "d7efb10f-c760-431c-8ac6-904965d850dc",
+    "Fariba Khamseh",
     // Deathtouch makes attacking into it a bad trade and blocking with it a
     // good one, and the card is the reward for choosing the first.
     CardRules::new_creature(
@@ -470,12 +491,11 @@ pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::ne
 );
 
 // CLB 180 — Gut, True Soul Zealot
-pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::new_with_legacy_id(
-    2211,
+pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::new(
     "Gut, True Soul Zealot",
-    CardArt::new("3d8ca18d-9099-4f1e-95c1-f04da58a26bd", "Wayne Reynolds"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    // Every spent artifact and every creature that has done its work turns
+    "3d8ca18d-9099-4f1e-95c1-f04da58a26bd",
+    "Wayne Reynolds",
+// Every spent artifact and every creature that has done its work turns
     // into four attacking power that two blockers cannot answer alone.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Shaman"], 2, 2)
         .with_supertype(CardSupertype::Legendary)
@@ -528,56 +548,19 @@ pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::
         ]),
 );
 
-// CLB 263 — You Meet in a Tavern
-pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("593aa59a-4025-4df8-9f27-188fc7712fde"),
-    "You Meet in a Tavern",
-    CardArt::new("9fddbd7a-799c-4432-810c-d839c5c354b9", "Zoltan Boros"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    // Refuel or finish, chosen on the turn it is cast, which is what four
-    // mana buys in a deck that is sometimes ahead and sometimes empty.
-    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —",
-        &[
-            AbilityDef::spell(
-                "Form a Party — Look at the top five cards of your library. You may reveal any \
-                 number of creature cards from among them and put them into your hand. Put the \
-                 rest on the bottom of your library in a random order.",
-                // "Any number" is nought through five, so a whiff takes
-                // nothing and still buries the five.
-                abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
-                    ValueDef::Constant(5),
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    0,
-                    5,
-                ),
-            ),
-            AbilityDef::spell(
-                "Start a Brawl — Creatures you control get +2/+2 until end of turn.",
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    ),
-                    effect: AppliedEffectDef::modify_power_toughness(
-                        ValueDef::Constant(2),
-                        ValueDef::Constant(2),
-                    ),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            ),
-        ],
-    )),
+// CLB 263 — You Meet in a Tavern (reprint)
+const YOU_MEET_IN_A_TAVERN_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &catalog_afr::YOU_MEET_IN_A_TAVERN,
+    "9fddbd7a-799c-4432-810c-d839c5c354b9",
+    "Zoltan Boros",
 );
 
 // CLB 285 — Minsc & Boo, Timeless Heroes
 pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("928036c9-11b8-493e-b9f2-8fbd3487cd19"),
     "Minsc & Boo, Timeless Heroes",
-    CardArt::new("928036c9-11b8-493e-b9f2-8fbd3487cd19", "Andreas Zafiratos"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    CardRules::new_planeswalker(mana_cost!("{2}{R}{G}"), &["Minsc"], 3)
+    "928036c9-11b8-493e-b9f2-8fbd3487cd19",
+    "Andreas Zafiratos",
+CardRules::new_planeswalker(mana_cost!("{2}{R}{G}"), &["Minsc"], 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             AbilityDef::triggered(
@@ -680,12 +663,50 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
         ]),
 );
 
+// CLB 346 — Basilisk Gate
+pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
+    "Basilisk Gate",
+    "4a306025-d429-4006-b7ed-bdb287e83f57",
+    "Julian Kok Joon Wen",
+    // A colourless land that ends games once the Gates deck has enough of
+    // them, which is the whole reason to run the worse lands beside it.
+    CardRules::new_land(&["Gate"]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}: Target creature gets +X/+X until end of turn, where X is the number of \
+             Gates you control. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                // This land is itself a Gate, so the count is never zero
+                // while the ability can be activated at all.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&GATES_YOU_CONTROL),
+                    ValueDef::CountMatchingObjects(&GATES_YOU_CONTROL),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
+);
+
+/// "The number of Gates you control", read twice by the pump above: once for
+/// power and once for toughness.
+static GATES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Gate"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 // CLB 560 — Displacer Kitten
 pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9a53e8fc-bfd2-4866-a61c-f3204b0a98bf"),
     "Displacer Kitten",
-    CardArt::new("9a53e8fc-bfd2-4866-a61c-f3204b0a98bf", "Campbell White"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
+    "9a53e8fc-bfd2-4866-a61c-f3204b0a98bf",
+    "Campbell White",
     // Four mana for a 2/2 that does nothing on its own and everything in a
     // deck built to cast noncreature spells: every one of them is another
     // enter trigger off whatever is already on the battlefield.
@@ -734,79 +755,48 @@ pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
 );
 
 // CLB 630 — Delayed Blast Fireball
-pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2299,
-        "Delayed Blast Fireball",
-        CardArt::new("400c76c6-f677-4e7e-87ad-2e526d4b498a", "Andreas Zafiratos"),
-        CardSet::CommanderLegendsBattleForBaldursGate,
-        // A one-sided sweeper that costs a turn of setup, which is the trade the
-        // cube's aggressive decks are least able to make and the slow ones most.
-        CardRules::new_instant(mana_cost!("{1}{R}{R}")).with_abilities(&[
-            AbilityDef::spell(
-                "Delayed Blast Fireball deals 2 damage to each opponent and each creature they \
+pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord = CardRecord::new(
+    "Delayed Blast Fireball",
+    "400c76c6-f677-4e7e-87ad-2e526d4b498a",
+    "Andreas Zafiratos",
+    // A one-sided sweeper that costs a turn of setup, which is the trade the
+    // cube's aggressive decks are least able to make and the slow ones most.
+    CardRules::new_instant(mana_cost!("{1}{R}{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Delayed Blast Fireball deals 2 damage to each opponent and each creature they \
              control. If this spell was cast from exile, it deals 5 damage to each opponent and \
              each creature they control instead.",
-                EffectDef::IfElseCondition {
-                    condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Exile),
-                    then: &EffectDef::damage(
-                        EffectRecipientDef::EachOpponentAndTheirCreatures,
-                        ValueDef::Constant(5),
-                    ),
-                    // Two damage as the baseline and five when it was foretold, which is the
-                    // whole of the card: the two mana spent a turn earlier buy three damage and
-                    // one mana off the price.
-                    otherwise: &EffectDef::damage(
-                        EffectRecipientDef::EachOpponentAndTheirCreatures,
-                        ValueDef::Constant(2),
-                    ),
-                },
-            ),
-            abilities::foretell(&[CostDef::Mana(mana_cost!("{4}{R}{R}"))]),
-        ]),
-    );
-
-// CLB 748 — Dauthi Horror
-pub(in crate::card::sets) static DAUTHI_HORROR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c5a8bb3a-3a84-442f-8e31-8af2f04408ab"),
-    "Dauthi Horror",
-    CardArt::new("7c41afe6-7eed-4cf5-9bbb-ccc9f82cb4fa", "Jeff Laubenstein"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    // Shadow already stops white creatures blocking it, so the second
-    // clause only matters against a white creature that also has shadow.
-    CardRules::new_creature(mana_cost!("{1}{B}"), &["Dauthi", "Horror"], 2, 1).with_abilities(&[
-        abilities::shadow(),
-        AbilityDef::static_ability(
-            "This creature can't be blocked by white creatures.",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                    ObjectPredicateDef::Color(ManaColor::White),
-                )),
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Exile),
+                then: &EffectDef::damage(
+                    EffectRecipientDef::EachOpponentAndTheirCreatures,
+                    ValueDef::Constant(5),
+                ),
+                // Two damage as the baseline and five when it was foretold, which is the
+                // whole of the card: the two mana spent a turn earlier buy three damage and
+                // one mana off the price.
+                otherwise: &EffectDef::damage(
+                    EffectRecipientDef::EachOpponentAndTheirCreatures,
+                    ValueDef::Constant(2),
+                ),
             },
         ),
+        abilities::foretell(&[CostDef::Mana(mana_cost!("{4}{R}{R}"))]),
     ]),
 );
 
-// CLB 897 — Izzet Boilerworks
-pub(in crate::card::sets) static IZZET_BOILERWORKS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("666f455e-3a3d-475d-b67a-a1fdd74820eb"),
-    "Izzet Boilerworks",
-    CardArt::new("c86e42c6-342b-443f-9b99-a68cf536ff45", "John Avon"),
-    CardSet::CommanderLegendsBattleForBaldursGate,
-    // The last of the ten karoos; only the two colours below are its own.
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped(CardType::Land),
-        abilities::karoo_bounce(),
-        AbilityDef::activated_mana(
-            "{T}: Add {U}{R}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
-                ManaColor::Blue,
-                ManaColor::Red,
-            )),
-        ),
-    ]),
+// CLB 748 — Dauthi Horror (reprint)
+const DAUTHI_HORROR_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1997::tempest::DAUTHI_HORROR,
+    "7c41afe6-7eed-4cf5-9bbb-ccc9f82cb4fa",
+    "Jeff Laubenstein",
+);
+
+// CLB 897 — Izzet Boilerworks (reprint)
+const IZZET_BOILERWORKS_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2006::guildpact::IZZET_BOILERWORKS,
+    "c86e42c6-342b-443f-9b99-a68cf536ff45",
+    "John Avon",
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
@@ -816,15 +806,17 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SWORD_COAST_SERPENT,
     &YOUNG_BLUE_DRAGON,
     &ARMS_OF_HADAR,
-    &CAST_DOWN,
     &GUILDSWORN_PROWLER,
     &GUT_TRUE_SOUL_ZEALOT,
-    &YOU_MEET_IN_A_TAVERN,
     &MINSC_BOO_TIMELESS_HEROES,
+    &BASILISK_GATE,
     &DISPLACER_KITTEN,
     &DELAYED_BLAST_FIREBALL,
-    &DAUTHI_HORROR,
-    &IZZET_BOILERWORKS,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    CAST_DOWN_REPRINT,
+    YOU_MEET_IN_A_TAVERN_REPRINT,
+    DAUTHI_HORROR_REPRINT,
+    IZZET_BOILERWORKS_REPRINT,
+];

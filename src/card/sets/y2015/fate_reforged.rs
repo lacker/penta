@@ -1,20 +1,30 @@
 //! FRF card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef,
-    ConditionalStaticEffectDef, EffectDef, EffectRecipientDef, KeywordAbility, ObjectPredicateDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetPredicateDef,
-    StaticApplyDef, abilities,
-};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
+use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::ConditionalStaticEffectDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::KeywordAbility;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetCountConditionDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::ObjectSetPredicateDef;
+use crate::card::StaticApplyDef;
+use crate::card::abilities;
 use crate::mana_cost;
 
 // FRF 72 — Gurmag Angler
 pub(in crate::card::sets) static GURMAG_ANGLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9"),
     "Gurmag Angler",
-    CardArt::new("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9", "YW Tang"),
-    CardSet::FateReforged,
+    "c60a8cf1-a8c7-4f45-bbd3-188fab2652f9",
+    "YW Tang",
     // Printed at seven and cast for one, which is why a deck that fills its
     // own graveyard treats the mana cost as a formality.
     CardRules::new_creature(mana_cost!("{6}{B}"), &["Zombie", "Fish"], 5, 5)
@@ -45,11 +55,10 @@ const fn soulflayer_ability(keyword: KeywordAbility, ability: &'static AbilityDe
 }
 
 pub(in crate::card::sets) static SOULFLAYER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5084c8ff-1296-4d8e-bd06-93b1a3401661"),
     "Soulflayer",
-    CardArt::new("5084c8ff-1296-4d8e-bd06-93b1a3401661", "Seb McKinnon"),
-    CardSet::FateReforged,
-    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilities(&[
+    "5084c8ff-1296-4d8e-bd06-93b1a3401661",
+    "Seb McKinnon",
+CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilities(&[
         abilities::delve(),
         AbilityDef::static_ability(
             "If a creature card with flying was exiled with delve to cast this creature, this creature has flying. The same is true for first strike, double strike, deathtouch, haste, hexproof, indestructible, lifelink, reach, trample, and vigilance.",

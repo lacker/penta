@@ -1,22 +1,46 @@
 //! Rise of the Eldrazi cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedRuleDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, EffectDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
-};
-use crate::{TargetIndex, mana_cost};
+use super::CardRecord;
+use super::PrintingRecord;
+use crate::AppliedEffectDef;
+use crate::BasicLandType;
+use crate::ControlDurationDef;
+use crate::ResolvedEffectDurationDef;
+use crate::TargetIndex;
+use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::CardArt;
+use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
+use crate::card::CostDef;
+use crate::card::EffectDef;
+use crate::card::EffectRecipientDef;
+use crate::card::KeywordAbility;
+use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
+use crate::card::abilities;
+use crate::mana_cost;
 
 // ROE 4 — Emrakul, the Aeons Torn
 pub(in crate::card::sets) static EMRAKUL_THE_AEONS_TORN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("67600383-bbb8-411c-b8e6-2296650bc747"),
     "Emrakul, the Aeons Torn",
-    CardArt::new("67600383-bbb8-411c-b8e6-2296650bc747", "Mark Tedin"),
-    CardSet::RiseOfTheEldrazi,
-    CardRules::new_creature(mana_cost!("{15}"), &["Eldrazi"], 15, 15)
+    "67600383-bbb8-411c-b8e6-2296650bc747",
+    "Mark Tedin",
+CardRules::new_creature(mana_cost!("{15}"), &["Eldrazi"], 15, 15)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
             abilities::cannot_be_countered(),
@@ -60,22 +84,29 @@ pub(in crate::card::sets) static EMRAKUL_THE_AEONS_TORN: CardRecord = CardRecord
 
 // ROE 13 — Ulamog's Crusher
 pub(in crate::card::sets) static ULAMOG_S_CRUSHER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("76bacedb-9fa8-4a21-b0eb-e7ead64360b4"),
     "Ulamog's Crusher",
-    crate::card::CardArt::new("76bacedb-9fa8-4a21-b0eb-e7ead64360b4", "Todd Lockwood"),
-    crate::card::CardSet::RiseOfTheEldrazi,
+    "76bacedb-9fa8-4a21-b0eb-e7ead64360b4",
+    "Todd Lockwood",
     CardRules::new_creature(mana_cost!("{8}"), &["Eldrazi"], 8, 8).with_abilities(&[
         abilities::annihilator(2),
         abilities::attacks_each_combat_if_able(),
     ]),
 );
 
+// ROE 21 — Gideon Jura
+// Audit: unsupported — Needs forced attacks against a chosen planeswalker controller and a turn-long planeswalker animation with damage prevention.
+pub(in crate::card::sets) static GIDEON_JURA: CardRecord = CardRecord::new(
+    "Gideon Jura",
+    "e0440668-1b0e-437c-9e42-7166dd14dfe5",
+    "Aleksi Briclot",
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 40 — Oust
 pub(in crate::card::sets) static OUST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("07313dd3-d0dc-40ca-98a3-fa4d39e5bcae"),
     "Oust",
-    crate::card::CardArt::new("07313dd3-d0dc-40ca-98a3-fa4d39e5bcae", "Mike Bierek"),
-    crate::card::CardSet::RiseOfTheEldrazi,
+    "07313dd3-d0dc-40ca-98a3-fa4d39e5bcae",
+    "Mike Bierek",
     // One white mana answers anything, and pays for it with three life and a
     // card the other player draws again in two turns.
     CardRules::new_sorcery(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
@@ -107,21 +138,111 @@ pub(in crate::card::sets) static OUST: CardRecord = CardRecord::new(
 // ROE 61 — Domestication
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOMESTICATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e1f15831-8dfd-4232-875c-efa6744c9a12"),
     "Domestication",
-    crate::card::CardArt::new("e1f15831-8dfd-4232-875c-efa6744c9a12", "Jesper Ejsing"),
-    crate::card::CardSet::RiseOfTheEldrazi,
+    "e1f15831-8dfd-4232-875c-efa6744c9a12",
+    "Jesper Ejsing",
     crate::card::CardRules::unsupported(),
+);
+
+// ROE 67 — Fleeting Distraction
+pub(in crate::card::sets) static FLEETING_DISTRACTION: CardRecord = CardRecord::new(
+    "Fleeting Distraction",
+    "ed843c4d-28b5-4a4c-8bae-8f03f329bf2b",
+    "Kieran Yanner",
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets -1/-0 until end of turn. Draw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
+);
+
+// ROE 98 — Bloodthrone Vampire
+pub(in crate::card::sets) static BLOODTHRONE_VAMPIRE: CardRecord = CardRecord::new(
+    "Bloodthrone Vampire",
+    "48bf0233-1d2e-40cb-9a69-8eeeeb2959ca",
+    "Steve Argyle",
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
+);
+
+// ROE 102 — Contaminated Ground
+pub(in crate::card::sets) static CONTAMINATED_GROUND: CardRecord = CardRecord::new(
+    "Contaminated Ground",
+    "3d2ba8f3-58f5-43e5-9201-974ba58f56f8",
+    "Rob Alexander",
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Enchant land",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted land is a Swamp.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::set_basic_land_types(&[BasicLandType::Swamp]),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Whenever enchanted land becomes tapped, its controller loses 2 life.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                        "Whenever enchanted land becomes tapped, its controller loses 2 life.",
+                        TriggerEventDef::tapped(ObjectPredicateDef::Source),
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(2),
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // ROE 115 — Inquisition of Kozilek
 /// A choice of one with nothing on offer simply does not ask: a hand with
 /// nothing cheap enough in it loses nothing.
 pub(in crate::card::sets) static INQUISITION_OF_KOZILEK: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6a3ff5c3-0fdb-4d54-b4e5-ce7bad9953f0"),
     "Inquisition of Kozilek",
-    CardArt::new("6a3ff5c3-0fdb-4d54-b4e5-ce7bad9953f0", "Tomasz Jedruszek"),
-    CardSet::RiseOfTheEldrazi,
+    "6a3ff5c3-0fdb-4d54-b4e5-ce7bad9953f0",
+    "Tomasz Jedruszek",
     // One mana and no life, for everything the format actually casts on the
     // first three turns.
     CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
@@ -143,46 +264,40 @@ pub(in crate::card::sets) static INQUISITION_OF_KOZILEK: CardRecord = CardRecord
     )),
 );
 
-// ROE 130 — Vendetta
-pub(in crate::card::sets) static VENDETTA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("67ced38e-0f33-4bda-8e18-09f6ac03a3d7"),
-    "Vendetta",
-    CardArt::new("039fc76d-3b7e-4329-a997-07c25509e421", "Karl Kopinski"),
-    CardSet::RiseOfTheEldrazi,
-    // One mana kills almost anything; the life is what makes killing the big
-    // thing a real decision rather than a free one.
-    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
-        "Destroy target nonblack creature. It can't be regenerated. You lose life equal to that creature's toughness.",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::All(&[
+// ROE 126 — Shrivel
+pub(in crate::card::sets) static SHRIVEL: CardRecord = CardRecord::new(
+    "Shrivel",
+    "a87c80a1-5818-45fd-9a37-a2ee3396626e",
+    "Jung Park",
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell(
+        "All creatures get -1/-1 until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-            ]),
-        )],
-        EffectDef::Sequence(&[
-            EffectDef::WithRule {
-                rule: AppliedRuleDef::CannotRegenerate,
-                effect: &EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    then: None,
-                },
-            },
-            // Read off the target rather than off the board, so the
-            // toughness charged is the one it had as it died.
-            EffectDef::LoseLife {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::TargetToughness(TargetIndex::PRIMARY),
-            },
-        ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-1),
+                ValueDef::Constant(-1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
     )),
 );
 
+// ROE 130 — Vendetta (reprint)
+const VENDETTA_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1999::mercadian_masques::VENDETTA,
+    "039fc76d-3b7e-4329-a997-07c25509e421",
+    "Karl Kopinski",
+);
+
 // ROE 145 — Flame Slash
-pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new_with_legacy_id(
-    2184,
+pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new(
     "Flame Slash",
-    CardArt::new("006d2bf1-20f7-4b09-8d98-8233d91682bd", "Raymond Swanland"),
-    CardSet::RiseOfTheEldrazi,
+    "006d2bf1-20f7-4b09-8d98-8233d91682bd",
+    "Raymond Swanland",
     // One mana for four damage is the best rate in the format; the sorcery
     // speed is the whole price, and it cannot go upstairs.
     CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
@@ -197,12 +312,59 @@ pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new_with_
     )),
 );
 
+// ROE 147 — Goblin Arsonist
+pub(in crate::card::sets) static GOBLIN_ARSONIST: CardRecord = CardRecord::new(
+    "Goblin Arsonist",
+    "707d396d-950b-4ab8-9db2-f40c8f7db062",
+    "Wayne Reynolds",
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Shaman"], 1, 1).with_ability(
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, you may have it deal 1 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ),
+);
+
+// ROE 148 — Goblin Tunneler
+pub(in crate::card::sets) static GOBLIN_TUNNELER: CardRecord = CardRecord::new(
+    "Goblin Tunneler",
+    "0b2e4a34-6255-4f89-a62d-941996c573e1",
+    "Jesper Ejsing",
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Rogue"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature with power 2 or less can't be blocked this turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(3)),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                    ObjectPredicateDef::Any,
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
+);
+
 // ROE 161 — Raid Bombardment
 pub(in crate::card::sets) static RAID_BOMBARDMENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9c2d1a48-efde-4134-95f0-b23f6cf85259"),
     "Raid Bombardment",
-    CardArt::new("9c2d1a48-efde-4134-95f0-b23f6cf85259", "Matt Cavotta"),
-    CardSet::RiseOfTheEldrazi,
+    "9c2d1a48-efde-4134-95f0-b23f6cf85259",
+    "Matt Cavotta",
     // The power cap is the deckbuilding cost: this pays a token deck and
     // nothing else, and it turns chump attackers into reach.
     CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(AbilityDef::triggered(
@@ -222,13 +384,45 @@ pub(in crate::card::sets) static RAID_BOMBARDMENT: CardRecord = CardRecord::new(
     )),
 );
 
+// ROE 168 — Traitorous Instinct
+pub(in crate::card::sets) static TRAITOROUS_INSTINCT: CardRecord = CardRecord::new(
+    "Traitorous Instinct",
+    "d65b63ea-e3c3-465d-8cd9-7251cda9cc63",
+    "Scott Chou",
+CardRules::new_sorcery(mana_cost!("{3}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Gain control of target creature until end of turn. Untap that creature. Until end of turn, it gets +2/+0 and gains haste.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::gain_control(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::UntilEndOfTurn,
+                ),
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+    ),
+);
+
 // ROE 201 — Nest Invader
 pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("24517d9c-6cde-41e8-9e82-ee73f069379a"),
     "Nest Invader",
-    CardArt::new("24517d9c-6cde-41e8-9e82-ee73f069379a", "Trevor Claxton"),
-    CardSet::RiseOfTheEldrazi,
-    CardRules::new_creature(mana_cost!("{1}{G}"), &["Eldrazi", "Drone"], 2, 2).with_ability(
+    "24517d9c-6cde-41e8-9e82-ee73f069379a",
+    "Trevor Claxton",
+CardRules::new_creature(mana_cost!("{1}{G}"), &["Eldrazi", "Drone"], 2, 2).with_ability(
         abilities::enters_trigger("When this creature enters, create a 0/1 colorless Eldrazi Spawn creature token. It has \"Sacrifice this token: Add {C}.\"", EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1)
                 .with_abilities(&[AbilityDef::activated_mana(
                     "Sacrifice this creature: Add {C}.",
@@ -242,16 +436,76 @@ pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
     ),
 );
 
+// ROE 222 — Prophetic Prism
+pub(in crate::card::sets) static PROPHETIC_PRISM: CardRecord = CardRecord::new(
+    "Prophetic Prism",
+    "cfb90d44-8cb1-4b83-b2f2-92c19d6304fb",
+    "John Avon",
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
+);
+
+// ROE 228 — Evolving Wilds
+pub(in crate::card::sets) static EVOLVING_WILDS: CardRecord = CardRecord::new(
+    "Evolving Wilds",
+    "bc7e0407-fea1-43ef-8580-82271e440bb3",
+    "Steven Belledin",
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated(
+        "{T}, Sacrifice this land: Search your library for a basic land card, put it onto the \
+         battlefield tapped, then shuffle.",
+        &[CostDef::TapSource, CostDef::SacrificeSource],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EMRAKUL_THE_AEONS_TORN,
     &ULAMOG_S_CRUSHER,
+    &GIDEON_JURA,
     &OUST,
     &DOMESTICATION,
+    &FLEETING_DISTRACTION,
+    &BLOODTHRONE_VAMPIRE,
+    &CONTAMINATED_GROUND,
     &INQUISITION_OF_KOZILEK,
-    &VENDETTA,
+    &SHRIVEL,
     &FLAME_SLASH,
+    &GOBLIN_ARSONIST,
+    &GOBLIN_TUNNELER,
     &RAID_BOMBARDMENT,
+    &TRAITOROUS_INSTINCT,
     &NEST_INVADER,
+    &PROPHETIC_PRISM,
+    &EVOLVING_WILDS,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[VENDETTA_REPRINT];

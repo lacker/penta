@@ -69,10 +69,25 @@ export class RemoteEngineGame {
     });
   }
 
-  /** Starts (or restarts) the room's game, then joins it as the human seat. */
+  /** Joins an invited or saved seat; otherwise creates a new hosted room. */
   static async connect(config: RemoteConfig): Promise<RemoteEngineGame> {
     const base = `/_game/${encodeURIComponent(config.gameId)}`;
-    const response = await fetch(`${base}/start`, {
+    const storageKey = `penta-seat:${config.gameId}`;
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const invitedToken = fragment.get("seatToken");
+    if (invitedToken) {
+      window.sessionStorage.setItem(storageKey, JSON.stringify({ humanToken: invitedToken }));
+      fragment.delete("seatToken");
+      const clean = new URL(window.location.href);
+      clean.hash = fragment.toString();
+      window.history.replaceState(null, "", clean);
+    }
+    const saved = JSON.parse(window.sessionStorage.getItem(storageKey) ?? "null") as {
+      humanToken: string; botToken?: string;
+    } | null;
+    const response = saved ? await fetch(`${base}/state`, {
+      headers: { "x-penta-token": saved.humanToken },
+    }) : await fetch(`${base}/start`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -92,11 +107,12 @@ export class RemoteEngineGame {
     }
     // The one time the room sends its tokens. The human's stays in this tab
     // and authorises this seat; the bot's is what a challenge hands on.
-    const opened = JSON.parse(body) as {
+    const opened = (saved ? { ...saved, state: JSON.parse(body) } : JSON.parse(body)) as {
       state: unknown;
       humanToken: string;
       botToken: string;
     };
+    window.sessionStorage.setItem(storageKey, JSON.stringify({ humanToken: opened.humanToken, botToken: opened.botToken }));
     const state = JSON.stringify(opened.state);
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const socket = new WebSocket(
@@ -110,7 +126,7 @@ export class RemoteEngineGame {
     });
     const game = new RemoteEngineGame(socket, state, config);
     game.#humanToken = opened.humanToken;
-    game.botToken = opened.botToken;
+    game.botToken = opened.botToken ?? "";
     return game;
   }
 
@@ -119,7 +135,8 @@ export class RemoteEngineGame {
       this.#config.onError("the hosted game is not connected");
       return;
     }
-    this.#socket.send(JSON.stringify(command));
+    const { sessionRevision } = JSON.parse(this.#state) as { sessionRevision?: string };
+    this.#socket.send(JSON.stringify({ ...command, ...(sessionRevision ? { revision: sessionRevision } : {}) }));
   }
 
   act(index: number): void {

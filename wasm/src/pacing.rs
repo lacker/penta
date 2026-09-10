@@ -20,6 +20,9 @@ fn is_empty_private_choice(observation: &super::PlayerObservation, action: &Acti
 
 impl WebGame {
     pub(super) fn advance_until_human_choice(&mut self) -> Result<(), JsValue> {
+        if self.session_api_enabled() {
+            return Ok(());
+        }
         for _ in 0..BOT_ACTION_LIMIT {
             let Some(player) = self.session.decision_seat() else {
                 return Ok(());

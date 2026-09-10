@@ -107,6 +107,10 @@ not one exact-version comparison:
 - The nested checkpoint payload and browser command journal have independent
   `version` and `replayVersion` fields. Their encodings can therefore move
   without changing the ordinary bot wire epoch.
+- The optional [hosted session API](bot-sessions.md) uses envelope `apiVersion: 1`
+  around unchanged canonical bot observations. Its exact-pacing configuration
+  and `sessionAct` journal command require browser/host replay version 3. MCP
+  presentation deltas and menu references are adapter output, not bot-wire changes.
 
 Query `protocol_version()`, `simulation_fingerprint()`, and `engine_version()`
 through the relevant binding. Release history and migration notes live in the

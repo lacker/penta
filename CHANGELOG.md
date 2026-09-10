@@ -94,6 +94,14 @@ the bot-wire epoch.
   through catalog locators, including retired sources and tokens with abilities.
   Existing decision vocabulary, protocol epoch, and checkpoint format are
   unchanged; reconstruction still requires the simulation fingerprint.
+- Add an opt-in hosted session API for either-seat bots and human-versus-bot
+  matches, with exact decisions, revision checks, durable play receipts, explicit
+  batches, and browser reattachment. A stdio MCP adapter provides compact exact
+  observation changes, paged menus, and on-demand catalog/checkpoint lookup.
+  No gameplay policy is added. Browser/host replay version 3 records the new
+  `sessionApi` pacing configuration and `sessionAct` command; version-2 journals
+  are refused. Bot protocol and checkpoint versions are unchanged. See
+  [bot sessions and MCP](docs/bot-sessions.md) for setup and migration details.
 
 - Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.
   Opponents see that a choice is pending, then its public result; candidate

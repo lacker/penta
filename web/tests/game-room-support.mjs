@@ -189,6 +189,7 @@ export async function loadGameRoom() {
   const javascript = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   }).outputText;
-  const encoded = Buffer.from(javascript).toString("base64");
+  const resolved = javascript.replace(/from "(\.\/[^"\n]+\.mjs)"/g, (_match, path) => `from "${new URL(`../worker/${path.slice(2)}`, import.meta.url).href}"`);
+  const encoded = Buffer.from(resolved).toString("base64");
   return import(`data:text/javascript;base64,${encoded}`);
 }

@@ -139,6 +139,15 @@ impl WebGame {
             "external" => BotPolicy::External,
             _ => return Err(JsValue::from_str("unknown bot policy")),
         };
+        let session_api = replay_config.get("sessionApi").map_or(Ok(false), |value| {
+            value
+                .as_bool()
+                .ok_or_else(|| js_error("sessionApi must be boolean"))
+        })?;
+        if session_api && !matches!(bot, BotPolicy::External) {
+            return Err(js_error("sessionApi requires an external opponent"));
+        }
+        let autopass_enabled = !session_api;
         let mut web_game = Self {
             session: LocalSession::new(game),
             replay_config,
@@ -151,7 +160,7 @@ impl WebGame {
             pending_opponent_mana: Vec::new(),
             mana_undo_history: Vec::new(),
             phase_stops: Vec::new(),
-            autopass_enabled: true,
+            autopass_enabled,
             attack_undo: None,
             // The opening turn arrives with the board, not as a change to it.
             announced_turn: Some(1),

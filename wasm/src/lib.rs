@@ -7,6 +7,7 @@ mod match_play;
 mod pacing;
 mod presentation;
 mod session;
+mod session_api;
 mod snapshot;
 
 use penta::card;
@@ -495,7 +496,7 @@ impl WebGame {
     ///
     /// Returns an error if advancing the facade encounters an invalid engine action.
     pub fn set_autopass(&mut self, enabled: bool) -> Result<(), JsValue> {
-        self.autopass_enabled = enabled;
+        self.autopass_enabled = enabled && !self.session_api_enabled();
         self.opponent_actions.clear();
         self.pending_opponent_mana.clear();
         if enabled {
@@ -751,7 +752,7 @@ impl WebGame {
                 penta::protocol::SIMULATION_FINGERPRINT,
             )));
         }
-        // These are diagnostic provenance rather than replay gates, but a v2
+        // These are diagnostic provenance rather than replay gates, but a current
         // envelope always carries them and malformed values must not pass as a
         // valid artifact.
         let _engine_version = required_json_string(envelope, "replay", "engineVersion")?;
@@ -792,6 +793,10 @@ impl WebGame {
         let tag = required_json_string(command, "command", "t")?;
         match tag {
             "act" => self.act(required_json_usize(command, "command", "index")?),
+            "sessionAct" => self.session_act(
+                required_json_string(command, "command", "role")?,
+                required_json_u32(command, "command", "index")?,
+            ),
             "choose" => {
                 let decision = required_json_u32(command, "command", "decision")?;
                 let options = required_json_u32_array(command, "command", "options")?;

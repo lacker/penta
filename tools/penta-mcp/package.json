@@ -1,0 +1,11 @@
+{
+  "name": "penta-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "packageManager": "pnpm@11.9.0",
+  "scripts": { "start": "node server.mjs", "test": "node --test *.test.mjs" },
+  "dependencies": { "@modelcontextprotocol/server": "2.0.0", "zod": "4.3.6" },
+  "devDependencies": { "@modelcontextprotocol/client": "2.0.0" }
+}

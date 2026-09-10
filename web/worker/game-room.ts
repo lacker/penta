@@ -32,10 +32,12 @@
 
 import { type EngineModule, engine } from "./engine";
 import { replayCompatibilityError } from "./replay-compatibility.mjs";
+import { canonical, choiceCommand, parsePlay, sessionView, SessionError } from "./session-api.mjs";
 
 type WebGame = InstanceType<EngineModule["WebGame"]>;
 
 interface GameConfig {
+  sessionApi?: boolean;
   humanDeck: string;
   botDeck: string;
   botPolicy: string;
@@ -54,7 +56,8 @@ interface GameConfig {
 }
 
 /** Everything either seat can do, in a form that can be written down. */
-type Command =
+type Command = (
+  | { t: "sessionAct"; role: "human" | "bot"; index: number }
   | { t: "act"; index: number }
   | { t: "choose"; decision: number; options: number[] }
   | { t: "attackAll" }
@@ -66,13 +69,16 @@ type Command =
   | { t: "botAct"; index: number }
   | { t: "botConcede" }
   | { t: "botChoose"; decision: number; options: number[] }
-  | { t: "loseOnTime"; seat: "human" | "bot"; reason: string };
+  | { t: "loseOnTime"; seat: "human" | "bot"; reason: string }
+) & { revision?: string };
 
 /** Commands authorized for the bot seat; all others belong to the human. */
 const BOT_COMMANDS = new Set(["botAct", "botChoose", "botConcede"]);
 
 interface StoredGame {
   config: GameConfig;
+  revision?: string;
+  receipts?: Partial<Record<"human" | "bot", { requestId: string; body: string; accepted: number; stopped?: string }>>;
   commands: Command[];
   /** Optional only for rooms stored before exact replay metadata existed. */
   replayVersion?: number;
@@ -178,6 +184,9 @@ interface MoveClock {
 
 function apply(game: WebGame, command: Command): void {
   switch (command.t) {
+    case "sessionAct":
+      game.sessionAct(command.role, command.index);
+      return;
     case "act":
       game.act(command.index);
       return;
@@ -241,6 +250,8 @@ export class GameRoom {
    * chattiest path in the room, to learn nothing new.
    */
   #lastBotSeen: number | null = null;
+  /** Serialize room mutations across requests that yield during persistence. */
+  #mutations: Promise<unknown> = Promise.resolve();
   /**
    * Bots parked on `opponent`, each waiting to be told the board moved.
    *
@@ -264,7 +275,8 @@ export class GameRoom {
       request.headers.get(TOKEN_HEADER) ?? url.searchParams.get("token");
     try {
       if (route === "start") {
-        return await this.#start((await request.json()) as GameConfig, presented);
+        const config = (await request.json()) as GameConfig;
+        return await this.#serialize(() => this.#start(config, presented));
       }
       if (route === "bot-activity") {
         // Object-to-object only, like `lose-on-time`: the registry asks this
@@ -273,14 +285,45 @@ export class GameRoom {
         // poll should not pay to replay one.
         return Response.json({ lastSeen: this.#lastBotSeen });
       }
+      await this.#mutations;
       const game = await this.#load();
       if (!game) return Response.json({ error: "no game here yet" }, { status: 404 });
+      await this.#mutations;
+      if (game !== this.#game) throw new SessionError("session was replaced; reconnect", 409);
       const seat = this.#seatFor(presented);
       // Presenting the bot seat's token is the bot being here. Polling
       // counts as much as moving: a bot waiting out the human's turn is
       // alive, and the move clock -- not this -- is what answers a bot that
       // is running but wedged.
       if (seat === "bot") this.#lastBotSeen = Date.now();
+      if (route === "session" || route === "play") {
+        if (!seat) return forbidden();
+        if (this.#stored?.config.botPolicy.toLowerCase() !== "external") {
+          throw new SessionError("session API requires an external opponent", 409);
+        }
+        let receipt;
+        if (route === "play") {
+          if (request.method !== "POST") return Response.json({ error: "POST required" }, { status: 405 });
+          const body = parsePlay(await request.json().catch(() => { throw new SessionError("invalid play JSON"); }));
+          receipt = await this.#serialize(() => this.#playSession(game, seat, body));
+        } else if (request.method !== "GET") {
+          return Response.json({ error: "GET required" }, { status: 405 });
+        }
+        const deadline = Date.now() + waitBudgetMs(url.searchParams.get("wait"));
+        let view = sessionView(game, this.#stored!, seat);
+        while (view.status === "waiting" && Date.now() < deadline) {
+          await this.#park(deadline - Date.now());
+          await this.#mutations;
+          if (game !== this.#game) throw new SessionError("session was replaced; reconnect", 409);
+          view = sessionView(game, this.#stored!, seat);
+        }
+        if (this.#seatFor(presented) !== seat || game !== this.#game) throw new SessionError("session was replaced", 409);
+        return Response.json({ ...view, ...(receipt ? { receipt } : {}) });
+      }
+      if (route === "catalog") {
+        if (!seat) return forbidden();
+        return Response.json(JSON.parse(game.sessionCatalogJson()));
+      }
       if (route === "ws") {
         const role = url.searchParams.get("role") ?? "human";
         if (seat !== role) return forbidden();
@@ -314,7 +357,7 @@ export class GameRoom {
         const body = (await request.json().catch(() => ({}))) as {
           discloseDeck?: boolean;
         };
-        await this.#setBotDiscloseDeck(body.discloseDeck === true);
+        await this.#serialize(() => this.#setBotDiscloseDeck(body.discloseDeck === true));
         return Response.json({ ok: true });
       }
       if (route === "lose-on-time") {
@@ -336,7 +379,8 @@ export class GameRoom {
       }
       if (route === "command") {
         const command = (await request.json()) as Command;
-        const speaker = BOT_COMMANDS.has(command.t) ? "bot" : "human";
+        if (command.t === "loseOnTime") return forbidden();
+        const speaker = command.t === "sessionAct" ? command.role : BOT_COMMANDS.has(command.t) ? "bot" : "human";
         if (seat !== speaker) return forbidden();
         await this.#apply(game, command);
         return seat === "bot"
@@ -344,7 +388,7 @@ export class GameRoom {
           : this.#snapshot();
       }
       if (route === "record") {
-        if (seat !== "human") return forbidden();
+        if (seat !== "human" && !(seat && game.isFinished())) return forbidden();
         const stored = this.#stored;
         if (!stored) return Response.json({ error: "no game" }, { status: 404 });
         // A replay is useful to the human, but the bearer credentials that
@@ -377,7 +421,11 @@ export class GameRoom {
       }
       return Response.json({ error: `unknown route ${route}` }, { status: 404 });
     } catch (cause) {
-      return Response.json({ error: String(cause) }, { status: 400 });
+      // A play may already be committed when dispatch or response construction
+      // fails. Unclassified play errors are retryable, never definite refusals.
+      return Response.json({ error: cause instanceof Error ? cause.message : String(cause) }, {
+        status: cause instanceof SessionError ? cause.status : route === "play" ? 503 : 400,
+      });
     }
   }
 
@@ -481,6 +529,7 @@ export class GameRoom {
     const stored = this.#stored;
     if (!stored) throw new Error("no game");
     const state = this.#withClock(JSON.parse(game.state_json()) as HumanStateCache["state"]);
+    if (stored.config.sessionApi) state.sessionRevision = stored.revision;
     const cached = { commandCount: stored.commands.length, state };
     if (cached.commandCount !== this.#humanState?.commandCount) {
       // The wasm's beat queue begins again at each human command. Keep the
@@ -504,6 +553,8 @@ export class GameRoom {
     }
     const { WebGame, HostedGame } = await engine();
     const externalOpponent = config.botPolicy.toLowerCase() === "external";
+    if (config.sessionApi !== undefined && typeof config.sessionApi !== "boolean") throw new Error("sessionApi must be boolean");
+    if (config.sessionApi && !externalOpponent) throw new Error("sessionApi requires an external opponent");
     if (externalOpponent) {
       // Against a real opponent the seed is the deal itself: whoever picks it
       // can precompute both hands. The room rolls its own and never sends it.
@@ -520,10 +571,13 @@ export class GameRoom {
       config.format,
       config.artPreference,
     );
+    if (config.sessionApi) game.enableSessionApi();
     if (config.matchMode === "first-to-two-wins") game.enable_match();
     else if (config.matchMode && config.matchMode !== "one-conclusion") throw new Error("unknown match mode");
     const stored: StoredGame = {
       config,
+      revision: mintToken(),
+      receipts: {},
       commands: [],
       replayVersion: HostedGame.replayVersion(),
       simulationFingerprint: HostedGame.simulationFingerprint(),
@@ -541,6 +595,7 @@ export class GameRoom {
       commandCount: 0,
       state: JSON.parse(game.state_json()) as HumanStateCache["state"],
     };
+    if (config.sessionApi) humanState.state.sessionRevision = stored.revision;
     await this.#state.storage.put(STORED, stored);
     if (externalOpponent) {
       await this.#state.storage.put(HUMAN_STATE, humanState);
@@ -591,6 +646,7 @@ export class GameRoom {
         stored.config.format,
         stored.config.artPreference,
       );
+      if (stored.config.sessionApi) game.enableSessionApi();
       if (stored.config.matchMode === "first-to-two-wins") game.enable_match();
       // Replaying also recovers the last safe boundary for rooms created
       // before the cache existed, or after a storage write was interrupted.
@@ -617,6 +673,7 @@ export class GameRoom {
       }
       if (replayedHumanState.commandCount === stored.commands.length) {
         replayedHumanState.state = this.#withClock(replayedHumanState.state);
+        if (stored.config.sessionApi) replayedHumanState.state.sessionRevision = stored.revision;
       }
       const humanState =
         persistedHumanState?.commandCount === replayedHumanState.commandCount
@@ -639,10 +696,72 @@ export class GameRoom {
   async #apply(game: WebGame, command: Command): Promise<void> {
     const stored = this.#stored;
     if (!stored) throw new Error("no game");
-    apply(game, command);
-    stored.commands.push(command);
-    await this.#state.storage.put(STORED, stored);
+    await this.#serialize(async () => {
+      if (game !== this.#game) throw new SessionError("session was replaced", 409);
+      if (stored.config.sessionApi && command.t !== "loseOnTime" && command.revision !== stored.revision) {
+        throw new SessionError("stale revision; observe again", 409);
+      }
+      apply(game, command);
+      stored.commands.push(command);
+      stored.revision = mintToken();
+      await this.#persistMutation(stored);
+      await this.#dispatch(game);
+    });
+  }
+
+  async #persistMutation(stored: StoredGame): Promise<void> {
+    try {
+      await this.#state.storage.put(STORED, stored);
+    } catch (cause) {
+      // A storage failure leaves the commit outcome uncertain. Reload durable
+      // state and its receipt before accepting a retry; never trust the live
+      // engine after an action that may not have been saved.
+      this.#game = null;
+      this.#stored = null;
+      this.#humanState = null;
+      this.#wake();
+      throw new SessionError(`could not persist play; retry the same request: ${String(cause)}`, 503);
+    }
+  }
+
+  #serialize<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.#mutations.then(operation);
+    this.#mutations = result.catch(() => {});
+    return result;
+  }
+
+  async #playSession(game: WebGame, role: "human" | "bot", body: ReturnType<typeof parsePlay>) {
+    const stored = this.#stored!;
+    if (game !== this.#game) throw new SessionError("session was replaced", 409);
+    const previous = stored.receipts?.[role];
+    const serialized = canonical(body);
+    if (previous && previous.requestId === body.requestId) {
+      if (previous.body !== serialized) throw new SessionError("requestId was used for a different command", 409);
+      // Persistence may have succeeded before delivery failed. Re-publishing
+      // uses the existing beat cursor and never reapplies the engine action.
+      await this.#dispatch(game);
+      return { requestId: previous.requestId, accepted: previous.accepted, stopped: previous.stopped };
+    }
+    if (body.revision !== stored.revision) throw new SessionError("stale revision; observe again", 409);
+    let accepted = 0;
+    let stopped: string | undefined;
+    for (const choice of body.choices) {
+      try {
+        const command = choiceCommand(game, stored, role, choice) as Command;
+        apply(game, command);
+        stored.commands.push(command);
+        stored.revision = mintToken();
+        accepted++;
+      } catch (cause) {
+        stopped = cause instanceof Error ? cause.message : String(cause);
+        break;
+      }
+    }
+    stored.receipts ??= {};
+    stored.receipts[role] = { requestId: body.requestId, body: serialized, accepted, stopped };
+    await this.#persistMutation(stored);
     await this.#dispatch(game);
+    return { requestId: body.requestId, accepted, ...(stopped ? { stopped } : {}) };
   }
 
   #connect(game: WebGame, role: string): Response {
@@ -679,7 +798,9 @@ export class GameRoom {
     let command: Command;
     try {
       command = JSON.parse(String(data)) as Command;
-      if (BOT_COMMANDS.has(command.t)) throw new Error("that verb belongs to the bot socket");
+      if (BOT_COMMANDS.has(command.t) || (command.t === "sessionAct" && command.role !== "human") || command.t === "loseOnTime") {
+        throw new Error("that verb does not belong to the human socket");
+      }
     } catch (cause) {
       this.#toHumans(JSON.stringify({ t: "error", message: String(cause) }));
       return;
@@ -697,10 +818,10 @@ export class GameRoom {
     // arrive as frames rather than as requests `fetch` could notice.
     this.#lastBotSeen = Date.now();
     try {
-      const message = JSON.parse(String(data)) as { t: string; index: number; decision: number; options: number[] };
-      if (message.t === "choose") await this.#apply(game, { t: "botChoose", decision: message.decision, options: message.options });
-      else if (message.t === "act") await this.#apply(game, { t: "botAct", index: message.index });
-      else if (message.t === "concede") await this.#apply(game, { t: "botConcede" });
+      const message = JSON.parse(String(data)) as { t: string; index: number; decision: number; options: number[]; revision?: string };
+      if (message.t === "choose") await this.#apply(game, { t: "botChoose", decision: message.decision, options: message.options, revision: message.revision });
+      else if (message.t === "act") await this.#apply(game, { t: "botAct", index: message.index, revision: message.revision });
+      else if (message.t === "concede") await this.#apply(game, { t: "botConcede", revision: message.revision });
       else throw new Error("expected act, choose, or concede");
     } catch (cause) {
       this.#bot?.send(JSON.stringify({ t: "error", message: String(cause) }));
@@ -753,7 +874,7 @@ export class GameRoom {
       await this.#state.storage.setAlarm(Date.now() + FINISHED_ROOM_MS);
       return;
     }
-    if (this.#stored?.config.matchMode === "first-to-two-wins") {
+    if (this.#stored?.config.sessionApi || this.#stored?.config.matchMode === "first-to-two-wins") {
       this.#clock = null;
       await this.#state.storage.delete(CLOCK);
       await this.#state.storage.deleteAlarm();
@@ -810,6 +931,7 @@ export class GameRoom {
     this.#bot?.send(
       JSON.stringify({
         t: "observe",
+        ...(this.#stored?.config.sessionApi ? { revision: this.#stored.revision } : {}),
         observation: this.#withOpponentDeck(JSON.parse(game.opponentObserveJson())),
       }),
     );

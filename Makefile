@@ -300,6 +300,16 @@ test-web-unit: ## Run fast standalone Node tests outside the WASM suites.
 		echo "No standalone fast web tests discovered"; \
 	fi
 
+.PHONY: test-bot-sessions test-penta-mcp penta-mcp
+test-bot-sessions: ## Test hosted session requests and browser reattachment, optionally filtered.
+	$(call run_web_tests,tests/game-room-session.test.mjs tests/remote-session.test.mjs)
+
+test-penta-mcp: ## Test the MCP adapter and exact observation presentation, optionally filtered.
+	cd tools/penta-mcp && if [ -n "$$TEST_PATTERN" ]; then node --test --test-name-pattern="$$TEST_PATTERN" *.test.mjs; else node --test *.test.mjs; fi
+
+penta-mcp: ## Run the stdio MCP adapter; PENTA_SERVER_URL selects the session server.
+	@node tools/penta-mcp/server.mjs
+
 test-web-fast: test-web-unit test-web-wasm ## Run every fast web test without a production build.
 
 test-web: test-web-fast test-web-render ## Run the normal web tests.

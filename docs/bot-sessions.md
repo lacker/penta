@@ -1,0 +1,186 @@
+# Bot sessions and MCP
+
+Penta's hosted room owns one authoritative engine and match journal. A browser,
+an ordinary HTTP bot, and the stdio MCP adapter all connect to that room. Either
+engine seat can be driven by a bot; one can also be the existing human browser.
+The MCP adapter supplies transport and presentation, with no model calls,
+gameplay policy, action ranking, or automatic priority passing.
+
+```mermaid
+flowchart LR
+  Human[Human browser] -->|WebSocket commands| Room[Hosted GameRoom]
+  Astra[Astra in Codex] -->|stdio tools| MCP[Penta MCP adapter]
+  MCP -->|HTTP session API| Room
+  Bot[Other bot client] -->|HTTP session API| Room
+  Room --> Engine[Shared Rust engine and match lifecycle]
+```
+
+This is an opt-in hosted mode, `sessionApi: true`, with an external opponent.
+It returns every engine decision to the controlling client, including ordinary
+priority windows and mana abilities. Browser auto-pass and phase-stop controls
+are disabled, and the browser's pass button submits one pass. No move clock is
+imposed. Existing indexed bot-protocol vocabulary and legality remain unchanged.
+
+## Run locally
+
+Start the current worktree's web server using the [web setup](../web/README.md).
+Hosted routes must be enabled on the server (`HOSTED_GAMES=enabled`, already
+configured for local development). Install the separate adapter's dependencies
+from the repository root:
+
+```sh
+pnpm --dir tools/penta-mcp install --frozen-lockfile
+```
+
+Register the stdio server with Codex from the repository root:
+
+```sh
+codex mcp add penta \
+  --env "PENTA_SERVER_URL=$(node web/worktree-port.js --url)" \
+  -- node "$(pwd)/tools/penta-mcp/server.mjs"
+```
+
+Use an absolute script path and the URL of the running server. For another
+deployment, set `PENTA_SERVER_URL` to its origin. The adapter requires Node
+22.13 or newer and defaults to `http://localhost:3000` when the variable is
+absent. It speaks MCP on stdout; it does not launch the web server or install
+itself into Codex. See [Codex MCP configuration](https://developers.openai.com/codex/mcp/)
+for client setup. `make penta-mcp` is an equivalent local stdio entry point.
+
+## Start and play
+
+1. Call `options` to discover registered formats and deck names.
+2. Call `start_match` with `format`, `p1Deck`, and `p2Deck`. `matchMode` defaults
+   to `first-to-two-wins`; `one-conclusion` is also supported. The room rolls a
+   private seed. No client receives it during play.
+3. Give each player only its own `{room, token}` from `seats.p1` or `seats.p2`.
+   Each calls `attach` and retains its returned `connection` handle.
+4. At `status: "ready"`, submit `play` with that view's `revision` and an exact
+   choice. `play` applies the request and waits for the same seat's next choice.
+   If it returns `waiting`, call `next`. Both tools wait up to 25 seconds per
+   call; `waitMs: 0` returns immediately.
+5. Stop at `complete`. Use `inspect(section: "record")` for the complete replay.
+
+For human versus Astra, include `humanSeat: "p1"` or `"p2"` in `start_match`.
+Open the returned `humanUrl` in a browser and give Astra the other seat's
+credential. The URL carries only the human credential in its fragment. The
+browser saves it in tab session storage, removes the fragment, and rejoins the
+existing room on refresh. The start result itself belongs to the organizer;
+giving both credentials to one player would give it access to both hands.
+
+The historical `human` and `bot` connection-role names describe adapters, not
+engine player numbers. `humanFirst` at room creation maps the `human` role to
+`p1` when true and `p2` when false. The canonical observation's `seat` identifies
+the actual player; choosing play or draw does not exchange player identities.
+
+Example tool arguments after attaching:
+
+```json
+{"connection":"...","revision":"...","choices":[{"index":3}]}
+```
+
+An explicit engine decision takes ordered option IDs:
+
+```json
+{"connection":"...","revision":"...","choices":[{"decision":12,"options":[4,2]}]}
+```
+
+An action can also be submitted as the complete legal-action object with only
+its `index` removed. Every field must match exactly. For a batch, provide up to
+64 such action values or explicit decisions. The server resolves each against
+the fresh engine state, in order, and stops at the first unavailable choice or
+other seat's decision. It returns `receipt.accepted` and, when stopped early,
+`receipt.stopped`. An accepted prefix remains committed. Indexed choices are
+allowed only for a single move; a batch cannot reuse changing list positions.
+The adapter never invents, extends, or resumes a batch.
+
+## Compact observations
+
+The HTTP API returns canonical seat observations, including their reconstruction
+checkpoint and match state. The MCP playing view separates the checkpoint into
+`inspect(section: "checkpoint")` and returns one compact JSON text block.
+For subsequent observations it chooses whichever is shorter: a full playing
+view or exact JSON changes against `baseRevision`. Property paths are literal
+arrays of keys; `remove: true` deletes a property, otherwise `value` replaces it.
+A changed array is replaced in full, retaining order. Request `next(full: true)`
+or `inspect(section: "observation")` to reset the presentation baseline.
+
+Menus with more than 100 entries or 12,000 JSON characters become explicit
+counts and inspect references.
+`inspect(section: "legalActions")` and `inspect(section: "decision")` return
+pages with `offset`, `total`, and `nextOffset`, retaining engine IDs and order.
+An optional `query` searches their JSON text; `actionType` filters by the exact
+type the caller requests. No option is ranked, recommended, or silently dropped.
+The full menu remains available through the HTTP observation. Inspect pages
+stop at 24,000 item characters or the requested limit, whichever comes first;
+a single larger item is returned intact so paging always makes progress.
+
+`inspect(section: "catalog", definitions: [...])` retrieves public card
+definitions, rules text, and structured metadata. A name `query` is also
+available. The adapter caches the public catalog outside model context, and
+sends only the requested page. `inspect(section: "match")` gives exact match
+details. A waiting response exposes neither another seat's intermediate
+observation nor a revision that could reveal private choice counts.
+
+Transport savings do not imply a particular reduction in model reasoning cost.
+Compare total tool input/output, follow-up inspections, reasoning usage, and
+wall time on the same match workload before claiming overall token savings.
+`tools/penta-mcp/measure-trace.mjs` measures presentation characters on supplied
+observation traces without invoking a model or changing any game decisions.
+
+## HTTP contract and recovery
+
+The session envelope has `apiVersion: 1`. Public setup discovery is
+`GET /_engine/options`. Room routes below use `/_game/<room>/` and authenticate
+with the bearer seat credential in `x-penta-token`:
+
+| Route | Request | Response |
+| --- | --- | --- |
+| `start` | POST `format`, `humanDeck`, `botDeck`, `humanFirst`, `seed`, `botPolicy: "external"`, `sessionApi: true`, optional `matchMode` | Initial browser state and both credentials, once; server replaces `seed` |
+| `session?wait=25000` | GET | `waiting`, or `ready`/`complete` with opaque `revision` and canonical `observation` |
+| `play?wait=25000` | POST `{revision, requestId, choices}` | Same envelope plus accepted-prefix `receipt` |
+| `catalog` | GET | Public format catalog |
+| `record` | GET after completion | Configuration and command journal with replay compatibility metadata |
+
+Use a new `requestId` for each logical play. If a call times out or its outcome
+is uncertain, resend the identical body and ID. The room serializes writes and
+durably records the latest receipt for each role with its commands. Repeating
+that request returns the receipt without applying it twice, including after
+room eviction. A different body with the same ID, or an outdated revision for a
+new request, is rejected with HTTP 409. Observe again after a stale refusal.
+Older receipts are not retained after a later request by that seat; clients
+must resolve an uncertain play before issuing the next one.
+
+The MCP `retry` tool retains and resends the exact pending request after network
+or server failure. New moves are refused until that uncertainty is resolved.
+The handle and pending-request cache last for the adapter process. A new
+process can reattach using the saved room and seat token; HTTP clients needing
+recovery across their own crash should persist the pending body before sending.
+Room creation is separate from play retries: if the initial `start_match`
+response is lost, its credentials cannot be recovered through the adapter.
+
+Browser commands and exact session requests share the same revision check and
+journal. The room retains its last safe human projection during private bot
+choices. Live external-game records withhold the seed and journal; after match
+completion either seat may fetch the credential-free replay. Exact sessions
+use browser/host replay version 3, which refuses older version-2 journals.
+Bot protocol and checkpoint versions do not change for this adapter.
+
+The bot role can also attach to an existing external hosted game without
+`sessionApi`; that game retains its existing browser pacing and clock behavior.
+Both-role exact control requires a newly created `sessionApi` room.
+
+## Validation
+
+```sh
+make test-penta-mcp
+make test-bot-sessions
+make test-wasm-rust FILTER=session_api
+make test-web-wasm-contract PATTERN='session API'
+```
+
+Tests cover native observation parity, explicit priority windows, menu paging,
+exact delta reconstruction, stdio MCP negotiation, request and storage retries,
+concurrent commands, credential separation, browser refresh, sideboarding, and
+reconstructing a completed shared match. These tests make explicit test choices;
+no playing policy is included in the adapter.

@@ -103,6 +103,9 @@ const PUBLIC_ROOM_ROUTES = new Set([
   "opponent",
   "command",
   "record",
+  "session",
+  "play",
+  "catalog",
 ]);
 
 /**
@@ -153,6 +156,10 @@ const worker = {
     // object-to-object call from the room's own alarm or the bot registry
     // distinguishable from a stranger ending someone's game or reading when
     // its bot last moved.
+    if (hostedGames && url.pathname === "/_engine/options" && request.method === "GET") {
+      const { WebGame } = await engine();
+      return Response.json(JSON.parse(WebGame.sessionOptionsJson()));
+    }
     const room = hostedGames ? url.pathname.match(/^\/_game\/([^/]+)\/([^/]+)$/) : null;
     if (room && PUBLIC_ROOM_ROUTES.has(room[2])) {
       const stub = env.GAME_ROOMS.get(env.GAME_ROOMS.idFromName(room[1]));

@@ -322,6 +322,7 @@ export type GameState = {
   canCancelAttackers: boolean;
   phaseStops: string[];
   autopassEnabled: boolean;
+  sessionApi?: boolean;
   result: null | { outcome: "win" | "loss" | "draw"; message: string };
   events: string[];
 };

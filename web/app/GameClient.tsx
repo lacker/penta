@@ -2147,7 +2147,7 @@ export function GameClient({
               <ol
                 className="phase-track"
                 aria-label={
-                  strip.step === null
+                  state.sessionApi ? "This match stops at every player decision." : strip.step === null
                     ? "Between turns. Click a phase to set or remove a stop."
                     : `Current step: ${strip.step}. Click a phase to set or remove a stop.`
                 }
@@ -2163,7 +2163,8 @@ export function GameClient({
                       <button
                         type="button"
                         aria-pressed={stopped}
-                        title={`${stopped ? "Remove" : "Set"} stop on ${phase.title}`}
+                        disabled={state.sessionApi}
+                        title={state.sessionApi ? "This match stops at every player decision" : `${stopped ? "Remove" : "Set"} stop on ${phase.title}`}
                         onClick={() => togglePhaseStop(phase.label, !stopped)}
                       >
                         <span>{phase.title}</span>
@@ -2178,7 +2179,8 @@ export function GameClient({
                 type="button"
                 className={`autopass-toggle ${state.autopassEnabled ? "is-on" : ""}`}
                 aria-pressed={state.autopassEnabled}
-                title="Automatically yield routine priority windows"
+                disabled={state.sessionApi}
+                title={state.sessionApi ? "This match stops at every player decision" : "Automatically yield routine priority windows"}
                 onClick={() => toggleAutopass(!state.autopassEnabled)}
               >
                 <span>Auto-pass</span>

@@ -121,3 +121,100 @@ fn it_has_banding() {
         .expect("still there");
     assert!(game.permanent_has_executable_keyword(permanent, KeywordAbility::Banding));
 }
+
+fn cast_healing_salve(game: &mut Game) {
+    let salve = card(40_000, cards::HEALING_SALVE, PlayerId::One);
+    let salve_id = salve.id;
+    game.players[PlayerId::One.index()].hand.push(salve);
+    game.players[PlayerId::One.index()].mana_pool.white = 1;
+    let action = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::CastSpell { card, choices, .. }
+                if *card == salve_id
+                    && choices.modes().iter().any(|mode| mode.index() == 1)
+                    && choices.iter_targets().any(|target| *target == Target::Player(PlayerId::One)))
+        })
+        .expect("Healing Salve can prevent damage to its controller");
+    game.apply(PlayerId::One, action).expect("cast the Salve");
+    drain_choosing(game, 0);
+}
+
+#[test]
+fn healing_salve_prevention_only_leaves_it_untapped_when_all_damage_is_prevented() {
+    for hand in [0, 1] {
+        for shield_spent in 0..=3 {
+            let (mut game, machine) = machined(hand);
+            cast_healing_salve(&mut game);
+            game.damage_target_from(None, Some(Target::Player(PlayerId::One)), shield_spent);
+
+            run_upkeep(&mut game, 0);
+
+            assert_eq!(
+                life(&game),
+                i16::from(rules::STARTING_LIFE) - shield_spent.cast_signed()
+            );
+            assert_eq!(tapped(&game, machine), shield_spent > 0);
+        }
+    }
+}
+
+#[test]
+fn circle_of_protection_artifacts_prevents_the_damage_and_the_tap() {
+    let (mut game, machine) = machined(1);
+    let circle = creature(40_000, cards::CIRCLE_OF_PROTECTION_ARTIFACTS, PlayerId::One);
+    let circle_id = circle.card.id;
+    game.battlefield.push(circle);
+    game.players[PlayerId::One.index()].mana_pool.colorless = 2;
+    let action = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::ActivateAbility { source, .. } if *source == circle_id)
+        })
+        .expect("the Circle can protect against the Machine");
+    game.apply(PlayerId::One, action)
+        .expect("activate the Circle");
+    drain_choosing(&mut game, 0);
+
+    run_upkeep(&mut game, 0);
+
+    assert_eq!(life(&game), i16::from(rules::STARTING_LIFE));
+    assert!(!tapped(&game, machine));
+}
+
+#[test]
+fn damage_redirected_to_martyrs_of_korlis_does_not_tap_it() {
+    let (mut game, machine) = machined(0);
+    let martyrs = creature(40_000, cards::MARTYRS_OF_KORLIS, PlayerId::One);
+    let martyrs_id = martyrs.card.id;
+    game.battlefield.push(martyrs);
+
+    run_upkeep(&mut game, 0);
+
+    assert_eq!(life(&game), i16::from(rules::STARTING_LIFE));
+    assert!(!tapped(&game, machine));
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == martyrs_id)
+            .expect("Martyrs survives three damage")
+            .damage,
+        3,
+    );
+}
+
+#[test]
+fn lifelink_does_not_hide_damage_that_was_actually_dealt() {
+    let (mut game, machine) = machined(0);
+    game.battlefield[0].counters.set(CounterKind::Lifelink, 1);
+
+    run_upkeep(&mut game, 0);
+
+    assert_eq!(life(&game), i16::from(rules::STARTING_LIFE));
+    assert!(
+        tapped(&game, machine),
+        "damage was dealt even though life was gained back"
+    );
+}

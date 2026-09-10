@@ -488,6 +488,11 @@ fn validate_effect_references(
             }
             validate_value_target_references(prevention.amount, target_count, scope)
         }
+        EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { recipient, amount, then }) => {
+            validate_recipient_target_references(recipient, target_count, scope)?;
+            validate_value_target_references(amount, target_count, scope)?;
+            validate_effect_references(*then, target_count, scope)
+        }
         EffectDef::DealDamage { recipient, amount }
         | EffectDef::DealDamageAndApply {
             recipient, amount, ..

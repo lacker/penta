@@ -72,6 +72,7 @@ EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) | EffectDef::Cumulative
 EffectDef::PreventDamage { .. } |
 EffectDef::DealDamage { .. } | EffectDef::DealDamageSimultaneously(_) |
 EffectDef::DealDamageFrom { .. } | EffectDef::DealDamageAndApply { .. } |
+EffectDef::DealDamageWithFollowUp(_) |
 EffectDef::Fight { .. } | EffectDef::DrainLife { .. } |
 EffectDef::GainLife { .. } | EffectDef::AddPlayerCounters { .. } |
 EffectDef::DrawCards { .. } | EffectDef::Discard { .. } |

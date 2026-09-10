@@ -287,6 +287,7 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
+    DealDamageWithFollowUp(DamageFollowUpDef),
     /// One simultaneous damage event evaluated from a shared pre-damage state.
     DealDamageSimultaneously(&'static [DamageAssignmentDef]),
     /// Deals damage using an explicitly named source rather than the

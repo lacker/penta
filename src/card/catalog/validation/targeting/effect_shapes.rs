@@ -226,6 +226,11 @@ fn validate_effect_target_shapes(
             }
             validate_value_shape(prevention.amount, targets)
         }
+        EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { recipient, amount, then }) => {
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
+            validate_value_shape(amount, targets)?;
+            validate_effect_target_shapes(*then, targets, triggering_object_zone)
+        }
         EffectDef::DealDamage { recipient, amount }
         | EffectDef::DealDamageAndApply {
             recipient, amount, ..

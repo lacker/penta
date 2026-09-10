@@ -374,6 +374,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::DealDamage { .. }
         | EffectDef::DealDamageFrom { .. }
         | EffectDef::DealDamageAndApply { .. }
+        | EffectDef::DealDamageWithFollowUp(_)
         | EffectDef::DrainLife { .. }
         | EffectDef::GainLife { .. }
         | EffectDef::SetLifeTotal { .. }

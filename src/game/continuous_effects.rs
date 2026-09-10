@@ -495,6 +495,10 @@ impl Game {
             // Both of these carry a nested procedure the same way a sequence
             // does, so an Attach inside one is still part of the clause.
             EffectDef::ForEachInBinding { effect, .. }
+            | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
+                then: effect,
+                ..
+            })
             | EffectDef::WithBattlefieldArrival { effect, .. }
             | EffectDef::WithRule { effect, .. }
             | EffectDef::BindOutput { effect, .. } => Self::immediate_attachment_target(*effect),
@@ -660,6 +664,11 @@ impl Game {
     }
 
     fn damage_effect_never_attaches(effect: EffectDef) -> bool {
+        if let EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { then, .. }) =
+            effect
+        {
+            return Self::effect_never_attaches(*then);
+        }
         matches!(
             effect,
             EffectDef::DealDamage { .. }

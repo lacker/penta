@@ -43,3 +43,14 @@ pub struct FightExcessDef {
     pub recipient: ObjectRefDef,
     pub then: &'static EffectDef,
 }
+
+/// Deals damage, then resolves `then` once if at least one of the original
+/// recipients actually took damage from this instruction. Fully prevented
+/// damage and damage redirected entirely elsewhere do not run the follow-up.
+/// This checks damage dealt, not life lost.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct DamageFollowUpDef {
+    pub recipient: EffectRecipientDef,
+    pub amount: ValueDef,
+    pub then: &'static EffectDef,
+}

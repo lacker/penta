@@ -627,6 +627,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::DealDamageSimultaneously(_)
                     | EffectDef::DealDamageFrom { .. }
                     | EffectDef::DealDamageAndApply { .. }
+                    | EffectDef::DealDamageWithFollowUp(_)
                     | EffectDef::Fight { .. }
                     | EffectDef::DrainLife { .. }
                     | EffectDef::GainLife { .. }

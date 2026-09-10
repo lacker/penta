@@ -234,6 +234,17 @@ impl Game {
             EffectDef::DealDamage { recipient, amount } => {
                 self.deal_effect_damage(recipient, amount, object, &context, scoped);
             }
+            EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
+                recipient,
+                amount,
+                then,
+            }) => {
+                let intended = self.effect_recipients(recipient, object, &context, scoped);
+                let damaged = self.deal_effect_damage(recipient, amount, object, &context, scoped);
+                if damaged.iter().any(|target| intended.contains(target)) {
+                    self.resolve_effect_def(scoped.with_effect(*then), object, context);
+                }
+            }
             EffectDef::DealDamageSimultaneously(assignments) => {
                 self.deal_simultaneous_effect_damage(assignments, object, &context, scoped);
             }

@@ -1324,20 +1324,15 @@ pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::
             EffectDef::PayOr(PayOrDef {
                 payment: EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
                 if_paid: None,
-                otherwise: Some(
-                    &// The declined branch, which is one clause rather than two: "if it deals
-                    // damage to you this way" is only ever true here, so the tap belongs to the
-                    // same branch as the damage instead of watching for it.
-                    EffectDef::Sequence(&[
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(3),
-                        },
-                        EffectDef::Tap {
+                otherwise: Some(&EffectDef::DealDamageWithFollowUp(
+                    crate::card::DamageFollowUpDef {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                        then: &EffectDef::Tap {
                             object: EffectRecipientDef::Source,
                         },
-                    ]),
-                ),
+                    },
+                )),
                 visibility: ChoiceVisibilityDef::Public,
                 condition: None,
             }),

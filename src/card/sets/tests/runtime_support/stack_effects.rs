@@ -523,7 +523,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             object: recipient,
             then,
             ..
-        } => {
+        }
+        | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef { recipient, then, .. }) => {
             shared_effect_recipient(recipient)
                 && shared_stack_effect_at_position(*then, deferred_decision_allowed)
         }

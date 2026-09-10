@@ -121,16 +121,14 @@ impl Game {
         self.resolve_effect_def(scoped.with_effect(*continuation.then), object, nested);
     }
 
-    /// Deals one effect's damage and reports the permanents that actually took
+    /// Deals one effect's damage and reports the recipients that actually took
     /// some, in the order they were damaged.
     ///
     /// The report is what a "dealt damage this way" rider needs. A recipient
     /// can be named and still take nothing -- prevention, protection, a
     /// redirect that moves the damage to some other permanent -- and it can
     /// take damage without ever having been named, which is the other half of
-    /// what redirection does. Only permanents are reported: no rider in the
-    /// supported pool follows damage to a player, and a player is not a
-    /// creature.
+    /// what redirection does. Both players and permanents are reported.
     pub(super) fn deal_effect_damage(
         &mut self,
         recipient: EffectRecipientDef,

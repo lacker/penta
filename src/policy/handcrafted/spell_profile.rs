@@ -313,6 +313,9 @@ impl HandcraftedPolicy {
             EffectDef::DealDamage { amount, .. }
             | EffectDef::DealDamageFrom { amount, .. }
             | EffectDef::DealDamageAndApply { amount, .. }
+            | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
+                amount, ..
+            })
             | EffectDef::DrainLife { amount, .. }
             | EffectDef::DrawCards { amount, .. }
             | EffectDef::Discard { amount, .. }
@@ -448,6 +451,14 @@ impl HandcraftedPolicy {
             }
             | EffectDef::DrainLife { recipient, amount } => {
                 Self::collect_damage_profile(recipient, amount, x, profile);
+            }
+            EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
+                recipient,
+                amount,
+                then,
+            }) => {
+                Self::collect_damage_profile(recipient, amount, x, profile);
+                Self::collect_spell_effect_profile(*then, x, targets, profile);
             }
             EffectDef::DealDamageSimultaneously(assignments) => {
                 for assignment in assignments {

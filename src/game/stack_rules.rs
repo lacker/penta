@@ -53,6 +53,10 @@ impl Game {
     pub(super) fn effect_applies_to_source(effect: EffectDef, expected: AppliedEffectDef) -> bool {
         match effect {
             EffectDef::BindOutput { effect, .. }
+            | EffectDef::DealDamageWithFollowUp(crate::card::DamageFollowUpDef {
+                then: effect,
+                ..
+            })
             | EffectDef::WithBattlefieldArrival { effect, .. }
             | EffectDef::WithRule { effect, .. } => {
                 Self::effect_applies_to_source(*effect, expected)

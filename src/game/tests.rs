@@ -147,6 +147,7 @@ mod cycling_cards;
 mod cyclone;
 mod damage_dealers;
 mod damage_dealt_by;
+mod damage_follow_up;
 mod damage_history;
 mod damage_limits;
 mod damage_redirection;

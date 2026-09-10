@@ -1645,7 +1645,7 @@ pub(in crate::card::sets) static MOGG_SALVAGE: CardRecord = CardRecord::new_with
             ))
 ),
         AbilityDef::alternative_cast(
-            &[CostDef::Mana(mana_cost!("{0}"))],
+            crate::NO_COSTS,
             AlternativeCastKindDef::AlternativeCost,
             Some("If an opponent controls an Island and you control a Mountain, you may cast this spell without paying its mana cost."),
             EffectDef::None,

@@ -100,6 +100,8 @@ pub(super) struct PermanentSnapshot {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) cast_via_flashback: bool,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(super) cast_exile_if_put_into_graveyard: bool,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) cast_via_suspend: bool,
     /// Which zone this spell was cast from, by its stable label. Additive:
     /// a checkpoint written before the zone was recorded restores as

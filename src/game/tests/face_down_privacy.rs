@@ -282,6 +282,7 @@ fn face_down_privacy_masks_printed_spell_types_names_and_cast_triggers() {
         &game.catalog.get(cards::BRAIN_FREEZE).unwrap().play_options[0],
         masked.signature.as_ref().unwrap(),
         false,
+        false,
     ));
     let id = masked.id;
     game.stack.push(masked);

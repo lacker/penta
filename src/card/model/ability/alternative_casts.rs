@@ -50,6 +50,7 @@ impl AbilityDef {
                 condition: None,
                 minimum_x: 0,
                 from_graveyard: false,
+                exile_if_put_into_graveyard: false,
             }),
             effect,
         )
@@ -102,6 +103,22 @@ impl AbilityDef {
         };
         definition.condition = Some(condition);
         self.definition = DeclarativeAbilityDef::AlternativeCast(definition);
+        self
+    }
+
+    /// Installs a replacement on a cast using this alternative: if the spell
+    /// would be put into a graveyard, exile it instead.
+    ///
+    /// # Panics
+    ///
+    /// Panics if this is not an alternative-cast clause.
+    #[must_use]
+    pub const fn with_exile_if_put_into_graveyard(mut self) -> Self {
+        let DeclarativeAbilityDef::AlternativeCast(mut alternative) = self.definition else {
+            panic!("only an alternative cast can replace its stack exit");
+        };
+        alternative.exile_if_put_into_graveyard = true;
+        self.definition = DeclarativeAbilityDef::AlternativeCast(alternative);
         self
     }
 }

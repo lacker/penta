@@ -51,6 +51,10 @@ pub struct AlternativeCastAbilityDef {
     /// be 0" is the whole reason it exists: casts are enumerated from zero,
     /// and a kick of nothing would be a kick that cost nothing.
     pub minimum_x: u16,
+    /// Whether this cast installs "if this spell would be put into a
+    /// graveyard, exile it instead." This stack-exit replacement is
+    /// independent of the costs used to cast the spell.
+    pub exile_if_put_into_graveyard: bool,
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -118,12 +122,6 @@ pub enum AlternativeCastKindDef {
     /// instead of dying, which is what the permanent's recorded kind is read
     /// for.
     Bestow,
-    /// Cast where it lies without paying its mana cost, and exiled rather
-    /// than buried afterwards. Dreadhorde Arcanist's clause is not flashback
-    /// -- it grants no keyword and lasts only for the resolution that
-    /// offered it -- but what it does to the cast and to the card afterwards
-    /// is the same pair of things.
-    WithoutPayingManaCost,
     /// Cast from exile for its foretell cost (CR 702.143a). The card got
     /// there by the foretell special action, which exiles it face down for
     /// {2} during its owner's turn; this is the other half, and it may not
@@ -148,12 +146,11 @@ pub enum AlternativeCastKindDef {
     /// to live, and nothing offers it as a cast.
     Splice,
     /// An alternative cost supplied by something else's text rather than by
-    /// the card being cast -- Omniscience's "you may cast spells from your
-    /// hand without paying their mana costs" is one. The cast is still an
+    /// the card being cast. Omniscience and a one-shot "cast without paying"
+    /// permission both supply one; the complete cost list and any stack-exit
+    /// replacement are recorded independently. The cast is still an
     /// alternative one for every purpose that only asks whether the printed
-    /// cost was paid, but it is not the card's own alternative cost: a rider
-    /// reading "if the {1}{B} cost was paid" is asking about that clause, and
-    /// CR 601.2f allows only one alternative cost per cast.
+    /// cost was paid, but it is not the card's own alternative cost.
     Granted,
     /// Cast using the supplied face-down copiable values. The spell's own
     /// clauses are not what it does while face down, so this kind changes the
@@ -218,7 +215,6 @@ impl AlternativeCastKindDef {
             Self::Splice => "Splice",
             Self::Emerge => "Emerge",
             Self::Rebound => "Rebound",
-            Self::WithoutPayingManaCost => "Without paying its mana cost",
             Self::FaceDown { label, .. } => label,
         }
     }
@@ -240,7 +236,6 @@ impl AlternativeCastKindDef {
             Self::Retrace,
             Self::Emerge,
             Self::Splice,
-            Self::WithoutPayingManaCost,
             Self::Flashback,
             Self::Overload,
             Self::Miracle,
@@ -487,9 +482,7 @@ impl AlternativeCastAbilityDef {
             // Whatever printed or granted these said it in its own words, so
             // that text is the reminder and the kind's name is the fallback.
             (
-                AlternativeCastKindDef::WithoutPayingManaCost
-                | AlternativeCastKindDef::Offspring
-                | AlternativeCastKindDef::Granted,
+                AlternativeCastKindDef::Offspring | AlternativeCastKindDef::Granted,
                 _,
             ) => self
                 .stack_text

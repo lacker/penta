@@ -25,6 +25,16 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Paying {0} is no longer conflated with casting without paying a mana
+  cost.** Generic cost lists represent the former with an explicit mana cost
+  and the latter with `NO_COSTS`, preserving the CR 601.2g distinction for
+  Rooftop Storm and the Mercadian Masques Legates. One-shot free-cast grants
+  now describe only their casting permission; Dreadhorde Arcanist's
+  graveyard-to-exile replacement is an independent cast rider, while Malcolm,
+  Alluring Scoundrel's free spell keeps its ordinary destination. The additive
+  checkpoint member preserves that rider; protocol and replay versions are
+  unchanged.
+
 - **Mishra's War Machine taps only when its upkeep damage reaches its controller.**
   Full prevention and complete redirection skip the tap; partial prevention and
   lifelink still allow it. Native card definitions consolidate damage into

@@ -873,7 +873,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             // change only how the permanent arrives, and the card's own
             // clauses say what that change is.
             AlternativeCastKindDef::Flashback
-            | AlternativeCastKindDef::WithoutPayingManaCost
+            | AlternativeCastKindDef::Granted
             | AlternativeCastKindDef::Foretell
             // Rebound's free cast, which like the others above only says
             // what the cast costs and where it is taken from.
@@ -915,7 +915,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             }
             // What a cast wears when another permanent supplied the cost.
             // No card prints it, so no card may claim it.
-            AlternativeCastKindDef::Granted => false,
         }
         }
         // Neither clause resolves anything: a cost clause has already been

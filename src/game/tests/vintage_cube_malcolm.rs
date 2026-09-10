@@ -184,6 +184,39 @@ fn the_fourth_connection_casts_the_discard() {
     );
 }
 
+/// Casting without paying changes the cost, not the spell's destination.
+#[test]
+fn a_free_spell_keeps_its_ordinary_destination() {
+    let (mut game, malcolm) = staged(
+        &[],
+        &[
+            cards::LIGHTNING_BOLT,
+            cards::MOX_JET,
+            cards::MOX_JET,
+            cards::MOX_JET,
+        ],
+    );
+
+    for connection in 1..=4 {
+        connect(&mut game, malcolm, cards::LIGHTNING_BOLT, connection == 4);
+    }
+
+    assert!(
+        game.players[PlayerId::One.index()]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::LIGHTNING_BOLT),
+        "the free Bolt resolves to the graveyard",
+    );
+    assert!(
+        game.players[PlayerId::One.index()]
+            .exile
+            .iter()
+            .all(|card| card.definition != cards::LIGHTNING_BOLT),
+        "a free cost supplies no exile replacement",
+    );
+}
+
 /// The offer is optional: declining leaves the card in the graveyard.
 #[test]
 fn the_offer_may_be_declined() {

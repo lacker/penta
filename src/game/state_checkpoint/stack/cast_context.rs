@@ -99,6 +99,7 @@ pub(super) fn stack_cast_context(
             .map(GameObjectId)
             .collect(),
         via_flashback: state.cast_via_flashback,
+        exile_if_put_into_graveyard: state.cast_exile_if_put_into_graveyard,
         via_suspend: state.cast_via_suspend,
     }))
 }
@@ -196,6 +197,7 @@ pub(super) fn detached_cast_context(
                 .map(GameObjectId)
                 .collect(),
             via_flashback: state.cast_via_flashback,
+            exile_if_put_into_graveyard: state.cast_exile_if_put_into_graveyard,
             via_suspend: state.cast_via_suspend,
         }),
     )

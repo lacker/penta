@@ -10,6 +10,10 @@ use super::{CastSourceZone, Game, GameObjectId, RetiredObject, StackObject};
 use crate::{AlternativeCastKindDef, Binding, CastSignature, ColorSet, PlayOptionDef};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+// These are independent cast facts, not mutually exclusive states: a cast can
+// happen at instant speed, use flashback, carry another replacement, and come
+// from suspend in combinations the rules define separately.
+#[allow(clippy::struct_excessive_bools)]
 pub(super) struct CastContext {
     /// The zone the spell was actually cast from. `None` means this object is
     /// a spell copy rather than a cast spell.
@@ -35,8 +39,13 @@ pub(super) struct CastContext {
     /// A spell copy refers to the same payment objects as the original.
     pub(super) exiled_payment_cards: Vec<GameObjectId>,
     /// Resolution riders supplied by the cast procedure rather than copied
-    /// choices. Copies neither flash back nor arrive from suspend.
+    /// choices. Copies carry none of these cast-only replacements or arrival
+    /// facts.
     pub(super) via_flashback: bool,
+    /// A separately granted replacement that exiles this spell only if it
+    /// would be put into a graveyard. Unlike flashback, it does not replace a
+    /// move to a hand or library.
+    pub(super) exile_if_put_into_graveyard: bool,
     pub(super) via_suspend: bool,
 }
 
@@ -48,6 +57,7 @@ impl CastContext {
         option: &PlayOptionDef,
         signature: &CastSignature,
         via_flashback: bool,
+        exile_if_put_into_graveyard: bool,
     ) -> Self {
         Self {
             source_zone: Some(source_zone),
@@ -67,6 +77,7 @@ impl CastContext {
             phyrexian_symbols_paid_with_life: 0,
             exiled_payment_cards: Vec::new(),
             via_flashback,
+            exile_if_put_into_graveyard,
             via_suspend: false,
         }
     }
@@ -78,6 +89,7 @@ impl CastContext {
         copied.colors_of_mana_spent = ColorSet::empty();
         copied.phyrexian_symbols_paid_with_life = 0;
         copied.via_flashback = false;
+        copied.exile_if_put_into_graveyard = false;
         copied.via_suspend = false;
         copied
     }

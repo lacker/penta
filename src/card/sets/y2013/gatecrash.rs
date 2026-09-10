@@ -840,10 +840,11 @@ pub(in crate::card::sets) static DILUVIAN_PRIMORDIAL: CardRecord = CardRecord::n
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ability: &AbilityDef::alternative_cast(
                     crate::NO_COSTS,
-                    AlternativeCastKindDef::WithoutPayingManaCost,
+                    AlternativeCastKindDef::Granted,
                     Some("Cast without paying its mana cost, then exile it."),
                     EffectDef::None,
-                ),
+                )
+                .with_exile_if_put_into_graveyard(),
             },
         ),
     ]),

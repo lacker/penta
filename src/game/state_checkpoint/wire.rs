@@ -768,6 +768,7 @@ fn parse_permanent(
         || state.cast_phyrexian_symbols_paid_with_life > 0
         || !state.cast_exiled_payment_cards.is_empty()
         || state.cast_via_flashback
+        || state.cast_exile_if_put_into_graveyard
         || state.cast_via_suspend
         || state.cast_at_instant_speed;
     let alternative_cost_binding = state
@@ -795,6 +796,7 @@ fn parse_permanent(
             .map(GameObjectId)
             .collect(),
         via_flashback: state.cast_via_flashback,
+        exile_if_put_into_graveyard: state.cast_exile_if_put_into_graveyard,
         via_suspend: state.cast_via_suspend,
     });
     permanent.chosen_creature_type = shown.chosen_creature_type;

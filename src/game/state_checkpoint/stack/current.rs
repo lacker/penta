@@ -50,6 +50,10 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
             .as_ref()
             .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life),
         cast_via_flashback: object.cast.as_ref().is_some_and(|cast| cast.via_flashback),
+        cast_exile_if_put_into_graveyard: object
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.exile_if_put_into_graveyard),
         cast_via_suspend: object.cast.as_ref().is_some_and(|cast| cast.via_suspend),
         cast_at_instant_speed: object
             .cast

@@ -5,13 +5,13 @@ use super::*;
 
 static OTHER_SAME_KIND_GRANT: AbilityDef = AbilityDef::alternative_cast(
     &[crate::CostDef::Mana(ManaCost::new(7, 0))],
-    AlternativeCastKindDef::WithoutPayingManaCost,
+    AlternativeCastKindDef::Granted,
     Some("A different same-kind test grant."),
     EffectDef::None,
 );
 static IDENTICAL_FREE_GRANT: AbilityDef = AbilityDef::alternative_cast(
     crate::NO_COSTS,
-    AlternativeCastKindDef::WithoutPayingManaCost,
+    AlternativeCastKindDef::Granted,
     Some("An identical one-shot free-cast grant."),
     EffectDef::None,
 );
@@ -189,7 +189,7 @@ fn the_offer_exposes_only_the_granted_alternative_cost() {
             .play_option(choices.play_option())
             .expect("the cast names a play option");
         game.selected_alternative_kind(definition, option, card, choices.costs())
-            == Some(AlternativeCastKindDef::WithoutPayingManaCost)
+            == Some(AlternativeCastKindDef::Granted)
     }));
 }
 
@@ -292,6 +292,64 @@ fn what_it_casts_is_exiled_rather_than_buried() {
         game.players[0].graveyard.is_empty(),
         "and never went back to the graveyard",
     );
+}
+
+#[test]
+fn its_exile_rider_survives_a_checkpoint_on_the_stack() {
+    let (mut game, arcanist) = staged(&[cards::LIGHTNING_BOLT]);
+
+    attack(&mut game, arcanist, Some(cards::LIGHTNING_BOLT));
+    let cast = free_cast(&game, cards::LIGHTNING_BOLT).expect("the offer stands");
+    game.apply(PlayerId::One, cast).expect("it casts");
+
+    let viewer = game.priority;
+    let (wire, hidden) = checkpoint_fixture(&game, viewer);
+    let mut rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &hidden,
+        94_103,
+    )
+    .expect("the cast-specific replacement reconstructs");
+    settle(&mut rebuilt);
+
+    assert!(
+        rebuilt.players[0]
+            .exile
+            .iter()
+            .any(|card| card.definition == cards::LIGHTNING_BOLT),
+        "the reconstructed rider still replaces the graveyard move",
+    );
+}
+
+/// Arcanist replaces only a move to a graveyard. Putting the spell on top of
+/// its owner's library is not a graveyard move, so this is not flashback.
+#[test]
+fn its_exile_rider_does_not_replace_a_library_move() {
+    let (mut game, arcanist) = staged(&[cards::LIGHTNING_BOLT]);
+
+    attack(&mut game, arcanist, Some(cards::LIGHTNING_BOLT));
+    let cast = free_cast(&game, cards::LIGHTNING_BOLT).expect("the offer stands");
+    game.apply(PlayerId::One, cast).expect("it casts");
+    let spell = game
+        .stack
+        .iter()
+        .find(|object| object.card.definition == ObjectKind::Card(cards::LIGHTNING_BOLT))
+        .expect("the Bolt is on the stack")
+        .id;
+
+    game.put_spell_into_library(spell, ZonePlacement::Top);
+
+    assert_eq!(
+        game.players[PlayerId::One.index()]
+            .library
+            .last()
+            .map(|card| card.definition),
+        Some(cards::LIGHTNING_BOLT),
+        "the non-graveyard destination is unchanged",
+    );
+    assert!(game.players[PlayerId::One.index()].exile.is_empty());
 }
 
 /// "Mana value less than or equal to this creature's power": a 1/3 cannot

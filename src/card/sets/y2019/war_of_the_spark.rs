@@ -241,15 +241,15 @@ pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::n
                 )],
                 EffectDef::MayCastTargetWithoutPaying {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    // What the card is lent while the offer stands. The kind says both halves
-                    // of the printed clause at once: the cast costs nothing, and the card is
-                    // exiled rather than buried afterwards.
+                    // What the card is lent while the offer stands: no mana-payment cost and,
+                    // independently, a replacement for a later graveyard move.
                     ability: &AbilityDef::alternative_cast(
                         crate::NO_COSTS,
-                        AlternativeCastKindDef::WithoutPayingManaCost,
+                        AlternativeCastKindDef::Granted,
                         Some("Cast without paying its mana cost, then exile it."),
                         EffectDef::None,
-                    ),
+                    )
+                    .with_exile_if_put_into_graveyard(),
                 },
             ),
         ]),

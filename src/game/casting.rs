@@ -27,6 +27,7 @@ struct SpellCastProposal {
     source_zone: CastSourceZone,
     alternative: Option<AlternativeCastKindDef>,
     cast_via_flashback: bool,
+    exile_if_put_into_graveyard: bool,
     face_down: Option<FaceDownCharacteristics>,
 }
 
@@ -265,16 +266,12 @@ impl Game {
 
     fn cast_alternative_kind(
         &self,
-        player: PlayerId,
         card_id: GameObjectId,
         signature: &CastSignature,
         offer: Option<CastOfferCost>,
     ) -> Option<AlternativeCastKindDef> {
-        self.players[player.index()]
-            .hand
-            .iter()
-            .chain(self.cards_in_zone(ZoneKind::Graveyard))
-            .find(|card| card.id == card_id)
+        self.card_in_nonbattlefield_zone(card_id)
+            .map(|(_, card)| card)
             .and_then(|card| self.catalog.get(card.definition))
             .and_then(|definition| {
                 definition
@@ -290,6 +287,32 @@ impl Game {
                     offer,
                 )
             })
+    }
+
+    fn cast_exiles_if_put_into_graveyard(
+        &self,
+        card_id: GameObjectId,
+        signature: &CastSignature,
+        offer: Option<CastOfferCost>,
+    ) -> bool {
+        self.card_in_nonbattlefield_zone(card_id)
+            .map(|(_, card)| card)
+            .and_then(|card| self.catalog.get(card.definition))
+            .and_then(|definition| {
+                definition
+                    .play_option(signature.play_option())
+                    .map(|option| (definition, option))
+            })
+            .and_then(|(definition, option)| {
+                self.selected_alternative_ability_for_offer(
+                    definition,
+                    option,
+                    card_id,
+                    signature.costs(),
+                    offer,
+                )
+            })
+            .is_some_and(|alternative| alternative.exile_if_put_into_graveyard)
     }
 
     pub(super) fn complete_mana_ability(
@@ -375,15 +398,13 @@ impl Game {
                 super::CastCostContext { source_zone, offer },
                 sacrifices,
             );
-        let alternative_kind = self.cast_alternative_kind(player, card_id, &signature, offer);
+        let alternative_kind = self.cast_alternative_kind(card_id, &signature, offer);
+        let exile_if_put_into_graveyard =
+            self.cast_exiles_if_put_into_graveyard(card_id, &signature, offer);
         let (granted_by_permission, cast_via_suspend) =
             self.spend_cast_permissions(player, card_id, &signature, source_zone, alternative_kind);
         self.take_answered_cast_offer(card_id);
-        // Both exile the card rather than putting it in its ordinary destination.
-        let cast_via_flashback = matches!(
-            alternative_kind,
-            Some(AlternativeCastKindDef::Flashback | AlternativeCastKindDef::WithoutPayingManaCost)
-        );
+        let cast_via_flashback = alternative_kind == Some(AlternativeCastKindDef::Flashback);
         let face_down = alternative_kind.and_then(AlternativeCastKindDef::face_down);
         let energy = self.exile_energy_cost(card_id, player).unwrap_or(0);
         // Read on the library, the only place its permission can be found.
@@ -403,6 +424,7 @@ impl Game {
                 source_zone,
                 alternative: alternative_kind,
                 cast_via_flashback,
+                exile_if_put_into_graveyard,
                 face_down,
             },
         );
@@ -502,6 +524,7 @@ impl Game {
             source_zone,
             alternative,
             cast_via_flashback,
+            exile_if_put_into_graveyard,
             face_down,
         } = proposal;
         let timing_option = self
@@ -533,6 +556,7 @@ impl Game {
             option,
             &signature,
             cast_via_flashback,
+            exile_if_put_into_graveyard,
         );
         StackObject {
             id,

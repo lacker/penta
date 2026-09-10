@@ -129,6 +129,10 @@ pub(super) fn permanent_snapshot(
             .cast
             .as_ref()
             .is_some_and(|cast| cast.via_flashback),
+        cast_exile_if_put_into_graveyard: permanent
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.exile_if_put_into_graveyard),
         cast_via_suspend: permanent.cast.as_ref().is_some_and(|cast| cast.via_suspend),
         destroy_at_end: permanent.destroy_at_end,
         counters: permanent

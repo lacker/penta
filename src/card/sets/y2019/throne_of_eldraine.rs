@@ -644,7 +644,7 @@ pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
     // deck played it and why it is banned in the format it was printed for.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
-            &[CostDef::Mana(mana_cost!("{0}"))],
+            crate::NO_COSTS,
             AlternativeCastKindDef::AlternativeCost,
             Some(
                 "If this spell is the first spell you've cast this game, you may cast it without \

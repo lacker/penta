@@ -710,7 +710,7 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardReco
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ability: &AbilityDef::alternative_cast(
                         crate::NO_COSTS,
-                        AlternativeCastKindDef::WithoutPayingManaCost,
+                        AlternativeCastKindDef::Granted,
                         Some("Cast without paying its mana cost."),
                         EffectDef::None,
                     ),

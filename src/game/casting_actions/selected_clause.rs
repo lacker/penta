@@ -181,6 +181,36 @@ impl Game {
             .or(Some(AlternativeCastKindDef::Granted))
     }
 
+    pub(super) fn selected_alternative_ability_for_offer(
+        &self,
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+        card: GameObjectId,
+        costs: &CostConfiguration,
+        offer: Option<CastOfferCost>,
+    ) -> Option<AlternativeCastAbilityDef> {
+        let selected = costs.alternative()?;
+        if Some(selected) == Self::temporary_alternative_cost_id(option) {
+            return self
+                .granted_alternative_cast(
+                    card,
+                    option,
+                    match offer {
+                        Some(CastOfferCost::GrantedAlternative(grant)) => Some(grant),
+                        None | Some(CastOfferCost::Any) => None,
+                        Some(CastOfferCost::PrintedAlternative(_)) => return None,
+                    },
+                )
+                .map(|(_, alternative, _)| alternative);
+        }
+        Self::alternative_cast_ability(definition, option, selected).and_then(
+            |(_, ability, _)| match ability.definition {
+                DeclarativeAbilityDef::AlternativeCast(alternative) => Some(alternative),
+                _ => None,
+            },
+        )
+    }
+
     /// The smallest X the selected alternative may be cast for. "Kicker
     /// {X}. X can't be 0" is the only thing that says so, and it says it
     /// about the kicker rather than about the spell.
@@ -282,7 +312,7 @@ impl Game {
             matches!(
                 alternative.kind,
                 AlternativeCastKindDef::Flashback
-                    | AlternativeCastKindDef::WithoutPayingManaCost
+                    | AlternativeCastKindDef::Granted
                     // Rebound's own card, lent back to its caster out of the
                     // exile it put itself in.
                     | AlternativeCastKindDef::Rebound

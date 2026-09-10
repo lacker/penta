@@ -33,6 +33,65 @@ fn settle(game: &mut Game) {
     }
 }
 
+fn cast_includes_mana_payment(game: &Game, action: &Action) -> bool {
+    let Action::CastSpell {
+        card,
+        choices,
+        sacrifices,
+    } = action
+    else {
+        panic!("expected cast")
+    };
+    let (signature, _, source_zone) = game
+        .validated_cast_signature(PlayerId::One, *card, choices, sacrifices)
+        .expect("the offered cast validates");
+    game.cast_object_payments_and_life(
+        PlayerId::One,
+        *card,
+        &signature,
+        CastCostContext {
+            source_zone,
+            offer: None,
+        },
+        sacrifices,
+    )
+    .2
+}
+
+#[test]
+fn mercadian_masques_legates_cast_without_a_mana_payment() {
+    for (spell, own_land, opposing_land) in [
+        (cards::CHO_ARRIM_LEGATE, cards::PLAINS, cards::SWAMP),
+        (cards::SAPRAZZAN_LEGATE, cards::ISLAND, cards::MOUNTAIN),
+        (cards::DEEPWOOD_LEGATE, cards::SWAMP, cards::FOREST),
+        (cards::KYREN_LEGATE, cards::MOUNTAIN, cards::PLAINS),
+        (cards::RUSHWOOD_LEGATE, cards::FOREST, cards::ISLAND),
+    ] {
+        let mut game = ready();
+        game.battlefield
+            .push(creature(19_998, own_land, PlayerId::One));
+        game.battlefield
+            .push(creature(19_999, opposing_land, PlayerId::Two));
+        let legate = card(20_000, spell, PlayerId::One);
+        let legate_id = legate.id;
+        game.players[PlayerId::One.index()].hand.push(legate);
+
+        let cast = game
+            .legal_actions(PlayerId::One)
+            .into_iter()
+            .find(|action| {
+                matches!(action, Action::CastSpell { card, choices, .. }
+                    if *card == legate_id && choices.costs().alternative().is_some())
+            })
+            .expect("the matching lands offer the Legate alternative");
+
+        assert!(
+            !cast_includes_mana_payment(&game, &cast),
+            "the Legate cast has no mana-payment component",
+        );
+    }
+}
+
 /// Islands on the battlefield, and the free cast of `spell` if one is
 /// offered. A counterspell needs something to point at, so the stack always
 /// holds one.

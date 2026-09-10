@@ -18,6 +18,7 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
         phyrexian_symbols_paid_with_life: 1,
         exiled_payment_cards: vec![GameObjectId(41), GameObjectId(42)],
         via_flashback: true,
+        exile_if_put_into_graveyard: true,
         via_suspend: true,
     };
 
@@ -37,6 +38,7 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
     assert_eq!(copied.phyrexian_symbols_paid_with_life, 0);
     assert!(!copied.at_instant_speed);
     assert!(!copied.via_flashback);
+    assert!(!copied.exile_if_put_into_graveyard);
     assert!(!copied.via_suspend);
 }
 

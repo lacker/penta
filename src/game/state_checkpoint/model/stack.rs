@@ -36,6 +36,10 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     #[serde(default, skip_serializing_if = "super::is_zero_u16")]
     pub(in crate::game::state_checkpoint) phyrexian_symbols_paid_with_life: u16,
     pub(in crate::game::state_checkpoint) cast_via_flashback: bool,
+    /// A cast-specific replacement that exiles this spell only when its
+    /// destination would be a graveyard.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(in crate::game::state_checkpoint) cast_exile_if_put_into_graveyard: bool,
     #[serde(default)]
     pub(in crate::game::state_checkpoint) cast_via_suspend: bool,
     /// Additive: a payload written before the flag existed restores as
@@ -132,6 +136,8 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     #[serde(default, skip_serializing_if = "super::is_zero_u16")]
     pub(in crate::game::state_checkpoint) phyrexian_symbols_paid_with_life: u16,
     pub(in crate::game::state_checkpoint) cast_via_flashback: bool,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(in crate::game::state_checkpoint) cast_exile_if_put_into_graveyard: bool,
     #[serde(default)]
     pub(in crate::game::state_checkpoint) cast_via_suspend: bool,
     /// Additive: a payload written before the flag existed restores as

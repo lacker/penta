@@ -551,7 +551,7 @@ impl Game {
                     AlternativeCastKindDef::Flashback
                         | AlternativeCastKindDef::Escape
                         | AlternativeCastKindDef::Retrace
-                        | AlternativeCastKindDef::WithoutPayingManaCost
+                        | AlternativeCastKindDef::Granted
                 ),
             )
             // Foretell is the one alternative permission that casts from

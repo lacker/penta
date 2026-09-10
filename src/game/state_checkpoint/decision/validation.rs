@@ -338,7 +338,7 @@ fn parse_may_cast_granted_continuation(
     };
     if !matches!(
         alternative.kind,
-        AlternativeCastKindDef::WithoutPayingManaCost | AlternativeCastKindDef::Rebound
+        AlternativeCastKindDef::Granted | AlternativeCastKindDef::Rebound
     ) {
         return Err(
             "checkpoint granted-cast offers currently support only executable free casts".into(),

@@ -157,12 +157,11 @@ pub(in crate::card::sets) static MALCOLM_ALLURING_SCOUNDREL: CardRecord = CardRe
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                                         ParentBinding,
                                     )),
-                                    // What the fourth connection is worth: the card you just threw away, cast
-                                    // for nothing. The kind says both halves at once -- no mana, and an
-                                    // ordinary trip to the graveyard afterwards.
+                                    // What the fourth connection is worth: the card you just threw away,
+                                    // granted a cast with no mana-payment cost. Its destination is unchanged.
                                     ability: &AbilityDef::alternative_cast(
                                         crate::NO_COSTS,
-                                        AlternativeCastKindDef::WithoutPayingManaCost,
+                                        AlternativeCastKindDef::Granted,
                                         Some("Cast without paying its mana cost."),
                                         EffectDef::None,
                                     ),

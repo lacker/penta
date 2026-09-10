@@ -410,7 +410,11 @@ impl Game {
                 .card
                 .into_card()
                 .expect("a nontoken spell is backed by a card");
-            match if object.cast.as_ref().is_some_and(|cast| cast.via_flashback) {
+            let exile_replaces_move = object.cast.as_ref().is_some_and(|cast| {
+                cast.via_flashback
+                    || (zone == CounteredSpellZone::Graveyard && cast.exile_if_put_into_graveyard)
+            });
+            match if exile_replaces_move {
                 CounteredSpellZone::Exile
             } else {
                 zone

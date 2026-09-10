@@ -839,7 +839,7 @@ pub(in crate::card::sets) static DILUVIAN_PRIMORDIAL: CardRecord = CardRecord::n
             EffectDef::MayCastTargetWithoutPaying {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ability: &AbilityDef::alternative_cast(
-                    mana_cost!("{0}"),
+                    crate::NO_COSTS,
                     AlternativeCastKindDef::WithoutPayingManaCost,
                     Some("Cast without paying its mana cost, then exile it."),
                     EffectDef::None,
@@ -2217,10 +2217,10 @@ pub(in crate::card::sets) static FIVE_ALARM_FIRE: CardRecord = CardRecord::new(
                 amount: 5,
             }],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(5),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
         ),
     ]),
 );
@@ -2643,10 +2643,10 @@ pub(in crate::card::sets) static STRUCTURAL_COLLAPSE: CardRecord = CardRecord::n
                                     ParentBinding,
                                 )),
                             },
-                            EffectDef::DealDamage {
-                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                amount: ValueDef::Constant(2),
-                            },
+                            EffectDef::damage(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ValueDef::Constant(2),
+                            ),
                         ]),
                     }),
                 ]),
@@ -3577,10 +3577,10 @@ pub(in crate::card::sets) static BORBORYGMOS_ENRAGED: CardRecord = CardRecord::n
                 ObjectPredicateDef::HasType(CardType::Land),
             )],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(3),
-            },
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         ),
     ]),
 );
@@ -4366,7 +4366,7 @@ pub(in crate::card::sets) static GRUUL_CHARM: CardRecord = CardRecord::new(
             ),
             AbilityDef::spell(
                 "Gruul Charm deals 3 damage to each creature with flying",
-                EffectDef::DealDamageSimultaneously(&[DamageAssignmentDef::from_effect(
+                EffectDef::damage_simultaneously(&[DamageAssignmentDef::from_effect(
                     EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),

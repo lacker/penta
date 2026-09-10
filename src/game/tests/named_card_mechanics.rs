@@ -93,7 +93,7 @@ fn nevermore_prohibits_casting_but_not_activating_the_named_card() {
 }
 
 #[test]
-fn spyglass_looks_privately_but_its_public_name_catalog_is_hidden_zone_independent() {
+fn spyglass_looks_privately_and_shows_only_a_notice_until_a_name_is_chosen() {
     let mut game = ready_game();
     game.players[PlayerId::Two.index()].hand.push(card(
         10_010,
@@ -125,10 +125,11 @@ fn spyglass_looks_privately_but_its_public_name_catalog_is_hidden_zone_independe
     assert!(chooser_decision.options.iter().all(|option| {
         option.card.is_none() && option.members.is_empty() && option.zone == DecisionZone::None
     }));
-    assert_eq!(
-        pending_choice(&game, PlayerId::Two).options,
-        chooser_decision.options,
-        "the public naming choice discloses only the shared catalog"
+    let notice = pending_choice(&game, PlayerId::Two);
+    assert_eq!(notice.prompt, chooser_decision.prompt);
+    assert!(
+        notice.options.is_empty(),
+        "the opponent sees a pending notice without the selection menu"
     );
 
     let mut different_hidden_cards = ready_game();
@@ -146,6 +147,20 @@ fn spyglass_looks_privately_but_its_public_name_catalog_is_hidden_zone_independe
     assert_eq!(
         labels, other_labels,
         "hidden cards cannot shape name options"
+    );
+    assert_eq!(
+        notice,
+        pending_choice(&different_hidden_cards, PlayerId::Two),
+        "hidden cards cannot shape the opponent's notice"
+    );
+    choose_label(&mut game, PlayerId::One, "Lightning Bolt");
+    let after = game.observe(PlayerId::Two);
+    assert!(after.decision.is_none());
+    assert!(
+        after
+            .battlefield
+            .iter()
+            .any(|permanent| { permanent.chosen_card_name.as_deref() == Some("Lightning Bolt") })
     );
 }
 

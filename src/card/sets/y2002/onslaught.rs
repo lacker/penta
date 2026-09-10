@@ -285,10 +285,9 @@ pub(in crate::card::sets) static CHAIN_OF_SILENCE: CardRecord = CardRecord::new(
             },
             EffectDef::PayOr(
                 PayOrDef::optional(
-                    &[CostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::HasType(CardType::Land),
-                        controller: PlayerRelation::You,
-                    }],
+                    &[CostDef::sacrifice_permanent(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    )],
                     &EffectDef::May {
                         player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                         effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
@@ -1349,10 +1348,9 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_wi
             // a board sweep in a deck holding the lands to spend.
             EffectDef::PayOr(
                 PayOrDef::optional(
-                    &[CostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::HasType(CardType::Land),
-                        controller: PlayerRelation::You,
-                    }],
+                    &[CostDef::sacrifice_permanent(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    )],
                     &EffectDef::May {
                         player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                         effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {

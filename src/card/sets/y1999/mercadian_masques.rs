@@ -3242,10 +3242,9 @@ pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::unless(
-                &[CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-                    controller: PlayerRelation::You,
-                }],
+                &[CostDef::sacrifice_permanent(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                )],
                 &EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },

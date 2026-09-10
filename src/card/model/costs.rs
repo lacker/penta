@@ -107,6 +107,7 @@ pub enum CostDef {
     /// Sacrifice one matching permanent. `controller` is relative to the
     /// payer; resolving payments support [`PlayerRelation::You`]. The
     /// surrounding payment procedure determines when the permanent is chosen.
+    /// Use [`Self::sacrifice_permanent`] for a permanent the payer controls.
     SacrificePermanent {
         object: ObjectPredicateDef,
         controller: PlayerRelation,
@@ -283,6 +284,15 @@ impl CostDef {
     #[must_use]
     pub const fn put_counters_on_source(kind: CounterKind, amount: u16) -> Self {
         Self::PutCountersOnSource { kind, amount }
+    }
+
+    /// Sacrifice one matching permanent controlled by the payer.
+    #[must_use]
+    pub const fn sacrifice_permanent(object: ObjectPredicateDef) -> Self {
+        Self::SacrificePermanent {
+            object,
+            controller: PlayerRelation::You,
+        }
     }
 
     #[must_use]

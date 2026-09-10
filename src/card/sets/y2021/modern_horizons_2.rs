@@ -1033,10 +1033,9 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                 "\u{2212}2: You may sacrifice a creature.",
                 &[CostDef::Loyalty(-2)],
                 EffectDef::PayOr(PayOrDef::optional(
-                    &[CostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        controller: PlayerRelation::You,
-                    }],
+                    &[CostDef::sacrifice_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
                     &EffectDef::None,
                 )),
             ),

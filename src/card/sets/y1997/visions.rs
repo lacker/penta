@@ -1499,7 +1499,7 @@ pub(in crate::card::sets) static PILLAR_TOMBS_OF_AKU: CardRecord = CardRecord::n
             },
             EffectDef::PayOr(
                 PayOrDef::unless(
-                    &[CostDef::SacrificePermanentMatching(
+                    &[CostDef::sacrifice_permanent(
                         ObjectPredicateDef::HasType(CardType::Creature),
                     )],
                     &EffectDef::Sequence(&[

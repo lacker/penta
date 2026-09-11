@@ -10,7 +10,10 @@ use crate::card::sets::y2025::marvels_spider_man::SUBURBAN_SANCTUARY;
 use crate::card::sets::y2025::marvels_spider_man::UNIVERSITY_CAMPUS;
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("OM1", "through-the-omenpaths");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "OM1",
+    slug: "through-the-omenpaths",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

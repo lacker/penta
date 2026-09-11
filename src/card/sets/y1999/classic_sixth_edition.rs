@@ -19,7 +19,10 @@ use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::card::sets::y1998::exodus as catalog_exo;
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("6ED", "classic-sixth-edition");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "6ED",
+    slug: "classic-sixth-edition",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

@@ -30,8 +30,10 @@ use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet =
-    crate::card::CardSet::new("DMC", "dominaria-united-commander");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "DMC",
+    slug: "dominaria-united-commander",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

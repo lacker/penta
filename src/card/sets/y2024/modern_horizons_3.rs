@@ -133,7 +133,10 @@ static DEVOURER_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
 );
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("MH3", "modern-horizons-3");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "MH3",
+    slug: "modern-horizons-3",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

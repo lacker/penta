@@ -49,7 +49,10 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
 }
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("IKO", "ikoria");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "IKO",
+    slug: "ikoria",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

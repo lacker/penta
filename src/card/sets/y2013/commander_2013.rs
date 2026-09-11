@@ -23,7 +23,10 @@ use crate::card::ZoneKind;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("C13", "commander-2013");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "C13",
+    slug: "commander-2013",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

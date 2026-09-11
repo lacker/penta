@@ -13,7 +13,10 @@ use crate::card::sets::y1995::homelands as catalog_hml;
 use crate::card::sets::y1995::ice_age as catalog_ice;
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("5ED", "fifth-edition");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "5ED",
+    slug: "fifth-edition",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

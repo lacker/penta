@@ -7,35 +7,42 @@ use super::{CardRules, ManaCost};
 /// Equality and hashing use the official set code, independent of the slug.
 /// Built-in constants live beside their cards in [`crate::card::sets`].
 #[derive(Clone, Copy, Debug)]
-pub struct CardSet {
-    code: &'static str,
-    slug: &'static str,
+pub struct CardSet(&'static CardSetMetadata);
+
+/// Module-owned metadata behind a compact [`CardSet`] value.
+#[derive(Debug)]
+pub struct CardSetMetadata {
+    pub code: &'static str,
+    pub slug: &'static str,
 }
 
 impl CardSet {
     /// Sentinel for synthetic catalog definitions, never a deck-legal printed set.
-    pub const TOKEN: Self = Self::new("TOKEN", "token");
+    pub const TOKEN: Self = Self::new(&CardSetMetadata {
+        code: "TOKEN",
+        slug: "token",
+    });
 
     /// Declares a set using its uppercase official code and stable wire slug.
     #[must_use]
-    pub const fn new(code: &'static str, slug: &'static str) -> Self {
-        Self { code, slug }
+    pub const fn new(metadata: &'static CardSetMetadata) -> Self {
+        Self(metadata)
     }
 
     #[must_use]
     pub const fn code(self) -> &'static str {
-        self.code
+        self.0.code
     }
 
     #[must_use]
     pub const fn slug(self) -> &'static str {
-        self.slug
+        self.0.slug
     }
 }
 
 impl PartialEq for CardSet {
     fn eq(&self, other: &Self) -> bool {
-        self.code == other.code
+        self.code() == other.code()
     }
 }
 
@@ -43,7 +50,7 @@ impl Eq for CardSet {}
 
 impl std::hash::Hash for CardSet {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.code.hash(state);
+        self.code().hash(state);
     }
 }
 

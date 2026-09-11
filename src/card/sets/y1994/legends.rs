@@ -88,7 +88,10 @@ static BANDS_WITH_OTHER_LEGENDS: AbilityDef =
     abilities::bands_with_other(BandingQuality::LegendaryCreatures);
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("LEG", "legends");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "LEG",
+    slug: "legends",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

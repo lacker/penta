@@ -258,9 +258,10 @@ will be implemented later:
 5. Put a new identity in the module for its first English-language paper set
    when possible, otherwise its earliest paper set, using that exact debut
    printing's UUID and artist. When no modeled set can truthfully own the
-   declaration, add a set module with a `SET` constant declaring its uppercase
-   official code and stable catalog slug, plus a `DEFINITION` joining that set
-   to `CARDS`, `ADDITIONAL_PRINTINGS`, and `file!()`. Declare the module in its
+   declaration, add a set module with a `SET` constant referencing static
+   `CardSetMetadata` with its uppercase official code and stable catalog slug,
+   plus a `DEFINITION` joining that set to `CARDS`, `ADDITIONAL_PRINTINGS`, and
+   `file!()`. Declare the module in its
    release year's `mod.rs` and add its `DEFINITION` to `SET_MODULES` in
    `src/card/sets/mod.rs`. Set metadata belongs only in the set module;
    protocol serialization and source audits consume that declaration. Native

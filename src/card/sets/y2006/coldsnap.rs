@@ -46,7 +46,10 @@ use crate::mana_cost;
 const AGE_COUNTERS: ValueDef = ValueDef::CountersOnSource(CounterKind::named("age"));
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("CSP", "coldsnap");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "CSP",
+    slug: "coldsnap",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

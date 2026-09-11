@@ -33,7 +33,10 @@ use crate::card::sets::y2000::invasion as catalog_inv;
 use crate::card::sets::y2000::nemesis as catalog_nem;
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("7ED", "seventh-edition");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "7ED",
+    slug: "seventh-edition",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

@@ -54,7 +54,10 @@ pub(in crate::card::sets) const fn escape(costs: &'static [CostDef]) -> AbilityD
 }
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("THB", "theros-beyond-death");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "THB",
+    slug: "theros-beyond-death",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

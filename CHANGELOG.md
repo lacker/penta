@@ -22,7 +22,8 @@ the bot-wire epoch.
 
 - Native Rust set identities now live at `card::sets::<module>::SET`, replacing
   the global `CardSet` enum variants (for example, `CardSet::Alpha` becomes
-  `card::sets::alpha::SET`). `CardSet` is a value type with `code()` and `slug()`;
+  `card::sets::alpha::SET`). `CardSet` is a compact reference to static
+  `CardSetMetadata`, with `code()` and `slug()` accessors;
   the synthetic-set sentinel is `CardSet::TOKEN`. Set modules also own catalog
   registration metadata. Existing catalog JSON slugs and protocol shapes are
   unchanged.

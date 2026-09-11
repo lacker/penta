@@ -104,7 +104,10 @@ static OTHER_CREATURES: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
     -1,
 ));
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("TMP", "tempest");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "TMP",
+    slug: "tempest",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

@@ -72,7 +72,10 @@ static YOU_CONTROL_NO_ISLANDS: TriggerConditionDef = TriggerConditionDef::Object
 };
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("ARN", "arabian-nights");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "ARN",
+    slug: "arabian-nights",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

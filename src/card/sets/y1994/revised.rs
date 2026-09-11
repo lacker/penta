@@ -11,7 +11,10 @@ use crate::card::sets::y1993::beta as catalog_leb;
 use crate::card::sets::y1994::antiquities as catalog_atq;
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("3ED", "revised");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "3ED",
+    slug: "revised",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

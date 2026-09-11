@@ -58,7 +58,10 @@ static NOT_YOUR_TURN: TriggerConditionDef =
     TriggerConditionDef::ActivePlayer(PlayerRelation::Opponent);
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("MH1", "modern-horizons-1");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "MH1",
+    slug: "modern-horizons-1",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

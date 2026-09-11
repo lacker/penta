@@ -53,7 +53,10 @@ static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 /// Printed set identity and stable catalog slug.
-pub const SET: crate::card::CardSet = crate::card::CardSet::new("SCG", "scourge");
+pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
+    code: "SCG",
+    slug: "scourge",
+});
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());

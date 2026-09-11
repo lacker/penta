@@ -795,7 +795,9 @@ fn parse_permanent(
         via_suspend: state.cast_via_suspend,
     });
     permanent.chosen_creature_type = shown.chosen_creature_type;
-    permanent.chosen_creature_type_binding = state.chosen_creature_type_binding.clone();
+    permanent
+        .chosen_creature_type_binding
+        .clone_from(&state.chosen_creature_type_binding);
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;

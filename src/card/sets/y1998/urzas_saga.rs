@@ -51,6 +51,7 @@ use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
 use crate::card::SpellResolutionDestinationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
@@ -2829,7 +2830,7 @@ pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new(
                 sources: &const { [CardChoiceSourceDef::Zone(ZoneKind::Hand)] },
                 object: ObjectPredicateDef::All(&const {
                     [
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         ObjectPredicateDef::Not(&const {
                             ObjectPredicateDef::AnyOf(&const {
                                 [
@@ -3994,7 +3995,7 @@ pub(in crate::card::sets) static PRIEST_OF_TITANIA: CardRecord = CardRecord::new
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Green,
                 amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
-                    ObjectPredicateDef::Subtype("Elf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                     &[ZoneKind::Battlefield],
                 )),
             },

@@ -678,7 +678,6 @@ pub enum ManaRestrictionDef {
     /// stays open, so a Powerstone's mana still activates abilities and pays
     /// for anything that is not a cast at all.
     CannotCastSpell(ObjectPredicateDef),
-    CastCreatureSpellOfChosenType,
     ActivateAbility(ObjectPredicateDef),
     /// This mana can be spent only on a payment with the named semantic purpose.
     Payment(super::AbilityLabel),

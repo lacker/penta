@@ -43,6 +43,7 @@ use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -1894,7 +1895,7 @@ pub(in crate::card::sets) static SKYSHROUD_CLAIM: CardRecord = CardRecord::new(
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
-            object: ObjectPredicateDef::Subtype("Forest"),
+            object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
             minimum: 0,
             maximum: ValueDef::Constant(2),
             reveal: false,

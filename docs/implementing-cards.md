@@ -150,6 +150,21 @@ from effect-output bindings; `ParentBinding` cannot name a cost.
 `SourceCastWith` instead asks about a cost family such as escape. External
 alternatives such as Omniscience do not acquire the card's cost bindings.
 
+### Bound entry choices in mana restrictions
+
+Wrap an entry-time creature-type choice in `ReplacementEffectDef::BindOutput`
+to attach its authored label to the entering permanent. Read that value through
+`ObjectPredicateDef::Subtype(SubtypeDef::Binding(binding))`. Compose it with
+`HasType(CardType::Creature)` inside `ManaRestrictionDef::CastSpell` when the
+mana may pay only for creature spells of that type. The subtype predicate alone
+does not require the object to be a creature. Fixed subtypes use the same
+predicate with `SubtypeDef::Literal("Soldier")`.
+
+Mana restrictions evaluate the paid object in the producing ability source's
+scope. Its label must match exactly; an absent or differently labeled choice
+matches nothing. Floating mana retains its original object incarnation's choice
+when that source leaves. Keep riders on the paid spell in `with_spend_effects`.
+
 ### Damage instructions and follow-ups
 
 Use `EffectDef::DealDamage(DamageDef)` for ordinary damage instructions. Use

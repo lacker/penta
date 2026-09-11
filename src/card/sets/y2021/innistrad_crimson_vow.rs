@@ -29,6 +29,7 @@ use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenCountersDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -410,7 +411,7 @@ static HARVESTER_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
     // enough: the count is read as the ability resolves, and the token the
     // Harvester's own arrival made is one of them.
     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-        ObjectPredicateDef::Subtype("Blood"),
+        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Blood")),
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     )),

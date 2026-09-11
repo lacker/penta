@@ -33,6 +33,7 @@ use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::SpellCostConditionDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -480,7 +481,7 @@ CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct"], 0, 0).with_a
             &[
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype("Pentavite"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Pentavite")),
                     controller: PlayerRelation::You,
                 },
             ],

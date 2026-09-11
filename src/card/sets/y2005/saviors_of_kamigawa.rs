@@ -21,6 +21,7 @@ use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
@@ -132,7 +133,7 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
                 &[
                     CostDef::Mana(mana_cost!("{2}{R}")),
                     CostDef::SacrificePermanent {
-                        object: ObjectPredicateDef::Subtype("Samurai"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Samurai")),
                         controller: PlayerRelation::You,
                     },
                 ],
@@ -140,7 +141,7 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Samurai"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Samurai")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,

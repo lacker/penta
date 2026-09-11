@@ -63,6 +63,9 @@ pub(super) struct PermanentSnapshot {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub(super) control_requires_source_attached: bool,
     pub(super) chosen_player: Option<usize>,
+    /// Authored label for the public creature-type choice, retained across reconstruction.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_creature_type_binding: Option<String>,
     /// The X the spell that made this permanent was cast for.
     #[serde(default, skip_serializing_if = "emptiness::is_zero_u16")]
     pub(super) cast_x: u16,

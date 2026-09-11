@@ -27,6 +27,11 @@ the bot-wire epoch.
   the synthetic-set sentinel is `CardSet::TOKEN`. Set modules also own catalog
   registration metadata. Existing catalog JSON slugs and protocol shapes are
   unchanged.
+- Cavern of Souls binds its entry-time creature-type choice and uses an ordinary
+  spell predicate for its restricted mana. The binding follows the producing
+  object incarnation, including after it leaves and returns with a new choice.
+  An optional checkpoint `chosenCreatureTypeBinding` field preserves that label;
+  the protocol epoch and checkpoint format are unchanged.
 - Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.
   Opponents see that a choice is pending, then its public result; candidate
   options, ordering, policy hints, and checkpoint continuations stay with the

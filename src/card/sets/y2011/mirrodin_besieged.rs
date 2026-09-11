@@ -49,6 +49,7 @@ use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
 use crate::card::SpellResolutionDestinationDef;
+use crate::card::SubtypeDef;
 use crate::card::TargetChooserDef;
 use crate::card::TokenStatsDef;
 use crate::card::TriggerConditionDef;
@@ -2994,7 +2995,7 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Thopter"], 5, 5)
                 &TriggerConditionDef::ObjectCount {
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype("Thopter"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Thopter")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -3062,7 +3063,7 @@ pub(in crate::card::sets) static TRAINING_DRONE: CardRecord = CardRecord::new(
                     query: ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::Subtype("Equipment"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
                             ObjectPredicateDef::AttachedToSource,
                         ]),
                         &[ZoneKind::Battlefield],

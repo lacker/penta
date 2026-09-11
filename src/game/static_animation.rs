@@ -36,7 +36,9 @@ impl Game {
         creature: bool,
     ) -> bool {
         match predicate {
-            ObjectPredicateDef::Subtype(name) => !subtype_is_supplied_by_a_static_effect(name),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal(name)) => {
+                !subtype_is_supplied_by_a_static_effect(name)
+            }
             ObjectPredicateDef::NameEquals(
                 CardNameDef::Literal(_)
                 | CardNameDef::Binding(_)
@@ -54,6 +56,7 @@ impl Game {
             | ObjectPredicateDef::Source
             | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
+            | ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Binding(_))
             | ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::HasType(
                 CardType::Land | CardType::Enchantment | CardType::Artifact,

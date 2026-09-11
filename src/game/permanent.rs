@@ -91,6 +91,7 @@ struct Permanent {
     blocking_this_combat: bool,
     chosen_player: Option<PlayerId>,
     chosen_creature_type: Option<String>,
+    chosen_creature_type_binding: Option<crate::Binding>,
     /// The basic land type this permanent was told to be as it entered.
     pub(super) chosen_basic_land_type: Option<crate::card::BasicLandType>,
     /// The color this permanent's controller chose as it entered.
@@ -290,6 +291,7 @@ impl Permanent {
             blocking_this_combat: false,
             chosen_player: None,
             chosen_creature_type: None,
+            chosen_creature_type_binding: None,
             chosen_basic_land_type: None,
             chosen_color: None,
             chosen_card_name: None,

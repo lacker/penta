@@ -38,6 +38,7 @@ use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TriggerEventDef;
@@ -52,18 +53,18 @@ use crate::mana_cost;
 
 static URZAS_MINE_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Subtype("Urza's"),
-    ObjectPredicateDef::Subtype("Mine"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Urza's")),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mine")),
 ]);
 static URZAS_POWER_PLANT_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Subtype("Urza's"),
-    ObjectPredicateDef::Subtype("Power-Plant"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Urza's")),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Power-Plant")),
 ]);
 static URZAS_TOWER_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Subtype("Urza's"),
-    ObjectPredicateDef::Subtype("Tower"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Urza's")),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Tower")),
 ]);
 
 /// One of the two-part Urza land types the mana abilities ask for. Both
@@ -969,7 +970,7 @@ pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new(
             "Whenever this creature becomes blocked by a Wall, destroy that Wall at end of \
              combat.",
             TriggerEventDef::BecomesBlockedBy {
-                blocker: ObjectPredicateDef::Subtype("Wall"),
+                blocker: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
             },
             abilities::destroy_triggering_object_at_end_of_combat(),
         ),
@@ -1798,7 +1799,7 @@ CardRules::new_land(&[]).with_abilities(&[
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Assembly-Worker"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Assembly-Worker")),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: None,

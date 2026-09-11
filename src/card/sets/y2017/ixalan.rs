@@ -16,6 +16,7 @@ use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -126,7 +127,7 @@ pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
             // a legal target.
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype("Merfolk"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Merfolk")),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
                     owner: None,

@@ -36,6 +36,7 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -1310,7 +1311,7 @@ pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Barbarian"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Barbarian")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -1329,7 +1330,7 @@ pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new
                     [AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Barbarian"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Barbarian")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                     )]

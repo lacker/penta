@@ -30,6 +30,7 @@ use crate::card::PlayerRelation;
 use crate::card::ReplacementConditionDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenStatsDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -226,7 +227,7 @@ pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::TargetMatches {
                         slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::Subtype("Equipment"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
                     },
                     then: &EffectDef::AttachToSource {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

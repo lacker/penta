@@ -1,7 +1,7 @@
 use super::{
     AbilityDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef, AddManaEffectDef,
-    AppliedStackEffect, CardType, CharacteristicContext, CommittedTriggerEvent, ConditionDef,
-    CostDef, DeclarativeAbilityDef, EffectDef, Game, GameObjectId, Mana, ManaAbilityActivation,
+    AppliedStackEffect, CharacteristicContext, CommittedTriggerEvent, ConditionDef, CostDef,
+    DeclarativeAbilityDef, EffectDef, Game, GameObjectId, Mana, ManaAbilityActivation,
     ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose, ManaPool, ManaRestrictionDef,
     ManaSelectionDef, ManaSource, ManaSpendEffectDef, ManaTypeDef, ManaTypeFilterDef,
     ManaTypeSetDef, ManaTypeSourceDef, ObjectCountConditionDef, ObjectRefDef, ObjectSetDef,

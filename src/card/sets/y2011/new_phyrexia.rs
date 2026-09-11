@@ -48,6 +48,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -126,7 +127,7 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::HasType(CardType::Planeswalker),
                         ]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura"))),
                     ]),
                 }),
             ),
@@ -161,7 +162,7 @@ CardRules::new_creature(mana_cost!("{2}{W}"), &["Phyrexian", "Human", "Artificer
         AbilityDef::static_ability(
             "Golems you control have first strike.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype("Golem"), &[ZoneKind::Battlefield], PlayerRelation::You),
+                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")), &[ZoneKind::Battlefield], PlayerRelation::You),
                 effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
             },
         ),
@@ -427,7 +428,7 @@ CardRules::new_creature(mana_cost!("{3}{W}"), &["Phyrexian", "Human", "Artificer
         AbilityDef::static_ability(
             "Golems you control get +1/+1.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype("Golem"), &[ZoneKind::Battlefield], PlayerRelation::You),
+                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")), &[ZoneKind::Battlefield], PlayerRelation::You),
                 effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
             },
         ),
@@ -484,7 +485,7 @@ CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Knight"], 2, 2).with_a
             "Whenever an Equipment you control enters, you may draw a card.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype("Equipment"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
                 None,
@@ -504,7 +505,7 @@ CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Knight"], 2, 2).with_a
                 condition: &METALCRAFT,
                 then: &EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::Subtype("Equipment"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -575,7 +576,7 @@ CardRules::new_creature(mana_cost!("{4}{W}"), &["Phyrexian", "Artificer"], 1, 1)
         AbilityDef::static_ability(
             "Golem creatures you control have vigilance.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype("Golem"), &[ZoneKind::Battlefield], PlayerRelation::You),
+                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")), &[ZoneKind::Battlefield], PlayerRelation::You),
                 effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
             },
         ),
@@ -1249,7 +1250,7 @@ CardRules::new_creature(mana_cost!("{3}{U}"), &["Phyrexian", "Human", "Artificer
         AbilityDef::static_ability(
             "Golem creatures you control have flying.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype("Golem"), &[ZoneKind::Battlefield], PlayerRelation::You),
+                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")), &[ZoneKind::Battlefield], PlayerRelation::You),
                 effect: AppliedEffectDef::add_ability(&abilities::flying()),
             },
         ),
@@ -2745,7 +2746,7 @@ CardRules::new_creature(mana_cost!("{6}{G}"), &["Phyrexian", "Human", "Artificer
         AbilityDef::static_ability(
             "Golem creatures you control have trample.",
             EffectDef::StaticApply {
-                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype("Golem"), &[ZoneKind::Battlefield], PlayerRelation::You),
+                recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")), &[ZoneKind::Battlefield], PlayerRelation::You),
                 effect: AppliedEffectDef::add_ability(&abilities::trample()),
             },
         ),
@@ -2967,7 +2968,7 @@ CardRules::new_creature(mana_cost!("{3}{G}"), &["Phyrexian", "Human", "Artificer
                 "{1}: Regenerate target Golem you control.",
                 &[CostDef::Mana(mana_cost!("{1}"))],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype("Golem"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Golem")),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::You),
                     owner: None,

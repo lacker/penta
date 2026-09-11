@@ -25,6 +25,7 @@ use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -153,7 +154,7 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new(
                 // or another" comes to.
                 TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Lhurgoyf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Lhurgoyf")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]), None, Some(ZoneKind::Battlefield)),
                 &[AbilityTargetDef::exactly_one(

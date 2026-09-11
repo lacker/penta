@@ -508,7 +508,12 @@ fn a_dual_keeps_its_types_in_every_zone() {
         .expect("cataloged");
     drain_pending(&mut game);
     let is = |game: &Game, card: &CardInstance, zone, subtype| {
-        game.card_object_matches(ObjectPredicateDef::Subtype(subtype), card, zone, source)
+        game.card_object_matches(
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal(subtype)),
+            card,
+            zone,
+            source,
+        )
     };
 
     let badlands = game

@@ -63,22 +63,6 @@ impl Game {
         }
     }
 
-    pub(super) fn chosen_creature_type_for_mana_source(
-        &self,
-        source: GameObjectId,
-    ) -> Option<&str> {
-        self.battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == source)
-            .and_then(|permanent| permanent.chosen_creature_type.as_deref())
-            .or_else(|| match self.retired_objects.get(&source) {
-                Some(RetiredObject::Permanent { permanent, .. }) => {
-                    permanent.chosen_creature_type.as_deref()
-                }
-                Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
-            })
-    }
-
     pub(super) fn mana_can_pay_for(&self, mana: Mana, purpose: &ManaPaymentPurpose) -> bool {
         mana.restrictions
             .iter()
@@ -87,7 +71,7 @@ impl Game {
                     .payment_object(purpose)
                     .is_some_and(|(object, is_spell)| {
                         is_spell
-                            && self.trigger_object_matches(*predicate, &object, object.id, true)
+                            && self.trigger_object_matches(*predicate, &object, mana.source.map_or(object.id, |source| source.object), true)
                     }),
                 // Nothing to check when the payment is not a cast: what the
                 // clause forbids is one kind of spell, not one kind of use.
@@ -95,28 +79,13 @@ impl Game {
                     .payment_object(purpose)
                     .is_some_and(|(object, is_spell)| {
                         is_spell
-                            && self.trigger_object_matches(*predicate, &object, object.id, true)
+                            && self.trigger_object_matches(*predicate, &object, mana.source.map_or(object.id, |source| source.object), true)
                     }),
-                ManaRestrictionDef::CastCreatureSpellOfChosenType => {
-                    let Some(source) = mana.source else {
-                        return false;
-                    };
-                    let Some(chosen) = self.chosen_creature_type_for_mana_source(source.object)
-                    else {
-                        return false;
-                    };
-                    self.payment_object(purpose)
-                        .is_some_and(|(object, is_spell)| {
-                            is_spell
-                                && object.types.contains(CardType::Creature)
-                                && object.subtypes.contains(&chosen)
-                        })
-                }
                 ManaRestrictionDef::ActivateAbility(predicate) => self
                     .payment_object(purpose)
                     .is_some_and(|(object, is_spell)| {
                         !is_spell
-                            && self.trigger_object_matches(*predicate, &object, object.id, false)
+                            && self.trigger_object_matches(*predicate, &object, mana.source.map_or(object.id, |source| source.object), false)
                     }),
                 ManaRestrictionDef::Payment(expected) => {
                     matches!(purpose, ManaPaymentPurpose::Payment { label: Some(actual), .. } if actual == expected)

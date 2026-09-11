@@ -40,6 +40,7 @@ use crate::card::SacrificedAmountDef;
 use crate::card::SpellCastQueryDef;
 use crate::card::SpellForm;
 use crate::card::SpellResolutionDestinationDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -655,7 +656,7 @@ CardRules::new_planeswalker(mana_cost!("{2}{R}{G}"), &["Minsc"], 3)
                     // still on the battlefield.
                     EffectDef::IfCondition {
                         condition: &TriggerConditionDef::SacrificedObjectMatches(
-                            ObjectPredicateDef::Subtype("Hamster"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Hamster")),
                         ),
                         then: &EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
@@ -706,7 +707,7 @@ pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
 /// "The number of Gates you control", read twice by the pump above: once for
 /// power and once for toughness.
 static GATES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Gate"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );

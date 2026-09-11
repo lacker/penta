@@ -45,6 +45,7 @@ use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueComparisonDef;
@@ -1234,7 +1235,7 @@ pub(in crate::card::sets) static DWARVEN_BLOODBOILER: CardRecord = CardRecord::n
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Dwarf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dwarf")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 1,

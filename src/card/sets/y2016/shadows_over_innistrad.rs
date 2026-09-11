@@ -11,6 +11,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -75,7 +76,7 @@ pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Whenever you sacrifice a Clue, put a +1/+1 counter on this creature.",
             TriggerEventDef::Sacrificed {
-                object: ObjectPredicateDef::Subtype("Clue"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Clue")),
                 player: PlayerRelation::You,
             },
             EffectDef::AddCounters {

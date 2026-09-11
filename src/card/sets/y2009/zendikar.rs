@@ -33,6 +33,7 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -793,8 +794,8 @@ CardRules::new_artifact(mana_cost!("{1}"))
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype("Vampire"),
-                            ObjectPredicateDef::Subtype("Zombie"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
                         ]),
                     )),
                 },

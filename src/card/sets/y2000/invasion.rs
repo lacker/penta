@@ -47,6 +47,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -1284,7 +1285,9 @@ pub(in crate::card::sets) static SHORELINE_RAIDER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk"], 2, 2).with_ability(
         AbilityDef::keyword(
             "Protection from Kavu",
-            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Kavu")),
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                "Kavu",
+            ))),
         ),
     ),
 );
@@ -3370,7 +3373,7 @@ pub(in crate::card::sets) static ELVISH_CHAMPION: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Elf"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],

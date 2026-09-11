@@ -713,7 +713,7 @@ fn simultaneous_exits_keep_pre_exit_characteristics_for_trigger_matching() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
         "Whenever a Mountain leaves the battlefield, you gain 1 life.",
         TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Subtype("Mountain"),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Mountain")),
             Some(ZoneKind::Battlefield),
             Some(ZoneKind::Graveyard),
         ),

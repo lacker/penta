@@ -37,6 +37,7 @@ use crate::card::PayOrDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerRuleDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -115,7 +116,7 @@ pub(in crate::card::sets) static DARU_WARCHIEF: CardRecord = CardRecord::new(
         &[
             abilities::spell_cost_reduction(
                 "Soldier spells you cast cost {1} less to cast.",
-                ObjectPredicateDef::Subtype("Soldier"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                 PlayerRelation::You,
                 ValueDef::Constant(1),
             ),
@@ -125,7 +126,7 @@ pub(in crate::card::sets) static DARU_WARCHIEF: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Soldier"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
@@ -218,7 +219,9 @@ pub(in crate::card::sets) static DRAGONSTALKER: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::keyword(
             "Protection from Dragons",
-            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Dragon")),
+            KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                "Dragon",
+            ))),
         ),
     ]),
 );
@@ -348,7 +351,7 @@ pub(in crate::card::sets) static NOBLE_TEMPLAR: CardRecord = CardRecord::new(
                 "Plainscycling {2} ({2}, Discard this card: Search your library for a Plains card, \
                 reveal it, put it into your hand, then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                ObjectPredicateDef::Subtype("Plains"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains")),
             ),
         ]),
 );
@@ -786,7 +789,7 @@ pub(in crate::card::sets) static SHORELINE_RANGER: CardRecord = CardRecord::new(
             "Islandcycling {2} ({2}, Discard this card: Search your library for a Island card, \
             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype("Island"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island")),
         ),
     ]),
 );
@@ -1114,7 +1117,7 @@ pub(in crate::card::sets) static TWISTED_ABOMINATION: CardRecord = CardRecord::n
             "Swampcycling {2} ({2}, Discard this card: Search your library for a Swamp card, \
             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype("Swamp"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
         ),
     ]),
 );
@@ -1159,7 +1162,7 @@ pub(in crate::card::sets) static UNDEAD_WARCHIEF: CardRecord = CardRecord::new(
         AbilityDef::static_ability(
             "Zombie spells you cast cost {1} less to cast.",
             EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                ObjectPredicateDef::Subtype("Zombie"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
                 PlayerRelation::You,
                 ValueDef::Constant(1),
             )),
@@ -1170,7 +1173,7 @@ pub(in crate::card::sets) static UNDEAD_WARCHIEF: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Zombie"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
@@ -1253,7 +1256,7 @@ pub(in crate::card::sets) static CHARTOOTH_COUGAR: CardRecord = CardRecord::new(
             "Mountaincycling {2} ({2}, Discard this card: Search your library for a Mountain card, \
             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype("Mountain"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
         ),
     ]),
 );
@@ -1363,7 +1366,7 @@ pub(in crate::card::sets) static DRAGONSPEAKER_SHAMAN: CardRecord = CardRecord::
         AbilityDef::static_ability(
             "Dragon spells you cast cost {2} less to cast.",
             EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                ObjectPredicateDef::Subtype("Dragon"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
                 PlayerRelation::You,
                 ValueDef::Constant(2),
             )),
@@ -1503,7 +1506,7 @@ pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new(
             AbilityDef::static_ability(
                 "Goblin spells you cast cost {1} less to cast.",
                 EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                    ObjectPredicateDef::Subtype("Goblin"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                     PlayerRelation::You,
                     ValueDef::Constant(1),
                 )),
@@ -1512,7 +1515,7 @@ pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new(
                 "Goblins you control have haste.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -1599,7 +1602,7 @@ pub(in crate::card::sets) static SIEGE_GANG_COMMANDER: CardRecord = CardRecord::
             &[
                 CostDef::Mana(mana_cost!("{1}{R}")),
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype("Goblin"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                     controller: PlayerRelation::You,
                 },
             ],
@@ -1823,7 +1826,7 @@ pub(in crate::card::sets) static ELVISH_ABERRATION: CardRecord = CardRecord::new
             "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype("Forest"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
         ),
     ]),
 );
@@ -1875,7 +1878,7 @@ pub(in crate::card::sets) static KROSAN_WARCHIEF: CardRecord = CardRecord::new(
         AbilityDef::static_ability(
             "Beast spells you cast cost {1} less to cast.",
             EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                ObjectPredicateDef::Subtype("Beast"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
                 PlayerRelation::You,
                 ValueDef::Constant(1),
             )),
@@ -1885,7 +1888,7 @@ pub(in crate::card::sets) static KROSAN_WARCHIEF: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{1}{G}"))],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype("Beast"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
                 )]
             },
             EffectDef::Regenerate {
@@ -2007,7 +2010,7 @@ pub(in crate::card::sets) static WIREWOOD_GUARDIAN: CardRecord = CardRecord::new
             "Forestcycling {2} ({2}, Discard this card: Search your library for a Forest card, \
             reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{2}"))],
-            ObjectPredicateDef::Subtype("Forest"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
         ),
     ),
 );
@@ -2056,7 +2059,7 @@ pub(in crate::card::sets) static EDGEWALKER: CardRecord = CardRecord::new(
 CardRules::new_creature(mana_cost!("{1}{W}{B}"), &["Human", "Cleric"], 2, 2).with_ability(
         abilities::spell_colored_cost_reduction(
             "Cleric spells you cast cost {W}{B} less to cast. This effect reduces only the amount of colored mana you pay. (For example, if you cast a Cleric spell with mana cost {1}{W}, it costs {1} to cast.)",
-            ObjectPredicateDef::Subtype("Cleric"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cleric")),
             PlayerRelation::You,
             mana_cost!("{W}{B}"),
         ),

@@ -501,7 +501,8 @@ impl Game {
             ObjectPredicateDef::ColorCount(count) => {
                 object.colors.iter().filter(|present| **present).count() == usize::from(count)
             }
-            ObjectPredicateDef::Subtype(subtype) => object.subtypes.contains(&subtype),
+            ObjectPredicateDef::Subtype(subtype) => self.source_subtype(subtype, source)
+                .is_some_and(|subtype| object.subtypes.contains(&subtype)),
             ObjectPredicateDef::ManaValueAtMost(limit) => object.mana_value <= u16::from(limit),
             ObjectPredicateDef::ManaValueEqualTo(value) => self
                 .value_from_source(value, source)

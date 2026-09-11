@@ -36,6 +36,7 @@ use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SetOperationDef;
+use crate::card::SubtypeDef;
 use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -348,7 +349,7 @@ pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new
                         AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
                             restriction: PlayRestrictionDef::new(
                                 PlayActionMatcherDef::CastSpell,
-                                ObjectPredicateDef::Subtype("Bird"),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
                             ),
                             cost: TopOfLibraryCostDef::Printed,
                         }),
@@ -368,7 +369,7 @@ pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new
                             entering: ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::AnyOf(&[
                                     ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Subtype("Bird"),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
                                 ]),
                                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                             ]),

@@ -77,3 +77,43 @@ fn card_name_entry_choices_require_public_name_sets_and_durable_bindings() {
         ),
     );
 }
+
+#[test]
+fn creature_type_entry_bindings_validate_the_producer_and_mana_consumer() {
+    use crate::card::{AddManaEffectDef, ManaRestrictionDef, SubtypeDef};
+    const PRODUCER: ReplacementEffectDef = ReplacementEffectDef::Choose(
+        ReplacementChoiceDef::Scalar(BattlefieldEntryScalarChoiceDef::CREATURE_TYPE),
+    );
+    assert_eq!(
+        validate_replacement_ability_targets(
+            &[],
+            ReplacementEffectDef::BindOutput {
+                binding: Binding!("cavern_creature_type"),
+                effect: &PRODUCER,
+            }
+        ),
+        Ok(())
+    );
+    assert!(
+        validate_replacement_ability_targets(
+            &[],
+            ReplacementEffectDef::BindOutput {
+                binding: crate::ParentBinding,
+                effect: &PRODUCER,
+            }
+        )
+        .is_err()
+    );
+    assert!(
+        validate_ability_targets(
+            &[],
+            EffectDef::AddMana(AddManaEffectDef::any_color().with_restrictions(&[
+                ManaRestrictionDef::CastSpell(ObjectPredicateDef::Subtype(SubtypeDef::Binding(
+                    crate::ParentBinding
+                ),)),
+            ]),)
+        )
+        .is_err(),
+        "mana restrictions must validate their subtype binding references"
+    );
+}

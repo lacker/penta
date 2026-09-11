@@ -1784,6 +1784,12 @@ id lets you name a room and nothing else.
 
 ## Determinism and versioning
 
+Entry-time creature-type choices retain their authored label in the optional
+`chosenCreatureTypeBinding` member of each checkpoint permanent's state. This
+also applies to pending and retired permanents, so floating restricted mana
+continues to use the choice belonging to its producing object incarnation.
+The ordinary public `chosenCreatureType` value remains unchanged.
+
 A `simulationFingerprint` is the engine's conservative guard for a format,
 ordered decks, seed, opponent configuration, and submitted action/decision
 sequence. Record it with training episodes and control the target/build inputs

@@ -45,6 +45,7 @@ use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TargetChooserDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -1679,7 +1680,9 @@ pub(in crate::card::sets) static FLOW_OF_MAGGOTS: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        "Wall",
+                    ))),
                 )),
             },
         ),
@@ -3113,7 +3116,7 @@ pub(in crate::card::sets) static WORD_OF_BLASTING: CardRecord = CardRecord::new(
         "Destroy target Wall. It can't be regenerated. Word of Blasting deals damage equal to \
          that Wall's mana value to the Wall's controller.",
         &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::Subtype("Wall"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
         )],
         EffectDef::Sequence(&[
             // Applied before the destruction so a shield already on the Wall

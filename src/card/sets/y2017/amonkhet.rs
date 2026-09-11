@@ -16,6 +16,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -117,7 +118,9 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Dragon")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                            "Dragon",
+                        ))),
                     ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::Opponent),

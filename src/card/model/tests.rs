@@ -275,7 +275,9 @@ fn semantic_target_labels_are_derived_from_predicates() {
 
     let non_demon = AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Demon")),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+            crate::card::SubtypeDef::Literal("Demon"),
+        )),
     ]));
     assert_eq!(non_demon.label(), "target non-Demon creature");
 

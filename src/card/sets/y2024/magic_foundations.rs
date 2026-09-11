@@ -24,6 +24,7 @@ use crate::card::PlayerRelation;
 use crate::card::PowerToughnessOperationDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SetOperationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -202,7 +203,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                     // Each activation asks what Kellan is now, so the two have to be paid in
                     // order and neither does anything twice.
                     condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype("Scout"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Scout")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
@@ -242,7 +243,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
                 &[CostDef::Mana(mana_cost!("{2}{R}"))],
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype("Detective"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Detective")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,

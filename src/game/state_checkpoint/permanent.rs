@@ -87,6 +87,10 @@ pub(super) fn permanent_snapshot(
         control_requires_source_tapped: permanent.control_requires_source_tapped,
         control_requires_source_attached: permanent.control_requires_source_attached,
         chosen_player: permanent.chosen_player.map(PlayerId::index),
+        chosen_creature_type_binding: permanent
+            .chosen_creature_type_binding
+            .and_then(crate::Binding::label)
+            .map(str::to_owned),
         cast_x: permanent.cast.as_ref().map_or(0, |cast| cast.x),
         cast_kicks: permanent
             .cast

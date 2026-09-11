@@ -526,3 +526,156 @@ fn caverns_colorless_mana_is_unrestricted_and_has_no_countering_rider() {
             .any(|card| card.definition == cards::SOL_RING),
     );
 }
+
+fn cavern_colored_mana(game: &mut Game, cavern: GameObjectId) -> crate::game::Mana {
+    let ability = mana_ability_for(game, cavern, ManaColor::White);
+    game.apply(
+        PlayerId::One,
+        Action::ActivateManaAbility {
+            source: cavern,
+            ability,
+            color: ManaColor::White,
+            counters_removed: None,
+            cost_object: None,
+            combination: None,
+            triggered_mana: None,
+        },
+    )
+    .unwrap();
+    *game.players[0].mana.iter().last().unwrap()
+}
+
+fn cavern_payment(definition: CardDefinitionId) -> ManaPaymentPurpose {
+    ManaPaymentPurpose::Spell {
+        object: GameObjectId(19_200),
+        definition,
+        controller: PlayerId::One,
+        form: SpellForm::Part(CardPartId::PRIMARY),
+        reserved_life_payment: 0,
+    }
+}
+
+#[test]
+fn cavern_bound_subtype_restrictions_use_each_producers_labeled_choice() {
+    let mut game = ready_game();
+    let soldier_cavern = acceptance_play_cavern_choosing(&mut game, "Soldier");
+    let soldier_mana = cavern_colored_mana(&mut game, soldier_cavern);
+    let angel_cavern = game
+        .put_onto_battlefield(PlayerId::One, cards::CAVERN_OF_SOULS)
+        .unwrap();
+    choose_decision_by_label(&mut game, PlayerId::One, "Angel");
+    let angel_mana = cavern_colored_mana(&mut game, angel_cavern);
+    let soldier = cavern_payment(cards::ICATIAN_JAVELINEERS);
+    let angel = cavern_payment(cards::SERRA_ANGEL);
+    assert!(game.mana_can_pay_for(soldier_mana, &soldier));
+    assert!(!game.mana_can_pay_for(soldier_mana, &angel));
+    assert!(game.mana_can_pay_for(angel_mana, &angel));
+    assert!(!game.mana_can_pay_for(angel_mana, &soldier));
+    assert!(!game.mana_can_pay_for(soldier_mana, &cavern_payment(cards::SWORDS_TO_PLOWSHARES)));
+    assert!(!game.mana_can_pay_for(soldier_mana, &ManaPaymentPurpose::Other));
+
+    let (mut object, _) = game.payment_object(&soldier).unwrap();
+    let bound =
+        ObjectPredicateDef::Subtype(crate::SubtypeDef::Binding(Binding!("cavern_creature_type")));
+    assert!(game.trigger_object_matches(bound, &object, soldier_cavern, true));
+    assert!(!game.trigger_object_matches(bound, &object, angel_cavern, true));
+    assert!(!game.trigger_object_matches(
+        ObjectPredicateDef::Subtype(crate::SubtypeDef::Binding(Binding!("pithing_needle_name"))),
+        &object,
+        soldier_cavern,
+        true,
+    ));
+    assert!(game.trigger_object_matches(
+        ObjectPredicateDef::Subtype(crate::SubtypeDef::Literal("Soldier")),
+        &object,
+        angel_cavern,
+        true,
+    ));
+    object.types = crate::card::CardTypeSet::EMPTY;
+    assert!(
+        game.trigger_object_matches(bound, &object, soldier_cavern, true),
+        "the subtype predicate itself does not imply creature"
+    );
+
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == soldier_cavern)
+        .unwrap()
+        .chosen_creature_type_binding = None;
+    assert!(
+        !game.mana_can_pay_for(soldier_mana, &soldier),
+        "an unnamed choice cannot satisfy an explicit binding"
+    );
+}
+
+#[test]
+fn cavern_bound_mana_round_trips_before_and_after_its_source_returns() {
+    let mut game = ready_game();
+    let creature = card(19_201, cards::ICATIAN_JAVELINEERS, PlayerId::One);
+    game.players[0].hand.push(creature.clone());
+    let cavern = acceptance_play_cavern_choosing(&mut game, "Soldier");
+    let mana = cavern_colored_mana(&mut game, cavern);
+
+    for returned in [false, true] {
+        if returned {
+            game.return_permanent_to_hand(cavern);
+            let index = game.players[0]
+                .hand
+                .iter()
+                .position(|card| card.definition == cards::CAVERN_OF_SOULS)
+                .unwrap();
+            let returning = game.players[0].hand.remove(index);
+            game.put_card_onto_battlefield_from(
+                returning,
+                ZoneKind::Hand,
+                crate::game::BattlefieldArrival::under(PlayerId::One),
+                None,
+            );
+            choose_decision_by_label(&mut game, PlayerId::One, "Angel");
+            let replacement = game
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.definition == cards::CAVERN_OF_SOULS)
+                .unwrap();
+            assert_ne!(replacement.card.id, cavern);
+            assert_eq!(replacement.chosen_creature_type.as_deref(), Some("Angel"));
+        }
+        let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+        let mut rebuilt = Game::from_observation_checkpoint(
+            game.catalog.clone(),
+            game.format,
+            &wire,
+            &hidden,
+            42,
+        )
+        .expect("bound mana and its live or retired source reconstruct");
+        let rebuilt_mana = *rebuilt.players[0].mana.first().unwrap();
+        assert_eq!(rebuilt_mana, mana);
+        assert_eq!(
+            rebuilt.source_subtype(
+                crate::SubtypeDef::Binding(Binding!("cavern_creature_type")),
+                cavern
+            ),
+            Some("Soldier"),
+            "the producing incarnation retains its binding (returned={returned})",
+        );
+        assert!(
+            rebuilt.mana_can_pay_for(rebuilt_mana, &cavern_payment(cards::ICATIAN_JAVELINEERS))
+        );
+        assert!(!rebuilt.mana_can_pay_for(rebuilt_mana, &cavern_payment(cards::SERRA_ANGEL)));
+        let action = acceptance_cast_action_for_card(&rebuilt, PlayerId::One, creature.id);
+        rebuilt.apply(PlayerId::One, action).unwrap();
+        assert!(
+            rebuilt
+                .stack
+                .last()
+                .unwrap()
+                .applied_effects
+                .iter()
+                .any(|effect| {
+                    effect.effect == AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered)
+                        && effect.source.is_some_and(|source| source.object == cavern)
+                })
+        );
+    }
+}

@@ -9,6 +9,28 @@ use super::{
 };
 
 impl Game {
+    pub(in crate::game) fn source_subtype(
+        &self,
+        subtype: crate::card::SubtypeDef,
+        source: GameObjectId,
+    ) -> Option<&str> {
+        match subtype {
+            crate::card::SubtypeDef::Literal(value) => Some(value),
+            crate::card::SubtypeDef::Binding(binding) => self
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == source)
+                .or_else(|| match self.retired_objects.get(&source) {
+                    Some(crate::game::RetiredObject::Permanent { permanent, .. }) => {
+                        Some(permanent)
+                    }
+                    _ => None,
+                })
+                .filter(|permanent| permanent.chosen_creature_type_binding == Some(binding))
+                .and_then(|permanent| permanent.chosen_creature_type.as_deref()),
+        }
+    }
+
     fn names_of_targets(&self, targets: Vec<Target>) -> BTreeSet<String> {
         targets
             .into_iter()

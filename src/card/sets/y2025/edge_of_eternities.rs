@@ -47,6 +47,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RoundingDef;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -270,7 +271,7 @@ pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
                     // to match each permanent once rather than twice.
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Spacecraft"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spacecraft")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,

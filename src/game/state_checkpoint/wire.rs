@@ -803,6 +803,8 @@ fn parse_permanent(
         via_suspend: state.cast_via_suspend,
     });
     permanent.chosen_creature_type = shown.chosen_creature_type;
+    permanent.chosen_creature_type_binding =
+        parse_choice_binding(state.chosen_creature_type_binding.as_deref())?;
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;
@@ -957,14 +959,9 @@ pub(super) fn parse_detached_permanent(
             chosen_basic_land_type: snapshot.chosen_basic_land_type.map(parse_basic_land_type),
             chosen_color: snapshot.chosen_color.map(parse_mana_color),
             chosen_card_name: snapshot.chosen_card_name.clone(),
-            chosen_card_name_binding: snapshot
-                .chosen_card_name_binding
-                .as_deref()
-                .map(|label| {
-                    crate::Binding::try_from_label(label)
-                        .ok_or_else(|| format!("unknown card-name binding label {label:?}"))
-                })
-                .transpose()?,
+            chosen_card_name_binding: parse_choice_binding(
+                snapshot.chosen_card_name_binding.as_deref(),
+            )?,
         },
         catalog,
     )
@@ -991,3 +988,5 @@ pub(super) fn parse_attack_defender(value: &Value) -> Result<AttackDefender, Str
 include!("wire_continuous.rs");
 include!("wire_cast.rs");
 include!("wire_copy.rs");
+
+include!("wire_choices.rs");

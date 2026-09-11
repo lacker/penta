@@ -61,6 +61,7 @@ use crate::card::SetOperationDef;
 use crate::card::StackTargetAggregationDef;
 use crate::card::StackTargetFilterDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -438,7 +439,7 @@ pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new(
                 ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Enchantment),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura"))),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -967,7 +968,7 @@ CardRules::new_creature(mana_cost!("{3}{U}"), &["Drake"], 2, 2).with_abilities(&
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Enchantment),
-                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
                 ]),
                 zones: &[ZoneKind::Graveyard],
                 controller: None,
@@ -2251,7 +2252,7 @@ pub(in crate::card::sets) static GOBLIN_MASONS: CardRecord = CardRecord::new(
         abilities::dies_trigger_with_targets(
             "When this creature dies, destroy target Wall.",
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype("Wall"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

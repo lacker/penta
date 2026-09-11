@@ -15,6 +15,7 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
@@ -50,7 +51,7 @@ pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
                 effect: &EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
-                    object: ObjectPredicateDef::Subtype("Aura"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),
                     reveal: true,
@@ -109,7 +110,7 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Goblin"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -144,7 +145,7 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
                         // among them.
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype("Goblin"),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                                 ObjectPredicateDef::Attacking,
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                             ]),

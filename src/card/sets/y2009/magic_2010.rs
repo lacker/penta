@@ -31,6 +31,7 @@ use crate::ValueDef;
 use crate::ZoneKind;
 use crate::ZonePlacement;
 use crate::card::CostDef;
+use crate::card::SubtypeDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -71,7 +72,7 @@ pub(in crate::card::sets) static CAPTAIN_OF_THE_WATCH: CardRecord = CardRecord::
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Soldier"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -481,7 +482,7 @@ CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2).with_abiliti
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Zombie"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -740,7 +741,7 @@ pub(in crate::card::sets) static GOBLIN_CHIEFTAIN: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -878,7 +879,7 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Elf"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -896,7 +897,7 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new(
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Green,
                 amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype("Elf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 )),

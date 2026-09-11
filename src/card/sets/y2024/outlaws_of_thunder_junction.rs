@@ -33,6 +33,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::ScaledValueDef;
 use crate::card::StackTargetChangeDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenStatsDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -391,7 +392,7 @@ CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spree(&[(&
                         ObjectPredicateDef::HasType(CardType::Land),
                         ObjectPredicateDef::AnyOf(&[
                             ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ObjectPredicateDef::Subtype("Desert"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Desert")),
                         ]),
                     ]),
                     minimum: 0,

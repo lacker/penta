@@ -718,6 +718,7 @@ fn validate_object_predicate_references(
         | ObjectPredicateDef::PowerLessThan(value) => {
             validate_value_target_references(value, target_count, scope)
         }
+        ObjectPredicateDef::Subtype(subtype) => validate_subtype_references(subtype, scope),
         ObjectPredicateDef::NameEquals(name) => {
             validate_card_name_references(name, target_count, scope)
         }

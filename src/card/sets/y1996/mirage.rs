@@ -54,6 +54,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RoundingDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -747,7 +748,7 @@ pub(in crate::card::sets) static ZHALFIRIN_COMMANDER: CardRecord = CardRecord::n
                 [AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Knight"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Knight")),
                     ]),
                 )]
             },
@@ -799,7 +800,7 @@ pub(in crate::card::sets) static ZUBERI_GOLDEN_FEATHER: CardRecord = CardRecord:
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Griffin"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Griffin")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -2553,7 +2554,7 @@ pub(in crate::card::sets) static CHAOS_CHARM: CardRecord = CardRecord::new(
             AbilityDef::spell_with_targets(
                 "Destroy target Wall.",
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype("Wall"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3602,7 +3603,7 @@ pub(in crate::card::sets) static SEEDLING_CHARM: CardRecord = CardRecord::new(
                 "Return target Aura attached to a creature to its owner's hand.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype("Aura"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
                         ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(
                             CardType::Creature,
                         )),
@@ -3660,7 +3661,7 @@ pub(in crate::card::sets) static SERENE_HEART: CardRecord = CardRecord::new(
         "Destroy all Auras.",
         EffectDef::Destroy {
             object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::Subtype("Aura"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
@@ -3709,7 +3710,9 @@ pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new(
             object: EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Enchantment),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        "Aura",
+                    ))),
                 ]),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,

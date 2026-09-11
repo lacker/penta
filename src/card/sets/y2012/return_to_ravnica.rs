@@ -63,6 +63,7 @@ use crate::card::RoundingDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::SpellResolutionDestinationDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenStatsDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -210,7 +211,7 @@ pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
             EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
                 condition: ObjectSetCountConditionDef {
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype("Gate"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
@@ -1712,7 +1713,7 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new(
             EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
                 condition: ObjectSetCountConditionDef {
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype("Gate"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
@@ -1735,7 +1736,7 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new(
 
 // RTR 73 — Pack Rat
 static RATS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Rat"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rat")),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 ));
@@ -2652,7 +2653,7 @@ CardRules::new_creature(mana_cost!("{6}{R}{R}"), &["Dragon"], 6, 6).with_abiliti
         AbilityDef::triggered(
             "Whenever a Dragon you control attacks, create a 6/6 red Dragon creature token with flying.",
             TriggerEventDef::attacks(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::Subtype("Dragon"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 6, 6).with_abilities(&[abilities::flying()]).with_art(CardArt::new("84310f84-3e5f-4db8-bff1-16bef64de1a0", "Mark Zug")),
@@ -2948,7 +2949,7 @@ CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant"], 0, 2).with_abilities(&
                             ObjectPredicateDef::HasType(CardType::Land),
                             ObjectPredicateDef::Supertype(CardSupertype::Basic),
                         ]),
-                        ObjectPredicateDef::Subtype("Gate"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
                     ]),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),

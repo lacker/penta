@@ -20,6 +20,7 @@ use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectSetPredicateDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -168,7 +169,7 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype("Servo"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Servo")),
                     controller: PlayerRelation::You,
                 },
             ],
@@ -180,7 +181,7 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
             &[
                 CostDef::TapSource,
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype("Thopter"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Thopter")),
                     controller: PlayerRelation::You,
                 },
             ],

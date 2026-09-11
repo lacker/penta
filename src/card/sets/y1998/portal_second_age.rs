@@ -18,6 +18,7 @@ use crate::card::ObjectQueryDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
+use crate::card::SubtypeDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -181,7 +182,7 @@ pub(in crate::card::sets) static GOBLIN_MATRON: CardRecord = CardRecord::new(
         abilities::enters_trigger("When this creature enters, you may search your library for a Goblin card, reveal that card, put it into your hand, then shuffle.", EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
-                object: ObjectPredicateDef::Subtype("Goblin"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 minimum: 0,
                 maximum: ValueDef::Constant(1),
                 reveal: true,
@@ -233,7 +234,7 @@ CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_ta
         EffectDef::damage(
             EffectRecipientDef::Target(TargetIndex::PRIMARY),
             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype("Goblin"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),

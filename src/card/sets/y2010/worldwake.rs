@@ -33,6 +33,7 @@ use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SpellCastQueryDef;
+use crate::card::SubtypeDef;
 use crate::card::TapEventMatcherDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TriggerConditionDef;
@@ -65,7 +66,7 @@ CardRules::new_creature(mana_cost!("{1}{W}"), &["Kor", "Artificer"], 1, 2)
                     effect: &EffectDef::SearchZone {
                         player: EffectRecipientDef::Controller,
                         source: ZoneKind::Library,
-                        object: ObjectPredicateDef::Subtype("Equipment"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
                         minimum: 0,
                         maximum: ValueDef::Constant(1),
                         reveal: true,
@@ -90,7 +91,7 @@ CardRules::new_creature(mana_cost!("{1}{W}"), &["Kor", "Artificer"], 1, 2)
                 EffectDef::ChooseCards {
                     player: EffectRecipientDef::Controller,
                     sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
-                    object: ObjectPredicateDef::Subtype("Equipment"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
                     minimum: 0,
                     maximum: 1,
                     reveal: false,
@@ -300,7 +301,7 @@ pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new(
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Subtype("Forest"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
                     zones: &[ZoneKind::Battlefield],
                     controller: None,
                     owner: None,

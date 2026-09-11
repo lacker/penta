@@ -138,13 +138,9 @@ impl Game {
                 let colors = self.effective_colors(affected, &rules);
                 Some(colors.iter().filter(|present| **present).count() == usize::from(count))
             }
-            ObjectPredicateDef::Subtype(subtype) => {
-                let subtypes = prospective.map_or_else(
-                    || self.effective_subtypes(affected),
-                    |prospective| self.effective_subtypes_with_prospective(affected, prospective),
-                );
-                Some(subtypes.contains(&subtype))
-            }
+            ObjectPredicateDef::Subtype(subtype) => Some(self.static_subtype_matches(
+                subtype, source, affected, prospective,
+            )),
             ObjectPredicateDef::Supertype(supertype) => {
                 self.static_supertype_matches(supertype, affected, prospective)
             }
@@ -218,6 +214,22 @@ impl Game {
             | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
             | ObjectPredicateDef::Special(_) => None,
         }
+    }
+
+    fn static_subtype_matches(
+        &self,
+        subtype: crate::card::SubtypeDef,
+        source: &Permanent,
+        affected: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> bool {
+        self.source_subtype(subtype, source.card.id).is_some_and(|subtype| {
+            let subtypes = prospective.map_or_else(
+                || self.effective_subtypes(affected),
+                |prospective| self.effective_subtypes_with_prospective(affected, prospective),
+            );
+            subtypes.contains(&subtype)
+        })
     }
 
     fn static_supertype_matches(

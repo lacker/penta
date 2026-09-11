@@ -189,6 +189,10 @@ impl Game {
                         }
                         BattlefieldEntryChoiceDestinationDef::CreatureType => {
                             entry.permanent.chosen_creature_type = Some(selected);
+                            entry.permanent.chosen_creature_type_binding = match authored_effect {
+                                ReplacementEffectDef::BindOutput { binding, .. } => Some(binding),
+                                _ => None,
+                            };
                         }
                         BattlefieldEntryChoiceDestinationDef::BasicLandType => {
                             entry.permanent.chosen_basic_land_type =

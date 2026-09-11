@@ -40,6 +40,7 @@ use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -100,7 +101,7 @@ pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::n
                 "Plainscycling {1} ({1}, Discard this card: Search your library for a Plains card, \
                 reveal it, put it into your hand, then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{1}"))],
-                ObjectPredicateDef::Subtype("Plains"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains")),
             ),
         ]),
 );
@@ -156,7 +157,7 @@ pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new(
         abilities::typecycling!(
             "Islandcycling {1} ({1}, Discard this card: Search your library for an Island card, reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype("Island"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Island")),
         ),
     ]),
 );
@@ -191,7 +192,7 @@ pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new(
 
 // LTR 103 — Orcish Bowmasters
 static AN_ARMY_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::controlled_by(
-    ObjectPredicateDef::Subtype("Army"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Army")),
     &[ZoneKind::Battlefield],
     PlayerSetDef::Related(PlayerRelation::You),
 );
@@ -296,7 +297,7 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
                 "Swampcycling {1} ({1}, Discard this card: Search your library for a Swamp card, reveal \
                 it, put it into your hand, then shuffle.)",
                 &[CostDef::Mana(mana_cost!("{1}"))],
-                ObjectPredicateDef::Subtype("Swamp"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
             ),
         ]),
 );
@@ -369,7 +370,7 @@ pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
         abilities::typecycling!(
             "Mountaincycling {1} ({1}, Discard this card: Search your library for a Mountain card, reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype("Mountain"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
         ),
     ]),
 );
@@ -391,7 +392,7 @@ pub(in crate::card::sets) static RALLY_AT_THE_HORNBURG: CardRecord = CardRecord:
             // the turn this resolves.
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype("Human"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Human")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -443,7 +444,7 @@ CardRules::new_creature(mana_cost!("{5}{G}"), &["Treefolk"], 5, 7).with_abilitie
         abilities::typecycling!(
             "Forestcycling {1} ({1}, Discard this card: Search your library for a Forest card, reveal it, put it into your hand, then shuffle.)",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            ObjectPredicateDef::Subtype("Forest"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
         ),
     ]),
 );
@@ -558,7 +559,7 @@ CardRules::new_instant(mana_cost!("{1}{U}{R}")).with_ability(
         // The condition is read as the spell is cast, not as it resolves, so a
         // Wizard that dies in response has already done its work.
         .with_conditional_mode_maximum(ConditionDef::Exists(ObjectQueryDef::controlled_by(
-            ObjectPredicateDef::Subtype("Wizard"),
+            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
             &[ZoneKind::Battlefield],
             PlayerSetDef::Related(PlayerRelation::You),
         )), 2),

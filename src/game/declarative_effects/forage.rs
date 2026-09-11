@@ -41,7 +41,10 @@ impl Game {
         then: Option<BattlefieldExitCompletion>,
     ) -> bool {
         if !self
-            .matching_permanents_controlled(player, ObjectPredicateDef::Subtype("Food"))
+            .matching_permanents_controlled(
+                player,
+                ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Food")),
+            )
             .contains(&food)
         {
             return false;
@@ -79,7 +82,9 @@ impl Game {
                         !self
                             .matching_permanents_controlled(
                                 player,
-                                ObjectPredicateDef::Subtype("Food"),
+                                ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal(
+                                    "Food",
+                                )),
                             )
                             .is_empty(),
                     ),
@@ -107,9 +112,10 @@ impl Game {
                 ("Exile three cards to forage", 3)
             }
             Some(ZoneKind::Battlefield) => {
-                for food in
-                    self.matching_permanents_controlled(player, ObjectPredicateDef::Subtype("Food"))
-                {
+                for food in self.matching_permanents_controlled(
+                    player,
+                    ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Food")),
+                ) {
                     let mut option =
                         self.effect_target_option(options.len(), Target::Permanent(food));
                     option.label = format!("Sacrifice {}", option.label);

@@ -42,6 +42,7 @@ use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
@@ -1791,7 +1792,7 @@ pub(in crate::card::sets) static DERANGED_HERMIT: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Squirrel"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,

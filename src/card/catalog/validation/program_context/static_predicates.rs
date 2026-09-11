@@ -18,7 +18,7 @@
 /// runtime's copies of this list; both sides are meant to say the same thing.
 fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature: bool) -> bool {
     match predicate {
-        ObjectPredicateDef::Subtype(name) => !crate::card::BasicLandType::ALL
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal(name)) => !crate::card::BasicLandType::ALL
             .iter()
             .any(|land_type| land_type.subtype() == name),
         ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
@@ -27,6 +27,7 @@ fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature:
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
+        | ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Binding(_))
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::HasType(
             CardType::Land | CardType::Enchantment | CardType::Artifact,

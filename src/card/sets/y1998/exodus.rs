@@ -56,6 +56,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::ScaledValueDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -3380,7 +3381,7 @@ CardRules::new_artifact_creature(mana_cost!("{5}"), &["Thopter"], 0, 0).with_abi
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype("Thopter"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Thopter")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     controller: PlayerRelation::You,

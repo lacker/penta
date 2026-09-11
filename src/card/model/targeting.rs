@@ -124,7 +124,8 @@ pub enum ObjectPredicateDef {
     /// Has exactly this many colors. Zero matches colorless objects and one
     /// matches monocolored objects.
     ColorCount(u8),
-    Subtype(&'static str),
+    /// Has the subtype resolved from this value in the ability source's scope.
+    Subtype(SubtypeDef),
     /// Mana value at most this much, for "with mana value N or less".
     ManaValueAtMost(u8),
     /// Mana value exactly this much, where the number is read off the
@@ -651,4 +652,12 @@ fn cast_target_count_value(value: ValueDef, x: u16, payments: &[u16]) -> Option<
         )),
         _ => None,
     }
+}
+
+/// A subtype value read by an object predicate. Bindings name a creature-type
+/// choice attached to the source permanent by an entry `BindOutput`.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum SubtypeDef {
+    Literal(&'static str),
+    Binding(crate::Binding),
 }

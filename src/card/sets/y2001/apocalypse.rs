@@ -34,6 +34,7 @@ use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::TargetChooserDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -196,7 +197,7 @@ pub(in crate::card::sets) static ENLISTMENT_OFFICER: CardRecord = CardRecord::ne
             "When this creature enters, reveal the top four cards of your library. Put all Soldier cards revealed this way into your hand and the rest on the bottom of your library in any order.",
             abilities::reveal_top_cards_put_matching_in_hand_rest_bottom(
                 ValueDef::Constant(4),
-                ObjectPredicateDef::Subtype("Soldier"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
             ),
         ),
     ]),
@@ -415,7 +416,7 @@ pub(in crate::card::sets) static COASTAL_DRAKE: CardRecord = CardRecord::new(
             "{1}{U}, {T}: Return target Kavu to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype("Kavu"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kavu")),
             )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -670,7 +671,7 @@ pub(in crate::card::sets) static GRAVE_DEFILER: CardRecord = CardRecord::new(
             "When this creature enters, reveal the top four cards of your library. Put all Zombie cards revealed this way into your hand and the rest on the bottom of your library in any order.",
             abilities::reveal_top_cards_put_matching_in_hand_rest_bottom(
                 ValueDef::Constant(4),
-                ObjectPredicateDef::Subtype("Zombie"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
             ),
         ),
         abilities::regenerate_self(
@@ -1129,7 +1130,7 @@ pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new
             "When this creature enters, reveal the top four cards of your library. Put all Goblin cards revealed this way into your hand and the rest on the bottom of your library in any order.",
             abilities::reveal_top_cards_put_matching_in_hand_rest_bottom(
                 ValueDef::Constant(4),
-                ObjectPredicateDef::Subtype("Goblin"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
             ),
         ),
     ]),
@@ -1643,7 +1644,7 @@ pub(in crate::card::sets) static STRENGTH_OF_NIGHT: CardRecord = CardRecord::new
                             ),
                             then: &EffectDef::Apply {
                                 recipient: EffectRecipientDef::matching_objects(
-                                    ObjectPredicateDef::Subtype("Zombie"),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
                                     &[ZoneKind::Battlefield],
                                     PlayerRelation::You,
                                 ),

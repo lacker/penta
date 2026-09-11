@@ -56,6 +56,7 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TargetChooserDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -288,7 +289,7 @@ pub(in crate::card::sets) static HOPE_CHARM: CardRecord = CardRecord::new(
             AbilityDef::spell_with_targets(
                 "Destroy target Aura.",
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -2499,7 +2500,9 @@ pub(in crate::card::sets) static EMERALD_CHARM: CardRecord = CardRecord::new(
                 "Destroy target non-Aura enchantment.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Enchantment),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        "Aura",
+                    ))),
                 ])),
             ),
             AbilityDef::spell_with_targets(
@@ -3161,8 +3164,8 @@ CardRules::new_enchantment(mana_cost!("{R}{W}")).with_abilities(&[
                 effect: &EffectDef::Destroy {
                     object: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype("Djinn"),
-                            ObjectPredicateDef::Subtype("Efreet"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Djinn")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Efreet")),
                         ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
@@ -3175,8 +3178,8 @@ CardRules::new_enchantment(mana_cost!("{R}{W}")).with_abilities(&[
             "Whenever a Djinn or Efreet enters, destroy it. It can't be regenerated.",
             TriggerEventDef::zone_changed(
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype("Djinn"),
-                    ObjectPredicateDef::Subtype("Efreet"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Djinn")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Efreet")),
                 ]),
                 None,
                 Some(ZoneKind::Battlefield),
@@ -3287,7 +3290,7 @@ CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abi
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Chimera"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Chimera")),
                 ]),
             )],
             EffectDef::Sequence(&[
@@ -3322,7 +3325,7 @@ pub(in crate::card::sets) static DIAMOND_KALEIDOSCOPE: CardRecord = CardRecord::
             &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Token,
-                    ObjectPredicateDef::Subtype("Prism"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Prism")),
                 ]),
                 controller: PlayerRelation::You,
             }],
@@ -3407,7 +3410,7 @@ CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abi
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Chimera"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Chimera")),
                 ]),
             )],
             EffectDef::Sequence(&[
@@ -3468,7 +3471,7 @@ CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abi
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Chimera"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Chimera")),
                 ]),
             )],
             EffectDef::Sequence(&[
@@ -3608,7 +3611,7 @@ CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abi
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Chimera"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Chimera")),
                 ]),
             )],
             EffectDef::Sequence(&[
@@ -3765,7 +3768,7 @@ pub(in crate::card::sets) static GRIFFIN_CANYON: CardRecord = CardRecord::new(
             "{T}: Untap target Griffin. If it's a creature, it gets +1/+1 until end of turn.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype("Griffin"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Griffin")),
             )],
             EffectDef::Sequence(&[
                 EffectDef::Untap {

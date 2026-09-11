@@ -46,7 +46,9 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
         protected_id,
         &ObjectPredicateDef::All(&[
             ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                crate::card::SubtypeDef::Literal("Human")
+            )),
         ]),
     ));
     assert!(
@@ -55,7 +57,9 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
             opposing_id,
             &ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                    crate::card::SubtypeDef::Literal("Human")
+                )),
             ]),
         ),
         "only the caster's creatures receive the grant",
@@ -70,7 +74,9 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
             late,
             &ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                    crate::card::SubtypeDef::Literal("Human")
+                )),
             ]),
         ),
         "a resolving group grant freezes its recipients",
@@ -116,7 +122,9 @@ fn spare_from_evil_grants_temporary_protection_to_the_creatures_it_resolves_over
         protected_id,
         &ObjectPredicateDef::All(&[
             ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(
+                crate::card::SubtypeDef::Literal("Human")
+            )),
         ]),
     ));
 }

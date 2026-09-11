@@ -16,7 +16,7 @@ fn an_attached_aura_search_checkpoint_preserves_its_player() {
     game.queue_zone_search(
         player,
         ZoneKind::Library,
-        crate::card::ObjectPredicateDef::Subtype("Curse"),
+        crate::card::ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Curse")),
         0,
         1,
         true,

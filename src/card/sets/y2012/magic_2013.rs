@@ -54,6 +54,7 @@ use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TargetChooserDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -588,8 +589,8 @@ pub(in crate::card::sets) static WAR_FALCON: CardRecord = CardRecord::new(
             "This creature can't attack unless you control a Knight or a Soldier.",
             EffectDef::CannotAttackUnless(&ObjectQueryDef::matching(
                 ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::Subtype("Knight"),
-                    ObjectPredicateDef::Subtype("Soldier"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Knight")),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                 ]),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
@@ -926,7 +927,7 @@ pub(in crate::card::sets) static MASTER_OF_THE_PEARL_TRIDENT: CardRecord = CardR
                     // which reaches every Merfolk on the battlefield including the opponent's.
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Merfolk"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Merfolk")),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                     ]),
                     &[ZoneKind::Battlefield],
@@ -2147,7 +2148,7 @@ CardRules::new_creature(
         EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_art(CardArt::new("0e67efea-8a80-42ec-8e77-07d387d933d4", "Karl Kopinski")).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Subtype("Goblin"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
             ]),
             &[ZoneKind::Battlefield],
             PlayerRelation::You,
@@ -2639,7 +2640,7 @@ const FARSEEK_REPRINT: PrintingRecord = PrintingRecord::reprint(
 /// A second Mountain does not make the bonus bigger, so this is asked as a
 /// condition rather than counted.
 static MOUNTAIN_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Mountain"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Mountain")),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );

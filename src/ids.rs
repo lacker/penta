@@ -267,6 +267,7 @@ const BINDING_LABELS: &[&str] = &[
     "call_of_the_wild_creature",
     "call_of_the_wild_other",
     "cards",
+    "cavern_creature_type",
     "conditional_cards",
     "consult_kicked_chosen",
     "consult_kicked_rest",

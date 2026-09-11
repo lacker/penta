@@ -690,8 +690,8 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Instant),
         ObjectPredicateDef::HasType(CardType::Sorcery),
-        ObjectPredicateDef::Subtype("Arcane"),
-        ObjectPredicateDef::Subtype("Lesson"),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Arcane")),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Lesson")),
     ] {
         assert!(game.trigger_event_matches_for_controller(
             TriggerEventDef::spell_cast(predicate),
@@ -704,7 +704,7 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
     game.stack.push(object);
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Sorcery),
-        ObjectPredicateDef::Subtype("Lesson"),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Lesson")),
     ] {
         assert_eq!(
             game.ability_targets_matching(
@@ -735,7 +735,7 @@ fn split_card_target_characteristics_union_parts_outside_the_stack() {
 
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Sorcery),
-        ObjectPredicateDef::Subtype("Lesson"),
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Lesson")),
     ] {
         assert_eq!(
             game.ability_targets_matching(

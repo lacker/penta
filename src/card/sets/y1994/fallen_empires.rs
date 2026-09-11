@@ -34,6 +34,7 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -294,7 +295,7 @@ pub(in crate::card::sets) static ICATIAN_LIEUTENANT: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Soldier"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                 ]),
             )],
             EffectDef::Apply {
@@ -1382,7 +1383,7 @@ pub(in crate::card::sets) static THRULL_CHAMPION: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Thrull"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Thrull")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -1397,7 +1398,7 @@ pub(in crate::card::sets) static THRULL_CHAMPION: CardRecord = CardRecord::new(
             "{T}: Gain control of target Thrull for as long as you control this creature.",
             &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype("Thrull"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Thrull")),
             )],
             EffectDef::gain_control(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1538,7 +1539,7 @@ pub(in crate::card::sets) static DWARVEN_LIEUTENANT: CardRecord = CardRecord::ne
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Dwarf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dwarf")),
                 ]),
             )],
             EffectDef::Apply {
@@ -1564,7 +1565,7 @@ pub(in crate::card::sets) static DWARVEN_SOLDIER: CardRecord = CardRecord::new(
              creature gets +0/+2 until end of turn.",
             TriggerEventDef::BlocksOrBecomesBlockedBy {
                 creature: ObjectPredicateDef::Source,
-                other: ObjectPredicateDef::Subtype("Orc"),
+                other: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Orc")),
             },
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
@@ -1603,7 +1604,7 @@ pub(in crate::card::sets) static GOBLIN_CHIRURGEON: CardRecord = CardRecord::new
         AbilityDef::activated_with_targets(
             "Sacrifice a Goblin: Regenerate target creature.",
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Goblin"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -1651,7 +1652,7 @@ CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
             "As an additional cost to cast this spell, sacrifice a Goblin.\nGoblin Grenade deals 5 damage to any target.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
             CostDef::sacrifice(
-                ObjectPredicateDef::Subtype("Goblin"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 CostQuantityDef::Fixed(1),
             ),
             EffectDef::damage(
@@ -1804,7 +1805,7 @@ pub(in crate::card::sets) static ORCISH_CAPTAIN: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Orc"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Orc")),
                 ]),
             )],
             EffectDef::FlipCoin {
@@ -2037,7 +2038,7 @@ CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf"], 0, 2).with_abilities(&[
             AbilityDef::activated(
                 "Sacrifice a Saproling: You gain 2 life.",
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Saproling"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saproling")),
                 controller: PlayerRelation::You,
             }],
                 EffectDef::GainLife {
@@ -2186,7 +2187,7 @@ pub(in crate::card::sets) static FUNGAL_BLOOM: CardRecord = CardRecord::new(
             "{G}{G}: Put a spore counter on target Fungus.",
             &[CostDef::Mana(mana_cost!("{G}{G}"))],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype("Fungus"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Fungus")),
             )],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -2411,7 +2412,7 @@ CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Fungus"], 2, 2).with_abiliti
             AbilityDef::activated(
                 "Sacrifice a Saproling: This creature gets +1/+2 until end of turn.",
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Saproling"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saproling")),
                 controller: PlayerRelation::You,
             }],
                 EffectDef::Apply {

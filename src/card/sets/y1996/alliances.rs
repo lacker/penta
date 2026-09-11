@@ -42,6 +42,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TargetChooserDef;
 use crate::card::TokenCharacteristics;
@@ -1935,7 +1936,7 @@ CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Knight"], 3, 2).with_a
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall"))),
                     )),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },

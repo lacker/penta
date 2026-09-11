@@ -36,7 +36,12 @@ fn is_a_swamp(game: &Game, permanent: GameObjectId) -> bool {
 /// A card in `zone` asked whether it is a Swamp, which is what a spell that
 /// names one reads.
 fn card_is_a_swamp(game: &Game, card: &CardInstance, zone: ZoneKind, source: GameObjectId) -> bool {
-    game.card_object_matches(ObjectPredicateDef::Subtype("Swamp"), card, zone, source)
+    game.card_object_matches(
+        ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Swamp")),
+        card,
+        zone,
+        source,
+    )
 }
 
 /// "Urborg's ability causes each land on the battlefield to have the land

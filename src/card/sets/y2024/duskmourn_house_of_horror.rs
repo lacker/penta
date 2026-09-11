@@ -56,6 +56,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SetOperationDef;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCountersDef;
@@ -333,7 +334,7 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
                                 ObjectPredicateDef::AnyOf(&[
                                     ObjectPredicateDef::All(&[
                                         ObjectPredicateDef::HasType(CardType::Creature),
-                                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Avatar")),
+                                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Avatar"))),
                                     ]),
                                     ObjectPredicateDef::HasType(CardType::Planeswalker),
                                 ]),
@@ -655,7 +656,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
                             "Ninjas you control get +1/+1.",
                             EffectDef::StaticApply {
                                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
-                                    ObjectPredicateDef::Subtype("Ninja"),
+                                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ninja")),
                                     &[ZoneKind::Battlefield],
                                     PlayerRelation::You,
                                 ))),

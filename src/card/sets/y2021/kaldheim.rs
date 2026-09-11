@@ -24,6 +24,7 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -102,7 +103,7 @@ pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype("Treasure"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -137,7 +138,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                         // "Other Dwarves you control": Magda pumps the rest of the Dwarves and not
                         // herself, which is the whole reason she is a 2/1 rather than a 3/1.
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype("Dwarf"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dwarf")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -154,7 +155,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                 // Any Dwarf you control becoming tapped, not just an attack: tapping one
                 // for mana or to pay a cost makes a Treasure just the same.
                 TriggerEventDef::tapped(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype("Dwarf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dwarf")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
                 EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
@@ -166,7 +167,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                 "Sacrifice five Treasures: Search your library for an artifact or Dragon card, put that \
                  card onto the battlefield, then shuffle.",
                 &[CostDef::SacrificePermanents {
-                    object: ObjectPredicateDef::Subtype("Treasure"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")),
                     controller: PlayerRelation::You,
                     count: 5,
                 }],
@@ -175,7 +176,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
                     source: ZoneKind::Library,
                     object: ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
-                        ObjectPredicateDef::Subtype("Dragon"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
                     ]),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),

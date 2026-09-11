@@ -15,6 +15,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -102,7 +103,7 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
                 &[
                     CostDef::Mana(mana_cost!("{2}{R}{W}")),
                     CostDef::TapPermanents {
-                        object: ObjectPredicateDef::Subtype("Rebel"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Rebel")),
                         controller: PlayerRelation::You,
                         count: 1,
                     },

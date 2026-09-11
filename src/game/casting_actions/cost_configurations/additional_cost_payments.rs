@@ -111,7 +111,7 @@ impl Game {
                 crate::card::CostQuantityDef::Fixed(3),
             ),
             CostDef::sacrifice(
-                crate::card::ObjectPredicateDef::Subtype("Food"),
+                crate::card::ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Food")),
                 crate::card::CostQuantityDef::Fixed(1),
             ),
         ];

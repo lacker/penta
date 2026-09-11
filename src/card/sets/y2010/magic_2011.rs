@@ -33,6 +33,7 @@ use crate::card::PlayerRelation;
 use crate::card::ScaledValueDef;
 use crate::card::SpellResolutionDestinationDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -583,7 +584,7 @@ pub(in crate::card::sets) static PHYLACTERY_LICH: CardRecord = CardRecord::new(
 // M11 111 — Quag Sickness
 static QUAG_SICKNESS_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-        ObjectPredicateDef::Subtype("Swamp"),
+        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     )),

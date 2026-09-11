@@ -47,13 +47,13 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
         }),
     );
     keywords.extend([
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Zombie")),
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Vampire")),
-        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype("Werewolf")),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Zombie"))),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Vampire"))),
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Werewolf"))),
         KeywordAbility::ProtectionFrom(&ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::Subtype("Vampire"),
-            ObjectPredicateDef::Subtype("Werewolf"),
-            ObjectPredicateDef::Subtype("Zombie"),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Vampire")),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Werewolf")),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Zombie")),
         ])),
         KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
             crate::card::CardType::Creature,
@@ -64,7 +64,7 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
         ]))),
         KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
             ObjectPredicateDef::HasType(crate::card::CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Human"))),
         ])),
         KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
             crate::card::CardType::Enchantment,

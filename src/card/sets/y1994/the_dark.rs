@@ -39,6 +39,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::RoundingDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::StackTargetChangeDef;
+use crate::card::SubtypeDef;
 use crate::card::TargetChooserDef;
 use crate::card::TargetPredicate;
 use crate::card::TriggerConditionDef;
@@ -274,7 +275,7 @@ pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new(
             // the creature under it has to be one of yours.
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
                     ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -346,7 +347,7 @@ pub(in crate::card::sets) static TIVADARS_CRUSADE: CardRecord = CardRecord::new(
         "Destroy all Goblins.",
         EffectDef::Destroy {
             object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::Subtype("Goblin"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
@@ -836,7 +837,7 @@ pub(in crate::card::sets) static BOG_RATS: CardRecord = CardRecord::new(
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                    ObjectPredicateDef::Subtype("Wall"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
                 )),
             },
         ),
@@ -1305,7 +1306,7 @@ pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new(
                     condition: &ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN,
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::Subtype("Goblin"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
@@ -1329,7 +1330,7 @@ pub(in crate::card::sets) static GOBLIN_DIGGING_TEAM: CardRecord = CardRecord::n
             "{T}, Sacrifice this creature: Destroy target Wall.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Subtype("Wall"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1397,7 +1398,7 @@ pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new(
                     condition: &ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN,
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::Subtype("Goblin"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
@@ -1417,7 +1418,7 @@ pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new(
                 ),
                 EffectDef::damage(
                     EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
@@ -1442,7 +1443,7 @@ pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new(
                 EffectDef::ChooseCards {
                     player: EffectRecipientDef::Controller,
                     sources: &FROM_YOUR_HAND,
-                    object: ObjectPredicateDef::Subtype("Goblin"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                     minimum: 0,
                     maximum: 1,
                     reveal: false,
@@ -1454,7 +1455,7 @@ pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new(
                 "{R}: Target Goblin gains protection from white until end of turn.",
                 &[CostDef::Mana(mana_cost!("{R}"))],
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype("Goblin"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1482,7 +1483,7 @@ pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::
             // rather than an exact number.
             &TriggerConditionDef::ObjectCount {
                 query: ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype("Dwarf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dwarf")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -1537,8 +1538,8 @@ CardRules::new_creature(mana_cost!("{2}{R}"), &["Orc", "Warrior"], 2, 2)
             CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::Subtype("Orc"),
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Orc")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                     ]),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
@@ -1549,7 +1550,7 @@ CardRules::new_creature(mana_cost!("{2}{R}"), &["Orc", "Warrior"], 2, 2)
             recipient: EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Orc"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Orc")),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                 ]),
                 &[ZoneKind::Battlefield],
@@ -1756,7 +1757,7 @@ pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{G}{G}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
                     ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(CardType::Land)),
                 ]),
             )],
@@ -1932,7 +1933,7 @@ CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
                          creature at end of combat.",
                         TriggerEventDef::BlocksOrBecomesBlockedBy {
                             creature: ObjectPredicateDef::Source,
-                            other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                            other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall"))),
                         },
                         abilities::destroy_triggering_object_at_end_of_combat(),
                     )),
@@ -2011,7 +2012,7 @@ pub(in crate::card::sets) static DARK_HEART_OF_THE_WOOD: CardRecord = CardRecord
     CardRules::new_enchantment(mana_cost!("{B}{G}")).with_abilities(&[AbilityDef::activated(
         "Sacrifice a Forest: You gain 3 life.",
         &[CostDef::SacrificePermanent {
-            object: ObjectPredicateDef::Subtype("Forest"),
+            object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Forest")),
             controller: PlayerRelation::You,
         }],
         EffectDef::GainLife {
@@ -2361,7 +2362,7 @@ pub(in crate::card::sets) static TOWER_OF_COIREALL: CardRecord = CardRecord::new
         EffectDef::Apply {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-                ObjectPredicateDef::Subtype("Wall"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wall")),
             )),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },

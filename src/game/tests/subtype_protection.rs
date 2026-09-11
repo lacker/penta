@@ -146,9 +146,9 @@ fn the_inquisitor_carries_one_combined_protection_ability() {
     assert!(game.permanent_has_executable_keyword(
         permanent(&game, inquisitor_id),
         KeywordAbility::ProtectionFrom(&ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::Subtype("Vampire"),
-            ObjectPredicateDef::Subtype("Werewolf"),
-            ObjectPredicateDef::Subtype("Zombie"),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Vampire")),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Werewolf")),
+            ObjectPredicateDef::Subtype(crate::card::SubtypeDef::Literal("Zombie")),
         ])),
     ));
 

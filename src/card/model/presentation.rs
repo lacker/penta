@@ -172,7 +172,7 @@ fn simple_disjunction_subject(predicate: ObjectPredicateDef) -> Option<String> {
         .copied()
         .map(|predicate| match predicate {
             ObjectPredicateDef::HasType(card_type) => Some(card_type_name(card_type)),
-            ObjectPredicateDef::Subtype(subtype) => Some(subtype),
+            ObjectPredicateDef::Subtype(super::SubtypeDef::Literal(subtype)) => Some(subtype),
             _ => None,
         })
         .collect::<Option<Vec<_>>>()?;

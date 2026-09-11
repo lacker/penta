@@ -82,7 +82,7 @@ pub use model::{
     SpellAbilityDef, SpellCastQueryDef, SpellCostConditionDef, SpellCostModificationDef, SpellForm,
     SpellResolutionDestinationDef, StackObjectEventDef, StackObjectEventMatcherDef,
     StackTargetAggregationDef, StackTargetChangeDef, StackTargetFilterDef, StaticAbilityDef,
-    StaticApplyDef, SumValueDef, SuspendAbilityDef, SuspendTimeDef, TapEventMatcherDef,
+    StaticApplyDef, SubtypeDef, SumValueDef, SuspendAbilityDef, SuspendTimeDef, TapEventMatcherDef,
     TapPurposeDef, TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef,
     TokenCharacteristics, TokenCopyDef, TokenCountersDef, TokenPart, TokenStatsDef, TokenStructure,
     TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnKindDef,

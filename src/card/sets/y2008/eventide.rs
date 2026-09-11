@@ -21,6 +21,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::ValueDef;
 use crate::card::abilities;
@@ -196,7 +197,7 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
                     // Figure that was answered in response is a 1/1 again and the second
                     // activation does nothing.
                     condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype("Spirit"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Spirit")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
@@ -218,7 +219,7 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
                 ))],
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::SourceMatches {
-                        object: ObjectPredicateDef::Subtype("Warrior"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Warrior")),
                     },
                     then: &EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,

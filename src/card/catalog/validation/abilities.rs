@@ -660,6 +660,9 @@ fn validate_entry_replacement_program(effect: ReplacementEffectDef) -> Result<()
                     BattlefieldEntryScalarChoiceDef {
                         list: ScalarChoiceListDef::CardNames(_),
                         destination: BattlefieldEntryChoiceDestinationDef::CardName,
+                    } | BattlefieldEntryScalarChoiceDef {
+                        list: ScalarChoiceListDef::CreatureTypes,
+                        destination: BattlefieldEntryChoiceDestinationDef::CreatureType,
                     },
                 )),
             binding,

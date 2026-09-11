@@ -286,6 +286,12 @@ impl Game {
                     .iter()
                     .map(|rule| rule.source.object),
             )
+            .chain(
+                self.players
+                    .iter()
+                    .flat_map(|player| player.mana.iter())
+                    .filter_map(|mana| mana.source.map(|source| source.object)),
+            )
             .chain(self.spell_cast_history_this_turn.iter().copied())
             .chain(
                 self.damage_redirects

@@ -55,6 +55,7 @@ use crate::card::RoundingDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::ScaledValueDef;
 use crate::card::StaticApplyDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -630,7 +631,7 @@ pub(in crate::card::sets) static MASTER_APOTHECARY: CardRecord = CardRecord::new
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Cleric"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cleric")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 1,
@@ -985,7 +986,7 @@ pub(in crate::card::sets) static ABOSHAN_CEPHALID_EMPEROR: CardRecord = CardReco
                 &[CostDef::TapPermanents {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Octopus"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Octopus")),
                     ]),
                     controller: PlayerRelation::You,
                     count: 1,
@@ -1617,7 +1618,7 @@ pub(in crate::card::sets) static PATRON_WIZARD: CardRecord = CardRecord::new(
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Wizard"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 1,
@@ -4677,7 +4678,7 @@ pub(in crate::card::sets) static SQUIRREL_MOB: CardRecord = CardRecord::new(
                 effect: AppliedEffectDef::modify_power_toughness(
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype("Squirrel"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -4685,7 +4686,7 @@ pub(in crate::card::sets) static SQUIRREL_MOB: CardRecord = CardRecord::new(
                     )),
                     ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                         ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Subtype("Squirrel"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],

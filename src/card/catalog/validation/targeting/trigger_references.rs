@@ -50,6 +50,7 @@ fn validate_trigger_object_predicate(
         ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
             validate_trigger_object_predicate(*predicate, event, target_count, scope)
         }
+        ObjectPredicateDef::Subtype(subtype) => validate_subtype_references(subtype, scope),
         ObjectPredicateDef::NameEquals(name) => {
             validate_card_name_references(name, target_count, scope)
         }
@@ -101,7 +102,6 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
-        | ObjectPredicateDef::Subtype(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::PowerAtLeast(_)
         | ObjectPredicateDef::PowerExactly(_)

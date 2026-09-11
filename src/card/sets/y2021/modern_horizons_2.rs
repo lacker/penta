@@ -59,6 +59,7 @@ use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::SetOperationDef;
+use crate::card::SubtypeDef;
 use crate::card::TargetChooserDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -836,7 +837,7 @@ CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Ooze"], 2, 2)
                     BattlefieldEntryModificationDef::AddCountersValue {
                         kind: CounterKind::PlusOnePlusOne,
                         amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype("Ooze"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Ooze")),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
                         )),
@@ -1045,7 +1046,7 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                     body: &EffectDef::create_creature_token(&["Insect"], &[ManaColor::Black, ManaColor::Green], 1, 1),
                     // An Insect card in the library keeps the process going -- and a Grist on
                     // top is one, which is what his own first clause is for.
-                    object: ObjectPredicateDef::Subtype("Insect"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Insect")),
                     on_match: &EffectDef::AddCounters {
                         object: EffectRecipientDef::Source,
                         kind: CounterKind::Loyalty,

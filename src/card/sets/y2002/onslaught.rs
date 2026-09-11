@@ -40,6 +40,7 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -122,7 +123,7 @@ pub(in crate::card::sets) static ANCESTOR_S_PROPHET: CardRecord = CardRecord::ne
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Cleric"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cleric")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 5,
@@ -197,7 +198,7 @@ pub(in crate::card::sets) static AVEN_BRIGADIER: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Bird"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -215,7 +216,7 @@ pub(in crate::card::sets) static AVEN_BRIGADIER: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Soldier"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                         ]),
                         &[ZoneKind::Battlefield],
@@ -262,7 +263,7 @@ pub(in crate::card::sets) static CATAPULT_MASTER: CardRecord = CardRecord::new(
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Soldier"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 5,
@@ -623,8 +624,8 @@ pub(in crate::card::sets) static GRASSLAND_CRUSADER: CardRecord = CardRecord::ne
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype("Elf"),
-                            ObjectPredicateDef::Subtype("Soldier"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                         ]),
                     ]),
                 )]
@@ -1118,7 +1119,7 @@ pub(in crate::card::sets) static AIRBORNE_AID: CardRecord = CardRecord::new(
         EffectDef::DrawCards {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype("Bird"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             )),
@@ -1200,7 +1201,7 @@ pub(in crate::card::sets) static APHETTO_GRIFTER: CardRecord = CardRecord::new(
             &[CostDef::TapPermanents {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Wizard"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
                 ]),
                 controller: PlayerRelation::You,
                 count: 2,
@@ -1983,7 +1984,7 @@ pub(in crate::card::sets) static BONEKNITTER: CardRecord = CardRecord::new(
                 &[CostDef::Mana(mana_cost!("{1}{B}"))],
                 &const {
                     [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::Subtype("Zombie"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
                     )]
                 },
                 EffectDef::Regenerate {
@@ -2051,7 +2052,7 @@ pub(in crate::card::sets) static CABAL_SLAVER: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Whenever a Goblin deals combat damage to a player, that player discards a card.",
             TriggerEventDef::CombatDamageDealtToPlayers {
-                sources: ObjectPredicateDef::Subtype("Goblin"),
+                sources: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 players: PlayerRelation::Any,
             },
             EffectDef::Discard {
@@ -2504,7 +2505,7 @@ pub(in crate::card::sets) static MISERY_CHARM: CardRecord = CardRecord::new(
             AbilityDef::spell_with_targets(
                 "Destroy target Cleric.",
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype("Cleric"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cleric")),
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -2515,7 +2516,7 @@ pub(in crate::card::sets) static MISERY_CHARM: CardRecord = CardRecord::new(
                 "Return target Cleric card from your graveyard to your hand.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Subtype("Cleric"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cleric")),
                         zones: &[ZoneKind::Graveyard],
                         controller: None,
                         owner: Some(PlayerRelation::You),
@@ -2913,7 +2914,7 @@ pub(in crate::card::sets) static BRIGHTSTONE_RITUAL: CardRecord = CardRecord::ne
         "Add {R} for each Goblin on the battlefield.",
         EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_variable_amount(
             ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                ObjectPredicateDef::Subtype("Goblin"),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             )),
@@ -3110,7 +3111,7 @@ pub(in crate::card::sets) static FEVER_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Wizard"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
                     ]),
                 )],
                 EffectDef::damage(
@@ -3160,7 +3161,7 @@ pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new
                         // a lone one gets nothing.
                         value: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::Subtype("Goblin"),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                                 ObjectPredicateDef::Attacking,
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                             ]),
@@ -3189,7 +3190,7 @@ pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
@@ -3209,7 +3210,7 @@ pub(in crate::card::sets) static GOBLIN_PYROMANCER: CardRecord = CardRecord::new
             },
             EffectDef::Destroy {
                 object: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Subtype("Goblin"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -3281,7 +3282,7 @@ pub(in crate::card::sets) static GOBLIN_SLEDDER: CardRecord = CardRecord::new(
             // "A Goblin", so it can eat itself, which is what makes it a
             // free sacrifice outlet as well as a combat trick.
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Goblin"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 controller: PlayerRelation::You,
             }],
             &[AbilityTargetDef::exactly_one_permanent(
@@ -3325,7 +3326,7 @@ pub(in crate::card::sets) static GOBLIN_TASKMASTER: CardRecord = CardRecord::new
                     [AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Goblin"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         ]),
                     )]
                 },
@@ -3454,12 +3455,12 @@ pub(in crate::card::sets) static RECKLESS_ONE: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::define_power_toughness(
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
@@ -3587,7 +3588,7 @@ pub(in crate::card::sets) static SKIRK_PROSPECTOR: CardRecord = CardRecord::new(
         AbilityDef::activated_mana(
             "Sacrifice a Goblin: Add {R}.",
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Goblin"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                 controller: PlayerRelation::You,
             }],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
@@ -3668,7 +3669,7 @@ pub(in crate::card::sets) static SOLAR_BLAST: CardRecord = CardRecord::new(
 /// "The number of Goblins on the battlefield" counts both sides, which is
 /// what makes this hurt more in the mirror than against anything else.
 static GOBLINS_ON_THE_BATTLEFIELD: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Goblin"),
+    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
     &[ZoneKind::Battlefield],
     PlayerRelation::Any,
 );
@@ -3921,7 +3922,7 @@ pub(in crate::card::sets) static ELVISH_PATHCUTTER: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Elf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                 ]),
             )],
             EffectDef::Apply {
@@ -4050,12 +4051,12 @@ pub(in crate::card::sets) static HEEDLESS_ONE: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::define_power_toughness(
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype("Elf"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
                         ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype("Elf"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
@@ -4135,7 +4136,7 @@ pub(in crate::card::sets) static KROSAN_GROUNDSHAKER: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Beast"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
                 ]),
             )],
             EffectDef::Apply {
@@ -4269,7 +4270,7 @@ pub(in crate::card::sets) static RAVENOUS_BALOTH: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Sacrifice a Beast: You gain 4 life.",
             &[CostDef::SacrificePermanent {
-                object: ObjectPredicateDef::Subtype("Beast"),
+                object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
                 controller: PlayerRelation::You,
             }],
             EffectDef::GainLife {
@@ -4367,7 +4368,7 @@ pub(in crate::card::sets) static SNARLING_UNDORAK: CardRecord = CardRecord::new(
                     [AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype("Beast"),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
                         ]),
                     )]
                 },
@@ -4621,7 +4622,7 @@ pub(in crate::card::sets) static VITALITY_CHARM: CardRecord = CardRecord::new(
             AbilityDef::spell_with_targets(
                 "Regenerate target Beast.",
                 &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype("Beast"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
                 )],
                 EffectDef::Regenerate {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -4828,7 +4829,7 @@ pub(in crate::card::sets) static CONTESTED_CLIFFS: CardRecord = CardRecord::new(
             [
                 AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype("Beast"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
                 AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
@@ -4862,7 +4863,7 @@ pub(in crate::card::sets) static DARU_ENCAMPMENT: CardRecord = CardRecord::new(
                 [AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Soldier"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                     ]),
                 )]
             },
@@ -4922,7 +4923,7 @@ pub(in crate::card::sets) static GOBLIN_BURROWS: CardRecord = CardRecord::new(
                 [AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
                     ]),
                 )]
             },
@@ -4999,7 +5000,7 @@ pub(in crate::card::sets) static RIPTIDE_LABORATORY: CardRecord = CardRecord::ne
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype("Wizard"),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
                         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ]),
                 )]
@@ -5028,7 +5029,7 @@ pub(in crate::card::sets) static SEASIDE_HAVEN: CardRecord = CardRecord::new(
                 CostDef::Mana(mana_cost!("{W}{U}")),
                 CostDef::TapSource,
                 CostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::Subtype("Bird"),
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Bird")),
                     controller: PlayerRelation::You,
                 },
             ],
@@ -5102,7 +5103,7 @@ pub(in crate::card::sets) static UNHOLY_GROTTO: CardRecord = CardRecord::new(
             &const {
                 [AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Subtype("Zombie"),
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
                         zones: &[ZoneKind::Graveyard],
                         controller: None,
                         owner: Some(PlayerRelation::You),
@@ -5143,7 +5144,7 @@ pub(in crate::card::sets) static WIREWOOD_LODGE: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
             &const {
                 [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype("Elf"),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
                 )]
             },
             EffectDef::Untap {

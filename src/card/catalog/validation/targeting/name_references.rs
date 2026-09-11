@@ -20,3 +20,18 @@ fn validate_card_name_set_references(
         | CardNameSetDef::BasicLandNames => Ok(()),
     }
 }
+
+fn validate_subtype_references(
+    subtype: crate::card::SubtypeDef,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    if let crate::card::SubtypeDef::Binding(binding) = subtype
+        && (binding == crate::ParentBinding || scope.binding_bit(binding, false)?.is_some())
+    {
+        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "subtype binding",
+            operation: "requires a durable source creature-type binding",
+        });
+    }
+    Ok(())
+}

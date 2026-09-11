@@ -19,6 +19,7 @@ fn validate_replacement_binding_target_shape(
             ScalarChoiceListDef::CardNames(names),
             BattlefieldEntryChoiceDestinationDef::CardName,
         ) if names.is_catalog_defined() => Ok(()),
+        (ScalarChoiceListDef::CreatureTypes, BattlefieldEntryChoiceDestinationDef::CreatureType) => Ok(()),
         _ => Err(GrantedAbilityValidationError::InvalidScalarChoice {
             list: choice.list,
             destination: choice.destination,

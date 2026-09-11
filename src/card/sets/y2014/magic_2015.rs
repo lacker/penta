@@ -168,8 +168,21 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&HELIOD_S_PILGRIM, &TRIPLICATE_SPIRITS, &GOBLIN_RABBLEMASTER];
+// M15 194 — Reclamation Sage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RECLAMATION_SAGE: CardRecord = CardRecord::new(
+    "Reclamation Sage",
+    "47227cfa-4cef-4874-b331-d2f628f29dae",
+    "Christopher Moeller",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &HELIOD_S_PILGRIM,
+    &TRIPLICATE_SPIRITS,
+    &GOBLIN_RABBLEMASTER,
+    &RECLAMATION_SAGE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
     &[FRENZIED_GOBLIN_REPRINT];

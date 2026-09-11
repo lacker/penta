@@ -53,6 +53,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// M11 3 — Ajani's Pridemate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AJANI_S_PRIDEMATE: CardRecord = CardRecord::new(
+    "Ajani's Pridemate",
+    "f70d1452-6b61-4c63-841f-4256ac498e9f",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 6 — Assault Griffin
 pub(in crate::card::sets) static ASSAULT_GRIFFIN: CardRecord = CardRecord::new(
     "Assault Griffin",
@@ -212,6 +221,7 @@ pub(in crate::card::sets) static WAR_PRIEST_OF_THUNE: CardRecord = CardRecord::n
         ),
     ]),
 );
+
 // M11 41 — Aether Adept
 pub(in crate::card::sets) static AETHER_ADEPT: CardRecord = CardRecord::new(
     "Aether Adept",
@@ -642,6 +652,15 @@ pub(in crate::card::sets) static COMBUST: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// M11 144 — Hoarding Dragon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HOARDING_DRAGON: CardRecord = CardRecord::new(
+    "Hoarding Dragon",
+    "1f8b6932-e62d-4d38-bd0e-9ab8d4a56762",
+    "Matt Cavotta",
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 146 — Inferno Titan
 pub(in crate::card::sets) static INFERNO_TITAN: CardRecord = CardRecord::new(
     "Inferno Titan",
@@ -1003,7 +1022,17 @@ CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
     )),
 );
 
+// M11 216 — Sword of Vengeance
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SWORD_OF_VENGEANCE: CardRecord = CardRecord::new(
+    "Sword of Vengeance",
+    "96fc0138-46fc-493c-8a28-8630c4759193",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AJANI_S_PRIDEMATE,
     &ASSAULT_GRIFFIN,
     &LEYLINE_OF_SANCTITY,
     &MIGHTY_LEAP,
@@ -1030,6 +1059,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PHYLACTERY_LICH,
     &QUAG_SICKNESS,
     &COMBUST,
+    &HOARDING_DRAGON,
     &INFERNO_TITAN,
     &LEYLINE_OF_PUNISHMENT,
     &MANIC_VANDAL,
@@ -1045,6 +1075,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRIMEVAL_TITAN,
     &SACRED_WOLF,
     &ELIXIR_OF_IMMORTALITY,
+    &SWORD_OF_VENGEANCE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[SILENCE_REPRINT];

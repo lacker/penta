@@ -29,6 +29,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// FRF 28 — Valorous Stance
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VALOROUS_STANCE: CardRecord = CardRecord::new(
+    "Valorous Stance",
+    "65998e94-15a0-41f1-8288-730b957f81df",
+    "Willian Murai",
+    crate::card::CardRules::unsupported(),
+);
+
 // FRF 72 — Gurmag Angler
 pub(in crate::card::sets) static GURMAG_ANGLER: CardRecord = CardRecord::new(
     "Gurmag Angler",
@@ -88,6 +97,20 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilitie
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&GURMAG_ANGLER, &SOULFLAYER];
+// FRF 100 — Flamewake Phoenix
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLAMEWAKE_PHOENIX: CardRecord = CardRecord::new(
+    "Flamewake Phoenix",
+    "fefd5848-9fe1-4129-a5d7-e51606bf76ef",
+    "Min Yum",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &VALOROUS_STANCE,
+    &GURMAG_ANGLER,
+    &SOULFLAYER,
+    &FLAMEWAKE_PHOENIX,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

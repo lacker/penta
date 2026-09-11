@@ -480,6 +480,15 @@ pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::ne
     ]),
 );
 
+// CLB 166 — Carnelian Orb of Dragonkind
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CARNELIAN_ORB_OF_DRAGONKIND: CardRecord = CardRecord::new(
+    "Carnelian Orb of Dragonkind",
+    "e7e41166-bdaa-4aed-986a-7be1d043240c",
+    "Olena Richards",
+    crate::card::CardRules::unsupported(),
+);
+
 // CLB 180 — Gut, True Soul Zealot
 pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::new(
     "Gut, True Soul Zealot",
@@ -801,6 +810,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &YOUNG_BLUE_DRAGON,
     &ARMS_OF_HADAR,
     &GUILDSWORN_PROWLER,
+    &CARNELIAN_ORB_OF_DRAGONKIND,
     &GUT_TRUE_SOUL_ZEALOT,
     &MINSC_BOO_TIMELESS_HEROES,
     &BASILISK_GATE,

@@ -54,6 +54,60 @@ pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new(
     ]),
 );
 
+// DTK 138 — Dragonlord's Servant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAGONLORD_S_SERVANT: CardRecord = CardRecord::new(
+    "Dragonlord's Servant",
+    "0ffcdd54-b6be-4d42-82c0-ae927037e859",
+    "Steve Prescott",
+    crate::card::CardRules::unsupported(),
+);
+
+// DTK 140 — Impact Tremors
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IMPACT_TREMORS: CardRecord = CardRecord::new(
+    "Impact Tremors",
+    "56fb4035-197b-4d28-9bf7-bb62c304067e",
+    "Lake Hurwitz",
+    crate::card::CardRules::unsupported(),
+);
+
+// DTK 156 — Seismic Rupture
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SEISMIC_RUPTURE: CardRecord = CardRecord::new(
+    "Seismic Rupture",
+    "9b952e4e-c1ed-4455-90d5-46b56478e6b0",
+    "Jason A. Engle",
+    crate::card::CardRules::unsupported(),
+);
+
+// DTK 164 — Twin Bolt
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TWIN_BOLT: CardRecord = CardRecord::new(
+    "Twin Bolt",
+    "5bd58ec4-34a9-4fc2-b057-438492e2e06e",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
+// DTK 191 — Inspiring Call
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INSPIRING_CALL: CardRecord = CardRecord::new(
+    "Inspiring Call",
+    "c565b991-7021-4b81-b9c0-f7231daae360",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+// DTK 210 — Surrak, the Hunt Caller
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SURRAK_THE_HUNT_CALLER: CardRecord = CardRecord::new(
+    "Surrak, the Hunt Caller",
+    "b374446d-44bc-4ac5-9829-8c49f0cca173",
+    "Wesley Burt",
+    crate::card::CardRules::unsupported(),
+);
+
 // DTK 224 — Kolaghan's Command
 pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::new(
     "Kolaghan's Command",
@@ -123,6 +177,25 @@ pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::ne
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&ARTFUL_MANEUVER, &KOLAGHAN_S_COMMAND];
+// DTK 231 — Savage Ventmaw
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SAVAGE_VENTMAW: CardRecord = CardRecord::new(
+    "Savage Ventmaw",
+    "690008d1-d1fe-49ad-810c-84be57cecc6c",
+    "Slawomir Maniak",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ARTFUL_MANEUVER,
+    &DRAGONLORD_S_SERVANT,
+    &IMPACT_TREMORS,
+    &SEISMIC_RUPTURE,
+    &TWIN_BOLT,
+    &INSPIRING_CALL,
+    &SURRAK_THE_HUNT_CALLER,
+    &KOLAGHAN_S_COMMAND,
+    &SAVAGE_VENTMAW,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

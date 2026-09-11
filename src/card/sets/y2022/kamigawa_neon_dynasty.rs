@@ -476,6 +476,15 @@ pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// NEO 128 — Virus Beetle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VIRUS_BEETLE: CardRecord = CardRecord::new(
+    "Virus Beetle",
+    "488ee202-0d28-4cc0-8a7d-644d9878e952",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 136 — Crackling Emergence
 static EMERGENCE_REPLACEMENT: AbilityDef = AbilityDef::replacement_for(
     "If enchanted land would be destroyed, instead sacrifice this Aura and that land gains indestructible until end of turn.",
@@ -812,6 +821,24 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
         ]),
 );
 
+// NEO 275 — Secluded Courtyard
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SECLUDED_COURTYARD: CardRecord = CardRecord::new(
+    "Secluded Courtyard",
+    "0539b1a5-8704-476f-ba1f-2fe01190e157",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 281 — Uncharted Haven
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNCHARTED_HAVEN: CardRecord = CardRecord::new(
+    "Uncharted Haven",
+    "1d4ad89a-3a00-4bf4-a357-4a8a089d4a82",
+    "Lorenzo Lanfranconi",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 357 — Fable of the Mirror-Breaker // Reflection of Kiki-Jiki
 pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardRecord::new_dfc(
     "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki",
@@ -1050,6 +1077,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOON_CIRCUIT_HACKER,
     &CLAWING_TORMENT,
     &OKIBA_RECKONER_RAID,
+    &VIRUS_BEETLE,
     &CRACKLING_EMERGENCE,
     &IRONHOOF_BOAR,
     &RABBIT_BATTERY,
@@ -1061,6 +1089,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IRON_APPRENTICE,
     &MIRROR_BOX,
     &OTAWARA_SOARING_CITY,
+    &SECLUDED_COURTYARD,
+    &UNCHARTED_HAVEN,
     &FABLE_OF_THE_MIRROR_BREAKER,
     &BOSEIJU_WHO_ENDURES,
 ];

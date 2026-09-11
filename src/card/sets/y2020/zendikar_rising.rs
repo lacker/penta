@@ -101,6 +101,15 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
     ]),
 );
 
+// ZNR 16 — Felidar Retreat
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FELIDAR_RETREAT: CardRecord = CardRecord::new(
+    "Felidar Retreat",
+    "45340647-4d3e-4be1-b0e6-e40cc56a438b",
+    "Ralph Horsley",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZNR 39 — Skyclave Apparition
 pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::new(
     "Skyclave Apparition",
@@ -288,6 +297,60 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
             },
         ),
     ]),
+);
+
+// ZNR 102 — Feed the Swarm
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FEED_THE_SWARM: CardRecord = CardRecord::new(
+    "Feed the Swarm",
+    "f6b2eba7-862a-4efd-9f65-065fb2070855",
+    "Andrey Kuzinskiy",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 107 — Highborn Vampire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HIGHBORN_VAMPIRE: CardRecord = CardRecord::new(
+    "Highborn Vampire",
+    "24c40082-516e-4381-a4cc-e61c5a9a6cac",
+    "Denman Rooke",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 112 — Marauding Blight-Priest
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MARAUDING_BLIGHT_PRIEST: CardRecord = CardRecord::new(
+    "Marauding Blight-Priest",
+    "730ddbcd-0814-4e22-85e9-78b0878324b6",
+    "Caio Monteiro",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 118 — Nullpriest of Oblivion
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NULLPRIEST_OF_OBLIVION: CardRecord = CardRecord::new(
+    "Nullpriest of Oblivion",
+    "086fc7fb-efcf-4676-8455-39b63edaec6a",
+    "Yongjae Choi",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 167 — Spitfire Lagac
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPITFIRE_LAGAC: CardRecord = CardRecord::new(
+    "Spitfire Lagac",
+    "47f26493-812f-4c14-91c4-d2ab549a7b8a",
+    "Antonio José Manzanedo",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 181 — Broken Wings
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BROKEN_WINGS: CardRecord = CardRecord::new(
+    "Broken Wings",
+    "c0fc2dfd-85b0-4add-be18-b39549235921",
+    "Ekaterina Burmak",
+    crate::card::CardRules::unsupported(),
 );
 
 // ZNR 185 — Gnarlid Colony
@@ -502,6 +565,15 @@ CardRules::new_artifact(mana_cost!("{4}"))
         ]),
 );
 
+// ZNR 262 — Crawling Barrens
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRAWLING_BARRENS: CardRecord = CardRecord::new(
+    "Crawling Barrens",
+    "7bd0e025-7a75-4641-a51a-27df9dcde05f",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZNR 319 — Luminarch Aspirant
 pub(in crate::card::sets) static LUMINARCH_ASPIRANT: CardRecord = CardRecord::new(
     "Luminarch Aspirant",
@@ -545,12 +617,20 @@ const THIEVING_SKYDIVER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DAUNTLESS_UNITY,
+    &FELIDAR_RETREAT,
     &SKYCLAVE_APPARITION,
     &THIEVING_SKYDIVER,
     &BLOODCHIEFS_THIRST,
+    &FEED_THE_SWARM,
+    &HIGHBORN_VAMPIRE,
+    &MARAUDING_BLIGHT_PRIEST,
+    &NULLPRIEST_OF_OBLIVION,
+    &SPITFIRE_LAGAC,
+    &BROKEN_WINGS,
     &GNARLID_COLONY,
     &OMNATH_LOCUS_OF_CREATION,
     &LITHOFORM_ENGINE,
+    &CRAWLING_BARRENS,
     &LUMINARCH_ASPIRANT,
 ];
 

@@ -111,7 +111,19 @@ pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::ne
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&TEFERIS_PROTECTION, &FRACTURED_IDENTITY];
+// C17 55 — Ramos, Dragon Engine
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAMOS_DRAGON_ENGINE: CardRecord = CardRecord::new(
+    "Ramos, Dragon Engine",
+    "2e747ef1-a1ad-4859-a70c-3f935f017310",
+    "Joseph Meehan",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &TEFERIS_PROTECTION,
+    &FRACTURED_IDENTITY,
+    &RAMOS_DRAGON_ENGINE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

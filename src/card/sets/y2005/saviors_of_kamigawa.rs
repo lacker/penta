@@ -119,6 +119,15 @@ pub(in crate::card::sets) static DEATH_DENIED: CardRecord = CardRecord::new(
         )),
 );
 
+// SOK 102 — Hidetsugu's Second Rite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HIDETSUGU_S_SECOND_RITE: CardRecord = CardRecord::new(
+    "Hidetsugu's Second Rite",
+    "2e48eb77-3bd7-444a-9262-799cc706c05a",
+    "Jeff Miracola",
+    crate::card::CardRules::unsupported(),
+);
+
 // SOK 104 — Iizuka the Ruthless
 pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::new(
     "Iizuka the Ruthless",
@@ -207,6 +216,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARABA_MOTHRIDER,
     &SAKASHIMA_THE_IMPOSTOR,
     &DEATH_DENIED,
+    &HIDETSUGU_S_SECOND_RITE,
     &IIZUKA_THE_RUTHLESS,
     &SEEK_THE_HORIZON,
     &PITHING_NEEDLE,

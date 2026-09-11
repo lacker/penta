@@ -46,6 +46,15 @@ const TREASURE_TOKEN: TokenCharacteristics = tokens::treasure().with_art(CardArt
     "Nadia Hurianova",
 ));
 
+// NCC 25 — Extravagant Replication
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EXTRAVAGANT_REPLICATION: CardRecord = CardRecord::new(
+    "Extravagant Replication",
+    "6a6f55d7-d689-43eb-a59a-b8be88269ee6",
+    "Pauline Voss",
+    crate::card::CardRules::unsupported(),
+);
+
 // NCC 81 — Currency Converter
 /// The card goes back to the graveyard it came from -- its owner's, which is
 /// where a card exiled from a graveyard belongs however it got to exile.
@@ -134,6 +143,7 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&CURRENCY_CONVERTER];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&EXTRAVAGANT_REPLICATION, &CURRENCY_CONVERTER];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -46,6 +46,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// BRO 5 — Deadly Riposte
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEADLY_RIPOSTE: CardRecord = CardRecord::new(
+    "Deadly Riposte",
+    "38eca0ae-d400-4afb-9a45-7100f4cd7149",
+    "Olena Richards",
+    crate::card::CardRules::unsupported(),
+);
+
 // BRO 12 — Loran of the Third Path
 pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecord::new(
     "Loran of the Third Path",
@@ -162,6 +171,24 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
             },
         ),
     ),
+);
+
+// BRO 136 — Giant Cindermaw
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GIANT_CINDERMAW: CardRecord = CardRecord::new(
+    "Giant Cindermaw",
+    "1349465f-d29f-4d4b-a653-f4388574c336",
+    "Edgar Sánchez Hidalgo",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 145 — Obliterating Bolt
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OBLITERATING_BOLT: CardRecord = CardRecord::new(
+    "Obliterating Bolt",
+    "7f886411-8216-4fb7-9172-a408c39043ee",
+    "Campbell White",
+    crate::card::CardRules::unsupported(),
 );
 
 // BRO 164 — Scrapwork Mutt
@@ -306,6 +333,15 @@ pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord:
     ),
 );
 
+// BRO 235 — Goblin Firebomb
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_FIREBOMB: CardRecord = CardRecord::new(
+    "Goblin Firebomb",
+    "0ba00d0f-0ea5-417c-a792-06b3b9d1c8f1",
+    "Noah Thatcher",
+    crate::card::CardRules::unsupported(),
+);
+
 // BRO 238 — The Mightstone and Weakstone
 pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = CardRecord::new(
     "The Mightstone and Weakstone",
@@ -438,6 +474,15 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
     ]),
 );
 
+// BRO 260 — Demolition Field
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEMOLITION_FIELD: CardRecord = CardRecord::new(
+    "Demolition Field",
+    "d9c88546-13c9-4d7e-a618-cb2ccd1dbc0f",
+    "Kamila Szutenberg",
+    crate::card::CardRules::unsupported(),
+);
+
 // BRO 266 — Tocasia's Dig Site
 pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::new(
     "Tocasia's Dig Site",
@@ -456,15 +501,20 @@ pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::ne
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DEADLY_RIPOSTE,
     &LORAN_OF_THE_THIRD_PATH,
     &WEAKSTONE_S_SUBJUGATION,
     &GIXIAN_INFILTRATOR,
+    &GIANT_CINDERMAW,
+    &OBLITERATING_BOLT,
     &SCRAPWORK_MUTT,
     &BUSHWHACK,
     &HAYWIRE_MITE,
     &THIRD_PATH_ICONOCLAST,
+    &GOBLIN_FIREBOMB,
     &THE_MIGHTSTONE_AND_WEAKSTONE,
     &PORTAL_TO_PHYREXIA,
+    &DEMOLITION_FIELD,
     &TOCASIA_S_DIG_SITE,
 ];
 

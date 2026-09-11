@@ -82,6 +82,15 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
     )),
 );
 
+// HOU 88 — Crash Through
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRASH_THROUGH: CardRecord = CardRecord::new(
+    "Crash Through",
+    "4bdaba76-b98d-4699-9a5f-e59285b09552",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
 // HOU 92 — Firebrand Archer
 pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
     "Firebrand Archer",
@@ -141,6 +150,7 @@ pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STRIPED_RIVERWINDER,
     &ABRADE,
+    &CRASH_THROUGH,
     &FIREBRAND_ARCHER,
     &BLOODWATER_ENTITY,
 ];

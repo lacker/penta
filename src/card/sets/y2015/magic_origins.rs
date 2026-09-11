@@ -35,6 +35,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// ORI 4 — Archangel of Tithes
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCHANGEL_OF_TITHES: CardRecord = CardRecord::new(
+    "Archangel of Tithes",
+    "1af50bf1-c51e-4592-86bf-4197ec85a45d",
+    "Cynthia Sheppard",
+    crate::card::CardRules::unsupported(),
+);
+
+// ORI 58 — Harbinger of the Tides
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HARBINGER_OF_THE_TIDES: CardRecord = CardRecord::new(
+    "Harbinger of the Tides",
+    "94ca53de-cffb-4740-b318-a4ebfb3a31af",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
 // ORI 60 — Jace, Vryn's Prodigy // Jace, Telepath Unbound
 pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::new_dfc(
     "Jace, Vryn's Prodigy // Jace, Telepath Unbound",
@@ -198,6 +216,24 @@ pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
     ]),
 );
 
+// ORI 92 — Demonic Pact
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEMONIC_PACT: CardRecord = CardRecord::new(
+    "Demonic Pact",
+    "82c04014-91f9-4197-b4b4-f62c4739a5c2",
+    "Aleksi Briclot",
+    crate::card::CardRules::unsupported(),
+);
+
+// ORI 162 — Skyraker Giant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SKYRAKER_GIANT: CardRecord = CardRecord::new(
+    "Skyraker Giant",
+    "c5f0d87a-8f37-4598-9106-c3545dadf6fd",
+    "Anastasia Ovchinnikova",
+    crate::card::CardRules::unsupported(),
+);
+
 // ORI 171 — Conclave Naturalists
 pub(in crate::card::sets) static CONCLAVE_NATURALISTS: CardRecord = CardRecord::new(
     "Conclave Naturalists",
@@ -230,7 +266,54 @@ pub(in crate::card::sets) static CONCLAVE_NATURALISTS: CardRecord = CardRecord::
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&JACE_VRYN_S_PRODIGY, &JHESSIAN_THIEF, &CONCLAVE_NATURALISTS];
+// ORI 172 — Dwynen, Gilt-Leaf Daen
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DWYNEN_GILT_LEAF_DAEN: CardRecord = CardRecord::new(
+    "Dwynen, Gilt-Leaf Daen",
+    "91c143a9-c642-425a-a469-a9d158e43c21",
+    "Johannes Voss",
+    crate::card::CardRules::unsupported(),
+);
+
+// ORI 173 — Dwynen's Elite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DWYNEN_S_ELITE: CardRecord = CardRecord::new(
+    "Dwynen's Elite",
+    "c203722b-3f16-4b6c-9b2e-18169d3f80c9",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
+);
+
+// ORI 183 — Joraga Invocation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static JORAGA_INVOCATION: CardRecord = CardRecord::new(
+    "Joraga Invocation",
+    "65c89431-0881-4aa6-ac15-d4c13b075273",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
+// ORI 236 — Pyromancer's Goggles
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PYROMANCER_S_GOGGLES: CardRecord = CardRecord::new(
+    "Pyromancer's Goggles",
+    "1163ce9f-cf22-422e-a4b5-0240b88e2816",
+    "James Paick",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ARCHANGEL_OF_TITHES,
+    &HARBINGER_OF_THE_TIDES,
+    &JACE_VRYN_S_PRODIGY,
+    &JHESSIAN_THIEF,
+    &DEMONIC_PACT,
+    &SKYRAKER_GIANT,
+    &CONCLAVE_NATURALISTS,
+    &DWYNEN_GILT_LEAF_DAEN,
+    &DWYNEN_S_ELITE,
+    &JORAGA_INVOCATION,
+    &PYROMANCER_S_GOGGLES,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

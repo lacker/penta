@@ -32,6 +32,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// MOR 1 — Ballyrush Banneret
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BALLYRUSH_BANNERET: CardRecord = CardRecord::new(
+    "Ballyrush Banneret",
+    "a029814e-d84d-43e5-b483-e918871b3333",
+    "Ralph Horsley",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOR 31 — Disperse
 pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new(
     "Disperse",
@@ -48,6 +57,15 @@ pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new(
             ZonePlacement::Top,
         ),
     )),
+);
+
+// MOR 41 — Mind Spring
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIND_SPRING: CardRecord = CardRecord::new(
+    "Mind Spring",
+    "7b7cd9b6-1ea8-423d-8aa0-8699fffbcf50",
+    "Mark Zug",
+    crate::card::CardRules::unsupported(),
 );
 
 // MOR 43 — Negate
@@ -93,6 +111,15 @@ pub(in crate::card::sets) static KINDLED_FURY: CardRecord = CardRecord::new(
     )),
 );
 
+// MOR 109 — Taurean Mauler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TAUREAN_MAULER: CardRecord = CardRecord::new(
+    "Taurean Mauler",
+    "d50b5df1-b658-4df0-900e-79c44599b93e",
+    "Dominick Domingo",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOR 143 — Door of Destinies
 // Audit: unsupported — Predicates cannot consume a stored creature-type choice for both spell triggers and a counter-scaled continuous bonus.
 pub(in crate::card::sets) static DOOR_OF_DESTINIES: CardRecord = CardRecord::new(
@@ -128,9 +155,12 @@ CardRules::new_land(&[]).with_abilities(&[
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BALLYRUSH_BANNERET,
     &DISPERSE,
+    &MIND_SPRING,
     &NEGATE,
     &KINDLED_FURY,
+    &TAUREAN_MAULER,
     &DOOR_OF_DESTINIES,
     &MUTAVAULT,
 ];

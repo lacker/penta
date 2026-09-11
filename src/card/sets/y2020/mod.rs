@@ -7,4 +7,6 @@ pub mod ikoria;
 pub mod theros_beyond_death;
 pub mod zendikar_rising;
 
+pub(super) mod jumpstart;
+
 pub(super) use super::{CardRecord, PrintingRecord};

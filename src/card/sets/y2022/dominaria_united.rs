@@ -128,6 +128,51 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
     ]),
 );
 
+// DMU 28 — Prayer of Binding
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PRAYER_OF_BINDING: CardRecord = CardRecord::new(
+    "Prayer of Binding",
+    "322f90b6-6b49-458d-9d5b-b601bfdd0af8",
+    "Wylie Beckert",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 29 — Resolute Reinforcements
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RESOLUTE_REINFORCEMENTS: CardRecord = CardRecord::new(
+    "Resolute Reinforcements",
+    "3e11ad33-b9d7-43ef-840a-61955683b599",
+    "Billy Christian",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 35 — Take Up the Shield
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TAKE_UP_THE_SHIELD: CardRecord = CardRecord::new(
+    "Take Up the Shield",
+    "851e842e-a497-4c36-90ee-8d64f806c378",
+    "Manuel Castañón",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 57 — Micromancer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MICROMANCER: CardRecord = CardRecord::new(
+    "Micromancer",
+    "b21203c8-a935-4ce0-a742-148587e32145",
+    "Ernanda Souza",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 64 — Shore Up
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHORE_UP: CardRecord = CardRecord::new(
+    "Shore Up",
+    "9d933bf1-14f0-4150-a0d2-6b845b9624cf",
+    "Mark Behm",
+    crate::card::CardRules::unsupported(),
+);
+
 // DMU 72 — Tolarian Terror
 pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
     "Tolarian Terror",
@@ -183,6 +228,15 @@ pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new(
     )),
 );
 
+// DMU 102 — Pilfer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PILFER: CardRecord = CardRecord::new(
+    "Pilfer",
+    "6d872c10-4126-4130-a74a-1331ed418ca8",
+    "Pauline Voss",
+    crate::card::CardRules::unsupported(),
+);
+
 // DMU 107 — Sheoldred, the Apocalypse
 pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord = CardRecord::new(
     "Sheoldred, the Apocalypse",
@@ -222,6 +276,24 @@ const LIGHTNING_STRIKE_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2013::theros::LIGHTNING_STRIKE,
     "7d541125-bfb8-4f88-8bf3-ad7b6af7ad1d",
     "Marta Nael",
+);
+
+// DMU 155 — Bite Down
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BITE_DOWN: CardRecord = CardRecord::new(
+    "Bite Down",
+    "0eacd3de-b803-4322-8d88-d533761aa748",
+    "Kitt Lapeña",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 172 — Magnigoth Sentry
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAGNIGOTH_SENTRY: CardRecord = CardRecord::new(
+    "Magnigoth Sentry",
+    "d939d4bc-b7e8-4ee8-b904-68f0bff0fde1",
+    "Dave Kendall",
+    crate::card::CardRules::unsupported(),
 );
 
 // DMU 183 — Tear Asunder
@@ -269,6 +341,42 @@ pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
             ),
         ),
     ]),
+);
+
+// DMU 196 — Balmor, Battlemage Captain
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BALMOR_BATTLEMAGE_CAPTAIN: CardRecord = CardRecord::new(
+    "Balmor, Battlemage Captain",
+    "959ba62e-bb3a-49ad-8b1b-e787e413e5d4",
+    "Bram Sels",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 200 — Garna, Bloodfist of Keld
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GARNA_BLOODFIST_OF_KELD: CardRecord = CardRecord::new(
+    "Garna, Bloodfist of Keld",
+    "294c5f08-08e7-458f-8838-ff321dc5d9f2",
+    "Andrey Kuzinskiy",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 246 — Crystal Grotto
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRYSTAL_GROTTO: CardRecord = CardRecord::new(
+    "Crystal Grotto",
+    "bd250c9d-c65f-4293-a6b0-007fac634d3d",
+    "Piotr Dura",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 282 — Serra Redeemer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SERRA_REDEEMER: CardRecord = CardRecord::new(
+    "Serra Redeemer",
+    "a8b9cb5c-29f2-46ed-803e-c2170955217c",
+    "Joshua Raphael",
+    crate::card::CardRules::unsupported(),
 );
 
 // DMU 339 — Ertai Resurrected
@@ -431,10 +539,22 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANOINTED_PEACEKEEPER,
     &LEYLINE_BINDING,
+    &PRAYER_OF_BINDING,
+    &RESOLUTE_REINFORCEMENTS,
+    &TAKE_UP_THE_SHIELD,
+    &MICROMANCER,
+    &SHORE_UP,
     &TOLARIAN_TERROR,
     &CUT_DOWN,
+    &PILFER,
     &SHEOLDRED_THE_APOCALYPSE,
+    &BITE_DOWN,
+    &MAGNIGOTH_SENTRY,
     &TEAR_ASUNDER,
+    &BALMOR_BATTLEMAGE_CAPTAIN,
+    &GARNA_BLOODFIST_OF_KELD,
+    &CRYSTAL_GROTTO,
+    &SERRA_REDEEMER,
     &ERTAI_RESURRECTED,
     &SERRA_PARAGON,
 ];

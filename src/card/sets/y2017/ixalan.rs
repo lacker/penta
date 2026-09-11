@@ -33,6 +33,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// XLN 6 — Bishop's Soldier
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BISHOP_S_SOLDIER: CardRecord = CardRecord::new(
+    "Bishop's Soldier",
+    "d954677c-2de6-440a-90d0-bab2e0c8b4af",
+    "Scott Murphy",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 34 — Settle the Wreckage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SETTLE_THE_WRECKAGE: CardRecord = CardRecord::new(
+    "Settle the Wreckage",
+    "9cbd346e-098a-4cf6-a72f-468376fd2e8f",
+    "Dimitar Marinski",
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 41 — Territorial Hammerskull
 pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecord::new(
     "Territorial Hammerskull",
@@ -57,6 +75,42 @@ pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecor
             },
         ),
     ),
+);
+
+// XLN 48 — Chart a Course
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHART_A_COURSE: CardRecord = CardRecord::new(
+    "Chart a Course",
+    "98291778-2ec2-47e2-ac99-5f8cfbb3cf24",
+    "James Ryman",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 53 — Dive Down
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIVE_DOWN: CardRecord = CardRecord::new(
+    "Dive Down",
+    "b33e493e-1aef-43b3-9716-52158b002430",
+    "Magali Villeneuve",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 71 — River's Rebuke
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RIVER_S_REBUKE: CardRecord = CardRecord::new(
+    "River's Rebuke",
+    "fda8ef30-bbfa-4857-9750-0dd0def8b13f",
+    "Raymond Swanland",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 84 — Storm Fleet Spy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STORM_FLEET_SPY: CardRecord = CardRecord::new(
+    "Storm Fleet Spy",
+    "f7c33ef4-60bb-4f95-92a5-7abedaac6767",
+    "Scott Murphy",
+    crate::card::CardRules::unsupported(),
 );
 
 // XLN 110 — Kitesail Freebooter
@@ -112,6 +166,24 @@ CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Pirate"], 1, 2)
         ]),
 );
 
+// XLN 123 — Skulduggery
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SKULDUGGERY: CardRecord = CardRecord::new(
+    "Skulduggery",
+    "ba30343b-1637-490f-810e-d614219789e3",
+    "Deruchenko Alexander",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 191 — Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GROWING_RITES_OF_ITLIMOC: CardRecord = CardRecord::new(
+    "Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun",
+    "b3b87bfc-f97f-4734-94f6-e3e2f335fc4d",
+    "Grzegorz Rutkowski",
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 194 — Jade Guardian
 pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
     "Jade Guardian",
@@ -142,6 +214,33 @@ pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
     ]),
 );
 
+// XLN 198 — New Horizons
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEW_HORIZONS: CardRecord = CardRecord::new(
+    "New Horizons",
+    "15b12c75-1248-4c81-90cf-28e341a885cf",
+    "Noah Bradley",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 222 — Gishath, Sun's Avatar
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GISHATH_SUN_S_AVATAR: CardRecord = CardRecord::new(
+    "Gishath, Sun's Avatar",
+    "7335e500-342d-476d-975c-817512e6e3d6",
+    "Zack Stella",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 242 — Pirate's Cutlass
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PIRATE_S_CUTLASS: CardRecord = CardRecord::new(
+    "Pirate's Cutlass",
+    "b3e7e871-19cf-486d-bacb-1499fe066974",
+    "John Stanko",
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 248 — Sorcerous Spyglass
 pub(in crate::card::sets) static SORCEROUS_SPYGLASS: CardRecord = CardRecord::new(
     "Sorcerous Spyglass",
@@ -167,11 +266,32 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
     ]),
 );
 
+// XLN 250 — Treasure Map // Treasure Cove
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TREASURE_MAP: CardRecord = CardRecord::new(
+    "Treasure Map // Treasure Cove",
+    "c0f9c733-0818-4a03-8f0c-a163d09e0fff",
+    "Cliff Childs",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BISHOP_S_SOLDIER,
+    &SETTLE_THE_WRECKAGE,
     &TERRITORIAL_HAMMERSKULL,
+    &CHART_A_COURSE,
+    &DIVE_DOWN,
+    &RIVER_S_REBUKE,
+    &STORM_FLEET_SPY,
     &KITESAIL_FREEBOOTER,
+    &SKULDUGGERY,
+    &GROWING_RITES_OF_ITLIMOC,
     &JADE_GUARDIAN,
+    &NEW_HORIZONS,
+    &GISHATH_SUN_S_AVATAR,
+    &PIRATE_S_CUTLASS,
     &SORCEROUS_SPYGLASS,
+    &TREASURE_MAP,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -31,6 +31,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// C13 4 — Angel of Finality
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANGEL_OF_FINALITY: CardRecord = CardRecord::new(
+    "Angel of Finality",
+    "bd3c34c9-2072-4ebb-93ef-34173015bfb8",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
+);
+
 // C13 25 — Unexpectedly Absent
 pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new(
     "Unexpectedly Absent",
@@ -113,8 +122,12 @@ const BOROS_GARRISON_REPRINT: PrintingRecord = PrintingRecord::reprint(
     "John Avon",
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&UNEXPECTEDLY_ABSENT, &TRUE_NAME_NEMESIS, &TOXIC_DELUGE];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ANGEL_OF_FINALITY,
+    &UNEXPECTEDLY_ABSENT,
+    &TRUE_NAME_NEMESIS,
+    &TOXIC_DELUGE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
     &[BOROS_GARRISON_REPRINT];

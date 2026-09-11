@@ -83,6 +83,15 @@ pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRe
     ),
 );
 
+// MOM 13 — Elspeth's Smite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELSPETH_S_SMITE: CardRecord = CardRecord::new(
+    "Elspeth's Smite",
+    "f03a480f-de67-4611-9db7-c0c3d020f597",
+    "Livia Prima",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOM 40 — Sunfall
 pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new(
     "Sunfall",
@@ -205,12 +214,39 @@ pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new
     ]),
 );
 
+// MOM 80 — Temporal Cleansing
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPORAL_CLEANSING: CardRecord = CardRecord::new(
+    "Temporal Cleansing",
+    "6e67031a-8216-4c66-b6fb-6628bd02d279",
+    "Dominik Mayer",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 98 — Corrupted Conviction
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CORRUPTED_CONVICTION: CardRecord = CardRecord::new(
+    "Corrupted Conviction",
+    "ce133ad5-8748-4a3d-ae8c-7b2a5938927d",
+    "Joseph Weston",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOM 173 — Wrenn's Resolve
 // Audit: unsupported — Needs an exile-play permission lasting until the end of your next turn. ExilePlayDurationDef offers ThisTurn, UntilYourNextEndStep and WhileExiled, and FreePlayDurationDef only WhileResolving and UntilEndOfTurn; none of them reaches the end of the following turn, and UntilYourNextEndStep expires a turn early when the spell is cast on your own turn.
 pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
     "Wrenn's Resolve",
     "9a47999c-12d5-4e1a-a9c1-40a1757007f1",
     "Viko Menezes",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 215 — Wary Thespian
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WARY_THESPIAN: CardRecord = CardRecord::new(
+    "Wary Thespian",
+    "675b29bf-0b64-410f-9a92-c88e5615c27f",
+    "Billy Christian",
     crate::card::CardRules::unsupported(),
 );
 
@@ -317,11 +353,15 @@ pub(in crate::card::sets) static ZEPHYR_WINDER: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ALABASTER_HOST_INTERCESSOR,
+    &ELSPETH_S_SMITE,
     &SUNFALL,
     &FAERIE_MASTERMIND,
     &MEETING_OF_MINDS,
     &PREENING_CHAMPION,
+    &TEMPORAL_CLEANSING,
+    &CORRUPTED_CONVICTION,
     &WRENN_S_RESOLVE,
+    &WARY_THESPIAN,
     &ETALI_PRIMAL_CONQUEROR,
     &ZEPHYR_WINDER,
 ];

@@ -182,12 +182,30 @@ pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
     )),
 );
 
+// MID 90 — Bloodtithe Collector
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOODTITHE_COLLECTOR: CardRecord = CardRecord::new(
+    "Bloodtithe Collector",
+    "57d5e536-7774-4949-8127-727ae4d8fc80",
+    "Maria Zolotukhina",
+    crate::card::CardRules::unsupported(),
+);
+
 // MID 96 — Diregraf Horde
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
     "Diregraf Horde",
     "153be768-ddad-44f2-bcdd-c40353c807d7",
     "Alex Negrea",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 99 — Eaten Alive
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EATEN_ALIVE: CardRecord = CardRecord::new(
+    "Eaten Alive",
+    "e7975a3c-570a-4bff-a60d-d274f758b93f",
+    "Nicholas Gregory",
     crate::card::CardRules::unsupported(),
 );
 
@@ -266,6 +284,15 @@ pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
     )),
 );
 
+// MID 123 — Stromkirk Bloodthief
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STROMKIRK_BLOODTHIEF: CardRecord = CardRecord::new(
+    "Stromkirk Bloodthief",
+    "fa819123-bf13-44ea-9a6e-06c8ab023e44",
+    "Caroline Gariba",
+    crate::card::CardRules::unsupported(),
+);
+
 // MID 128 — Ardent Elementalist
 pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::new(
     "Ardent Elementalist",
@@ -302,9 +329,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HOMESTEAD_COURAGE,
     &SEARCH_PARTY_CAPTAIN,
     &CONSIDER,
+    &BLOODTITHE_COLLECTOR,
     &DIREGRAF_HORDE,
+    &EATEN_ALIVE,
     &ECSTATIC_AWAKENER,
     &INFERNAL_GRASP,
+    &STROMKIRK_BLOODTHIEF,
     &ARDENT_ELEMENTALIST,
 ];
 

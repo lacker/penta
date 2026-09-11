@@ -173,6 +173,42 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
         ]),
 );
 
+// DOM 2 — Adamant Will
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ADAMANT_WILL: CardRecord = CardRecord::new(
+    "Adamant Will",
+    "3dfb8817-ca3c-44ba-92f2-e9d6294cd25d",
+    "Alex Konstad",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 23 — Knight of Grace
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KNIGHT_OF_GRACE: CardRecord = CardRecord::new(
+    "Knight of Grace",
+    "7bbbddc0-f8b3-4255-bd82-d50f829ca009",
+    "Sidharth Chaturvedi",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 26 — Lyra Dawnbringer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LYRA_DAWNBRINGER: CardRecord = CardRecord::new(
+    "Lyra Dawnbringer",
+    "93be6799-7b9d-44d4-84dc-2961692b5a85",
+    "Chris Rahn",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 68 — Tempest Djinn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPEST_DJINN: CardRecord = CardRecord::new(
+    "Tempest Djinn",
+    "3acc883b-3aea-4d0b-ae0f-00d4a08c47c1",
+    "Zezhou Chen",
+    crate::card::CardRules::unsupported(),
+);
+
 // DOM 81 — Cast Down
 pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
     "Cast Down",
@@ -187,6 +223,51 @@ pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
             ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
         ])),
     )),
+);
+
+// DOM 97 — Knight of Malice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KNIGHT_OF_MALICE: CardRecord = CardRecord::new(
+    "Knight of Malice",
+    "b45266f0-eb4f-4a06-bc64-8c2d774b4cc5",
+    "Sidharth Chaturvedi",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 127 — Ghitu Lavarunner
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GHITU_LAVARUNNER: CardRecord = CardRecord::new(
+    "Ghitu Lavarunner",
+    "c448ba82-a502-459f-9ebc-fc9e85674e6c",
+    "Jesper Ejsing",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 164 — Grow from the Ashes
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GROW_FROM_THE_ASHES: CardRecord = CardRecord::new(
+    "Grow from the Ashes",
+    "51d4d1c2-671c-498c-a232-7d076e3dc3bb",
+    "Richard Wright",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 199 — Muldrotha, the Gravetide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MULDROTHA_THE_GRAVETIDE: CardRecord = CardRecord::new(
+    "Muldrotha, the Gravetide",
+    "c654737d-34ac-42ff-ae27-3a3bbb930fc1",
+    "Jason Rainville",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 206 — Tatyova, Benthic Druid
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TATYOVA_BENTHIC_DRUID: CardRecord = CardRecord::new(
+    "Tatyova, Benthic Druid",
+    "93657aaa-7a0f-49ad-b026-6f79b3bd6768",
+    "Mathias Kollros",
+    crate::card::CardRules::unsupported(),
 );
 
 // DOM 207 — Teferi, Hero of Dominaria
@@ -322,7 +403,16 @@ CardRules::new_artifact(mana_cost!("{4}"))
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KARN_SCION_OF_URZA,
+    &ADAMANT_WILL,
+    &KNIGHT_OF_GRACE,
+    &LYRA_DAWNBRINGER,
+    &TEMPEST_DJINN,
     &CAST_DOWN,
+    &KNIGHT_OF_MALICE,
+    &GHITU_LAVARUNNER,
+    &GROW_FROM_THE_ASHES,
+    &MULDROTHA_THE_GRAVETIDE,
+    &TATYOVA_BENTHIC_DRUID,
     &TEFERI_HERO_OF_DOMINARIA,
     &DAMPING_SPHERE,
     &HELM_OF_THE_HOST,

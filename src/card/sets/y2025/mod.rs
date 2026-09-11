@@ -2,6 +2,7 @@
 
 pub mod aetherdrift;
 pub mod avatar_the_last_airbender;
+pub mod avatar_the_last_airbender_eternal;
 pub mod edge_of_eternities;
 pub mod edge_of_eternities_commander;
 pub mod final_fantasy;

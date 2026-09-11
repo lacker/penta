@@ -95,6 +95,15 @@ pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRec
     ),
 );
 
+// THS 90 — Hero's Downfall
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HERO_S_DOWNFALL: CardRecord = CardRecord::new(
+    "Hero's Downfall",
+    "596822f6-dbd4-4cc8-aa50-9331ff42544e",
+    "Ryan Pancoast",
+    crate::card::CardRules::unsupported(),
+);
+
 // THS 127 — Lightning Strike
 pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
     "Lightning Strike",
@@ -153,6 +162,15 @@ pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new(
         ]),
 );
 
+// THS 170 — Ordeal of Nylea
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ORDEAL_OF_NYLEA: CardRecord = CardRecord::new(
+    "Ordeal of Nylea",
+    "e5c48950-c246-47ad-94e1-bf42a62c2fe7",
+    "David Palumbo",
+    crate::card::CardRules::unsupported(),
+);
+
 // THS 180 — Sylvan Caryatid
 pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new(
     "Sylvan Caryatid",
@@ -172,12 +190,74 @@ pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new(
     ]),
 );
 
+// THS 213 — Burnished Hart
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BURNISHED_HART: CardRecord = CardRecord::new(
+    "Burnished Hart",
+    "772cbcba-9efa-4894-9b57-e73fd296333d",
+    "Yeong-Hao Han",
+    crate::card::CardRules::unsupported(),
+);
+
+// THS 224 — Temple of Abandon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_ABANDON: CardRecord = CardRecord::new(
+    "Temple of Abandon",
+    "46febc5d-1625-4e48-bb3f-31ee06fc13dd",
+    "Mike Bierek",
+    crate::card::CardRules::unsupported(),
+);
+
+// THS 225 — Temple of Deceit
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_DECEIT: CardRecord = CardRecord::new(
+    "Temple of Deceit",
+    "686559d7-8ac1-496b-a5a6-1467bf8fc7c5",
+    "Raymond Swanland",
+    crate::card::CardRules::unsupported(),
+);
+
+// THS 226 — Temple of Mystery
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_MYSTERY: CardRecord = CardRecord::new(
+    "Temple of Mystery",
+    "2f66945b-3e64-498a-9478-5f96a61d4ec7",
+    "Noah Bradley",
+    crate::card::CardRules::unsupported(),
+);
+
+// THS 227 — Temple of Silence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_SILENCE: CardRecord = CardRecord::new(
+    "Temple of Silence",
+    "0f14b6b3-5f40-4328-a3be-28fe32dd7cb1",
+    "Karl Kopinski",
+    crate::card::CardRules::unsupported(),
+);
+
+// THS 228 — Temple of Triumph
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_TRIUMPH: CardRecord = CardRecord::new(
+    "Temple of Triumph",
+    "4f53049c-2491-4d20-aa19-00eb5c55b438",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GODS_WILLING,
     &GRAY_MERCHANT_OF_ASPHODEL,
+    &HERO_S_DOWNFALL,
     &LIGHTNING_STRIKE,
     &NYLEAS_PRESENCE,
+    &ORDEAL_OF_NYLEA,
     &SYLVAN_CARYATID,
+    &BURNISHED_HART,
+    &TEMPLE_OF_ABANDON,
+    &TEMPLE_OF_DECEIT,
+    &TEMPLE_OF_MYSTERY,
+    &TEMPLE_OF_SILENCE,
+    &TEMPLE_OF_TRIUMPH,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

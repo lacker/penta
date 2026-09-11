@@ -261,6 +261,15 @@ pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
     )),
 );
 
+// VOW 142 — Ancestral Anger
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANCESTRAL_ANGER: CardRecord = CardRecord::new(
+    "Ancestral Anger",
+    "5dee47ab-d603-4346-97f4-a25dc3f47765",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 174 — Reckless Impulse
 pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
     "Reckless Impulse",
@@ -404,6 +413,60 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_
     ],
 );
 
+// VOW 239 — Halana and Alena, Partners
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HALANA_AND_ALENA_PARTNERS: CardRecord = CardRecord::new(
+    "Halana and Alena, Partners",
+    "608fa232-f5fe-4c58-9efe-fb780f454b19",
+    "Jason Rainville",
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 261 — Deathcap Glade
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEATHCAP_GLADE: CardRecord = CardRecord::new(
+    "Deathcap Glade",
+    "d5523659-98a8-4ae2-9ec7-d77e7352c374",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 262 — Dreamroot Cascade
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DREAMROOT_CASCADE: CardRecord = CardRecord::new(
+    "Dreamroot Cascade",
+    "eb604455-c411-414d-a2ef-e7567ee86a4d",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 264 — Shattered Sanctum
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHATTERED_SANCTUM: CardRecord = CardRecord::new(
+    "Shattered Sanctum",
+    "ad44c9aa-eb8f-4200-8dfe-2af728d80083",
+    "Muhammad Firdaus",
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 265 — Stormcarved Coast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STORMCARVED_COAST: CardRecord = CardRecord::new(
+    "Stormcarved Coast",
+    "299f1dee-b3d7-472b-aa0b-2f9b46a96da5",
+    "Sarah Finnigan",
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 266 — Sundown Pass
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNDOWN_PASS: CardRecord = CardRecord::new(
+    "Sundown Pass",
+    "8f3fddd7-ede4-41c7-a645-a6af298a3d35",
+    "Muhammad Firdaus",
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 310 — Bloodtithe Harvester
 /// Twice the count, and downward. Two Blood is -4/-4, which is what makes
 /// the second token worth keeping around rather than cashing in.
@@ -457,10 +520,17 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLOOD_FOUNTAIN,
     &CONCEALING_CURTAINS,
     &UNDYING_MALICE,
+    &ANCESTRAL_ANGER,
     &RECKLESS_IMPULSE,
     &VOLDAREN_EPICURE,
     &BRAMBLE_WURM,
     &ULVENWALD_ODDITY,
+    &HALANA_AND_ALENA_PARTNERS,
+    &DEATHCAP_GLADE,
+    &DREAMROOT_CASCADE,
+    &SHATTERED_SANCTUM,
+    &STORMCARVED_COAST,
+    &SUNDOWN_PASS,
     &BLOODTITHE_HARVESTER,
 ];
 

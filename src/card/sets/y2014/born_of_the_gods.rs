@@ -146,6 +146,39 @@ CardRules::new_artifact(mana_cost!("{5}"))
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COURSER_OF_KRUPHIX, &HEROES_PODIUM];
+// BNG 163 — Temple of Enlightenment
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_ENLIGHTENMENT: CardRecord = CardRecord::new(
+    "Temple of Enlightenment",
+    "c657a645-f454-4eaf-be0d-15c9989fa4ef",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
+// BNG 164 — Temple of Malice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_MALICE: CardRecord = CardRecord::new(
+    "Temple of Malice",
+    "52f50818-aede-4667-883a-e0339d86d870",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
+// BNG 165 — Temple of Plenty
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_OF_PLENTY: CardRecord = CardRecord::new(
+    "Temple of Plenty",
+    "b0830054-b140-49c3-90cb-24e2502757be",
+    "Noah Bradley",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &COURSER_OF_KRUPHIX,
+    &HEROES_PODIUM,
+    &TEMPLE_OF_ENLIGHTENMENT,
+    &TEMPLE_OF_MALICE,
+    &TEMPLE_OF_PLENTY,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

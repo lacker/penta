@@ -67,6 +67,15 @@ pub(in crate::card::sets) static SHIPWRECK_DOWSER: CardRecord = CardRecord::new(
     ),
 );
 
+// M21 121 — Sanguine Indulgence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SANGUINE_INDULGENCE: CardRecord = CardRecord::new(
+    "Sanguine Indulgence",
+    "abfcd08a-cfb5-4d34-b950-f57a88c5cb8e",
+    "Andrey Kuzinskiy",
+    crate::card::CardRules::unsupported(),
+);
+
 // M21 126 — Village Rites
 pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
     "Village Rites",
@@ -87,6 +96,33 @@ pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
             amount: ValueDef::Constant(2),
         },
     )),
+);
+
+// M21 150 — Heartfire Immolator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HEARTFIRE_IMMOLATOR: CardRecord = CardRecord::new(
+    "Heartfire Immolator",
+    "869fb9f1-0d59-4874-aa52-ac665c3cc0e8",
+    "Donato Giancola",
+    crate::card::CardRules::unsupported(),
+);
+
+// M21 164 — Terror of the Peaks
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TERROR_OF_THE_PEAKS: CardRecord = CardRecord::new(
+    "Terror of the Peaks",
+    "432ecd5f-966f-4403-a973-51e175a524a0",
+    "Andrey Kuzinskiy",
+    crate::card::CardRules::unsupported(),
+);
+
+// M21 186 — Garruk's Uprising
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GARRUK_S_UPRISING: CardRecord = CardRecord::new(
+    "Garruk's Uprising",
+    "71a4860a-8bb6-45c0-b00a-b4a42da33ab9",
+    "Wisnu Tan",
+    crate::card::CardRules::unsupported(),
 );
 
 // M21 193 — Llanowar Visionary
@@ -112,7 +148,44 @@ pub(in crate::card::sets) static LLANOWAR_VISIONARY: CardRecord = CardRecord::ne
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&SHIPWRECK_DOWSER, &VILLAGE_RITES, &LLANOWAR_VISIONARY];
+// M21 197 — Primal Might
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PRIMAL_MIGHT: CardRecord = CardRecord::new(
+    "Primal Might",
+    "1cd8cee8-7ea0-4037-8a3b-39334dc064fb",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
+// M21 214 — Wildwood Scourge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WILDWOOD_SCOURGE: CardRecord = CardRecord::new(
+    "Wildwood Scourge",
+    "46ff0b33-d153-4b0e-ac48-7e5ed70dea09",
+    "Bryan Sola",
+    crate::card::CardRules::unsupported(),
+);
+
+// M21 232 — Mazemind Tome
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAZEMIND_TOME: CardRecord = CardRecord::new(
+    "Mazemind Tome",
+    "9fd761f3-6b43-4150-8595-dc3abd85b06c",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SHIPWRECK_DOWSER,
+    &SANGUINE_INDULGENCE,
+    &VILLAGE_RITES,
+    &HEARTFIRE_IMMOLATOR,
+    &TERROR_OF_THE_PEAKS,
+    &GARRUK_S_UPRISING,
+    &LLANOWAR_VISIONARY,
+    &PRIMAL_MIGHT,
+    &WILDWOOD_SCOURGE,
+    &MAZEMIND_TOME,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

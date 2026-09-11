@@ -265,6 +265,15 @@ CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
         ]),
 );
 
+// CON 121 — Progenitus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PROGENITUS: CardRecord = CardRecord::new(
+    "Progenitus",
+    "bcc764b0-3046-4bde-b424-c0f4e1a6169b",
+    "Jaime Jones",
+    crate::card::CardRules::unsupported(),
+);
+
 // CON 142 — Exotic Orchard
 pub(in crate::card::sets) static EXOTIC_ORCHARD: CardRecord = CardRecord::new(
     "Exotic Orchard",
@@ -318,6 +327,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NOBLE_HIERARCH,
     &KNIGHT_OF_THE_RELIQUARY,
     &NICOL_BOLAS_PLANESWALKER,
+    &PROGENITUS,
     &EXOTIC_ORCHARD,
     &RELIQUARY_TOWER,
 ];

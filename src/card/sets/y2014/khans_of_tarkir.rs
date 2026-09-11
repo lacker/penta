@@ -109,6 +109,15 @@ pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new
     ]),
 );
 
+// KTK 37 — Disdainful Stroke
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DISDAINFUL_STROKE: CardRecord = CardRecord::new(
+    "Disdainful Stroke",
+    "180425c9-1898-48d4-9932-ddfb1a28e6b0",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
 // KTK 59 — Treasure Cruise
 pub(in crate::card::sets) static TREASURE_CRUISE: CardRecord = CardRecord::new(
     "Treasure Cruise",
@@ -227,6 +236,96 @@ CardRules::new_artifact(mana_cost!("{5}"))
         ]),
 );
 
+// KTK 229 — Bloodfell Caves
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOODFELL_CAVES: CardRecord = CardRecord::new(
+    "Bloodfell Caves",
+    "15a7b30a-c59f-4a87-9e8a-b29daea27422",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 231 — Blossoming Sands
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOSSOMING_SANDS: CardRecord = CardRecord::new(
+    "Blossoming Sands",
+    "a32a1c0b-f6ea-475a-aa01-3618ea7d8647",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 232 — Dismal Backwater
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DISMAL_BACKWATER: CardRecord = CardRecord::new(
+    "Dismal Backwater",
+    "63742780-47ee-4a66-993a-69e06c14967d",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 234 — Frontier Bivouac
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FRONTIER_BIVOUAC: CardRecord = CardRecord::new(
+    "Frontier Bivouac",
+    "e4335951-e73e-45cb-b2a5-6e9d14ba87ee",
+    "Titus Lunter",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 235 — Jungle Hollow
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static JUNGLE_HOLLOW: CardRecord = CardRecord::new(
+    "Jungle Hollow",
+    "fea27aa7-7fcf-4198-b03a-5034a03ba81f",
+    "Eytan Zana",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 236 — Mystic Monastery
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MYSTIC_MONASTERY: CardRecord = CardRecord::new(
+    "Mystic Monastery",
+    "bae51d77-e06b-4e5a-9543-a17dd0b2a333",
+    "Florian de Gesincourt",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 237 — Nomad Outpost
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NOMAD_OUTPOST: CardRecord = CardRecord::new(
+    "Nomad Outpost",
+    "fb6ae4a5-227d-465b-9e99-bae158b7d410",
+    "Noah Bradley",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 238 — Opulent Palace
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OPULENT_PALACE: CardRecord = CardRecord::new(
+    "Opulent Palace",
+    "21326575-80b9-4a4e-a93c-6880ec6575d5",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 240 — Rugged Highlands
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUGGED_HIGHLANDS: CardRecord = CardRecord::new(
+    "Rugged Highlands",
+    "501ce6cb-0324-4cca-bc79-903cefe1ac1f",
+    "Eytan Zana",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 241 — Sandsteppe Citadel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SANDSTEPPE_CITADEL: CardRecord = CardRecord::new(
+    "Sandsteppe Citadel",
+    "2dd40d90-c939-458a-9a98-27d10da6ff2f",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
 // KTK 242 — Scoured Barrens
 pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
     "Scoured Barrens",
@@ -252,6 +351,24 @@ pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
             ])),
         ),
     ]),
+);
+
+// KTK 243 — Swiftwater Cliffs
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SWIFTWATER_CLIFFS: CardRecord = CardRecord::new(
+    "Swiftwater Cliffs",
+    "e782d005-a563-4738-978a-73a3465de78f",
+    "Eytan Zana",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 244 — Thornwood Falls
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THORNWOOD_FALLS: CardRecord = CardRecord::new(
+    "Thornwood Falls",
+    "9e57abd9-e864-4047-a3c8-618952071858",
+    "Eytan Zana",
+    crate::card::CardRules::unsupported(),
 );
 
 // KTK 246 — Tranquil Cove
@@ -281,17 +398,40 @@ pub(in crate::card::sets) static TRANQUIL_COVE: CardRecord = CardRecord::new(
     ]),
 );
 
+// KTK 247 — Wind-Scarred Crag
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WIND_SCARRED_CRAG: CardRecord = CardRecord::new(
+    "Wind-Scarred Crag",
+    "3b296781-78ac-411f-88fc-2d924ad22986",
+    "Eytan Zana",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AINOK_BOND_KIN,
     &SEEKER_OF_THE_WAY,
+    &DISDAINFUL_STROKE,
     &TREASURE_CRUISE,
     &MARDU_SKULLHUNTER,
     &HORDELING_OUTBURST,
     &MONASTERY_SWIFTSPEAR,
     &HOOTING_MANDRILLS,
     &UGINS_NEXUS,
+    &BLOODFELL_CAVES,
+    &BLOSSOMING_SANDS,
+    &DISMAL_BACKWATER,
+    &FRONTIER_BIVOUAC,
+    &JUNGLE_HOLLOW,
+    &MYSTIC_MONASTERY,
+    &NOMAD_OUTPOST,
+    &OPULENT_PALACE,
+    &RUGGED_HIGHLANDS,
+    &SANDSTEPPE_CITADEL,
     &SCOURED_BARRENS,
+    &SWIFTWATER_CLIFFS,
+    &THORNWOOD_FALLS,
     &TRANQUIL_COVE,
+    &WIND_SCARRED_CRAG,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

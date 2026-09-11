@@ -25,6 +25,33 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// OGW 26 — Make a Stand
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAKE_A_STAND: CardRecord = CardRecord::new(
+    "Make a Stand",
+    "30cace63-91ca-493c-b67f-740fbbf06370",
+    "Magali Villeneuve",
+    crate::card::CardRules::unsupported(),
+);
+
+// OGW 63 — Sphinx of the Final Word
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPHINX_OF_THE_FINAL_WORD: CardRecord = CardRecord::new(
+    "Sphinx of the Final Word",
+    "866f92a3-2738-4e0f-adda-3ff9227dc17a",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
+);
+
+// OGW 91 — Untamed Hunger
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNTAMED_HUNGER: CardRecord = CardRecord::new(
+    "Untamed Hunger",
+    "595deb86-b6cf-4e4f-a6cf-f5ff128b720d",
+    "Willian Murai",
+    crate::card::CardRules::unsupported(),
+);
+
 // OGW 141 — Pulse of Murasa
 pub(in crate::card::sets) static PULSE_OF_MURASA: CardRecord = CardRecord::new(
     "Pulse of Murasa",
@@ -59,6 +86,41 @@ pub(in crate::card::sets) static PULSE_OF_MURASA: CardRecord = CardRecord::new(
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&PULSE_OF_MURASA];
+// OGW 145 — Tajuru Pathwarden
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TAJURU_PATHWARDEN: CardRecord = CardRecord::new(
+    "Tajuru Pathwarden",
+    "b073e75b-b432-41a5-a71e-d169fecf774f",
+    "Victor Adame Minguez",
+    crate::card::CardRules::unsupported(),
+);
+
+// OGW 151 — Ayli, Eternal Pilgrim
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AYLI_ETERNAL_PILGRIM: CardRecord = CardRecord::new(
+    "Ayli, Eternal Pilgrim",
+    "e7b5893d-6df6-4cae-ae70-d02d443d1740",
+    "Cynthia Sheppard",
+    crate::card::CardRules::unsupported(),
+);
+
+// OGW 183 — Wastes
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WASTES: CardRecord = CardRecord::new(
+    "Wastes",
+    "7019912c-bd9b-4b96-9388-400794909aa1",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &MAKE_A_STAND,
+    &SPHINX_OF_THE_FINAL_WORD,
+    &UNTAMED_HUNGER,
+    &PULSE_OF_MURASA,
+    &TAJURU_PATHWARDEN,
+    &AYLI_ETERNAL_PILGRIM,
+    &WASTES,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

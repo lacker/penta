@@ -47,6 +47,51 @@ const BLOOD_TOKEN: TokenCharacteristics = tokens::blood().with_art(CardArt::new(
     "Miranda Meeks",
 ));
 
+// J25 1 — Dawnwing Marshal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DAWNWING_MARSHAL: CardRecord = CardRecord::new(
+    "Dawnwing Marshal",
+    "51258ab9-25f6-4617-9499-b17cf7a8db06",
+    "Aldo Domínguez",
+    crate::card::CardRules::unsupported(),
+);
+
+// J25 5 — Hinterland Sanctifier
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HINTERLAND_SANCTIFIER: CardRecord = CardRecord::new(
+    "Hinterland Sanctifier",
+    "7bd187b7-5001-4fc3-8c1e-7093827027ee",
+    "Justine Cruz",
+    crate::card::CardRules::unsupported(),
+);
+
+// J25 9 — Starlight Snare
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STARLIGHT_SNARE: CardRecord = CardRecord::new(
+    "Starlight Snare",
+    "80ab3040-fec2-4a65-8825-e6a1132601d1",
+    "Borja Pindado",
+    crate::card::CardRules::unsupported(),
+);
+
+// J25 13 — Dropkick Bomber
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DROPKICK_BOMBER: CardRecord = CardRecord::new(
+    "Dropkick Bomber",
+    "a5f9a7bb-4ace-4720-8651-08428494223f",
+    "Quintin Gleim",
+    crate::card::CardRules::unsupported(),
+);
+
+// J25 14 — Firespitter Whelp
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FIRESPITTER_WHELP: CardRecord = CardRecord::new(
+    "Firespitter Whelp",
+    "2f7cff11-c8c9-4ab8-af08-05be72c37cbb",
+    "David Álvarez",
+    crate::card::CardRules::unsupported(),
+);
+
 // J25 19 — Scholar of Combustion
 // Audit: unsupported — Needs an effect that exiles a targeted card and grants a timed permission to cast it. PermitCastFromGraveyardThisTurn leaves the card in the graveyard and lasts one turn; the exile-to-play effects read the top of a library rather than a target.
 pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord::new(
@@ -281,6 +326,11 @@ const GUARDIAN_IDOL_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DAWNWING_MARSHAL,
+    &HINTERLAND_SANCTIFIER,
+    &STARLIGHT_SNARE,
+    &DROPKICK_BOMBER,
+    &FIRESPITTER_WHELP,
     &SCHOLAR_OF_COMBUSTION,
     &SCYTHECAT_CUB,
     &SHARDLESS_OUTLANDER,

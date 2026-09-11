@@ -9,4 +9,6 @@ pub mod kaldheim;
 pub mod modern_horizons_2;
 pub mod strixhaven_school_of_mages;
 
+pub(super) mod kaldheim_commander;
+
 pub(super) use super::{CardRecord, PrintingRecord};

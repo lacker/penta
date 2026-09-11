@@ -57,6 +57,51 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// IKO 39 — Aegis Turtle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AEGIS_TURTLE: CardRecord = CardRecord::new(
+    "Aegis Turtle",
+    "e433e7f0-7417-4dfe-a7a4-3f222b0a835f",
+    "Milivoj Ćeran",
+    crate::card::CardRules::unsupported(),
+);
+
+// IKO 69 — Thieving Otter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THIEVING_OTTER: CardRecord = CardRecord::new(
+    "Thieving Otter",
+    "07f84b0a-37d9-4b0f-8d75-1fab45a12d44",
+    "Jakub Kasper",
+    crate::card::CardRules::unsupported(),
+);
+
+// IKO 70 — Voracious Greatshark
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VORACIOUS_GREATSHARK: CardRecord = CardRecord::new(
+    "Voracious Greatshark",
+    "1400155f-8911-45fd-aab2-998c8a28292c",
+    "Mathias Kollros",
+    crate::card::CardRules::unsupported(),
+);
+
+// IKO 91 — Heartless Act
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HEARTLESS_ACT: CardRecord = CardRecord::new(
+    "Heartless Act",
+    "e4e6794a-feeb-4fc8-a2ee-38c75c18aaae",
+    "Ryan Pancoast",
+    crate::card::CardRules::unsupported(),
+);
+
+// IKO 134 — Rumbling Rockslide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUMBLING_ROCKSLIDE: CardRecord = CardRecord::new(
+    "Rumbling Rockslide",
+    "96f9aaa7-11c7-4cd0-9803-9471c14ab846",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
+
 // IKO 137 — Spelleater Wolverine
 pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::new(
     "Spelleater Wolverine",
@@ -90,6 +135,15 @@ pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::
             },
         ),
     ),
+);
+
+// IKO 148 — Colossification
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COLOSSIFICATION: CardRecord = CardRecord::new(
+    "Colossification",
+    "7b6e6f2a-5015-44c6-aa8d-85188494d1a6",
+    "Johan Grenier",
+    crate::card::CardRules::unsupported(),
 );
 
 // IKO 170 — Ram Through
@@ -309,7 +363,13 @@ pub(in crate::card::sets) static LUTRI_THE_SPELLCHASER: CardRecord = CardRecord:
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AEGIS_TURTLE,
+    &THIEVING_OTTER,
+    &VORACIOUS_GREATSHARK,
+    &HEARTLESS_ACT,
+    &RUMBLING_ROCKSLIDE,
     &SPELLEATER_WOLVERINE,
+    &COLOSSIFICATION,
     &RAM_THROUGH,
     &LURRUS_OF_THE_DREAM_DEN,
     &ZIRDA_THE_DAWNWAKER,

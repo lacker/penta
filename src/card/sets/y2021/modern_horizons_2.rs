@@ -590,6 +590,15 @@ pub(in crate::card::sets) static VERMIN_GORGER: CardRecord = CardRecord::new(
     ),
 );
 
+// MH2 108 — Vile Entomber
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VILE_ENTOMBER: CardRecord = CardRecord::new(
+    "Vile Entomber",
+    "d890ae71-da2b-44fa-8cfa-9c3016c9f696",
+    "Chris Cold",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 121 — Dragon's Rage Channeler
 pub(in crate::card::sets) static DRAGON_S_RAGE_CHANNELER: CardRecord = CardRecord::new(
     "Dragon's Rage Channeler",
@@ -1522,6 +1531,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LOATHSOME_CURATOR,
     &NESTED_SHAMBLER,
     &VERMIN_GORGER,
+    &VILE_ENTOMBER,
     &DRAGON_S_RAGE_CHANNELER,
     &FURY,
     &MINE_COLLAPSE,

@@ -57,6 +57,15 @@ const TREASURE_TOKEN: TokenCharacteristics = tokens::treasure().with_art(CardArt
     "Nadia Hurianova",
 ));
 
+// SNC 14 — Giada, Font of Hope
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GIADA_FONT_OF_HOPE: CardRecord = CardRecord::new(
+    "Giada, Font of Hope",
+    "bae077bd-fc8d-44d7-8c75-8dc8699c168e",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
+
 // SNC 18 — Inspiring Overseer
 pub(in crate::card::sets) static INSPIRING_OVERSEER: CardRecord = CardRecord::new(
     "Inspiring Overseer",
@@ -130,12 +139,39 @@ pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new(
         ]),
 );
 
+// SNC 51 — An Offer You Can't Refuse
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AN_OFFER_YOU_CAN_T_REFUSE: CardRecord = CardRecord::new(
+    "An Offer You Can't Refuse",
+    "b9d349f3-5be2-4b1f-a4c3-ba94822cf0cf",
+    "Dallas Williams",
+    crate::card::CardRules::unsupported(),
+);
+
 // SNC 66 — Witness Protection
 // Audit: unsupported — Needs a layer-1 name-setting characteristic operation. CharacteristicOperationDef covers the abilities, colors, creature types, and base power and toughness this sets, but nothing sets a name, and dropping "named Legitimate Businessperson" would silently change how the legend rule and name matching see the creature.
 pub(in crate::card::sets) static WITNESS_PROTECTION: CardRecord = CardRecord::new(
     "Witness Protection",
     "a2be6f2c-8ad0-402d-a7ca-9fe817e83b72",
     "Dominik Mayer",
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 79 — Fake Your Own Death
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FAKE_YOUR_OWN_DEATH: CardRecord = CardRecord::new(
+    "Fake Your Own Death",
+    "b4e117a8-3291-4f9a-ab00-c820c8e2aa00",
+    "Kari Christensen",
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 110 — Involuntary Employment
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INVOLUNTARY_EMPLOYMENT: CardRecord = CardRecord::new(
+    "Involuntary Employment",
+    "af7626e2-0041-4ac5-97b3-2db8dcb094d4",
+    "Milivoj Ćeran",
     crate::card::CardRules::unsupported(),
 );
 
@@ -190,6 +226,15 @@ pub(in crate::card::sets) static JEWEL_THIEF: CardRecord = CardRecord::new(
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))),
         ),
     ]),
+);
+
+// SNC 161 — Venom Connoisseur
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VENOM_CONNOISSEUR: CardRecord = CardRecord::new(
+    "Venom Connoisseur",
+    "04897d8c-ee05-45eb-80f7-76487dbcc449",
+    "Marta Nael",
+    crate::card::CardRules::unsupported(),
 );
 
 // SNC 168 — Body Dropper
@@ -277,13 +322,18 @@ pub(in crate::card::sets) static ZIATORAS_PROVING_GROUND: CardRecord = CardRecor
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &GIADA_FONT_OF_HOPE,
     &INSPIRING_OVERSEER,
     &RAFFINE_S_INFORMANT,
     &LEDGER_SHREDDER,
+    &AN_OFFER_YOU_CAN_T_REFUSE,
     &WITNESS_PROTECTION,
+    &FAKE_YOUR_OWN_DEATH,
+    &INVOLUNTARY_EMPLOYMENT,
     &MAYHEM_PATROL,
     &WITTY_ROASTMASTER,
     &JEWEL_THIEF,
+    &VENOM_CONNOISSEUR,
     &BODY_DROPPER,
     &JETMIRS_GARDEN,
     &RAFFINES_TOWER,

@@ -80,6 +80,15 @@ pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new
     ),
 );
 
+// C15 20 — Dread Summons
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DREAD_SUMMONS: CardRecord = CardRecord::new(
+    "Dread Summons",
+    "b2c20cb1-3e3d-4fea-b617-bd6d796c8d10",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
 // C15 26 — Fiery Confluence
 pub(in crate::card::sets) static FIERY_CONFLUENCE: CardRecord = CardRecord::new(
     "Fiery Confluence",
@@ -151,8 +160,12 @@ const NINJA_OF_THE_DEEP_HOURS_REPRINT: PrintingRecord = PrintingRecord::reprint(
     "Dan Murayama Scott",
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&MYSTIC_CONFLUENCE, &FIERY_CONFLUENCE, &CALLER_OF_THE_PACK];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &MYSTIC_CONFLUENCE,
+    &DREAD_SUMMONS,
+    &FIERY_CONFLUENCE,
+    &CALLER_OF_THE_PACK,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
     &[FAITH_S_FETTERS_REPRINT, NINJA_OF_THE_DEEP_HOURS_REPRINT];

@@ -242,6 +242,33 @@ pub(in crate::card::sets) static BRINK_OF_DISASTER: CardRecord = CardRecord::new
         ]),
 );
 
+// WWK 59 — Kalastria Highborn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KALASTRIA_HIGHBORN: CardRecord = CardRecord::new(
+    "Kalastria Highborn",
+    "f1efd1dd-903c-47a0-b746-5571a3ea1755",
+    "D. Alexander Gregory",
+    crate::card::CardRules::unsupported(),
+);
+
+// WWK 62 — Pulse Tracker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PULSE_TRACKER: CardRecord = CardRecord::new(
+    "Pulse Tracker",
+    "4604a63c-ebe0-420f-968e-3ffc7641ce22",
+    "Andrew Robinson",
+    crate::card::CardRules::unsupported(),
+);
+
+// WWK 81 — Dragonmaster Outcast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAGONMASTER_OUTCAST: CardRecord = CardRecord::new(
+    "Dragonmaster Outcast",
+    "c2297a4e-3c19-4748-9150-efbd2513066a",
+    "Raymond Swanland",
+    crate::card::CardRules::unsupported(),
+);
+
 // WWK 87 — Ricochet Trap
 pub(in crate::card::sets) static RICOCHET_TRAP: CardRecord = CardRecord::new(
     "Ricochet Trap",
@@ -340,6 +367,15 @@ CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 4, 4).with_abil
             ),
         ),
     ]),
+);
+
+// WWK 122 — Basilisk Collar
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BASILISK_COLLAR: CardRecord = CardRecord::new(
+    "Basilisk Collar",
+    "55cdba1b-7a80-435f-9cff-b9365f62e311",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
 );
 
 // WWK 123 — Everflowing Chalice
@@ -492,9 +528,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DISPEL,
     &JACE_THE_MIND_SCULPTOR,
     &BRINK_OF_DISASTER,
+    &KALASTRIA_HIGHBORN,
+    &PULSE_TRACKER,
+    &DRAGONMASTER_OUTCAST,
     &RICOCHET_TRAP,
     &ARBOR_ELF,
     &WOLFBRIAR_ELEMENTAL,
+    &BASILISK_COLLAR,
     &EVERFLOWING_CHALICE,
     &KITESAIL,
     &CELESTIAL_COLONNADE,

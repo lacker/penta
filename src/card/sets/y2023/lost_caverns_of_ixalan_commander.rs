@@ -68,6 +68,16 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&BROADSIDE_BOMBARDIERS];
+// LCC 106 — Chimil, the Inner Sun
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHIMIL_THE_INNER_SUN: CardRecord = CardRecord::new(
+    "Chimil, the Inner Sun",
+    "cfb49910-30fe-483e-b3b8-6268417f013c",
+    "Gaboleps",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&BROADSIDE_BOMBARDIERS, &CHIMIL_THE_INNER_SUN];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

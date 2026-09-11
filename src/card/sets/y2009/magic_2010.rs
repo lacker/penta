@@ -915,6 +915,15 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new(
     ]),
 );
 
+// M10 194 — Mold Adder
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MOLD_ADDER: CardRecord = CardRecord::new(
+    "Mold Adder",
+    "a216a729-6283-4c2b-90fe-ec8f3b9c570f",
+    "Matt Cavotta",
+    crate::card::CardRules::unsupported(),
+);
+
 // M10 203 — Runeclaw Bear
 pub(in crate::card::sets) static RUNECLAW_BEAR: CardRecord = CardRecord::new(
     "Runeclaw Bear",
@@ -1104,6 +1113,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CUDGEL_TROLL,
     &DEADLY_RECLUSE,
     &ELVISH_ARCHDRUID,
+    &MOLD_ADDER,
     &RUNECLAW_BEAR,
     &STAMPEDING_RHINO,
     &WINDSTORM,

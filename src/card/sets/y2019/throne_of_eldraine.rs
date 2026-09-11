@@ -158,6 +158,15 @@ pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::n
 )
 .with_composition(ardenvale_tactician_composition);
 
+// ELD 8 — Charming Prince
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHARMING_PRINCE: CardRecord = CardRecord::new(
+    "Charming Prince",
+    "dcb94950-3f3e-4876-84f8-d5e4d9cfecee",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 11 — Faerie Guidemother
 const fn faerie_guidemother_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{W}"), &["Faerie"], 1, 1).with_ability(abilities::flying())
@@ -239,6 +248,33 @@ pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::ne
     faerie_guidemother_rules(),
 )
 .with_composition(faerie_guidemother_composition);
+
+// ELD 15 — Glass Casket
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GLASS_CASKET: CardRecord = CardRecord::new(
+    "Glass Casket",
+    "562f1c51-d245-4771-bf61-415297e4f9d5",
+    "Anastasia Ovchinnikova",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 20 — Linden, the Steadfast Queen
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LINDEN_THE_STEADFAST_QUEEN: CardRecord = CardRecord::new(
+    "Linden, the Steadfast Queen",
+    "fa3ab467-be97-4b84-a73d-b03484d06b97",
+    "Ryan Pancoast",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 32 — Syr Alin, the Lion's Claw
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SYR_ALIN_THE_LION_S_CLAW: CardRecord = CardRecord::new(
+    "Syr Alin, the Lion's Claw",
+    "4cddb2d2-d813-4b83-a592-380ba4edf54f",
+    "Paul Scott Canavan",
+    crate::card::CardRules::unsupported(),
+);
 
 // ELD 39 — Brazen Borrower
 const fn brazen_borrower_rules() -> CardRules {
@@ -335,6 +371,42 @@ pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
     brazen_borrower_rules(),
 )
 .with_composition(brazen_borrower_composition);
+
+// ELD 40 — Charmed Sleep
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHARMED_SLEEP: CardRecord = CardRecord::new(
+    "Charmed Sleep",
+    "f1f97d9e-650b-4b69-8733-d80c8e0f723f",
+    "Titus Lunter",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 62 — Run Away Together
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUN_AWAY_TOGETHER: CardRecord = CardRecord::new(
+    "Run Away Together",
+    "aeffc3c0-567c-442f-ba06-b7d9617c5789",
+    "Filip Burburan",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 76 — Bake into a Pie
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BAKE_INTO_A_PIE: CardRecord = CardRecord::new(
+    "Bake into a Pie",
+    "42a4d090-1bb7-4334-ab22-e2527391e79b",
+    "Zoltan Boros",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 85 — Epic Downfall
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EPIC_DOWNFALL: CardRecord = CardRecord::new(
+    "Epic Downfall",
+    "63da83fe-fa59-40cb-a42e-e1b14b650bc8",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
 
 // ELD 110 — Wishclaw Talisman
 pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new(
@@ -550,6 +622,15 @@ pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord = CardRecord
 )
 .with_composition(embereth_shieldbreaker_composition);
 
+// ELD 134 — Raging Redcap
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAGING_REDCAP: CardRecord = CardRecord::new(
+    "Raging Redcap",
+    "d9325398-41c3-4177-a64d-ea38cb7a8737",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 137 — Rimrock Knight
 const fn rimrock_knight_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf", "Knight"], 3, 1).with_ability(
@@ -679,6 +760,24 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
         ]),
 );
 
+// ELD 139 — Scorching Dragonfire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SCORCHING_DRAGONFIRE: CardRecord = CardRecord::new(
+    "Scorching Dragonfire",
+    "3b74a806-ed74-458e-8903-d3d084e9f507",
+    "Eric Velhagen",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 146 — Thrill of Possibility
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THRILL_OF_POSSIBILITY: CardRecord = CardRecord::new(
+    "Thrill of Possibility",
+    "c9021f85-7ab4-4a78-a398-1611fe09cd14",
+    "Steve Argyle",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 169 — Once Upon a Time
 pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
     "Once Upon a Time",
@@ -722,6 +821,15 @@ pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
             ),
         ),
     ]),
+);
+
+// ELD 182 — Wildborn Preserver
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WILDBORN_PRESERVER: CardRecord = CardRecord::new(
+    "Wildborn Preserver",
+    "55f76830-369e-4224-9ded-7d1ce04c87e4",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
 );
 
 // ELD 197 — Oko, Thief of Crowns
@@ -859,6 +967,15 @@ pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
             ),
         ],
     ),
+);
+
+// ELD 222 — Heraldic Banner
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HERALDIC_BANNER: CardRecord = CardRecord::new(
+    "Heraldic Banner",
+    "2e349af5-3f25-46d3-908e-83b2f6028b95",
+    "Ravenna Tran",
+    crate::card::CardRules::unsupported(),
 );
 
 // ELD 235 — Stonecoil Serpent
@@ -1172,16 +1289,29 @@ pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARDENVALE_TACTICIAN,
+    &CHARMING_PRINCE,
     &FAERIE_GUIDEMOTHER,
+    &GLASS_CASKET,
+    &LINDEN_THE_STEADFAST_QUEEN,
+    &SYR_ALIN_THE_LION_S_CLAW,
     &BRAZEN_BORROWER,
+    &CHARMED_SLEEP,
+    &RUN_AWAY_TOGETHER,
+    &BAKE_INTO_A_PIE,
+    &EPIC_DOWNFALL,
     &WISHCLAW_TALISMAN,
     &BONECRUSHER_GIANT,
     &EMBERETH_SHIELDBREAKER,
+    &RAGING_REDCAP,
     &RIMROCK_KNIGHT,
     &ROBBER_OF_THE_RICH,
+    &SCORCHING_DRAGONFIRE,
+    &THRILL_OF_POSSIBILITY,
     &ONCE_UPON_A_TIME,
+    &WILDBORN_PRESERVER,
     &OKO_THIEF_OF_CROWNS,
     &GINGERBRUTE,
+    &HERALDIC_BANNER,
     &STONECOIL_SERPENT,
     &MYSTIC_SANCTUARY,
     &WITCH_S_COTTAGE,

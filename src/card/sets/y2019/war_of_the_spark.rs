@@ -55,6 +55,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// WAR 51 — Finale of Revelation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FINALE_OF_REVELATION: CardRecord = CardRecord::new(
+    "Finale of Revelation",
+    "6630c34a-1a97-4e31-9d2c-1150b0aa903e",
+    "Johann Bodin",
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 54 — Jace, Wielder of Mysteries
 pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord = CardRecord::new(
     "Jace, Wielder of Mysteries",
@@ -194,6 +203,15 @@ pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new(
                 },
             ),
         ]),
+);
+
+// WAR 97 — Liliana, Dreadhorde General
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LILIANA_DREADHORDE_GENERAL: CardRecord = CardRecord::new(
+    "Liliana, Dreadhorde General",
+    "d75ebba8-34ca-47a0-bf13-8318ad73b343",
+    "Chris Rallis",
+    crate::card::CardRules::unsupported(),
 );
 
 // WAR 115 — Bolt Bend
@@ -634,9 +652,11 @@ pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &FINALE_OF_REVELATION,
     &JACE_WIELDER_OF_MYSTERIES,
     &NARSET_PARTER_OF_VEILS,
     &BOLASS_CITADEL,
+    &LILIANA_DREADHORDE_GENERAL,
     &BOLT_BEND,
     &DREADHORDE_ARCANIST,
     &GRIM_INITIATE,

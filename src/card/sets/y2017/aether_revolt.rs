@@ -242,6 +242,15 @@ pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
     )),
 );
 
+// AER 106 — Druid of the Cowl
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRUID_OF_THE_COWL: CardRecord = CardRecord::new(
+    "Druid of the Cowl",
+    "a683f79b-0330-4fac-8279-6c0d888414b8",
+    "Magali Villeneuve",
+    crate::card::CardRules::unsupported(),
+);
+
 // AER 151 — Foundry Assembler
 pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new(
     "Foundry Assembler",
@@ -301,6 +310,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AETHER_CHASER,
     &KARI_ZEV_SKYSHIP_RAIDER,
     &WRANGLE,
+    &DRUID_OF_THE_COWL,
     &FOUNDRY_ASSEMBLER,
     &WALKING_BALLISTA,
 ];

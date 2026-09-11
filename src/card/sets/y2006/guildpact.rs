@@ -338,6 +338,15 @@ pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new(
     ),
 );
 
+// GPT 122 — Mortify
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MORTIFY: CardRecord = CardRecord::new(
+    "Mortify",
+    "3b2c5187-71c7-4801-8a76-339c67322d35",
+    "Glen Angus",
+    crate::card::CardRules::unsupported(),
+);
+
 // GPT 125 — Pillory of the Sleepless
 pub(in crate::card::sets) static PILLORY_OF_THE_SLEEPLESS: CardRecord = CardRecord::new(
     "Pillory of the Sleepless",
@@ -472,6 +481,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GRISTLEBACK,
     &LEYLINE_OF_LIFEFORCE,
     &FERAL_ANIMIST,
+    &MORTIFY,
     &PILLORY_OF_THE_SLEEPLESS,
     &GODLESS_SHRINE,
     &GRUUL_TURF,

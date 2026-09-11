@@ -292,6 +292,15 @@ pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
     )),
 );
 
+// EMN 65 — Imprisoned in the Moon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IMPRISONED_IN_THE_MOON: CardRecord = CardRecord::new(
+    "Imprisoned in the Moon",
+    "7990ebba-e9f2-4ba4-a352-e26ec81d4bed",
+    "Ryan Alexander Lee",
+    crate::card::CardRules::unsupported(),
+);
+
 // EMN 82 — Borrowed Malevolence
 pub(in crate::card::sets) static BORROWED_MALEVOLENCE: CardRecord = CardRecord::new(
     "Borrowed Malevolence",
@@ -331,6 +340,15 @@ pub(in crate::card::sets) static BORROWED_MALEVOLENCE: CardRecord = CardRecord::
             ),
         ],
     )),
+);
+
+// EMN 83 — Cemetery Recruitment
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CEMETERY_RECRUITMENT: CardRecord = CardRecord::new(
+    "Cemetery Recruitment",
+    "3a23adea-9f4a-409c-a37d-323eee781273",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
 );
 
 // EMN 85 — Collective Brutality
@@ -488,6 +506,15 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
     )),
 );
 
+// EMN 131 — Harmless Offering
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HARMLESS_OFFERING: CardRecord = CardRecord::new(
+    "Harmless Offering",
+    "f8f3cc4f-7943-4025-b332-b40653b13014",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
+);
+
 // EMN 140 — Savage Alliance
 pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
     "Savage Alliance",
@@ -591,10 +618,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COLLECTIVE_EFFORT,
     &PROVIDENCE,
     &DISPLACE,
+    &IMPRISONED_IN_THE_MOON,
     &BORROWED_MALEVOLENCE,
+    &CEMETERY_RECRUITMENT,
     &COLLECTIVE_BRUTALITY,
     &BORROWED_HOSTILITY,
     &COLLECTIVE_DEFIANCE,
+    &HARMLESS_OFFERING,
     &SAVAGE_ALLIANCE,
     &GRAPPLE_WITH_THE_PAST,
 ];

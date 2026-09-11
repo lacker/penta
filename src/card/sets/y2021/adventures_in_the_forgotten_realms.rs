@@ -102,6 +102,15 @@ pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardR
     )),
 );
 
+// AFR 123 — Vampire Spawn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VAMPIRE_SPAWN: CardRecord = CardRecord::new(
+    "Vampire Spawn",
+    "b8975c72-b2ec-4c5f-86a4-4e1e3bb41c15",
+    "Alex Brock",
+    crate::card::CardRules::unsupported(),
+);
+
 // AFR 198 — Owlbear
 pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
     "Owlbear",
@@ -166,6 +175,7 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PORTABLE_HOLE,
     &YOU_HEAR_SOMETHING_ON_WATCH,
+    &VAMPIRE_SPAWN,
     &OWLBEAR,
     &YOU_MEET_IN_A_TAVERN,
 ];

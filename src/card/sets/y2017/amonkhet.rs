@@ -35,6 +35,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// AKH 24 — Regal Caracal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static REGAL_CARACAL: CardRecord = CardRecord::new(
+    "Regal Caracal",
+    "cd349f95-3eae-4ef2-abf8-e911bb8e93e5",
+    "Filip Burburan",
+    crate::card::CardRules::unsupported(),
+);
+
 // AKH 75 — Vizier of Tumbling Sands
 pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardRecord::new(
     "Vizier of Tumbling Sands",
@@ -136,6 +145,24 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
     ]),
 );
 
+// AKH 192 — Vizier of the Menagerie
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VIZIER_OF_THE_MENAGERIE: CardRecord = CardRecord::new(
+    "Vizier of the Menagerie",
+    "ca204351-7a7e-4e4b-8c2b-f90fa0f9d724",
+    "Victor Adame Minguez",
+    crate::card::CardRules::unsupported(),
+);
+
+// AKH 198 — Enigma Drake
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ENIGMA_DRAKE: CardRecord = CardRecord::new(
+    "Enigma Drake",
+    "66286631-c16e-410c-b963-25cfe8005d8f",
+    "Steve Argyle",
+    crate::card::CardRules::unsupported(),
+);
+
 // AKH 241 — Cradle of the Accursed
 pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord::new(
     "Cradle of the Accursed",
@@ -161,9 +188,12 @@ pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &REGAL_CARACAL,
     &VIZIER_OF_TUMBLING_SANDS,
     &BONE_PICKER,
     &GLORYBRINGER,
+    &VIZIER_OF_THE_MENAGERIE,
+    &ENIGMA_DRAKE,
     &CRADLE_OF_THE_ACCURSED,
 ];
 

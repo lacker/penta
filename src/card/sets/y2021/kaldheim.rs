@@ -79,6 +79,15 @@ const VILLAGE_RITES_REPRINT: PrintingRecord = PrintingRecord::reprint(
     "Igor Kieryluk",
 );
 
+// KHM 121 — Axgard Cavalry
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AXGARD_CAVALRY: CardRecord = CardRecord::new(
+    "Axgard Cavalry",
+    "2411c341-a470-4484-9248-7c1d3ca12978",
+    "Evyn Fong",
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 139 — Goldspan Dragon
 pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
     "Goldspan Dragon",
@@ -197,6 +206,15 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
         ]),
 );
 
+// KHM 149 — Seize the Spoils
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SEIZE_THE_SPOILS: CardRecord = CardRecord::new(
+    "Seize the Spoils",
+    "b3b7a69c-75d2-49a6-ab56-ef608d0b0208",
+    "Jesper Ejsing",
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 157 — Tuskeri Firewalker
 pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::new(
     "Tuskeri Firewalker",
@@ -225,6 +243,15 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
             },
         )),
     ),
+);
+
+// KHM 170 — Fynn, the Fangbearer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FYNN_THE_FANGBEARER: CardRecord = CardRecord::new(
+    "Fynn, the Fangbearer",
+    "7d7a8a90-13c1-4b0c-ab2e-fc8d91ccefd9",
+    "Lie Setiawan",
+    crate::card::CardRules::unsupported(),
 );
 
 // KHM 192 — Sarulf's Packmate
@@ -282,6 +309,24 @@ pub(in crate::card::sets) static SNAKESKIN_VEIL: CardRecord = CardRecord::new(
     )),
 );
 
+// KHM 214 — Immersturm Predator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IMMERSTURM_PREDATOR: CardRecord = CardRecord::new(
+    "Immersturm Predator",
+    "0d83d2d9-b9d0-47f5-989b-f2c726401ade",
+    "Nicholas Gregory",
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 239 — Goldvein Pick
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOLDVEIN_PICK: CardRecord = CardRecord::new(
+    "Goldvein Pick",
+    "9bf5e4ad-a6e9-4b7c-a1ec-8246d3a3b6ca",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 315 — Esika's Chariot
 pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
     "Esika's Chariot",
@@ -332,14 +377,29 @@ pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
         ]),
 );
 
+// KHM 382 — Youthful Valkyrie
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static YOUTHFUL_VALKYRIE: CardRecord = CardRecord::new(
+    "Youthful Valkyrie",
+    "ffe93b27-f8ae-4abf-8ade-90f503f132c2",
+    "Anna Steinbauer",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BEHOLD_THE_MULTIVERSE,
+    &AXGARD_CAVALRY,
     &GOLDSPAN_DRAGON,
     &MAGDA_BRAZEN_OUTLAW,
+    &SEIZE_THE_SPOILS,
     &TUSKERI_FIREWALKER,
+    &FYNN_THE_FANGBEARER,
     &SARULF_S_PACKMATE,
     &SNAKESKIN_VEIL,
+    &IMMERSTURM_PREDATOR,
+    &GOLDVEIN_PICK,
     &ESIKA_S_CHARIOT,
+    &YOUTHFUL_VALKYRIE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[VILLAGE_RITES_REPRINT];

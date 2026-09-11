@@ -169,6 +169,24 @@ pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new(
     )),
 );
 
+// ALA 70 — Death Baron
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEATH_BARON: CardRecord = CardRecord::new(
+    "Death Baron",
+    "4d59b5e5-fc16-4f1a-9f17-f42908473531",
+    "Nils Hamm",
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 97 — Dragon Fodder
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAGON_FODDER: CardRecord = CardRecord::new(
+    "Dragon Fodder",
+    "9eab4120-e7d8-4132-a304-30b88e3175e2",
+    "Jaime Jones",
+    crate::card::CardRules::unsupported(),
+);
+
 // ALA 100 — Flameblast Dragon
 // Audit: unsupported — Needs an optional X-mana payment made as the attack trigger resolves.
 pub(in crate::card::sets) static FLAMEBLAST_DRAGON: CardRecord = CardRecord::new(
@@ -386,6 +404,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ELSPETH_KNIGHT_ERRANT,
     &GUARDIANS_OF_AKRASA,
     &BONE_SPLINTERS,
+    &DEATH_BARON,
+    &DRAGON_FODDER,
     &FLAMEBLAST_DRAGON,
     &HISSING_IGUANAR,
     &LIGHTNING_TALONS,

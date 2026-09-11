@@ -100,6 +100,15 @@ pub(in crate::card::sets) static ANNIHILATING_GLARE: CardRecord = CardRecord::ne
     )),
 );
 
+// ONE 102 — Offer Immortality
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OFFER_IMMORTALITY: CardRecord = CardRecord::new(
+    "Offer Immortality",
+    "b0aac10a-6d47-4a6c-8a10-2b7c06f3ff32",
+    "A. M. Sartor",
+    crate::card::CardRules::unsupported(),
+);
+
 // ONE 108 — Sheoldred's Edict
 /// "Of their choice", which is what makes it an edict: the sacrifice is
 /// theirs to make, so hexproof and protection never come into it.
@@ -177,6 +186,15 @@ pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new
             ),
             abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
+);
+
+// ONE 123 — Blazing Crescendo
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLAZING_CRESCENDO: CardRecord = CardRecord::new(
+    "Blazing Crescendo",
+    "d6bfc16a-2871-40a4-b279-636b80491a06",
+    "Tiffany Turrill",
+    crate::card::CardRules::unsupported(),
 );
 
 // ONE 133 — Furnace Strider
@@ -384,15 +402,27 @@ pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::
         ]),
 );
 
+// ONE 213 — Ovika, Enigma Goliath
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OVIKA_ENIGMA_GOLIATH: CardRecord = CardRecord::new(
+    "Ovika, Enigma Goliath",
+    "b298cf34-7aa5-4f97-a86c-7f28d2113b87",
+    "Antonio José Manzanedo",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PLANAR_DISRUPTION,
     &ANNIHILATING_GLARE,
+    &OFFER_IMMORTALITY,
     &SHEOLDRED_S_EDICT,
     &BARBED_BATTERFIST,
+    &BLAZING_CRESCENDO,
     &FURNACE_STRIDER,
     &CANKERBLOOM,
     &CONTAGIOUS_VORRAC,
     &ATRAXA_GRAND_UNIFIER,
+    &OVIKA_ENIGMA_GOLIATH,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

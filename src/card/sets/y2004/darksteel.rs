@@ -171,6 +171,15 @@ pub(in crate::card::sets) static ANGEL_S_FEATHER: CardRecord = CardRecord::new(
     )),
 );
 
+// DST 109 — Darksteel Colossus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DARKSTEEL_COLOSSUS: CardRecord = CardRecord::new(
+    "Darksteel Colossus",
+    "cbc27b24-f085-48b0-8757-cd11fbf25b91",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
+);
+
 // DST 110 — Darksteel Forge
 pub(in crate::card::sets) static DARKSTEEL_FORGE: CardRecord = CardRecord::new(
     "Darksteel Forge",
@@ -402,6 +411,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ECHOING_RUIN,
     &ECHOING_COURAGE,
     &ANGEL_S_FEATHER,
+    &DARKSTEEL_COLOSSUS,
     &DARKSTEEL_FORGE,
     &DARKSTEEL_INGOT,
     &DEMON_S_HORN,

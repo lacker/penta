@@ -62,6 +62,15 @@ pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::ne
     ]),
 );
 
+// C14 9 — Jazal Goldmane
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static JAZAL_GOLDMANE: CardRecord = CardRecord::new(
+    "Jazal Goldmane",
+    "c410d530-e9fc-4dc0-a4bd-70bd70aaf0c7",
+    "Aaron Miller",
+    crate::card::CardRules::unsupported(),
+);
+
 // C14 50 — Titania, Protector of Argoth
 pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
     CardRecord::new(
@@ -112,7 +121,10 @@ pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
             ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&CONTAINMENT_PRIEST, &TITANIA_PROTECTOR_OF_ARGOTH];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &CONTAINMENT_PRIEST,
+    &JAZAL_GOLDMANE,
+    &TITANIA_PROTECTOR_OF_ARGOTH,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

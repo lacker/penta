@@ -72,6 +72,16 @@ pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new(
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&OCCULT_EPIPHANY];
+// VOC 17 — Crossway Troublemakers
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CROSSWAY_TROUBLEMAKERS: CardRecord = CardRecord::new(
+    "Crossway Troublemakers",
+    "431711c5-c04f-4d34-97c9-5199cfbf9da9",
+    "Aaron J. Riley",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&OCCULT_EPIPHANY, &CROSSWAY_TROUBLEMAKERS];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

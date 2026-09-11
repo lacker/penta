@@ -52,6 +52,24 @@ pub(in crate::card::sets) static THRABEN_INSPECTOR: CardRecord = CardRecord::new
     ),
 );
 
+// SOI 105 — Crow of Dark Tidings
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CROW_OF_DARK_TIDINGS: CardRecord = CardRecord::new(
+    "Crow of Dark Tidings",
+    "14e4d1b5-72de-4062-9fdd-e9bfd655ee79",
+    "Tianhua X",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 223 — Rabid Bite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RABID_BITE: CardRecord = CardRecord::new(
+    "Rabid Bite",
+    "2f573622-877b-4d21-adfc-40a32b7c2e6d",
+    "Karl Kopinski",
+    crate::card::CardRules::unsupported(),
+);
+
 // SOI 233 — Tireless Tracker
 pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
     "Tireless Tracker",
@@ -90,6 +108,21 @@ pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&THRABEN_INSPECTOR, &TIRELESS_TRACKER];
+// SOI 258 — Magnifying Glass
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAGNIFYING_GLASS: CardRecord = CardRecord::new(
+    "Magnifying Glass",
+    "f7a708d5-f757-4fcf-a167-5b5920c6adeb",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &THRABEN_INSPECTOR,
+    &CROW_OF_DARK_TIDINGS,
+    &RABID_BITE,
+    &TIRELESS_TRACKER,
+    &MAGNIFYING_GLASS,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -45,6 +45,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// RNA 3 — Archway Angel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCHWAY_ANGEL: CardRecord = CardRecord::new(
+    "Archway Angel",
+    "b209d219-b946-4226-a8b4-65a5f3837fac",
+    "Milivoj Ćeran",
+    crate::card::CardRules::unsupported(),
+);
+
+// RNA 40 — Gateway Sneak
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GATEWAY_SNEAK: CardRecord = CardRecord::new(
+    "Gateway Sneak",
+    "edc0229d-05e6-41b7-b7a9-2a8b2b258add",
+    "Matt Stewart",
+    crate::card::CardRules::unsupported(),
+);
+
 // RNA 55 — Sphinx of Foresight
 pub(in crate::card::sets) static SPHINX_OF_FORESIGHT: CardRecord = CardRecord::new(
     "Sphinx of Foresight",
@@ -101,6 +119,15 @@ pub(in crate::card::sets) static SKEWER_THE_CRITICS: CardRecord = CardRecord::ne
         )
         .with_alternative_condition(&TriggerConditionDef::OpponentLostLifeThisTurn),
     ]),
+);
+
+// RNA 123 — Biogenic Upgrade
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BIOGENIC_UPGRADE: CardRecord = CardRecord::new(
+    "Biogenic Upgrade",
+    "0dd73fb2-453f-40b9-8beb-dfa99e6a706e",
+    "Tomasz Jedruszek",
+    crate::card::CardRules::unsupported(),
 );
 
 // RNA 171 — Final Payment
@@ -199,12 +226,25 @@ pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
     )),
 );
 
+// RNA 232 — Gate Colossus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GATE_COLOSSUS: CardRecord = CardRecord::new(
+    "Gate Colossus",
+    "99767e2f-a558-4d63-b9b6-923d15b433e1",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ARCHWAY_ANGEL,
+    &GATEWAY_SNEAK,
     &SPHINX_OF_FORESIGHT,
     &SKEWER_THE_CRITICS,
+    &BIOGENIC_UPGRADE,
     &FINAL_PAYMENT,
     &FIREBLADE_ARTIST,
     &GROWTH_SPIRAL,
+    &GATE_COLOSSUS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -91,11 +91,38 @@ pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
         ]),
 );
 
+// M20 4 — Angel of Vitality
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANGEL_OF_VITALITY: CardRecord = CardRecord::new(
+    "Angel of Vitality",
+    "e2f39777-b80a-4618-9310-a9e5b91bb2a2",
+    "Johannes Voss",
+    crate::card::CardRules::unsupported(),
+);
+
+// M20 13 — Devout Decree
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEVOUT_DECREE: CardRecord = CardRecord::new(
+    "Devout Decree",
+    "2dcde8fe-d4a4-4c6e-926e-c4a1b45045e4",
+    "Zoltan Boros",
+    crate::card::CardRules::unsupported(),
+);
+
 // M20 34 — Raise the Alarm (reprint)
 const RAISE_THE_ALARM_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2003::mirrodin::RAISE_THE_ALARM,
     "764a7a53-314e-4b1f-aa33-0f312d06df71",
     "Zoltan Boros",
+);
+
+// M20 50 — Brineborn Cutthroat
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRINEBORN_CUTTHROAT: CardRecord = CardRecord::new(
+    "Brineborn Cutthroat",
+    "0857765f-afd7-418a-a93b-c0bd1b1f037e",
+    "Caio Monteiro",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 54 — Cloudkin Seer
@@ -117,6 +144,33 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
             ),
         ],
     ),
+);
+
+// M20 76 — Spectral Sailor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPECTRAL_SAILOR: CardRecord = CardRecord::new(
+    "Spectral Sailor",
+    "67483891-36d1-46f2-8b4f-b8b7bd54bdcc",
+    "Cristi Balanescu",
+    crate::card::CardRules::unsupported(),
+);
+
+// M20 136 — Drakuseth, Maw of Flames
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAKUSETH_MAW_OF_FLAMES: CardRecord = CardRecord::new(
+    "Drakuseth, Maw of Flames",
+    "d09af78f-efde-4107-8406-cb12fd11c686",
+    "Grzegorz Rutkowski",
+    crate::card::CardRules::unsupported(),
+);
+
+// M20 144 — Goblin Smuggler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_SMUGGLER: CardRecord = CardRecord::new(
+    "Goblin Smuggler",
+    "95dc1a65-271c-455a-ae0c-f652444a53ac",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 148 — Leyline of Combustion
@@ -141,6 +195,15 @@ CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
             EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(2)),
         ),
     ]),
+);
+
+// M20 153 — Rapacious Dragon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAPACIOUS_DRAGON: CardRecord = CardRecord::new(
+    "Rapacious Dragon",
+    "2c9bf6d8-ebf6-40ff-858a-3483d19bb584",
+    "Johan Grenier",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 169 — Elvish Reclaimer
@@ -238,6 +301,15 @@ pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::
     ]),
 );
 
+// M20 208 — Empyrean Eagle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EMPYREAN_EAGLE: CardRecord = CardRecord::new(
+    "Empyrean Eagle",
+    "ac555709-c7cc-4c64-8a6f-8fe2bc149fcd",
+    "Jason A. Engle",
+    crate::card::CardRules::unsupported(),
+);
+
 // M20 230 — Manifold Key
 pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new(
     "Manifold Key",
@@ -274,6 +346,15 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// M20 244 — Cryptic Caves
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRYPTIC_CAVES: CardRecord = CardRecord::new(
+    "Cryptic Caves",
+    "fde9e9cb-68ab-4856-8ad6-30f66666dd93",
+    "Sung Choi",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 247 — Field of the Dead
@@ -320,6 +401,15 @@ pub(in crate::card::sets) static FIELD_OF_THE_DEAD: CardRecord = CardRecord::new
     ]),
 );
 
+// M20 285 — Twinblade Paladin
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TWINBLADE_PALADIN: CardRecord = CardRecord::new(
+    "Twinblade Paladin",
+    "6397d426-00e0-44da-b23c-44ccea65f5aa",
+    "Jana Schirmer",
+    crate::card::CardRules::unsupported(),
+);
+
 // M20 297 — Wildfire Elemental
 // Audit: unsupported — Needs a noncombat damage matcher. DamageKindDef offers only Any and Combat, so "whenever an opponent is dealt noncombat damage" cannot be said; using Any would also fire on every attack, which is the opposite of what the card rewards.
 pub(in crate::card::sets) static WILDFIRE_ELEMENTAL: CardRecord = CardRecord::new(
@@ -329,15 +419,35 @@ pub(in crate::card::sets) static WILDFIRE_ELEMENTAL: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// M20 300 — Gnarlback Rhino
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GNARLBACK_RHINO: CardRecord = CardRecord::new(
+    "Gnarlback Rhino",
+    "68a69558-aca0-413d-9762-2fa115b44abd",
+    "YW Tang",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANCESTRAL_BLADE,
+    &ANGEL_OF_VITALITY,
+    &DEVOUT_DECREE,
+    &BRINEBORN_CUTTHROAT,
     &CLOUDKIN_SEER,
+    &SPECTRAL_SAILOR,
+    &DRAKUSETH_MAW_OF_FLAMES,
+    &GOBLIN_SMUGGLER,
     &LEYLINE_OF_COMBUSTION,
+    &RAPACIOUS_DRAGON,
     &ELVISH_RECLAIMER,
     &LEYLINE_OF_ABUNDANCE,
+    &EMPYREAN_EAGLE,
     &MANIFOLD_KEY,
+    &CRYPTIC_CAVES,
     &FIELD_OF_THE_DEAD,
+    &TWINBLADE_PALADIN,
     &WILDFIRE_ELEMENTAL,
+    &GNARLBACK_RHINO,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

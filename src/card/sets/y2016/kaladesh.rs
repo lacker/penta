@@ -41,6 +41,33 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// KLD 5 — Authority of the Consuls
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AUTHORITY_OF_THE_CONSULS: CardRecord = CardRecord::new(
+    "Authority of the Consuls",
+    "324b2f55-1e09-490e-8f7e-bfde85a91ac4",
+    "Lake Hurwitz",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 15 — Fumigate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FUMIGATE: CardRecord = CardRecord::new(
+    "Fumigate",
+    "f00f27a7-9e92-4fbf-baa8-f47a5eee48a6",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 48 — Gearseeker Serpent
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GEARSEEKER_SERPENT: CardRecord = CardRecord::new(
+    "Gearseeker Serpent",
+    "d32d8327-6ec2-4d43-b254-b04407612715",
+    "Filip Burburan",
+    crate::card::CardRules::unsupported(),
+);
+
 // KLD 60 — Paradoxical Outcome
 pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new(
     "Paradoxical Outcome",
@@ -104,6 +131,15 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
             }),
         ),
     )),
+);
+
+// KLD 107 — Brazen Scourge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRAZEN_SCOURGE: CardRecord = CardRecord::new(
+    "Brazen Scourge",
+    "68c6fbdb-7b5c-4ad0-88f5-4779deae16ce",
+    "Kev Walker",
+    crate::card::CardRules::unsupported(),
 );
 
 // KLD 110 — Chandra, Torch of Defiance
@@ -198,6 +234,33 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
             )),
         ),
     ]),
+);
+
+// KLD 146 — Blossoming Defense
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOSSOMING_DEFENSE: CardRecord = CardRecord::new(
+    "Blossoming Defense",
+    "5c026c39-b09c-408a-844f-fb5eb785862a",
+    "Anastasia Ovchinnikova",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 176 — Cloudblazer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CLOUDBLAZER: CardRecord = CardRecord::new(
+    "Cloudblazer",
+    "3cb12355-abd8-4bf3-aac1-f710ac162585",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 203 — Cultivator's Caravan
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CULTIVATOR_S_CARAVAN: CardRecord = CardRecord::new(
+    "Cultivator's Caravan",
+    "b46b3726-4bc8-4e3a-bc6d-402c81663712",
+    "Mark Zug",
+    crate::card::CardRules::unsupported(),
 );
 
 // KLD 212 — Filigree Familiar
@@ -390,10 +453,26 @@ pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new(
     ]),
 );
 
+// KLD 266 — Flame Lash
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLAME_LASH: CardRecord = CardRecord::new(
+    "Flame Lash",
+    "ac44e3cb-cc69-4222-87bc-ffa54b7ab34a",
+    "Viktor Titov",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AUTHORITY_OF_THE_CONSULS,
+    &FUMIGATE,
+    &GEARSEEKER_SERPENT,
     &PARADOXICAL_OUTCOME,
+    &BRAZEN_SCOURGE,
     &CHANDRA_TORCH_OF_DEFIANCE,
     &THRIVING_GRUBS,
+    &BLOSSOMING_DEFENSE,
+    &CLOUDBLAZER,
+    &CULTIVATOR_S_CARAVAN,
     &FILIGREE_FAMILIAR,
     &RENEGADE_FREIGHTER,
     &SMUGGLER_S_COPTER,
@@ -402,6 +481,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONCEALED_COURTYARD,
     &INSPIRING_VANTAGE,
     &SPIREBLUFF_CANAL,
+    &FLAME_LASH,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

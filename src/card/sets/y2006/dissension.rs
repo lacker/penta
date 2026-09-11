@@ -57,6 +57,24 @@ pub(in crate::card::sets) static GUARDIAN_OF_THE_GUILDPACT: CardRecord = CardRec
         .with_ability(abilities::protection_from_monocolored()),
 );
 
+// DIS 33 — Spell Snare
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPELL_SNARE: CardRecord = CardRecord::new(
+    "Spell Snare",
+    "35554fdf-c70a-4baa-a35a-414caa9978be",
+    "Hideaki Takamura",
+    crate::card::CardRules::unsupported(),
+);
+
+// DIS 47 — Macabre Waltz
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MACABRE_WALTZ: CardRecord = CardRecord::new(
+    "Macabre Waltz",
+    "d9cd7bc3-73ba-4364-84b2-9954648cd8a9",
+    "Jim Murray",
+    crate::card::CardRules::unsupported(),
+);
+
 // DIS 58 — Wit's End
 pub(in crate::card::sets) static WITS_END: CardRecord = CardRecord::new(
     "Wit's End",
@@ -181,6 +199,15 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
             ),
         ),
     ),
+);
+
+// DIS 133 — Trygon Predator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TRYGON_PREDATOR: CardRecord = CardRecord::new(
+    "Trygon Predator",
+    "f31f54bf-7bf0-48f0-853d-1468713784eb",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
 );
 
 // DIS 170 — Azorius Chancery
@@ -313,10 +340,13 @@ pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUARDIAN_OF_THE_GUILDPACT,
+    &SPELL_SNARE,
+    &MACABRE_WALTZ,
     &WITS_END,
     &UTOPIA_SPRAWL,
     &AZORIUS_FIRST_WING,
     &COILING_ORACLE,
+    &TRYGON_PREDATOR,
     &AZORIUS_CHANCERY,
     &BLOOD_CRYPT,
     &BREEDING_POOL,

@@ -255,6 +255,15 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
     ),
 );
 
+// RAV 93 — Last Gasp
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LAST_GASP: CardRecord = CardRecord::new(
+    "Last Gasp",
+    "34e035b3-bd83-43a4-8f31-d2393d29cd94",
+    "Thomas M. Baxa",
+    crate::card::CardRules::unsupported(),
+);
+
 // RAV 125 — Frenzied Goblin
 pub(in crate::card::sets) static FRENZIED_GOBLIN: CardRecord = CardRecord::new(
     "Frenzied Goblin",
@@ -329,6 +338,15 @@ CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
     ),
 );
 
+// RAV 158 — Doubling Season
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DOUBLING_SEASON: CardRecord = CardRecord::new(
+    "Doubling Season",
+    "c7e71299-98f6-494e-b187-8d22ce5f50af",
+    "Wayne Reynolds",
+    crate::card::CardRules::unsupported(),
+);
+
 // RAV 163 — Farseek
 pub(in crate::card::sets) static FARSEEK: CardRecord = CardRecord::new(
     "Farseek",
@@ -357,6 +375,15 @@ CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
             then: None,
         },
     )),
+);
+
+// RAV 213 — Lightning Helix
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LIGHTNING_HELIX: CardRecord = CardRecord::new(
+    "Lightning Helix",
+    "1b2ecf55-c1cc-4b28-b7ce-e1b25305155e",
+    "Kev Walker",
+    crate::card::CardRules::unsupported(),
 );
 
 // RAV 221 — Putrefy
@@ -547,9 +574,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REMAND,
     &VEDALKEN_ENTRANCER,
     &DARK_CONFIDANT,
+    &LAST_GASP,
     &FRENZIED_GOBLIN,
     &REROUTE,
+    &DOUBLING_SEASON,
     &FARSEEK,
+    &LIGHTNING_HELIX,
     &PUTREFY,
     &SKYKNIGHT_LEGIONNAIRE,
     &DIMIR_GUILDMAGE,

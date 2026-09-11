@@ -83,6 +83,15 @@ pub(in crate::card::sets) static SOUL_MANIPULATION: CardRecord = CardRecord::new
     ),
 );
 
+// ARB 92 — Maelstrom Pulse
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAELSTROM_PULSE: CardRecord = CardRecord::new(
+    "Maelstrom Pulse",
+    "eb651c3a-cb27-4b73-8eb6-b87d65211097",
+    "Anthony Francisco",
+    crate::card::CardRules::unsupported(),
+);
+
 // ARB 95 — Putrid Leech
 pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
     "Putrid Leech",
@@ -136,7 +145,11 @@ pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&SOUL_MANIPULATION, &PUTRID_LEECH, &THOPTER_FOUNDRY];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SOUL_MANIPULATION,
+    &MAELSTROM_PULSE,
+    &PUTRID_LEECH,
+    &THOPTER_FOUNDRY,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

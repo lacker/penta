@@ -9,4 +9,6 @@ pub mod streets_of_new_capenna;
 pub mod streets_of_new_capenna_commander;
 pub mod the_brothers_war;
 
+pub(super) mod jumpstart_2022;
+
 pub(super) use super::{CardRecord, PrintingRecord};

@@ -114,6 +114,15 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
         ]),
 );
 
+// STX 38 — Burrog Befuddler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BURROG_BEFUDDLER: CardRecord = CardRecord::new(
+    "Burrog Befuddler",
+    "6040c573-cd8c-4593-8ade-d9922482035c",
+    "Zoltan Boros",
+    crate::card::CardRules::unsupported(),
+);
+
 // STX 43 — Frost Trickster
 pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
     "Frost Trickster",
@@ -225,6 +234,15 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
         // available with the mana held up.
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),
+);
+
+// STX 176 — Deadly Brew
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEADLY_BREW: CardRecord = CardRecord::new(
+    "Deadly Brew",
+    "87d33e48-90fc-4aac-b09a-68050bc053b5",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
 );
 
 // STX 186 — Expressive Iteration
@@ -343,6 +361,15 @@ pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::n
     ),
 );
 
+// STX 241 — Teach by Example
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEACH_BY_EXAMPLE: CardRecord = CardRecord::new(
+    "Teach by Example",
+    "aa7fbb9b-50a8-4d18-a667-fe965468ca16",
+    "Johan Grenier",
+    crate::card::CardRules::unsupported(),
+);
+
 // STX 247 — Witherbloom Apprentice
 pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord::new(
     "Witherbloom Apprentice",
@@ -367,6 +394,15 @@ pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord
             ]),
         ),
     ),
+);
+
+// STX 252 — Campus Guide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CAMPUS_GUIDE: CardRecord = CardRecord::new(
+    "Campus Guide",
+    "87a9a8a2-de81-441b-b501-418311b677f7",
+    "Slawomir Maniak",
+    crate::card::CardRules::unsupported(),
 );
 
 // STX 271 — Quandrix Campus
@@ -436,12 +472,16 @@ pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ELITE_SPELLBINDER,
+    &BURROG_BEFUDDLER,
     &FROST_TRICKSTER,
     &BALEFUL_MASTERY,
     &UNWILLING_INGREDIENT,
+    &DEADLY_BREW,
     &EXPRESSIVE_ITERATION,
     &QUANDRIX_PLEDGEMAGE,
+    &TEACH_BY_EXAMPLE,
     &WITHERBLOOM_APPRENTICE,
+    &CAMPUS_GUIDE,
     &QUANDRIX_CAMPUS,
     &WITHERBLOOM_CAMPUS,
     &SEDGEMOOR_WITCH,

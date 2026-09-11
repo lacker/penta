@@ -265,6 +265,15 @@ pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new(
         ]),
 );
 
+// ZEN 61 — Rite of Replication
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RITE_OF_REPLICATION: CardRecord = CardRecord::new(
+    "Rite of Replication",
+    "4530fe45-8a3d-48e9-a7a5-abf8fb1485e3",
+    "Matt Cavotta",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 67 — Spell Pierce
 pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new(
     "Spell Pierce",
@@ -405,6 +414,15 @@ pub(in crate::card::sets) static DISFIGURE: CardRecord = CardRecord::new(
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),
+);
+
+// ZEN 89 — Gatekeeper of Malakir
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GATEKEEPER_OF_MALAKIR: CardRecord = CardRecord::new(
+    "Gatekeeper of Malakir",
+    "71db3698-a45c-4eaf-87e6-30502c0c10f4",
+    "Karl Kopinski",
+    crate::card::CardRules::unsupported(),
 );
 
 // ZEN 90 — Giant Scorpion
@@ -727,6 +745,15 @@ pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
     ),
 );
 
+// ZEN 178 — Rampaging Baloths
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAMPAGING_BALOTHS: CardRecord = CardRecord::new(
+    "Rampaging Baloths",
+    "66ae703d-b133-4749-9d38-216abe6c6647",
+    "Steve Prescott",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 192 — Vastwood Gorger
 pub(in crate::card::sets) static VASTWOOD_GORGER: CardRecord = CardRecord::new(
     "Vastwood Gorger",
@@ -778,6 +805,15 @@ pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new
             ]),
         ),
     ]),
+);
+
+// ZEN 195 — Adventuring Gear
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ADVENTURING_GEAR: CardRecord = CardRecord::new(
+    "Adventuring Gear",
+    "3aa395f2-656e-4bf3-bd9b-6240bd3e2774",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
 );
 
 // ZEN 197 — Blazing Torch
@@ -959,11 +995,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &INTO_THE_ROIL,
     &KRAKEN_HATCHLING,
     &PARALYZING_GRASP,
+    &RITE_OF_REPLICATION,
     &SPELL_PIERCE,
     &WELKIN_TERN,
     &BLOOD_SEEKER,
     &BLOODGHAST,
     &DISFIGURE,
+    &GATEKEEPER_OF_MALAKIR,
     &GIANT_SCORPION,
     &SORIN_MARKOV,
     &VAMPIRE_HEXMAGE,
@@ -977,8 +1015,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MARK_OF_MUTINY,
     &SLAUGHTER_CRY,
     &LOTUS_COBRA,
+    &RAMPAGING_BALOTHS,
     &VASTWOOD_GORGER,
     &VINES_OF_VASTWOOD,
+    &ADVENTURING_GEAR,
     &BLAZING_TORCH,
     &EXPEDITION_MAP,
     &ARID_MESA,

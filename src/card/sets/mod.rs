@@ -285,6 +285,11 @@ const SET_MODULES: &[SetDefinition] = &[
     y2023::commander_masters::DEFINITION,
     y2023::doctor_who::DEFINITION,
     y2026::marvel_super_heroes_commander::DEFINITION,
+    y2018::global_series_jiang_yanggu_and_mu_yanling::DEFINITION,
+    y2020::jumpstart::DEFINITION,
+    y2021::kaldheim_commander::DEFINITION,
+    y2022::jumpstart_2022::DEFINITION,
+    y2025::avatar_the_last_airbender_eternal::DEFINITION,
     y2026::the_hobbit::DEFINITION,
 ];
 

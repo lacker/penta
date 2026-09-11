@@ -350,6 +350,15 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
     )),
 );
 
+// SHM 245 — Wilt-Leaf Liege
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WILT_LEAF_LIEGE: CardRecord = CardRecord::new(
+    "Wilt-Leaf Liege",
+    "e6a2881f-e771-47d7-a39e-692054ee727f",
+    "Jason Chan",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COUNTERBORE,
     &BESEECH_THE_QUEEN,
@@ -360,6 +369,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WOODFALL_PRIMUS,
     &MANAMORPHOSE,
     &BARKSHELL_BLESSING,
+    &WILT_LEAF_LIEGE,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

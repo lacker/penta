@@ -17,6 +17,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// PTK 71 — Corrupt Court Official
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CORRUPT_COURT_OFFICIAL: CardRecord = CardRecord::new(
+    "Corrupt Court Official",
+    "9d3ba2e3-e680-47cd-81c5-555deea7d00f",
+    "Li Yousong",
+    crate::card::CardRules::unsupported(),
+);
+
 // PTK 78 — Imperial Seal
 pub(in crate::card::sets) static IMPERIAL_SEAL: CardRecord = CardRecord::new(
     "Imperial Seal",
@@ -31,6 +40,6 @@ pub(in crate::card::sets) static IMPERIAL_SEAL: CardRecord = CardRecord::new(
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&IMPERIAL_SEAL];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&CORRUPT_COURT_OFFICIAL, &IMPERIAL_SEAL];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

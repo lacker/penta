@@ -305,6 +305,15 @@ const VENDETTA_REPRINT: PrintingRecord = PrintingRecord::reprint(
     "Karl Kopinski",
 );
 
+// ROE 136 — Battle-Rattle Shaman
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BATTLE_RATTLE_SHAMAN: CardRecord = CardRecord::new(
+    "Battle-Rattle Shaman",
+    "aa1df08a-ccef-44cf-936a-838e238c27c1",
+    "Warren Mahy",
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 145 — Flame Slash
 pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new(
     "Flame Slash",
@@ -450,6 +459,24 @@ CardRules::new_creature(mana_cost!("{1}{G}"), &["Eldrazi", "Drone"], 2, 2).with_
     ),
 );
 
+// ROE 204 — Pelakka Wurm
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PELAKKA_WURM: CardRecord = CardRecord::new(
+    "Pelakka Wurm",
+    "8e732593-0bdc-4dd4-9b07-9aa1a780e6e8",
+    "Daniel Ljunggren",
+    crate::card::CardRules::unsupported(),
+);
+
+// ROE 213 — Wildheart Invoker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WILDHEART_INVOKER: CardRecord = CardRecord::new(
+    "Wildheart Invoker",
+    "dc8315bf-03af-4f19-92c7-556e486cb099",
+    "Erica Yang",
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 222 — Prophetic Prism
 pub(in crate::card::sets) static PROPHETIC_PRISM: CardRecord = CardRecord::new(
     "Prophetic Prism",
@@ -512,12 +539,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONTAMINATED_GROUND,
     &INQUISITION_OF_KOZILEK,
     &SHRIVEL,
+    &BATTLE_RATTLE_SHAMAN,
     &FLAME_SLASH,
     &GOBLIN_ARSONIST,
     &GOBLIN_TUNNELER,
     &RAID_BOMBARDMENT,
     &TRAITOROUS_INSTINCT,
     &NEST_INVADER,
+    &PELAKKA_WURM,
+    &WILDHEART_INVOKER,
     &PROPHETIC_PRISM,
     &EVOLVING_WILDS,
 ];

@@ -84,6 +84,15 @@ pub(in crate::card::sets) static RAISE_THE_ALARM: CardRecord = CardRecord::new(
     )),
 );
 
+// MRD 53 — Thirst for Knowledge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THIRST_FOR_KNOWLEDGE: CardRecord = CardRecord::new(
+    "Thirst for Knowledge",
+    "0ff1f608-203e-4413-8753-37fc49731c87",
+    "Ben Thompson",
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 57 — Barter in Blood
 pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
     "Barter in Blood",
@@ -642,6 +651,7 @@ CardRules::new_artifact(mana_cost!("{5}"))
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LEONIN_SKYHUNTER,
     &RAISE_THE_ALARM,
+    &THIRST_FOR_KNOWLEDGE,
     &BARTER_IN_BLOOD,
     &CONSUME_SPIRIT,
     &HUM_OF_THE_RADIX,

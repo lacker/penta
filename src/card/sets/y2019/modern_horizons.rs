@@ -512,6 +512,15 @@ pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord
     crate::card::CardRules::unsupported(),
 );
 
+// MH1 94 — Graveshifter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRAVESHIFTER: CardRecord = CardRecord::new(
+    "Graveshifter",
+    "128c516b-7eb1-4f81-8b54-428bd0649d92",
+    "Jakub Kasper",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 101 — Putrid Goblin
 pub(in crate::card::sets) static PUTRID_GOBLIN: CardRecord = CardRecord::new(
     "Putrid Goblin",
@@ -558,6 +567,33 @@ pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::
             },
         ),
     ),
+);
+
+// MH1 126 — Goatnap
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOATNAP: CardRecord = CardRecord::new(
+    "Goatnap",
+    "709d4928-e976-4c7c-ba09-cce95d1797b2",
+    "Mark Zug",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 130 — Goblin Oriflamme
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_ORIFLAMME: CardRecord = CardRecord::new(
+    "Goblin Oriflamme",
+    "33ec7cbe-16a0-4dbb-91fe-7e445a5268c8",
+    "David Palumbo",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 143 — Ravenous Giant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAVENOUS_GIANT: CardRecord = CardRecord::new(
+    "Ravenous Giant",
+    "52337d8d-e0ee-4229-848d-9bbd989e15b7",
+    "Milivoj Ćeran",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 144 — Reckless Charge (reprint)
@@ -817,6 +853,15 @@ pub(in crate::card::sets) static MOTHER_BEAR: CardRecord = CardRecord::new(
     ),
 );
 
+// MH1 181 — Springbloom Druid
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPRINGBLOOM_DRUID: CardRecord = CardRecord::new(
+    "Springbloom Druid",
+    "6161d2ed-7cff-4c90-9e74-1d179a6c1498",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 187 — Trumpeting Herd
 pub(in crate::card::sets) static TRUMPETING_HERD: CardRecord = CardRecord::new(
     "Trumpeting Herd",
@@ -926,6 +971,15 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new(
                 },
             ),
         ]),
+);
+
+// MH1 201 — Good-Fortune Unicorn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOOD_FORTUNE_UNICORN: CardRecord = CardRecord::new(
+    "Good-Fortune Unicorn",
+    "49d68905-e13e-4751-b028-90c795c11cd5",
+    "Kee Lo",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 217 — Wrenn and Six
@@ -1161,16 +1215,22 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FORCE_OF_NEGATION,
     &URZA_LORD_HIGH_ARTIFICER,
     &FIRST_SPHERE_GARGANTUA,
+    &GRAVESHIFTER,
     &PUTRID_GOBLIN,
     &BOGARDAN_DRAGONHEART,
+    &GOATNAP,
+    &GOBLIN_ORIFLAMME,
+    &RAVENOUS_GIANT,
     &SEASONED_PYROMANCER,
     &COLLECTOR_OUPHE,
     &FORCE_OF_VIGOR,
     &HEXDRINKER,
     &MOTHER_BEAR,
+    &SPRINGBLOOM_DRUID,
     &TRUMPETING_HERD,
     &WINDING_WAY,
     &FALLEN_SHINOBI,
+    &GOOD_FORTUNE_UNICORN,
     &WRENN_AND_SIX,
     &FARMSTEAD_GLEANER,
     &TALISMAN_OF_CONVICTION,

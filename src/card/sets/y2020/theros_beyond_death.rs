@@ -333,6 +333,15 @@ pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord:
     ]),
 );
 
+// THB 182 — Nessian Hornbeetle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NESSIAN_HORNBEETLE: CardRecord = CardRecord::new(
+    "Nessian Hornbeetle",
+    "8200fcda-e30c-460f-9964-47e657b7c758",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
 // THB 229 — Uro, Titan of Nature's Wrath
 pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardRecord::new(
     "Uro, Titan of Nature's Wrath",
@@ -461,6 +470,15 @@ pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::ne
     ]),
 );
 
+// THB 295 — Terror of Mount Velus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TERROR_OF_MOUNT_VELUS: CardRecord = CardRecord::new(
+    "Terror of Mount Velus",
+    "332dc6c3-7802-4bde-aa4e-0feab70c216f",
+    "Billy Christian",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THASSAS_ORACLE,
     &MIRE_TRITON,
@@ -468,8 +486,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLOOD_ASPIRANT,
     &UNDERWORLD_BREACH,
     &UNDERWORLD_RAGE_HOUND,
+    &NESSIAN_HORNBEETLE,
     &URO_TITAN_OF_NATURE_S_WRATH,
     &SOUL_GUIDE_LANTERN,
+    &TERROR_OF_MOUNT_VELUS,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

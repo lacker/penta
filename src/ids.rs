@@ -398,6 +398,19 @@ const BINDING_LABELS: &[&str] = &[
     "wilds_land",
     "winding_way_chosen",
     "winding_way_rest",
+    "tsp_creatures",
+    "tsp_creatures_rest",
+    "tsp_hand",
+    "tsp_hand_rest",
+    "tsp_lands",
+    "tsp_lands_rest",
+    "tsp_named",
+    "tsp_revealed",
+    "tsp_pile_one",
+    "tsp_pile_two",
+    "tsp_pile_chosen",
+    "tsp_pile_rest",
+    "tsp_remaining",
 ];
 
 #[allow(non_upper_case_globals)]

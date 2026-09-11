@@ -33,7 +33,12 @@ fn validate_effect_target_shapes(
     triggering_object_zone: Option<ZoneKind>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
-        EffectDef::Perform(GameActionDef::Sequence(effects)) => {
+        EffectDef::Perform(GameActionDef::Named { action, .. }) => validate_effect_target_shapes(
+            EffectDef::Perform(*action),
+            targets,
+            triggering_object_zone,
+        ),
+        EffectDef::Perform(GameActionDef::Sequence(effects) | GameActionDef::Choice(effects)) => {
             for effect in effects {
                 validate_effect_target_shapes(
                     EffectDef::Perform(*effect),
@@ -410,6 +415,7 @@ fn validate_effect_target_shapes(
         }
         EffectDef::Perform(
             GameActionDef::DiscardCards { object }
+            | GameActionDef::Exile { object, .. }
             | GameActionDef::Sacrifice { object }
             | GameActionDef::SacrificeYours { object }
             | GameActionDef::GainControl { object, .. }
@@ -682,7 +688,8 @@ fn validate_effect_target_shapes(
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::Cascade
-        | EffectDef::RestartGame(_) | EffectDef::Proliferate
+        | EffectDef::RestartGame(_)
+        | EffectDef::Proliferate
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::GainClassLevel { .. }

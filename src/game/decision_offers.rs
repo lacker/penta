@@ -79,7 +79,7 @@ impl Game {
     /// A resolving ability has already left the stack by the time its choice
     /// is observed. Preserve the battlefield source explicitly so clients do
     /// not have to guess which same-name permanent the choice belongs to.
-    fn associate_latest_decision_with(&mut self, object: &StackObject) {
+    pub(in crate::game) fn associate_latest_decision_with(&mut self, object: &StackObject) {
         if let Some(source) = object.source
             && let Some(decision) = self.pending_decisions.last_mut()
         {
@@ -250,7 +250,6 @@ impl Game {
         payment: ResolvedEffectPayment,
     ) -> bool {
         match payment {
-            ResolvedEffectPayment::Named(_) => false, // Its linear window validates the authored candidates.
             ResolvedEffectPayment::Action(ref action) => {
                 self.action_payment_candidates(player, action).len() >= usize::from(action.amount)
             }

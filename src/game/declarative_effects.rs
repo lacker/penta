@@ -16,7 +16,6 @@ mod installed_triggers;
 mod linked_exiles;
 mod mana;
 mod move_to_zone;
-mod named_costs;
 mod object_collections;
 mod permanent_state;
 mod player_state;

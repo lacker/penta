@@ -36,10 +36,18 @@ impl Game {
                 stack_object.chosen_permanents.push(spent);
             }
             match cost {
-                CostDef::Named { cost: selected, .. } => {
-                    let (_, zone, count) = selected.named_object_selection()?;
+                CostDef::Perform(program) => {
+                    let context = super::TriggerContext::empty().into();
+                    let scoped =
+                        super::ScopedEffect::primary(crate::card::EffectDef::Perform(*program));
+                    let payment = program.alternatives().into_iter().find_map(|action| {
+                        let super::ResolvedEffectPayment::Action(payment) = self.resolve_action_payment(action, &stack_object, &context, scoped, 1) else { return None; };
+                        self.action_payment_candidates(stack_object.controller, &payment).iter().any(|target| {
+                            matches!(target, Target::Card(id) | Target::Permanent(id) if *id == spent)
+                        }).then_some(payment)
+                    })?;
                     let mut cards = vec![spent];
-                    for _ in 1..count {
+                    for _ in 1..payment.amount {
                         let (id, next) = remaining_sacrifices.first().copied()?;
                         if next != cost {
                             return None;
@@ -48,12 +56,24 @@ impl Game {
                         cards.push(id);
                         stack_object.chosen_permanents.push(id);
                     }
+                    let selected = self.selected_action_payment_targets(
+                        stack_object.controller,
+                        &payment,
+                        &cards,
+                    )?;
+                    let performer = stack_object.controller;
                     let source = stack_object.source.unwrap_or(stack_object.id);
-                    if zone == ZoneKind::Battlefield {
-                        self.commit_named_object_cost(
-                            stack_object.controller,
-                            cost,
-                            &cards,
+                    let action = payment.program.selected_action();
+                    if matches!(
+                        action.unnamed(),
+                        crate::card::GameActionDef::Sacrifice { .. }
+                            | crate::card::GameActionDef::SacrificeYours { .. }
+                    ) {
+                        self.perform_selected_game_action_then(
+                            action,
+                            &selected,
+                            performer,
+                            performer,
                             source,
                             Some(BattlefieldExitCompletion::CompleteSpellCast {
                                 object: Box::new(stack_object),
@@ -63,13 +83,9 @@ impl Game {
                         );
                         return None;
                     }
-                    let exiled = self.commit_named_object_cost(
-                        stack_object.controller,
-                        cost,
-                        &cards,
-                        source,
-                        None,
-                    )?;
+                    let exiled = self.perform_selected_game_action_then(
+                        action, &selected, performer, performer, source, None,
+                    );
                     stack_object
                         .cast
                         .as_mut()?

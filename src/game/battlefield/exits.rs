@@ -825,7 +825,7 @@ impl Game {
         }
     }
 
-    fn resume_battlefield_exit_completion(
+    pub(in crate::game) fn resume_battlefield_exit_completion(
         &mut self,
         completion: BattlefieldExitCompletion,
         moved_to_graveyard: &[GameObjectId],

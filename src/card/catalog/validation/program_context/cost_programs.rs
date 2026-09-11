@@ -11,25 +11,8 @@ fn validate_cost_program(
         return validate_cost_program(*effect, Some(costs));
     }
     if let EffectDef::PayOr(payment) = effect {
-        if payment
-            .payment
-            .costs
-            .iter()
-            .any(|cost| matches!(cost, CostDef::Named { .. }))
-        {
-            match payment.payment.costs {
-                [cost @ CostDef::Named { .. }]
-                    if cost.named_choices().is_some() && payment.label.is_none() => {}
-                _ => {
-                    return Err(
-                        "named object costs currently require their own unlabeled payment window",
-                    );
-                }
-            }
-        } else {
-            for cost in payment.payment.costs {
-                validate_program_cost(*cost, parameter, payment.label.is_some(), false)?;
-            }
+        for cost in payment.payment.costs {
+            validate_program_cost(*cost, parameter, payment.label.is_some(), false)?;
         }
     }
     for child in crate::card::child_effects(effect) {
@@ -45,7 +28,6 @@ fn validate_program_cost(
     scalar_only: bool,
 ) -> Result<(), &'static str> {
     let (costs, repeated_or_labeled, scalar_only) = match cost {
-        CostDef::Named { .. } => return Err("nested named object payment is not supported"),
         CostDef::Parameter => (
             parameter.ok_or("unbound cost parameter")?,
             repeated_or_labeled,
@@ -78,7 +60,6 @@ fn validate_program_cost(
 fn contains_cost_parameter(cost: CostDef) -> bool {
     match cost {
         CostDef::Parameter => true,
-        CostDef::Named { cost, .. } => contains_cost_parameter(*cost),
         CostDef::All(costs) | CostDef::Choice(costs) | CostDef::Repeated { costs, .. } => {
             costs.iter().any(|cost| contains_cost_parameter(*cost))
         }
@@ -162,46 +143,23 @@ mod tests {
     );
 
     #[test]
-    fn named_costs_reject_unplannable_composition() {
+    fn named_actions_compose_with_payment_purpose_and_other_costs() {
         const ID: crate::card::MechanicId = crate::card::MechanicId::from_name("test:selection");
-        const NAMED: CostDef = CostDef::named(
-            ID,
-            &CostDef::Sacrifice {
-                object: crate::card::ObjectPredicateDef::Any,
-                quantity: crate::card::CostQuantityDef::Fixed(2),
-            },
-        );
-        assert!(
-            validate_cost_program(
-                EffectDef::PayOr(PayOrDef::optional(&[NAMED], &EffectDef::None)),
-                None
-            )
-            .is_ok()
-        );
+        const NAMED: CostDef = actions::choose_sacrifice(2).named(ID).as_cost();
         for costs in [
+            &[NAMED][..],
             &[CostDef::All(&[NAMED])][..],
             &[NAMED, CostDef::PayLife(1)][..],
         ] {
             let costs = Box::leak(costs.to_vec().into_boxed_slice());
             assert!(
                 validate_cost_program(
-                    EffectDef::PayOr(PayOrDef::optional(costs, &EffectDef::None)),
+                    EffectDef::PayOr(PayOrDef::optional(costs, &EffectDef::None).labeled(ID)),
                     None
                 )
-                .is_err()
+                .is_ok()
             );
         }
-        assert!(
-            validate_cost_program(
-                EffectDef::PayOr(PayOrDef::optional(&[NAMED], &EffectDef::None).labeled(ID)),
-                None
-            )
-            .is_err()
-        );
-        assert!(contains_cost_parameter(CostDef::named(
-            ID,
-            &CostDef::Parameter
-        )));
     }
 
     #[test]

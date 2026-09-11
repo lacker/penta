@@ -21,7 +21,7 @@ need contained implementation boundaries, not card-identity dispatch in Game.
 - Endurance constructs a queried collection, random ordering, and movement in
   its own clause. There is no Endurance-shaped graveyard operation in the core.
 - Bloomburrow owns forage's identity and choice of ordinary exile/sacrifice
-  costs. Corpseberry Cultivator and Feed the Cycle share that composition.
+  game actions. Corpseberry Cultivator and Feed the Cycle share that composition.
 
 ## Identities and named actions
 
@@ -36,28 +36,37 @@ to avoid JSON numeric precision loss.
 payment purpose, and a completed action remain separate uses of that vocabulary.
 A label does not dispatch a hidden implementation or promise a prepared lowering.
 
-`CostDef::Named` wraps ordinary cost grammar and publishes `MechanicPerformed`
-once after the selected payment's actions and replacement work finish. Declining
-or merely selecting objects does not publish an occurrence. Sacrificing a Food
-while foraging still emits the ordinary sacrifice event; that same sacrifice
-for another purpose is not forage. Each event uses shared trigger capture and
-stack placement. Named completion is not inferred from the final zone.
+`GameActionDef::Named { mechanic, action }` wraps the action program, not its
+cost or effect wrapper. Bloomburrow labels its whole exile-or-sacrifice program
+with `ACTION.named(FORAGE)`; Corpseberry uses `as_effect()` beneath `May`, and
+Feed the Cycle uses `as_cost()`. Both enter the same selection planner and
+semantic executor. No named-cost grammar or separate commit implementation exists.
 
-The initial named-cost adapter admits fixed positive sacrifice and graveyard
-exile costs, either singly or as alternatives. Resolving use requires a sole
-named cost in an unlabeled PayOr; nested named costs, repetitions, activation
-costs, and mixed resolving bundles are not admitted. Casting supports named
-object costs inside its existing bundles/alternatives. Because cast actions
-record objects rather than mechanic-branch IDs, an outer choice involving a
-named cost may have only one object-bearing alternative. These are explicit
-coverage boundaries, not a claim of an unrestricted program interpreter.
+The action publishes `MechanicPerformed` once its selected branch and replacement
+work finish. Declining or merely selecting objects does not publish an occurrence.
+Sacrificing a Food still emits ordinary sacrifice events; that same sacrifice for
+another purpose is not forage. Completion is not inferred from the final zone.
 
-The resolving window first chooses a legal alternative or declines, then
-selects its exact object group with one option per candidate. All selections
-are validated before any action runs. Both stages reconstruct from the source's
-authored PayOr and revalidate the offer. The public-zone adapter retains public
-visibility. It does not introduce a universal editable payment UI or general
-rewind; casting retains its existing complete-plan enumeration.
+Completion-aware naming currently supports sacrifice and graveyard-exile actions,
+their object selection, and a choice of those selections. A name on an arbitrary
+sequence, nested names, or a discard replacement is not yet supported. Ordinary
+unnamed discard and control programs retain upstream's support. Named selections
+can participate in resolving cost bundles, repetitions, and labeled payments;
+payment-purpose labels are independent of action identity.
+
+Public action alternatives use a linear window: choose a fully executable branch,
+then select its exact object group with one option per candidate. A resolving
+payment may decline before commitment; an ordinary instruction uses an explicit
+`May` when optional. Both decision stages reconstruct from the authored action
+or PayOr and revalidate their offers. Private alternatives are not advertised
+through this public window. No information-exposing rewind is introduced.
+
+Casting reuses action candidate evaluation and semantic execution, while retaining
+complete-plan enumeration. Its supported action slice is fixed positive sacrifice
+or graveyard-exile selections. Alternatives must be distinguishable by zone,
+because the cast wire records objects rather than action-branch IDs. An outer cost
+choice involving an action program may have only one object-bearing alternative.
+Activation programs and a universal editable payment UI remain follow-ups.
 
 ## Readability and local exceptions
 

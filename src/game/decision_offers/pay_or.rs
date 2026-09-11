@@ -12,8 +12,10 @@ impl Game {
         if_paid: Option<ScopedEffect>,
         otherwise: Option<ScopedEffect>,
     ) {
-        if let ResolvedEffectPayment::Named(cost) = payment {
-            self.queue_named_cost(player, cost, None, definition, object, context);
+        if let ResolvedEffectPayment::Choice(choices) = &payment
+            && choices.iter().all(|choice| matches!(choice, ResolvedEffectPayment::Action(payment) if payment.program.public_alternative_supported()))
+        {
+            self.queue_action_choice(player, choices.clone(), None, definition, object, context);
             return;
         }
         if if_paid.is_none() && otherwise.is_none() && payment_provenance.is_none() {

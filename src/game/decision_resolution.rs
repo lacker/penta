@@ -21,8 +21,8 @@ impl Game {
         // named.
         let pending_options = pending.observation.options.clone();
         match pending.continuation {
-            named @ DecisionContinuation::NamedCost { .. } => {
-                self.resolve_named_cost_choice(named, &pending.observation, options);
+            named @ DecisionContinuation::ActionChoice { .. } => {
+                self.resolve_action_choice(named, &pending.observation, options);
             }
             DecisionContinuation::PregameActions { player, .. } => {
                 self.finish_opening_hand_actions(player);

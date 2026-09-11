@@ -12,6 +12,7 @@ use crate::mana_cost;
 pub(super) mod cost_lists;
 pub(super) mod game_action_programs;
 mod intrinsic_costs;
+mod named_game_action_programs;
 use crate::poc::{self, cards};
 use crate::{
     AbilityTargetDef, AbilityTargetPredicate, AdditionalCostDef, AdditionalCostId,

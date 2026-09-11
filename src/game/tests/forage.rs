@@ -3,28 +3,24 @@
 use super::*;
 
 #[test]
-fn named_costs_cast_selection_uses_the_payment_source_not_each_candidate() {
+fn named_actions_cast_selection_uses_the_payment_source_not_each_candidate() {
     const ID: crate::card::MechanicId = crate::card::MechanicId::from_name("test:source-cost");
     for object in [
         ObjectPredicateDef::Source,
         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
     ] {
         for sacrifice in [false, true] {
-            let cost = Box::leak(Box::new(if sacrifice {
-                CostDef::sacrifice(object, crate::card::CostQuantityDef::Fixed(1))
+            let program = Box::leak(Box::new(if sacrifice {
+                crate::card::actions::choose_sacrifice(1).matching(object)
             } else {
-                CostDef::exile(
-                    object,
-                    ZoneKind::Graveyard,
-                    crate::card::CostQuantityDef::Fixed(1),
-                )
+                crate::card::actions::choose_exile_from_graveyard(1).matching(object)
             }));
             let (mut game, source) = super::cost_lists::game_with_cost_rules(
                 &CardRules::new_sorcery(mana_cost!("{0}")).with_ability(
                     AbilityDef::spell_with_additional_cost(
                         "Pay a named object cost.",
                         &[],
-                        CostDef::named(ID, cost),
+                        Box::leak(Box::new(program.named(ID))).as_cost(),
                         EffectDef::None,
                     ),
                 ),
@@ -71,7 +67,7 @@ fn named_costs_cast_selection_uses_the_payment_source_not_each_candidate() {
 }
 
 #[test]
-fn named_costs_use_authored_identity_filter_and_quantity() {
+fn named_actions_use_authored_identity_filter_and_quantity() {
     const RECLAIM: crate::card::MechanicId = crate::card::MechanicId::from_name("test:reclaim");
     static RULES: [AbilityDef; 2] = [
         AbilityDef::triggered(
@@ -81,14 +77,12 @@ fn named_costs_use_authored_identity_filter_and_quantity() {
                 player: PlayerRelation::You,
             },
             EffectDef::PayOr(PayOrDef::optional(
-                &[CostDef::named(
-                    RECLAIM,
-                    &CostDef::Exile {
-                        object: ObjectPredicateDef::HasType(CardType::Land),
-                        from: ZoneKind::Graveyard,
-                        quantity: crate::card::CostQuantityDef::Fixed(2),
-                    },
-                )],
+                &[crate::card::actions::choice(&[
+                    crate::card::actions::choose_exile_from_graveyard(2)
+                        .matching(ObjectPredicateDef::HasType(CardType::Land))
+                        .named(RECLAIM),
+                ])
+                .as_cost()],
                 &EffectDef::None,
             )),
         ),
@@ -189,7 +183,7 @@ fn begin_combat(game: &mut Game) {
     }
     assert!(matches!(
         game.pending_decisions[0].continuation,
-        DecisionContinuation::NamedCost { branch: None, .. }
+        DecisionContinuation::OptionalEffect { .. }
     ));
 }
 
@@ -208,7 +202,9 @@ fn combat_forage_selects_exactly_three_with_linear_options_and_a_separate_counte
         .push(card(180_100, cards::SWAMP, PlayerId::Two));
     begin_combat(&mut game);
     game = reconstruct(&game);
-    choose(&mut game, vec![1]);
+    choose(&mut game, vec![1]); // Accept the optional instruction.
+    game = reconstruct(&game);
+    choose(&mut game, vec![1]); // Select the exile alternative.
     let decision = game.pending_decisions[0].observation.clone();
     assert_eq!((decision.minimum, decision.maximum), (3, 3));
     assert_eq!(decision.options.len(), 40);
@@ -250,7 +246,7 @@ fn optional_forage_can_be_declined_and_never_spends_an_incomplete_payment() {
         let choices = &game.pending_decisions[0].observation.options;
         assert_eq!(
             choices.iter().map(|option| option.id).collect::<Vec<_>>(),
-            if count == 3 { vec![0, 1] } else { vec![0] }
+            vec![0, 1]
         );
         choose(&mut game, vec![0]);
         drain_pending(&mut game);
@@ -268,7 +264,7 @@ fn only_the_active_controllers_cultivator_offers_combat_forage() {
     let decision = &game.pending_decisions[0].observation;
     assert_eq!(decision.player, PlayerId::Two);
     assert_eq!(decision.source, Some(opponent));
-    assert_eq!(decision.options.len(), 1);
+    assert_eq!(decision.options.len(), 2);
     choose(&mut game, vec![0]);
     assert!(game.stack.is_empty());
     assert_eq!(counters(&game, cultivator), 0);
@@ -281,6 +277,7 @@ fn food_forage_uses_only_your_food_and_preserves_sacrifice_events() {
     game.create_token(PlayerId::Two, tokens::food());
     game.tap_permanent(food).unwrap();
     begin_combat(&mut game);
+    choose(&mut game, vec![1]);
     choose(&mut game, vec![2]);
     let decision = &game.pending_decisions[0].observation;
     assert_eq!(decision.options.len(), 1);
@@ -374,6 +371,7 @@ fn food_forage_waits_for_exit_replacements_before_publishing_its_event() {
     }
     let food = game.create_token_from(PlayerId::One, tokens::food(), None);
     begin_combat(&mut game);
+    choose(&mut game, vec![1]);
     choose(&mut game, vec![2]);
     choose(&mut game, vec![0]);
     assert!(matches!(
@@ -401,4 +399,18 @@ fn food_forage_waits_for_exit_replacements_before_publishing_its_event() {
             .iter()
             .any(|permanent| permanent.card.id == food)
     );
+}
+
+#[test]
+fn accepting_optional_forage_without_a_complete_alternative_moves_nothing() {
+    for count in [0, 2] {
+        let (mut game, cultivator, _) = staged(count);
+        begin_combat(&mut game);
+        choose(&mut game, vec![1]);
+        drain_pending(&mut game);
+        assert!(game.pending_decisions.is_empty());
+        assert_eq!(game.players[0].graveyard.len(), count as usize);
+        assert!(game.players[0].exile.is_empty());
+        assert_eq!(counters(&game, cultivator), 0);
+    }
 }

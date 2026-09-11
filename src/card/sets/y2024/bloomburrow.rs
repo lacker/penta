@@ -49,19 +49,12 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
 pub(in crate::card::sets) const FORAGE: crate::card::MechanicId =
     crate::card::MechanicId::from_name("mtg:forage");
 
-const fn forage() -> CostDef {
-    const COST: CostDef = CostDef::Choice(&[
-        CostDef::exile(
-            ObjectPredicateDef::Any,
-            ZoneKind::Graveyard,
-            crate::card::CostQuantityDef::Fixed(3),
-        ),
-        CostDef::sacrifice(
-            ObjectPredicateDef::Subtype("Food"),
-            crate::card::CostQuantityDef::Fixed(1),
-        ),
+const fn forage() -> crate::card::GameActionDef {
+    const ACTION: crate::card::GameActionDef = crate::card::actions::choice(&[
+        crate::card::actions::choose_exile_from_graveyard(3),
+        crate::card::actions::choose_sacrifice(1).matching(ObjectPredicateDef::Subtype("Food")),
     ]);
-    CostDef::named(FORAGE, &COST)
+    ACTION.named(FORAGE)
 }
 
 // BLB 54 — Kitsa, Otterball Elite
@@ -303,7 +296,7 @@ pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Planeswalker),
                 ]),
             )],
-            CostDef::choice(&[forage(), CostDef::pay_mana(mana_cost!("{B}"))]),
+            CostDef::choice(&[forage().as_cost(), CostDef::pay_mana(mana_cost!("{B}"))]),
             EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
@@ -332,10 +325,10 @@ pub(in crate::card::sets) static CORPSEBERRY_CULTIVATOR: CardRecord = CardRecord
                     step: TurnStepDef::BeginningOfCombat,
                     player: PlayerRelation::You,
                 },
-                EffectDef::PayOr(
-                    crate::card::PayOrDef::optional(&[forage()], &EffectDef::None)
-                        .with_visibility(crate::card::ChoiceVisibilityDef::Public),
-                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &forage().as_effect(),
+                },
             ),
             AbilityDef::triggered(
                 "Whenever you forage, put a +1/+1 counter on this creature.",

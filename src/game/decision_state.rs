@@ -48,7 +48,6 @@ pub(super) struct SacrificeDeclined {
 /// resolving effect suspends behind a decision.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum ResolvedEffectPayment {
-    Named(crate::card::CostDef),
     Action(Box<super::game_actions::payments::ActionPayment>),
     All(Vec<Self>),
     Choice(Vec<Self>),
@@ -234,9 +233,9 @@ pub(super) enum CounteredSpellZone {
 
 #[derive(Clone, Debug)]
 pub(super) enum DecisionContinuation {
-    NamedCost {
+    ActionChoice {
         player: PlayerId,
-        cost: crate::card::CostDef,
+        choices: Vec<ResolvedEffectPayment>,
         branch: Option<usize>,
         definition: ScopedEffect,
         object: Box<StackObject>,

@@ -215,11 +215,10 @@ pub(in super::super) fn shared_spell_additional_cost(cost: Option<CostDef>) -> b
 
 fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
     match cost {
-        CostDef::Named { .. } => cost.named_choices().is_some_and(|choices| {
-            choices
-                .iter()
-                .all(|cost| shared_spell_additional_cost_def(*cost))
-        }),
+        CostDef::Perform(program) => {
+            program.spell_payment_supported()
+                && super::stack_effects::shared_stack_effect(EffectDef::Perform(*program))
+        }
         CostDef::Mana(_) | CostDef::PayLife(_) | CostDef::DiscardCards(_) => true,
         CostDef::SacrificePermanent {
             object,
@@ -260,9 +259,9 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
             !costs.is_empty()
                 && costs.iter().copied().all(shared_spell_additional_cost_def)
                 // The cast wire records objects, not mechanic-branch IDs.
-                // Until it can distinguish those, a choice involving a named
+                // Until it can distinguish those, a choice involving an
                 // action may have only one object-bearing alternative.
-                && (!costs.iter().copied().any(contains_named_cost)
+                && (!costs.iter().copied().any(contains_action_cost)
                     || costs.iter().copied().filter(|cost| !spell_cost_can_be_objectless(*cost)).count() <= 1)
                 // Cast actions currently carry the selected objects, not a
                 // separate cost-branch ID. Two objectless branches would
@@ -279,25 +278,21 @@ fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
     }
 }
 
-fn contains_named_cost(cost: CostDef) -> bool {
+fn contains_action_cost(cost: CostDef) -> bool {
     match cost {
-        CostDef::Named { .. } => true,
+        CostDef::Perform(_) => true,
         CostDef::All(costs) | CostDef::Choice(costs) => {
-            costs.iter().copied().any(contains_named_cost)
+            costs.iter().copied().any(contains_action_cost)
         }
         _ => false,
     }
 }
 
 #[test]
-fn named_costs_reject_spell_branches_the_wire_cannot_distinguish() {
-    const NAMED: CostDef = CostDef::named(
-        crate::card::MechanicId::from_name("test:branch"),
-        &CostDef::Sacrifice {
-            object: ObjectPredicateDef::Any,
-            quantity: crate::card::CostQuantityDef::Fixed(1),
-        },
-    );
+fn action_costs_reject_spell_branches_the_wire_cannot_distinguish() {
+    const NAMED: CostDef = crate::card::actions::choose_sacrifice(1)
+        .named(crate::card::MechanicId::from_name("test:branch"))
+        .as_cost();
     assert!(shared_spell_additional_cost_def(CostDef::Choice(&[
         NAMED,
         CostDef::PayLife(1)
@@ -390,4 +385,34 @@ pub(in super::super) fn shared_special_action_costs(costs: &'static [crate::Cost
         CostDef::All(costs) => shared_special_action_costs(costs),
         _ => false,
     })
+}
+
+#[test]
+fn game_action_cast_boundaries_reject_ambiguous_or_unimplemented_programs() {
+    use crate::card::{GameActionDef, MechanicId, actions};
+    const NAME: MechanicId = MechanicId::from_name("test:action-boundary");
+    const DISCARD: GameActionDef =
+        actions::choose_discard(1).with_visibility(crate::card::ChoiceVisibilityDef::Public);
+    const TWO_SACRIFICES: GameActionDef = actions::choice(&[
+        actions::choose_sacrifice(1),
+        actions::choose_sacrifice(1).matching(ObjectPredicateDef::HasType(CardType::Creature)),
+    ]);
+    const NESTED_NAME: GameActionDef = actions::choose_sacrifice(1).named(NAME).named(NAME);
+    const NAMED_SEQUENCE: GameActionDef =
+        actions::sequence(&[actions::choose_sacrifice(1)]).named(NAME);
+    for action in [
+        DISCARD,
+        TWO_SACRIFICES,
+        NESTED_NAME,
+        NAMED_SEQUENCE,
+        actions::choose_sacrifice(0),
+    ] {
+        assert!(!action.spell_payment_supported(), "{action:?}");
+    }
+    assert!(
+        !DISCARD.public_alternative_supported(),
+        "hand matching must not leak through public alternative offers"
+    );
+    assert!(!NAMED_SEQUENCE.payment_program_supported());
+    assert!(!NESTED_NAME.payment_program_supported());
 }

@@ -161,7 +161,10 @@ impl Game {
             | EffectDef::Perform(
                 crate::card::GameActionDef::Choose(_)
                 | crate::card::GameActionDef::Sequence(_)
+                | crate::card::GameActionDef::Choice(_)
+                | crate::card::GameActionDef::Named { .. }
                 | crate::card::GameActionDef::DiscardCards { .. }
+                | crate::card::GameActionDef::Exile { .. }
                 | crate::card::GameActionDef::Sacrifice { .. }
                 | crate::card::GameActionDef::SacrificeYours { .. }
                 | crate::card::GameActionDef::GainControl { .. }

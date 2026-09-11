@@ -69,8 +69,8 @@ fn continuation_snapshot(
     visible_rebindings: &[GameObjectId],
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
-        DecisionContinuation::NamedCost { player, branch, definition, object, context, .. } =>
-            DecisionContinuationSnapshot::NamedCost {
+        DecisionContinuation::ActionChoice { player, branch, definition, object, context, .. } =>
+            DecisionContinuationSnapshot::ActionChoice {
                 player: player.index(), branch: *branch,
                 continuation: effect_continuation_snapshot(game, viewer, object, context, *definition, visible_rebindings)?,
             },
@@ -361,15 +361,12 @@ fn continuation_snapshot(
             context,
             ..
         } => {
-            if !matches!(
-                definition.effect,
-                EffectDef::Choose(_)
-                    | EffectDef::ChooseExact(_)
-                    | EffectDef::ChooseCardsFromCollection(_)
-                    | EffectDef::Perform(crate::card::GameActionDef::Choose(_))
-            ) {
-                return None;
-            }
+            let authored_choice = match definition.effect {
+                EffectDef::Perform(action) => matches!(action.unnamed(), crate::card::GameActionDef::Choose(_)),
+                EffectDef::Choose(_) | EffectDef::ChooseExact(_) | EffectDef::ChooseCardsFromCollection(_) => true,
+                _ => false,
+            };
+            if !authored_choice { return None; }
             DecisionContinuationSnapshot::ChooseForEffect {
                 continuation: effect_continuation_snapshot(
                     game,

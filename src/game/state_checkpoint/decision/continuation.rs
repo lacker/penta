@@ -13,50 +13,71 @@ fn parse_continuation(
     game: &Game,
 ) -> Result<DecisionContinuation, String> {
     Ok(match value {
-        DecisionContinuationSnapshot::NamedCost {
+        DecisionContinuationSnapshot::ActionChoice {
             player: chooser,
             branch,
             continuation,
         } => {
             let player = player(*chooser)?;
             let restored = parse_effect_continuation(continuation, game)?;
-            let EffectDef::PayOr(authored) = restored.effect.effect else {
-                return Err("named cost requires its authored PayOr".into());
+            if !ability_locator_matches_origin(&continuation.ability, &restored.object) {
+                return Err("action-choice locator disagrees with its resolving ability".into());
+            }
+            let choices = match restored.effect.effect {
+                EffectDef::PayOr(authored) => {
+                    let (payment, _, _, _) = parse_authored_pay_or_continuation(
+                        game,
+                        &restored.object,
+                        &restored.context,
+                        player,
+                        authored.label.map(|label| label.to_string()).as_ref(),
+                        restored.effect,
+                        authored,
+                    )?;
+                    let crate::game::ResolvedEffectPayment::Choice(choices) = payment else {
+                        return Err("action choice payment changed".into());
+                    };
+                    choices
+                }
+                EffectDef::Perform(action)
+                    if matches!(action.unnamed(), crate::card::GameActionDef::Choice(_)) =>
+                {
+                    if player != restored.object.controller {
+                        return Err("action performer changed".into());
+                    }
+                    action
+                        .alternatives()
+                        .into_iter()
+                        .map(|action| {
+                            game.resolve_action_payment(
+                                action,
+                                &restored.object,
+                                &restored.context,
+                                restored.effect,
+                                1,
+                            )
+                        })
+                        .collect()
+                }
+                _ => return Err("action choice requires an authored action or payment".into()),
             };
-            let (payment, _, _, _) = parse_authored_pay_or_continuation(
-                game,
-                &restored.object,
-                &restored.context,
-                player,
-                None,
-                restored.effect,
-                authored,
-            )?;
-            let crate::game::ResolvedEffectPayment::Named(cost) = payment else {
-                return Err("named cost program changed".into());
-            };
-            let (prompt, count, options) = game
-                .named_cost_options(
-                    player,
-                    cost,
-                    *branch,
-                    restored.object.source.unwrap_or(restored.object.id),
-                )
-                .ok_or("named cost selection has no legal payment")?;
+            let (prompt, count, visibility, options) = game
+                .action_choice_options(player, &choices, *branch, restored.effect)
+                .ok_or("action selection has no legal completion")?;
             validate_authored_decision(
                 observation,
                 player,
                 prompt,
-                DecisionVisibility::Public,
+                visibility,
                 DecisionPreference::Neutral,
                 count,
                 count,
                 &options,
-                "named cost",
+                "action choice",
             )?;
-            DecisionContinuation::NamedCost {
+            DecisionContinuation::ActionChoice {
                 player,
-                cost,
+                choices,
                 branch: *branch,
                 definition: restored.effect,
                 object: restored.object,

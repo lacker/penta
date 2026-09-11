@@ -10,14 +10,19 @@ fn parse_object_choice_continuation(
         return Err("object-choice locator disagrees with its resolving ability".into());
     }
     let (state, binding, then, prompt, visibility) = match continuation.effect.effect {
-        EffectDef::Perform(crate::card::GameActionDef::Choose(choice)) => {
+        EffectDef::Perform(action)
+            if matches!(action.unnamed(), crate::card::GameActionDef::Choose(_)) =>
+        {
+            let crate::card::GameActionDef::Choose(choice) = action.unnamed() else {
+                unreachable!()
+            };
             let fixed = game.fixed_game_action_choice(
                 choice,
                 &continuation.object,
                 &continuation.context,
                 continuation.effect,
             );
-            let then = EffectDef::Perform(*choice.then);
+            let then = EffectDef::Perform(action.selected_action());
             let state = game
                 .effect_choice_decision_state_with_continuation(
                     fixed,

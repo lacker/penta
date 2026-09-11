@@ -36,15 +36,6 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
         PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
     ) && shared_effect_recipient(EffectRecipientDef::players(payment.payer))
         && payment.costs.iter().all(|cost| match *cost {
-            cost @ crate::card::CostDef::Named { .. } => {
-                payment.costs.len() == 1
-                    && cost.named_choices().is_some_and(|choices| {
-                        choices.iter().all(|cost| {
-                            cost.named_object_selection()
-                                .is_some_and(|(object, _, _)| shared_object_predicate(object))
-                        })
-                    })
-            }
             crate::card::CostDef::Perform(program) => {
                 shared_program_cost(crate::card::CostDef::Perform(program))
             }
@@ -181,6 +172,12 @@ fn shared_sacrifice_of_choice(effect: EffectDef) -> bool {
 #[allow(clippy::too_many_lines)]
 fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed: bool) -> bool {
     match effect {
+        EffectDef::Perform(action @ GameActionDef::Named { action: inner, .. }) => {
+            action.named_program_supported() && shared_stack_effect_at_position(EffectDef::Perform(*inner), deferred_decision_allowed)
+        }
+        EffectDef::Perform(action @ GameActionDef::Choice(_)) => deferred_decision_allowed && action.payment_program_supported()
+            && crate::card::child_effects(effect).into_iter().all(|effect| shared_stack_effect_at_position(effect, true)),
+        EffectDef::Perform(GameActionDef::Exile { object, from }) => from == ZoneKind::Graveyard && shared_effect_recipient(object),
         EffectDef::Perform(GameActionDef::Sequence(effects)) => {
             !effects.is_empty()
                 && effects.iter().copied().all(|effect| {

@@ -72,7 +72,7 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
     ));
     assert!(matches!(
         spell_cost(cards::FEED_THE_CYCLE),
-        CostDef::Choice([CostDef::Named { .. }, CostDef::Mana(_)])
+        CostDef::Choice([CostDef::Perform(_), CostDef::Mana(_)])
     ));
     assert!(matches!(
         spell_cost(cards::VICIOUS_RIVALRY),

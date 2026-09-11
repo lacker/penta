@@ -49,6 +49,34 @@ pub const fn sequence(actions: &'static [GameActionDef]) -> GameActionDef {
     GameActionDef::Sequence(actions)
 }
 
+/// Choose one complete action program; affordability is checked before selection.
+#[must_use]
+pub const fn choice(actions: &'static [GameActionDef]) -> GameActionDef {
+    GameActionDef::Choice(actions)
+}
+
+/// Exile already identified objects from the specified zone.
+/// Currently the shared executor supports graveyard cards.
+#[must_use]
+pub const fn exile(object: EffectRecipientDef, from: ZoneKind) -> GameActionDef {
+    GameActionDef::Exile { object, from }
+}
+
+/// Publicly select cards from your graveyard, then exile them as one action.
+#[must_use]
+pub const fn choose_exile_from_graveyard(amount: u16) -> GameActionDef {
+    choose(
+        ParentBinding,
+        ObjectSetDef::Query(ObjectQueryDef::owned_by(
+            ObjectPredicateDef::Any,
+            &[ZoneKind::Graveyard],
+            PlayerSetDef::Related(PlayerRelation::You),
+        )),
+        &EXILE_CHOSEN,
+    )
+    .with_amount(ValueDef::Constant(amount as i32))
+}
+
 /// Let the executing player publicly select one object, bind it, and perform
 /// `then`. Selection builders override the amount, chooser, and visibility.
 /// The body names the supplied binding explicitly, so custom programs can
@@ -122,6 +150,7 @@ pub const fn choose_gain_control(amount: u16) -> GameActionDef {
 
 const CHOSEN: EffectRecipientDef =
     EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding));
+const EXILE_CHOSEN: GameActionDef = exile(CHOSEN, ZoneKind::Graveyard);
 const DISCARD_CHOSEN: GameActionDef = discard_cards(CHOSEN);
 const SACRIFICE_CHOSEN: GameActionDef = sacrifice_yours(CHOSEN);
 const GAIN_CONTROL_OF_CHOSEN: GameActionDef = gain_control(

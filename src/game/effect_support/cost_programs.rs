@@ -61,8 +61,15 @@ impl Game {
             return Resolved::all(Vec::new());
         }
         let (costs, times) = match cost {
-            Cost::Named { .. } => return Resolved::Named(cost),
-            Cost::Perform(program) => return self.resolve_action_payment(program, object, context, scoped, times.unwrap_or(1)),
+            Cost::Perform(program) => {
+                return self.resolve_action_payment(
+                    *program,
+                    object,
+                    context,
+                    scoped,
+                    times.unwrap_or(1),
+                );
+            }
             Cost::All(costs) => (costs, times),
             Cost::Parameter => (
                 scoped

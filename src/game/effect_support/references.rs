@@ -126,7 +126,7 @@ impl Game {
                 .unwrap_or(u16::MAX)
         };
         match cost {
-            Cost::Perform(program) => self.resolve_action_payment(program, object, context, scoped, 1),
+            Cost::Perform(program) => self.resolve_action_payment(*program, object, context, scoped, 1),
             Cost::All(costs) => self.resolved_effect_costs(costs, object, context, scoped),
             Cost::Parameter | Cost::Repeated { .. } | Cost::Choice(_) => {
                 self.resolved_program_cost(cost, object, context, scoped, None, None)

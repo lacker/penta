@@ -1492,10 +1492,8 @@ pub(in crate::card::sets) static KULDOTHA_RINGLEADER: CardRecord = CardRecord::n
     "Kuldotha Ringleader",
     "3cda5434-c0a5-4551-8e30-b1923f0001b8",
     "Greg Staples",
-    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Berserker"], 4, 4).with_abilities(&[
-        battle_cry(),
-        abilities::attacks_each_combat_if_able(),
-    ]),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Berserker"], 4, 4)
+        .with_abilities(&[battle_cry(), abilities::attacks_each_combat_if_able()]),
 );
 
 // MBS 71 — Metallic Mastery

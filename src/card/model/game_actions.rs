@@ -15,11 +15,22 @@ pub mod actions;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum GameActionDef {
+    /// Choose one fully executable alternative before doing any of its work.
+    Choice(&'static [GameActionDef]),
+    /// Semantic identity travels with the action, not its cost/effect wrapper.
+    Named {
+        mechanic: super::MechanicId,
+        action: &'static GameActionDef,
+    },
     Choose(GameActionChoiceDef),
     Sequence(&'static [GameActionDef]),
     /// Discard the named cards, preserving discard events and replacements.
     DiscardCards {
         object: EffectRecipientDef,
+    },
+    Exile {
+        object: EffectRecipientDef,
+        from: ZoneKind,
     },
     /// Each named permanent is sacrificed by its controller.
     Sacrifice {
@@ -57,7 +68,108 @@ pub struct GameActionChoiceDef {
 }
 
 impl GameActionDef {
-    /// Require this program as a complete resolving payment obligation.
+    /// Completion-aware leaves; other named programs must gain completion
+    /// support before their identity can be advertised as observable.
+    pub(crate) fn named_program_supported(self) -> bool {
+        let leaf = match self.unnamed() {
+            Self::Choice(actions) => {
+                return !actions.is_empty()
+                    && actions.iter().all(|action| {
+                        !matches!(action, Self::Named { .. }) && action.named_program_supported()
+                    });
+            }
+            Self::Choose(choice) => *choice.then,
+            action => action,
+        };
+        matches!(
+            leaf,
+            Self::Sacrifice { .. }
+                | Self::SacrificeYours { .. }
+                | Self::Exile {
+                    from: ZoneKind::Graveyard,
+                    ..
+                }
+        )
+    }
+
+    pub(crate) fn public_alternative_supported(self) -> bool {
+        self.payment_choice().is_some_and(|choice| {
+            choice.visibility == ChoiceVisibilityDef::Public
+                && !matches!(*choice.then, Self::DiscardCards { .. })
+        })
+    }
+
+    /// Casting currently records objects, not branch IDs. Accept only fixed
+    /// selections and alternatives whose disjoint zones identify the branch.
+    pub(crate) fn spell_payment_supported(self) -> bool {
+        if let Self::Choice(actions) = self.unnamed() {
+            return !actions.is_empty()
+                && actions.iter().enumerate().all(|(index, action)| {
+                    action.spell_payment_supported()
+                        && actions[..index].iter().all(|other| {
+                            matches!(
+                                (
+                                    action.selected_action().unnamed(),
+                                    other.selected_action().unnamed()
+                                ),
+                                (
+                                    Self::Exile { .. },
+                                    Self::Sacrifice { .. } | Self::SacrificeYours { .. }
+                                ) | (
+                                    Self::Sacrifice { .. } | Self::SacrificeYours { .. },
+                                    Self::Exile { .. }
+                                )
+                            )
+                        })
+                });
+        }
+        self.public_alternative_supported() && self.payment_choice().is_some_and(|choice| {
+            matches!(choice.amount, ValueDef::Constant(amount) if amount > 0 && amount <= i32::from(u16::MAX))
+                && matches!(*choice.then, Self::Exile { from: ZoneKind::Graveyard, .. } | Self::Sacrifice { .. } | Self::SacrificeYours { .. })
+        })
+    }
+
+    /// Attach a mechanic identity to this action, independent of its wrapper.
+    #[must_use]
+    pub const fn named(&'static self, mechanic: super::MechanicId) -> Self {
+        Self::Named {
+            mechanic,
+            action: self,
+        }
+    }
+
+    pub(crate) const fn nested_action(self, action: &'static Self) -> Self {
+        match self {
+            Self::Named { mechanic, .. } => Self::Named { mechanic, action },
+            _ => *action,
+        }
+    }
+
+    pub(crate) const fn selected_action(self) -> Self {
+        match self.unnamed() {
+            Self::Choose(choice) => self.nested_action(choice.then),
+            _ => self,
+        }
+    }
+
+    pub(crate) fn alternatives(self) -> Vec<Self> {
+        match self.unnamed() {
+            Self::Choice(actions) => actions
+                .iter()
+                .map(|action| self.nested_action(action))
+                .collect(),
+            _ => vec![self],
+        }
+    }
+
+    pub(crate) const fn unnamed(self) -> Self {
+        match self {
+            Self::Named { action, .. } => *action,
+            action => action,
+        }
+    }
+
+    /// Require this program as a complete payment obligation.
     ///
     /// The surrounding payment procedure still validates which program shapes
     /// it can plan. Static card declarations can call this directly on an inline
@@ -132,7 +244,10 @@ impl GameActionDef {
     /// Reject arbitrary branching, hidden-information-dependent planning, and
     /// unresolved external bindings before advertising a payable program.
     pub(crate) fn payment_choice(self) -> Option<GameActionChoiceDef> {
-        let Self::Choose(choice) = self else {
+        if matches!(self, Self::Named { .. }) && !self.named_program_supported() {
+            return None;
+        }
+        let Self::Choose(choice) = self.unnamed() else {
             return None;
         };
         if choice.chooser != PlayerRefDef::EffectController {
@@ -145,6 +260,12 @@ impl GameActionDef {
         let you = PlayerSetDef::Related(PlayerRelation::You);
         let not_you = PlayerSetDef::Related(PlayerRelation::NotYou);
         let expected = match *choice.then {
+            Self::Exile {
+                object,
+                from: ZoneKind::Graveyard,
+            } if object == bound => {
+                ObjectQueryDef::owned_by(query.object, &[ZoneKind::Graveyard], you)
+            }
             Self::DiscardCards { object } if object == bound => {
                 ObjectQueryDef::owned_by(query.object, &[ZoneKind::Hand], you)
             }
@@ -164,7 +285,16 @@ impl GameActionDef {
     }
 
     pub(crate) fn payment_program_supported(self) -> bool {
-        match self {
+        if matches!(self, Self::Named { .. }) && !self.named_program_supported() {
+            return false;
+        }
+        match self.unnamed() {
+            Self::Choice(actions) => {
+                !actions.is_empty()
+                    && actions
+                        .iter()
+                        .all(|action| action.public_alternative_supported())
+            }
             Self::Sequence(actions) => {
                 !actions.is_empty()
                     && actions

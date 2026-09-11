@@ -289,8 +289,16 @@ impl Game {
     /// published before anything moves, so what was sacrificed is still on
     /// the battlefield to be read.
     pub(super) fn sacrifice_permanents(&mut self, ids: &[GameObjectId]) {
+        self.sacrifice_permanents_then(ids, None);
+    }
+
+    pub(super) fn sacrifice_permanents_then(
+        &mut self,
+        ids: &[GameObjectId],
+        then: Option<BattlefieldExitCompletion>,
+    ) {
         self.capture_sacrifices(ids);
-        self.move_permanents_to_graveyard(ids);
+        self.move_permanents_to_graveyard_then(ids, then);
     }
 
     /// The event half on its own, for the sacrifices whose move carries a

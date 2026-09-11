@@ -68,11 +68,12 @@ the bot-wire epoch.
   the protocol epoch and checkpoint format are unchanged.
 - Restore narrow ownership of set mechanics and card-local effect compositions.
   Mechanic identities are numeric, with constants defined beside their owners.
-  Forage composes named ordinary object costs; its linear selection window and
+  Forage labels a shared game-action program, consumed by both effect and cost
+  wrappers. Its linear selection window and
   replacement-aware completion are shared infrastructure rather than a core
   forage operation. Endurance composes collection ordering and movement.
-- Checkpoint format 16 replaces forage-specific decisions with authored named
-  cost selections and encodes numeric mechanic identities as hexadecimal text.
+- Checkpoint format 16 replaces forage-specific decisions with authored game-action
+  selections and encodes numeric mechanic identities as hexadecimal text.
   Require `reconstruction.checkpoint.v16` and a matching simulation fingerprint;
   ordinary bot protocol and replay versions are unchanged.
 - Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.

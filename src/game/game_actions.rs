@@ -1,13 +1,15 @@
 //! Shared action execution. Payment planning and ordinary resolution enter
 //! these same operations after applying their own selection requirements.
+mod choices;
 pub(super) mod payments;
 
 use super::{
-    EffectResolutionContext, Game, GameObjectId, PlayerId, ScopedEffect, StackObject, Target,
-    ZoneMoveCause,
+    BattlefieldExitCompletion, CommittedTriggerEvent, EffectResolutionContext, Game, GameObjectId,
+    PlayerId, ScopedEffect, StackObject, Target, ZoneMoveCause,
 };
 use crate::card::{
-    ChooseDef, EffectDef, GameActionChoiceDef, GameActionDef, ObjectChoiceBindingDef,
+    ChooseDef, EffectDef, GameActionChoiceDef, GameActionDef, MechanicId, ObjectChoiceBindingDef,
+    ZoneKind,
 };
 
 impl Game {
@@ -18,7 +20,15 @@ impl Game {
         context: EffectResolutionContext,
         scoped: ScopedEffect,
     ) {
-        match action {
+        match action.unnamed() {
+            GameActionDef::Choice(_) => {
+                let choices = action
+                    .alternatives()
+                    .into_iter()
+                    .map(|action| self.resolve_action_payment(action, object, &context, scoped, 1))
+                    .collect();
+                self.queue_action_choice(object.controller, choices, None, scoped, object, context);
+            }
             GameActionDef::Sequence(actions) => self.resolve_effects_in_order(
                 actions
                     .iter()
@@ -34,23 +44,26 @@ impl Game {
                 let definition = self.fixed_game_action_choice(choice, object, &context, scoped);
                 self.queue_effect_choice_with_continuation(
                     definition,
-                    EffectDef::Perform(*choice.then),
+                    EffectDef::Perform(action.selected_action()),
                     object,
                     context,
                     scoped,
                 );
             }
-            action => {
+            leaf => {
                 let (GameActionDef::DiscardCards { object: recipient }
                 | GameActionDef::Sacrifice { object: recipient }
                 | GameActionDef::SacrificeYours { object: recipient }
+                | GameActionDef::Exile {
+                    object: recipient, ..
+                }
                 | GameActionDef::GainControl {
                     object: recipient, ..
-                }) = action
+                }) = leaf
                 else {
                     unreachable!("composite actions were handled above")
                 };
-                let receiver = if let GameActionDef::GainControl { controller, .. } = action {
+                let receiver = if let GameActionDef::GainControl { controller, .. } = leaf {
                     let Some(player) =
                         self.effect_player_reference(controller, object, &context, scoped)
                     else {
@@ -107,7 +120,64 @@ impl Game {
         receiver: PlayerId,
         source: GameObjectId,
     ) {
-        match action {
+        self.perform_selected_game_action_then(action, targets, performer, receiver, source, None);
+    }
+
+    pub(in crate::game) fn capture_mechanic(&mut self, mechanic: MechanicId, player: PlayerId) {
+        self.capture_battlefield_triggers(&CommittedTriggerEvent::MechanicPerformed {
+            mechanic,
+            player,
+        });
+    }
+
+    /// The action owns semantic events; callers supply only their continuation.
+    /// Replaced sacrifices are still sacrifices, so completion waits for the
+    /// shared battlefield-exit procedure rather than testing the final zone.
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn perform_selected_game_action_then(
+        &mut self,
+        action: GameActionDef,
+        targets: &[Target],
+        performer: PlayerId,
+        receiver: PlayerId,
+        source: GameObjectId,
+        then: Option<BattlefieldExitCompletion>,
+    ) -> Vec<GameObjectId> {
+        let completion = if let GameActionDef::Named { mechanic, .. } = action {
+            Some(BattlefieldExitCompletion::Completions(
+                std::iter::once(BattlefieldExitCompletion::MechanicPerformed {
+                    mechanic,
+                    player: performer,
+                })
+                .chain(then)
+                .collect(),
+            ))
+        } else {
+            then
+        };
+        let mut exiled = Vec::new();
+        match action.unnamed() {
+            GameActionDef::Exile {
+                from: ZoneKind::Graveyard,
+                ..
+            } => {
+                for player in [self.active_player, self.active_player.opponent()] {
+                    let cards = targets
+                        .iter()
+                        .filter_map(|target| {
+                            let Target::Card(id) = target else {
+                                return None;
+                            };
+                            self.players[player.index()]
+                                .graveyard
+                                .iter()
+                                .any(|card| card.id == *id)
+                                .then_some(*id)
+                        })
+                        .collect::<Vec<_>>();
+                    exiled.extend(self.exile_graveyard_cards(player, &cards));
+                }
+            }
             GameActionDef::DiscardCards { .. } => {
                 let cause = ZoneMoveCause::Effect {
                     controller: performer,
@@ -130,7 +200,7 @@ impl Game {
                 }
             }
             GameActionDef::Sacrifice { .. } | GameActionDef::SacrificeYours { .. } => {
-                let yours = matches!(action, GameActionDef::SacrificeYours { .. });
+                let yours = matches!(action.unnamed(), GameActionDef::SacrificeYours { .. });
                 let permanents = targets
                     .iter()
                     .filter_map(|target| {
@@ -143,16 +213,24 @@ impl Game {
                         .then_some(*id)
                     })
                     .collect::<Vec<_>>();
-                self.sacrifice_permanents(&permanents);
+                self.sacrifice_permanents_then(&permanents, completion);
+                return exiled;
             }
             GameActionDef::GainControl { duration, .. } => {
                 self.take_control_of_targets(targets, source, duration, receiver);
             }
             GameActionDef::MoveToZone { .. }
             | GameActionDef::Choose(_)
-            | GameActionDef::Sequence(_) => {
+            | GameActionDef::Sequence(_)
+            | GameActionDef::Choice(_)
+            | GameActionDef::Named { .. }
+            | GameActionDef::Exile { .. } => {
                 unreachable!("selection commits only action leaves")
             }
         }
+        if let Some(completion) = completion {
+            self.resume_battlefield_exit_completion(completion, &[]);
+        }
+        exiled
     }
 }

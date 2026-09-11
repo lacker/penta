@@ -61,7 +61,7 @@ impl Game {
                     .into_iter()
                     .collect()
             }
-            CostDef::Named { .. } => self.spell_named_cost_payments(cost, card, player),
+            CostDef::Perform(program) => self.spell_action_cost_payments(program, card, player),
             CostDef::Choice(costs) => costs
                 .iter()
                 .flat_map(|cost| {
@@ -98,37 +98,40 @@ impl Game {
         }
     }
 
-    fn spell_named_cost_payments(
+    fn spell_action_cost_payments(
         &self,
-        named: CostDef,
+        program: &'static crate::card::GameActionDef,
         card: &CardInstance,
         player: PlayerId,
     ) -> Vec<SpellAdditionalCostPayment> {
-        let CostDef::Named { mechanic, .. } = named else {
+        if !program.spell_payment_supported() {
             return Vec::new();
-        };
-        named
-            .named_choices()
-            .unwrap_or_default()
-            .iter()
-            .flat_map(|cost| {
-                let (_, _, count) = cost
-                    .named_object_selection()
-                    .expect("validated named branch");
+        }
+        program
+            .alternatives()
+            .into_iter()
+            .flat_map(|action| {
+                let payment = self.cast_action_payment(action, card, player);
                 let candidates = self
-                    .named_cost_candidates(player, *cost, card.id)
+                    .action_payment_candidates(player, &payment)
                     .into_iter()
-                    .filter(|id| *id != card.id)
+                    .filter_map(|target| match target {
+                        crate::Target::Card(id) | crate::Target::Permanent(id) if id != card.id => {
+                            Some(id)
+                        }
+                        _ => None,
+                    })
                     .collect::<Vec<_>>();
-                Self::object_combinations(&candidates, usize::from(count))
+                Self::object_combinations(&candidates, usize::from(payment.amount))
                     .into_iter()
-                    .map(move |objects| SpellAdditionalCostPayment {
+                    .map(|objects| SpellAdditionalCostPayment {
                         objects: objects
                             .into_iter()
-                            .map(|id| (id, CostDef::Named { mechanic, cost }))
+                            .map(|id| (id, CostDef::Perform(program)))
                             .collect(),
                         ..SpellAdditionalCostPayment::free()
                     })
+                    .collect::<Vec<_>>()
             })
             .collect()
     }

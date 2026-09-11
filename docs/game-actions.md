@@ -2,7 +2,7 @@
 
 `GameActionDef` describes selecting objects and changing game state.
 `EffectDef::Perform` executes the program during resolution;
-`CostDef::Perform` asks the resolving payment planner to satisfy it as an
+`CostDef::Perform` asks the payment planner to satisfy it as an
 obligation. The wrapper determines the execution contract. The action retains
 its rules identity, including discard and sacrifice events, last-known
 information, and replacement handling.
@@ -53,7 +53,8 @@ value. Outside constant evaluation, `as_cost()` requires an existing static
 program or an explicit `const { ... }` expression. The stored wrappers and
 payment validation are unchanged.
 
-`choose_discard(n)`, `choose_sacrifice(n)`, and `choose_gain_control(n)` supply
+`choose_discard(n)`, `choose_sacrifice(n)`, `choose_exile_from_graveyard(n)`, and
+`choose_gain_control(n)` supply
 the ordinary candidate zones, player relations, visibility, and binding.
 `matching(predicate)` replaces the candidate query's predicate while retaining
 its ownership and control constraints. `with_amount(value)` accepts computed
@@ -104,7 +105,8 @@ not require a new semantic action constructor.
 `Choose(GameActionChoiceDef)` contains the chooser, candidate query, count,
 visibility, binding, and action to perform on that binding. `Sequence` composes
 actions in order. The initial semantic operations are `DiscardCards`,
-`Sacrifice`, `SacrificeYours`, `GainControl`, and `MoveToZone`. The two sacrifice forms state
+`Sacrifice`, `SacrificeYours`, `Exile`, `GainControl`, and `MoveToZone`. The two
+sacrifice forms state
 who must sacrifice: each object's controller, or the executing player.
 Neither lowers to a generic zone move.
 
@@ -135,26 +137,22 @@ sequence finishes each action's replacement work before its next action.
 
 ## Initial payment boundary
 
-Named fixed object-cost alternatives use the additional
-[linear selection adapter](effect-programs.md#identities-and-named-actions).
-That adapter serves resolving payments and casting without adding mechanic
-identities to the shared action dispatcher.
+`GameActionDef::Named` attaches a numeric `MechanicId` to a program before
+either wrapper is chosen. `actions::choice(&[...])` requires one fully executable
+alternative; unlike an ordinary `Choose` effect, an alternative is not partially
+performed. Forage is the [reference use case](effect-programs.md#identities-and-named-actions).
 
-The resolving planner accepts independent exact selections from the payer's
-hand for discard, their battlefield permanents for sacrifice, and permanents
-they do not control for gaining control. A selection must feed its own bound
-group directly into the corresponding action. Counts use existing value
-expressions, evaluated when the offer is created; `CostDef::Repeated` scales
-the obligation. Sequences reserve distinct objects across their components
-using the existing complete-list planner.
+Public alternatives use branch selection followed by an exact object selection.
+Mixed bundles and repeated action obligations use the existing complete-list
+planner, with shared reservations and no object reuse. A payment-purpose label
+can coexist with an action's mechanic identity.
 
-The catalog rejects unsupported action payment shapes. This does not add
-arbitrary branching, dependent selections that require earlier actions to
-create candidates, or choices between non-scalar cost programs. Casting and
-activation retain their existing supported cost shapes and specialized
-variants. Higher-level discard and sacrifice effects carrying random choices
-or outcome-dependent continuations also remain. Further migrations can lower
-those front ends to the same semantic operations.
+The catalog rejects unsupported action payment shapes: dependent selections that
+need earlier mutations to create candidates, private branch offers, and arbitrary
+nested programs. Casting additionally accepts fixed public sacrifice and
+graveyard-exile action selections, with zone-distinguishable alternatives.
+Activation retains its existing supported cost forms. Higher-level effects
+carrying random choices or outcome-dependent continuations also remain.
 
 Herald of Leshrac supplies a gain-control action as its cumulative-upkeep cost.
 Its separate leave-the-battlefield trigger returns every applicable land to
@@ -164,18 +162,20 @@ Polar Kraken, and Phyrexian Soulgorger exercise discard and sacrifice payments.
 
 ## Traversal and reconstruction
 
-`child_effects` exposes action sequences, selected-action bodies, and action
+`child_effects` exposes action sequences, alternatives, named selected-action bodies, and action
 costs beneath `PayOr` and `WithCosts`. Validators and semantic checkpoint
 locators can therefore reach the original authored program. Suspended
 execution retains the lexical cost parameter and original ability. An action
 payment's checkpoint records its frozen source and quantity; its program is
 recovered from that ability rather than serialized as executable code.
 
-The additive action-payment tag and resolving-control timestamp remain within
-checkpoint format 15. Reconstruction still requires the simulation fingerprint.
-Existing unavailable states, including battlefield-exit replacement decisions,
-remain explicitly deferred. Bot-wire and replay versions are unchanged. The
-prepared engine uses its existing reference fallback for these programs.
+Checkpoint format 16 replaces the former forage-specific continuation with
+authored action-choice state and numeric mechanic identities. Reconstruction
+requires the matching simulation fingerprint. Replacement continuations retain
+the action completion independently of payment completion. Bot-wire and replay
+versions are unchanged. The prepared engine uses its existing reference fallback
+for these programs. Unsupported battlefield-exit completion graphs still mark
+checkpoints as deferred instead of reconstructing an approximate game.
 
 See [named mechanic programs](composed-mechanics.md) for payment provenance and
 lexical cost parameters, and [implementing cards](implementing-cards.md) for

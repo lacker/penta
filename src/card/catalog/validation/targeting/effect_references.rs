@@ -102,6 +102,8 @@ fn validate_effect_references(
                 "WithZoneMoveResult must expose a moved-object binding consumed by their continuation",
             )
         }
+        EffectDef::Perform(GameActionDef::Named { action, .. }) => validate_effect_references(EffectDef::Perform(*action), target_count, scope),
+        EffectDef::Perform(GameActionDef::Choice(effects)) => effects.iter().try_for_each(|effect| validate_effect_references(EffectDef::Perform(*effect), target_count, scope)),
         EffectDef::Perform(GameActionDef::Sequence(effects)) => {
             let mut name_outputs = Vec::new();
             for effect in effects {
@@ -621,6 +623,7 @@ fn validate_effect_references(
         | EffectDef::Destroy { object, then: None, .. }
         | EffectDef::Perform(
             GameActionDef::Sacrifice { object }
+            | GameActionDef::Exile { object, .. }
             | GameActionDef::SacrificeYours { object }
             | GameActionDef::DiscardCards { object }
             | GameActionDef::GainControl { object, .. }

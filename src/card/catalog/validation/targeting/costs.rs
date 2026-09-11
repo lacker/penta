@@ -4,7 +4,6 @@ fn validate_payment_cost_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
-        CostDef::Named { cost, .. } => validate_payment_cost_references(*cost, target_count, scope),
         CostDef::Perform(program) => {
             validate_effect_references(EffectDef::Perform(*program), target_count, scope)
         }
@@ -38,7 +37,6 @@ fn validate_payment_cost_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
-        CostDef::Named { cost, .. } => validate_payment_cost_shape(*cost, targets),
         CostDef::Perform(program) => {
             validate_effect_target_shapes(EffectDef::Perform(*program), targets, None)
         }
@@ -73,7 +71,6 @@ fn validate_program_cost_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
-        CostDef::Named { cost, .. } => validate_program_cost_references(*cost, target_count, scope),
         CostDef::Sacrifice { object, .. }
         | CostDef::Exile { object, .. }
         | CostDef::SacrificePermanents { object, .. } => {
@@ -104,7 +101,6 @@ fn validate_program_cost_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match cost {
-        CostDef::Named { cost, .. } => validate_program_cost_shape(*cost, targets),
         CostDef::Sacrifice { object, .. }
         | CostDef::Exile { object, .. }
         | CostDef::SacrificePermanents { object, .. } => {

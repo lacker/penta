@@ -8,12 +8,26 @@ use super::EffectDef;
 #[allow(clippy::too_many_lines)]
 pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
     match effect {
+        EffectDef::Perform(action @ crate::card::GameActionDef::Named { action: inner, .. }) => {
+            match inner {
+                crate::card::GameActionDef::Choice(_) => action
+                    .alternatives()
+                    .into_iter()
+                    .map(EffectDef::Perform)
+                    .collect(),
+                crate::card::GameActionDef::Choose(_) => {
+                    vec![EffectDef::Perform(action.selected_action())]
+                }
+                _ => vec![EffectDef::Perform(*inner)],
+            }
+        }
         EffectDef::Perform(crate::card::GameActionDef::Choose(choice)) => {
             vec![EffectDef::Perform(*choice.then)]
         }
-        EffectDef::Perform(crate::card::GameActionDef::Sequence(actions)) => {
-            actions.iter().copied().map(EffectDef::Perform).collect()
-        }
+        EffectDef::Perform(
+            crate::card::GameActionDef::Sequence(actions)
+            | crate::card::GameActionDef::Choice(actions),
+        ) => actions.iter().copied().map(EffectDef::Perform).collect(),
         EffectDef::Sequence(effects) => effects.to_vec(),
         EffectDef::DealDamage(damage) => damage.continuation().into_iter().copied().collect(),
         EffectDef::Randomized {
@@ -144,6 +158,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Detain { .. }
         | EffectDef::Perform(
             crate::card::GameActionDef::DiscardCards { .. }
+            | crate::card::GameActionDef::Exile { .. }
             | crate::card::GameActionDef::GainControl { .. }
             | crate::card::GameActionDef::Sacrifice { .. }
             | crate::card::GameActionDef::SacrificeYours { .. }

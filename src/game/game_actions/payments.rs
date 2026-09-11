@@ -8,7 +8,7 @@ use crate::card::{EffectRecipientDef, GameActionDef};
 /// quantity and source are captured before the payment decision is offered.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(in crate::game) struct ActionPayment {
-    pub(in crate::game) program: &'static GameActionDef,
+    pub(in crate::game) program: GameActionDef,
     pub(in crate::game) source: GameObjectId,
     pub(in crate::game) amount: u16,
     object: Box<StackObject>,
@@ -17,20 +17,79 @@ pub(in crate::game) struct ActionPayment {
 }
 
 impl Game {
+    pub(in crate::game) fn cast_action_payment(
+        &self,
+        program: GameActionDef,
+        card: &super::super::CardInstance,
+        player: PlayerId,
+    ) -> ActionPayment {
+        let object = StackObject {
+            id: card.id,
+            kind: super::super::StackObjectKind::Spell,
+            card: card.clone().into(),
+            source: None,
+            ability: None,
+            controller: player,
+            signature: None,
+            chosen_permanents: Vec::new(),
+            applied_effects: Vec::new(),
+            text_changes: Vec::new(),
+            colors: None,
+            cast: None,
+            face_down: None,
+            is_copy: false,
+        };
+        let ResolvedEffectPayment::Action(payment) = self.resolve_action_payment(
+            program,
+            &object,
+            &super::super::TriggerContext::empty().into(),
+            ScopedEffect::primary(crate::card::EffectDef::Perform(program)),
+            1,
+        ) else {
+            unreachable!("validated fixed cast action")
+        };
+        *payment
+    }
+
     pub(in crate::game) fn resolve_action_payment(
         &self,
-        program: &'static GameActionDef,
+        program: GameActionDef,
         object: &StackObject,
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
         times: u16,
     ) -> ResolvedEffectPayment {
+        // A repeated named action has one occurrence per repetition. A choice
+        // also belongs to each repetition, so alternatives may be mixed.
+        if times > 1
+            && matches!(
+                program,
+                GameActionDef::Named { .. } | GameActionDef::Choice(_)
+            )
+        {
+            return ResolvedEffectPayment::all(
+                (0..times)
+                    .map(|_| self.resolve_action_payment(program, object, context, scoped, 1))
+                    .collect(),
+            );
+        }
+        if matches!(program.unnamed(), GameActionDef::Choice(_)) {
+            return ResolvedEffectPayment::Choice(
+                program
+                    .alternatives()
+                    .into_iter()
+                    .map(|action| {
+                        self.resolve_action_payment(action, object, context, scoped, times)
+                    })
+                    .collect(),
+            );
+        }
         if let GameActionDef::Sequence(actions) = program {
             return ResolvedEffectPayment::all(
                 actions
                     .iter()
                     .map(|action| {
-                        self.resolve_action_payment(action, object, context, scoped, times)
+                        self.resolve_action_payment(*action, object, context, scoped, times)
                     })
                     .collect(),
             );
@@ -87,12 +146,12 @@ impl Game {
         .collect()
     }
 
-    pub(in crate::game) fn settle_action_payment(
-        &mut self,
+    pub(in crate::game) fn selected_action_payment_targets(
+        &self,
         player: PlayerId,
         payment: &ActionPayment,
         selected: &[GameObjectId],
-    ) -> bool {
+    ) -> Option<Vec<Target>> {
         let candidates = self.action_payment_candidates(player, payment);
         let targets = selected.iter().filter_map(|id| candidates.iter().copied().find(|target| {
             matches!(target, Target::Card(candidate) | Target::Permanent(candidate) if candidate == id)
@@ -104,8 +163,20 @@ impl Game {
                 .enumerate()
                 .any(|(index, id)| selected[..index].contains(id))
         {
-            return false;
+            return None;
         }
+        Some(targets)
+    }
+
+    pub(in crate::game) fn settle_action_payment(
+        &mut self,
+        player: PlayerId,
+        payment: &ActionPayment,
+        selected: &[GameObjectId],
+    ) -> bool {
+        let Some(targets) = self.selected_action_payment_targets(player, payment, selected) else {
+            return false;
+        };
         let choice = payment
             .program
             .payment_choice()
@@ -118,11 +189,9 @@ impl Game {
         context.bind_object_group(choice.binding, targets);
         self.pending_procedures
             .push_back(super::super::PendingProcedure::ResolveEffects {
-                effects: vec![
-                    payment
-                        .scoped
-                        .with_effect(crate::card::EffectDef::Perform(*choice.then)),
-                ],
+                effects: vec![payment.scoped.with_effect(crate::card::EffectDef::Perform(
+                    payment.program.selected_action(),
+                ))],
                 object,
                 context,
             });
@@ -139,6 +208,7 @@ impl ActionPayment {
             .then
         {
             GameActionDef::DiscardCards { .. } => "Discard",
+            GameActionDef::Exile { .. } => "Exile",
             GameActionDef::Sacrifice { .. } | GameActionDef::SacrificeYours { .. } => "Sacrifice",
             GameActionDef::GainControl { .. } => "Gain control of",
             _ => unreachable!("validated action payment leaf"),

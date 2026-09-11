@@ -48,6 +48,12 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
     CardRules::new_land(types).with_abilities(TRIOME_ABILITIES)
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("IKO", "ikoria");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // IKO 137 — Spelleater Wolverine
 pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::new(
     "Spelleater Wolverine",

@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 use crate::card::{AbilityLabel, AbilityPredicateDef, PayOrDef};
 
 const MAINTENANCE: AbilityLabel = AbilityLabel("test maintenance");
@@ -45,7 +46,7 @@ pub(in crate::game) fn staged(abilities: &'static [AbilityDef]) -> (Game, GameOb
     let mut definition = CardDefinition::new(
         definition_id,
         "Composed payment fixture",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         CardRules::new_creature(ManaCost::new(1, 0), &[], 2, 2).with_abilities(abilities),
     );
     synchronize_single_part_definition(&mut definition);

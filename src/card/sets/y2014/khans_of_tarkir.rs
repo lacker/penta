@@ -31,6 +31,12 @@ use crate::card::ZoneMoveCauseDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("KTK", "khans-of-tarkir");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // KTK 3 — Ainok Bond-Kin
 pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
     "Ainok Bond-Kin",

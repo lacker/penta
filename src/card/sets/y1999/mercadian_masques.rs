@@ -69,6 +69,12 @@ use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::card::sets::y1998::portal_second_age as catalog_p02;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MMQ", "mercadian-masques");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MMQ 1 — Afterlife (reprint)
 const AFTERLIFE_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_mir::AFTERLIFE,

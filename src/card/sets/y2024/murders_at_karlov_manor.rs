@@ -54,6 +54,12 @@ const fn surveil_land(types: &'static [&'static str]) -> CardRules {
     CardRules::new_land(types).with_abilities(&SURVEIL_LAND_ABILITIES)
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MKM", "murders-at-karlov-manor");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MKM 29 — Novice Inspector
 pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
     "Novice Inspector",

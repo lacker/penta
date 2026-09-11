@@ -45,6 +45,12 @@ use crate::mana_cost;
 
 const AGE_COUNTERS: ValueDef = ValueDef::CountersOnSource(CounterKind::named("age"));
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("CSP", "coldsnap");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CSP 3 — Cover of Winter
 // Audit: unsupported — Needs one per-source combat-damage prevention budget
 // that can be divided across damage assigned to you and your creatures.

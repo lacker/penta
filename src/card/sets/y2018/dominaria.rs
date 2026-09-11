@@ -41,6 +41,12 @@ use crate::ids::ParentBinding;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("DOM", "dominaria");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // DOM 1 — Karn, Scion of Urza
 /// The opponent chooses which of the two you keep, so what Karn draws is
 /// always the worse half -- and the better one waits in exile for his minus.

@@ -1,6 +1,7 @@
 //! Cards whose printed abilities function while the card is in a graveyard.
 
 use super::*;
+use crate::card::sets;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -193,7 +194,7 @@ fn entering_tapped_is_not_a_separate_tap_event() {
     let mut definition = CardDefinition::new(
         watcher_definition,
         "Tap-event watcher",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =

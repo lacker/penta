@@ -2,6 +2,7 @@
 //! object payments, counters, and a separately granted flashback cost.
 
 use super::*;
+use crate::card::sets;
 use crate::card::{BasicLandType, CostDef, CostQuantityDef};
 
 fn constant_mists_casts(game: &Game, spell: GameObjectId) -> Vec<Action> {
@@ -533,7 +534,7 @@ fn modal_spell_freezes_bought_back_hand_destination() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Modal Buyback Test",
-        CardSet::FutureSight,
+        sets::future_sight::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
@@ -619,7 +620,7 @@ fn effectful_overload_freezes_bought_back_hand_destination() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Overload Buyback Test",
-        CardSet::ReturnToRavnica,
+        sets::return_to_ravnica::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
@@ -707,7 +708,7 @@ fn mandatory_return_cost_and_buyback_sacrifice_keep_distinct_actions() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Mixed Spend Buyback Test",
-        CardSet::FutureSight,
+        sets::future_sight::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);

@@ -23,6 +23,12 @@ use crate::card::CostDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MOR", "morningtide");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MOR 31 — Disperse
 pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new(
     "Disperse",

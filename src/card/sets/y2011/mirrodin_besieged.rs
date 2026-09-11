@@ -65,6 +65,12 @@ use crate::card::sets::y2010::scars_of_mirrodin::METALCRAFT;
 use crate::card::sets::y2010::scars_of_mirrodin::metalcraft_value;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MBS", "mirrodin-besieged");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MBS 1 — Accorder Paladin
 pub(in crate::card::sets) static ACCORDER_PALADIN: CardRecord = CardRecord::new(
     "Accorder Paladin",

@@ -50,6 +50,12 @@ use crate::card::abilities;
 use crate::card::tokens;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("LTR", "lord-of-the-rings");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // LTR 0 — The One Ring (alternate printing)
 const THE_ONE_RING_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
     &THE_ONE_RING,

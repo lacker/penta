@@ -12,6 +12,13 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("MOC", "march-of-the-machine-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MOC 30 — Death-Greeter's Champion
 /// What backup lends, and what the Champion has printed on it either way: a
 /// creature backing itself up gets the counter and nothing else, because

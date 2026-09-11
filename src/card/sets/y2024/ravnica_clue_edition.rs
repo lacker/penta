@@ -34,6 +34,12 @@ use crate::card::abilities;
 use crate::card::tokens;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("CLU", "ravnica-clue-edition");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CLU 4 — Headliner Scarlett
 pub(in crate::card::sets) static HEADLINER_SCARLETT: CardRecord = CardRecord::new(
     "Headliner Scarlett",

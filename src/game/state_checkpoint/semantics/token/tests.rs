@@ -1,5 +1,6 @@
 use super::*;
-use crate::card::{AbilityDef, CardDefinition, CardRules, CardSet};
+use crate::card::sets;
+use crate::card::{AbilityDef, CardDefinition, CardRules};
 use crate::game::state_checkpoint::model::AbilityLocator;
 use crate::{CardCatalog, CardDefinitionId, CardPartId};
 
@@ -27,7 +28,7 @@ fn token_owned_abilities_can_locate_tokens_they_create() {
     let mut definition = CardDefinition::new(
         CardDefinitionId::new(1),
         "Nested Token Creator",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     let rules = CardRules::unsupported().with_abilities(&CREATOR_ABILITIES);

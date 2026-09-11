@@ -61,6 +61,12 @@ const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) ->
     ))
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ONS", "onslaught");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ONS 1 — Akroma's Blessing
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AKROMA_S_BLESSING: CardRecord = CardRecord::new(

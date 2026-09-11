@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn naming_choices_show_opponents_only_a_pending_notice_and_the_final_name() {
@@ -212,7 +213,7 @@ fn cavern_choices_ignore_noncreature_subtypes_on_creature_cards() {
     let mut equipment_creature = CardDefinition::new(
         definition_id,
         "Test equipment creature",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     equipment_creature.rules =

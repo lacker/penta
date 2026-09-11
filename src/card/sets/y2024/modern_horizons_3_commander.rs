@@ -35,6 +35,13 @@ use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("M3C", "modern-horizons-3-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // M3C 4 — Ulalek, Fused Atrocity
 // Audit: unsupported — Needs grouped copying of every controlled spell and nonmana stack ability with independent target reselection.
 pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(

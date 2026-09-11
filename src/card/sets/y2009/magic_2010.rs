@@ -34,6 +34,12 @@ use crate::card::CostDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("M10", "magic-2010");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // M10 2 — Angel's Mercy
 pub(in crate::card::sets) static ANGELS_MERCY: CardRecord = CardRecord::new(
     "Angel's Mercy",

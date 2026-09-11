@@ -121,6 +121,12 @@ static SOURCE_IS_EQUIPPED: TriggerConditionDef = TriggerConditionDef::ObjectCoun
     amount: 1,
 };
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("SOM", "scars-of-mirrodin");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // SOM 1 — Abuna Acolyte
 pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
     "Abuna Acolyte",

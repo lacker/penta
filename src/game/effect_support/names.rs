@@ -70,7 +70,7 @@ impl Game {
             self.catalog
                 .definitions()
                 .into_iter()
-                .filter(|definition| definition.debut_set != CardSet::Token)
+                .filter(|definition| definition.debut_set != CardSet::TOKEN)
                 .flat_map(|definition| definition.parts.iter())
                 .filter(|part| matches(&part.rules))
                 .map(|part| part.name.clone())

@@ -79,7 +79,7 @@ fn catalog_validation_follows_nested_token_and_grant_continuations() {
     }
 
     for effect in continuation_effects(&CREATE) {
-        let mut creator = definition(1, "Token Creator", CardSet::Alpha);
+        let mut creator = definition(1, "Token Creator", sets::alpha::SET);
         let rules = creator.rules.with_ability(AbilityDef::activated(
             "Resolve a continuation that creates a token.",
             &[],

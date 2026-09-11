@@ -44,6 +44,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("APC", "apocalypse");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // APC 1 — Angelfire Crusader
 pub(in crate::card::sets) static ANGELFIRE_CRUSADER: CardRecord = CardRecord::new(
     "Angelfire Crusader",

@@ -8,6 +8,12 @@ use crate::card::EffectDef;
 use crate::card::sets::y1997::visions as catalog_vis;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("PTK", "portal-three-kingdoms");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // PTK 78 — Imperial Seal
 pub(in crate::card::sets) static IMPERIAL_SEAL: CardRecord = CardRecord::new(
     "Imperial Seal",

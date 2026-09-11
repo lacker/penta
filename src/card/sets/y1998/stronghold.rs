@@ -69,6 +69,12 @@ static TRANSFER_SPIKE_COUNTER: AbilityDef = AbilityDef::activated_with_targets(
     },
 );
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("STH", "stronghold");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // STH 1 — Bandage
 pub(in crate::card::sets) static BANDAGE: CardRecord = CardRecord::new(
     "Bandage",

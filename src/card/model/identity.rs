@@ -2,193 +2,49 @@ use crate::ids::{CardDefinitionId, CardPartId, MeldRecipeId, PlayOptionId};
 
 use super::{CardRules, ManaCost};
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum CardSet {
-    Alpha,
-    Beta,
-    Unlimited,
-    CollectorsEdition,
-    InternationalCollectorsEdition,
-    ArabianNights,
-    Antiquities,
-    Revised,
-    Legends,
-    TheDark,
-    FallenEmpires,
-    DragonCon,
-    HarperPrismBookPromos,
-    FourthEdition,
-    IceAge,
-    Chronicles,
-    Homelands,
-    Alliances,
-    Mirage,
-    Portal,
-    Visions,
-    FifthEdition,
-    Weatherlight,
-    Tempest,
-    Stronghold,
-    Exodus,
-    PortalSecondAge,
-    UrzasSaga,
-    UrzasLegacy,
-    ClassicSixthEdition,
-    UrzasDestiny,
-    MercadianMasques,
-    Starter1999,
-    Nemesis,
-    Prophecy,
-    Invasion,
-    Planeshift,
-    SeventhEdition,
-    Apocalypse,
-    Odyssey,
-    Torment,
-    Judgment,
-    Onslaught,
-    Legions,
-    Scourge,
-    Mirrodin,
-    Darksteel,
-    FifthDawn,
-    ChampionsOfKamigawa,
-    BetrayersOfKamigawa,
-    MirrodinBesieged,
-    NewPhyrexia,
-    PlanarChaos,
-    FutureSight,
-    Lorwyn,
-    Morningtide,
-    Conflux,
-    Zendikar,
-    Worldwake,
-    WarOfTheSpark,
-    ThroneOfEldraine,
-    TherosBeyondDeath,
-    ZendikarRising,
-    Shadowmoor,
-    Eventide,
-    ShardsOfAlara,
-    Ixalan,
-    Battlebond,
-    ScarsOfMirrodin,
-    Magic2010,
-    Magic2011,
-    Archenemy,
-    RiseOfTheEldrazi,
-    Innistrad,
-    DarkAscension,
-    AvacynRestored,
-    Magic2012,
-    Magic2013,
-    ReturnToRavnica,
-    Gatecrash,
-    DragonsMaze,
-    Magic2014,
-    Magic2020,
-    Theros,
-    Planechase2012,
-    Commander2013,
-    JourneyIntoNyx,
-    Conspiracy,
-    Magic2015,
-    Commander2014,
-    KhansOfTarkir,
-    DragonsOfTarkir,
-    Commander2015,
-    ModernHorizons1,
-    Kaldheim,
-    Commander2021,
-    StrixhavenSchoolOfMages,
-    ModernHorizons2,
-    AdventuresInTheForgottenRealms,
-    InnistradMidnightHunt,
-    InnistradCrimsonVow,
-    InnistradCrimsonVowCommander,
-    Ikoria,
-    KamigawaNeonDynasty,
-    KamigawaNeonDynastyCommander,
-    StreetsOfNewCapenna,
-    StreetsOfNewCapennaCommander,
-    CommanderLegendsBattleForBaldursGate,
-    Dominaria,
-    DominariaUnited,
-    TheBrothersWar,
-    EternalMasters,
-    EldritchMoon,
-    ConspiracyTakeTheCrown,
-    Kaladesh,
-    AetherRevolt,
-    Amonkhet,
-    PhyrexiaAllWillBeOne,
-    PhyrexiaAllWillBeOneCommander,
-    MarchOfTheMachine,
-    LordOfTheRings,
-    LordOfTheRingsCommander,
-    WildsOfEldraine,
-    LostCavernsOfIxalan,
-    MurdersAtKarlovManor,
-    RavnicaClueEdition,
-    Fallout,
-    ModernHorizons3,
-    OutlawsOfThunderJunction,
-    TheBigScore,
-    ModernHorizons3Commander,
-    Bloomburrow,
-    BloomburrowCommander,
-    DuskmournHouseOfHorror,
-    DuskmournHouseOfHorrorCommander,
-    FoundationsJumpstart,
-    TarkirDragonstorm,
-    Aetherdrift,
-    FinalFantasy,
-    FinalFantasyCommander,
-    ThroughTheOmenpaths,
-    SaviorsOfKamigawa,
-    RavnicaCityOfGuilds,
-    Guildpact,
-    Dissension,
-    TimeSpiral,
-    AlaraReborn,
-    FateReforged,
-    BattleForZendikar,
-    MagicOrigins,
-    ShadowsOverInnistrad,
-    OathOfTheGatewatch,
-    HourOfDevastation,
-    CoreSet2019,
-    RivalsOfIxalan,
-    RavnicaAllegiance,
-    Commander2020,
-    CoreSet2021,
-    MagicFoundations,
-    MarvelsSpiderMan,
-    AvatarTheLastAirbender,
-    EdgeOfEternities,
-    EdgeOfEternitiesCommander,
-    LorwynEclipsed,
-    SecretsOfStrixhaven,
-    TeenageMutantNinjaTurtles,
-    MarvelSuperHeroes,
-    PortalThreeKingdoms,
-    Coldsnap,
-    BornOfTheGods,
-    Commander2017,
-    Commander2018,
-    CommanderLegends,
-    DominariaUnitedCommander,
-    MarchOfTheMachineCommander,
-    LostCavernsOfIxalanCommander,
-    GuildsOfRavnica,
-    Commander2011,
-    CommanderMasters,
-    DoctorWho,
-    MarvelSuperHeroesCommander,
-    /// Tokens are game objects rather than printed cards. They live in the
-    /// catalog so a client can look one up by definition, and belong to no
-    /// set a format allows, so they are never deck-legal.
-    Token,
+/// Printed set identity with its stable catalog serialization metadata.
+///
+/// Equality and hashing use the official set code, independent of the slug.
+/// Built-in constants live beside their cards in [`crate::card::sets`].
+#[derive(Clone, Copy, Debug)]
+pub struct CardSet {
+    code: &'static str,
+    slug: &'static str,
+}
+
+impl CardSet {
+    /// Sentinel for synthetic catalog definitions, never a deck-legal printed set.
+    pub const TOKEN: Self = Self::new("TOKEN", "token");
+
+    /// Declares a set using its uppercase official code and stable wire slug.
+    #[must_use]
+    pub const fn new(code: &'static str, slug: &'static str) -> Self {
+        Self { code, slug }
+    }
+
+    #[must_use]
+    pub const fn code(self) -> &'static str {
+        self.code
+    }
+
+    #[must_use]
+    pub const fn slug(self) -> &'static str {
+        self.slug
+    }
+}
+
+impl PartialEq for CardSet {
+    fn eq(&self, other: &Self) -> bool {
+        self.code == other.code
+    }
+}
+
+impl Eq for CardSet {}
+
+impl std::hash::Hash for CardSet {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.code.hash(state);
+    }
 }
 
 /// Stable identity of one exact printing of a card.

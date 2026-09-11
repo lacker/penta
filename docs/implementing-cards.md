@@ -257,10 +257,16 @@ will be implemented later:
    with `Card rules have not been implemented.` as its honest initial audit.
 5. Put a new identity in the module for its first English-language paper set
    when possible, otherwise its earliest paper set, using that exact debut
-   printing's UUID and artist. Add a `CardSet`, set module, registry entry, source-code
-   mapping, and catalog JSON code when no modeled set can truthfully own the
-   declaration. Append-only catalog growth does not require a protocol-version
-   bump.
+   printing's UUID and artist. When no modeled set can truthfully own the
+   declaration, add a set module with a `SET` constant declaring its uppercase
+   official code and stable catalog slug, plus a `DEFINITION` joining that set
+   to `CARDS`, `ADDITIONAL_PRINTINGS`, and `file!()`. Declare the module in its
+   release year's `mod.rs` and add its `DEFINITION` to `SET_MODULES` in
+   `src/card/sets/mod.rs`. Set metadata belongs only in the set module;
+   protocol serialization and source audits consume that declaration. Native
+   callers use `card::sets::<module>::SET`. Preserve existing wire slugs when
+   reorganizing sources. Append-only catalog growth does not require a
+   protocol-version bump.
 6. Make `CARDS` exactly mirror declaration order and
    `ADDITIONAL_PRINTINGS` mirror the ordered reprint comments. Run the focused
    source-organization and format-coverage tests, then `make catalog-report`.

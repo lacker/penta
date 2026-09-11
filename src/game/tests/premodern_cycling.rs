@@ -6,6 +6,7 @@
 //! face is untouched by it.
 
 use super::*;
+use crate::card::sets;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -461,7 +462,7 @@ mod channel_is_not_cycling {
         let mut definition = CardDefinition::new(
             definition_id,
             "Cycling and channel test card",
-            CardSet::Magic2014,
+            sets::magic_2014::SET,
             crate::card::CardRules::unsupported(),
         );
         definition.rules =

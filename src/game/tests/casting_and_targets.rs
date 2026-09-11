@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn energy_flux_taxes_every_artifact_and_takes_the_ones_nobody_pays_for() {
@@ -94,7 +95,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Structured Bolt",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =
@@ -249,7 +250,7 @@ fn cost_configuration_visitor_preserves_option_order() {
     let definition = CardDefinition::new(
         CardDefinitionId::new(10_201),
         "Ordered Costs",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     let mut option = PlayOptionDef::cast(

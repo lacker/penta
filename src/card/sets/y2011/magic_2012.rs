@@ -62,6 +62,12 @@ use crate::ids::ParentBinding;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("M12", "magic-2012");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // M12 1 — Aegis Angel
 // Audit: unsupported — Needs a duration that ends when you stop controlling the source, not merely when it leaves the battlefield.
 pub(in crate::card::sets) static AEGIS_ANGEL: CardRecord = CardRecord::new(

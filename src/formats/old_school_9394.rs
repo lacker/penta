@@ -1,5 +1,6 @@
 use super::{FormatRules, SetFormatDefinition};
 use crate::card::CardSet;
+use crate::card::sets;
 
 pub const BANNED_CARDS: &[&str] = &[
     "Bronze Tablet",
@@ -12,17 +13,17 @@ pub const BANNED_CARDS: &[&str] = &[
 ];
 
 pub const ALLOWED_SETS: &[CardSet] = &[
-    CardSet::Alpha,
-    CardSet::Beta,
-    CardSet::Unlimited,
-    CardSet::CollectorsEdition,
-    CardSet::InternationalCollectorsEdition,
-    CardSet::ArabianNights,
-    CardSet::Antiquities,
-    CardSet::Revised,
-    CardSet::Legends,
-    CardSet::TheDark,
-    CardSet::FallenEmpires,
+    sets::alpha::SET,
+    sets::beta::SET,
+    sets::unlimited::SET,
+    sets::collectors_edition::SET,
+    sets::international_collectors_edition::SET,
+    sets::arabian_nights::SET,
+    sets::antiquities::SET,
+    sets::revised::SET,
+    sets::legends::SET,
+    sets::the_dark::SET,
+    sets::fallen_empires::SET,
 ];
 
 /// Promos released in 1994 whose physical promo sets also contain later cards.

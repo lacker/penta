@@ -61,6 +61,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("WTH", "weatherlight");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // WTH 1 — Abeyance
 pub(in crate::card::sets) static ABEYANCE: CardRecord = CardRecord::new(
     "Abeyance",

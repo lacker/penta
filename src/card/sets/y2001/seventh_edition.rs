@@ -32,6 +32,12 @@ use crate::card::sets::y1999::urzas_legacy as catalog_ulg;
 use crate::card::sets::y2000::invasion as catalog_inv;
 use crate::card::sets::y2000::nemesis as catalog_nem;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("7ED", "seventh-edition");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // 7ED 1 — Angelic Page (reprint)
 const ANGELIC_PAGE_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_usg::ANGELIC_PAGE,

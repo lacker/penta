@@ -21,7 +21,6 @@ use crate::card::BlockRestrictionMatchDef;
 use crate::card::BlockRestrictionSubjectDef;
 use crate::card::CardChoiceSourceDef;
 use crate::card::CardRules;
-use crate::card::CardSet;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
@@ -63,6 +62,12 @@ use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
+
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("HML", "homelands");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // HML 1 — Abbey Gargoyles
 pub(in crate::card::sets) static ABBEY_GARGOYLES: CardRecord = CardRecord::new(
@@ -2552,7 +2557,7 @@ CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated(
             effect: &EffectDef::Destroy {
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::DebutSet(CardSet::Homelands),
+                        ObjectPredicateDef::DebutSet(SET),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                     ]),
                     &[ZoneKind::Battlefield],

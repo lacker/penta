@@ -1,5 +1,6 @@
 use super::*;
 use crate::ParentBinding;
+use crate::card::sets;
 
 #[test]
 fn generic_cost_reduction_counts_matching_cards_outside_the_battlefield() {
@@ -107,7 +108,7 @@ fn mana_preview_uses_the_selected_declarative_activated_ability_cost() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Mana preview tap-source test card",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);

@@ -6,7 +6,7 @@ fn static_enchantment(
     let mut definition = CardDefinition::new(
         id,
         name,
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(abilities);

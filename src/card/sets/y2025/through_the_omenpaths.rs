@@ -9,6 +9,12 @@ use crate::card::sets::y2025::marvels_spider_man::SINISTER_HIDEOUT;
 use crate::card::sets::y2025::marvels_spider_man::SUBURBAN_SANCTUARY;
 use crate::card::sets::y2025::marvels_spider_man::UNIVERSITY_CAMPUS;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("OM1", "through-the-omenpaths");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // OM1 181 — Multiversal Passage (reprint)
 const MULTIVERSAL_PASSAGE_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &MULTIVERSAL_PASSAGE,

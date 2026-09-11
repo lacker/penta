@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn trigger_placement_preserves_the_nonactive_players_priority() {
@@ -513,7 +514,7 @@ fn explicitly_tagged_triggered_mana_ability_resolves_without_the_stack() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test triggered mana source",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);

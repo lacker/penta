@@ -30,6 +30,12 @@ use crate::card::tokens;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ALA", "shards-of-alara");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ALA 3 — Angelic Benediction
 pub(in crate::card::sets) static ANGELIC_BENEDICTION: CardRecord = CardRecord::new(
     "Angelic Benediction",

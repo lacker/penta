@@ -57,6 +57,12 @@ use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("JUD", "judgment");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // JUD 1 — Ancestor's Chosen
 pub(in crate::card::sets) static ANCESTOR_S_CHOSEN: CardRecord = CardRecord::new(
     "Ancestor's Chosen",

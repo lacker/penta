@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn earthquake_checks_flying_on_resolution() {
@@ -230,7 +231,7 @@ fn channel_pays_a_true_colorless_symbol_when_the_spell_is_applied() {
     let mut definition = CardDefinition::new(
         definition_id,
         "True colorless Channel test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(mana_cost!("{C}"));
@@ -611,7 +612,7 @@ pub(super) fn game_with_test_fused_split(
     let mut definition = CardDefinition::new(
         definition_id,
         "First Half // Second Half",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = *first;

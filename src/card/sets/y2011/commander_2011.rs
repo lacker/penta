@@ -23,6 +23,12 @@ use crate::card::ValueDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("CMD", "commander-2011");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CMD 170 — Scavenging Ooze
 /// One when the exiled card was a creature, nothing otherwise.
 static EXILED_A_CREATURE: TargetConditionDef = TargetConditionDef {

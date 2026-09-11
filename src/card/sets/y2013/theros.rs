@@ -25,6 +25,12 @@ use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("THS", "theros");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // THS 16 — Gods Willing
 pub(in crate::card::sets) static GODS_WILLING: CardRecord = CardRecord::new(
     "Gods Willing",

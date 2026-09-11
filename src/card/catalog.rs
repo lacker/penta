@@ -1,5 +1,6 @@
 mod error;
 mod name;
+mod set_metadata;
 mod validation;
 
 use std::collections::HashMap;
@@ -120,7 +121,8 @@ impl CardCatalog {
     /// # Errors
     ///
     /// Returns [`CatalogError`] when a definition ID, printing ID, or
-    /// normalized card name is repeated; a printing belongs to another
+    /// normalized card name is repeated; set codes and slugs disagree;
+    /// a printing belongs to another
     /// definition; or structured parts, forms, modes, costs, and target slots
     /// are missing, invalid, or non-positional.
     pub fn new(
@@ -142,8 +144,10 @@ impl CardCatalog {
         printings: impl IntoIterator<Item = CardPrinting>,
     ) -> Result<Self, CatalogError> {
         let mut entries = CatalogEntries::default();
+        let mut set_metadata = set_metadata::SetMetadata::default();
         let mut definition_printings = Vec::new();
         for mut definition in definitions {
+            set_metadata.register(definition.debut_set)?;
             if entries.definition_index(definition.id).is_some() {
                 return Err(CatalogError::DuplicateId(definition.id));
             }
@@ -180,6 +184,7 @@ impl CardCatalog {
             entries.insert_definition(definition);
         }
         for (definition, printing) in definition_printings {
+            set_metadata.register(printing.id.set)?;
             if printing.id.definition != definition {
                 return Err(CatalogError::MismatchedPrintingDefinition {
                     definition,
@@ -189,6 +194,7 @@ impl CardCatalog {
             entries.attach_printing(printing)?;
         }
         for printing in printings {
+            set_metadata.register(printing.id.set)?;
             entries.attach_printing(printing)?;
         }
         entries.sort_definitions_by_id();

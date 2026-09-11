@@ -6,6 +6,7 @@
 //! ability at sorcery speed and simply stays put.
 
 use super::*;
+use crate::card::sets;
 
 const MANA_AND_TAP_ELF_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_090);
 const COUNTER_MANA_ELF_ID: CardDefinitionId = CardDefinitionId::new(10_091);
@@ -54,7 +55,7 @@ fn mana_and_tap_elf_equipment_definition() -> CardDefinition {
     let mut definition = CardDefinition::new(
         MANA_AND_TAP_ELF_EQUIPMENT_ID,
         "Mana and tap-cost Equipment test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default())
@@ -68,7 +69,7 @@ fn counter_mana_elf_definition() -> CardDefinition {
     let mut definition = CardDefinition::new(
         COUNTER_MANA_ELF_ID,
         "Counter mana Elf test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature(ManaCost::default(), &["Elf"], 1, 1)
@@ -81,7 +82,7 @@ fn count_one_source_equipment_definition() -> CardDefinition {
     let mut definition = CardDefinition::new(
         COUNT_ONE_SOURCE_EQUIPMENT_ID,
         "Count-one source Equipment test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default())

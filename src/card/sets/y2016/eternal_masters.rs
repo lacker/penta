@@ -3,6 +3,12 @@
 use super::CardRecord;
 use super::PrintingRecord;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("EMA", "eternal-masters");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // EMA 6 — Coalition Honor Guard (reprint)
 const COALITION_HONOR_GUARD_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2001::apocalypse::COALITION_HONOR_GUARD,

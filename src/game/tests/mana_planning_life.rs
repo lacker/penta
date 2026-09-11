@@ -1,6 +1,7 @@
 //! Joint life-budget and exact mana-source planning regressions.
 
 use super::*;
+use crate::card::sets;
 
 fn plan_mana_sources(
     game: &Game,
@@ -86,7 +87,7 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
     let mut pain_definition = CardDefinition::new(
         pain_definition_id,
         "White pain source test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     pain_definition.rules = CardRules::new_land(&[]).with_abilities(&PAIN_ABILITIES);
@@ -179,7 +180,7 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
         let mut definition = CardDefinition::new(
             id,
             name,
-            CardSet::Magic2014,
+            sets::magic_2014::SET,
             crate::card::CardRules::unsupported(),
         );
         definition.rules = CardRules::new_land(&[]).with_abilities(abilities);

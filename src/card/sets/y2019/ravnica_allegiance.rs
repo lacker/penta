@@ -36,6 +36,12 @@ static SPHINX_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
     abilities::scry(ValueDef::Constant(3)),
 );
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("RNA", "ravnica-allegiance");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // RNA 55 — Sphinx of Foresight
 pub(in crate::card::sets) static SPHINX_OF_FORESIGHT: CardRecord = CardRecord::new(
     "Sphinx of Foresight",

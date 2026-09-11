@@ -42,6 +42,12 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("LGN", "legions");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // LGN 1 — Akroma, Angel of Wrath
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AKROMA_ANGEL_OF_WRATH: CardRecord = CardRecord::new(

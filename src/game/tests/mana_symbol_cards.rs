@@ -1,6 +1,7 @@
 //! Printed cards that exercise flexible mana symbols and the untap symbol.
 
 use super::*;
+use crate::card::sets;
 use crate::{FlexibleManaSymbol, TokenCharacteristics};
 
 static TAMIYOS_NOTEBOOK_ABILITIES: &[AbilityDef] = &[
@@ -48,7 +49,7 @@ fn assert_flexible_card_printings(catalog: &CardCatalog) {
         (
             cards::GUT_SHOT,
             "Gut Shot",
-            CardSet::NewPhyrexia,
+            sets::new_phyrexia::SET,
             mana_cost!("{R/P}"),
             "a54a2a30-b96a-49c7-9151-1f4b0d4a4413",
             "Greg Staples",
@@ -56,7 +57,7 @@ fn assert_flexible_card_printings(catalog: &CardCatalog) {
         (
             cards::BESEECH_THE_QUEEN,
             "Beseech the Queen",
-            CardSet::Shadowmoor,
+            sets::shadowmoor::SET,
             mana_cost!("{2/B}{2/B}{2/B}"),
             "64ee0a93-0f6d-42be-bdca-1de5422d8d54",
             "Jason Chan",
@@ -64,7 +65,7 @@ fn assert_flexible_card_printings(catalog: &CardCatalog) {
         (
             cards::FARMSTEAD_GLEANER,
             "Farmstead Gleaner",
-            CardSet::ModernHorizons1,
+            sets::modern_horizons::SET,
             mana_cost!("{3}"),
             "edafd52f-2dda-4981-baee-404f47ee8969",
             "Josh Hass",
@@ -292,7 +293,7 @@ fn variable_cost_spells_can_choose_x_after_selecting_phyrexian_life() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Variable Phyrexian cost test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =
@@ -651,7 +652,7 @@ fn blue_pain_source_definition() -> (CardDefinitionId, CardDefinition) {
     let mut blue_pain = CardDefinition::new(
         blue_pain_id,
         "Blue pain source test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     blue_pain.rules = CardRules::new_land(&[]).with_abilities(&BLUE_PAIN_ABILITIES);
@@ -784,7 +785,7 @@ fn compleated_reduces_loyalty_for_each_phyrexian_symbol_paid_with_life() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Multiple Compleated symbols test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_planeswalker(mana_cost!("{R/P}{R/P}"), &["Test"], 5)

@@ -10,6 +10,12 @@ use crate::card::ValueDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("PC2", "planechase-2012");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // PC2 40 — Beetleback Chief
 pub(in crate::card::sets) static BEETLEBACK_CHIEF: CardRecord = CardRecord::new(
     "Beetleback Chief",

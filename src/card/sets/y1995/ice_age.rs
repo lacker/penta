@@ -70,6 +70,12 @@ const DRAW_AT_NEXT_UPKEEP: EffectDef =
         },
     )));
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ICE", "ice-age");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ICE 1 — Adarkar Unicorn
 pub(in crate::card::sets) static ADARKAR_UNICORN: CardRecord = CardRecord::new(
     "Adarkar Unicorn",

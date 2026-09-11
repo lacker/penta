@@ -14,6 +14,12 @@ use crate::card::sets::y1994::antiquities as catalog_atq;
 use crate::card::sets::y1994::legends as catalog_leg;
 use crate::card::sets::y1994::the_dark as catalog_drk;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("4ED", "fourth-edition");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // 4ED 1 — Alabaster Potion (reprint)
 const ALABASTER_POTION_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_leg::ALABASTER_POTION,

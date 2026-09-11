@@ -109,6 +109,12 @@ static SPELL_OR_PERMANENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exa
     },
 )];
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("LEA", "alpha");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // LEA 1 — Animate Wall
 pub(in crate::card::sets) static ANIMATE_WALL: CardRecord = CardRecord::new(
     "Animate Wall",
@@ -6009,15 +6015,15 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
 
 #[cfg(test)]
 mod tests {
-    use super::GOBLIN_KING;
+    use super::{GOBLIN_KING, SET};
     use crate::card::{
-        AbilityOperationDef, AppliedEffectDef, CardSet, CharacteristicOperationDef,
-        DeclarativeAbilityDef, EffectDef, ValueDef, abilities,
+        AbilityOperationDef, AppliedEffectDef, CharacteristicOperationDef, DeclarativeAbilityDef,
+        EffectDef, ValueDef, abilities,
     };
 
     #[test]
     fn goblin_king_models_one_static_effect_with_two_components() {
-        let definition = GOBLIN_KING.definition(CardSet::Alpha);
+        let definition = GOBLIN_KING.definition(SET);
         let clauses = definition.rules.ability_clauses();
         assert_eq!(clauses.len(), 1);
         assert!(matches!(

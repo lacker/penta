@@ -20,6 +20,13 @@ use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("AFR", "adventures-in-the-forgotten-realms");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // AFR 33 — Portable Hole
 pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new(
     "Portable Hole",

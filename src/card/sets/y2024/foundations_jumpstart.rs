@@ -30,6 +30,12 @@ use crate::card::tokens;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("J25", "foundations-jumpstart");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // J25 19 — Scholar of Combustion
 // Audit: unsupported — Needs an effect that exiles a targeted card and grants a timed permission to cast it. PermitCastFromGraveyardThisTurn leaves the card in the graveyard and lasts one turn; the exile-to-play effects read the top of a library rather than a target.
 pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord::new(

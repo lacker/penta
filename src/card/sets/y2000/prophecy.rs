@@ -92,6 +92,12 @@ static BRAWLER_RESTRICTIONS: [AbilityDef; 2] = [
     ),
 ];
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("PCY", "prophecy");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // PCY 1 — Abolish
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ABOLISH: CardRecord = CardRecord::new(

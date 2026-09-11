@@ -18,7 +18,7 @@ mod compatibility;
 mod creature_types;
 mod model;
 mod record;
-pub(crate) mod sets;
+pub mod sets;
 
 pub use catalog::{CardCatalog, CatalogError, EffectSubjectKind, GrantedAbilityValidationError};
 pub(crate) use characteristics::applicable_part_ids_ref;

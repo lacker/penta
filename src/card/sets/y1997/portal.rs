@@ -32,6 +32,12 @@ use crate::card::TriggerEventDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("POR", "portal");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // POR 1 — Alabaster Dragon
 pub(in crate::card::sets) static ALABASTER_DRAGON: CardRecord = CardRecord::new(
     "Alabaster Dragon",

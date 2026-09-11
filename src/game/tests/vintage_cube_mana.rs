@@ -1,6 +1,7 @@
 //! Mana sources cataloged for the Vintage Cube pool.
 
 use super::*;
+use crate::card::sets;
 
 /// The Halfling's coloured mana is Cavern of Souls narrowed to a different
 /// question: not a creature type, but whether the spell is legendary.
@@ -335,7 +336,7 @@ fn ordinary_autopayment_cannot_sacrifice_one_shared_cost_object_twice() {
     let mut definition = CardDefinition::new(
         source_definition,
         "Shared sacrifice mana source",
-        CardSet::FutureSight,
+        sets::future_sight::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =

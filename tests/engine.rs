@@ -1,4 +1,5 @@
-use penta::card::{CardCatalog, CardDefinition, CardPrinting, CardRules, CardSet, CardSupertype};
+use penta::card::sets;
+use penta::card::{CardCatalog, CardDefinition, CardPrinting, CardRules, CardSupertype};
 use penta::deck::{Deck, DeckError};
 use penta::game::{GameResult, WinReason};
 use penta::poc;
@@ -14,7 +15,7 @@ fn lightning_bolt(id: CardDefinitionId) -> CardDefinition {
         .expect("the built-in catalog contains Lightning Bolt")
         .clone();
     definition.id = id;
-    definition.printings = vec![CardPrinting::new(id, CardSet::Alpha)];
+    definition.printings = vec![CardPrinting::new(id, sets::alpha::SET)];
     definition
 }
 
@@ -23,26 +24,26 @@ fn catalog() -> CardCatalog {
         CardDefinition::new(
             CardDefinitionId::new(1),
             "Mountain",
-            CardSet::Alpha,
+            sets::alpha::SET,
             CardRules::new_land(&["Mountain"]).with_supertype(CardSupertype::Basic),
         ),
         lightning_bolt(CardDefinitionId::new(2)),
         CardDefinition::new(
             CardDefinitionId::new(3),
             "Black Lotus",
-            CardSet::Alpha,
+            sets::alpha::SET,
             CardRules::unsupported(),
         ),
         CardDefinition::new(
             CardDefinitionId::new(4),
             "Contract from Below",
-            CardSet::Alpha,
+            sets::alpha::SET,
             CardRules::unsupported(),
         ),
         CardDefinition::new(
             CardDefinitionId::new(5),
             "Standard Test Spell",
-            CardSet::Innistrad,
+            sets::innistrad::SET,
             CardRules::unsupported(),
         ),
     ])
@@ -224,15 +225,15 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
     let mountain = CardDefinition::new(
         CardDefinitionId::new(1),
         "Mountain",
-        CardSet::Alpha,
+        sets::alpha::SET,
         CardRules::new_land(&["Mountain"]).with_supertype(CardSupertype::Basic),
     );
     let bolt = lightning_bolt(CardDefinitionId::new(2));
     let catalog = CardCatalog::with_additional_printings(
         [mountain, bolt],
         [
-            CardPrinting::new(CardDefinitionId::new(2), CardSet::Magic2014),
-            CardPrinting::with_variant(CardDefinitionId::new(2), CardSet::Magic2014, 1),
+            CardPrinting::new(CardDefinitionId::new(2), sets::magic_2014::SET),
+            CardPrinting::with_variant(CardDefinitionId::new(2), sets::magic_2014::SET, 1),
         ],
     )
     .unwrap();
@@ -813,8 +814,8 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
             id,
             name: name.into(),
             art: None,
-            debut_set: CardSet::Alpha,
-            printings: vec![CardPrinting::new(id, CardSet::Alpha)],
+            debut_set: sets::alpha::SET,
+            printings: vec![CardPrinting::new(id, sets::alpha::SET)],
             rules: *rules,
             parts: composition.parts,
             structure: composition.structure,
@@ -838,7 +839,7 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
         CardDefinition::new(
             MOUNTAIN,
             "Mountain",
-            CardSet::Alpha,
+            sets::alpha::SET,
             CardRules::new_land(&["Mountain"]).with_supertype(CardSupertype::Basic),
         ),
         creature,

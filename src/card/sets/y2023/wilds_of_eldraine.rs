@@ -51,6 +51,12 @@ use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("WOE", "wilds-of-eldraine");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // WOE 62 — Mocking Sprite
 pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
     "Mocking Sprite",

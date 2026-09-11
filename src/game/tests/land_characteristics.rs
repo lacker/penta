@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn green_creatures_get_their_land_bonuses_and_llanowar_elves_make_green() {
@@ -75,7 +76,7 @@ fn a_basic_land_subtype_only_grants_mana_to_a_land() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Forest creature",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature(ManaCost::default(), &["Forest"], 1, 1);
@@ -100,7 +101,7 @@ fn printed_and_intrinsic_mana_abilities_coexist() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Forest with printed mana",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_land(&["Forest"]).with_abilities(&ABILITIES);
@@ -161,7 +162,7 @@ fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Composite land-type test Aura",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
@@ -299,7 +300,7 @@ fn blood_moon_preserves_nonland_subtypes_on_a_land_creature() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Forest Dryad",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature_without_mana_cost(

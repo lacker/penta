@@ -337,9 +337,9 @@ impl Error for DeckError {}
 mod tests {
     use super::{Deck, DeckError};
     use crate::CardDefinitionId;
+    use crate::card::sets;
     use crate::card::{
-        CardCatalog, CardComposition, CardDefinition, CardRules, CardSet, CardSupertype, ManaCost,
-        cards,
+        CardCatalog, CardComposition, CardDefinition, CardRules, CardSupertype, ManaCost, cards,
     };
 
     fn catalog() -> CardCatalog {
@@ -354,7 +354,7 @@ mod tests {
         let mut background = CardDefinition::new(
             id,
             "Test Background",
-            CardSet::CommanderLegendsBattleForBaldursGate,
+            sets::commander_legends_baldurs_gate::SET,
             crate::card::CardRules::unsupported(),
         );
         background.rules = CardRules::new_enchantment(ManaCost::new(0, 0))

@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 /// Starts a shock-land play and returns its pre-entry replacement choice.
 fn begin_shock_land_play(game: &mut Game, definition: CardDefinitionId) -> DecisionObservation {
@@ -61,7 +62,7 @@ fn resolved_grants_participate_in_external_entry_replacement_discovery() {
     let mut source = CardDefinition::new(
         source_definition,
         "Test resolved replacement source",
-        CardSet::Gatecrash,
+        sets::gatecrash::SET,
         crate::card::CardRules::unsupported(),
     );
     source.rules = CardRules::new_enchantment(ManaCost::default());
@@ -69,7 +70,7 @@ fn resolved_grants_participate_in_external_entry_replacement_discovery() {
     let mut land = CardDefinition::new(
         land_definition,
         "Test entering land",
-        CardSet::Gatecrash,
+        sets::gatecrash::SET,
         crate::card::CardRules::unsupported(),
     );
     land.rules = CardRules::new_land(&[]);
@@ -246,7 +247,7 @@ fn replacement_effects_are_ordered_and_re_evaluated_before_entry_commits() {
     let mut external = CardDefinition::new(
         external_definition,
         "Test entry restriction",
-        CardSet::Gatecrash,
+        sets::gatecrash::SET,
         crate::card::CardRules::unsupported(),
     );
     external.rules = CardRules::new_enchantment(ManaCost::new(2, 0))
@@ -334,7 +335,7 @@ fn nested_replacement_effects_keep_their_source_controller_context() {
     let mut external = CardDefinition::new(
         external_definition,
         "Test source-relative entry replacement",
-        CardSet::Gatecrash,
+        sets::gatecrash::SET,
         crate::card::CardRules::unsupported(),
     );
     external.rules = CardRules::new_enchantment(ManaCost::new(2, 0))

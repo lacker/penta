@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 static FIRST_DUPLICATE_MIRACLE_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::spell("Do nothing.", EffectDef::None),
@@ -372,7 +373,7 @@ fn miracle_offer_names_the_exact_linked_clause_across_same_kind_play_options() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Two Miracles",
-        CardSet::AvacynRestored,
+        sets::avacyn_restored::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = first_rules;

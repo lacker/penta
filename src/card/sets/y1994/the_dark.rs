@@ -68,6 +68,12 @@ static ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN: TriggerConditionDef =
 
 static FROM_YOUR_HAND: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("DRK", "the-dark");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // DRK 1 — Angry Mob
 // Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “During your turn, Angry Mob's power and toughness are each equal to 2 plus the number of Swamps your opponents control. During turns other than yours, Angry Mob's power and toughness are…”.
 pub(in crate::card::sets) static ANGRY_MOB: CardRecord = CardRecord::new(

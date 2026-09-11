@@ -18,6 +18,12 @@ use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("PIP", "fallout");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // PIP 23 — Securitron Squadron
 pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new(
     "Securitron Squadron",

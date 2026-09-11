@@ -25,6 +25,12 @@ use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("BNG", "born-of-the-gods");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // BNG 119 — Courser of Kruphix
 pub(in crate::card::sets) static COURSER_OF_KRUPHIX: CardRecord = CardRecord::new(
     "Courser of Kruphix",

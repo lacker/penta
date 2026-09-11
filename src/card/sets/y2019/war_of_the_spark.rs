@@ -43,6 +43,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("WAR", "war-of-the-spark");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // WAR 54 — Jace, Wielder of Mysteries
 pub(in crate::card::sets) static JACE_WIELDER_OF_MYSTERIES: CardRecord = CardRecord::new(
     "Jace, Wielder of Mysteries",

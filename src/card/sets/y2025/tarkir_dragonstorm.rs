@@ -60,6 +60,12 @@ use crate::ids::PlayOptionId;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("TDM", "tarkir-dragonstorm");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // TDM 1 — Ugin, Eye of the Storms
 /// "Up to one target permanent that's one or more colors": colorless is what
 /// Ugin does not touch, which is the whole bargain of the deck built around

@@ -76,6 +76,12 @@ static TAPPED_ZOMBIE: EffectDef =
         ))
         .entering_tapped();
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("M14", "magic-2014");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // M14 1 — Ajani, Caller of the Pride (reprint)
 const AJANI_CALLER_OF_THE_PRIDE_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_m13::AJANI_CALLER_OF_THE_PRIDE,

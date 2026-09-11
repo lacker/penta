@@ -1,8 +1,8 @@
 //! Card sets first released in 2006.
 
-pub(super) mod coldsnap;
-pub(super) mod dissension;
-pub(super) mod guildpact;
-pub(super) mod time_spiral;
+pub mod coldsnap;
+pub mod dissension;
+pub mod guildpact;
+pub mod time_spiral;
 
 pub(super) use super::{CardRecord, PrintingRecord};

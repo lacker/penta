@@ -7,6 +7,22 @@ impl fmt::Display for CatalogError {
     #[allow(clippy::too_many_lines)]
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::ConflictingSetSlug {
+                code,
+                first,
+                second,
+            } => write!(
+                formatter,
+                "set code {code:?} has conflicting catalog slugs {first:?} and {second:?}"
+            ),
+            Self::DuplicateSetSlug {
+                slug,
+                first,
+                second,
+            } => write!(
+                formatter,
+                "catalog slug {slug:?} is shared by set codes {first:?} and {second:?}"
+            ),
             Self::DuplicateId(id) => write!(formatter, "duplicate card definition ID {id:?}"),
             Self::DuplicateName(name) => write!(formatter, "duplicate card name {name:?}"),
             Self::DuplicatePrintingId(id) => write!(formatter, "duplicate card printing ID {id:?}"),

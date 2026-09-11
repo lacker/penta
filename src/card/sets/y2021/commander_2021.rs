@@ -24,6 +24,12 @@ use crate::card::abilities;
 use crate::card::tokens;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("C21", "commander-2021");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // C21 53 — Laelia, the Blade Reforged
 pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord =
     CardRecord::new(

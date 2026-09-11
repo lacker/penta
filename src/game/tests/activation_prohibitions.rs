@@ -1,6 +1,7 @@
 //! Static prohibitions on activating artifact abilities.
 
 use super::*;
+use crate::card::sets;
 
 const NEW_ARTIFACT_LOCKS: [CardDefinitionId; 2] = [cards::NULL_ROD, cards::COLLECTOR_OUPHE];
 
@@ -223,7 +224,7 @@ fn activation_prohibitions_match_each_effective_ability() {
 fn arrest_has_both_printings() {
     let catalog = poc::catalog().expect("catalog builds");
     let arrest = catalog.get(cards::ARREST).expect("Arrest is cataloged");
-    for set in [CardSet::MercadianMasques, CardSet::ReturnToRavnica] {
+    for set in [sets::mercadian_masques::SET, sets::return_to_ravnica::SET] {
         assert!(
             arrest
                 .printings

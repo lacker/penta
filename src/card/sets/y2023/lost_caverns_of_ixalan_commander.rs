@@ -18,6 +18,13 @@ use crate::card::ValueDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("LCC", "lost-caverns-of-ixalan-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // LCC 86 — Broadside Bombardiers
 pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord::new(
     "Broadside Bombardiers",

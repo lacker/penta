@@ -19,6 +19,12 @@ use crate::ZonePlacement;
 use crate::card::CostDef;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ARC", "archenemy");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ARC 22 — Reassembling Skeleton
 pub(in crate::card::sets) static REASSEMBLING_SKELETON: CardRecord = CardRecord::new(
     "Reassembling Skeleton",

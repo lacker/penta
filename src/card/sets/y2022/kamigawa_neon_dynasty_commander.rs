@@ -24,6 +24,13 @@ use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("NEC", "kamigawa-neon-dynasty-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // NEC 14 — Kappa Cannoneer
 pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
     "Kappa Cannoneer",

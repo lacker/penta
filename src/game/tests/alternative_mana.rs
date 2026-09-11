@@ -1,6 +1,7 @@
 //! Zone-aware mana abilities and direct spell-cost contributions.
 
 use super::*;
+use crate::card::sets;
 
 fn cast_for(game: &Game, spell: GameObjectId) -> Option<Action> {
     game.legal_actions(PlayerId::One)
@@ -228,7 +229,7 @@ fn improvise_cannot_pay_a_colored_symbol() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Colored improvise test",
-        CardSet::AetherRevolt,
+        sets::aether_revolt::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_sorcery(mana_cost!("{U}")).with_abilities(&ABILITIES);

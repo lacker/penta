@@ -1,3 +1,4 @@
+use crate::card::sets;
 use std::collections::HashSet;
 
 use super::{Format, FormatCategory, FormatDefinition};
@@ -42,13 +43,13 @@ fn pool_membership_decides_legality_regardless_of_printing() {
     let inside = CardDefinition::new(
         CardDefinitionId::new(1),
         "Ancestral Recall",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     let outside = CardDefinition::new(
         CardDefinitionId::new(2),
         "Sorrow's Path",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     assert!(Format::VintageCube.allows_card(&inside));
@@ -65,7 +66,7 @@ fn set_windows_are_nonempty_unique_and_exclude_tokens() {
             !definition.allowed_sets.is_empty(),
             "{format} needs an allowed set window"
         );
-        assert!(!definition.allowed_sets.contains(&CardSet::Token));
+        assert!(!definition.allowed_sets.contains(&CardSet::TOKEN));
 
         let unique = definition
             .allowed_sets
@@ -84,14 +85,14 @@ fn standards_have_the_expected_windows_and_categorical_labels() {
             .expect("a set format")
             .allowed_sets,
         &[
-            CardSet::ScarsOfMirrodin,
-            CardSet::MirrodinBesieged,
-            CardSet::NewPhyrexia,
-            CardSet::Magic2012,
-            CardSet::Innistrad,
-            CardSet::DarkAscension,
-            CardSet::AvacynRestored,
-            CardSet::Magic2013,
+            sets::scars_of_mirrodin::SET,
+            sets::mirrodin_besieged::SET,
+            sets::new_phyrexia::SET,
+            sets::magic_2012::SET,
+            sets::innistrad::SET,
+            sets::dark_ascension::SET,
+            sets::avacyn_restored::SET,
+            sets::magic_2013::SET,
         ]
     );
     assert_eq!(
@@ -100,14 +101,14 @@ fn standards_have_the_expected_windows_and_categorical_labels() {
             .expect("a set format")
             .allowed_sets,
         &[
-            CardSet::Innistrad,
-            CardSet::DarkAscension,
-            CardSet::AvacynRestored,
-            CardSet::Magic2013,
-            CardSet::ReturnToRavnica,
-            CardSet::Gatecrash,
-            CardSet::DragonsMaze,
-            CardSet::Magic2014,
+            sets::innistrad::SET,
+            sets::dark_ascension::SET,
+            sets::avacyn_restored::SET,
+            sets::magic_2013::SET,
+            sets::return_to_ravnica::SET,
+            sets::gatecrash::SET,
+            sets::dragons_maze::SET,
+            sets::magic_2014::SET,
         ]
     );
     for &format in FormatCategory::Standard.formats() {
@@ -123,19 +124,19 @@ fn formats_allow_only_their_sets_but_share_basic_lands() {
     let old_spell = CardDefinition::new(
         CardDefinitionId::new(1),
         "Old spell",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     let standard_spell = CardDefinition::new(
         CardDefinitionId::new(2),
         "Standard spell",
-        CardSet::Innistrad,
+        sets::innistrad::SET,
         crate::card::CardRules::unsupported(),
     );
     let basic = CardDefinition::new(
         CardDefinitionId::new(3),
         "Plains",
-        CardSet::Alpha,
+        sets::alpha::SET,
         CardRules::new_land(&["Plains"]).with_supertype(CardSupertype::Basic),
     );
 
@@ -153,11 +154,11 @@ fn any_allowed_reprint_makes_the_canonical_card_identity_legal() {
     let mut card = CardDefinition::new(
         id,
         "Reprinted spell",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     card.printings
-        .push(CardPrinting::new(id, CardSet::Magic2014));
+        .push(CardPrinting::new(id, sets::magic_2014::SET));
 
     assert!(Format::OldSchool9394.allows_card(&card));
     assert!(Format::IsdM14Standard.allows_card(&card));
@@ -168,19 +169,19 @@ fn old_school_promo_legality_is_identity_specific() {
     let arena = CardDefinition::new(
         CardDefinitionId::new(1),
         "Arena",
-        CardSet::HarperPrismBookPromos,
+        sets::harper_prism_book_promos::SET,
         CardRules::unsupported(),
     );
     let mana_crypt = CardDefinition::new(
         CardDefinitionId::new(2),
         "Mana Crypt",
-        CardSet::HarperPrismBookPromos,
+        sets::harper_prism_book_promos::SET,
         CardRules::unsupported(),
     );
     let nalathni_dragon = CardDefinition::new(
         CardDefinitionId::new(3),
         "Nalathni Dragon",
-        CardSet::DragonCon,
+        sets::dragon_con::SET,
         CardRules::unsupported(),
     );
 
@@ -196,9 +197,9 @@ fn premodern_takes_the_window_from_fourth_edition_through_scourge() {
         .expect("a set format")
         .allowed_sets;
     assert_eq!(sets.len(), 29);
-    assert_eq!(sets.first(), Some(&CardSet::FourthEdition));
-    assert_eq!(sets.last(), Some(&CardSet::Scourge));
-    assert!(!Format::Premodern.allows_set(CardSet::PortalSecondAge));
+    assert_eq!(sets.first(), Some(&sets::fourth_edition::SET));
+    assert_eq!(sets.last(), Some(&sets::scourge::SET));
+    assert!(!Format::Premodern.allows_set(sets::portal_second_age::SET));
 }
 
 #[test]

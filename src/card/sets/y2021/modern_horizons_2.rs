@@ -70,6 +70,12 @@ use crate::card::abilities;
 use crate::card::tokens;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MH2", "modern-horizons-2");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MH2 25 — Prismatic Ending
 pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new(
     "Prismatic Ending",

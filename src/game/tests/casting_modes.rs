@@ -1,5 +1,6 @@
 use super::*;
 use crate::AbilityProgramDef;
+use crate::card::sets;
 
 #[test]
 fn supreme_verdict_destroys_every_creature() {
@@ -418,7 +419,7 @@ fn a_composite_static_clause_can_make_its_source_uncounterable() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Composite uncounterable spell",
-        CardSet::ReturnToRavnica,
+        sets::return_to_ravnica::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
@@ -471,7 +472,7 @@ fn overload_does_not_silently_discard_selected_modal_effects() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Modal overload test",
-        CardSet::ReturnToRavnica,
+        sets::return_to_ravnica::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);

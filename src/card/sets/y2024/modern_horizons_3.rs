@@ -132,6 +132,12 @@ static DEVOURER_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
     DEVOURER_OPENING_LOOK,
 );
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MH3", "modern-horizons-3");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MH3 2 — Devourer of Destiny
 pub(in crate::card::sets) static DEVOURER_OF_DESTINY: CardRecord = CardRecord::new(
     "Devourer of Destiny",

@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn definition_ids_are_nonzero_and_javascript_safe() {
@@ -13,11 +14,11 @@ fn definition_ids_are_nonzero_and_javascript_safe() {
 #[test]
 fn primary_and_additional_printings_are_indexed_by_canonical_definition() {
     let id = CardDefinitionId::new(1);
-    let primary = CardPrintingId::new(id, CardSet::Alpha);
-    let beta = CardPrinting::new(id, CardSet::Beta);
-    let alternate_beta = CardPrinting::with_variant(id, CardSet::Beta, 1);
+    let primary = CardPrintingId::new(id, sets::alpha::SET);
+    let beta = CardPrinting::new(id, sets::beta::SET);
+    let alternate_beta = CardPrinting::with_variant(id, sets::beta::SET, 1);
     let catalog = CardCatalog::with_additional_printings(
-        [definition(1, "Test Card", CardSet::Alpha)],
+        [definition(1, "Test Card", sets::alpha::SET)],
         [beta, alternate_beta],
     )
     .unwrap();
@@ -30,9 +31,9 @@ fn primary_and_additional_printings_are_indexed_by_canonical_definition() {
         Some(&alternate_beta)
     );
     assert_eq!(catalog.printings_for(id).len(), 3);
-    assert!(catalog.has_printing_in(id, CardSet::Alpha));
-    assert!(catalog.has_printing_in(id, CardSet::Beta));
-    assert!(!catalog.has_printing_in(id, CardSet::Unlimited));
+    assert!(catalog.has_printing_in(id, sets::alpha::SET));
+    assert!(catalog.has_printing_in(id, sets::beta::SET));
+    assert!(!catalog.has_printing_in(id, sets::unlimited::SET));
 }
 
 #[test]
@@ -68,7 +69,7 @@ fn historical_ids_use_debut_art_without_losing_reprint_art() {
         CardDefinitionId::new(123),
         "the compatibility shim must preserve the historical definition ID",
     );
-    assert_eq!(sedge_troll.debut_set, CardSet::Alpha);
+    assert_eq!(sedge_troll.debut_set, sets::alpha::SET);
     assert_eq!(
         sedge_troll.art.map(|art| art.scryfall_id),
         Some("b13bf496-f3c0-4c13-8282-e7abfab6a198"),
@@ -77,7 +78,7 @@ fn historical_ids_use_debut_art_without_losing_reprint_art() {
         sedge_troll
             .printings
             .iter()
-            .find(|printing| printing.id.set == CardSet::Beta)
+            .find(|printing| printing.id.set == sets::beta::SET)
             .and_then(|printing| printing.art)
             .map(|art| art.scryfall_id),
         Some("02ec317b-52a6-4490-80e5-a56826b06771"),
@@ -89,8 +90,8 @@ fn sparse_javascript_safe_definition_ids_do_not_expand_the_dense_index() {
     let sparse = CardDefinitionId::new(1_u64 << 40);
     let dense = CardDefinitionId::new(2);
     let catalog = CardCatalog::new([
-        definition(sparse.get(), "Sparse Card", CardSet::Alpha),
-        definition(dense.get(), "Dense Card", CardSet::Alpha),
+        definition(sparse.get(), "Sparse Card", sets::alpha::SET),
+        definition(dense.get(), "Dense Card", sets::alpha::SET),
     ])
     .unwrap();
 
@@ -116,9 +117,9 @@ fn sparse_javascript_safe_definition_ids_do_not_expand_the_dense_index() {
 #[test]
 fn definitions_reuse_the_precomputed_stable_id_order() {
     let catalog = CardCatalog::new([
-        definition(3, "Third", CardSet::Alpha),
-        definition(1, "First", CardSet::Alpha),
-        definition(2, "Second", CardSet::Alpha),
+        definition(3, "Third", sets::alpha::SET),
+        definition(1, "First", sets::alpha::SET),
+        definition(2, "Second", sets::alpha::SET),
     ])
     .unwrap();
     let expected = [
@@ -147,10 +148,10 @@ fn definitions_reuse_the_precomputed_stable_id_order() {
 #[test]
 fn duplicate_printing_ids_are_rejected() {
     let id = CardDefinitionId::new(1);
-    let duplicate = CardPrinting::new(id, CardSet::Alpha);
+    let duplicate = CardPrinting::new(id, sets::alpha::SET);
     assert_eq!(
         CardCatalog::with_additional_printings(
-            [definition(1, "Test Card", CardSet::Alpha)],
+            [definition(1, "Test Card", sets::alpha::SET)],
             [duplicate],
         )
         .unwrap_err(),
@@ -162,12 +163,12 @@ fn duplicate_printing_ids_are_rejected() {
 fn an_allowed_reprint_makes_the_canonical_identity_format_legal() {
     let id = CardDefinitionId::new(1);
     let catalog = CardCatalog::with_additional_printings(
-        [definition(1, "Test Card", CardSet::Alpha)],
-        [CardPrinting::new(id, CardSet::Magic2014)],
+        [definition(1, "Test Card", sets::alpha::SET)],
+        [CardPrinting::new(id, sets::magic_2014::SET)],
     )
     .unwrap();
 
-    assert_eq!(catalog.get(id).unwrap().debut_set, CardSet::Alpha);
+    assert_eq!(catalog.get(id).unwrap().debut_set, sets::alpha::SET);
     assert!(catalog.is_allowed_in(id, Format::OldSchool9394));
     assert!(catalog.is_allowed_in(id, Format::IsdM14Standard));
 }
@@ -177,16 +178,20 @@ fn art_selection_can_follow_the_format_without_changing_the_debut() {
     let id = CardDefinitionId::new(1);
     let debut_art = CardArt::new("00000000-0000-0000-0000-000000000001", "Debut Artist");
     let standard_art = CardArt::new("00000000-0000-0000-0000-000000000002", "Reprint Artist");
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     card.art = Some(debut_art);
     card.printings[0].art = Some(debut_art);
     let catalog = CardCatalog::with_additional_printings(
         [card],
-        [CardPrinting::with_art(id, CardSet::Magic2014, standard_art)],
+        [CardPrinting::with_art(
+            id,
+            sets::magic_2014::SET,
+            standard_art,
+        )],
     )
     .unwrap();
 
-    assert_eq!(catalog.get(id).unwrap().debut_set, CardSet::Alpha);
+    assert_eq!(catalog.get(id).unwrap().debut_set, sets::alpha::SET);
     assert_eq!(
         catalog.art_for(id, Format::IsdM14Standard, CardArtPreference::Debut),
         Some(debut_art)
@@ -207,10 +212,10 @@ fn art_selection_can_follow_the_format_without_changing_the_debut() {
 
 #[test]
 fn additional_printings_must_reference_a_cataloged_definition() {
-    let orphan = CardPrinting::new(CardDefinitionId::new(2), CardSet::Beta);
+    let orphan = CardPrinting::new(CardDefinitionId::new(2), sets::beta::SET);
     assert_eq!(
         CardCatalog::with_additional_printings(
-            [definition(1, "Test Card", CardSet::Alpha)],
+            [definition(1, "Test Card", sets::alpha::SET)],
             [orphan],
         )
         .unwrap_err(),
@@ -220,8 +225,8 @@ fn additional_printings_must_reference_a_cataloged_definition() {
 
 #[test]
 fn definition_supplied_printings_must_belong_to_that_definition() {
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
-    let mismatched = CardPrinting::new(CardDefinitionId::new(2), CardSet::Beta);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
+    let mismatched = CardPrinting::new(CardDefinitionId::new(2), sets::beta::SET);
     card.printings.push(mismatched);
 
     assert_eq!(
@@ -235,13 +240,13 @@ fn definition_supplied_printings_must_belong_to_that_definition() {
 
 #[test]
 fn unknown_definitions_have_no_printings() {
-    let catalog = CardCatalog::new([definition(1, "Test Card", CardSet::Alpha)]).unwrap();
+    let catalog = CardCatalog::new([definition(1, "Test Card", sets::alpha::SET)]).unwrap();
     assert!(catalog.printings_for(CardDefinitionId::new(2)).is_empty());
     assert!(
         catalog
             .get_printing(CardPrintingId::new(
                 CardDefinitionId::new(2),
-                CardSet::Alpha
+                sets::alpha::SET
             ))
             .is_none()
     );
@@ -251,8 +256,8 @@ fn unknown_definitions_have_no_printings() {
 fn synthetic_definitions_do_not_bypass_global_name_uniqueness() {
     assert_eq!(
         CardCatalog::new([
-            definition(1, "Shared name", CardSet::Token),
-            definition(2, " shared NAME ", CardSet::Token),
+            definition(1, "Shared name", CardSet::TOKEN),
+            definition(2, " shared NAME ", CardSet::TOKEN),
         ])
         .unwrap_err(),
         CatalogError::DuplicateName(" shared NAME ".into()),

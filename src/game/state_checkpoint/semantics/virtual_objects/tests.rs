@@ -1,6 +1,7 @@
 use super::*;
+use crate::card::sets;
 use crate::card::{
-    CardDefinition, CardRules, CardSet, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef,
+    CardDefinition, CardRules, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef,
     SacrificedAmountDef, ValueDef,
 };
 use crate::{CardDefinitionId, CardPartId};
@@ -98,7 +99,7 @@ fn token_and_emblem_owned_creators_form_one_semantic_chain() {
     let mut definition = CardDefinition::new(
         CardDefinitionId::new(1),
         "Virtual Creator",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     let rules = CardRules::unsupported().with_abilities(&PRINTED_ABILITIES);

@@ -18,6 +18,12 @@ use crate::card::abilities;
 use crate::card::tokens;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("SOI", "shadows-over-innistrad");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // SOI 44 — Thraben Inspector
 pub(in crate::card::sets) static THRABEN_INSPECTOR: CardRecord = CardRecord::new(
     "Thraben Inspector",

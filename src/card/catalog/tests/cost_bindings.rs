@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 const EVOKE: [AbilityDef; 2] =
     crate::card::abilities::evoke(&[CostDef::Mana(crate::mana_cost!("{1}"))]);
@@ -8,7 +9,7 @@ fn cost_binding_card(id: u64, name: &str, abilities: &'static [AbilityDef]) -> C
     CardDefinition::new(
         CardDefinitionId::new(id),
         name,
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::CardRules::new_creature(crate::mana_cost!("{3}"), &["Elemental"], 2, 2)
             .with_abilities(abilities),
     )

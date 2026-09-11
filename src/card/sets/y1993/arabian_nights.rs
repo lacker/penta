@@ -12,7 +12,6 @@ use crate::card::BasicLandType;
 use crate::card::CardArt;
 use crate::card::CardChoiceSourceDef;
 use crate::card::CardRules;
-use crate::card::CardSet;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ComparisonDef;
@@ -71,6 +70,12 @@ static YOU_CONTROL_NO_ISLANDS: TriggerConditionDef = TriggerConditionDef::Object
     comparison: ComparisonDef::Equal,
     amount: 0,
 };
+
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ARN", "arabian-nights");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // ARN 1 — Abu Ja'far
 pub(in crate::card::sets) static ABU_JAFAR: CardRecord = CardRecord::new(
@@ -1295,7 +1300,7 @@ pub(in crate::card::sets) static BRASS_MAN: CardRecord = CardRecord::new(
 /// "Nontoken" needs no clause of its own: a token was printed in no
 /// expansion, so it never has a name originally printed in this one.
 static BOTTLED: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::DebutSet(CardSet::ArabianNights),
+    ObjectPredicateDef::DebutSet(SET),
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 ]);
 
@@ -1325,7 +1330,7 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
                     // The casting prohibition has no "other": City in a Bottle was itself
                     // printed in Arabian Nights, so a second copy cannot be cast either.
-                    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::DebutSet(CardSet::ArabianNights)),
+                    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::DebutSet(SET)),
                 )),
             },
         ),

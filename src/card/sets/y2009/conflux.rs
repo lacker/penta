@@ -33,6 +33,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("CON", "conflux");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CON 3 — Aven Squire
 pub(in crate::card::sets) static AVEN_SQUIRE: CardRecord = CardRecord::new(
     "Aven Squire",

@@ -22,6 +22,12 @@ use crate::ZoneKind;
 use crate::card::CostDef;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("PHPR", "harper-prism-book-promos");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // PHPR 1 — Arena
 pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
     "Arena",

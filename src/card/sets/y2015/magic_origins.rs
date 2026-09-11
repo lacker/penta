@@ -26,6 +26,12 @@ use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ORI", "magic-origins");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ORI 60 — Jace, Vryn's Prodigy // Jace, Telepath Unbound
 pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::new_dfc(
     "Jace, Vryn's Prodigy // Jace, Telepath Unbound",

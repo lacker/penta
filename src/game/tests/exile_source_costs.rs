@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn exile_source_and_life_costs_are_paid_before_the_ability_goes_on_the_stack() {
@@ -19,7 +20,7 @@ fn exile_source_and_life_costs_are_paid_before_the_ability_goes_on_the_stack() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Exile source cost test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
@@ -84,7 +85,7 @@ fn a_mana_ability_can_exile_its_source_and_pay_life() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Exile source mana cost test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
@@ -157,7 +158,7 @@ fn source_leaving_mana_cannot_also_pay_an_exile_source_ability() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Mutually exclusive source costs test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
@@ -207,7 +208,7 @@ fn source_preserving_mana_can_pay_an_exile_source_ability() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Compatible source costs test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);

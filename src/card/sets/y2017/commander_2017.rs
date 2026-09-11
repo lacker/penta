@@ -23,6 +23,12 @@ use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("C17", "commander-2017");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // C17 8 — Teferi's Protection
 pub(in crate::card::sets) static TEFERIS_PROTECTION: CardRecord = CardRecord::new(
     "Teferi's Protection",

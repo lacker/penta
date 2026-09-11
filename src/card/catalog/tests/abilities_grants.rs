@@ -1,5 +1,6 @@
 use super::*;
 use crate::ParentBinding;
+use crate::card::sets;
 use crate::card::{
     BasicLandType, CardNameDef, CardNameSetDef, CardTypeSet, PayOrDef, ScaledValueDef, abilities,
 };
@@ -460,7 +461,7 @@ fn ability_ids_follow_clause_order_within_each_card_part() {
         AbilityDef::spell("first", EffectDef::None),
         AbilityDef::static_ability("second", EffectDef::None),
     ];
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(&ABILITIES);
     set_primary_rules(&mut card, &rules);
 
@@ -476,7 +477,7 @@ fn one_card_part_cannot_define_multiple_spell_abilities() {
         AbilityDef::spell("first", EffectDef::None),
         AbilityDef::spell("second", EffectDef::None),
     ];
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(&ABILITIES);
     set_primary_rules(&mut card, &rules);
 
@@ -495,7 +496,7 @@ fn positional_ability_ids_reject_more_than_their_address_space() {
     let abilities = Box::leak(
         vec![AbilityDef::spell("A spell ability.", EffectDef::None); 257].into_boxed_slice(),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(abilities);
     set_primary_rules(&mut card, &rules);
 
@@ -529,7 +530,7 @@ fn grant_ids_reject_more_than_their_structural_address_space() {
         )]
         .into_boxed_slice(),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(abilities);
     set_primary_rules(&mut card, &rules);
 
@@ -568,7 +569,7 @@ fn delayed_grants_count_toward_the_structural_address_space() {
         )]
         .into_boxed_slice(),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(abilities);
     set_primary_rules(&mut card, &rules);
 
@@ -599,7 +600,7 @@ fn replacement_program_grants_count_toward_the_structural_address_space() {
         )]
         .into_boxed_slice(),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(abilities);
     set_primary_rules(&mut card, &rules);
 
@@ -706,7 +707,7 @@ fn unsupported_replacement_programs_fail_before_nested_grants() {
         "Replace an event, then grant an ability.",
         ReplacementEffectDef::Sequence(&PROGRAM),
     )];
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(&ABILITIES);
     set_primary_rules(&mut card, &rules);
 
@@ -868,7 +869,7 @@ fn target_references_are_validated_through_nested_values() {
             amount: ValueDef::IfTargetMatches(&CONDITION),
         },
     )];
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(&ABILITIES);
     set_primary_rules(&mut card, &rules);
 

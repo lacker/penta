@@ -4,6 +4,7 @@
 //! same-resolution count.
 
 use super::*;
+use crate::card::sets;
 use crate::{CardArt, CardPrintingId};
 
 fn ready() -> Game {
@@ -262,7 +263,7 @@ fn blazing_torch_keeps_its_printing_identity() {
     let torch = catalog
         .get(cards::BLAZING_TORCH)
         .expect("Blazing Torch is cataloged");
-    assert_eq!(torch.debut_set, CardSet::Zendikar);
+    assert_eq!(torch.debut_set, sets::zendikar::SET);
     assert_eq!(
         torch.art,
         Some(CardArt::new(
@@ -274,7 +275,7 @@ fn blazing_torch_keeps_its_printing_identity() {
         catalog
             .get_printing(CardPrintingId::new(
                 cards::BLAZING_TORCH,
-                CardSet::Innistrad,
+                sets::innistrad::SET,
             ))
             .is_some(),
         "ISD 216 remains an indexed reprint of the ZEN identity",

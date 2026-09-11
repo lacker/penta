@@ -28,6 +28,12 @@ use crate::ids::ParentBinding;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("CHK", "champions_of_kamigawa");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CHK 7 — Devoted Retainer
 pub(in crate::card::sets) static DEVOTED_RETAINER: CardRecord = CardRecord::new(
     "Devoted Retainer",

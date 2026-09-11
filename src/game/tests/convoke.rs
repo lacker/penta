@@ -1,6 +1,7 @@
 //! Convoke payment planning and execution, exercised through Sprout Swarm.
 
 use super::*;
+use crate::card::sets;
 
 static TRUE_COLORLESS_CONVOKE_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::spell(
@@ -135,7 +136,7 @@ fn game_with_two_pair_hybrid_convoke_and_generic(
     let mut definition = CardDefinition::new(
         definition_id,
         "Two-pair hybrid convoke test",
-        CardSet::FutureSight,
+        sets::future_sight::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(two_pair_hybrid_cost_with_generic(generic))
@@ -491,7 +492,7 @@ fn a_colorless_creature_cannot_convoke_a_true_colorless_symbol() {
     let mut definition = CardDefinition::new(
         definition_id,
         "True colorless convoke test",
-        CardSet::FutureSight,
+        sets::future_sight::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =
@@ -584,7 +585,7 @@ fn a_mana_source_activates_before_another_planned_activation_sacrifices_it() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Sacrifice mana source collision test",
-        CardSet::FutureSight,
+        sets::future_sight::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default())
@@ -595,7 +596,7 @@ fn a_mana_source_activates_before_another_planned_activation_sacrifices_it() {
     let mut mana_creature_definition = CardDefinition::new(
         mana_creature_definition_id,
         "Consumed mana creature test",
-        CardSet::FutureSight,
+        sets::future_sight::SET,
         crate::card::CardRules::unsupported(),
     );
     mana_creature_definition.rules =

@@ -41,6 +41,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("RAV", "ravnica-city-of-guilds");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // RAV 16 — Faith's Fetters
 pub(in crate::card::sets) static FAITH_S_FETTERS: CardRecord = CardRecord::new(
     "Faith's Fetters",

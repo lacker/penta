@@ -1,3 +1,4 @@
+use crate::card::sets;
 static HALF_DAMAGE_ROUNDED_DOWN: crate::card::HalvedValueDef =
     crate::card::HalvedValueDef::new(ValueDef::DamageEventAmount, crate::card::RoundingDef::Down);
 
@@ -780,7 +781,7 @@ fn resolved_prevention_retains_controller_lki_and_rejects_spliced_provenance() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Checkpoint Prevention Source",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(crate::ManaCost::new(0, 0))

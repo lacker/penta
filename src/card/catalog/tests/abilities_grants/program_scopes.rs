@@ -213,7 +213,7 @@ fn ability_and_program_kinds_must_agree() {
         ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
     );
     replacement.effect = AbilityEffectDef::declarative(EffectDef::None);
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_ability(replacement);
     set_primary_rules(&mut card, &rules);
     assert_eq!(
@@ -228,7 +228,7 @@ fn ability_and_program_kinds_must_agree() {
     let mut spell = AbilityDef::spell("Do nothing.", EffectDef::None);
     spell.effect =
         AbilityEffectDef::replacement_program(ReplacementEffectDef::ReplaceEventWithNothing);
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_ability(spell);
     set_primary_rules(&mut card, &rules);
     assert_eq!(
@@ -298,7 +298,7 @@ fn replacement_events_reject_programs_their_runtime_would_ignore() {
             ReplacementAbilityDef::new().with_event(event),
             effect,
         );
-        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        let mut card = definition(1, "Test Card", sets::alpha::SET);
         let rules = card.rules.with_ability(ability);
         set_primary_rules(&mut card, &rules);
         assert_eq!(
@@ -378,7 +378,7 @@ fn replacement_event_validation_accepts_each_supported_program_family() {
             ReplacementAbilityDef::new().with_event(event),
             effect,
         );
-        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        let mut card = definition(1, "Test Card", sets::alpha::SET);
         let rules = card.rules.with_ability(ability);
         set_primary_rules(&mut card, &rules);
         CardCatalog::new([card]).expect("the event's shared runtime supports this program");
@@ -504,7 +504,7 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
         &INSTALLER_TARGETS,
         EffectDef::InstallTrigger(InstalledTriggerDef::once(&FRESH_TARGET_TRIGGER)),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_ability(INVALID_SPELL);
     set_primary_rules(&mut card, &rules);
     assert_eq!(
@@ -520,7 +520,7 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
         "Install an unsupported state trigger.",
         EffectDef::InstallTrigger(InstalledTriggerDef::once(&CONDITIONLESS_STATE_TRIGGER)),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_ability(INVALID_STATE_INSTALL_SPELL);
     set_primary_rules(&mut card, &rules);
     assert_eq!(
@@ -536,7 +536,7 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
 
 #[allow(clippy::large_types_passed_by_value)]
 fn definition_with_ability(ability: AbilityDef) -> CardDefinition {
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_ability(ability);
     set_primary_rules(&mut card, &rules);
     card
@@ -782,7 +782,7 @@ fn authored_target_count_fits_the_positional_index_space() {
         )]
         .into_boxed_slice(),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(abilities);
     set_primary_rules(&mut card, &rules);
 
@@ -838,7 +838,7 @@ fn executable_legacy_procedures_are_rejected() {
     )
     .with_legacy_procedure();
 
-    let mut top_level = definition(1, "Test Card", CardSet::Alpha);
+    let mut top_level = definition(1, "Test Card", sets::alpha::SET);
     let rules = top_level.rules.with_ability(LEGACY);
     set_primary_rules(&mut top_level, &rules);
     assert_eq!(
@@ -875,7 +875,7 @@ fn explicitly_tagged_mana_abilities_cannot_declare_targets() {
         ),
         EffectDef::None,
     )];
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(&ABILITIES);
     set_primary_rules(&mut card, &rules);
 

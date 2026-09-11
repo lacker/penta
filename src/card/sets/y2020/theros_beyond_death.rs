@@ -53,6 +53,12 @@ pub(in crate::card::sets) const fn escape(costs: &'static [CostDef]) -> AbilityD
     AbilityDef::alternative_cast(costs, AlternativeCastKindDef::Escape, None, EffectDef::None)
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("THB", "theros-beyond-death");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // THB 20 — Heliod's Pilgrim (reprint)
 const HELIOD_S_PILGRIM_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2014::magic_2015::HELIOD_S_PILGRIM,

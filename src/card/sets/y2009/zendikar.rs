@@ -55,6 +55,12 @@ const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) ->
     ))
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ZEN", "zendikar");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ZEN 4 — Brave the Elements
 pub(in crate::card::sets) static BRAVE_THE_ELEMENTS: CardRecord = CardRecord::new(
     "Brave the Elements",

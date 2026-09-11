@@ -25,6 +25,13 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("DSC", "duskmourn-house-of-horror-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // DSC 21 — Metamorphosis Fanatic
 pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord::new(
     "Metamorphosis Fanatic",

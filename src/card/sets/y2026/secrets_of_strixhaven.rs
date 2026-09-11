@@ -19,6 +19,12 @@ use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("SOS", "secrets-of-strixhaven");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // SOS 12 — Elite Interceptor
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELITE_INTERCEPTOR: CardRecord = CardRecord::new(

@@ -55,6 +55,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ALL", "alliances");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ALL 1a — Carrier Pigeons
 pub(in crate::card::sets) static CARRIER_PIGEONS: CardRecord = CardRecord::new(
     "Carrier Pigeons",

@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn deterministic_land_entry_replacements_use_object_queries() {
@@ -107,7 +108,7 @@ fn an_entering_permanents_own_static_ability_can_grant_its_entry_replacement() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test self-granted entry replacement",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_land(&[]).with_abilities(&TEST_SELF_GRANTED_ENTRY_ABILITY);
@@ -143,7 +144,7 @@ fn an_entering_permanents_own_static_land_types_match_external_replacements() {
     let mut external = CardDefinition::new(
         external_id,
         "Test Plains entry restriction",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     external.rules = CardRules::new_enchantment(ManaCost::default())
@@ -152,7 +153,7 @@ fn an_entering_permanents_own_static_land_types_match_external_replacements() {
     let mut land = CardDefinition::new(
         land_id,
         "Test self-typed land",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     land.rules = CardRules::new_land(&[]).with_abilities(&TEST_SELF_PLAINS_ABILITY);
@@ -191,7 +192,7 @@ fn an_entering_static_effect_does_not_change_existing_replacement_sources_early(
     let mut source = CardDefinition::new(
         source_id,
         "Test nonbasic replacement source",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     source.rules =
@@ -228,7 +229,7 @@ fn a_land_play_option_locks_the_presented_part_on_the_permanent() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test modal card",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = front_rules;
@@ -286,7 +287,7 @@ fn a_modal_spell_resolves_by_its_locked_part_instead_of_the_canonical_front() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test modal spell",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = front_rules;
@@ -354,7 +355,7 @@ fn changing_a_permanents_presented_face_keeps_its_object_identity() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test Werewolf",
-        CardSet::Innistrad,
+        sets::innistrad::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = front_rules;
@@ -490,7 +491,7 @@ fn city_in_a_bottle_uses_canonical_origin_even_when_a_reprint_exists() {
     // Kird Ape debuted in Arabian Nights; a later printing does not move it.
     game.catalog = CardCatalog::with_additional_printings(
         game.catalog.definitions().into_iter().cloned(),
-        [CardPrinting::new(cards::KIRD_APE, CardSet::Magic2014)],
+        [CardPrinting::new(cards::KIRD_APE, sets::magic_2014::SET)],
     )
     .unwrap();
     game.battlefield

@@ -34,6 +34,12 @@ static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::AnyTarget,
 )];
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("BIG", "the-big-score");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // BIG 9 — Harvester of Misery
 pub(in crate::card::sets) static HARVESTER_OF_MISERY: CardRecord = CardRecord::new(
     "Harvester of Misery",

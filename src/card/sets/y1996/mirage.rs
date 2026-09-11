@@ -98,6 +98,12 @@ const fn slow_fetch_land_ability(
     )
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MIR", "mirage");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MIR 1 — Afterlife
 pub(in crate::card::sets) static AFTERLIFE: CardRecord = CardRecord::new(
     "Afterlife",

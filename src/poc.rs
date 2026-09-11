@@ -11,6 +11,7 @@ pub use crate::decks::{
 
 #[cfg(test)]
 mod tests {
+    use crate::card::sets;
     use std::collections::HashSet;
 
     use super::cards;
@@ -19,7 +20,7 @@ mod tests {
         lions_dib, lions_dib_bolt, mono_black, robots, sligh, the_deck, troll_disk, white_weenie,
     };
     use crate::rules;
-    use crate::{CardDefinitionId, CardEffectStatus, CardSet, CreatureStats, ManaCost};
+    use crate::{CardDefinitionId, CardEffectStatus, CreatureStats, ManaCost};
 
     #[test]
     fn built_in_decks_have_tournament_sizes() {
@@ -101,17 +102,17 @@ mod tests {
             (
                 cards::VOLCANIC_ISLAND,
                 "0324641d-af55-4c53-b4dc-c8262e967da5",
-                CardSet::Beta,
+                sets::beta::SET,
             ),
             (
                 cards::ENERGY_FLUX,
                 "bd1f624b-e8f2-462f-838a-7cb9e8fda988",
-                CardSet::Antiquities,
+                sets::antiquities::SET,
             ),
             (
                 cards::SEDGE_TROLL,
                 "b13bf496-f3c0-4c13-8282-e7abfab6a198",
-                CardSet::Alpha,
+                sets::alpha::SET,
             ),
         ] {
             let card = catalog.get(id).unwrap();

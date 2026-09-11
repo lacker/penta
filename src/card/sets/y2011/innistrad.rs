@@ -195,6 +195,12 @@ static ATTACHED_PERMANENT_IS_HUMAN: TriggerConditionDef =
         object: ObjectPredicateDef::Subtype("Human"),
     };
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ISD", "innistrad");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ISD 1 — Abbey Griffin
 pub(in crate::card::sets) static ABBEY_GRIFFIN: CardRecord = CardRecord::new(
     "Abbey Griffin",

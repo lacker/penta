@@ -90,6 +90,12 @@ static SWAMPS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQuer
     PlayerRelation::You,
 ));
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("M13", "magic-2013");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // M13 1 — Ajani, Caller of the Pride
 pub(in crate::card::sets) static AJANI_CALLER_OF_THE_PRIDE: CardRecord = CardRecord::new(
     "Ajani, Caller of the Pride",

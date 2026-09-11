@@ -10,6 +10,13 @@ use super::beta;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y1993::beta as catalog_leb;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("CEI", "international-collectors-edition");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CEI 1 — Animate Wall (reprint)
 const ANIMATE_WALL_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_lea::ANIMATE_WALL,

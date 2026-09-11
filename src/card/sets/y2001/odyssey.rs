@@ -83,6 +83,12 @@ static THRESHOLD: TriggerConditionDef = TriggerConditionDef::ObjectCount {
     amount: 7,
 };
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ODY", "odyssey");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ODY 1 — Aegis of Honor
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AEGIS_OF_HONOR: CardRecord = CardRecord::new(

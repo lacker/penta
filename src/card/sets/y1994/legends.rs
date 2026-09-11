@@ -87,6 +87,12 @@ static ONE_OR_MORE_CREATURES: [AbilityTargetDef; 1] = [AbilityTargetDef::one_or_
 static BANDS_WITH_OTHER_LEGENDS: AbilityDef =
     abilities::bands_with_other(BandingQuality::LegendaryCreatures);
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("LEG", "legends");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // LEG 1 — Akron Legionnaire
 pub(in crate::card::sets) static AKRON_LEGIONNAIRE: CardRecord = CardRecord::new(
     "Akron Legionnaire",

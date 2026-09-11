@@ -1,15 +1,15 @@
 //! Card sets first released in 2023.
 
-pub(super) mod commander_masters;
-pub(super) mod doctor_who;
-pub(super) mod lord_of_the_rings;
-pub(super) mod lord_of_the_rings_commander;
-pub(super) mod lost_caverns_of_ixalan;
-pub(super) mod lost_caverns_of_ixalan_commander;
-pub(super) mod march_of_the_machine;
-pub(super) mod march_of_the_machine_commander;
-pub(super) mod phyrexia_all_will_be_one;
-pub(super) mod phyrexia_all_will_be_one_commander;
-pub(super) mod wilds_of_eldraine;
+pub mod commander_masters;
+pub mod doctor_who;
+pub mod lord_of_the_rings;
+pub mod lord_of_the_rings_commander;
+pub mod lost_caverns_of_ixalan;
+pub mod lost_caverns_of_ixalan_commander;
+pub mod march_of_the_machine;
+pub mod march_of_the_machine_commander;
+pub mod phyrexia_all_will_be_one;
+pub mod phyrexia_all_will_be_one_commander;
+pub mod wilds_of_eldraine;
 
 pub(super) use super::{CardRecord, PrintingRecord};

@@ -19,6 +19,12 @@ use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ECL", "lorwyn-eclipsed");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ECL 128 — Brambleback Brute
 // Audit: unsupported — Needs a cost that removes a counter of any kind. RemoveCountersFromSource names one kind, and naming -1/-1 would take away the choice the card gives once anything else has put a counter on it.
 pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new(

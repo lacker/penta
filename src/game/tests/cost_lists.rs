@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn echo_accepts_a_discard_cost_and_sacrifices_when_it_is_not_paid() {
@@ -208,7 +209,7 @@ pub(in crate::game) fn game_with_cost_rules(rules: &CardRules) -> (Game, GameObj
     let mut definition = CardDefinition::new(
         definition_id,
         "Cost list fixture",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         CardRules::unsupported(),
     );
     definition.rules = *rules;

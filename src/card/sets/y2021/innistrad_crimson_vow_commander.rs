@@ -16,6 +16,13 @@ use crate::card::ValueDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("VOC", "innistrad-crimson-vow-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // VOC 14 — Occult Epiphany
 pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new(
     "Occult Epiphany",

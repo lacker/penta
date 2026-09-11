@@ -19,6 +19,12 @@ use crate::card::ValueDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("PDRC", "dragon-con");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // PDRC 1 — Nalathni Dragon
 pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new(
     "Nalathni Dragon",

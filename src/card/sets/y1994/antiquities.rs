@@ -9,7 +9,6 @@ use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
-use crate::card::CardSet;
 use crate::card::CardType;
 use crate::card::CardTypeSet;
 use crate::card::ChoiceVisibilityDef;
@@ -77,6 +76,12 @@ const fn controls_urzas_land(object: ObjectPredicateDef) -> ConditionDef {
         PlayerRelation::You,
     ))
 }
+
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ATQ", "antiquities");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // ATQ 1 — Argivian Archaeologist
 pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord = CardRecord::new(
@@ -1151,7 +1156,7 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[AbilityDef::activate
         EffectDef::sacrifice(EffectRecipientDef::matching_objects(
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                ObjectPredicateDef::DebutSet(CardSet::Antiquities),
+                ObjectPredicateDef::DebutSet(SET),
             ]),
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
@@ -2139,15 +2144,15 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
 
 #[cfg(test)]
 mod tests {
-    use super::ENERGY_FLUX;
+    use super::{ENERGY_FLUX, SET};
     use crate::card::{
-        AbilityOperationDef, AppliedEffectDef, CardEffectStatus, CardSet,
-        CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef, ImplementationStatus,
+        AbilityOperationDef, AppliedEffectDef, CardEffectStatus, CharacteristicOperationDef,
+        DeclarativeAbilityDef, EffectDef, ImplementationStatus,
     };
 
     #[test]
     fn energy_flux_grants_every_artifact_a_real_upkeep_tax() {
-        let definition = ENERGY_FLUX.definition(CardSet::Antiquities);
+        let definition = ENERGY_FLUX.definition(SET);
         let clauses = definition.rules.ability_clauses();
         assert_eq!(clauses.len(), 1);
         assert_eq!(

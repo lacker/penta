@@ -20,6 +20,12 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Native Rust set identities now live at `card::sets::<module>::SET`, replacing
+  the global `CardSet` enum variants (for example, `CardSet::Alpha` becomes
+  `card::sets::alpha::SET`). `CardSet` is a value type with `code()` and `slug()`;
+  the synthetic-set sentinel is `CardSet::TOKEN`. Set modules also own catalog
+  registration metadata. Existing catalog JSON slugs and protocol shapes are
+  unchanged.
 - Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.
   Opponents see that a choice is pending, then its public result; candidate
   options, ordering, policy hints, and checkpoint continuations stay with the

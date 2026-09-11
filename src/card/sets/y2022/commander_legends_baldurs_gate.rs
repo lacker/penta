@@ -54,6 +54,13 @@ use crate::ids::CardPartId;
 use crate::ids::PlayOptionId;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("CLB", "commander-legends-baldurs-gate");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CLB 8 — Banishment
 pub(in crate::card::sets) static BANISHMENT: CardRecord = CardRecord::new(
     "Banishment",

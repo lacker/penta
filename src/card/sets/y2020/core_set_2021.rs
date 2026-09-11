@@ -22,6 +22,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("M21", "core-set-2021");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // M21 71 — Shipwreck Dowser
 pub(in crate::card::sets) static SHIPWRECK_DOWSER: CardRecord = CardRecord::new(
     "Shipwreck Dowser",

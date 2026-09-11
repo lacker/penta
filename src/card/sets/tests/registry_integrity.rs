@@ -2,6 +2,7 @@ use super::*;
 use crate::CardEffectStatus;
 use crate::ControlDurationDef;
 use crate::card::child_effects;
+use crate::card::sets;
 use crate::card::sets::y2005;
 
 #[test]
@@ -28,13 +29,21 @@ fn format_sets_and_card_records_have_catalog_modules() {
         all_registered_sets.len(),
         "each set must have exactly one catalog module",
     );
-    assert!(!all_registered_sets.contains(&CardSet::Token));
+    assert!(!all_registered_sets.contains(&CardSet::TOKEN));
+    let mut slugs = HashSet::new();
+    for module in SET_MODULES {
+        assert!(
+            slugs.insert(module.set.slug()),
+            "each set must have a unique catalog slug: {}",
+            module.set.slug(),
+        );
+    }
     for format in Format::ALL {
         let Some(definition) = format.set_definition() else {
             continue;
         };
         assert!(
-            !definition.allowed_sets.contains(&CardSet::Token),
+            !definition.allowed_sets.contains(&CardSet::TOKEN),
             "no format may allow the token set"
         );
     }
@@ -185,7 +194,7 @@ fn basic_land_types_are_the_single_authority_for_intrinsic_mana() {
 fn virtual_and_face_down_characteristics_are_not_card_catalog_definitions() {
     let synthetic_names = SET_MODULES
         .iter()
-        .filter(|module| module.set == CardSet::Token)
+        .filter(|module| module.set == CardSet::TOKEN)
         .flat_map(|module| module.cards.iter().copied())
         .map(|record| record.name)
         .collect::<HashSet<_>>();
@@ -237,7 +246,7 @@ fn built_in_catalog_indexes_definitions_and_printings_separately() {
             catalog
                 .get_printing(CardPrintingId::with_variant(
                     cards::PLAINS,
-                    CardSet::Beta,
+                    sets::beta::SET,
                     variant,
                 ))
                 .is_some()

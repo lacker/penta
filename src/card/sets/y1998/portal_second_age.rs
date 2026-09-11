@@ -24,6 +24,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("P02", "portal-second-age");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // P02 8 — Angel of Mercy
 pub(in crate::card::sets) static ANGEL_OF_MERCY: CardRecord = CardRecord::new(
     "Angel of Mercy",

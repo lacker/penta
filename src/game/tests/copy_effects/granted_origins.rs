@@ -7,6 +7,7 @@
 // once the granting permanent is gone. Included textually, so the imports
 // here are that module's.
 
+use crate::card::sets;
 #[test]
 fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
     static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -37,7 +38,7 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
     let mut grantor_definition = CardDefinition::new(
         grantor_definition_id,
         "Activated snapshot test grantor",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     grantor_definition.rules =
@@ -130,7 +131,7 @@ fn separate_grant_sites_receive_distinct_structural_origins() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Grant identity test card",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
@@ -212,7 +213,7 @@ fn a_nonmatching_grant_site_still_advances_the_structural_origin() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Nonmatching grant identity test card",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
@@ -286,7 +287,7 @@ fn nonmatching_composite_grant_sites_still_advance_structural_origins() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Conditional composite grant identity test card",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
@@ -381,7 +382,7 @@ fn copy_grant_source_definition(
     let mut definition = CardDefinition::new(
         id,
         name,
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(abilities);

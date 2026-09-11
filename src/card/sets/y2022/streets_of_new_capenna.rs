@@ -39,6 +39,12 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
     CardRules::new_land(types).with_abilities(TRIOME_ABILITIES)
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("SNC", "streets-of-new-capenna");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // SNC 18 — Inspiring Overseer
 pub(in crate::card::sets) static INSPIRING_OVERSEER: CardRecord = CardRecord::new(
     "Inspiring Overseer",

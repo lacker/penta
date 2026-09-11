@@ -1,5 +1,6 @@
 use super::*;
 use crate::CostDef;
+use crate::card::sets;
 
 fn resolve_upkeep_ability(game: &mut Game) {
     game.handle_upkeep_triggers();
@@ -501,7 +502,7 @@ fn cumulative_upkeep_snow_mana_requires_a_snow_source() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Snow cumulative upkeep fixture",
-        CardSet::Coldsnap,
+        sets::coldsnap::SET,
         CardRules::new_enchantment(ManaCost::default()).with_abilities(&ABILITIES),
     );
     synchronize_single_part_definition(&mut definition);

@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 const TIME_VAULT_TURN_REPLACEMENT_TEXT: &str = "If you would begin your turn while this artifact is tapped, you may skip that turn instead. If you do, untap this artifact.";
 static TEST_EXTRA_TURN_REPLACEMENT_ABILITIES: [AbilityDef; 1] = [AbilityDef::replacement_for(
@@ -15,7 +16,7 @@ fn install_extra_turn_replacement(game: &mut Game, id: u32) -> GameObjectId {
     let mut definition = CardDefinition::new(
         definition_id,
         "Extra Turn Suppressor",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0))

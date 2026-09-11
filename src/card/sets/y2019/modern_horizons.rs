@@ -57,6 +57,12 @@ use crate::mana_cost;
 static NOT_YOUR_TURN: TriggerConditionDef =
     TriggerConditionDef::ActivePlayer(PlayerRelation::Opponent);
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("MH1", "modern-horizons-1");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MH1 7 — Ephemerate
 pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
     "Ephemerate",

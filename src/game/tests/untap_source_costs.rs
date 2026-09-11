@@ -1,6 +1,7 @@
 //! The untap symbol as an activated-ability cost.
 
 use super::*;
+use crate::card::sets;
 
 static UNTAP_COSTS: [CostDef; 2] = [CostDef::Mana(ManaCost::new(2, 0)), CostDef::UntapSource];
 static UNTAP_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
@@ -18,7 +19,7 @@ fn untap_source_game() -> (Game, GameObjectId, Action) {
     let mut definition = CardDefinition::new(
         definition_id,
         "Untap source cost test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact_creature(ManaCost::new(3, 0), &["Scarecrow"], 2, 2)

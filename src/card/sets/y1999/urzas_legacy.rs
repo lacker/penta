@@ -52,6 +52,12 @@ use crate::card::sets::y1998::portal_second_age as catalog_p02;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("ULG", "urzas-legacy");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ULG 1 — Angelic Curator
 pub(in crate::card::sets) static ANGELIC_CURATOR: CardRecord = CardRecord::new(
     "Angelic Curator",

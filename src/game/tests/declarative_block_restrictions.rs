@@ -1,6 +1,7 @@
 //! Participant-scoped blocking restrictions and declaration costs.
 
 use super::*;
+use crate::card::sets;
 use crate::card::{BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef};
 
 const TAXED_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_170);
@@ -95,7 +96,7 @@ fn creature_definition(
     let mut definition = CardDefinition::new(
         id,
         name,
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =

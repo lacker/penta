@@ -270,10 +270,11 @@ impl Error for CharacteristicError {}
 #[cfg(test)]
 mod tests {
     use super::{CharacteristicContext, CharacteristicError, applicable_part_ids};
+    use crate::card::sets;
     use crate::card::{CardCatalog, cards};
     use crate::{
         AlternateSpellKind, CardDefinition, CardDefinitionId, CardPart, CardPartId, CardRules,
-        CardSet, CardStructure, ManaCost, PlayOptionDef, PlayOptionId, SpellForm,
+        CardStructure, ManaCost, PlayOptionDef, PlayOptionId, SpellForm,
     };
 
     fn definition(catalog: &CardCatalog, id: CardDefinitionId) -> crate::CardDefinition {
@@ -437,7 +438,7 @@ mod tests {
         let mut flip = CardDefinition::new(
             CardDefinitionId::new(20_000),
             "Test flip card",
-            CardSet::Innistrad,
+            sets::innistrad::SET,
             crate::card::CardRules::unsupported(),
         );
         flip.parts = vec![
@@ -473,7 +474,7 @@ mod tests {
         let mut alternate = CardDefinition::new(
             CardDefinitionId::new(20_001),
             "Test adventurer",
-            CardSet::Innistrad,
+            sets::innistrad::SET,
             crate::card::CardRules::unsupported(),
         );
         alternate.parts = vec![

@@ -103,6 +103,12 @@ use crate::card::abilities;
 use crate::card::actions;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("TSP", "time-spiral");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // TSP 1 — Amrou Scout
 pub(in crate::card::sets) static AMROU_SCOUT: CardRecord = CardRecord::new(
     "Amrou Scout",

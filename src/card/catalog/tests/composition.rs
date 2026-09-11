@@ -1,8 +1,9 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn part_and_play_option_ids_are_unique_within_a_definition() {
-    let mut duplicate_part = definition(1, "Test Card", CardSet::Alpha);
+    let mut duplicate_part = definition(1, "Test Card", sets::alpha::SET);
     duplicate_part.parts.push(duplicate_part.parts[0].clone());
     assert_eq!(
         error(duplicate_part),
@@ -12,7 +13,7 @@ fn part_and_play_option_ids_are_unique_within_a_definition() {
         }
     );
 
-    let mut duplicate_option = definition(1, "Test Card", CardSet::Alpha);
+    let mut duplicate_option = definition(1, "Test Card", sets::alpha::SET);
     duplicate_option
         .play_options
         .push(duplicate_option.play_options[0].clone());
@@ -30,7 +31,7 @@ fn incoherent_rules_cannot_enter_the_catalog() {
     let invalid_rules = crate::CardRules::new_land(&[])
         .with_printed_mana_cost_for_test(PrintedManaCost::Cost(ManaCost::default()));
 
-    let mut invalid_compatibility_view = definition(1, "Test Card", CardSet::Alpha);
+    let mut invalid_compatibility_view = definition(1, "Test Card", sets::alpha::SET);
     invalid_compatibility_view.rules = invalid_rules;
     assert_eq!(
         error(invalid_compatibility_view),
@@ -41,7 +42,7 @@ fn incoherent_rules_cannot_enter_the_catalog() {
         }
     );
 
-    let mut invalid_part = definition(1, "Test Card", CardSet::Alpha);
+    let mut invalid_part = definition(1, "Test Card", sets::alpha::SET);
     invalid_part.parts[0].rules = invalid_rules;
     assert_eq!(
         error(invalid_part),
@@ -80,7 +81,7 @@ fn creator_owned_token_rules_receive_catalog_composition_validation() {
         },
     )];
 
-    let mut creator = definition(1, "Token Creator", CardSet::Alpha);
+    let mut creator = definition(1, "Token Creator", sets::alpha::SET);
     let rules = creator.rules.with_abilities(&CREATE_TOKEN);
     set_primary_rules(&mut creator, &rules);
     assert_eq!(
@@ -110,7 +111,7 @@ fn creator_owned_token_abilities_receive_catalog_validation() {
         },
     )];
 
-    let mut creator = definition(1, "Living Weapon", CardSet::Alpha);
+    let mut creator = definition(1, "Living Weapon", sets::alpha::SET);
     let rules = creator.rules.with_abilities(&CREATE_ATTACHED_TOKEN);
     set_primary_rules(&mut creator, &rules);
     assert_eq!(
@@ -125,7 +126,7 @@ fn creator_owned_token_abilities_receive_catalog_validation() {
 
 #[test]
 fn compatibility_rules_must_match_the_primary_part() {
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     card.rules = crate::CardRules::new_artifact(ManaCost::default());
 
     assert_eq!(

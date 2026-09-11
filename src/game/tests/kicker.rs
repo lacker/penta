@@ -2,6 +2,7 @@
 //! resolution: ordinary kicker, multikicker, and two repeatable surcharges.
 
 use super::*;
+use crate::card::sets;
 use crate::card::{CostDef, CostQuantityDef};
 
 fn settle(game: &mut Game) {
@@ -108,7 +109,7 @@ fn escape_context_and_kicker_payment_coexist_through_entry() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Escaped and Kicked",
-        CardSet::TherosBeyondDeath,
+        sets::theros_beyond_death::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =

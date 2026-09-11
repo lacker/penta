@@ -286,6 +286,16 @@ pub struct MismatchedAdditionalCost {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum CatalogError {
+    ConflictingSetSlug {
+        code: &'static str,
+        first: &'static str,
+        second: &'static str,
+    },
+    DuplicateSetSlug {
+        slug: &'static str,
+        first: &'static str,
+        second: &'static str,
+    },
     DuplicateId(CardDefinitionId),
     DuplicateName(String),
     DuplicatePrintingId(CardPrintingId),

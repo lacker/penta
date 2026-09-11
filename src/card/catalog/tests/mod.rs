@@ -2,6 +2,7 @@ use super::{
     CardCatalog, CatalogError, GrantedAbilityValidationError, validate_ability_targets,
     validate_replacement_ability_targets, validate_semantic_spell_presentation,
 };
+use crate::card::sets;
 use crate::card::{
     AbilityDef, AbilityEffectDef, AbilityTargetDef, AbilityTargetPredicate, ActivatedAbilityDef,
     AdditionalCostDef, AlternateSpellKind, AlternativeCastKindDef, AlternativeCostDef,
@@ -90,7 +91,7 @@ fn semantic_spell_definition(
 ) -> CardDefinition {
     let abilities = Box::leak(vec![*ability].into_boxed_slice());
     let rules = crate::CardRules::new_instant(ManaCost::default()).with_abilities(abilities);
-    let mut card = definition(1, "Test Modal Spell", CardSet::Alpha);
+    let mut card = definition(1, "Test Modal Spell", sets::alpha::SET);
     set_primary_rules(&mut card, &rules);
     card.play_options = vec![PlayOptionDef::cast(
         PlayOptionId::DEFAULT,
@@ -109,7 +110,7 @@ fn semantic_spell_definition(
 }
 
 fn split_definition(fused: Option<PlayOptionId>) -> CardDefinition {
-    let mut card = definition(1, "Left // Right", CardSet::Alpha);
+    let mut card = definition(1, "Left // Right", sets::alpha::SET);
     let spell_rules = crate::CardRules::new_instant(ManaCost::default());
     card.rules = spell_rules;
     card.parts[0].rules = spell_rules;
@@ -163,7 +164,7 @@ fn definition_granting(granted: &'static AbilityDef) -> CardDefinition {
         )]
         .into_boxed_slice(),
     );
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     let rules = card.rules.with_abilities(abilities);
     set_primary_rules(&mut card, &rules);
     card
@@ -175,3 +176,4 @@ mod cost_bindings;
 mod identity_printings;
 mod names;
 mod presentation;
+mod set_metadata;

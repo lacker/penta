@@ -35,6 +35,12 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("M20", "magic-2020");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // M20 3 — Ancestral Blade
 pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
     "Ancestral Blade",

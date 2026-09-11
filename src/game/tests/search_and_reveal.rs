@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 /// Puts `library` on top of player one's library, top card first.
 /// Stacks a library top card first. The top of a library is the end of the
@@ -141,7 +142,7 @@ fn any_target_damage_can_remove_a_planeswalker() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test Planeswalker",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_planeswalker(ManaCost::default(), &["Test"], 3)
@@ -679,7 +680,7 @@ fn simultaneous_deaths_use_the_pre_exit_trigger_listener_snapshot() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test death listener",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =
@@ -725,7 +726,7 @@ fn simultaneous_exits_keep_pre_exit_characteristics_for_trigger_matching() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test Mountain exit listener",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =

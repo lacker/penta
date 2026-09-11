@@ -150,6 +150,12 @@ const fn keyrune_animation(
     ]
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("GTC", "gatecrash");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // GTC 1 — Aerial Maneuver
 pub(in crate::card::sets) static AERIAL_MANEUVER: CardRecord = CardRecord::new(
     "Aerial Maneuver",

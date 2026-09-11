@@ -118,6 +118,12 @@ const fn cluestone_rules(abilities: &'static [AbilityDef]) -> CardRules {
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(abilities)
 }
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("DGM", "dragons-maze");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // DGM 1 — Boros Mastiff
 pub(in crate::card::sets) static BOROS_MASTIFF: CardRecord = CardRecord::new(
     "Boros Mastiff",

@@ -35,6 +35,13 @@ static CAST_A_NONCREATURE_SPELL_THIS_TURN: ValueComparisonDef = ValueComparisonD
     right: ValueDef::Constant(1),
 };
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("MSC", "marvel-super-heroes-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // MSC 28 — Council of Reeds
 pub(in crate::card::sets) static COUNCIL_OF_REEDS: CardRecord = CardRecord::new(
     "Council of Reeds",

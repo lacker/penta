@@ -12,6 +12,12 @@ use crate::card::sets::y1994::the_dark as catalog_drk;
 use crate::card::sets::y1995::homelands as catalog_hml;
 use crate::card::sets::y1995::ice_age as catalog_ice;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("5ED", "fifth-edition");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // 5ED 1 — Abbey Gargoyles (reprint)
 const ABBEY_GARGOYLES_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_hml::ABBEY_GARGOYLES,

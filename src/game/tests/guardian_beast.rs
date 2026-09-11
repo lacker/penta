@@ -1,5 +1,6 @@
 use super::*;
 use crate::card::PlayerRefDef;
+use crate::card::sets;
 
 static ENCHANT_PERMANENT_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
@@ -135,7 +136,7 @@ fn guardian_beast_keeps_an_existing_aura_but_blocks_a_new_one() {
     let mut definition = CardDefinition::new(
         aura_definition,
         "Enchant permanent test Aura",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_enchantment(ManaCost::default())

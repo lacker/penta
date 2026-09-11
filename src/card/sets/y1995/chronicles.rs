@@ -11,6 +11,12 @@ use crate::card::sets::y1994::legends as catalog_leg;
 use crate::card::sets::y1994::the_dark as catalog_drk;
 use crate::card::sets::y1994::the_dark;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("CHR", "chronicles");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // CHR 1 — Abu Ja'far (reprint)
 const ABU_JAFAR_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_arn::ABU_JAFAR,

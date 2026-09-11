@@ -14,6 +14,12 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ValueDef;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("TLA", "avatar-the-last-airbender");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // TLA 144 — The Last Agni Kai
 pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new(
     "The Last Agni Kai",

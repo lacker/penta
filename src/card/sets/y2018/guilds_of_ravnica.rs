@@ -43,6 +43,12 @@ static ARCLIGHT_PHOENIX_RETURN_CONDITION: TriggerConditionDef = TriggerCondition
     TriggerConditionDef::ValueComparison(&ARCLIGHT_PHOENIX_CAST_COUNT),
 ]);
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("GRN", "guilds-of-ravnica");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // GRN 45 — Murmuring Mystic
 pub(in crate::card::sets) static MURMURING_MYSTIC: CardRecord = CardRecord::new(
     "Murmuring Mystic",

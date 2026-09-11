@@ -1,5 +1,6 @@
 use super::*;
 use crate::card::catalog::MismatchedAlternativeCost;
+use crate::card::sets;
 
 #[test]
 fn every_structure_family_rejects_undefined_or_repeated_parts() {
@@ -31,7 +32,7 @@ fn every_structure_family_rejects_undefined_or_repeated_parts() {
         },
     ];
     for structure in invalid_structures {
-        let mut card = definition(1, "Test Card", CardSet::Alpha);
+        let mut card = definition(1, "Test Card", sets::alpha::SET);
         card.structure = structure;
         assert!(matches!(
             error(card),
@@ -42,7 +43,7 @@ fn every_structure_family_rejects_undefined_or_repeated_parts() {
         ));
     }
 
-    let mut repeated = definition(1, "Test Card", CardSet::Alpha);
+    let mut repeated = definition(1, "Test Card", sets::alpha::SET);
     repeated.structure = CardStructure::Flip {
         normal: CardPartId::PRIMARY,
         flipped: CardPartId::PRIMARY,
@@ -58,7 +59,7 @@ fn every_structure_family_rejects_undefined_or_repeated_parts() {
 
 #[test]
 fn spell_forms_must_reference_defined_structural_parts() {
-    let mut undefined = definition(1, "Test Card", CardSet::Alpha);
+    let mut undefined = definition(1, "Test Card", sets::alpha::SET);
     undefined.play_options[0].form = SpellForm::Part(CardPartId(9));
     assert_eq!(
         error(undefined),
@@ -134,7 +135,7 @@ fn fused_option_must_exist_and_match_all_split_parts_in_printed_order() {
 #[test]
 fn mode_and_alternative_cost_ids_are_local_to_options() {
     let modes = ModeSetDef::choose_one(vec![mode(3, Vec::new()), mode(3, Vec::new())]);
-    let mut duplicate_mode = definition(1, "Test Card", CardSet::Alpha);
+    let mut duplicate_mode = definition(1, "Test Card", sets::alpha::SET);
     duplicate_mode.play_options[0].modes = Some(modes);
     assert_eq!(
         error(duplicate_mode),
@@ -145,7 +146,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
         }
     );
 
-    let mut nonpositional_mode = definition(1, "Test Card", CardSet::Alpha);
+    let mut nonpositional_mode = definition(1, "Test Card", sets::alpha::SET);
     nonpositional_mode.play_options[0].modes =
         Some(ModeSetDef::choose_one(vec![mode(3, Vec::new())]));
     assert_eq!(
@@ -158,7 +159,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
         }
     );
 
-    let mut duplicate_alternative = definition(1, "Test Card", CardSet::Alpha);
+    let mut duplicate_alternative = definition(1, "Test Card", sets::alpha::SET);
     duplicate_alternative.play_options[0].alternative_costs = vec![
         AlternativeCostDef {
             binding: None,
@@ -194,7 +195,7 @@ fn mode_and_alternative_cost_ids_are_local_to_options() {
     CardCatalog::new([alternatives_on_distinct_options])
         .expect("alternative-cost identities are local to a play option");
 
-    let mut duplicate_additional = definition(1, "Test Card", CardSet::Alpha);
+    let mut duplicate_additional = definition(1, "Test Card", sets::alpha::SET);
     duplicate_additional.play_options[0].additional_costs = vec![
         AdditionalCostDef {
             id: AdditionalCostId(5),
@@ -230,7 +231,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
         )]
         .into_boxed_slice(),
     );
-    let mut missing = definition(1, "Test Card", CardSet::Alpha);
+    let mut missing = definition(1, "Test Card", sets::alpha::SET);
     let rules =
         crate::CardRules::new_instant(ManaCost::default()).with_abilities(missing_abilities);
     set_primary_rules(&mut missing, &rules);
@@ -256,7 +257,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
         ]
         .into_boxed_slice(),
     );
-    let mut projected = definition(1, "Test Card", CardSet::Alpha);
+    let mut projected = definition(1, "Test Card", sets::alpha::SET);
     projected.play_options[0]
         .alternative_costs
         .push(AlternativeCostDef {
@@ -308,7 +309,7 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
 
 #[test]
 fn mode_and_target_cardinality_bounds_are_sane() {
-    let mut invalid_modes = definition(1, "Test Card", CardSet::Alpha);
+    let mut invalid_modes = definition(1, "Test Card", sets::alpha::SET);
     invalid_modes.play_options[0].modes = Some(ModeSetDef {
         minimum: 2,
         maximum: 1,
@@ -326,7 +327,7 @@ fn mode_and_target_cardinality_bounds_are_sane() {
         }
     );
 
-    let mut too_many_modes = definition(1, "Test Card", CardSet::Alpha);
+    let mut too_many_modes = definition(1, "Test Card", sets::alpha::SET);
     too_many_modes.play_options[0].modes = Some(ModeSetDef {
         minimum: 1,
         maximum: 2,
@@ -344,7 +345,7 @@ fn mode_and_target_cardinality_bounds_are_sane() {
         }
     );
 
-    let mut invalid_targets = definition(1, "Test Card", CardSet::Alpha);
+    let mut invalid_targets = definition(1, "Test Card", sets::alpha::SET);
     invalid_targets.play_options[0].targets = vec![target(0, 2, 1)];
     assert_eq!(
         error(invalid_targets),
@@ -724,7 +725,7 @@ fn semantic_spell_mode_presentation_matches_branch_order_and_predicates() {
 
 #[test]
 fn unsupported_presentation_modes_do_not_require_semantic_modes() {
-    let mut card = definition(1, "Unsupported Modal Spell", CardSet::Alpha);
+    let mut card = definition(1, "Unsupported Modal Spell", sets::alpha::SET);
     card.play_options[0].modes = Some(ModeSetDef::choose_one(vec![
         mode(0, vec![target(0, 1, 1)]),
         mode(1, Vec::new()),
@@ -736,7 +737,7 @@ fn unsupported_presentation_modes_do_not_require_semantic_modes() {
 #[test]
 fn composed_target_count_fits_the_runtime_slot_space() {
     let targets = || (0_u8..200).map(|id| target(id, 1, 1)).collect::<Vec<_>>();
-    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    let mut card = definition(1, "Test Card", sets::alpha::SET);
     card.play_options[0].modes = Some(ModeSetDef {
         minimum: 2,
         maximum: 2,
@@ -761,11 +762,11 @@ fn modal_target_slots_are_local_to_each_selected_occurrence() {
         mode(0, vec![target(0, 1, 1)]),
         mode(1, vec![target(0, 1, 1)]),
     ]);
-    let mut valid = definition(1, "Test Card", CardSet::Alpha);
+    let mut valid = definition(1, "Test Card", sets::alpha::SET);
     valid.play_options[0].modes = Some(mutually_exclusive);
     CardCatalog::new([valid]).unwrap();
 
-    let mut coexisting = definition(1, "Test Card", CardSet::Alpha);
+    let mut coexisting = definition(1, "Test Card", sets::alpha::SET);
     coexisting.play_options[0].modes = Some(ModeSetDef {
         minimum: 2,
         maximum: 2,
@@ -778,7 +779,7 @@ fn modal_target_slots_are_local_to_each_selected_occurrence() {
     });
     CardCatalog::new([coexisting]).unwrap();
 
-    let mut repeatable = definition(1, "Test Card", CardSet::Alpha);
+    let mut repeatable = definition(1, "Test Card", sets::alpha::SET);
     repeatable.play_options[0].modes = Some(ModeSetDef {
         minimum: 2,
         maximum: 2,

@@ -22,6 +22,12 @@ use crate::card::ValueDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("SPM", "marvels-spider-man");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // SPM 93 — Spider-Verse
 // Audit: unsupported — Needs a once-each-turn trigger for spells cast outside hand whose optional stack copy can grant haste specifically when it copies a permanent spell.
 pub(in crate::card::sets) static SPIDER_VERSE: CardRecord = CardRecord::new(

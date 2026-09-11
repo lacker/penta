@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 fn intrinsic_mana_colors(game: &Game, permanent: &Permanent) -> Vec<ManaColor> {
     let mut colors = game
@@ -788,7 +789,7 @@ fn blood_moon_strips_printed_keywords_from_object_predicates() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Flying Gate",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature_without_mana_cost(&["Gate", "Bird"], 1, 1)
@@ -868,7 +869,7 @@ fn static_ability_additions_and_removals_follow_source_timestamps() {
     let mut grant = CardDefinition::new(
         grant_id,
         "Static ability grant test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     grant.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(&GRANT);
@@ -876,7 +877,7 @@ fn static_ability_additions_and_removals_follow_source_timestamps() {
     let mut remove = CardDefinition::new(
         remove_id,
         "Static ability removal test",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     remove.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(&REMOVE);

@@ -1,4 +1,5 @@
 use super::*;
+use crate::card::sets;
 
 #[test]
 fn a_physical_card_gets_new_object_identity_in_each_cast_zone() {
@@ -340,7 +341,7 @@ fn declarative_mana_production_drives_generic_mana_sources() {
     let mut definition = CardDefinition::new(
         definition_id,
         "Test dual land",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_land(&[]).with_abilities(&ABILITIES);

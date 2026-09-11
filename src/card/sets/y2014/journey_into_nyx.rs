@@ -8,6 +8,12 @@ use crate::card::CardRules;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("JOU", "journey-into-nyx");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // JOU 163 — Mana Confluence
 pub(in crate::card::sets) static MANA_CONFLUENCE: CardRecord = CardRecord::new(
     "Mana Confluence",

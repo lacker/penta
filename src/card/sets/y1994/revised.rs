@@ -10,6 +10,12 @@ use crate::card::sets::y1993::arabian_nights as catalog_arn;
 use crate::card::sets::y1993::beta as catalog_leb;
 use crate::card::sets::y1994::antiquities as catalog_atq;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("3ED", "revised");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // 3ED 1 — Animate Wall (reprint)
 const ANIMATE_WALL_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_lea::ANIMATE_WALL,

@@ -16,6 +16,12 @@ use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("OGW", "oath-of-the-gatewatch");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // OGW 141 — Pulse of Murasa
 pub(in crate::card::sets) static PULSE_OF_MURASA: CardRecord = CardRecord::new(
     "Pulse of Murasa",

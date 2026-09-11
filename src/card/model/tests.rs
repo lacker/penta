@@ -1,13 +1,14 @@
 use super::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
     AlternativeCostDef, CardComposition, CardDefinition, CardEffectStatus, CardPart, CardPrinting,
-    CardPrintingId, CardRules, CardSet, CardType, CardTypeSet, CostDef, CostQuantityDef,
-    CreatureStats, DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    FlexibleManaSymbol, ImplementationStatus, LikelihoodDef, ManaColor, ManaCost,
-    ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaTypeSetDef, ModalModeListDef,
-    ObjectPredicateDef, PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost,
-    SpellAbilityDef, SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
+    CardPrintingId, CardRules, CardType, CardTypeSet, CostDef, CostQuantityDef, CreatureStats,
+    DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectRecipientDef, FlexibleManaSymbol,
+    ImplementationStatus, LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind,
+    ManaRestrictionDef, ManaSelectionDef, ManaTypeSetDef, ModalModeListDef, ObjectPredicateDef,
+    PlayOptionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost, SpellAbilityDef,
+    SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
 };
+use crate::card::sets;
 use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
 };
@@ -339,13 +340,13 @@ fn semantic_target_labels_are_derived_from_predicates() {
 #[test]
 fn printing_ids_distinguish_variants_within_one_set() {
     let definition = CardDefinitionId::new(7);
-    let primary = CardPrintingId::new(definition, CardSet::Alpha);
-    let alternate = CardPrintingId::with_variant(definition, CardSet::Alpha, 1);
+    let primary = CardPrintingId::new(definition, sets::alpha::SET);
+    let alternate = CardPrintingId::with_variant(definition, sets::alpha::SET, 1);
 
     assert_eq!(primary.variant, 0);
     assert_ne!(primary, alternate);
     assert_eq!(
-        CardPrinting::with_variant(definition, CardSet::Alpha, 1).id,
+        CardPrinting::with_variant(definition, sets::alpha::SET, 1).id,
         alternate
     );
 }
@@ -356,13 +357,13 @@ fn definitions_start_with_their_primary_printing() {
     let definition = CardDefinition::new(
         id,
         "Test Card",
-        CardSet::Alpha,
+        sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
 
     assert_eq!(
         definition.printings,
-        vec![CardPrinting::new(id, CardSet::Alpha)]
+        vec![CardPrinting::new(id, sets::alpha::SET)]
     );
 }
 
@@ -658,7 +659,7 @@ fn card_support_drives_the_ordinary_play_option_gate() {
     let unsupported_definition = CardDefinition::new(
         CardDefinitionId::new(8),
         "Unsupported",
-        CardSet::Alpha,
+        sets::alpha::SET,
         unsupported,
     );
     assert_eq!(

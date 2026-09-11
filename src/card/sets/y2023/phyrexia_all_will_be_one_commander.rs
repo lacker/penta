@@ -22,6 +22,13 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet =
+    crate::card::CardSet::new("ONC", "phyrexia-all-will-be-one-commander");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // ONC 6 — Glimmer Lens
 pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
     "Glimmer Lens",

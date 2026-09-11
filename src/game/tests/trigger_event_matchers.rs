@@ -1,6 +1,7 @@
 //! Canonical committed trigger-event matching.
 
 use super::*;
+use crate::card::sets;
 
 fn add_definition(game: &mut Game, definition: CardDefinition) {
     let mut definitions = game
@@ -21,7 +22,7 @@ fn trigger_creature_definition(
     let mut definition = CardDefinition::new(
         id,
         name,
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     definition.rules =
@@ -199,7 +200,7 @@ fn related_damage_recipients_are_relative_to_the_ability_controller() {
     let mut aura = CardDefinition::new(
         definition,
         "Controller-relative damage watcher",
-        CardSet::Magic2014,
+        sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
     );
     aura.rules = CardRules::new_enchantment(ManaCost::default()).with_abilities(&ABILITIES);
@@ -811,7 +812,7 @@ fn simultaneous_exit_predicates_use_source_and_object_lki() {
     for predicate in [
         ObjectPredicateDef::AttachedToSource,
         ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower),
-        ObjectPredicateDef::DebutSet(CardSet::Alpha),
+        ObjectPredicateDef::DebutSet(sets::alpha::SET),
         ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(ObjectRefDef::Source)),
     ] {
         assert!(

@@ -19,6 +19,12 @@ use crate::card::sets::y2005::betrayers_of_kamigawa as catalog_bok;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+/// Printed set identity and stable catalog slug.
+pub const SET: crate::card::CardSet = crate::card::CardSet::new("C15", "commander-2015");
+
+pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
+    crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
 // C15 14 — Mystic Confluence
 pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new(
     "Mystic Confluence",

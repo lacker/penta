@@ -1,10 +1,10 @@
 //! Card sets first released in 2016.
 
-pub(super) mod conspiracy_take_the_crown;
-pub(super) mod eldritch_moon;
-pub(super) mod eternal_masters;
-pub(super) mod kaladesh;
-pub(super) mod oath_of_the_gatewatch;
-pub(super) mod shadows_over_innistrad;
+pub mod conspiracy_take_the_crown;
+pub mod eldritch_moon;
+pub mod eternal_masters;
+pub mod kaladesh;
+pub mod oath_of_the_gatewatch;
+pub mod shadows_over_innistrad;
 
 pub(super) use super::{CardRecord, PrintingRecord};

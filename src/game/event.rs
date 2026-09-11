@@ -127,6 +127,15 @@ pub enum GameEvent {
         definition: CardDefinitionId,
         targets: Vec<Target>,
     },
+    /// Casting a face-down spell does not disclose its physical identity.
+    FaceDownSpellCast {
+        player: PlayerId,
+        card: GameObjectId,
+        targets: Vec<Target>,
+    },
+    FaceDownSpellResolved {
+        card: GameObjectId,
+    },
     SpellResolved {
         /// The spell's former game object on the stack.
         card: GameObjectId,
@@ -227,6 +236,20 @@ pub enum GameEvent {
     GameEnded {
         result: GameResult,
     },
+}
+
+impl GameEvent {
+    pub(super) const fn spell_resolved(
+        card: GameObjectId,
+        definition: CardDefinitionId,
+        face_down: bool,
+    ) -> Self {
+        if face_down {
+            Self::FaceDownSpellResolved { card }
+        } else {
+            Self::SpellResolved { card, definition }
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

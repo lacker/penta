@@ -4,7 +4,8 @@ Penta's hosted room owns one authoritative engine and match journal. A browser,
 an ordinary HTTP bot, and the stdio MCP adapter all connect to that room. Either
 engine seat can be driven by a bot; one can also be the existing human browser.
 The MCP adapter supplies transport and presentation, with no model calls,
-gameplay policy, action ranking, or automatic priority passing.
+gameplay policy or action ranking. The engine advances unique continuations
+without asking a client to acknowledge them.
 
 ```mermaid
 flowchart LR
@@ -16,10 +17,14 @@ flowchart LR
 ```
 
 This is an opt-in hosted mode, `sessionApi: true`, with an external opponent.
-It returns every engine decision to the controlling client, including ordinary
-priority windows and mana abilities. Browser auto-pass and phase-stop controls
-are disabled, and the browser's pass button submits one pass. No move clock is
-imposed. Existing indexed bot-protocol vocabulary and legality remain unchanged.
+It returns every real choice to the controlling client, including optional mana
+abilities. A sole pass, completed combat declaration, or decision with exactly
+one valid selection advances automatically. Multi-selection templates are not
+treated as single choices; selection bounds, ordering, cancellation, and offered
+casts all matter. Concession remains a separate way to end a game, not an
+alternative continuation for this check. Browser auto-pass and phase-stop
+controls are disabled. No move clock is imposed. Existing indexed bot-protocol
+vocabulary and legality remain unchanged.
 
 ## Run locally
 
@@ -88,11 +93,14 @@ An explicit engine decision takes ordered option IDs:
 An action can also be submitted as the complete legal-action object with only
 its `index` removed. Every field must match exactly. For a batch, provide up to
 64 such action values or explicit decisions. The server resolves each against
-the fresh engine state, in order, and stops at the first unavailable choice or
-other seat's decision. It returns `receipt.accepted` and, when stopped early,
+the fresh engine state after forced advancement, in order, and stops at the first
+unavailable choice or other seat's decision. It returns `receipt.accepted` and, when stopped early,
 `receipt.stopped`. An accepted prefix remains committed. Indexed choices are
 allowed only for a single move; a batch cannot reuse changing list positions.
-The adapter never invents, extends, or resumes a batch.
+The adapter never invents, extends, or resumes a batch. Each submitted choice
+includes its engine-forced continuations; `receipt.accepted` counts submitted
+choices only. Forced actions are reconstructed deterministically from the
+journal's commands and simulation fingerprint.
 
 ## Compact observations
 
@@ -125,13 +133,24 @@ sends only the requested page. `inspect(section: "match")` gives exact match
 details. A waiting response exposes neither another seat's intermediate
 observation nor a revision that could reveal private choice counts.
 
-The current bot observation does not include transient reveal events. For
-example, when Domri Rade reveals a creature and puts it into its controller's
-hand during one resolution, the next opponent observation lacks that card's
-identity even though the browser event log records the reveal. This affects
-both HTTP and MCP views; full inspection cannot recover the missing event.
-Complete player information requires a shared, seat-safe event or observation
-contract, rather than an adapter inference from hand-size changes.
+Session observations add ordered `updates`: public events and `AutomaticDecision`
+entries containing frozen seat-visible questions and their forced answers.
+This preserves transient reveals, including a card revealed into an opponent's
+hand, and private inspections that no longer require an acknowledgement. Seeds
+and other seats' private inspection menus are withheld. Public notices retain
+their redaction. Face-down spell events carry a public object ID and `faceDown`
+marker without a card name or definition. The browser also includes skipped
+inspection information in its game log.
+
+Updates accumulate until that seat's next successfully submitted move. Reading,
+waiting, reconnecting, and retrying a committed request do not consume them.
+Read or inspect referenced updates before submitting the next move. A batch
+retains updates from every accepted command; split a batch when intermediate
+information should affect a later choice. Large update lists use the same
+explicit count and `inspect(section: "updates")` paging contract
+as menus. The ordinary canonical observation also adds `forcedAction` and the
+optional `actions.forced.v1` capability so other runners can use the same engine
+classification without opting into hosted automatic advancement.
 
 Transport savings do not imply a particular reduction in model reasoning cost.
 Compare total tool input/output, follow-up inspections, reasoning usage, and

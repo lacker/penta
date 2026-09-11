@@ -102,6 +102,7 @@ mod exert;
 mod exile_permission;
 mod explore;
 mod face_down;
+mod forced_actions;
 mod foretell;
 mod game_actions;
 mod land_type_layers;

@@ -8,6 +8,7 @@ mod pacing;
 mod presentation;
 mod session;
 mod session_api;
+mod session_updates;
 mod snapshot;
 
 use penta::card;

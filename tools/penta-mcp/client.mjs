@@ -129,9 +129,9 @@ export class SessionClient {
     const view = await this.#request(session.room, "session", session.token);
     if (!view.observation) return view;
     if (section === "observation") return this.#display(connection, view, true);
-    if (section === "legalActions" || (section === "decision" && view.observation.decision)) {
+    if (section === "legalActions" || section === "updates" || (section === "decision" && view.observation.decision)) {
       const decision = view.observation.decision;
-      let items = section === "legalActions" ? view.observation.legalActions : decision.options;
+      let items = section === "decision" ? decision.options : (view.observation[section] ?? []);
       if (actionType) items = items.filter(item => item.type === actionType);
       if (query) items = items.filter(item => JSON.stringify(item).toLowerCase().includes(query.toLowerCase()));
       return { revision: view.revision,

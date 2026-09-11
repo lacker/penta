@@ -788,6 +788,7 @@ impl Game {
         }
         entry.permanent.timestamp = self.allocate_continuous_effect_timestamp();
         let permanent_id = entry.permanent.card.id;
+        let face_down = entry.permanent.face_down.is_some();
         let definition = entry.permanent.card.definition.card_definition();
         self.battlefield.push(entry.permanent);
 
@@ -888,7 +889,7 @@ impl Game {
 
         if let EntryCompletion::SpellResolved { card, definition } = entry.completion {
             self.events
-                .push(GameEvent::SpellResolved { card, definition });
+                .push(GameEvent::spell_resolved(card, definition, face_down));
         }
     }
 }

@@ -98,6 +98,16 @@ test("inspection sizes its pages by payload as well as count and always advances
   assert.equal(playingObservation({ legalActions: items }).legalActions.count, 10);
 });
 
+test("public events and forced inspection information remain exact and pageable", async () => {
+  const updates = Array.from({ length: 105 }, (_, id) => ({ type: "AutomaticDecision", decision: { id, prompt: "Look", options: [{ id: 0, members: [{ name: `Card ${id}` }] }] } }));
+  const client = new SessionClient("http://penta.test", async () => Response.json({ ...ready, observation: { ...ready.observation, updates } }));
+  const attached = await client.attach({ room: "r", token: "own-seat" });
+  assert.deepEqual(attached.observation.updates, { count: 105, inspect: "updates" });
+  const first = await client.inspect({ connection: attached.connection, section: "updates" });
+  const rest = await client.inspect({ connection: attached.connection, section: "updates", offset: first.nextOffset });
+  assert.deepEqual([...first.items, ...rest.items], updates);
+});
+
 test("uncertain plays retain the identical receipt; definite stale errors allow resynchronization", async () => {
   const posts = [];
   let failure = "network";

@@ -167,6 +167,9 @@ impl WebGame {
             human_action_state: None,
             timeout_reason: None,
         };
+        if session_api {
+            web_game.session.track_updates();
+        }
         web_game.advance_until_human_choice()?;
         Ok(web_game)
     }

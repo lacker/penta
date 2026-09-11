@@ -37,7 +37,8 @@ impl WebGame {
     }
 
     /// Enables externally controlled seats before the first submitted command.
-    /// Neither seat is advanced by a policy or by browser auto-pass settings.
+    /// Only unique continuations advance automatically, with visible history
+    /// retained for each seat. No gameplay policy or browser auto-pass applies.
     /// # Errors
     /// Rejects a running game or a built-in opponent.
     #[wasm_bindgen(js_name = enableSessionApi)]
@@ -49,7 +50,8 @@ impl WebGame {
         }
         self.replay_config["sessionApi"] = json!(true);
         self.autopass_enabled = false;
-        Ok(())
+        self.session.track_updates();
+        self.advance_until_human_choice()
     }
 
     /// The connection role holding the next decision, or none after completion.
@@ -80,10 +82,12 @@ impl WebGame {
             &actions,
         );
         value["match"] = self.session.match_json(seat);
+        value["updates"] = self.session.updates_json(&self.catalog, seat);
         Ok(value.to_string())
     }
 
-    /// Applies exactly one canonical indexed action and preserves browser beats.
+    /// Applies one canonical command and its forced continuations, retaining
+    /// seat-visible information and browser presentation beats.
     /// # Errors
     /// Rejects an invalid role, out-of-turn request, or illegal action.
     #[wasm_bindgen(js_name = sessionAct)]

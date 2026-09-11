@@ -300,7 +300,8 @@ export function GameClient({
   const currentOpponentAction = currentStep?.kind === "action" ? currentStep.action : null;
   const turnBanner = currentStep?.kind === "banner" ? currentStep.banner : null;
   const watchingOpponent = currentStep !== null;
-  const awaitingOpponentDecision = state?.decision?.optionsVisible === false;
+  const awaitingOpponentDecision = state?.decision?.optionsVisible === false
+    || (state?.sessionApi === true && !state.result && state.actions.every((action) => action.kind === "danger"));
   const clockWarning = clockWarningText(state?.moveClock, clockNow);
   // Drawing for the turn is something the game does, not something the
   // opponent chose, so it stays out of the "N actions" count.
@@ -2147,7 +2148,7 @@ export function GameClient({
               <ol
                 className="phase-track"
                 aria-label={
-                  state.sessionApi ? "This match stops at every player decision." : strip.step === null
+                  state.sessionApi ? "This match pauses whenever you have a choice." : strip.step === null
                     ? "Between turns. Click a phase to set or remove a stop."
                     : `Current step: ${strip.step}. Click a phase to set or remove a stop.`
                 }
@@ -2164,7 +2165,7 @@ export function GameClient({
                         type="button"
                         aria-pressed={stopped}
                         disabled={state.sessionApi}
-                        title={state.sessionApi ? "This match stops at every player decision" : `${stopped ? "Remove" : "Set"} stop on ${phase.title}`}
+                        title={state.sessionApi ? "This match pauses whenever you have a choice" : `${stopped ? "Remove" : "Set"} stop on ${phase.title}`}
                         onClick={() => togglePhaseStop(phase.label, !stopped)}
                       >
                         <span>{phase.title}</span>
@@ -2180,7 +2181,7 @@ export function GameClient({
                 className={`autopass-toggle ${state.autopassEnabled ? "is-on" : ""}`}
                 aria-pressed={state.autopassEnabled}
                 disabled={state.sessionApi}
-                title={state.sessionApi ? "This match stops at every player decision" : "Automatically yield routine priority windows"}
+                title={state.sessionApi ? "This match pauses whenever you have a choice" : "Automatically yield routine priority windows"}
                 onClick={() => toggleAutopass(!state.autopassEnabled)}
               >
                 <span>Auto-pass</span>

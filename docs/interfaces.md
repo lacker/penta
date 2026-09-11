@@ -32,6 +32,15 @@ The decision player is normally the player with priority, but differs during
 mulligans, blocker declaration, restricted untaps, cleanup discards, and
 triggered or combat-damage choices.
 
+`Game::forced_action()` and `PlayerObservation::forced_action()` identify a
+unique continuation, excluding concession. They return a concrete action only
+when the legal action list and decision selection schema leave no alternative.
+Runners may submit it through ordinary `apply`; they must retain visible events
+and any decision information before advancing. The canonical JSON observation
+offers the same query as optional `forcedAction` (`actions.forced.v1`). Existing
+native runners retain their explicit one-action semantics; hosted sessions use
+the query to advance forced steps after each submitted command.
+
 ## Observations and events
 
 `PlayerObservation` is the hidden-information-safe input for a player or bot.

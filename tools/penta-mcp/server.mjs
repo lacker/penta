@@ -15,7 +15,7 @@ const choice = z.union([
 
 export function createServer(base = process.env.PENTA_SERVER_URL ?? "http://localhost:3000", client = new SessionClient(base)) {
   const server = new McpServer({ name: "penta", version: "0.1.0" }, {
-    instructions: "Play through exact engine choices. Attach only to your assigned seat. play submits and waits; next waits without moving. Responses contain a full observation or exact changes from baseRevision; request next(full=true) to resynchronize. The reconstruction checkpoint is separate. Large menus carry counts and inspect references; inspect pages or searches every option in engine order. All actions, including mana abilities, remain accessible. Batch exact action values, never old indices. No tool chooses moves or passes priority. On an uncertain play failure, retry before submitting a different play.",
+    instructions: "Play through exact engine choices. Attach only to your assigned seat. play submits and waits; next waits without moving. The engine advances unique continuations automatically, including forced passes; all real choices, including optional mana abilities, remain yours. Read updates for public events and skipped decision information since your previous move. Responses contain a full observation or exact changes from baseRevision; request next(full=true) to resynchronize. The reconstruction checkpoint is separate. Large menus and updates carry counts and inspect references; inspect pages or searches in engine order. Batch exact action values, never old indices; each is followed by forced advancement. On an uncertain play failure, retry before submitting a different play.",
   });
   const tool = (name, description, schema, method, readOnly = false) => server.registerTool(name, {
     description, inputSchema: schema,
@@ -43,7 +43,7 @@ export function createServer(base = process.env.PENTA_SERVER_URL ?? "http://loca
   tool("retry", "Retry the last uncertain play with its original request ID, without playing twice.",
     z.object({ connection, waitMs }), "retry");
   tool("inspect", "Read exact details. Catalog lookup accepts definition IDs or a name query; no card ranking is applied.",
-    z.object({ connection, section: z.enum(["observation", "checkpoint", "catalog", "legalActions", "decision", "match", "record"]),
+    z.object({ connection, section: z.enum(["observation", "checkpoint", "catalog", "legalActions", "decision", "updates", "match", "record"]),
       definitions: z.array(uint).optional(), query: z.string().optional(), actionType: z.string().optional(),
       offset: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(100) }), "inspect", true);
   return server;

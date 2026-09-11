@@ -6,16 +6,17 @@ class Engine {
   turn = 0;
   stage = "playing";
   exact = false;
-  constructor(_a, _b, _policy, first) { this.first = first; }
+  constructor(a, _b, _policy, first) { this.first = first; this.batch = a === "Batch"; }
   enableSessionApi() { this.exact = true; }
   enable_match() {}
-  sessionDecisionRole() { return this.turn >= 6 ? undefined : this.turn % 2 ? "bot" : "human"; }
+  sessionDecisionRole() { return this.turn >= 6 ? undefined : !this.batch && this.turn % 2 ? "bot" : "human"; }
   isFinished() { return this.turn >= 6; }
   opponentIsDeciding() { return this.sessionDecisionRole() === "bot"; }
   matchStage() { return this.stage; }
   state_json() { return JSON.stringify({ human: { hand: ["human-only"] }, turn: this.turn, result: this.isFinished() ? { winner: "human" } : null, opponentActions: [] }); }
   sessionObserveJson(role) {
     return JSON.stringify({ seat: role === "human" ? "p1" : "p2", hand: [role + "-only"],
+      ...(this.batch ? { updates: [{ type: "Marker", turn: this.turn }] } : {}),
       decision: null, legalActions: this.sessionDecisionRole() === role ? [{ index: 0, type: "PassPriority" }] : [],
       checkpoint: { visible: role }, result: this.isFinished() ? { winner: "p1" } : null });
   }
@@ -38,10 +39,10 @@ before(async () => {
 });
 after(restoreRoomGlobals);
 
-async function setup(storage = new MemoryStorage()) {
+async function setup(storage = new MemoryStorage(), humanDeck = "A") {
   const room = new GameRoom(durableState(storage));
   const opened = await (await room.fetch(request("start", { body: {
-    humanDeck: "A", botDeck: "B", botPolicy: "external", humanFirst: true,
+    humanDeck, botDeck: "B", botPolicy: "external", humanFirst: true,
     seed: 1, sessionApi: true, matchMode: "first-to-two-wins",
   } }))).json();
   assert.ok(opened.humanToken);
@@ -62,12 +63,15 @@ test("session API serves both seats, waits without disclosing private windows, a
   assert.equal(moved.receipt.accepted, 1);
   assert.equal(moved.status, "waiting");
   assert.equal("revision" in moved, false);
+  const humanState = await (await room.fetch(request("state", { token: humanToken }))).json();
+  assert.equal(humanState.turn, 1, "the human sees their committed move while the opponent decides");
   const next = await (await waiting).json();
   assert.deepEqual(next.observation.hand, ["bot-only"]);
   assert.notEqual(next.revision, first.revision);
   assert.equal(storage.alarm, null, "external session decisions have no imposed move clock");
   const reconnected = new GameRoom(durableState(storage));
   assert.deepEqual(await view(reconnected, botToken), next);
+  assert.deepEqual(await (await reconnected.fetch(request("state", { token: humanToken }))).json(), humanState);
   const retried = await (await reconnected.fetch(request("play", { token: humanToken, body }))).json();
   assert.equal(retried.receipt.accepted, 1);
   assert.equal(storage.values.get("hosted-game").commands.length, 1);
@@ -183,4 +187,25 @@ test("session API keeps every live replay private and exposes completed replay p
   assert.equal(record.commands.length, 6);
   assert.equal("humanToken" in record, false);
   assert.equal("receipts" in record, false);
+});
+
+test("session API retains all batch information through replay, retry, and rejected choices", async () => {
+  const { room, storage, humanToken } = await setup(new MemoryStorage(), "Batch");
+  const first = await view(room, humanToken);
+  const body = { revision: first.revision, requestId: "batch-updates", choices: Array.from({ length: 3 }, () => ({ action: { type: "PassPriority" } })) };
+  const moved = await (await room.fetch(request("play", { token: humanToken, body }))).json();
+  assert.equal(moved.receipt.accepted, 3);
+  assert.deepEqual(moved.observation.updates.map(update => update.turn), [1, 2, 3]);
+  const rebuilt = new GameRoom(durableState(storage));
+  assert.deepEqual((await view(rebuilt, humanToken)).observation.updates, moved.observation.updates);
+  const retried = await (await rebuilt.fetch(request("play", { token: humanToken, body }))).json();
+  assert.deepEqual(retried.observation.updates, moved.observation.updates);
+  const rejected = await (await rebuilt.fetch(request("play", { token: humanToken, body: {
+    revision: moved.revision, requestId: "rejected", choices: [{ action: { type: "Missing" } }],
+  } }))).json();
+  assert.equal(rejected.receipt.accepted, 0);
+  assert.deepEqual(rejected.observation.updates, moved.observation.updates);
+  const browser = await rebuilt.fetch(request("command", { token: humanToken, body: { t: "act", index: 0, revision: moved.revision } }));
+  assert.equal(browser.status, 200);
+  assert.deepEqual((await view(rebuilt, humanToken)).observation.updates.map(update => update.turn), [4]);
 });

@@ -329,6 +329,10 @@ impl WebGame {
                 }
                 Some(label)
             }
+            GameEvent::FaceDownSpellCast { player, .. } => Some(format!(
+                "{} cast a face-down spell",
+                self.player_name(*player)
+            )),
             GameEvent::AbilityActivated {
                 player,
                 presentation,
@@ -443,6 +447,7 @@ impl WebGame {
             GameEvent::GameStarted { .. }
             | GameEvent::ManaAdded { .. }
             | GameEvent::SpellResolved { .. }
+            | GameEvent::FaceDownSpellResolved { .. }
             | GameEvent::AbilityResolved { .. }
             | GameEvent::TriggeredAbilityPutOnStack { .. }
             | GameEvent::TriggeredAbilityResolved { .. }

@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
 
-test("session API controls either seat without automatically passing or changing the browser match", async () => {
+test("session API controls either seat and advances only forced continuations in the browser match", async () => {
   await initializeWasm();
   const game = new WebGame("Sligh", "The Deck", "External", false, 42);
   game.enableSessionApi();
@@ -20,10 +20,12 @@ test("session API controls either seat without automatically passing or changing
     game.sessionAct("human", keep.index);
     const role = game.sessionDecisionRole();
     const before = game.sessionObserveJson(role);
+    assert.equal(JSON.parse(before).forcedAction, null);
+    assert.ok(Array.isArray(JSON.parse(before).updates));
     game.set_autopass(true);
     assert.equal(game.sessionObserveJson(role), before, "UI preferences never move an externally controlled seat");
     assert.equal(JSON.parse(game.state_json()).autopassEnabled, false);
-    assert.equal(JSON.parse(game.state_json()).passLabel, null, "the browser promises only one priority pass");
+    assert.equal(JSON.parse(game.state_json()).passLabel, null, "the browser delegates no optional passing choices");
     const replay = WebGame.fromReplayJson(game.replayJson());
     try { assert.equal(replay.sessionObserveJson(role), before); } finally { replay.free(); }
     assert.ok(JSON.parse(game.sessionCatalogJson()).cards.length > 0);

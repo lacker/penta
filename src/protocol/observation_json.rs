@@ -62,7 +62,7 @@ fn stack_card_name(
     Value::from(resolved.unwrap_or_else(|| card.name.clone()))
 }
 
-fn presented_object_json(
+pub(super) fn presented_object_json(
     catalog: &CardCatalog,
     object: GameObjectId,
     characteristics: crate::ObjectCharacteristics,
@@ -110,7 +110,9 @@ fn mana_pool_json(pool: &crate::ManaPool) -> Value {
     })
 }
 
-pub(super) fn decision_json(catalog: &CardCatalog, decision: &DecisionObservation) -> Value {
+/// Serialize a decision already projected for the receiving seat.
+#[must_use]
+pub fn decision_json(catalog: &CardCatalog, decision: &DecisionObservation) -> Value {
     let mut value = json!({
         "id": decision.id,
         "seat": seat_name(decision.player),
@@ -147,7 +149,7 @@ pub(super) fn decision_json(catalog: &CardCatalog, decision: &DecisionObservatio
     value
 }
 
-fn result_json(result: GameResult) -> Value {
+pub(super) fn result_json(result: GameResult) -> Value {
     match result {
         GameResult::Draw => json!({ "winner": Value::Null, "reason": "Draw" }),
         GameResult::Winner { winner, reason } => json!({
@@ -333,6 +335,7 @@ pub fn observation_json_for_format(
             .collect::<Vec<_>>(),
         "decision": observation.decision.as_ref().map(|decision| decision_json(catalog, decision)),
         "result": observation.result.map(result_json),
+        "forcedAction": observation.forced_action().as_ref().map(action_json),
         "legalActions": actions.iter().enumerate().map(|(index, action)| {
             let mut value = action_json(action);
             if let Value::Object(map) = &mut value {

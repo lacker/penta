@@ -16,28 +16,37 @@ use penta::{Action, Game, GameEvent, GameResult, PlayerId, PlayerObservation};
 /// A point a session can be returned to. Nearly opaque: a seat may hold one,
 /// hand it back, and ask how the board looked from its own seat. It cannot
 /// read the engine out of it.
-pub struct Checkpoint(Game);
+pub struct Checkpoint(LocalSession);
 
 impl Checkpoint {
     /// The saved position as this seat saw it, for deciding whether the
     /// checkpoint is still worth offering.
     pub fn observed_by(&self, seat: PlayerId) -> PlayerObservation {
-        self.0.observe(seat)
+        self.0.game.observe(seat)
     }
 }
 
 /// One seat's connection to a game.
+#[derive(Clone)]
 pub struct LocalSession {
     game: Game,
+    updates: Option<super::session_updates::SessionUpdates>,
 }
 
 impl LocalSession {
     pub const fn new(game: Game) -> Self {
-        Self { game }
+        Self {
+            game,
+            updates: None,
+        }
     }
 
     pub fn decision_seat(&self) -> Option<PlayerId> {
         self.game.decision_player()
+    }
+
+    pub fn forced_action(&self) -> Option<(PlayerId, Action)> {
+        self.game.forced_action()
     }
 
     pub fn observe(&self, seat: PlayerId) -> PlayerObservation {
@@ -45,7 +54,55 @@ impl LocalSession {
     }
 
     pub fn apply(&mut self, seat: PlayerId, action: Action) -> Result<(), Box<penta::ActionError>> {
-        self.game.apply(seat, action).map_err(Box::new)
+        self.apply_recorded(seat, action, false, None)
+    }
+
+    pub fn apply_automatic(
+        &mut self,
+        seat: PlayerId,
+        action: Action,
+        decision: Option<&penta::DecisionObservation>,
+    ) -> Result<(), Box<penta::ActionError>> {
+        self.apply_recorded(seat, action, true, decision)
+    }
+
+    fn apply_recorded(
+        &mut self,
+        seat: PlayerId,
+        action: Action,
+        automatic: bool,
+        decision: Option<&penta::DecisionObservation>,
+    ) -> Result<(), Box<penta::ActionError>> {
+        let cursor = self.game.event_cursor();
+        self.game.apply(seat, action.clone()).map_err(Box::new)?;
+        if let Some(updates) = &mut self.updates {
+            if !automatic {
+                updates.clear(seat);
+            }
+            updates.record(&self.game, cursor, decision, &action);
+        }
+        Ok(())
+    }
+
+    pub fn track_updates(&mut self) {
+        self.updates = Some(super::session_updates::SessionUpdates::default());
+    }
+
+    pub fn updates_json(&self, catalog: &penta::CardCatalog, seat: PlayerId) -> serde_json::Value {
+        self.updates.as_ref().map_or_else(
+            || serde_json::json!([]),
+            |updates| updates.json(catalog, seat),
+        )
+    }
+
+    pub fn automatic_decision_labels(
+        &self,
+        catalog: &penta::CardCatalog,
+        seat: PlayerId,
+    ) -> Vec<String> {
+        self.updates
+            .as_ref()
+            .map_or_else(Vec::new, |updates| updates.decision_labels(catalog, seat))
     }
 
     /// Ends the game because a seat ran out of time. Imposed by the host's
@@ -92,11 +149,11 @@ impl LocalSession {
     /// reveals nothing -- tapping for mana, declaring an attacker -- so
     /// returning to it cannot unsee anything.
     pub fn checkpoint(&self) -> Checkpoint {
-        Checkpoint(self.game.clone())
+        Checkpoint(self.clone())
     }
 
     pub fn restore(&mut self, checkpoint: Checkpoint) {
-        self.game = checkpoint.0;
+        *self = checkpoint.0;
     }
 
     /// Which sources the engine's own payment policy would tap for an action,

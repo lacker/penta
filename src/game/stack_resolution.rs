@@ -348,10 +348,11 @@ impl Game {
         if !spell_types.is_permanent() || aura_fizzles {
             self.finish_spell_destination(object, resolved);
         }
-        self.events.push(GameEvent::SpellResolved {
-            card: card_id,
+        self.events.push(GameEvent::spell_resolved(
+            card_id,
             definition,
-        });
+            object.face_down.is_some(),
+        ));
     }
 
     /// Whether this spell was cast for its bestow cost. CR 702.103c: such a

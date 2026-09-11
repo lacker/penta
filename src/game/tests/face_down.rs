@@ -188,6 +188,29 @@ fn exalted_angel_comes_down_face_down_and_stands_up_later() {
     pass_until_decision(&mut game);
     drain_pending(&mut game);
 
+    let events = game.events_for(PlayerId::Two);
+    assert!(
+        events
+            .iter()
+            .any(|event| matches!(event, GameEvent::FaceDownSpellCast { .. }))
+    );
+    assert!(
+        events
+            .iter()
+            .any(|event| matches!(event, GameEvent::FaceDownSpellResolved { .. }))
+    );
+    assert!(!events.iter().any(|event| matches!(
+        event,
+        GameEvent::SpellCast { .. } | GameEvent::SpellResolved { .. }
+    )));
+    for event in &events {
+        let value = crate::protocol::event_json(&game.catalog, event).unwrap();
+        assert!(
+            !value.to_string().contains("Exalted Angel"),
+            "public events must not reveal the physical card"
+        );
+    }
+
     // A card entering the battlefield is a new object, so the permanent has
     // an identity of its own.
     let angel_id = game.battlefield[0].card.id;

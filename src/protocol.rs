@@ -32,6 +32,7 @@ mod action_json;
 mod bot_game;
 mod catalog_json;
 mod decks;
+mod event_json;
 mod json_common;
 mod observation_json;
 
@@ -40,10 +41,11 @@ pub use catalog_json::{catalog_json, catalog_json_for_format};
 pub use decks::{
     deck_by_name, deck_by_name_for_format, deck_names, deck_names_for_format, parse_format_slug,
 };
-pub use observation_json::{observation_json, observation_json_for_format};
+pub use event_json::event_json;
+pub use observation_json::{decision_json, observation_json, observation_json_for_format};
 
 #[cfg(test)]
-use observation_json::{decision_json, stack_object_json};
+use observation_json::stack_object_json;
 
 /// The breaking bot-wire epoch. Bumped when an old consumer could misread an
 /// existing field or tag: removal, rename, type change, or changed meaning.
@@ -124,6 +126,7 @@ pub const SIMULATION_FINGERPRINT_NUL: &str = concat!(env!("PENTA_SIMULATION_FING
 /// capabilities they do not use; hosted bots may require the subset they use.
 pub const PROTOCOL_CAPABILITIES: &[&str] = &[
     "action.concede.v1",
+    "actions.forced.v1",
     "match.first-to-two-wins.v1",
     "observation.public-reveals.v1",
     "reconstruction.checkpoint.v17",

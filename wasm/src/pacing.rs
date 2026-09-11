@@ -21,7 +21,14 @@ fn is_empty_private_choice(observation: &super::PlayerObservation, action: &Acti
 impl WebGame {
     pub(super) fn advance_until_human_choice(&mut self) -> Result<(), JsValue> {
         if self.session_api_enabled() {
-            return Ok(());
+            for _ in 0..BOT_ACTION_LIMIT {
+                let Some((player, action)) = self.session.forced_action() else {
+                    return Ok(());
+                };
+                let observation = self.session.observe(player);
+                self.apply_advancing_action_inner(player, &observation, action, true)?;
+            }
+            return Err(js_error("game exceeded its forced action limit"));
         }
         for _ in 0..BOT_ACTION_LIMIT {
             let Some(player) = self.session.decision_seat() else {
@@ -61,6 +68,16 @@ impl WebGame {
         observation: &super::PlayerObservation,
         action: Action,
     ) -> Result<(), JsValue> {
+        self.apply_advancing_action_inner(player, observation, action, false)
+    }
+
+    fn apply_advancing_action_inner(
+        &mut self,
+        player: PlayerId,
+        observation: &super::PlayerObservation,
+        action: Action,
+        automatic: bool,
+    ) -> Result<(), JsValue> {
         let empty_private_choice = is_empty_private_choice(observation, &action);
         let mut pending_animation = None;
         if player != self.human {
@@ -99,7 +116,13 @@ impl WebGame {
             .map(|object| (object.id, object.controller))
             .collect();
         let event_start = self.session.event_cursor();
-        self.session.apply(player, action).map_err(js_error)?;
+        if automatic {
+            self.session
+                .apply_automatic(player, action, observation.decision.as_ref())
+                .map_err(js_error)?;
+        } else {
+            self.session.apply(player, action).map_err(js_error)?;
+        }
         if pending_animation.is_none() {
             self.record_resolutions(event_start, &stack_owners);
         }
@@ -107,6 +130,16 @@ impl WebGame {
         self.record_draw_step(event_start);
         if let Some(mut animation) = pending_animation.take() {
             let caused = self.session.events_for_since(self.human, event_start);
+            // The acting seat knew the card in its hand. Its public cast
+            // event, not that private action label, owns the opponent's view.
+            if caused
+                .iter()
+                .any(|event| matches!(event, GameEvent::FaceDownSpellCast { .. }))
+            {
+                animation["label"] = json!("Cast a face-down spell");
+                animation["card"] = json!("Face-down spell");
+                animation["cardId"] = Value::Null;
+            }
             let mana_sources = caused
                 .iter()
                 .filter_map(|event| match event {
@@ -160,6 +193,9 @@ impl WebGame {
             .filter_map(|event| match event {
                 GameEvent::SpellResolved { card, definition } => {
                     Some((*card, self.card_name(*definition), false))
+                }
+                GameEvent::FaceDownSpellResolved { card } => {
+                    Some((*card, "Face-down spell".into(), false))
                 }
                 GameEvent::AbilityResolved {
                     object,

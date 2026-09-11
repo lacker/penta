@@ -10,6 +10,9 @@ export function playingObservation(observation) {
   if (result.decision?.options?.length > 100 || JSON.stringify(result.decision?.options ?? []).length > 12_000) {
     result.decision.options = { count: result.decision.options.length, inspect: "decision" };
   }
+  if (result.updates?.length > 100 || JSON.stringify(result.updates ?? []).length > 12_000) {
+    result.updates = { count: result.updates.length, inspect: "updates" };
+  }
   return result;
 }
 

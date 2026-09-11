@@ -451,7 +451,7 @@ impl WebGame {
         // printed at all.
         let seed_line = (!self.opponent_is_externally_driven())
             .then(|| format!("Game started · seed {}", self.session.seed()));
-        let events = std::iter::once(seed_line)
+        let recent_events = std::iter::once(seed_line)
             .chain(
                 seat_events
                     .iter()
@@ -460,7 +460,12 @@ impl WebGame {
             .collect::<Vec<_>>()
             .into_iter()
             .rev()
-            .flatten()
+            .flatten();
+        let events = self
+            .session
+            .automatic_decision_labels(&self.catalog, self.human)
+            .into_iter()
+            .chain(recent_events)
             .take(16)
             .collect::<Vec<_>>();
         let opponent_actions = if include_opponent_actions {

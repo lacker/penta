@@ -98,6 +98,12 @@ the bot-wire epoch.
   matches, with exact decisions, revision checks, durable play receipts, explicit
   batches, and browser reattachment. A stdio MCP adapter provides compact exact
   observation changes, paged menus, and on-demand catalog/checkpoint lookup.
+  Shared `forcedAction` classification (`actions.forced.v1`) lets sessions
+  advance unique continuations while preserving optional mana actions and all
+  genuine selections. Seat-safe session updates retain public reveals and
+  skipped private inspections, including across reconnects and replay.
+  Face-down spell cast/resolution events withhold physical card identities in
+  both browser logs and the structured session history.
   No gameplay policy is added. Browser/host replay version 3 records the new
   `sessionApi` pacing configuration and `sessionAct` command; version-2 journals
   are refused. Bot protocol and checkpoint versions are unchanged. See

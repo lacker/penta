@@ -15,6 +15,8 @@ export function sessionView(game, stored, role) {
   if (!done && !deciding) return { apiVersion: 1, status: "waiting", role };
   const observation = JSON.parse(stored.config.sessionApi
     ? game.sessionObserveJson(role) : game.opponentObserveJson());
+  const preceding = stored.receipts?.[role]?.priorUpdates;
+  if (preceding?.length) observation.updates = [...preceding, ...(observation.updates ?? [])];
   return { apiVersion: 1, status: done ? "complete" : "ready", role,
     revision: stored.revision, observation };
 }

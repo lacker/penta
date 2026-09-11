@@ -839,6 +839,7 @@ impl Game {
     }
 
     fn complete_spell_cast(&mut self, stack_object: StackObject, targets: Vec<Target>) {
+        let face_down = stack_object.face_down.is_some();
         let player = stack_object.controller;
         let stack_id = stack_object.id;
         let cast_from = stack_object
@@ -860,11 +861,19 @@ impl Game {
         // Kept for the targeting triggers below, which run after the cast
         // event has taken the list.
         let crime_targets = targets.clone();
-        self.events.push(GameEvent::SpellCast {
-            player,
-            card: stack_id,
-            definition,
-            targets,
+        self.events.push(if face_down {
+            GameEvent::FaceDownSpellCast {
+                player,
+                card: stack_id,
+                targets,
+            }
+        } else {
+            GameEvent::SpellCast {
+                player,
+                card: stack_id,
+                definition,
+                targets,
+            }
         });
         self.capture_battlefield_triggers(&CommittedTriggerEvent::StackObject {
             object: cast_event.clone(),

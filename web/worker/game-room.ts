@@ -78,7 +78,7 @@ const BOT_COMMANDS = new Set(["botAct", "botChoose", "botConcede"]);
 interface StoredGame {
   config: GameConfig;
   revision?: string;
-  receipts?: Partial<Record<"human" | "bot", { requestId: string; body: string; accepted: number; stopped?: string }>>;
+  receipts?: Partial<Record<"human" | "bot", { requestId: string; body: string; accepted: number; stopped?: string; priorUpdates?: unknown[] }>>;
   commands: Command[];
   /** Optional only for rooms stored before exact replay metadata existed. */
   replayVersion?: number;
@@ -660,7 +660,7 @@ export class GameRoom {
       for (const [position, command] of stored.commands.entries()) {
         try {
           apply(game, command);
-          if (!game.opponentIsDeciding() || game.matchStage?.() === "sideboarding" || game.matchStage?.() === "play-draw") {
+          if (!game.opponentIsDeciding() || game.matchStage?.() === "sideboarding" || game.matchStage?.() === "play-draw" || (stored.config.sessionApi && (command.t === "sessionAct" ? command.role === "human" : !BOT_COMMANDS.has(command.t)))) {
             replayedHumanState = {
               commandCount: position + 1,
               state: JSON.parse(game.state_json()) as HumanStateCache["state"],
@@ -705,10 +705,12 @@ export class GameRoom {
         throw new SessionError("stale revision; observe again", 409);
       }
       apply(game, command);
+      const role = command.t === "sessionAct" ? command.role : BOT_COMMANDS.has(command.t) ? "bot" : "human";
+      if (stored.receipts?.[role]) delete stored.receipts[role]!.priorUpdates;
       stored.commands.push(command);
       stored.revision = mintToken();
       await this.#persistMutation(stored);
-      await this.#dispatch(game);
+      await this.#dispatch(game, role === "human");
     });
   }
 
@@ -743,15 +745,21 @@ export class GameRoom {
       // Persistence may have succeeded before delivery failed. Re-publishing
       // uses the existing beat cursor and never reapplies the engine action.
       await this.#dispatch(game);
+      if (stored.config.sessionApi && role === "human") this.#toHumans(this.#deliverable());
       return { requestId: previous.requestId, accepted: previous.accepted, stopped: previous.stopped };
     }
     if (body.revision !== stored.revision) throw new SessionError("stale revision; observe again", 409);
     let accepted = 0;
     let stopped: string | undefined;
+    // Each engine command starts a new seat window. Preserve earlier windows
+    // from this request in its durable receipt, including an accepted prefix.
+    let priorUpdates = previous?.priorUpdates ?? [];
     for (const choice of body.choices) {
       try {
         const command = choiceCommand(game, stored, role, choice) as Command;
+        const preceding = accepted && stored.config.sessionApi ? JSON.parse(game.sessionObserveJson(role)).updates ?? [] : [];
         apply(game, command);
+        priorUpdates = accepted ? [...priorUpdates, ...preceding] : [];
         stored.commands.push(command);
         stored.revision = mintToken();
         accepted++;
@@ -761,9 +769,9 @@ export class GameRoom {
       }
     }
     stored.receipts ??= {};
-    stored.receipts[role] = { requestId: body.requestId, body: serialized, accepted, stopped };
+    stored.receipts[role] = { requestId: body.requestId, body: serialized, accepted, stopped, priorUpdates };
     await this.#persistMutation(stored);
-    await this.#dispatch(game);
+    await this.#dispatch(game, role === "human" && accepted > 0);
     return { requestId: body.requestId, accepted, ...(stopped ? { stopped } : {}) };
   }
 
@@ -835,20 +843,19 @@ export class GameRoom {
    * After any change: either the opponent seat holds the decision and its
    * driver is prompted, or the human's view is current and gets pushed.
    */
-  async #dispatch(game: WebGame): Promise<void> {
+  async #dispatch(game: WebGame, humanSubmitted = false): Promise<void> {
     // Whatever this dispatch decides, a parked bot is owed a fresh look --
     // but only once the room is done, never mid-bookkeeping.
     try {
       await this.#armClock(game);
       if (game.opponentIsDeciding()) {
         this.#promptBot(game);
-        if (game.matchStage?.() === "sideboarding" || game.matchStage?.() === "play-draw") {
+        if (game.matchStage?.() === "sideboarding" || game.matchStage?.() === "play-draw" || (this.#stored?.config.sessionApi && humanSubmitted)) {
           await this.#rememberHumanState(game);
           this.#toHumans(this.#deliverable());
         }
-        // Humans are not pushed here. Their snapshot would describe their own
-        // seat as holding a decision it does not hold, and an actionable panel
-        // that rejects every click is worse than a still one.
+        // A session command acknowledges its own public/forced consequences.
+        // Subsequent private opponent choices do not publish new snapshots.
         return;
       }
       await this.#rememberHumanState(game);

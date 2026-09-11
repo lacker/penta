@@ -111,7 +111,10 @@ impl DecisionObservation {
         self.player == viewer || self.visibility == DecisionVisibility::Public
     }
 
-    pub(super) fn for_viewer(&self, viewer: PlayerId) -> Option<Self> {
+    /// Freeze the question as this seat may see it, including public notices
+    /// without the chooser's private options.
+    #[must_use]
+    pub fn for_viewer(&self, viewer: PlayerId) -> Option<Self> {
         if self.visibility == DecisionVisibility::Private && self.player != viewer {
             return None;
         }

@@ -142,7 +142,8 @@ A broader event query for other objects' payments, linked cost-component
 references, and bundles containing several named clauses need further design.
 Forage now uses a [named game-action program](effect-programs.md#identities-and-named-actions)
 through the ordinary cost and effect wrappers.
-Class levels, persist/undying, and other candidate mechanics remain follow-ups.
+Persist and undying now compose ordinary death triggers and shared zone-move
+actions. Class levels and other candidate mechanics remain follow-ups.
 
 Review should focus on whether:
 

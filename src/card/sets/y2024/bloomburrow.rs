@@ -52,7 +52,9 @@ pub(in crate::card::sets) const FORAGE: crate::card::MechanicId =
 const fn forage() -> crate::card::GameActionDef {
     const ACTION: crate::card::GameActionDef = crate::card::actions::choice(&[
         crate::card::actions::choose_exile_from_graveyard(3),
-        crate::card::actions::choose_sacrifice(1).matching(ObjectPredicateDef::Subtype("Food")),
+        crate::card::actions::choose_sacrifice(1).matching(ObjectPredicateDef::Subtype(
+            crate::card::SubtypeDef::Literal("Food"),
+        )),
     ]);
     ACTION.named(FORAGE)
 }

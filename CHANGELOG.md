@@ -72,11 +72,11 @@ the bot-wire epoch.
   wrappers. Its linear selection window and
   replacement-aware completion are shared infrastructure rather than a core
   forage operation. Endurance composes collection ordering and movement.
-- Checkpoint format 16 replaces forage-specific decisions with authored game-action
+- Checkpoint format 17 replaces forage-specific decisions with authored game-action
   selections and encodes numeric mechanic identities as hexadecimal text.
   Permanent `activatedAbilities` replaces exhaust-specific history with generic
   per-object activation history, including mana abilities.
-  Require `reconstruction.checkpoint.v16` and a matching simulation fingerprint;
+  Require `reconstruction.checkpoint.v17` and a matching simulation fingerprint;
   ordinary bot protocol and replay versions are unchanged.
 - Spree, escalate, and exhaust construction moves to their originating sets.
   The core uses costed modes, quantified additional costs, and a generic

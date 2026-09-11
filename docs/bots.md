@@ -266,7 +266,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v16` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v17` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -497,7 +497,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 32 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v16`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v17`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
@@ -1198,18 +1198,25 @@ colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
 
-### Migrating checkpoint format 15 to 16
+### Migrating checkpoint format 16 to 17
 
-Format 16 replaces `forage` decisions with generic `actionChoice` selections
+Format 17 replaces `forage` decisions with generic `actionChoice` selections
 reconstructed from their authored game-action or PayOr program. Mechanic and
 payment identities now use fixed-width hexadecimal numeric IDs instead of
 human-readable names.
 Permanent `activatedAbilities` replaces `exhausted`: it records every ability
 activated from that object, independent of its current label or restriction.
 This history survives turn cleanup and applies to mana abilities as well.
-Consumers must require `reconstruction.checkpoint.v16` and regenerate older
+Consumers must require `reconstruction.checkpoint.v17` and regenerate older
 checkpoints. The ordinary bot protocol and replay format are unchanged;
 exact reconstruction still requires the simulation fingerprint.
+
+### Migrating checkpoint format 15 to 16
+
+Format 16 replaces numeric card-definition references with canonical printing
+UUID strings and reconstructs scoped bindings from their natural names.
+Older numeric payloads are rejected. See [catalog and mana costs](#catalog-and-mana-costs)
+for the matching card-definition changes in observations and hidden-world inputs.
 
 ### Migrating checkpoint format 14 to 15
 
@@ -1221,7 +1228,7 @@ use `choice` obligations within the shared `all` cost-list representation.
 The `completePayment` pending procedure retains the result until cost actions
 and replacement choices finish, then publishes the outcome and resumes the
 authored branch. Scoped effect paths reconstruct lexical cost-list parameters.
-Consumers must require `reconstruction.checkpoint.v16` and regenerate older
+Consumers must require `reconstruction.checkpoint.v15` and regenerate older
 checkpoints with the current engine and matching simulation fingerprint.
 
 ### Migrating checkpoint format 13 to 14
@@ -1368,7 +1375,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v16`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v17`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

@@ -106,8 +106,8 @@ not require a new semantic action constructor.
 visibility, binding, and action to perform on that binding. `Sequence` composes
 actions in order. The initial semantic operations are `DiscardCards`,
 `Sacrifice`, `SacrificeYours`, `Exile`, `GainControl`, and `MoveToZone`. The two
-sacrifice forms state
-who must sacrifice: each object's controller, or the executing player.
+sacrifice forms state who must sacrifice: each object's controller, or the
+executing player.
 Neither lowers to a generic zone move.
 
 ## Selection, commitment, and completion
@@ -169,7 +169,7 @@ execution retains the lexical cost parameter and original ability. An action
 payment's checkpoint records its frozen source and quantity; its program is
 recovered from that ability rather than serialized as executable code.
 
-Checkpoint format 16 replaces the former forage-specific continuation with
+Checkpoint format 17 replaces the former forage-specific continuation with
 authored action-choice state and numeric mechanic identities. Reconstruction
 requires the matching simulation fingerprint. Replacement continuations retain
 the action completion independently of payment completion. Bot-wire and replay

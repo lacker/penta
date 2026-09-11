@@ -417,7 +417,10 @@ fn once_per_object_restriction_does_not_require_an_exhaust_label() {
     );
     game.players[0].hand.clear();
     let source = game
-        .put_onto_battlefield(PlayerId::One, CardDefinitionId::new(100_001))
+        .put_onto_battlefield(
+            PlayerId::One,
+            CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000186a1"),
+        )
         .unwrap();
     drain_pending(&mut game);
     let action = game.legal_actions(PlayerId::One).into_iter().find(|action| {

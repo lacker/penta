@@ -26,7 +26,9 @@ impl Game {
                     }
                     _ => None,
                 })
-                .filter(|permanent| permanent.chosen_creature_type_binding == Some(binding))
+                .filter(|permanent| {
+                    permanent.chosen_creature_type_binding.as_deref() == binding.label()
+                })
                 .and_then(|permanent| permanent.chosen_creature_type.as_deref()),
         }
     }
@@ -106,7 +108,7 @@ impl Game {
             .find(|permanent| permanent.card.id == source)
             .and_then(|permanent| {
                 (permanent.chosen_card_name_binding.is_none()
-                    || permanent.chosen_card_name_binding == Some(binding))
+                    || permanent.chosen_card_name_binding.as_deref() == binding.label())
                 .then(|| permanent.chosen_card_name.clone())
                 .flatten()
             })

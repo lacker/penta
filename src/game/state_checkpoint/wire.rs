@@ -67,14 +67,9 @@ fn color_set_from_count(count: u16) -> crate::card::ColorSet {
 
 pub(super) fn card_definition_id(value: &Value) -> Result<CardDefinitionId, String> {
     value
-        .as_u64()
-        .and_then(CardDefinitionId::try_new)
-        .ok_or_else(|| {
-            format!(
-                "card definition must be an integer from 1 through {}",
-                CardDefinitionId::MAX
-            )
-        })
+        .as_str()
+        .and_then(CardDefinitionId::try_from_uuid)
+        .ok_or_else(|| "card definition must be a canonical printing UUID".to_owned())
 }
 
 pub(super) fn card_definition_id_field(
@@ -561,7 +556,7 @@ struct PermanentPresentation {
     chosen_basic_land_type: Option<BasicLandType>,
     chosen_color: Option<ManaColor>,
     chosen_card_name: Option<String>,
-    chosen_card_name_binding: Option<crate::Binding>,
+    chosen_card_name_binding: Option<String>,
 }
 
 #[allow(clippy::too_many_lines)]
@@ -774,14 +769,11 @@ fn parse_permanent(
         || state.cast_exile_if_put_into_graveyard
         || state.cast_via_suspend
         || state.cast_at_instant_speed;
-    let alternative_cost_binding = state
-        .cast_alternative_cost_binding
-        .as_deref()
-        .map(|label| {
-            crate::Binding::try_from_label(label)
-                .ok_or_else(|| format!("unknown alternative-cost binding {label}"))
-        })
-        .transpose()?;
+    let alternative_cost_binding = restore_alternative_cost_binding(
+        state.cast_alternative_cost_binding.as_deref(),
+        permanent.card.definition.card_definition(),
+        catalog,
+    )?;
     permanent.cast = has_cast_context.then(|| CastContext {
         source_zone,
         alternative,
@@ -803,8 +795,7 @@ fn parse_permanent(
         via_suspend: state.cast_via_suspend,
     });
     permanent.chosen_creature_type = shown.chosen_creature_type;
-    permanent.chosen_creature_type_binding =
-        parse_choice_binding(state.chosen_creature_type_binding.as_deref())?;
+    permanent.chosen_creature_type_binding = state.chosen_creature_type_binding.clone();
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;
@@ -959,9 +950,7 @@ pub(super) fn parse_detached_permanent(
             chosen_basic_land_type: snapshot.chosen_basic_land_type.map(parse_basic_land_type),
             chosen_color: snapshot.chosen_color.map(parse_mana_color),
             chosen_card_name: snapshot.chosen_card_name.clone(),
-            chosen_card_name_binding: parse_choice_binding(
-                snapshot.chosen_card_name_binding.as_deref(),
-            )?,
+            chosen_card_name_binding: snapshot.chosen_card_name_binding.clone(),
         },
         catalog,
     )
@@ -989,4 +978,5 @@ include!("wire_continuous.rs");
 include!("wire_cast.rs");
 include!("wire_copy.rs");
 
-include!("wire_choices.rs");
+mod natural_keys;
+pub(super) use natural_keys::restore_alternative_cost_binding;

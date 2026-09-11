@@ -76,7 +76,7 @@ static MULTI_SLOT_ACTIVATION_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated
 
 #[test]
 fn declarative_activation_preserves_multiple_slots_before_sacrificing_its_source() {
-    let definition_id = CardDefinitionId::new(10_063);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000274f");
     let mut definition = CardDefinition::new(
         definition_id,
         "Multi-slot activation test card",
@@ -193,7 +193,7 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         ),
     )];
 
-    let definition_id = CardDefinitionId::new(10_064);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002750");
     let mut definition = CardDefinition::new(
         definition_id,
         "Multi-target slot test card",
@@ -276,7 +276,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             effect: AppliedEffectDef::add_ability(&GRANTED_ABILITY),
         },
     )];
-    let definition_id = CardDefinitionId::new(10_061);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000274d");
     let mut definition = CardDefinition::new(
         definition_id,
         "Granted resolver test card",
@@ -362,7 +362,7 @@ fn declarative_clause_uses_its_own_resolver_among_multiple_clauses() {
         ),
         AbilityDef::activated("A separate clause.", &[], EffectDef::None),
     ];
-    let definition_id = CardDefinitionId::new(10_060);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000274c");
     let mut definition = CardDefinition::new(
         definition_id,
         "Mixed resolver test card",
@@ -427,7 +427,7 @@ fn activated_clauses_keep_their_own_origins() {
             },
         ),
     ];
-    let definition_id = CardDefinitionId::new(10_096);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002770");
     let mut definition = CardDefinition::new(
         definition_id,
         "Multiple legacy activation test",
@@ -506,7 +506,7 @@ fn a_second_activation_after_another_clause_keeps_its_own_origin() {
             },
         ),
     ];
-    let definition_id = CardDefinitionId::new(10_097);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002771");
     let mut definition = CardDefinition::new(
         definition_id,
         "Mixed shared and legacy activation test",

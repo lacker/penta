@@ -64,15 +64,13 @@ other cards' blocks.
 Every `CardRecord` constructor takes the card name, exact debut printing's
 Scryfall UUID, artist, and rules in that order. The surrounding set module
 supplies the debut `CardSet` when the record becomes a catalog definition, so a
-declaration cannot disagree with its registry. The build normally derives a
-stable JavaScript-safe 52-bit definition ID from the debut UUID and rejects
-collisions across the whole corpus. Historical ID assignments that cannot be
-derived from that UUID live exclusively in
-`src/card/compatibility/definition_ids.txt`; never copy them back into card
-declarations or allocate another sequential ID. That compatibility table is
-fingerprinted so existing assignments cannot move. The ordinary
-`card::cards::*` constants remain generated compatibility output, not an
-independently authored ID registry.
+declaration cannot disagree with its registry. The canonical printing UUID is
+the definition's natural key. The build generates
+compact `card::cards::*` IDs and their natural-key table from those declarations;
+catalogs use the generated indices internally. Custom definitions resolve a
+`CardDefinitionKey` to a process-local `CardDefinitionId` during construction.
+There is no numeric ID allocation or compatibility table
+for card authors to maintain. Persist the UUID, never a catalog index.
 
 Keep `ADDITIONAL_PRINTINGS` in natural order by the collector number in that
 module's set, including for reprint-only modules with an empty `CARDS`
@@ -144,6 +142,12 @@ Other clauses that refer to a particular alternative cost can use
 `TriggerConditionDef::SourcePaidAlternativeCost(binding)`, paired with
 `.with_alternative_cost_binding(binding)` on that cost. Ability order does
 not affect the link.
+
+`Binding!("name")` accepts any nonempty local name without global registration.
+Effect bindings belong to one resolution and its continuations; ordinary clones
+have independent binding state. Runtime slots are allocated within that scope
+and checkpoints store names, allowing restoration to allocate fresh slots.
+
 Catalog validation rejects duplicate cost names within a card part and
 references to undeclared cost names. These names occupy a separate namespace
 from effect-output bindings; `ParentBinding` cannot name a cost.

@@ -79,8 +79,8 @@ fn assert_payment(cases: &[(AbilityDef, ZoneKind)], mana: u16, life: i16) {
             _ => unreachable!(),
         };
         assert!(
-            zone.iter()
-                .any(|card| card.definition == CardDefinitionId::new(100_001)),
+            zone.iter().any(|card| card.definition
+                == CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000186a1")),
             "{}",
             ability.text
         );
@@ -133,11 +133,8 @@ fn unaffordable_variable_costs_do_not_spend_intrinsic_cost_objects() {
         } else {
             &game.players[0].hand
         };
-        assert!(
-            source_zone
-                .iter()
-                .any(|card| card.definition == CardDefinitionId::new(100_001))
-        );
+        assert!(source_zone.iter().any(|card| card.definition
+            == CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000186a1")));
     }
 }
 

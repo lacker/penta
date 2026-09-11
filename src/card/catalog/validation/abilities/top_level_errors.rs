@@ -80,7 +80,7 @@ fn top_level_ability_error(
                 definition: definition.id,
                 part,
                 ability,
-                event: *event,
+                event: event.clone(),
             }
         }
         GrantedAbilityValidationError::UnsupportedTriggeredManaProgram => {
@@ -172,7 +172,7 @@ fn top_level_ability_error(
             definition: definition.id,
             part,
             ability,
-            recipient: *recipient,
+            recipient: recipient.clone(),
             expected: *expected,
         },
         GrantedAbilityValidationError::InvalidScalarChoice { list, destination } => {
@@ -189,7 +189,7 @@ fn top_level_ability_error(
                 definition: definition.id,
                 part,
                 ability,
-                recipient: *recipient,
+                recipient: recipient.clone(),
             }
         }
         GrantedAbilityValidationError::InvalidObjectChoiceBounds {

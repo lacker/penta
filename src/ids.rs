@@ -1,89 +1,111 @@
 use std::fmt;
-use std::num::NonZeroU64;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
-/// Stable identity of a card in the card catalog.
+/// Natural key of a card definition: its canonical printing UUID.
 ///
-/// Values are positive integers no greater than [`Self::MAX`], so every ID is
-/// represented exactly by a JavaScript `number`. Missing or hidden identity
-/// is represented by the surrounding type rather than by a reserved value.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct CardDefinitionId(NonZeroU64);
+/// Catalogs derive their own dense indices from this key. Only the UUID is
+/// serialized; no numeric allocation or historical ID registry is persistent.
+#[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct CardDefinitionKey([u8; 16]);
 
-impl CardDefinitionId {
-    /// Largest exactly representable ID the engine assigns.
-    pub const MAX: u64 = (1_u64 << 52) - 1;
-
-    /// Creates a JavaScript-safe card definition ID.
+impl CardDefinitionKey {
+    /// Parses a canonical, lowercase, hyphenated UUID at a definition boundary.
     ///
     /// # Panics
-    ///
-    /// Panics when `raw` is zero or exceeds [`Self::MAX`]. Use
-    /// [`Self::try_new`] at untrusted input boundaries.
+    /// Panics for a malformed or nil UUID; use [`Self::try_from_uuid`] for input.
     #[must_use]
-    pub const fn new(raw: u64) -> Self {
-        assert!(raw > 0, "card definition IDs must be nonzero");
-        assert!(
-            raw <= Self::MAX,
-            "card definition IDs must be JavaScript-safe"
-        );
-        Self(NonZeroU64::new(raw).expect("card definition ID was checked as nonzero"))
-    }
-
-    #[must_use]
-    pub const fn try_new(raw: u64) -> Option<Self> {
-        if raw == 0 || raw > Self::MAX {
-            None
-        } else {
-            match NonZeroU64::new(raw) {
-                Some(raw) => Some(Self(raw)),
-                None => None,
-            }
+    pub const fn from_uuid(key: &str) -> Self {
+        match Self::try_from_uuid(key) {
+            Some(key) => key,
+            None => panic!("card definition key must be a canonical UUID"),
         }
     }
 
     #[must_use]
-    pub const fn get(self) -> u64 {
-        self.0.get()
+    pub const fn try_from_uuid(key: &str) -> Option<Self> {
+        let bytes = key.as_bytes();
+        if bytes.len() != 36 {
+            return None;
+        }
+        let mut value = 0_u128;
+        let mut index = 0;
+        while index < bytes.len() {
+            let byte = bytes[index];
+            if index == 8 || index == 13 || index == 18 || index == 23 {
+                if byte != b'-' {
+                    return None;
+                }
+            } else {
+                let digit = match byte {
+                    b'0'..=b'9' => byte - b'0',
+                    b'a'..=b'f' => byte - b'a' + 10,
+                    _ => return None,
+                };
+                value = (value << 4) | digit as u128;
+            }
+            index += 1;
+        }
+        if value == 0 {
+            None
+        } else {
+            Some(Self(value.to_be_bytes()))
+        }
+    }
+
+    /// Returns the natural key used in decks, observations and checkpoints.
+    #[must_use]
+    pub fn get(self) -> String {
+        self.to_string()
     }
 }
 
-impl From<CardDefinitionId> for u64 {
-    fn from(id: CardDefinitionId) -> Self {
-        id.get()
-    }
-}
-
-impl fmt::Display for CardDefinitionId {
+impl fmt::Display for CardDefinitionKey {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.get().fmt(formatter)
+        let raw = u128::from_be_bytes(self.0);
+        write!(
+            formatter,
+            "{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
+            raw >> 96,
+            (raw >> 80) & 0xffff,
+            (raw >> 64) & 0xffff,
+            (raw >> 48) & 0xffff,
+            raw & 0xffff_ffff_ffff
+        )
     }
 }
 
-impl Serialize for CardDefinitionId {
+impl fmt::Debug for CardDefinitionKey {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_tuple("CardDefinitionKey")
+            .field(&self.to_string())
+            .finish()
+    }
+}
+
+impl Serialize for CardDefinitionKey {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        serializer.serialize_u64(self.get())
+        serializer.collect_str(self)
     }
 }
 
-impl<'de> Deserialize<'de> for CardDefinitionId {
+impl<'de> Deserialize<'de> for CardDefinitionKey {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let raw = u64::deserialize(deserializer)?;
-        Self::try_new(raw).ok_or_else(|| {
-            de::Error::custom(format_args!(
-                "card definition ID must be between 1 and {}",
-                Self::MAX
-            ))
-        })
+        let key = String::deserialize(deserializer)?;
+        Self::try_from_uuid(&key)
+            .ok_or_else(|| de::Error::custom("card definition key must be a canonical UUID"))
     }
 }
+
+mod card_definition;
+pub use card_definition::CardDefinitionId;
 
 /// Identity of one logical rules component within a card definition.
 ///
@@ -234,238 +256,48 @@ impl AdditionalCostIndex {
     }
 }
 
-/// Authored label for an effect output or a retained casting-cost choice.
+/// A natural binding name in its owning effect or card-part scope.
 ///
-/// Cost bindings are scoped to a card part and do not enter the effect-output
-/// binding map. Both namespaces use the same compact, named vocabulary.
-///
-/// Unlike a [`TargetIndex`], a binding is not part of the spell or ability's
-/// target payload and is not subject to targeting restrictions or legality
-/// checks. Effect-output producers and consumers determine whether their
-/// retained value is one object, an object set, or a card name.
-/// A compact reference to either a durable label or the direct lexical
-/// parent's output. Labels are registered here once so the high-fanout effect
-/// model carries only a compact identifier while declarations and diagnostics
-/// retain their authored names.
+/// Declarations keep their authored names; runtime storage assigns private
+/// slots within each resolution. Cost and effect bindings use separate scopes.
+/// `ParentBinding` refers to the direct lexical parent's output.
 #[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct Binding(u8);
+pub struct Binding(&'static BindingName);
 
-const BINDING_LABELS: &[&str] = &[
-    "alpine_moon_name",
-    "anointed_peacekeeper_name",
-    "atraxa_chosen",
-    "atraxa_rest",
-    "balance_creatures_kept",
-    "balance_creatures_sacrificed",
-    "balance_hand_discarded",
-    "balance_hand_kept",
-    "balance_lands_kept",
-    "balance_lands_sacrificed",
-    "booby_trap_name",
-    "branch_output",
-    "cabal_therapy_name",
-    "call_of_the_wild_creature",
-    "call_of_the_wild_other",
-    "cards",
-    "cavern_creature_type",
-    "conditional_cards",
-    "consult_kicked_chosen",
-    "consult_kicked_rest",
-    "consult_normal_chosen",
-    "consult_normal_rest",
-    "counterbore_target",
-    "cursed_scroll_name",
-    "delver_matching",
-    "delver_other",
-    "devourer_exiled",
-    "devourer_top",
-    "disruptor_flute_name",
-    "divine_reckoning_chosen",
-    "divine_reckoning_destroyed",
-    "domri_creature",
-    "domri_noncreature",
-    "empty_cards",
-    "epic_experiment_castable",
-    "epic_experiment_exiled",
-    "epic_experiment_rest",
-    "evoke",
-    "exiled_creature",
-    "extirpate_target",
-    "fact_chosen",
-    "fact_first",
-    "fact_second",
-    "fact_unchosen",
-    "genesis_wave_chosen",
-    "genesis_wave_remainder",
-    "grave_betrayal_card",
-    "guild_feud_controller_chosen",
-    "guild_feud_controller_rest",
-    "guild_feud_opponent_chosen",
-    "guild_feud_opponent_entered",
-    "guild_feud_opponent_fighter",
-    "guild_feud_opponent_rest",
-    "haunted_fengraf_card",
-    "healing_salve_target",
-    "hideaway_hidden",
-    "hideaway_rest",
-    "intuition_chosen",
-    "intuition_unchosen",
-    "iteration_after_hand",
-    "iteration_bottom",
-    "iteration_exile",
-    "iteration_hand",
-    "jace_chosen",
-    "jace_first",
-    "jace_second",
-    "jace_unchosen",
-    "jarad_orders_graveyard",
-    "karn_chosen",
-    "karn_rest",
-    "lair_bottom_cards",
-    "lair_delved_cards",
-    "liliana_chosen_pile",
-    "liliana_first_pile",
-    "liliana_second_pile",
-    "liliana_spared_pile",
-    "limited_resources_lands_kept",
-    "limited_resources_lands_sacrificed",
-    "manifest_dread_graveyard",
-    "manifest_dread_permanent",
-    "meddling_mage_name",
-    "memoricide_graveyard",
-    "memoricide_hand",
-    "memoricide_library",
-    "memoricide_name",
-    "mercurial_chemister_discarded",
-    "milled_card",
-    "milled_cards",
-    "nadu_land",
-    "nadu_nonland",
-    "nevermore_name",
-    "nim_deathmantle_returned",
-    "object",
-    "objects",
-    "objects_2",
-    "optional_card",
-    "oracle_land",
-    "oracle_nonland",
-    "oracle_rest",
-    "oracle_top",
-    "other_alternative_cost",
-    "outcome_owned_by_you",
-    "paroxysm_land",
-    "paroxysm_nonland",
-    "petrified_hamlet_name",
-    "phyrexian_revoker_name",
-    "pithing_needle_name",
-    "produced_cards",
-    "prophecy_land",
-    "prophecy_nonland",
-    "random_graveyard_card",
-    "random_graveyard_cards",
-    "razor_hippogriff_returned",
-    "release_sacrificed_permanents",
-    "release_spared_permanents",
-    "revealed_card",
-    "revealed_cards",
-    "rysorian_badger_exiled",
-    "scry_bottom",
-    "scry_ordered_bottom",
-    "scry_ordered_top",
-    "scry_top",
-    "search_and_exile_graveyard",
-    "search_and_exile_hand",
-    "search_and_exile_library",
-    "shape_anew_artifact",
-    "shape_anew_other_cards",
-    "sorcerous_spyglass_name",
-    "sphinx_chosen",
-    "sphinx_first",
-    "sphinx_second",
-    "sphinx_unchosen",
-    "surgical_extraction_target",
-    "surveil_graveyard",
-    "surveil_top",
-    "suspended_card",
-    "tamiyo_name",
-    "top_card_chosen",
-    "top_card_remainder",
-    "tsp_creatures",
-    "tsp_creatures_rest",
-    "tsp_hand",
-    "tsp_hand_rest",
-    "tsp_lands",
-    "tsp_lands_rest",
-    "tsp_named",
-    "tsp_pile_chosen",
-    "tsp_pile_one",
-    "tsp_pile_rest",
-    "tsp_pile_two",
-    "tsp_remaining",
-    "tsp_revealed",
-    "ugin_sacrificed_permanents",
-    "ugin_spared_permanents",
-    "uncovered_clues_chosen",
-    "uncovered_clues_remainder",
-    "voidstone_gargoyle_name",
-    "wilderness_remainder",
-    "wilds_land",
-    "winding_way_chosen",
-    "winding_way_rest",
-];
+/// Compiler-owned storage emitted by `Binding!`; its address is never identity.
+#[doc(hidden)]
+#[derive(Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct BindingName(&'static str);
+
+impl BindingName {
+    /// # Panics
+    /// Panics if the authored name is empty.
+    #[must_use]
+    pub const fn new(label: &'static str) -> Self {
+        assert!(!label.is_empty(), "binding names must not be empty");
+        Self(label)
+    }
+}
 
 #[allow(non_upper_case_globals)]
-pub const ParentBinding: Binding = Binding(u8::MAX);
+pub const ParentBinding: Binding = Binding(&BindingName(""));
 
 impl Binding {
+    /// References a compiler-owned name; equality compares names, not addresses.
     #[doc(hidden)]
     #[must_use]
-    #[allow(clippy::cast_possible_truncation)]
-    pub const fn from_label(label: &'static str) -> Self {
-        assert!(BINDING_LABELS.len() < u8::MAX as usize);
-        let mut index = 0;
-        while index < BINDING_LABELS.len() {
-            if const_str_eq(BINDING_LABELS[index], label) {
-                return Self(index as u8);
-            }
-            index += 1;
-        }
-        panic!("binding label is not registered in ids.rs")
+    pub const fn named(name: &'static BindingName) -> Self {
+        Self(name)
     }
 
     #[must_use]
     pub const fn label(self) -> Option<&'static str> {
-        if self.0 == u8::MAX {
+        if self.0.0.is_empty() {
             None
         } else {
-            Some(BINDING_LABELS[self.0 as usize])
+            Some(self.0.0)
         }
     }
-
-    #[must_use]
-    pub(crate) fn try_from_label(label: &str) -> Option<Self> {
-        BINDING_LABELS
-            .iter()
-            .position(|candidate| *candidate == label)
-            .and_then(|index| u8::try_from(index).ok())
-            .map(Self)
-    }
-}
-
-const fn const_str_eq(left: &str, right: &str) -> bool {
-    let left = left.as_bytes();
-    let right = right.as_bytes();
-    if left.len() != right.len() {
-        return false;
-    }
-    let mut index = 0;
-    while index < left.len() {
-        if left[index] != right[index] {
-            return false;
-        }
-        index += 1;
-    }
-    true
 }
 
 impl fmt::Debug for Binding {
@@ -573,36 +405,26 @@ impl fmt::Display for PlayerId {
 
 #[cfg(test)]
 mod tests {
-    use super::{BINDING_LABELS, Binding, CardDefinitionId};
+    use super::{Binding, CardDefinitionId};
 
     #[test]
-    fn binding_label_registry_is_sorted_unique_and_round_trips() {
-        for labels in BINDING_LABELS.windows(2) {
-            assert!(
-                labels[0] < labels[1],
-                "binding labels must be sorted and unique"
-            );
-        }
-        for label in BINDING_LABELS {
-            assert_eq!(Binding::from_label(label).label(), Some(*label));
-        }
+    fn binding_names_need_no_global_registration() {
+        const LOCAL: Binding = crate::Binding!("a_new_local_name");
+        assert_eq!(LOCAL.label(), Some("a_new_local_name"));
     }
 
     #[test]
-    fn card_definition_ids_serde_as_exact_javascript_numbers() {
-        let id = CardDefinitionId::new(1_u64 << 40);
-        let encoded = serde_json::to_value(id).expect("ID serializes");
-        assert_eq!(encoded.as_u64(), Some(id.get()));
+    fn card_definition_keys_serialize_as_natural_uuids() {
+        let key = "b13bf496-f3c0-4c13-8282-e7abfab6a198";
+        let id = CardDefinitionId::from_uuid(key);
+        let encoded = serde_json::to_value(id).unwrap();
+        assert_eq!(encoded, key);
         assert_eq!(
-            serde_json::from_value::<CardDefinitionId>(encoded).expect("ID deserializes"),
-            id,
+            serde_json::from_value::<CardDefinitionId>(encoded).unwrap(),
+            id
         );
-        assert!(serde_json::from_value::<CardDefinitionId>(serde_json::json!(0)).is_err());
-        assert!(
-            serde_json::from_value::<CardDefinitionId>(serde_json::json!(
-                CardDefinitionId::MAX + 1
-            ))
-            .is_err()
-        );
+        assert!(serde_json::from_value::<CardDefinitionId>(serde_json::json!(123)).is_err());
+        assert!(CardDefinitionId::try_from_uuid("00000000-0000-0000-0000-000000000000").is_none());
+        assert!(CardDefinitionId::try_from_uuid("not-a-uuid").is_none());
     }
 }

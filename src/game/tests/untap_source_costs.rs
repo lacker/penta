@@ -15,7 +15,7 @@ static UNTAP_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
 )];
 
 fn untap_source_game() -> (Game, GameObjectId, Action) {
-    let definition_id = CardDefinitionId::new(10_103);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002777");
     let mut definition = CardDefinition::new(
         definition_id,
         "Untap source cost test",

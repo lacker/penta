@@ -689,7 +689,7 @@ fn a_locator_that_is_absent_from_this_catalog_is_rejected() {
                 "object": 1,
                 "ability": {
                     "source": "card",
-                    "definition": u16::MAX,
+                    "definition": "00000000-0000-0000-0000-00000000ffff",
                     "partId": 0,
                     "abilityId": 0,
                     "nested": [],

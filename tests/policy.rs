@@ -13,11 +13,13 @@ use penta::{
 };
 
 const ACTION_LIMIT: usize = 50_000;
-const PRIMARY_PRINTED_ABILITY: AbilityOrigin = AbilityOrigin::Printed {
-    definition: penta::CardDefinitionId::new(1),
-    part: CardPartId::PRIMARY,
-    ability: AbilityId::PRIMARY,
-};
+fn primary_printed_ability() -> AbilityOrigin {
+    AbilityOrigin::Printed {
+        definition: penta::CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
+        part: CardPartId::PRIMARY,
+        ability: AbilityId::PRIMARY,
+    }
+}
 
 fn activated_targets(target: Target) -> Vec<TargetSelection> {
     vec![TargetSelection::single(TargetSlotId(0), target)]

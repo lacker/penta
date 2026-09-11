@@ -117,7 +117,7 @@ fn explicit_sources_and_batch_riders_use_actual_recipients_and_damage_attributio
                 },
             )
             .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
+                effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             }),
         )),

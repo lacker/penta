@@ -4752,7 +4752,7 @@ pub(in crate::card::sets) static JAYA_BALLARD_TASK_MAGE: CardRecord = CardRecord
                         ValueDef::Constant(3),
                     )
                     .with_follow_up(DamageFollowUpDef::ApplyToDamaged {
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                        effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
                         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                     }),
                 ),

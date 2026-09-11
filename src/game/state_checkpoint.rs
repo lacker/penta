@@ -698,11 +698,8 @@ fn restore_attacked_subtypes(recorded: &[String]) -> Vec<&'static str> {
         .collect()
 }
 
-fn companion_definitions(companions: &[CardDefinitionId]) -> Vec<u64> {
-    companions
-        .iter()
-        .map(|definition| definition.get())
-        .collect()
+fn companion_definitions(companions: &[CardDefinitionId]) -> Vec<CardDefinitionId> {
+    companions.to_vec()
 }
 
 include!("state_checkpoint/restore.rs");

@@ -591,7 +591,7 @@ pub enum ManaTypeSourceDef {
     /// The union of mana types the referenced permanents' mana abilities
     /// could produce under CR 106.7. Costs and restrictions on spending that
     /// mana do not narrow the answer.
-    CouldBeProducedBy(ObjectSetDef),
+    CouldBeProducedBy(&'static ObjectSetDef),
 }
 
 /// A filter applied after a mana-type source has been evaluated. "Any color"
@@ -629,7 +629,7 @@ impl ManaTypeSetDef {
     }
 
     #[must_use]
-    pub const fn could_be_produced_by(objects: ObjectSetDef) -> Self {
+    pub const fn could_be_produced_by(objects: &'static ObjectSetDef) -> Self {
         Self {
             source: ManaTypeSourceDef::CouldBeProducedBy(objects),
             filter: ManaTypeFilterDef::AnyType,
@@ -743,7 +743,7 @@ pub struct AddManaEffectDef {
 /// "... add this much instead."
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ManaAmountOverrideDef {
-    pub condition: ConditionDef,
+    pub condition: &'static ConditionDef,
     pub amount: u16,
 }
 
@@ -862,7 +862,11 @@ impl AddManaEffectDef {
     }
 
     #[must_use]
-    pub const fn with_amount_override(mut self, condition: ConditionDef, amount: u16) -> Self {
+    pub const fn with_amount_override(
+        mut self,
+        condition: &'static ConditionDef,
+        amount: u16,
+    ) -> Self {
         self.amount_override = Some(ManaAmountOverrideDef { condition, amount });
         self
     }

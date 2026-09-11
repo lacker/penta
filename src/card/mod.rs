@@ -14,7 +14,6 @@ pub mod tokens;
 
 mod catalog;
 mod characteristics;
-mod compatibility;
 mod creature_types;
 mod model;
 mod record;

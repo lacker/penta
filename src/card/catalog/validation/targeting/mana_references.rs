@@ -21,7 +21,7 @@ fn validate_mana_references(
                 validate_object_reference(reference, target_count, scope)
             }
             crate::card::ManaTypeSourceDef::CouldBeProducedBy(objects) => {
-                validate_object_set_target_references(objects, target_count, scope)
+                validate_object_set_target_references(*objects, target_count, scope)
             }
             crate::card::ManaTypeSourceDef::Fixed(_) => Ok(()),
         },

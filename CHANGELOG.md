@@ -20,6 +20,20 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Protocol 32 replaces numeric card-definition references with canonical
+  printing UUID strings in catalogs, observations, decks, ability origins,
+  match registrations, and Python/JSON hidden-world inputs. Checkpoint format
+  16 uses the same natural keys; old numeric payloads are rejected. Native
+  `CardDefinitionKey` represents the UUID and `CardDefinitionId` its compact
+  process-local handle; use `from_uuid` instead of numeric constructors.
+  Built-in IDs and array indices are generated at compile time; custom keys
+  are interned on entry. Serialization always recovers natural keys. Card
+  declarations are the sole source of identity;
+  the historical numeric registry and tombstones are removed.
+- Binding names no longer require global registration. They are scoped to
+  effect resolutions or card parts, with private runtime slots reconstructed
+  from natural names in checkpoints. Unrelated cards may reuse names freely.
+
 - Undying and persist use respondable death triggers and a shared zone-move
   action program bound to the exact graveyard object. Both trigger when present;
   later zone changes cannot redirect a return to another card.
@@ -43,6 +57,8 @@ the bot-wire epoch.
   the synthetic-set sentinel is `CardSet::TOKEN`. Set modules also own catalog
   registration metadata. Existing catalog JSON slugs and protocol shapes are
   unchanged.
+
+
 - Cavern of Souls binds its entry-time creature-type choice and uses an ordinary
   spell predicate for its restricted mana. The binding follows the producing
   object incarnation, including after it leaves and returns with a new choice.

@@ -436,7 +436,7 @@ mod tests {
         let creature_rules = CardRules::new_creature(ManaCost::new(2, 0), &[], 2, 2);
         let flipped_rules = CardRules::new_creature_without_mana_cost(&[], 4, 4);
         let mut flip = CardDefinition::new(
-            CardDefinitionId::new(20_000),
+            CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000004e20"),
             "Test flip card",
             sets::innistrad::SET,
             crate::card::CardRules::unsupported(),
@@ -472,7 +472,7 @@ mod tests {
         let adventure = CardPartId(1);
         let adventure_rules = CardRules::new_instant(ManaCost::new(1, 0));
         let mut alternate = CardDefinition::new(
-            CardDefinitionId::new(20_001),
+            CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000004e21"),
             "Test adventurer",
             sets::innistrad::SET,
             crate::card::CardRules::unsupported(),

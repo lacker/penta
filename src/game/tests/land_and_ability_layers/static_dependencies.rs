@@ -38,7 +38,7 @@ fn game_granting_flying(extra: Vec<CardDefinition>) -> Game {
         .cloned()
         .collect::<Vec<_>>();
     let grant = static_enchantment(
-        CardDefinitionId::new(10_090),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276a"),
         "Static flying grant test",
         &GRANT_FLYING,
     );
@@ -98,7 +98,7 @@ fn a_static_ability_grant_picks_recipients_from_the_layer_below_itself() {
     )];
 
     let game = game_granting_flying(vec![static_enchantment(
-        CardDefinitionId::new(10_091),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276b"),
         "Static trample grant test",
         &GRANT_TRAMPLE,
     )]);
@@ -130,7 +130,7 @@ fn a_static_power_effect_keyed_on_a_keyword_sees_a_static_grant() {
     )];
 
     let game = game_granting_flying(vec![static_enchantment(
-        CardDefinitionId::new(10_092),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276c"),
         "Static flier penalty test",
         &SHRINK,
     )]);

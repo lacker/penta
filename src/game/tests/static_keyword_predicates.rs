@@ -425,10 +425,11 @@ fn mwonvuli_beast_tracker_finds_only_the_four_named_keywords() {
                 .and_then(|(_, characteristics)| characteristics.card_definition())
         })
         .collect::<Vec<_>>();
-    offered.sort_unstable_by_key(|definition| definition.get());
+    offered.sort_unstable();
+    let mut expected = vec![cards::GIANT_SPIDER, cards::DEADLY_RECLUSE];
+    expected.sort_unstable();
     assert_eq!(
-        offered,
-        vec![cards::GIANT_SPIDER, cards::DEADLY_RECLUSE],
+        offered, expected,
         "reach and deathtouch qualify; a vanilla creature, a flier, and an instant do not"
     );
 

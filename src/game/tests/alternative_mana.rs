@@ -225,7 +225,7 @@ fn improvise_cannot_pay_a_colored_symbol() {
             },
         ),
     ];
-    let definition_id = CardDefinitionId::new(50_126);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c3ce");
     let mut definition = CardDefinition::new(
         definition_id,
         "Colored improvise test",

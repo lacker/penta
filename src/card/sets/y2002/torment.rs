@@ -707,7 +707,7 @@ pub(in crate::card::sets) static CABAL_RITUAL: CardRecord = CardRecord::new(
                 // turn has already spent are in it -- which is why a storm turn tends to
                 // reach seven before it needs the five mana.
                 .with_amount_override(
-                    ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    &ConditionDef::ObjectCount(&ObjectCountConditionDef {
                         query: ObjectQueryDef::matching(
                             ObjectPredicateDef::Any,
                             &[ZoneKind::Graveyard],

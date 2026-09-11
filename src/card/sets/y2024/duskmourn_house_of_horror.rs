@@ -1021,7 +1021,7 @@ pub(in crate::card::sets) static SCREAMING_NEMESIS: CardRecord = CardRecord::new
                     ValueDef::TriggerEventAmount,
                 )
                 .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
+                    effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
                     duration: ResolvedEffectDurationDef::Permanent,
                 }),
             ),

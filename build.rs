@@ -361,36 +361,12 @@ fn sha256_hex(hash: Sha256) -> String {
 }
 
 const CARD_DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
-const CARD_ID_DOMAIN: &[u8] = b"penta/card-printing-id/v1\0";
-const HISTORICAL_CARD_IDS_FINGERPRINT: &str =
-    "cb83280d0678f33d1699442beb719cd4207b712e8b44ee1fabf036a6368d9b50";
-const MAX_CARD_DEFINITION_ID: u64 = (1_u64 << 52) - 1;
-
 fn is_uuid(value: &str) -> bool {
     value.len() == 36
         && value.bytes().enumerate().all(|(index, byte)| match index {
             8 | 13 | 18 | 23 => byte == b'-',
             _ => byte.is_ascii_hexdigit(),
         })
-}
-
-fn derived_card_definition_id(scryfall_id: &str) -> u64 {
-    let mut hash = Sha256::new();
-    hash.update(CARD_ID_DOMAIN);
-    hash.update(scryfall_id.as_bytes());
-    // Keep the zero field from the original derivation format so IDs for
-    // definitions that already used their debut artwork remain unchanged.
-    hash.update(0_u32.to_be_bytes());
-    let digest = hash.finalize();
-    let prefix = u64::from_be_bytes(
-        digest[..8]
-            .try_into()
-            .expect("SHA-256 digest always has an eight-byte prefix"),
-    );
-    let id = prefix >> 12;
-    assert!(id > 0, "derived card definition ID must be nonzero");
-    assert!(id <= MAX_CARD_DEFINITION_ID);
-    id
 }
 
 fn quoted_argument(value: &str, prefix: &str, suffix: &str) -> Option<String> {
@@ -416,12 +392,7 @@ fn authored_scryfall_id(value: &str, path: &Path, line: usize) -> String {
     scryfall_id
 }
 
-fn collect_card_ids(
-    directory: &Path,
-    cards: &mut BTreeMap<String, u64>,
-    scryfall_ids: &mut BTreeMap<String, String>,
-    historical_ids: &BTreeMap<String, (String, u64)>,
-) {
+fn collect_card_keys(directory: &Path, cards: &mut BTreeMap<String, String>) {
     let mut entries = fs::read_dir(directory)
         .unwrap_or_else(|error| panic!("failed to read {}: {error}", directory.display()))
         .map(|entry| {
@@ -436,7 +407,7 @@ fn collect_card_ids(
             if path.file_name().is_some_and(|name| name == "tests") {
                 continue;
             }
-            collect_card_ids(&path, cards, scryfall_ids, historical_ids);
+            collect_card_keys(&path, cards);
             continue;
         }
         if path.extension().and_then(|extension| extension.to_str()) != Some("rs") {
@@ -480,160 +451,60 @@ fn collect_card_ids(
                 &path,
                 initializer_index + scryfall_id_offset + 1,
             );
-            let id = historical_ids
-                .get(&scryfall_id)
-                .map_or_else(|| derived_card_definition_id(&scryfall_id), |(_, id)| *id);
             assert!(
-                cards.insert(symbol.to_owned(), id).is_none(),
-                "duplicate CardRecord symbol {symbol}"
-            );
-            assert!(
-                scryfall_ids
-                    .insert(symbol.to_owned(), scryfall_id)
-                    .is_none(),
+                cards.insert(symbol.to_owned(), scryfall_id).is_none(),
                 "duplicate CardRecord symbol {symbol}"
             );
         }
     }
 }
 
-fn historical_card_ids(root: &Path) -> BTreeMap<String, (String, u64)> {
-    let path = root.join("src/card/compatibility/definition_ids.txt");
-    let source = fs::read_to_string(&path)
-        .unwrap_or_else(|error| panic!("failed to read {}: {error}", path.display()));
-    let mut fingerprint = Sha256::new();
-    fingerprint.update(source.as_bytes());
-    assert_eq!(
-        sha256_hex(fingerprint),
-        HISTORICAL_CARD_IDS_FINGERPRINT,
-        "historical card definition IDs are immutable",
-    );
-    let mut entries = BTreeMap::new();
-    for (index, line) in source.lines().enumerate() {
-        if line.is_empty() || line.starts_with('#') {
-            continue;
-        }
-        let mut fields = line.split_whitespace();
-        let scryfall_id = fields
-            .next()
-            .expect("compatibility row has a Scryfall UUID");
-        let id = fields
-            .next()
-            .expect("compatibility row has a historical ID")
-            .parse::<u64>()
-            .unwrap_or_else(|error| {
-                panic!(
-                    "{}:{}: invalid historical ID: {error}",
-                    path.display(),
-                    index + 1
-                )
-            });
-        let symbol = fields.next().expect("compatibility row has a card symbol");
-        assert!(fields.next().is_none());
-        assert!(is_uuid(scryfall_id));
-        assert!(id > 0 && id <= MAX_CARD_DEFINITION_ID);
-        assert!(
-            entries
-                .insert(scryfall_id.to_owned(), (symbol.to_owned(), id))
-                .is_none(),
-            "{}:{}: duplicate compatibility Scryfall UUID {scryfall_id}",
-            path.display(),
-            index + 1,
-        );
-    }
-    entries
-}
-
-fn generate_card_ids(root: &Path) {
-    let historical_ids = historical_card_ids(root);
+fn generate_card_keys(root: &Path) {
     let mut cards = BTreeMap::new();
-    let mut scryfall_ids = BTreeMap::new();
-    collect_card_ids(
-        &root.join("src/card/sets"),
-        &mut cards,
-        &mut scryfall_ids,
-        &historical_ids,
-    );
-    for (scryfall_id, (symbol, historical_id)) in &historical_ids {
-        assert_eq!(
-            scryfall_ids.get(symbol),
-            Some(scryfall_id),
-            "historical ID {historical_id} for {symbol} must name its current debut art",
-        );
-        assert_ne!(
-            derived_card_definition_id(scryfall_id),
-            *historical_id,
-            "historical ID override for {symbol} is redundant",
-        );
+    collect_card_keys(&root.join("src/card/sets"), &mut cards);
+    let mut keys = BTreeSet::new();
+    for key in cards.values() {
+        assert!(keys.insert(key), "duplicate card definition key {key}");
     }
-    let mut ids = BTreeMap::new();
-    for (symbol, id) in &cards {
-        if let Some(existing) = ids.insert(*id, symbol) {
-            panic!("card definition ID {id} is shared by {existing} and {symbol}");
-        }
-    }
-    let all_ids = cards.values().copied().collect::<Vec<_>>();
-    let mut generated = String::from(
-        "// @generated by build.rs from CardRecord declarations.\n\
-         use crate::CardDefinitionId;\n\n",
-    );
-    for (symbol, id) in cards {
-        let id = readable_integer_literal(id);
+    let indices = keys
+        .iter()
+        .enumerate()
+        .map(|(index, key)| (*key, index))
+        .collect::<BTreeMap<_, _>>();
+    let mut generated =
+        String::from("// @generated from CardRecord natural keys.\nuse crate::CardDefinitionId;\n");
+    for (symbol, key) in &cards {
+        let index = indices[key];
         writeln!(
             &mut generated,
-            "pub const {symbol}: CardDefinitionId = CardDefinitionId::new({id});"
+            "pub const {symbol}: CardDefinitionId = CardDefinitionId::from_compiled({index});"
         )
-        .expect("writing generated card IDs to a String cannot fail");
+        .unwrap();
     }
     generated.push_str(
         "\n#[cfg(test)]\npub(crate) const ALL_CARD_DEFINITION_IDS: &[CardDefinitionId] = &[\n",
     );
-    for id in all_ids {
-        let id = readable_integer_literal(id);
-        writeln!(&mut generated, "    CardDefinitionId::new({id}),")
-            .expect("writing generated card IDs to a String cannot fail");
+    for symbol in cards.keys() {
+        writeln!(&mut generated, "    {symbol},").unwrap();
     }
     generated.push_str("];\n");
-    let output_directory =
-        PathBuf::from(std::env::var_os("OUT_DIR").expect("Cargo output directory"));
-    let output = output_directory.join("card_definition_ids.rs");
+    let output = PathBuf::from(std::env::var_os("OUT_DIR").expect("Cargo output directory"))
+        .join("card_definition_keys.rs");
     fs::write(&output, generated)
         .unwrap_or_else(|error| panic!("failed to write {}: {error}", output.display()));
-
-    let mut compatibility = String::from(
-        "// @generated by build.rs from src/card/compatibility/definition_ids.txt.\n\
-         pub(super) const HISTORICAL_DEFINITION_IDS: &[(&str, u64)] = &[\n",
+    let mut key_table = String::from(
+        "// @generated from CardRecord natural keys, in natural-key order.\nconst COMPILED_KEYS: &[CardDefinitionKey] = &[\n",
     );
-    for (scryfall_id, (_, id)) in historical_ids {
-        let id = readable_integer_literal(id);
-        writeln!(&mut compatibility, "    (\"{scryfall_id}\", {id}),")
-            .expect("writing compatibility IDs to a String cannot fail");
+    for key in keys {
+        writeln!(&mut key_table, "CardDefinitionKey::from_uuid(\"{key}\"),").unwrap();
     }
-    compatibility.push_str("];\n");
-    let compatibility_output = output_directory.join("card_definition_compatibility.rs");
-    fs::write(&compatibility_output, compatibility).unwrap_or_else(|error| {
-        panic!(
-            "failed to write {}: {error}",
-            compatibility_output.display()
-        )
-    });
-}
-
-fn readable_integer_literal(value: u64) -> String {
-    let digits = value.to_string();
-    let mut literal = String::with_capacity(digits.len() + digits.len() / 3);
-    for (index, digit) in digits.chars().enumerate() {
-        if index > 0 && (digits.len() - index).is_multiple_of(3) {
-            literal.push('_');
-        }
-        literal.push(digit);
-    }
-    literal
+    key_table.push_str("];\n");
+    fs::write(output.with_file_name("compiled_card_keys.rs"), key_table).unwrap();
 }
 
 fn main() {
     let root = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").expect("manifest directory"));
-    generate_card_ids(&root);
+    generate_card_keys(&root);
     let (files, directories) = tracked_files(&root);
     let deck_output = PathBuf::from(std::env::var_os("OUT_DIR").expect("Cargo output directory"));
     fs::write(

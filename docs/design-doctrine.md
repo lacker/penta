@@ -42,6 +42,12 @@ aggregate or card-by-card coverage reports from them on demand.
 
 ## Engine principles
 
+- Identifiers are scoped implementation details, derived during compilation or
+  runtime construction. Do not hand-maintain identifier or binding-number
+  registries. Generated symbol tables and process-local interning are derived
+  implementation details. Persist natural keys and resolve local IDs on load.
+  References to game-created objects are scoped to their owning game/checkpoint;
+  they are not durable identities across games.
 - Game state changes only through explicit actions.
 - All randomness comes from a recorded seed and a versioned PRNG.
 - Runtime rules objects use zone-scoped identities while private physical-card

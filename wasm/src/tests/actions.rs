@@ -702,7 +702,9 @@ fn mana_and_granted_ability_actions_expose_their_stable_origins() {
         source: CardInstanceId(10),
         ability: penta::AbilityOrigin::Granted {
             source: CardInstanceId(9),
-            source_definition: penta::CardDefinitionId::new(8),
+            source_definition: penta::CardDefinitionId::from_uuid(
+                "00000000-0000-0000-0000-000000000008",
+            ),
             source_part: penta::CardPartId(1),
             source_ability: penta::AbilityId(2),
             grant: penta::GrantId(3),
@@ -718,7 +720,7 @@ fn mana_and_granted_ability_actions_expose_their_stable_origins() {
         Some(json!({
             "kind": "granted",
             "source": 9,
-            "sourceDefinition": 8,
+            "sourceDefinition": penta::CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000008"),
             "sourcePartId": 1,
             "sourceAbilityId": 2,
             "grantId": 3,

@@ -14,7 +14,7 @@ use crate::card::{
     ResolvedEffectDurationDef, SetOperationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, cards,
 };
-use crate::{CardDefinitionId, CardSet, Format, ManaCost};
+use crate::{CardSet, Format, ManaCost};
 
 fn standard_records() -> Vec<&'static CardRecord> {
     let allowed_sets = Format::IsdM14Standard

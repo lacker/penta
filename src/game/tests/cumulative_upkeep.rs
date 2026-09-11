@@ -498,7 +498,7 @@ fn cumulative_upkeep_can_add_mana_or_benefit_an_opponent() {
 #[test]
 fn cumulative_upkeep_snow_mana_requires_a_snow_source() {
     static ABILITIES: [AbilityDef; 1] = [abilities::cumulative_upkeep(&[CostDef::snow_mana(1)])];
-    let definition_id = CardDefinitionId::new(120_112);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000001d530");
     let mut definition = CardDefinition::new(
         definition_id,
         "Snow cumulative upkeep fixture",

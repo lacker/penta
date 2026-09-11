@@ -91,7 +91,7 @@ struct Permanent {
     blocking_this_combat: bool,
     chosen_player: Option<PlayerId>,
     chosen_creature_type: Option<String>,
-    chosen_creature_type_binding: Option<crate::Binding>,
+    chosen_creature_type_binding: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub(super) chosen_basic_land_type: Option<crate::card::BasicLandType>,
     /// The color this permanent's controller chose as it entered.
@@ -100,7 +100,7 @@ struct Permanent {
     chosen_card_name: Option<String>,
     /// The authored identity of that name choice. Older checkpoints may omit
     /// it; `None` retains their former single-choice interpretation.
-    chosen_card_name_binding: Option<crate::Binding>,
+    chosen_card_name_binding: Option<String>,
     /// The copiable values supplied by the rule, ability, or effect that made
     /// this permanent face down (CR 708.2). `None` means face up. The physical
     /// card is unchanged: `card.definition` still names it, which is what lets

@@ -57,8 +57,8 @@ fn effect_life_payments_are_preflighted_and_paid_atomically() {
 
 #[test]
 fn resolved_grants_participate_in_external_entry_replacement_discovery() {
-    let source_definition = CardDefinitionId::new(10_501);
-    let land_definition = CardDefinitionId::new(10_502);
+    let source_definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002905");
+    let land_definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002906");
     let mut source = CardDefinition::new(
         source_definition,
         "Test resolved replacement source",
@@ -243,7 +243,7 @@ fn shock_land_payment_or_decline_is_applied_before_ankh_observes_the_entry() {
 
 #[test]
 fn replacement_effects_are_ordered_and_re_evaluated_before_entry_commits() {
-    let external_definition = CardDefinitionId::new(10_501);
+    let external_definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002905");
     let mut external = CardDefinition::new(
         external_definition,
         "Test entry restriction",
@@ -331,7 +331,7 @@ fn replacement_effects_are_ordered_and_re_evaluated_before_entry_commits() {
 
 #[test]
 fn nested_replacement_effects_keep_their_source_controller_context() {
-    let external_definition = CardDefinitionId::new(10_501);
+    let external_definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002905");
     let mut external = CardDefinition::new(
         external_definition,
         "Test source-relative entry replacement",

@@ -39,14 +39,12 @@ pub(super) fn stack_cast_context(
             let option = definition.play_option(signature.play_option())?;
             game.selected_alternative_kind(definition, option, id, signature.costs())
         });
-    let alternative_cost_binding = state
-        .cast_alternative_cost_binding
-        .as_deref()
-        .map(|label| {
-            crate::Binding::try_from_label(label)
-                .ok_or_else(|| format!("unknown alternative-cost binding {label}"))
-        })
-        .transpose()?
+    let alternative_cost_binding =
+        crate::game::state_checkpoint::wire::restore_alternative_cost_binding(
+            state.cast_alternative_cost_binding.as_deref(),
+            card.definition.card_definition(),
+            &game.catalog,
+        )?
         .or_else(|| {
             let signature = signature?;
             let definition = card.definition.card_definition()?;
@@ -55,6 +53,8 @@ pub(super) fn stack_cast_context(
                 .get(definition)?
                 .play_option(signature.play_option())?;
             Game::selected_alternative_cost_binding(option, signature.costs())
+                .and_then(crate::Binding::label)
+                .map(str::to_owned)
         });
     let signature_cost_counts = signature.and_then(|signature| {
         let definition = card.definition.card_definition()?;
@@ -136,14 +136,12 @@ pub(super) fn detached_cast_context(
             let option = definition.play_option(signature.play_option())?;
             game.selected_alternative_kind(definition, option, id, signature.costs())
         });
-    let alternative_cost_binding = state
-        .cast_alternative_cost_binding
-        .as_deref()
-        .map(|label| {
-            crate::Binding::try_from_label(label)
-                .ok_or_else(|| format!("unknown alternative-cost binding {label}"))
-        })
-        .transpose()?
+    let alternative_cost_binding =
+        crate::game::state_checkpoint::wire::restore_alternative_cost_binding(
+            state.cast_alternative_cost_binding.as_deref(),
+            card.definition.card_definition(),
+            &game.catalog,
+        )?
         .or_else(|| {
             let signature = signature?;
             let definition = card.definition.card_definition()?;
@@ -152,6 +150,8 @@ pub(super) fn detached_cast_context(
                 .get(definition)?
                 .play_option(signature.play_option())?;
             Game::selected_alternative_cost_binding(option, signature.costs())
+                .and_then(crate::Binding::label)
+                .map(str::to_owned)
         });
     let signature_cost_counts = signature.and_then(|signature| {
         let definition = card.definition.card_definition()?;

@@ -209,7 +209,7 @@ fn cavern_of_souls_requires_and_records_a_creature_type_choice() {
 
 #[test]
 fn cavern_choices_ignore_noncreature_subtypes_on_creature_cards() {
-    let definition_id = CardDefinitionId::new(19_085);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000004a8d");
     let mut equipment_creature = CardDefinition::new(
         definition_id,
         "Test equipment creature",

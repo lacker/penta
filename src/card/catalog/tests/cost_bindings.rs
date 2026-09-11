@@ -7,7 +7,7 @@ const EVOKE_COST: AbilityDef = EVOKE[0];
 
 fn cost_binding_card(id: u64, name: &str, abilities: &'static [AbilityDef]) -> CardDefinition {
     CardDefinition::new(
-        CardDefinitionId::new(id),
+        CardDefinitionId::from_uuid(&format!("00000000-0000-0000-0000-{id:012x}")),
         name,
         sets::alpha::SET,
         crate::CardRules::new_creature(crate::mana_cost!("{3}"), &["Elemental"], 2, 2)
@@ -23,7 +23,7 @@ fn alternative_cost_bindings_require_a_declaration_on_the_same_card_part() {
     assert!(matches!(
         CardCatalog::new([declares, references]),
         Err(CatalogError::InvalidAlternativeCostBinding { definition, binding, .. })
-            if definition == CardDefinitionId::new(2) && binding == crate::Binding!("evoke")
+            if definition == CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000002") && binding == crate::Binding!("evoke")
     ));
 }
 
@@ -38,7 +38,7 @@ fn alternative_cost_bindings_reject_duplicate_declarations() {
 }
 
 #[test]
-fn alternative_cost_bindings_require_a_durable_name() {
+fn alternative_cost_bindings_require_an_explicit_name() {
     static ABILITIES: [AbilityDef; 1] =
         [EVOKE_COST.with_alternative_cost_binding(crate::ParentBinding)];
     let card = cost_binding_card(1, "Unnamed Cost", &ABILITIES);
@@ -57,4 +57,15 @@ fn alternative_cost_bindings_can_be_reused_by_different_cards() {
         cost_binding_card(2, "Second Evoke", &ABILITIES),
     ])
     .expect("each card declares its own evoke binding, even after the trigger");
+}
+
+#[test]
+fn alternative_cost_bindings_accept_unregistered_local_names() {
+    static ABILITIES: [AbilityDef; 1] =
+        [EVOKE_COST.with_alternative_cost_binding(crate::Binding!("local_payment"))];
+    CardCatalog::new([
+        cost_binding_card(1, "First Local Payment", &ABILITIES),
+        cost_binding_card(2, "Second Local Payment", &ABILITIES),
+    ])
+    .expect("a cost name needs only its own declaration, never global registration");
 }

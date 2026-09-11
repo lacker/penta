@@ -68,7 +68,7 @@ fn catalog_rejects_effect_operations_in_the_wrong_execution_context() {
         assert_eq!(
             error(definition_with_ability(ability)),
             CatalogError::UnsupportedAbilityEffectProgramContext {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
                 context,
@@ -226,7 +226,7 @@ fn static_apply_rejects_shapes_its_live_reader_would_ignore() {
         assert_eq!(
             error(definition_with_ability(ability)),
             CatalogError::UnsupportedAbilityEffectProgramContext {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
                 context: "static",
@@ -364,7 +364,7 @@ fn nonbattlefield_ability_grants_are_executable_flashback_until_cleanup() {
         assert_eq!(
             error(definition_with_ability(spell)),
             CatalogError::UnsupportedAbilityEffectProgramContext {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
                 context: "resolving",
@@ -404,7 +404,7 @@ fn triggering_object_grants_use_the_declared_event_zone() {
             )
         ))),
         CatalogError::UnsupportedResolvingAppliedEffect {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
         },
@@ -484,7 +484,7 @@ fn one_card_part_cannot_define_multiple_spell_abilities() {
     assert_eq!(
         error(card),
         CatalogError::MultipleSpellAbilities {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             count: 2,
         }
@@ -503,7 +503,7 @@ fn positional_ability_ids_reject_more_than_their_address_space() {
     assert_eq!(
         error(card),
         CatalogError::TooManyAbilities {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             count: 257,
         }
@@ -537,7 +537,7 @@ fn grant_ids_reject_more_than_their_structural_address_space() {
     assert_eq!(
         error(card),
         CatalogError::TooManyAbilityGrantSites {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             count: 257,
@@ -576,7 +576,7 @@ fn delayed_grants_count_toward_the_structural_address_space() {
     assert_eq!(
         error(card),
         CatalogError::TooManyAbilityGrantSites {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             count: 257,
@@ -607,7 +607,7 @@ fn replacement_program_grants_count_toward_the_structural_address_space() {
     assert_eq!(
         error(card),
         CatalogError::TooManyAbilityGrantSites {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             count: 257,
@@ -623,7 +623,7 @@ fn executable_granted_static_abilities_are_rejected_until_fixed_point_evaluation
     assert_eq!(
         error(definition_granting(&GRANTED)),
         CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY],
@@ -648,7 +648,7 @@ fn granted_ability_validation_reports_nested_structural_paths() {
     assert_eq!(
         error(definition_granting(&CHILD)),
         CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY, GrantId::PRIMARY],
@@ -682,7 +682,7 @@ fn granted_ability_validation_follows_sacrifice_continuations() {
     assert_eq!(
         error(definition_granting(&CHILD)),
         CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY, GrantId::PRIMARY],
@@ -714,7 +714,7 @@ fn unsupported_replacement_programs_fail_before_nested_grants() {
     assert_eq!(
         error(card),
         CatalogError::UnsupportedReplacementProgram {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             event: ReplacementEventDef::SourceEntersBattlefield,
@@ -751,7 +751,7 @@ fn granted_modal_branches_validate_nested_grants_in_printed_order() {
     assert_eq!(
         error(definition_granting(&GRANTED_MODAL)),
         CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY, GrantId(1)],
@@ -789,7 +789,7 @@ fn granted_modal_capacity_counts_grants_across_all_modes() {
     assert_eq!(
         error(definition_granting(granted_modal)),
         CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY],
@@ -840,7 +840,7 @@ fn granted_ability_validation_checks_zones_mana_targets_and_target_slots() {
         assert_eq!(
             error(definition_granting(granted)),
             CatalogError::InvalidGrantedAbility {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
                 grant_path: vec![GrantId::PRIMARY],
@@ -876,7 +876,7 @@ fn target_references_are_validated_through_nested_values() {
     assert_eq!(
         error(card),
         CatalogError::AbilityTargetReferenceOutOfBounds {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             target: TargetIndex(1),

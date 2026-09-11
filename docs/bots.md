@@ -266,7 +266,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v15` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v16` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -497,7 +497,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 31 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v15`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v16`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
@@ -865,14 +865,9 @@ ordered by `definition` and is not filtered: it contains printed cards outside
 the selected format. Created-token, emblem, and face-down characteristics are
 not card definitions and do not appear here; visible virtual-object
 characteristics travel inline.
-Their former synthetic definition IDs remain retired and are never reused, so
-the ordered `cards` array may contain gaps. Join a card through its explicit
-`definition`, never by treating that ID as an array index.
-That includes off-format rules test cases such as Darksteel Ingot (definition
-`263`, debut set `darksteel`), Enlightened Tutor (`313`, `mirage`), and the five
-Onslaught fetch lands (definitions `283`, `284`, and `1363` through `1365`,
-`onslaught`). Their abilities are
-executable even though the cards are not legal in either shipped format.
+Join a card through its `definition`, the canonical printing UUID string.
+Never treat it as an array index. Off-format definitions remain available for
+rules tests without adding legal cards to a format.
 `allowed` means the definition belongs to the format's card pool; `legal` is
 `allowed && !banned`, so a restricted card is still legal. Definitions include
 their structure, parts, play options, legality, printings, and clause-derived
@@ -880,19 +875,22 @@ implementation status. Each printing carries its exact set, variant, and
 optional `art` object (`scryfallId` and `artist`); presentation clients may use
 that metadata without treating a reprint as a second rules identity.
 
-Catalog contents may grow compatibly within one protocol version because new
-opaque definition IDs can be added while existing card identities never move.
-Retired IDs stay empty rather than being reassigned. Definition IDs are
-positive integers no greater than `2^52 - 1`, so JSON and JavaScript represent
-them exactly; the values are sparse and must never be treated as array indexes.
-Zero is invalid, and absence or null—not any numeric value—means hidden,
-missing, or redacted. The
-out-of-format interaction fixtures
-`Urborg, Tomb of Yawgmoth` (definition 261, debut set `planar-chaos`) and
-`Yavimaya, Cradle of Growth` (definition 262, debut set
-`modern-horizons-2`) appear in every unfiltered catalog but have `allowed` and
-`legal` set to `false` for both supported formats. They therefore add no legal
-actions to an ordinary supported-format game.
+Catalog contents may grow compatibly within one protocol version. Since protocol
+32, `definition` and `sourceDefinition` are canonical lowercase UUID strings,
+including in zone cards, ability origins, match decks, and hidden-world inputs.
+Numeric card keys are rejected. Missing or redacted identity uses omission or
+null. Internal IDs are generated at compile time for built-in definitions and
+resolved from natural keys on input; custom keys receive process-local IDs.
+Those numbers are never persistent markers. Python `set_hand` and `set_library` accept lists of these
+UUID strings. For exact reprint/art persistence, use `printings[].art.scryfallId`;
+`variant` is only a local catalog lookup component.
+
+Checkpoint format 16 stores the same natural definition keys. Binding names are
+local to their owning effect resolution or card part; checkpoint restoration
+reconstructs internal slots from the saved names. Numeric game-object references
+are scoped to that checkpoint and its game, not portable identities across games.
+Older numeric-definition checkpoints are incompatible. Replay reconstruction
+also checks the protocol version and simulation fingerprint.
 
 The protocol-18 catalog also appends the Premodern library-selection cards
 `Impulse` (definition 310), `Sleight of Hand` (definition 311), and `Opt`
@@ -1210,7 +1208,7 @@ use `choice` obligations within the shared `all` cost-list representation.
 The `completePayment` pending procedure retains the result until cost actions
 and replacement choices finish, then publishes the outcome and resumes the
 authored branch. Scoped effect paths reconstruct lexical cost-list parameters.
-Consumers must require `reconstruction.checkpoint.v15` and regenerate older
+Consumers must require `reconstruction.checkpoint.v16` and regenerate older
 checkpoints with the current engine and matching simulation fingerprint.
 
 ### Migrating checkpoint format 13 to 14
@@ -1357,7 +1355,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v15`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v16`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

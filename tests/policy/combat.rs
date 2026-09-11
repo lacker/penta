@@ -296,7 +296,7 @@ fn handcrafted_only_uses_orcish_mechanics_on_a_player_for_lethal() {
             Action::PassPriority,
             Action::ActivateAbility {
                 source: mechanics,
-                ability: PRIMARY_PRINTED_ABILITY,
+                ability: primary_printed_ability(),
                 targets: activated_targets(Target::Player(PlayerId::Two)),
                 cost_objects: vec![vise],
                 x: 0,

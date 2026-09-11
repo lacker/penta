@@ -274,7 +274,7 @@ pub(in crate::card::sets) static EXOTIC_ORCHARD: CardRecord = CardRecord::new(
         "{T}: Add one mana of any color that a land an opponent controls could produce.",
         &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice_from(
-            ManaTypeSetDef::could_be_produced_by(ObjectSetDef::Query(ObjectQueryDef::matching(
+            ManaTypeSetDef::could_be_produced_by(&ObjectSetDef::Query(ObjectQueryDef::matching(
                 ObjectPredicateDef::HasType(CardType::Land),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Opponent,

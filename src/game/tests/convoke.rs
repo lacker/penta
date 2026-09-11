@@ -132,7 +132,7 @@ fn game_with_two_pair_hybrid_convoke_and_generic(
     second: CardDefinitionId,
     generic: u16,
 ) -> (Game, GameObjectId, [GameObjectId; 2]) {
-    let definition_id = CardDefinitionId::new(50_001);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c351");
     let mut definition = CardDefinition::new(
         definition_id,
         "Two-pair hybrid convoke test",
@@ -488,7 +488,7 @@ fn mana_confluence_life_costs_are_aggregated_for_a_convoke_payment() {
 
 #[test]
 fn a_colorless_creature_cannot_convoke_a_true_colorless_symbol() {
-    let definition_id = CardDefinitionId::new(50_000);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c350");
     let mut definition = CardDefinition::new(
         definition_id,
         "True colorless convoke test",
@@ -581,7 +581,7 @@ fn prospector_collision_falls_back_to_an_all_convoke_payment() {
 
 #[test]
 fn a_mana_source_activates_before_another_planned_activation_sacrifices_it() {
-    let definition_id = CardDefinitionId::new(50_001);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c351");
     let mut definition = CardDefinition::new(
         definition_id,
         "Sacrifice mana source collision test",
@@ -592,7 +592,8 @@ fn a_mana_source_activates_before_another_planned_activation_sacrifices_it() {
         .with_abilities(&SACRIFICE_CREATURE_FOR_TWO_GREEN);
     synchronize_single_part_definition(&mut definition);
 
-    let mana_creature_definition_id = CardDefinitionId::new(50_002);
+    let mana_creature_definition_id =
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c352");
     let mut mana_creature_definition = CardDefinition::new(
         mana_creature_definition_id,
         "Consumed mana creature test",

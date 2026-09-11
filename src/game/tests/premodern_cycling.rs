@@ -458,7 +458,7 @@ mod channel_is_not_cycling {
 
     /// The test card, and the game holding one in hand with two mana up.
     fn staged() -> (Game, GameObjectId, CardDefinitionId) {
-        let definition_id = CardDefinitionId::new(10_071);
+        let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002757");
         let mut definition = CardDefinition::new(
             definition_id,
             "Cycling and channel test card",

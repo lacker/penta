@@ -83,7 +83,7 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
         &PAIN_COSTS,
         EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
     )];
-    let pain_definition_id = CardDefinitionId::new(10_106);
+    let pain_definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000277a");
     let mut pain_definition = CardDefinition::new(
         pain_definition_id,
         "White pain source test",
@@ -158,8 +158,8 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
             ManaColor::Black,
         )),
     )];
-    let white_id = CardDefinitionId::new(10_108);
-    let blue_black_id = CardDefinitionId::new(10_109);
+    let white_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000277c");
+    let blue_black_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000277d");
     let fixtures: [(CardDefinitionId, &str, &'static [AbilityDef]); 2] = [
         (white_id, "White pain source test", &WHITE_ABILITY),
         (

@@ -25,7 +25,7 @@ use crate::{
 
 fn definition(id: u64, name: &str, set: CardSet) -> CardDefinition {
     CardDefinition::new(
-        CardDefinitionId::new(id),
+        CardDefinitionId::from_uuid(&format!("00000000-0000-0000-0000-{id:012x}")),
         name,
         set,
         crate::card::CardRules::unsupported(),

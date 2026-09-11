@@ -2656,7 +2656,7 @@ CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
                     ValueDef::Constant(3),
                 )
                 .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                    effect: &AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 }),
             ),

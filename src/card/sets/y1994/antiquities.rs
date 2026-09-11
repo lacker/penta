@@ -1915,7 +1915,7 @@ pub(in crate::card::sets) static URZA_S_MINE: CardRecord = CardRecord::new(
         &[CostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
-                ConditionDef::All(&[
+                &ConditionDef::All(&[
                     controls_urzas_land(URZAS_POWER_PLANT_TYPE),
                     controls_urzas_land(URZAS_TOWER_TYPE),
                 ]),
@@ -1959,7 +1959,7 @@ pub(in crate::card::sets) static URZA_S_POWER_PLANT: CardRecord = CardRecord::ne
         &[CostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
-                ConditionDef::All(&[
+                &ConditionDef::All(&[
                     controls_urzas_land(URZAS_MINE_TYPE),
                     controls_urzas_land(URZAS_TOWER_TYPE),
                 ]),
@@ -2004,7 +2004,7 @@ pub(in crate::card::sets) static URZA_S_TOWER: CardRecord = CardRecord::new(
         &[CostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
-                ConditionDef::All(&[
+                &ConditionDef::All(&[
                     controls_urzas_land(URZAS_MINE_TYPE),
                     controls_urzas_land(URZAS_POWER_PLANT_TYPE),
                 ]),

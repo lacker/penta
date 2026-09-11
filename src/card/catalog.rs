@@ -46,12 +46,8 @@ struct CatalogEntries {
 
 impl CatalogEntries {
     fn definition_index(&self, definition: CardDefinitionId) -> Option<usize> {
-        let raw = definition.get();
-        if let Ok(dense) = u16::try_from(raw) {
-            self.dense_definition_indices
-                .get(usize::from(dense))
-                .copied()
-                .flatten()
+        if let Some(dense) = definition.compiled_index() {
+            self.dense_definition_indices.get(dense).copied().flatten()
         } else {
             self.sparse_definition_indices.get(&definition).copied()
         }
@@ -62,10 +58,9 @@ impl CatalogEntries {
     }
 
     fn insert_definition(&mut self, definition: CardDefinition) {
-        let raw = definition.id.get();
         let index = self.definitions.len();
-        if let Ok(dense) = u16::try_from(raw) {
-            let slot = usize::from(dense);
+        if let Some(dense) = definition.id.compiled_index() {
+            let slot = dense;
             if self.dense_definition_indices.len() <= slot {
                 self.dense_definition_indices.resize(slot + 1, None);
             }
@@ -100,9 +95,8 @@ impl CatalogEntries {
         self.dense_definition_indices.clear();
         self.sparse_definition_indices.clear();
         for (index, definition) in self.definitions.iter().enumerate() {
-            let raw = definition.id.get();
-            if let Ok(dense) = u16::try_from(raw) {
-                let slot = usize::from(dense);
+            if let Some(dense) = definition.id.compiled_index() {
+                let slot = dense;
                 if self.dense_definition_indices.len() <= slot {
                     self.dense_definition_indices.resize(slot + 1, None);
                 }

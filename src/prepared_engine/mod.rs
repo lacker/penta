@@ -132,8 +132,7 @@ impl PreparedCatalog {
         definition: CardDefinitionId,
         supplies_graveyard_static: bool,
     ) {
-        if let Ok(index) = u16::try_from(definition.get()) {
-            let index = usize::from(index);
+        if let Some(index) = definition.compiled_index() {
             if self.dense_graveyard_static_sources.len() <= index {
                 self.dense_graveyard_static_sources.resize(index + 1, None);
             }
@@ -155,8 +154,7 @@ impl PreparedCatalog {
                 .insert((definition, part), program);
             return;
         }
-        if let Ok(index) = u16::try_from(definition.get()) {
-            let index = usize::from(index);
+        if let Some(index) = definition.compiled_index() {
             if self.dense_primary_static_programs.len() <= index {
                 self.dense_primary_static_programs
                     .resize_with(index + 1, || None);
@@ -177,10 +175,8 @@ impl PreparedCatalog {
         if part != CardPartId::PRIMARY {
             return self.other_static_programs.get(&(definition, part));
         }
-        let program = if let Ok(index) = u16::try_from(definition.get()) {
-            self.dense_primary_static_programs
-                .get(usize::from(index))?
-                .as_ref()?
+        let program = if let Some(index) = definition.compiled_index() {
+            self.dense_primary_static_programs.get(index)?.as_ref()?
         } else {
             self.sparse_primary_static_programs.get(&definition)?
         };
@@ -189,9 +185,9 @@ impl PreparedCatalog {
 
     #[inline]
     fn supplies_graveyard_static(&self, definition: CardDefinitionId) -> Option<bool> {
-        if let Ok(index) = u16::try_from(definition.get()) {
+        if let Some(index) = definition.compiled_index() {
             self.dense_graveyard_static_sources
-                .get(usize::from(index))
+                .get(index)
                 .copied()
                 .flatten()
         } else {

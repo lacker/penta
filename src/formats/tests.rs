@@ -41,13 +41,13 @@ fn cubes_are_singleton_pools_rather_than_set_windows() {
 #[test]
 fn pool_membership_decides_legality_regardless_of_printing() {
     let inside = CardDefinition::new(
-        CardDefinitionId::new(1),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
         "Ancestral Recall",
         sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     let outside = CardDefinition::new(
-        CardDefinitionId::new(2),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000002"),
         "Sorrow's Path",
         sets::alpha::SET,
         crate::card::CardRules::unsupported(),
@@ -122,19 +122,19 @@ fn standards_have_the_expected_windows_and_categorical_labels() {
 #[test]
 fn formats_allow_only_their_sets_but_share_basic_lands() {
     let old_spell = CardDefinition::new(
-        CardDefinitionId::new(1),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
         "Old spell",
         sets::alpha::SET,
         crate::card::CardRules::unsupported(),
     );
     let standard_spell = CardDefinition::new(
-        CardDefinitionId::new(2),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000002"),
         "Standard spell",
         sets::innistrad::SET,
         crate::card::CardRules::unsupported(),
     );
     let basic = CardDefinition::new(
-        CardDefinitionId::new(3),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000003"),
         "Plains",
         sets::alpha::SET,
         CardRules::new_land(&["Plains"]).with_supertype(CardSupertype::Basic),
@@ -150,7 +150,7 @@ fn formats_allow_only_their_sets_but_share_basic_lands() {
 
 #[test]
 fn any_allowed_reprint_makes_the_canonical_card_identity_legal() {
-    let id = CardDefinitionId::new(1);
+    let id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001");
     let mut card = CardDefinition::new(
         id,
         "Reprinted spell",
@@ -167,19 +167,19 @@ fn any_allowed_reprint_makes_the_canonical_card_identity_legal() {
 #[test]
 fn old_school_promo_legality_is_identity_specific() {
     let arena = CardDefinition::new(
-        CardDefinitionId::new(1),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
         "Arena",
         sets::harper_prism_book_promos::SET,
         CardRules::unsupported(),
     );
     let mana_crypt = CardDefinition::new(
-        CardDefinitionId::new(2),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000002"),
         "Mana Crypt",
         sets::harper_prism_book_promos::SET,
         CardRules::unsupported(),
     );
     let nalathni_dragon = CardDefinition::new(
-        CardDefinitionId::new(3),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000003"),
         "Nalathni Dragon",
         sets::dragon_con::SET,
         CardRules::unsupported(),

@@ -1547,7 +1547,7 @@ CardRules::new_sorcery(mana_cost!("{X}{R}"))
                     ValueDef::ChosenX,
                 )
                 .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                    effect: &AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 }),
             ),

@@ -42,7 +42,7 @@ pub(in crate::game) fn staged(abilities: &'static [AbilityDef]) -> (Game, GameOb
     let mut game = ready_game();
     game.set_prepared_engine_enabled(false);
     game.step = Step::Upkeep;
-    let definition_id = CardDefinitionId::new(10_091);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276b");
     let mut definition = CardDefinition::new(
         definition_id,
         "Composed payment fixture",

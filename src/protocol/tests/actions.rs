@@ -141,7 +141,9 @@ fn activated_actions_serialize_printed_and_granted_origins() {
         source: GameObjectId(12),
         ability: AbilityOrigin::Granted {
             source: GameObjectId(9),
-            source_definition: crate::CardDefinitionId::new(8),
+            source_definition: crate::CardDefinitionId::from_uuid(
+                "00000000-0000-0000-0000-000000000008",
+            ),
             source_part: crate::CardPartId(1),
             source_ability: crate::AbilityId(2),
             grant: crate::GrantId(3),
@@ -154,7 +156,10 @@ fn activated_actions_serialize_printed_and_granted_origins() {
     });
     assert_eq!(granted["ability"]["kind"], "granted");
     assert_eq!(granted["ability"]["source"], 9);
-    assert_eq!(granted["ability"]["sourceDefinition"], 8);
+    assert_eq!(
+        granted["ability"]["sourceDefinition"],
+        crate::CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000008").get()
+    );
     assert_eq!(granted["ability"]["sourcePartId"], 1);
     assert_eq!(granted["ability"]["sourceAbilityId"], 2);
     assert_eq!(granted["ability"]["grantId"], 3);

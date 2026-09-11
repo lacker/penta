@@ -240,7 +240,7 @@ impl Game {
         };
         let amount = amount_override
             .filter(|override_| {
-                self.static_condition_holds(override_.condition, controller, source.object)
+                self.static_condition_holds(*override_.condition, controller, source.object)
             })
             .map_or(amount, |override_| override_.amount);
         let mut split = match mana {

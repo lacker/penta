@@ -360,7 +360,7 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
 
     let mut missing_definition = wire;
     missing_definition["checkpoint"]["installedTriggers"][0]["presentation"]["definition"] =
-        json!(u16::MAX);
+        json!("00000000-0000-0000-0000-00000000ffff");
     let error = Game::from_observation_checkpoint(
         game.catalog.clone(),
         game.format,

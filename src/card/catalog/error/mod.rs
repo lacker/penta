@@ -47,7 +47,7 @@ pub enum GrantedAbilityValidationError {
     UnsupportedInstalledTriggerAbility,
     /// The shared trigger publisher cannot produce or match this event shape.
     UnsupportedTriggerEvent {
-        event: TriggerEventDef,
+        event: Box<TriggerEventDef>,
     },
     /// A shared triggered mana ability must resolve immediately without
     /// choices or stack-only effects. The runtime supports fixed `AddMana`
@@ -92,7 +92,7 @@ pub enum GrantedAbilityValidationError {
         maximum: u8,
     },
     EffectRecipientKindMismatch {
-        recipient: EffectRecipientDef,
+        recipient: Box<EffectRecipientDef>,
         expected: EffectSubjectKind,
     },
     InvalidScalarChoice {
@@ -100,7 +100,7 @@ pub enum GrantedAbilityValidationError {
         destination: BattlefieldEntryChoiceDestinationDef,
     },
     UnsupportedStaticPlayerRecipient {
-        recipient: EffectRecipientDef,
+        recipient: Box<EffectRecipientDef>,
     },
     InvalidObjectChoiceBounds {
         binding: ObjectChoiceBindingDef,
@@ -430,7 +430,7 @@ pub enum CatalogError {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        event: TriggerEventDef,
+        event: Box<TriggerEventDef>,
     },
     UnsupportedTriggeredManaProgram {
         definition: CardDefinitionId,
@@ -495,7 +495,7 @@ pub enum CatalogError {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        recipient: EffectRecipientDef,
+        recipient: Box<EffectRecipientDef>,
         expected: EffectSubjectKind,
     },
     InvalidAbilityScalarChoice {
@@ -509,7 +509,7 @@ pub enum CatalogError {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        recipient: EffectRecipientDef,
+        recipient: Box<EffectRecipientDef>,
     },
     InvalidAbilityObjectChoiceBounds {
         definition: CardDefinitionId,

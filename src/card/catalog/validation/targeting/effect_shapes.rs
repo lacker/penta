@@ -660,7 +660,7 @@ fn validate_effect_target_shapes(
                     validate_object_reference_shape(reference, targets)
                 }
                 crate::card::ManaTypeSourceDef::CouldBeProducedBy(objects) => {
-                    validate_object_set_shape(objects, targets)
+                    validate_object_set_shape(*objects, targets)
                 }
                 crate::card::ManaTypeSourceDef::Fixed(_) => Ok(()),
             },
@@ -737,7 +737,7 @@ mod recipient_shape_tests {
                 },
             ),
             Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                recipient: EffectRecipientDef::Controller,
+                recipient: Box::new(EffectRecipientDef::Controller),
                 expected: EffectSubjectKind::Object,
             }),
         );
@@ -750,7 +750,7 @@ mod recipient_shape_tests {
                 },
             ),
             Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                recipient: EffectRecipientDef::Source,
+                recipient: Box::new(EffectRecipientDef::Source),
                 expected: EffectSubjectKind::Player,
             }),
         );
@@ -764,7 +764,7 @@ mod recipient_shape_tests {
                 },
             ),
             Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                recipient: EffectRecipientDef::Controller,
+                recipient: Box::new(EffectRecipientDef::Controller),
                 expected: EffectSubjectKind::Object,
             }),
             "both sides of an exchange are validated",
@@ -892,7 +892,7 @@ mod recipient_shape_tests {
                     effect: cannot_play(),
                 },
             ),
-            Err(GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient { recipient },),
+            Err(GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient { recipient: Box::new(recipient) },),
         );
     }
 }

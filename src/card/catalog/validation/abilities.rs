@@ -477,7 +477,7 @@ fn validate_triggered_ability_shape(
                     ))))
     {
         return Err(GrantedAbilityValidationError::UnsupportedTriggerEvent {
-            event: triggered.event,
+            event: Box::new(triggered.event),
         });
     }
     validate_ability_trigger_event(triggered.event, target_count)?;

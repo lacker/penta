@@ -530,7 +530,7 @@ fn modal_spell_freezes_bought_back_hand_destination() {
         AbilityDef::modal_spell("Choose one.", &MODES),
     ];
 
-    let definition_id = CardDefinitionId::new(50_100);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c3b4");
     let mut definition = CardDefinition::new(
         definition_id,
         "Modal Buyback Test",
@@ -616,7 +616,7 @@ fn effectful_overload_freezes_bought_back_hand_destination() {
         ),
     ];
 
-    let definition_id = CardDefinitionId::new(50_101);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c3b5");
     let mut definition = CardDefinition::new(
         definition_id,
         "Overload Buyback Test",
@@ -704,7 +704,7 @@ fn mandatory_return_cost_and_buyback_sacrifice_keep_distinct_actions() {
         ),
     ];
 
-    let definition_id = CardDefinitionId::new(50_102);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c3b6");
     let mut definition = CardDefinition::new(
         definition_id,
         "Mixed Spend Buyback Test",

@@ -104,7 +104,7 @@ fn mana_preview_uses_the_selected_declarative_activated_ability_cost() {
     );
     assert!(game.battlefield.iter().all(|permanent| !permanent.tapped));
 
-    let definition_id = CardDefinitionId::new(10_065);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002751");
     let mut definition = CardDefinition::new(
         definition_id,
         "Mana preview tap-source test card",

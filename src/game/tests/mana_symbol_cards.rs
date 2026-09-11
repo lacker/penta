@@ -289,7 +289,7 @@ fn gut_shot_life_action_does_not_preview_or_tap_a_red_source() {
 
 #[test]
 fn variable_cost_spells_can_choose_x_after_selecting_phyrexian_life() {
-    let definition_id = CardDefinitionId::new(10_105);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002779");
     let mut definition = CardDefinition::new(
         definition_id,
         "Variable Phyrexian cost test",
@@ -648,7 +648,7 @@ fn blue_pain_source_definition() -> (CardDefinitionId, CardDefinition) {
         &BLUE_PAIN_COSTS,
         EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
     )];
-    let blue_pain_id = CardDefinitionId::new(10_107);
+    let blue_pain_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000277b");
     let mut blue_pain = CardDefinition::new(
         blue_pain_id,
         "Blue pain source test",
@@ -781,7 +781,7 @@ fn phyrexian_life_can_be_paid_down_to_exactly_zero() {
 
 #[test]
 fn compleated_reduces_loyalty_for_each_phyrexian_symbol_paid_with_life() {
-    let definition_id = CardDefinitionId::new(10_104);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002778");
     let mut definition = CardDefinition::new(
         definition_id,
         "Multiple Compleated symbols test",

@@ -92,7 +92,7 @@ not one exact-version comparison:
   removed, renamed, retyped, or reinterpreted, not when an optional field or a
   legal action expressed through existing vocabulary is added.
 - `protocolCapabilities` advertises named, additive facilities such as
-  `reconstruction.checkpoint.v15`. A consumer may ignore capabilities it does
+  `reconstruction.checkpoint.v16`. A consumer may ignore capabilities it does
   not use. Hosted bots declare both supported vocabulary and facilities they
   require; compatibility needs an equal `protocolVersion` and each side's
   required subset to be supplied by the other.
@@ -130,3 +130,16 @@ authoritative consumer documentation, the changelog, and affected binding
 examples. Tests should exercise behavior rather than hard-code the current
 epoch or name a branch as its owner. Keep the root `BOTS.md` compatibility
 symlink pointed at `docs/bots.md`.
+
+### Natural keys and local references
+
+Protocol 32 uses canonical printing UUID strings for card definitions across
+catalogs, observations, decks, and hidden-world inputs. Checkpoint format 16
+uses the same keys. Native `CardDefinitionKey` represents the UUID;
+`CardDefinitionId` is its compact process-local handle. Built-in IDs are generated
+at compile time; custom keys are resolved on entry. Both types serialize as UUID
+strings. Use `CardDefinitionId::key()` to recover a handle's natural key.
+Binding names are scoped to their resolution or card part; internal slots are
+reconstructed and never serialized. Game-object and positional action references
+remain local to their owning game or definition, qualified by the natural key
+and exact simulation fingerprint where reconstruction requires them.

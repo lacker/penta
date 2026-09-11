@@ -415,7 +415,7 @@ fn a_composite_static_clause_can_make_its_source_uncounterable() {
         },
     )
     .with_source_zones(&[ZoneKind::Stack])];
-    let definition_id = CardDefinitionId::new(20_001);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000004e21");
     let mut definition = CardDefinition::new(
         definition_id,
         "Composite uncounterable spell",
@@ -468,7 +468,7 @@ fn overload_does_not_silently_discard_selected_modal_effects() {
         ),
     ];
 
-    let definition_id = CardDefinitionId::new(20_003);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000004e23");
     let mut definition = CardDefinition::new(
         definition_id,
         "Modal overload test",

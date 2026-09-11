@@ -7,7 +7,7 @@ fn a_spell_copy_keeps_choices_and_payment_objects_but_not_actual_payment_facts()
     let original = CastContext {
         source_zone: Some(CastSourceZone::Graveyard),
         alternative: Some(AlternativeCastKindDef::Escape),
-        alternative_cost_binding: Some(crate::Binding!("evoke")),
+        alternative_cost_binding: Some("evoke".to_owned()),
         at_instant_speed: true,
         x: 3,
         repeatable_additional_costs: 2,

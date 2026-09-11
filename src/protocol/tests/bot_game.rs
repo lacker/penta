@@ -134,7 +134,7 @@ fn an_observation_rebuilds_with_separate_hidden_hypotheses_and_fresh_rng() {
             .as_array()
             .expect("zone array")
             .iter()
-            .map(|card| card["definition"].as_u64().expect("definition"))
+            .map(|card| card["definition"].as_str().expect("definition").to_owned())
             .collect::<Vec<_>>()
     };
     let hidden = json!({
@@ -260,7 +260,7 @@ fn an_ordinary_spell_on_the_stack_rebuilds_as_a_response_window() {
             .as_array()
             .expect("zone array")
             .iter()
-            .map(|card| card["definition"].as_u64().expect("definition"))
+            .map(|card| card["definition"].as_str().expect("definition").to_owned())
             .collect::<Vec<_>>()
     };
     let opponent_key = if viewer.opponent() == PlayerId::One {
@@ -412,7 +412,7 @@ fn hidden_hypothesis(game: &BotGame, viewer: PlayerId) -> Value {
             .as_array()
             .expect("zone array")
             .iter()
-            .map(|card| card["definition"].as_u64().expect("definition"))
+            .map(|card| card["definition"].as_str().expect("definition").to_owned())
             .collect::<Vec<_>>()
     };
     let opponent_key = if viewer.opponent() == PlayerId::One {
@@ -456,8 +456,8 @@ fn protocol_reincarnates_public_object_identity_across_cast_zones() {
                     .expect("hand")
                     .iter()
                     .find(|card| card["objectId"].as_u64() == Some(hand_raw))?;
-                let definition_raw = hand_card["definition"].as_u64()?;
-                let definition = crate::CardDefinitionId::try_new(definition_raw)?;
+                let definition_raw = hand_card["definition"].as_str()?;
+                let definition = crate::CardDefinitionId::try_from_uuid(definition_raw)?;
                 if !game
                     .catalog
                     .get(definition)
@@ -547,7 +547,7 @@ fn protocol_reincarnates_public_object_identity_across_cast_zones() {
         .as_array()
         .expect("stack")
         .iter()
-        .find(|object| object["definition"].as_u64() == Some(definition_id.get()))
+        .find(|object| object["definition"].as_str() == Some(definition_id.get().as_str()))
         .expect("cast spell is public on the stack");
     assert_eq!(spell["kind"], "Spell");
     assert!(spell["sourceObjectId"].is_null());
@@ -581,7 +581,7 @@ fn protocol_reincarnates_public_object_identity_across_cast_zones() {
         .as_array()
         .expect("battlefield")
         .iter()
-        .find(|object| object["definition"].as_u64() == Some(definition_id.get()))
+        .find(|object| object["definition"].as_str() == Some(definition_id.get().as_str()))
         .expect("resolved permanent is public on the battlefield");
     let permanent_id = GameObjectId(
         u32::try_from(permanent["objectId"].as_u64().expect("permanent object ID"))

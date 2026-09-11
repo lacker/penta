@@ -190,7 +190,7 @@ fn entering_tapped_is_not_a_separate_tap_event() {
             amount: ValueDef::Constant(1),
         },
     )];
-    let watcher_definition = CardDefinitionId::new(10_520);
+    let watcher_definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002918");
     let mut definition = CardDefinition::new(
         watcher_definition,
         "Tap-event watcher",

@@ -26,7 +26,7 @@ fn token_owned_abilities_can_locate_tokens_they_create() {
     )];
 
     let mut definition = CardDefinition::new(
-        CardDefinitionId::new(1),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
         "Nested Token Creator",
         sets::alpha::SET,
         crate::card::CardRules::unsupported(),

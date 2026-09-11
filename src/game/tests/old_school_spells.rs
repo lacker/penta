@@ -227,7 +227,7 @@ fn channel_does_not_pay_a_coloured_symbol() {
 
 #[test]
 fn channel_pays_a_true_colorless_symbol_when_the_spell_is_applied() {
-    let definition_id = CardDefinitionId::new(59_900);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000e9fc");
     let mut definition = CardDefinition::new(
         definition_id,
         "True colorless Channel test",
@@ -664,7 +664,7 @@ pub(super) fn game_with_test_fused_split(
 
 #[test]
 fn combined_spell_trigger_and_target_characteristics_union_parts() {
-    let definition_id = CardDefinitionId::new(10_066);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002752");
     let instant = CardRules::new_instant(ManaCost::default()).with_subtypes(&["Arcane"]);
     let sorcery = CardRules::new_sorcery(ManaCost::default()).with_subtypes(&["Lesson"]);
     let (mut game, combined, parts) = game_with_test_fused_split(definition_id, &instant, &sorcery);
@@ -725,7 +725,7 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
 
 #[test]
 fn split_card_target_characteristics_union_parts_outside_the_stack() {
-    let definition_id = CardDefinitionId::new(10_067);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002753");
     let instant = CardRules::new_instant(ManaCost::default()).with_subtypes(&["Arcane"]);
     let sorcery = CardRules::new_sorcery(ManaCost::default()).with_subtypes(&["Lesson"]);
     let (mut game, _, _) = game_with_test_fused_split(definition_id, &instant, &sorcery);

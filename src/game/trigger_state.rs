@@ -93,7 +93,7 @@ pub(super) struct EffectResolutionContext {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub(super) struct EffectBindings {
-    values: BTreeMap<String, EffectBindingValue>,
+    values: ScopedBindingValues,
 }
 
 struct Shared<T>(Arc<RwLock<T>>);
@@ -331,10 +331,11 @@ impl EffectResolutionContext {
 
     pub(super) fn declare_binding_group_label(&mut self, label: &str) {
         self.bindings.with_mut(|bindings| {
-            bindings
-                .values
-                .entry(label.to_owned())
-                .or_insert_with(|| EffectBindingValue::Objects(Vec::new()));
+            if bindings.values.get(label).is_none() {
+                bindings
+                    .values
+                    .insert(label.to_owned(), EffectBindingValue::Objects(Vec::new()));
+            }
         });
     }
 
@@ -377,7 +378,7 @@ impl EffectResolutionContext {
     }
 
     pub(super) fn bindings(&self) -> BTreeMap<String, EffectBindingValue> {
-        self.bindings.snapshot().values
+        self.bindings.snapshot().values.into_named_values()
     }
 
     pub(super) fn parent_object(&self) -> Option<Target> {
@@ -422,12 +423,16 @@ impl EffectResolutionContext {
             chosen_counter: None,
             parent_object: Shared::new(parent_object),
             parent_objects: Shared::new(parent_objects),
-            bindings: Shared::new(EffectBindings { values }),
+            bindings: Shared::new(EffectBindings {
+                values: ScopedBindingValues::from_named_values(values),
+            }),
         }
     }
 }
 
 include!("trigger_state/name_bindings.rs");
+mod scoped_bindings;
+use scoped_bindings::ScopedBindingValues;
 
 impl From<TriggerContext> for EffectResolutionContext {
     fn from(trigger: TriggerContext) -> Self {

@@ -5983,7 +5983,7 @@ pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new(
         "{T}: Add one mana of any type that a land you control could produce.",
         &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice_from(
-            ManaTypeSetDef::could_be_produced_by(ObjectSetDef::Query(ObjectQueryDef::matching(
+            ManaTypeSetDef::could_be_produced_by(&ObjectSetDef::Query(ObjectQueryDef::matching(
                 ObjectPredicateDef::HasType(CardType::Land),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,

@@ -3014,7 +3014,7 @@ CardRules::new_instant(mana_cost!("{3}{R}{R}")).with_ability(
                     ValueDef::Constant(1),
                 )
                 .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
-                    effect: AppliedEffectDef::add_ability(
+                    effect: &AppliedEffectDef::add_ability(
                         &abilities::attacks_each_combat_if_able()
                             .override_text("This creature attacks this turn if able."),
                     ),
@@ -3568,7 +3568,7 @@ CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_ta
                     ValueDef::Constant(2),
                 )
                 .with_follow_up(crate::card::DamageFollowUpDef::ApplyToDamaged {
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                    effect: &AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 }),
             ),

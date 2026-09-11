@@ -87,10 +87,7 @@ pub(super) fn permanent_snapshot(
         control_requires_source_tapped: permanent.control_requires_source_tapped,
         control_requires_source_attached: permanent.control_requires_source_attached,
         chosen_player: permanent.chosen_player.map(PlayerId::index),
-        chosen_creature_type_binding: permanent
-            .chosen_creature_type_binding
-            .and_then(crate::Binding::label)
-            .map(str::to_owned),
+        chosen_creature_type_binding: permanent.chosen_creature_type_binding.clone(),
         cast_x: permanent.cast.as_ref().map_or(0, |cast| cast.x),
         cast_kicks: permanent
             .cast
@@ -125,9 +122,7 @@ pub(super) fn permanent_snapshot(
         cast_alternative_cost_binding: permanent
             .cast
             .as_ref()
-            .and_then(|cast| cast.alternative_cost_binding)
-            .and_then(crate::Binding::label)
-            .map(str::to_owned),
+            .and_then(|cast| cast.alternative_cost_binding.clone()),
         cast_tags: Vec::new(),
         cast_exiled_payment_cards: permanent.cast.as_ref().map_or_else(Vec::new, |cast| {
             cast.exiled_payment_cards.iter().map(|id| id.0).collect()
@@ -451,9 +446,6 @@ pub(super) fn detached_permanent_snapshot(
             .map(basic_land_type_snapshot),
         chosen_color: permanent.chosen_color.map(mana_color_snapshot),
         chosen_card_name: permanent.chosen_card_name.clone(),
-        chosen_card_name_binding: permanent
-            .chosen_card_name_binding
-            .and_then(crate::Binding::label)
-            .map(str::to_owned),
+        chosen_card_name_binding: permanent.chosen_card_name_binding.clone(),
     }
 }

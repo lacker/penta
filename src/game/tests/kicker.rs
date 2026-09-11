@@ -105,7 +105,7 @@ fn escape_context_and_kicker_payment_coexist_through_entry() {
             EffectDef::None,
         ),
     ];
-    let definition_id = CardDefinitionId::new(20_102);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000004e86");
     let mut definition = CardDefinition::new(
         definition_id,
         "Escaped and Kicked",

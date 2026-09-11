@@ -664,7 +664,7 @@ impl Game {
                     .is_some_and(|cast| cast.alternative == Some(*kind)),
                 TriggerConditionDef::SourcePaidAlternativeCost(cost) => self
                     .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
-                    .is_some_and(|cast| cast.alternative_cost_binding == Some(*cost)),
+                    .is_some_and(|cast| cast.alternative_cost_binding.as_deref() == cost.label()),
                 TriggerConditionDef::SourcePaidAdditionalCost(cost) => {
                     self.source_additional_cost_payments(source, *cost) > 0
                 }

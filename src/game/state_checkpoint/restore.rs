@@ -125,10 +125,7 @@ impl Game {
             graveyard: graveyards[player.index()].clone(),
             exile: exiles[player.index()].clone(),
             outside_game: outside_game[player.index()].clone(),
-            companions: checkpoint.companions[player.index()]
-                .iter()
-                .map(|definition| crate::CardDefinitionId::new(*definition))
-                .collect(),
+            companions: checkpoint.companions[player.index()].clone(),
             mana_pool: mana_pools[player.index()],
             mana: mana[player.index()].clone(),
             lands_played_this_turn: lands_played[player.index()],

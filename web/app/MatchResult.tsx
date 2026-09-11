@@ -4,7 +4,7 @@ import type { MatchState } from "./game-types";
 type DeckCard = MatchState["main"][number];
 
 function groups(cards: DeckCard[]) {
-  const counts = new Map<number, { card: DeckCard; count: number }>();
+  const counts = new Map<string, { card: DeckCard; count: number }>();
   for (const card of cards) {
     const entry = counts.get(card.id);
     if (entry) entry.count += 1;
@@ -50,7 +50,7 @@ export function MatchResult({ match, message, error, next, newMatch }: {
       <div className="match-buttons">
         <button onClick={() => { setMain(match.main); setSideboard(match.sideboard); }}>Reset changes</button>
         <button className="result-primary" onClick={() => {
-          const remaining = new Map<number, number>();
+          const remaining = new Map<string, number>();
           for (const card of main) remaining.set(card.id, (remaining.get(card.id) ?? 0) + 1);
           const options: number[] = [];
           [...match.main, ...match.sideboard].forEach((card, index) => {

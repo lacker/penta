@@ -484,3 +484,21 @@ test("external concession is explicit, seat safe, and replayable", async () => {
     assert.deepEqual(JSON.parse(replay.opponentObserveJson()), JSON.parse(game.opponentObserveJson()));
   } finally { replay?.free(); game.free(); }
 });
+
+test("persistent card references use natural printing keys", async () => {
+  await initializeWasm();
+  const game = new WebGame("The Deck", "The Deck", "External", true, 3);
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  try {
+    const observation = JSON.parse(game.opponentObserveJson());
+    assert.ok(observation.hand.length > 0);
+    for (const card of observation.hand) assert.match(card.definition, uuid);
+    game.enable_match();
+    const state = JSON.parse(game.state_json());
+    assert.ok(state.match.main.length > 0);
+    for (const card of [...state.match.main, ...state.match.sideboard]) {
+      assert.match(card.id, uuid);
+      assert.equal(typeof card.name, "string");
+    }
+  } finally { game.free(); }
+});

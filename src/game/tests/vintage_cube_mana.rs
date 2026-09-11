@@ -332,7 +332,7 @@ fn ordinary_autopayment_cannot_sacrifice_one_shared_cost_object_twice() {
         controller: PlayerRelation::You,
     }];
 
-    let source_definition = CardDefinitionId::new(50_003);
+    let source_definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000c353");
     let mut definition = CardDefinition::new(
         source_definition,
         "Shared sacrifice mana source",

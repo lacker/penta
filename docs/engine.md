@@ -9,18 +9,27 @@ philosophy, [implementing cards](implementing-cards.md) for extension guidance,
 
 ## Identities and zones
 
-A `CardDefinitionId` identifies one canonical card name and rules identity in
-the catalog. New definitions derive a positive, JavaScript-safe 52-bit value
-from their exact debut-art Scryfall UUID: the first English-language paper
-printing when one exists, otherwise the first paper printing in any language.
-Older numeric meanings remain fixed through a separate compatibility lookup,
-without appearing in current card declarations. The values are
-opaque and sparse, while the catalog keeps definitions dense internally behind
-an ID-to-index map. Copy limits, banned and restricted lists, and executable
-behavior all use that canonical identity. A `CardPrintingId` identifies one
-exact set-and-variant printing of the definition. Multiple printing variants
-may therefore share a set and canonical definition, which can represent
-different basic-land art without duplicating gameplay rules.
+A `CardDefinitionKey` is the natural UUID of the canonical card's debut printing:
+the first English-language paper printing when one exists, otherwise the first
+paper printing in any language. Decks, catalogs, protocol observations, and
+checkpoints use that UUID. `CardDefinitionId` is a compact process-local handle:
+the build generates dense IDs for built-in declarations, and custom keys are
+interned on entry. Catalog and prepared-program reads use array indices for
+built-ins, without UUID hashing or interner locks in gameplay. Ordering and
+serialization resolve natural keys, never allocation order. There is no
+historical numeric identity table.
+
+`CardPrintingId` is a catalog lookup tuple for a definition, set, and local
+variant. For persistent exact-art selection use the printing's `scryfallId`.
+Parts, abilities, modes, target slots, costs, and grants are positional references
+within their owning definition or instantiated action. They have no independent
+global identity; saved references carry their owning natural definition key and
+are interpreted against the checkpoint's exact simulation fingerprint.
+
+Bindings are authored as local names. Each effect-resolution context assigns
+private numeric slots; cost names are scoped separately to the card part.
+Checkpoints retain names and reconstruct slots, so slot allocation order is
+not a persistence contract.
 
 The runtime model deliberately separates physical-card lineage from rules
 object identity:

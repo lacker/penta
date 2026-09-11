@@ -1,5 +1,5 @@
 fn unsupported_trigger_event(event: TriggerEventDef) -> GrantedAbilityValidationError {
-    GrantedAbilityValidationError::UnsupportedTriggerEvent { event }
+    GrantedAbilityValidationError::UnsupportedTriggerEvent { event: Box::new(event) }
 }
 
 /// The values a stat comparison in a trigger predicate may read. A list

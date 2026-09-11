@@ -219,7 +219,7 @@ fn ability_and_program_kinds_must_agree() {
     assert_eq!(
         error(card),
         CatalogError::ReplacementAbilityRequiresReplacementProgram {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
         },
@@ -234,7 +234,7 @@ fn ability_and_program_kinds_must_agree() {
     assert_eq!(
         error(card),
         CatalogError::ReplacementProgramRequiresReplacementAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
         },
@@ -304,7 +304,7 @@ fn replacement_events_reject_programs_their_runtime_would_ignore() {
         assert_eq!(
             error(card),
             CatalogError::UnsupportedReplacementProgram {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
                 event,
@@ -462,7 +462,7 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
             EffectDef::InstallTrigger(InstalledTriggerDef::once(&CONDITIONLESS_STATE_TRIGGER,)),
         ),
         Err(GrantedAbilityValidationError::UnsupportedTriggerEvent {
-            event: TriggerEventDef::StateCondition,
+            event: Box::new(TriggerEventDef::StateCondition),
         }),
     );
     static STATE_CONDITION: TriggerConditionDef = TriggerConditionDef::SourceOnBattlefield;
@@ -478,7 +478,7 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
             EffectDef::InstallTrigger(InstalledTriggerDef::once(&CONDITIONAL_STATE_TRIGGER,)),
         ),
         Err(GrantedAbilityValidationError::UnsupportedTriggerEvent {
-            event: TriggerEventDef::StateCondition,
+            event: Box::new(TriggerEventDef::StateCondition),
         }),
         "installed state triggers stay rejected until Once consumption joins state capture",
     );
@@ -510,7 +510,7 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
     assert_eq!(
         error(card),
         CatalogError::UnsupportedInstalledTriggerAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
         },
@@ -526,10 +526,10 @@ fn installed_triggers_retain_installer_targets_and_reject_fresh_target_scopes() 
     assert_eq!(
         error(card),
         CatalogError::UnsupportedTriggerEvent {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
-            event: TriggerEventDef::StateCondition,
+            event: Box::new(TriggerEventDef::StateCondition),
         },
     );
 }
@@ -616,10 +616,10 @@ fn shared_trigger_catalog_rejects_undiscoverable_or_incomplete_listeners() {
         assert_eq!(
             error(definition_with_ability(ability)),
             CatalogError::UnsupportedTriggerEvent {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
-                event,
+                event: Box::new(event),
             },
         );
     }
@@ -648,7 +648,7 @@ fn triggered_mana_catalog_requires_a_supported_nonempty_add_mana_program() {
         assert_eq!(
             error(definition_with_ability(ability)),
             CatalogError::UnsupportedTriggeredManaProgram {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
             },
@@ -697,10 +697,10 @@ fn trigger_catalog_rejects_static_only_affected_object_anchors() {
         assert_eq!(
             error(definition_with_ability(ability)),
             CatalogError::UnsupportedTriggerEvent {
-                definition: CardDefinitionId::new(1),
+                definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
                 part: CardPartId::PRIMARY,
                 ability: AbilityId::PRIMARY,
-                event,
+                event: Box::new(event),
             },
         );
     }
@@ -789,7 +789,7 @@ fn authored_target_count_fits_the_positional_index_space() {
     assert_eq!(
         error(card),
         CatalogError::TooManyAbilityTargets {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             count: 257,
@@ -820,7 +820,7 @@ fn nested_grant_capacity_is_validated_per_granted_definition() {
     assert_eq!(
         error(definition_granting(child)),
         CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY],
@@ -844,7 +844,7 @@ fn executable_legacy_procedures_are_rejected() {
     assert_eq!(
         error(top_level),
         CatalogError::UnsupportedLegacyProcedure {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
         }
@@ -853,7 +853,7 @@ fn executable_legacy_procedures_are_rejected() {
     assert_eq!(
         error(definition_granting(&LEGACY)),
         CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY],
@@ -882,7 +882,7 @@ fn explicitly_tagged_mana_abilities_cannot_declare_targets() {
     assert_eq!(
         error(card),
         CatalogError::ManaAbilityHasTargets {
-            definition: CardDefinitionId::new(1),
+            definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
         }

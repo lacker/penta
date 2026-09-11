@@ -36,7 +36,7 @@ impl WebGame {
         ]);
         value["finished"] = json!(value["stage"] == "complete");
         value["canChoose"] = json!(self.session.decision_seat() == Some(self.human));
-        let card = |id: &Value| json!({ "id": id, "name": id.as_u64().and_then(penta::CardDefinitionId::try_new).and_then(|id| self.catalog.get(id)).map(|card| &card.name) });
+        let card = |id: &Value| json!({ "id": id, "name": id.as_str().and_then(penta::CardDefinitionId::try_from_uuid).and_then(|id| self.catalog.get(id)).map(|card| &card.name) });
         for zone in ["main", "sideboard"] {
             value[zone] = json!(
                 value[zone]

@@ -45,7 +45,7 @@ fn virtual_object_effect_paths_cover_every_continuation_branch() {
         (RETURN_THEN, vec![0]),
     ];
     let creator = AbilityLocator::Card {
-        definition: CardDefinitionId::new(1),
+        definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
         part_id: 0,
         ability_id: 0,
         nested: Vec::new(),
@@ -97,7 +97,7 @@ fn token_and_emblem_owned_creators_form_one_semantic_chain() {
     )];
 
     let mut definition = CardDefinition::new(
-        CardDefinitionId::new(1),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
         "Virtual Creator",
         sets::alpha::SET,
         crate::card::CardRules::unsupported(),

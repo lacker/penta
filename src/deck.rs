@@ -350,7 +350,7 @@ mod tests {
     /// cube prints no Legendary Enchantment -- Background, so the only way to
     /// exercise the pairing is to build one and hand it over.
     fn catalog_with_a_background() -> (CardCatalog, CardDefinitionId) {
-        let id = CardDefinitionId::new(90_001);
+        let id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000015f91");
         let mut background = CardDefinition::new(
             id,
             "Test Background",

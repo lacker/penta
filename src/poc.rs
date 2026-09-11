@@ -20,7 +20,7 @@ mod tests {
         lions_dib, lions_dib_bolt, mono_black, robots, sligh, the_deck, troll_disk, white_weenie,
     };
     use crate::rules;
-    use crate::{CardDefinitionId, CardEffectStatus, CreatureStats, ManaCost};
+    use crate::{CardEffectStatus, CreatureStats, ManaCost};
 
     #[test]
     fn built_in_decks_have_tournament_sizes() {
@@ -42,8 +42,7 @@ mod tests {
     fn poc_cards_declare_their_expected_execution_gate() {
         let catalog = catalog().unwrap();
         let mut scryfall_ids = HashSet::new();
-        for raw_id in 1..=128 {
-            let card = catalog.get(CardDefinitionId::new(raw_id)).unwrap();
+        for card in catalog.definitions() {
             let expected_status =
                 if card.implementation_status() == crate::ImplementationStatus::Unsupported {
                     CardEffectStatus::Unsupported

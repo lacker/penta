@@ -337,7 +337,7 @@ fn declarative_mana_production_drives_generic_mana_sources() {
         &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
     )];
-    let definition_id = CardDefinitionId::new(10_000);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002710");
     let mut definition = CardDefinition::new(
         definition_id,
         "Test dual land",

@@ -99,8 +99,9 @@ use observation_json::{decision_json, stack_object_json};
 /// 30 replaces the card implementation-status values `partial` and
 /// `metadataOnly` with the single whole-card value `unsupported`. Version 31
 /// adds the `PublicNotice` decision visibility: opponents receive the pending
-/// question but no selection payload or reconstructible continuation.
-pub const PROTOCOL_VERSION: u32 = 31;
+/// question but no selection payload or reconstructible continuation. Version
+/// 32 uses canonical printing UUID strings for all card-definition references.
+pub const PROTOCOL_VERSION: u32 = 32;
 
 /// The engine package release. This is ordinary Cargo `SemVer`, not an exact
 /// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model
@@ -125,7 +126,7 @@ pub const PROTOCOL_CAPABILITIES: &[&str] = &[
     "action.concede.v1",
     "match.first-to-two-wins.v1",
     "observation.public-reveals.v1",
-    "reconstruction.checkpoint.v15",
+    "reconstruction.checkpoint.v16",
     "rules.restart-game.v1",
 ];
 
@@ -134,7 +135,7 @@ pub const PROTOCOL_CAPABILITIES: &[&str] = &[
 pub const REQUIRED_BOT_CAPABILITIES: &[&str] = &[];
 
 /// Version of the hidden-safe reconstruction payload nested at `checkpoint`.
-pub const CHECKPOINT_VERSION: u32 = 15;
+pub const CHECKPOINT_VERSION: u32 = 16;
 
 /// Undeclared hosted bots predate negotiation and therefore belong to the last
 /// wire epoch that could not make an explicit declaration. They do not

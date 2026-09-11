@@ -2,7 +2,6 @@ use super::{
     CardArt, CardComposition, CardDefinition, CardPrinting, CardRules, CardSet, DoubleFacedKind,
 };
 use crate::CardDefinitionId;
-use sha2::{Digest, Sha256};
 
 type CompositionBuilder = fn() -> CardComposition;
 
@@ -31,7 +30,7 @@ pub(super) struct CardRecord {
 }
 
 impl CardRecord {
-    /// Defines a card whose ID is derived from its exact debut artwork.
+    /// Defines a card keyed by its exact debut printing's natural UUID.
     #[allow(clippy::large_types_passed_by_value)]
     pub(super) const fn new(
         name: &'static str,
@@ -120,19 +119,7 @@ impl CardRecord {
 
     #[must_use]
     pub(super) fn id(&self) -> CardDefinitionId {
-        super::compatibility::historical_definition_id(self.art.scryfall_id).unwrap_or_else(|| {
-            let mut hash = Sha256::new();
-            hash.update(b"penta/card-printing-id/v1\0");
-            hash.update(self.art.scryfall_id.as_bytes());
-            hash.update(0_u32.to_be_bytes());
-            let digest = hash.finalize();
-            let prefix = u64::from_be_bytes(
-                digest[..8]
-                    .try_into()
-                    .expect("SHA-256 digest always has an eight-byte prefix"),
-            );
-            CardDefinitionId::new(prefix >> 12)
-        })
+        CardDefinitionId::from_uuid(self.art.scryfall_id)
     }
 
     /// Supplies logical parts and play options for a structured or modal card.
@@ -227,7 +214,7 @@ mod tests {
     }
 
     #[test]
-    fn printing_ids_follow_the_frozen_sha256_vector() {
-        assert_eq!(derived().id(), CardDefinitionId::new(4_013_269_539_742_549));
+    fn printing_keys_use_the_authored_uuid() {
+        assert_eq!(derived().id(), CardDefinitionId::from_uuid(ART_ID));
     }
 }

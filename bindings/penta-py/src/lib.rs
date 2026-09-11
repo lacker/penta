@@ -155,16 +155,13 @@ impl Game {
     ///
     /// Definitions are the `definition` ids from `catalog()`.
     #[allow(clippy::needless_pass_by_value)]
-    fn set_hand(&mut self, seat: &str, definitions: Vec<u64>) -> PyResult<()> {
+    fn set_hand(&mut self, seat: &str, definitions: Vec<String>) -> PyResult<()> {
         let seat = seat_from_name(seat)?;
         let cards: Vec<_> = definitions
             .into_iter()
             .map(|definition| {
-                engine::CardDefinitionId::try_new(definition).ok_or_else(|| {
-                    PyValueError::new_err(format!(
-                        "card definition IDs must be between 1 and {}",
-                        engine::CardDefinitionId::MAX
-                    ))
+                engine::CardDefinitionId::try_from_uuid(&definition).ok_or_else(|| {
+                    PyValueError::new_err("card definition keys must be canonical printing UUIDs")
                 })
             })
             .collect::<PyResult<_>>()?;
@@ -175,16 +172,13 @@ impl Game {
 
     /// Replaces a seat's library, top card first. See `set_hand`.
     #[allow(clippy::needless_pass_by_value)]
-    fn set_library(&mut self, seat: &str, definitions: Vec<u64>) -> PyResult<()> {
+    fn set_library(&mut self, seat: &str, definitions: Vec<String>) -> PyResult<()> {
         let seat = seat_from_name(seat)?;
         let cards: Vec<_> = definitions
             .into_iter()
             .map(|definition| {
-                engine::CardDefinitionId::try_new(definition).ok_or_else(|| {
-                    PyValueError::new_err(format!(
-                        "card definition IDs must be between 1 and {}",
-                        engine::CardDefinitionId::MAX
-                    ))
+                engine::CardDefinitionId::try_from_uuid(&definition).ok_or_else(|| {
+                    PyValueError::new_err("card definition keys must be canonical printing UUIDs")
                 })
             })
             .collect::<PyResult<_>>()?;

@@ -117,7 +117,7 @@ impl DamageDef {
 
     pub(crate) const fn applied_effect(self) -> Option<AppliedEffectDef> {
         match self.follow_up {
-            Some(DamageFollowUpDef::ApplyToDamaged { effect, .. }) => Some(effect),
+            Some(DamageFollowUpDef::ApplyToDamaged { effect, .. }) => Some(*effect),
             Some(DamageFollowUpDef::IfDealtToIntended(_)) | None => None,
         }
     }
@@ -135,7 +135,7 @@ pub enum DamageFollowUpDef {
     /// Apply to every actual damage recipient, including redirected damage.
     /// The applied effect determines which kinds of recipients it affects.
     ApplyToDamaged {
-        effect: AppliedEffectDef,
+        effect: &'static AppliedEffectDef,
         duration: ResolvedEffectDurationDef,
     },
 }

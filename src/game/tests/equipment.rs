@@ -8,9 +8,15 @@
 use super::*;
 use crate::card::sets;
 
-const MANA_AND_TAP_ELF_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_090);
-const COUNTER_MANA_ELF_ID: CardDefinitionId = CardDefinitionId::new(10_091);
-const COUNT_ONE_SOURCE_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_092);
+fn mana_and_tap_elf_equipment_id() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276a")
+}
+fn counter_mana_elf_id() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276b")
+}
+fn count_one_source_equipment_id() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276c")
+}
 
 static MANA_AND_TAP_ELF_EQUIP_COSTS: [CostDef; 2] = [
     CostDef::Mana(mana_cost!("{G}")),
@@ -53,7 +59,7 @@ static COUNT_ONE_SOURCE_EQUIP_ABILITIES: [AbilityDef; 1] = [abilities::equip(
 
 fn mana_and_tap_elf_equipment_definition() -> CardDefinition {
     let mut definition = CardDefinition::new(
-        MANA_AND_TAP_ELF_EQUIPMENT_ID,
+        mana_and_tap_elf_equipment_id(),
         "Mana and tap-cost Equipment test",
         sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
@@ -67,7 +73,7 @@ fn mana_and_tap_elf_equipment_definition() -> CardDefinition {
 
 fn counter_mana_elf_definition() -> CardDefinition {
     let mut definition = CardDefinition::new(
-        COUNTER_MANA_ELF_ID,
+        counter_mana_elf_id(),
         "Counter mana Elf test",
         sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
@@ -80,7 +86,7 @@ fn counter_mana_elf_definition() -> CardDefinition {
 
 fn count_one_source_equipment_definition() -> CardDefinition {
     let mut definition = CardDefinition::new(
-        COUNT_ONE_SOURCE_EQUIPMENT_ID,
+        count_one_source_equipment_id(),
         "Count-one source Equipment test",
         sets::magic_2014::SET,
         crate::card::CardRules::unsupported(),
@@ -211,7 +217,7 @@ fn a_tap_cost_candidate_cannot_also_pay_the_equip_mana_cost() {
     definitions.push(mana_and_tap_elf_equipment_definition());
     game.catalog = CardCatalog::new(definitions).unwrap();
 
-    let equipment = creature(10_000, MANA_AND_TAP_ELF_EQUIPMENT_ID, PlayerId::One);
+    let equipment = creature(10_000, mana_and_tap_elf_equipment_id(), PlayerId::One);
     let equipment_id = equipment.card.id;
     let host = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
     let host_id = host.card.id;
@@ -264,11 +270,11 @@ fn a_non_tapping_mana_ability_can_share_the_equip_tap_cost_payer() {
     ]);
     game.catalog = CardCatalog::new(definitions).unwrap();
 
-    let equipment = creature(10_000, MANA_AND_TAP_ELF_EQUIPMENT_ID, PlayerId::One);
+    let equipment = creature(10_000, mana_and_tap_elf_equipment_id(), PlayerId::One);
     let equipment_id = equipment.card.id;
     let host = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
     let host_id = host.card.id;
-    let mut mana_elf = creature(10_002, COUNTER_MANA_ELF_ID, PlayerId::One);
+    let mut mana_elf = creature(10_002, counter_mana_elf_id(), PlayerId::One);
     mana_elf.counters.set(CounterKind::named("charge"), 1);
     let mana_elf_id = mana_elf.card.id;
     game.battlefield.extend([equipment, host, mana_elf]);
@@ -307,7 +313,7 @@ fn a_count_one_tap_cost_can_use_its_untapped_source() {
     definitions.push(count_one_source_equipment_definition());
     game.catalog = CardCatalog::new(definitions).unwrap();
 
-    let equipment = creature(10_000, COUNT_ONE_SOURCE_EQUIPMENT_ID, PlayerId::One);
+    let equipment = creature(10_000, count_one_source_equipment_id(), PlayerId::One);
     let equipment_id = equipment.card.id;
     let host = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
     let host_id = host.card.id;

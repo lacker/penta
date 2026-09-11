@@ -249,7 +249,7 @@ fn catalog_json_is_structured_and_legality_is_format_specific() {
 
     let cards = standard["cards"].as_array().expect("cards array");
     assert!(cards.windows(2).all(|pair| {
-        pair[0]["definition"].as_u64().expect("id") < pair[1]["definition"].as_u64().expect("id")
+        pair[0]["definition"].as_str().expect("id") < pair[1]["definition"].as_str().expect("id")
     }));
     let find = |name: &str| {
         cards

@@ -12,7 +12,7 @@ static TEST_EXTRA_TURN_REPLACEMENT_ABILITIES: [AbilityDef; 1] = [AbilityDef::rep
 )];
 
 fn install_extra_turn_replacement(game: &mut Game, id: u32) -> GameObjectId {
-    let definition_id = CardDefinitionId::new(10_064);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002750");
     let mut definition = CardDefinition::new(
         definition_id,
         "Extra Turn Suppressor",
@@ -553,7 +553,10 @@ fn affected_player_may_apply_time_vault_before_a_mandatory_extra_turn_replacemen
         decision.options[0].card,
         Some((
             mandatory,
-            ObjectCharacteristics::card(CardDefinitionId::new(10_064), CardPartId::PRIMARY),
+            ObjectCharacteristics::card(
+                CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002750"),
+                CardPartId::PRIMARY
+            ),
         ))
     );
     assert_eq!(

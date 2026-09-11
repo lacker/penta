@@ -341,7 +341,7 @@ fn semantic_target_labels_are_derived_from_predicates() {
 
 #[test]
 fn printing_ids_distinguish_variants_within_one_set() {
-    let definition = CardDefinitionId::new(7);
+    let definition = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000007");
     let primary = CardPrintingId::new(definition, sets::alpha::SET);
     let alternate = CardPrintingId::with_variant(definition, sets::alpha::SET, 1);
 
@@ -355,7 +355,7 @@ fn printing_ids_distinguish_variants_within_one_set() {
 
 #[test]
 fn definitions_start_with_their_primary_printing() {
-    let id = CardDefinitionId::new(7);
+    let id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000007");
     let definition = CardDefinition::new(
         id,
         "Test Card",
@@ -659,7 +659,7 @@ fn card_support_drives_the_ordinary_play_option_gate() {
         CardEffectStatus::Unsupported
     );
     let unsupported_definition = CardDefinition::new(
-        CardDefinitionId::new(8),
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000008"),
         "Unsupported",
         sets::alpha::SET,
         unsupported,

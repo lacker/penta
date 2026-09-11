@@ -4,13 +4,27 @@ use super::*;
 use crate::card::sets;
 use crate::card::{BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef};
 
-const TAXED_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_170);
-const TAXED_MANA_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_171);
-const MULTI_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_172);
-const TAXED_ATTACKER: CardDefinitionId = CardDefinitionId::new(10_173);
-const REQUIRED_TAXED_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_174);
-const TAXED_MULTI_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_175);
-const MENACING_MINIMUM_THREE_ATTACKER: CardDefinitionId = CardDefinitionId::new(10_176);
+fn taxed_blocker() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000027ba")
+}
+fn taxed_mana_blocker() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000027bb")
+}
+fn multi_blocker() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000027bc")
+}
+fn taxed_attacker() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000027bd")
+}
+fn required_taxed_blocker() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000027be")
+}
+fn taxed_multi_blocker() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000027bf")
+}
+fn menacing_minimum_three_attacker() -> CardDefinitionId {
+    CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000027c0")
+}
 
 const BLOCKER_TAX: AppliedRuleDef =
     AppliedRuleDef::BlockRestriction(BlockRestrictionDef::unless_paid(
@@ -113,27 +127,31 @@ fn restriction_catalog(game: &Game) -> CardCatalog {
         .cloned()
         .collect::<Vec<_>>();
     definitions.extend([
-        creature_definition(TAXED_BLOCKER, "Taxed blocker", &TAXED_BLOCKER_ABILITIES),
+        creature_definition(taxed_blocker(), "Taxed blocker", &TAXED_BLOCKER_ABILITIES),
         creature_definition(
-            TAXED_MANA_BLOCKER,
+            taxed_mana_blocker(),
             "Taxed mana blocker",
             &TAXED_MANA_BLOCKER_ABILITIES,
         ),
-        creature_definition(MULTI_BLOCKER, "Multi-blocker", &MULTI_BLOCKER_ABILITIES),
-        creature_definition(TAXED_ATTACKER, "Taxed attacker", &TAXED_ATTACKER_ABILITIES),
+        creature_definition(multi_blocker(), "Multi-blocker", &MULTI_BLOCKER_ABILITIES),
         creature_definition(
-            REQUIRED_TAXED_BLOCKER,
+            taxed_attacker(),
+            "Taxed attacker",
+            &TAXED_ATTACKER_ABILITIES,
+        ),
+        creature_definition(
+            required_taxed_blocker(),
             "Required taxed blocker",
             &REQUIRED_TAXED_BLOCKER_ABILITIES,
         ),
         creature_definition(
-            MENACING_MINIMUM_THREE_ATTACKER,
+            menacing_minimum_three_attacker(),
             "Menacing minimum-three attacker",
             &MENACING_MINIMUM_THREE_ABILITIES,
         ),
     ]);
     definitions.push(creature_definition(
-        TAXED_MULTI_BLOCKER,
+        taxed_multi_blocker(),
         "Taxed multi-blocker",
         &TAXED_MULTI_BLOCKER_ABILITIES,
     ));
@@ -177,7 +195,7 @@ fn block_action(blocker: GameObjectId, attacker: GameObjectId) -> Action {
 #[test]
 fn minimum_blocker_restrictions_compose_with_menace_by_taking_the_largest() {
     let (mut game, attackers, first_blocker) =
-        blocking_game(&[MENACING_MINIMUM_THREE_ATTACKER], cards::GRIZZLY_BEARS);
+        blocking_game(&[menacing_minimum_three_attacker()], cards::GRIZZLY_BEARS);
     let attacker = attackers[0];
     let second_blocker = creature(20_101, cards::GRIZZLY_BEARS, PlayerId::Two);
     let second_blocker_id = second_blocker.card.id;
@@ -209,7 +227,7 @@ fn minimum_blocker_restrictions_compose_with_menace_by_taking_the_largest() {
 #[test]
 fn a_blocker_can_tap_for_mana_to_pay_its_own_declaration_cost() {
     let (mut game, attackers, blocker) =
-        blocking_game(&[cards::SAVANNAH_LIONS], TAXED_MANA_BLOCKER);
+        blocking_game(&[cards::SAVANNAH_LIONS], taxed_mana_blocker());
     let block = block_action(blocker, attackers[0]);
     assert!(game.legal_actions(PlayerId::Two).contains(&block));
     game.apply(PlayerId::Two, block).unwrap();
@@ -228,7 +246,7 @@ fn a_blocker_can_tap_for_mana_to_pay_its_own_declaration_cost() {
 fn one_blocker_scoped_cost_covers_every_block_that_creature_makes() {
     let (mut game, attackers, blocker) = blocking_game(
         &[cards::SAVANNAH_LIONS, cards::GRIZZLY_BEARS],
-        TAXED_MULTI_BLOCKER,
+        taxed_multi_blocker(),
     );
     game.players[PlayerId::Two.index()].mana_pool.colorless = 1;
 
@@ -248,7 +266,7 @@ fn one_blocker_scoped_cost_covers_every_block_that_creature_makes() {
 #[test]
 fn attacker_scoped_costs_add_for_a_creature_blocking_several_attackers() {
     let (mut game, attackers, blocker) =
-        blocking_game(&[TAXED_ATTACKER, TAXED_ATTACKER], MULTI_BLOCKER);
+        blocking_game(&[taxed_attacker(), taxed_attacker()], multi_blocker());
     game.players[PlayerId::Two.index()].mana_pool.colorless = 1;
     game.apply(PlayerId::Two, block_action(blocker, attackers[0]))
         .unwrap();
@@ -263,7 +281,7 @@ fn attacker_scoped_costs_add_for_a_creature_blocking_several_attackers() {
 #[test]
 fn a_must_block_requirement_never_forces_a_declaration_cost() {
     let (mut game, _attackers, _blocker) =
-        blocking_game(&[cards::SAVANNAH_LIONS], REQUIRED_TAXED_BLOCKER);
+        blocking_game(&[cards::SAVANNAH_LIONS], required_taxed_blocker());
     game.players[PlayerId::Two.index()].mana_pool.colorless = 1;
     assert!(
         game.legal_actions(PlayerId::Two)

@@ -59,7 +59,11 @@ fn catalog_rejects_conflicting_set_metadata_across_definitions_and_printings() {
         .unwrap_err();
         assert_eq!(error, expected);
 
-        let printing = CardPrinting::with_variant(CardDefinitionId::new(1), conflict, 1);
+        let printing = CardPrinting::with_variant(
+            CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
+            conflict,
+            1,
+        );
         let mut card = definition(1, "First", original);
         card.printings.push(printing);
         assert_eq!(CardCatalog::new([card]).unwrap_err(), expected);
@@ -77,7 +81,11 @@ fn catalog_accepts_repeated_set_metadata_and_preserves_wire_slugs() {
         code: "TST",
         slug: "test_set",
     });
-    let printing = CardPrinting::with_variant(CardDefinitionId::new(1), set, 1);
+    let printing = CardPrinting::with_variant(
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
+        set,
+        1,
+    );
     let catalog = CardCatalog::with_additional_printings(
         [definition(1, "First", set), definition(2, "Second", set)],
         [printing],

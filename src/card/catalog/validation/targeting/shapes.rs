@@ -262,7 +262,7 @@ fn validate_recipient_shape(
         EffectRecipientSetDef::Objects(objects) => {
             if matches!(expected, RecipientExpectation::Player) {
                 return Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                    recipient,
+                    recipient: Box::new(recipient),
                     expected: EffectSubjectKind::Player,
                 });
             }
@@ -273,7 +273,7 @@ fn validate_recipient_shape(
         EffectRecipientSetDef::PlayersAndCreaturesTheyControl(players) => {
             if !matches!(expected, RecipientExpectation::Any) {
                 return Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                    recipient,
+                    recipient: Box::new(recipient),
                     expected: EffectSubjectKind::Player,
                 });
             }
@@ -282,7 +282,7 @@ fn validate_recipient_shape(
         EffectRecipientSetDef::Players(players) => {
             if matches!(expected, RecipientExpectation::Object) {
                 return Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                    recipient,
+                    recipient: Box::new(recipient),
                     expected: EffectSubjectKind::Object,
                 });
             }
@@ -296,7 +296,7 @@ fn validate_recipient_shape(
                 Ok(())
             } else {
                 Err(GrantedAbilityValidationError::EffectRecipientKindMismatch {
-                    recipient,
+                    recipient: Box::new(recipient),
                     expected: EffectSubjectKind::Player,
                 })
             }
@@ -864,14 +864,12 @@ fn validate_applied_effect_shapes(
         }
         AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(permission)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
-            validate_object_predicate_shape(permission.restriction.object, targets)?;
-            Ok(())
+            validate_object_predicate_shape(permission.restriction.object, targets)
         }
         AppliedEffectDef::Rule(AppliedRuleDef::TriggersAnAdditionalTime(doubling)) => {
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(doubling.entering, targets)?;
-            validate_object_predicate_shape(doubling.permanent, targets)?;
-            Ok(())
+            validate_object_predicate_shape(doubling.permanent, targets)
         }
         AppliedEffectDef::Rule(
             AppliedRuleDef::CannotPlay(restriction)
@@ -881,7 +879,9 @@ fn validate_applied_effect_shapes(
             validate_object_predicate_shape(restriction.object, targets)?;
             if static_effect && !static_play_rule_recipient_supported(recipient) {
                 return Err(
-                    GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient { recipient },
+                    GrantedAbilityValidationError::UnsupportedStaticPlayerRecipient {
+                        recipient: Box::new(recipient),
+                    },
                 );
             }
             Ok(())

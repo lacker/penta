@@ -258,7 +258,7 @@ fn meddling_mage_naming(game: &mut Game, named: &str) -> GameObjectId {
         .expect("the Mage entered once its name was chosen");
     assert_eq!(
         permanent.chosen_card_name_binding,
-        Some(Binding!("meddling_mage_name")),
+        Some("meddling_mage_name".to_owned()),
     );
     permanent.card.id
 }

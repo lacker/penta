@@ -1,0 +1,6 @@
+# Authored rules are const, Copy values containing compiler-owned binding-name
+# references instead of byte-sized global registry entries. Keep their bounded
+# by-value APIs; larger payloads still need indirection. These are layout review
+# thresholds, not permission for unbounded runtime copying.
+pass-by-value-size-limit = 512
+enum-variant-size-threshold = 256

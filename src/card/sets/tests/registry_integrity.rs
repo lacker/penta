@@ -68,13 +68,6 @@ fn format_sets_and_card_records_have_catalog_modules() {
 
 #[test]
 fn built_in_records_have_unique_identity() {
-    const RETIRED_VIRTUAL_OBJECT_IDS: &[u16] = &[
-        245, 246, 247, 249, 254, 255, 256, 257, 258, 259, 260, 538, 539, 540, 602, 603, 676, 677,
-        678, 679, 840, 841, 842, 963, 964, 1051, 1052, 1053, 1143, 1236, 1237, 1238, 1239, 1350,
-        1351, 1481, 1561, 1701, 1705, 1708, 1791, 1893, 2075, 2121, 2147, 2173, 2198, 2205, 2210,
-        2214, 2216, 2218, 2224, 2231, 2246, 2249, 2257, 2262, 2281, 2287, 2293, 2295, 2297,
-    ];
-
     let records = SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
@@ -94,16 +87,8 @@ fn built_in_records_have_unique_identity() {
             .copied()
             .collect::<HashSet<_>>(),
         record_ids,
-        "generated compatibility IDs must match the runtime records",
+        "generated natural keys must match the runtime records",
     );
-    for retired in RETIRED_VIRTUAL_OBJECT_IDS {
-        assert!(
-            records
-                .iter()
-                .all(|record| record.id() != CardDefinitionId::new(u64::from(*retired))),
-            "retired virtual-object definition ID {retired} must remain a tombstone",
-        );
-    }
     assert_eq!(
         records
             .iter()

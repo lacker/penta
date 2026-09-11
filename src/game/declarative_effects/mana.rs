@@ -62,7 +62,7 @@ impl Game {
                 let amount = amount_override
                     .filter(|override_| {
                         self.static_condition_holds(
-                            override_.condition,
+                            *override_.condition,
                             object.controller,
                             object.source.unwrap_or(object.id),
                         )

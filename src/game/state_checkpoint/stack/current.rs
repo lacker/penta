@@ -73,9 +73,7 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
         cast_alternative_cost_binding: object
             .cast
             .as_ref()
-            .and_then(|cast| cast.alternative_cost_binding)
-            .and_then(crate::Binding::label)
-            .map(str::to_owned),
+            .and_then(|cast| cast.alternative_cost_binding.clone()),
         cast_x: object.cast.as_ref().map_or(0, |cast| cast.x),
         cast_repeatable_additional_costs: object
             .cast

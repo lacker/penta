@@ -12,7 +12,7 @@ export type StackObjectKind = "Spell" | "ActivatedAbility" | "TriggeredAbility";
 export type ImplementationStatus = "complete" | "unsupported";
 
 export type AbilityOriginMetadata =
-  | { kind: "printed"; definition: number; partId: number; abilityId: number }
+  | { kind: "printed"; definition: string; partId: number; abilityId: number }
   | { kind: "token"; partId: number; abilityId: number }
   | { kind: "emblem"; abilityId: number }
   | { kind: "faceDown"; abilityId: number }
@@ -23,7 +23,7 @@ export type AbilityOriginMetadata =
   | {
       kind: "granted";
       source: number;
-      sourceDefinition: number;
+      sourceDefinition: string;
       sourcePartId: number;
       sourceAbilityId: number;
       grantId: number;
@@ -259,8 +259,8 @@ export type MatchState = {
   draws: number;
   stage: "playing" | "sideboarding" | "play-draw" | "complete";
   canChoose: boolean;
-  main: { id: number; name: string }[];
-  sideboard: { id: number; name: string }[];
+  main: { id: string; name: string }[];
+  sideboard: { id: string; name: string }[];
 };
 
 export type GameState = {

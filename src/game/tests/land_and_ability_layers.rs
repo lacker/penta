@@ -785,7 +785,7 @@ fn resolved_keyword_changes_are_visible_to_object_predicates() {
 
 #[test]
 fn blood_moon_strips_printed_keywords_from_object_predicates() {
-    let definition_id = CardDefinitionId::new(10_090);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276a");
     let mut definition = CardDefinition::new(
         definition_id,
         "Flying Gate",
@@ -864,8 +864,8 @@ fn static_ability_additions_and_removals_follow_source_timestamps() {
             effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
         },
     )];
-    let grant_id = CardDefinitionId::new(10_090);
-    let remove_id = CardDefinitionId::new(10_091);
+    let grant_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276a");
+    let remove_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000276b");
     let mut grant = CardDefinition::new(
         grant_id,
         "Static ability grant test",

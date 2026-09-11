@@ -919,8 +919,13 @@ fn put_onto_battlefield_reaches_a_board_state_directly() {
     assert!(!angel.tapped);
 
     assert_eq!(
-        game.put_onto_battlefield(PlayerId::One, CardDefinitionId::new(60_000)),
-        Err(ZoneError::UnknownCard(CardDefinitionId::new(60_000))),
+        game.put_onto_battlefield(
+            PlayerId::One,
+            CardDefinitionId::from_uuid("00000000-0000-0000-0000-00000000ea60")
+        ),
+        Err(ZoneError::UnknownCard(CardDefinitionId::from_uuid(
+            "00000000-0000-0000-0000-00000000ea60"
+        ))),
         "an unknown definition is refused rather than guessed at"
     );
 }

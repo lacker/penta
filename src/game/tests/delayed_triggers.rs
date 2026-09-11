@@ -499,7 +499,7 @@ fn leyline_of_anticipation_opens_every_spell_timing_window_while_it_remains() {
 
 #[test]
 fn quicken_expires_for_the_selected_sorcery_part() {
-    let definition_id = CardDefinitionId::new(10_068);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002754");
     let instant = CardRules::new_instant(ManaCost::default());
     let sorcery = CardRules::new_sorcery(ManaCost::default());
     let (mut game, _, _) = game_with_test_fused_split(definition_id, &instant, &sorcery);
@@ -539,7 +539,7 @@ fn quicken_expires_for_the_selected_sorcery_part() {
 
 #[test]
 fn quicken_preserves_its_grant_for_the_selected_instant_part() {
-    let definition_id = CardDefinitionId::new(10_069);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002755");
     let sorcery = CardRules::new_sorcery(ManaCost::default());
     let instant = CardRules::new_instant(ManaCost::default());
     let (mut game, _, _) = game_with_test_fused_split(definition_id, &sorcery, &instant);

@@ -7,7 +7,7 @@
 //! casting permission from a copied signature.
 
 use super::{CastSourceZone, Game, GameObjectId, RetiredObject, StackObject};
-use crate::{AlternativeCastKindDef, Binding, CastSignature, ColorSet, PlayOptionDef};
+use crate::{AlternativeCastKindDef, CastSignature, ColorSet, PlayOptionDef};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 // These are independent cast facts, not mutually exclusive states: a cast can
@@ -23,7 +23,7 @@ pub(super) struct CastContext {
     pub(super) alternative: Option<AlternativeCastKindDef>,
     /// The chosen cost's authored binding, independent of its position and
     /// family. External alternatives have no binding on this card.
-    pub(super) alternative_cost_binding: Option<Binding>,
+    pub(super) alternative_cost_binding: Option<String>,
     /// Whether the actual cast happened outside an ordinary sorcery window.
     pub(super) at_instant_speed: bool,
     /// The announced X and optional additional-cost payments. These are cast
@@ -65,7 +65,9 @@ impl CastContext {
             alternative_cost_binding: Game::selected_alternative_cost_binding(
                 option,
                 signature.costs(),
-            ),
+            )
+            .and_then(crate::Binding::label)
+            .map(str::to_owned),
             at_instant_speed,
             x: signature.x(),
             repeatable_additional_costs: Game::repeatable_additional_cost_payments_for(

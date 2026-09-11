@@ -510,7 +510,7 @@ fn explicitly_tagged_triggered_mana_ability_resolves_without_the_stack() {
         TriggerEventDef::tapped_for_mana(ObjectPredicateDef::Source),
         EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
     )];
-    let definition_id = CardDefinitionId::new(10_050);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002742");
     let mut definition = CardDefinition::new(
         definition_id,
         "Test triggered mana source",

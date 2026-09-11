@@ -205,7 +205,7 @@ fn free_static_alternative_and_zero_mana_alternative_remain_distinct() {
 }
 
 pub(in crate::game) fn game_with_cost_rules(rules: &CardRules) -> (Game, GameObjectId) {
-    let definition_id = CardDefinitionId::new(100_001);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-0000000186a1");
     let mut definition = CardDefinition::new(
         definition_id,
         "Cost list fixture",

@@ -44,7 +44,7 @@ impl Game {
                     .into_iter()
                     .map(|outcome| outcome.recipient)
                     .collect::<Vec<_>>();
-                self.apply_effect_to_targets(&damaged, effect, duration, object, &context, scoped);
+                self.apply_effect_to_targets(&damaged, *effect, duration, object, &context, scoped);
             }
             None => {}
         }

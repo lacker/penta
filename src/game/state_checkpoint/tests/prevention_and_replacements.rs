@@ -777,7 +777,7 @@ fn resolved_prevention_retains_controller_lki_and_rejects_spliced_provenance() {
         },
     );
 
-    let definition_id = CardDefinitionId::new(10_064);
+    let definition_id = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000002750");
     let mut definition = CardDefinition::new(
         definition_id,
         "Checkpoint Prevention Source",

@@ -185,12 +185,15 @@ impl Game {
                                 return;
                             };
                             entry.permanent.chosen_card_name = Some(selected);
-                            entry.permanent.chosen_card_name_binding = Some(binding);
+                            entry.permanent.chosen_card_name_binding =
+                                binding.label().map(str::to_owned);
                         }
                         BattlefieldEntryChoiceDestinationDef::CreatureType => {
                             entry.permanent.chosen_creature_type = Some(selected);
                             entry.permanent.chosen_creature_type_binding = match authored_effect {
-                                ReplacementEffectDef::BindOutput { binding, .. } => Some(binding),
+                                ReplacementEffectDef::BindOutput { binding, .. } => {
+                                    binding.label().map(str::to_owned)
+                                }
                                 _ => None,
                             };
                         }

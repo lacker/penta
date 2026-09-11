@@ -177,7 +177,7 @@ impl Game {
         effect
             .amount_override
             .filter(|override_| {
-                self.static_condition_holds(override_.condition, controller, source)
+                self.static_condition_holds(*override_.condition, controller, source)
             })
             .map_or(effect.amount, |override_| override_.amount)
     }
@@ -405,7 +405,7 @@ impl Game {
             ManaTypeSourceDef::Fixed(colors) => colors.to_vec(),
             ManaTypeSourceDef::ProducedBy(_) => Vec::new(),
             ManaTypeSourceDef::CouldBeProducedBy(objects) => self
-                .mana_type_source_permanents(permanent, objects)
+                .mana_type_source_permanents(permanent, *objects)
                 .into_iter()
                 .flat_map(|candidate| self.mana_types_permanent_could_produce(candidate, visiting))
                 .collect(),

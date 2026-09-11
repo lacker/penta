@@ -5,6 +5,7 @@ the path first.
 """
 
 import json
+from uuid import UUID
 
 import penta
 
@@ -24,6 +25,7 @@ assert "Sligh" in penta.deck_names()
 catalog_payload = json.loads(penta.catalog())
 assert catalog_payload["simulationFingerprint"] == fingerprint
 catalog = {c["definition"]: c for c in catalog_payload["cards"]}
+assert all(str(UUID(key)) == key for key in catalog)
 assert any(c["name"] == "Lightning Bolt" for c in catalog.values())
 
 standard_decks = penta.deck_names(format="isd-m14-standard")
@@ -186,8 +188,16 @@ assert len(json.loads(world.library("p2"))) == 1
 world.set_library("p2", [])
 assert json.loads(world.library("p2")) == []
 
+for invalid, error in [(123, TypeError), ("not-a-uuid", ValueError)]:
+    try:
+        world.set_hand("p2", [invalid])
+    except error:
+        pass
+    else:
+        raise AssertionError("non-natural card key accepted")
+
 try:
-    world.set_hand("p2", [60000])
+    world.set_hand("p2", ["00000000-0000-0000-0000-000000060000"])
     raise AssertionError("a card outside the catalog must raise")
 except ValueError:
     pass

@@ -1,11 +1,12 @@
 //! Deterministic engine primitives for supported two-player Magic formats.
 
-/// Declares a durable effect binding with a human-readable label.
+/// Declares a natural binding name local to its owning rules scope.
 #[macro_export]
 macro_rules! Binding {
-    ($label:literal) => {
-        $crate::Binding::from_label($label)
-    };
+    ($label:literal) => {{
+        const NAME: $crate::ids::BindingName = $crate::ids::BindingName::new($label);
+        $crate::Binding::named(&NAME)
+    }};
 }
 
 pub mod action;
@@ -96,8 +97,8 @@ pub use game::{
 };
 pub use ids::{
     AbilityId, AdditionalCostId, AdditionalCostIndex, AdditionalCostObjectIndex, AlternativeCostId,
-    Binding, CardDefinitionId, CardInstanceId, CardPartId, GameObjectId, GrantId, MeldRecipeId,
-    ModeId, ParentBinding, PhysicalCardId, PlayOptionId, PlayerId, StackObjectId, TargetIndex,
-    TargetSlotId,
+    Binding, CardDefinitionId, CardDefinitionKey, CardInstanceId, CardPartId, GameObjectId,
+    GrantId, MeldRecipeId, ModeId, ParentBinding, PhysicalCardId, PlayOptionId, PlayerId,
+    StackObjectId, TargetIndex, TargetSlotId,
 };
 pub use policy::{HandcraftedPolicy, PlayError, Policy, RandomPolicy, play_game};

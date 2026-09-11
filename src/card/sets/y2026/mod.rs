@@ -6,4 +6,6 @@ pub mod marvel_super_heroes_commander;
 pub mod secrets_of_strixhaven;
 pub mod teenage_mutant_ninja_turtles;
 
+pub mod the_hobbit;
+
 pub(super) use super::{CardRecord, PrintingRecord};

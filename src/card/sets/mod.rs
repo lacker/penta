@@ -285,6 +285,7 @@ const SET_MODULES: &[SetDefinition] = &[
     y2023::commander_masters::DEFINITION,
     y2023::doctor_who::DEFINITION,
     y2026::marvel_super_heroes_commander::DEFINITION,
+    y2026::the_hobbit::DEFINITION,
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {

@@ -74,12 +74,13 @@ impl LocalSession {
         decision: Option<&penta::DecisionObservation>,
     ) -> Result<(), Box<penta::ActionError>> {
         let cursor = self.game.event_cursor();
-        self.game.apply(seat, action.clone()).map_err(Box::new)?;
+        let automatic_action = decision.map(|_| action.clone());
+        self.game.apply(seat, action).map_err(Box::new)?;
         if let Some(updates) = &mut self.updates {
             if !automatic {
                 updates.clear(seat);
             }
-            updates.record(&self.game, cursor, decision, &action);
+            updates.record(&self.game, cursor, decision.zip(automatic_action.as_ref()));
         }
         Ok(())
     }

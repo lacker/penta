@@ -24,11 +24,12 @@ impl SessionUpdates {
         &mut self,
         game: &Game,
         cursor: usize,
-        decision: Option<&DecisionObservation>,
-        action: &Action,
+        decision: Option<(&DecisionObservation, &Action)>,
     ) {
         for seat in [PlayerId::One, PlayerId::Two] {
-            if let Some(pending) = decision.and_then(|pending| pending.for_viewer(seat)) {
+            if let Some((pending, action)) = decision
+                && let Some(pending) = pending.for_viewer(seat)
+            {
                 let action = pending
                     .options_visible_to(seat)
                     .then(|| Box::new(action.clone()));

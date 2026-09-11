@@ -214,10 +214,7 @@ fn session_api_skips_forced_actions_preserving_native_choices_and_replay() {
         let index = u32::try_from(action["index"].as_u64().unwrap()).unwrap();
         web.session_act(role, index).unwrap();
         native.act(index as usize).unwrap();
-        loop {
-            let Some(seat) = native.decision_seat() else {
-                break;
-            };
+        while let Some(seat) = native.decision_seat() {
             let current: Value = serde_json::from_str(&native.observe_json(seat)).unwrap();
             if current["forcedAction"].is_null() {
                 break;

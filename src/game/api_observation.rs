@@ -41,6 +41,10 @@ impl Game {
                 .collect(),
             opponent_hand_size: opponent.hand.len(),
             last_seen_hand: self.last_seen_hands[viewer.index()].clone(),
+            public_reveals: self.events.iter().filter_map(|event| match event {
+                GameEvent::CardRevealed { player, card, definition } => Some((*player, *card, *definition)),
+                _ => None,
+            }).collect(),
             library_sizes: [self.players[0].library.len(), self.players[1].library.len()],
             companions: self.observed_companions(viewer),
             revealed_library_top: self.observed_library_top(viewer, viewer),

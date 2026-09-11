@@ -376,3 +376,34 @@ fn game_action_programs_custom_effect_keeps_candidates_independent_of_chooser() 
     assert_eq!(game.players[1].hand.len(), 1);
     assert!(game.players[1].graveyard.is_empty());
 }
+
+#[test]
+fn game_action_programs_zone_moves_sequence_through_exact_successors() {
+    static ROUND_TRIP: [AbilityDef; 1] = [AbilityDef::triggered(
+        "Return after changing zones",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        actions::sequence(&[
+            actions::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Graveyard,
+                ZonePlacement::Top,
+            ),
+            actions::move_to_zone(
+                EffectRecipientDef::SourceZoneChangeSuccessor,
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+        ])
+        .as_effect(),
+    )];
+    let (mut game, source) = staged(&ROUND_TRIP);
+    let definition = game.battlefield[0].card.definition;
+    start(&mut game);
+    assert!(game.players[0].graveyard.is_empty());
+    assert_eq!(game.battlefield.len(), 1);
+    assert_eq!(game.battlefield[0].card.definition, definition);
+    assert_ne!(game.battlefield[0].card.id, source);
+}

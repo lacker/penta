@@ -129,3 +129,17 @@ const GAIN_CONTROL_OF_CHOSEN: GameActionDef = gain_control(
     PlayerRefDef::EffectController,
     ControlDurationDef::Indefinitely,
 );
+
+/// Move already identified objects, preserving their exact zone-scoped identity.
+#[must_use]
+pub const fn move_to_zone(
+    object: EffectRecipientDef,
+    zone: ZoneKind,
+    placement: crate::card::ZonePlacement,
+) -> GameActionDef {
+    GameActionDef::MoveToZone {
+        object,
+        zone,
+        placement,
+    }
+}

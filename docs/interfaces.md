@@ -37,8 +37,8 @@ triggered or combat-damage choices.
 `PlayerObservation` is the hidden-information-safe input for a player or bot.
 It contains that player's hand and only counts for an opponent's unrevealed
 hidden zones. Rules-driven disclosures can add the known, possibly stale
-`lastSeenHand` snapshot documented in the [bot guide](bots.md); they never
-expose cards the player has not learned. `GameEvent` is an omniscient debugging
+`lastSeenHand` snapshot and `publicReveals` history documented in the
+[bot guide](bots.md); they never expose cards the player has not learned. `GameEvent` is an omniscient debugging
 and replay stream; it must not be used as a player observation.
 
 Pending naming and scalar decisions use `PublicNotice`: the chooser receives

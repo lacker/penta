@@ -4,6 +4,7 @@ use crate::hosted::HostedGame;
 mod actions;
 mod autopass;
 mod draw_windows;
+mod hosted_concession;
 mod snapshots;
 
 fn assert_nested_card_art(card: &Value) {

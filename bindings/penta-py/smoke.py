@@ -218,4 +218,11 @@ else:
 assert saw_sideboard
 print("match: sideboarding and two game wins through the shared Python loop")
 
+# Explicit concessions preserve indexed actions and work outside priority.
+for seat, winner in [("p1", "p2"), ("p2", "p1")]:
+    game = penta.Game("Sligh", "The Deck", opponent="external", seed=3)
+    assert json.loads(game.observe(seat))["publicReveals"] == []
+    game.concede(seat)
+    assert json.loads(game.observe(seat))["result"]["winner"] == winner
+
 print("smoke test passed")

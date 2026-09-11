@@ -56,6 +56,7 @@ fn policy_observation(
         hand: Vec::new(),
         opponent_hand_size: 0,
         last_seen_hand: None,
+        public_reveals: Vec::new(),
         library_sizes: [50, 50],
         revealed_library_top: None,
         opponent_revealed_library_top: None,

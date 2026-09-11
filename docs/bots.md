@@ -212,7 +212,16 @@ play/draw happens before hands are revealed; the configured first seat chooses.
 A socket bot may send `{"t":"choose","decision":42,"options":[0,1]}`;
 HTTP bots send the same payload with `t:"botChoose"`. Use the actual IDs and
 bounds from the observation. Hosted WASM `chooseDecision(optionsJson)` and
-`replayConfigJson(configJson, historyJson)` preserve explicit selections.
+`replayConfigJson(configJson, historyJson)` preserve explicit selections and
+concessions. A socket bot sends `{"t":"concede"}`; an HTTP bot sends
+`{"t":"botConcede"}` to its authenticated command endpoint. Both concede only
+the bot's own seat, even when another seat holds priority. The browser WASM
+adapter exposes `opponentConcede()`. Hosted WASM exposes `concede("p1" | "p2")`
+and journals `{"concede":"p1"}` (or `p2`). Native `BotGame::concede(seat)`,
+Python `game.concede("p1")`, and C `penta_concede(game, 0)` provide the same
+explicit operation. Existing indexed actions and their order are unchanged.
+Concession is available during a game; between-game match decisions still
+require a valid match action.
 
 Match checkpoint reconstruction additionally requires
 `hidden.matchDecks[opponentIndex] = {"registered": {"main": [...], "sideboard": [...]},
@@ -503,6 +512,7 @@ world it can search.
 | `opponentHandSize` | their current hidden hand as a count; learned snapshots are reported separately in `lastSeenHand` |
 | `revealedLibraryTop` | null unless something lets you look at the top card of your own library, such as Bolas's Citadel; a one-card list in the same shape as `hand` when it does |
 | `opponentRevealedLibraryTop` | null unless your opponent is playing with the top card of their library revealed, such as under Courser of Kruphix; a one-card list in the same shape as `hand` when they are. Their own view of that card arrives in `revealedLibraryTop`, which reports whichever library belongs to the viewer |
+| `publicReveals` | ordered public reveal history as `{seat, objectId, definition}` entries; retained across later actions and checkpoint reconstruction, reset with a new game or restart. IDs describe objects at reveal time and do not track later hidden moves. An empty list means no recorded reveals, not an empty opponent hand |
 | `lastSeenHand` | null or the most recently revealed hand snapshot as `{seat, cards}`; it records known information and can outlive later hand changes |
 | `battlefield` | every permanent, including its current-zone object ID, authoritative tagged `characteristics`, and sparse `{name, count}` `counters`; catalog-backed cards retain definition/part IDs, while tokens and face-down objects carry their display characteristics inline. `token` records token status independently of copied values, and `hasIndividualState` tells compact presentation clients not to collapse an attachment or otherwise object-specific affected permanent with a lookalike. A physical double-faced permanent also reports `physicalFace`; a planeswalker reports `loyalty` and `loyaltyAbilityUsedThisTurn` |
 | `checkpoint` | the hidden-safe typed rules snapshot used by `Game.from_observation`, including its independent `version` and `simulationFingerprint`, deferred execution, dynamic objects, exact mana units, and reachable LKI; it never contains host RNG state or hidden-zone card identities |
@@ -735,7 +745,7 @@ Three things worth knowing:
   state of Magic, but it is strictly dominated for a bot — resigning can
   only lose a game that playing on might win — so it is not offered here at
   all. Picking blindly, by index or at random, makes a weak bot rather than
-  an instant loss. (Humans concede through the browser client, which reads
+  an instant loss. Explicit concession uses the separate operation above. (Humans concede through the browser client, which reads
   the engine's own action list.)
 
 - **Mana is handled for you.** If a `CastSpell` appears in `legalActions`,
@@ -1839,3 +1849,21 @@ a seat that can only see its own observation can still build worlds consistent
 with it and search them. The wire contract is still evolving before 1.0, so
 check the breaking epoch, negotiate required capabilities, and use the
 changelog to migrate.
+
+### Observation naming
+
+`enteredThisTurn` is the legacy name for the controller-turn marker used by
+summoning-sickness checks. It may remain true during the next opponent turn;
+it is not a statement that the permanent entered during the current global
+turn. Use `canAttack` and legal actions for permissions. During sideboarding,
+`Library` and `OutsideGame` describe registered main-deck and sideboard
+membership, not a shuffled library or its order.
+
+The additive capabilities `observation.public-reveals.v1` and
+`action.concede.v1` advertise public reveal history and explicit concessions.
+Neither changes the bot protocol epoch. Reveals are historical public facts;
+private looks, unrevealed draws, and hidden-zone hypotheses never create them.
+
+Browser/host replay version 3 adds the explicit `botConcede` command.
+Exact replay still requires both the recorded replay version and simulation
+fingerprint; an older engine must not interpret an unknown command as a choice.

@@ -29,6 +29,12 @@ pub enum GameActionDef {
     SacrificeYours {
         object: EffectRecipientDef,
     },
+    /// Move the exact named objects through the ordinary zone-change machinery.
+    MoveToZone {
+        object: EffectRecipientDef,
+        zone: ZoneKind,
+        placement: super::ZonePlacement,
+    },
     GainControl {
         object: EffectRecipientDef,
         controller: PlayerRefDef,

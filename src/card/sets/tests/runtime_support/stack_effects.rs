@@ -846,7 +846,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         } => shared_resolving_apply(recipient, effect, duration),
         // Only the moves the runtime actually performs are inside the
         // boundary. A move to the stack or command zone is still a seam.
-        EffectDef::MoveToZone { object, zone, .. } => {
+        EffectDef::Perform(crate::card::GameActionDef::MoveToZone { object, zone, .. }) | EffectDef::MoveToZone { object, zone, .. } => {
             matches!(
                 zone,
                 ZoneKind::Battlefield

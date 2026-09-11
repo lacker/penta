@@ -97,15 +97,14 @@ fn decision_player_tracks_pregame_priority_and_turn_based_choices() {
     pass_priority_pair(&mut game);
     pass_priority_pair(&mut game);
     pass_priority_pair(&mut game);
-    pass_priority_pair(&mut game);
     assert_eq!(game.observe(PlayerId::One).step, Step::DeclareAttackers);
     assert_eq!(game.decision_player(), Some(PlayerId::One));
 
     game.apply(PlayerId::One, Action::FinishDeclaringAttackers)
         .unwrap();
     pass_priority_pair(&mut game);
-    assert_eq!(game.observe(PlayerId::One).step, Step::DeclareBlockers);
-    assert_eq!(game.decision_player(), Some(PlayerId::Two));
+    assert_eq!(game.observe(PlayerId::One).step, Step::EndOfCombat);
+    assert_eq!(game.decision_player(), Some(PlayerId::One));
 
     game.apply(PlayerId::Two, Action::Concede).unwrap();
     assert_eq!(game.decision_player(), None);
@@ -138,8 +137,6 @@ fn activate_red_mana(game: &mut Game, player: PlayerId, source: penta::GameObjec
 
 fn advance_to_first_main(game: &mut Game) {
     assert_eq!(game.observe(PlayerId::One).step, Step::Upkeep);
-    pass_priority_pair(game);
-    assert_eq!(game.observe(PlayerId::One).step, Step::Draw);
     pass_priority_pair(game);
     assert_eq!(game.observe(PlayerId::One).step, Step::PrecombatMain);
 }
@@ -318,14 +315,14 @@ fn only_the_priority_player_can_take_game_actions() {
 }
 
 #[test]
-fn first_player_skips_the_first_draw() {
+fn first_player_skips_the_entire_first_draw_step() {
     let mut game = game_with_mountain_and_bolt();
     let initial_hand_size = game.observe(PlayerId::One).hand.len();
 
     pass_priority_pair(&mut game);
 
     let observation = game.observe(PlayerId::One);
-    assert_eq!(observation.step, Step::Draw);
+    assert_eq!(observation.step, Step::PrecombatMain);
     assert_eq!(observation.hand.len(), initial_hand_size);
 }
 

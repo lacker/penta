@@ -64,11 +64,12 @@ type Command =
   | { t: "phaseStop"; phase: string; enabled: boolean }
   | { t: "autopass"; enabled: boolean }
   | { t: "botAct"; index: number }
+  | { t: "botConcede" }
   | { t: "botChoose"; decision: number; options: number[] }
   | { t: "loseOnTime"; seat: "human" | "bot"; reason: string };
 
-/** The bot seat's one verb; everything else belongs to the human. */
-const BOT_COMMANDS = new Set(["botAct", "botChoose"]);
+/** Commands authorized for the bot seat; all others belong to the human. */
+const BOT_COMMANDS = new Set(["botAct", "botChoose", "botConcede"]);
 
 interface StoredGame {
   config: GameConfig;
@@ -204,6 +205,9 @@ function apply(game: WebGame, command: Command): void {
     case "botChoose":
       game.opponentChooseDecision(command.decision, JSON.stringify(command.options));
       break;
+    case "botConcede":
+      game.opponentConcede();
+      return;
     case "botAct":
       game.opponentAct(command.index);
       return;
@@ -696,7 +700,8 @@ export class GameRoom {
       const message = JSON.parse(String(data)) as { t: string; index: number; decision: number; options: number[] };
       if (message.t === "choose") await this.#apply(game, { t: "botChoose", decision: message.decision, options: message.options });
       else if (message.t === "act") await this.#apply(game, { t: "botAct", index: message.index });
-      else throw new Error("expected act or choose");
+      else if (message.t === "concede") await this.#apply(game, { t: "botConcede" });
+      else throw new Error("expected act, choose, or concede");
     } catch (cause) {
       this.#bot?.send(JSON.stringify({ t: "error", message: String(cause) }));
     }

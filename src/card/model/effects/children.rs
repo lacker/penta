@@ -177,6 +177,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Cascade
         | EffectDef::ExileTopOfLibraryToPlay { .. }
         | EffectDef::MayCastTargetWithoutPaying { .. }
+        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })
         | EffectDef::MoveToZone { .. }
         | EffectDef::RevealHand { .. }
         | EffectDef::RemoveFromCombat { .. }

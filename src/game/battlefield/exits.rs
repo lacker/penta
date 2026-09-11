@@ -10,28 +10,22 @@ use super::TriggerEventObject;
 use crate::{CharacteristicContext, card::ObjectPredicateDef};
 
 /// One permanent on its way off the battlefield, as the exit batch collects
-/// it: what it was, what had damaged it, where it is going, which counter it
-/// will bring it back, and which face it was showing.
+/// it: what it was, what had damaged it, and where it is going.
 type ExitingPermanent = (
     GameObjectId,
     super::BattlefieldExitSnapshot,
     Vec<GameObjectId>,
     BattlefieldExitDestination,
-    Option<CounterKind>,
-    CardPartId,
 );
 
 /// One permanent that has left the battlefield, with everything the events
 /// and the follow-up moves need to read about it: what it was as it left,
-/// what had damaged it, where it went, which counter brings it back, and which
-/// face it was presenting.
+/// what had damaged it, and where it went.
 type RemovedBattlefieldObject = (
     Permanent,
     BattlefieldExitSnapshot,
     Vec<GameObjectId>,
     BattlefieldExitDestination,
-    Option<CounterKind>,
-    CardPartId,
 );
 
 /// Where a leaving permanent's card is going, and what the replacement that
@@ -622,7 +616,7 @@ impl Game {
             .iter()
             .zip(after)
             .map(
-                |((_, snapshot, damage_sources, to, _, _), after)| {
+                |((_, snapshot, damage_sources, to), after)| {
                     CommittedTriggerEvent::ZoneChanged {
                     before: Some(snapshot.object.clone()),
                     after: after.clone(),
@@ -635,8 +629,8 @@ impl Game {
             .collect::<Vec<_>>();
         let died = removed
             .iter()
-            .filter(|(_, _, _, to, _, _)| to.zone == ZoneKind::Graveyard)
-            .map(|(_, snapshot, _, _, _, _)| snapshot.object.clone())
+            .filter(|(_, _, _, to)| to.zone == ZoneKind::Graveyard)
+            .map(|(_, snapshot, _, _)| snapshot.object.clone())
             .collect::<Vec<_>>();
         if !died.is_empty() {
             events.push(CommittedTriggerEvent::ObjectsDied { objects: died });
@@ -645,12 +639,12 @@ impl Game {
     }
 
     fn record_exits_for_the_turn(&mut self, exits: &[ExitingPermanent]) {
-        for (_, snapshot, _, _, _, _) in exits {
+        for (_, snapshot, _, _) in exits {
             self.permanent_left_battlefield_this_turn[snapshot.object.controller.index()] = true;
         }
         let died = exits
             .iter()
-            .filter(|(_, snapshot, _, destination, _, _)| {
+            .filter(|(_, snapshot, _, destination)| {
                 destination.zone == ZoneKind::Graveyard && snapshot.object.types.is_creature()
             })
             .count();
@@ -668,7 +662,7 @@ impl Game {
     ) -> Vec<Option<TriggerEventObject>> {
         let mut after = Vec::with_capacity(removed.len());
         let mut library_arrivals = Vec::new();
-        for (permanent, _, _, to, _, _) in removed {
+        for (permanent, _, _, to) in removed {
             let exit = match to.zone {
                 ZoneKind::Exile => BattlefieldExit::Exile,
                 ZoneKind::Graveyard => BattlefieldExit::Graveyard,
@@ -776,21 +770,19 @@ impl Game {
                                 placement: proposed.placement,
                                 counters: proposed.counters,
                             },
-                            self.returns_from_death_with(permanent),
-                            permanent.presented,
                         )
                     })
             })
             .collect::<Vec<_>>();
         let moved_to_graveyard = exits
             .iter()
-            .filter(|(_, _, _, destination, _, _)| destination.zone == ZoneKind::Graveyard)
-            .map(|(object, _, _, _, _, _)| *object)
+            .filter(|(_, _, _, destination)| destination.zone == ZoneKind::Graveyard)
+            .map(|(object, _, _, _)| *object)
             .collect::<Vec<_>>();
 
         self.record_exits_for_the_turn(&exits);
         let mut removed = Vec::new();
-        for (id, snapshot, damage_sources, destination, returns_with, presented) in exits {
+        for (id, snapshot, damage_sources, destination) in exits {
             let index = self
                 .battlefield
                 .iter()
@@ -802,8 +794,6 @@ impl Game {
                 snapshot,
                 damage_sources,
                 destination,
-                returns_with,
-                presented,
             ));
         }
 
@@ -814,7 +804,7 @@ impl Game {
         let after = self.install_battlefield_exit_destinations(&removed);
 
         let events = Self::battlefield_exit_events(&removed, &after);
-        for (((_, _, _, destination, _, _), after), event) in
+        for (((_, _, _, destination), after), event) in
             removed.iter().zip(&after).zip(&events)
         {
             if destination.zone == ZoneKind::Graveyard
@@ -829,20 +819,6 @@ impl Game {
             }
         }
         self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
-
-        for (permanent, _, _, to, returns_with, presented) in removed {
-            // Undying observes the creature as it died, then returns the card
-            // from the graveyard as a fresh object under its owner's control.
-            if to.zone == ZoneKind::Graveyard
-                && let Some(counter) = returns_with
-            {
-                self.return_top_graveyard_card_with_counter(
-                    permanent.card.owner,
-                    presented,
-                    counter,
-                );
-            }
-        }
 
         if let Some(completion) = completion {
             self.resume_battlefield_exit_completion(*completion, &moved_to_graveyard);

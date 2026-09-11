@@ -20,6 +20,22 @@ the bot-wire epoch.
 
 ## Unreleased
 
+- Undying and persist use respondable death triggers and a shared zone-move
+  action program bound to the exact graveyard object. Both trigger when present;
+  later zone changes cannot redirect a return to another card.
+- Skip the starting player's entire first draw step. Skip blockers and combat
+  damage only when combat never had a declared or entering attacker; preserve
+  that fact through checkpoint reconstruction.
+- Add cumulative `publicReveals` to canonical observations and reconstruction.
+  This is historical public information, without private card tracking.
+- Add explicit native, Python, C, hosted WASM, and authenticated external-bot
+  concessions. Indexed actions stay unchanged; hosted/browser journals record
+  concessions for replay. Advertise `observation.public-reveals.v1` and
+  `action.concede.v1`; protocol and checkpoint epochs remain unchanged.
+  Browser/host replay version 3 adds the `botConcede` command; regenerate old
+  replay artifacts with their original build before migrating.
+
+
 - Native Rust set identities now live at `card::sets::<module>::SET`, replacing
   the global `CardSet` enum variants (for example, `CardSet::Alpha` becomes
   `card::sets::alpha::SET`). `CardSet` is a compact reference to static

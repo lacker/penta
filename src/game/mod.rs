@@ -618,6 +618,7 @@ pub struct Game {
     consecutive_passes: u8,
     step: Step,
     attackers_declared: bool,
+    combat_had_attackers: bool,
     /// Whether a creature has died so far this turn, for morbid. Cleared as a
     /// turn begins rather than in cleanup, so a morbid spell cast during the
     /// end step still sees the creature that died in combat.

@@ -205,16 +205,20 @@ impl Game {
         }
 
         match self.step {
+            Step::Upkeep if self.turn == 1 && self.active_player == self.starting_player => {
+                // CR 103.8a skips the entire first draw step, including triggers and priority.
+                if self.advance_after_turn_phase(TurnPhaseResume::Step(Step::PrecombatMain)) {
+                    return;
+                }
+            }
             Step::Upkeep => {
                 self.step = Step::Draw;
                 self.draw_step_draw_taken[self.active_player.index()] = false;
-                if !(self.turn == 1 && self.active_player == self.starting_player) {
-                    self.draw_instruction(self.active_player, 1);
-                    if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
-                        self.pending_procedures
-                            .push_back(PendingProcedure::FinishStepAdvance);
-                        return;
-                    }
+                self.draw_instruction(self.active_player, 1);
+                if !self.pending_decisions.is_empty() || !self.pending_events.is_empty() {
+                    self.pending_procedures
+                        .push_back(PendingProcedure::FinishStepAdvance);
+                    return;
                 }
             }
             Step::Draw => {
@@ -232,7 +236,11 @@ impl Game {
                 self.attackers_declared = false;
             }
             Step::DeclareAttackers => {
-                self.step = Step::DeclareBlockers;
+                self.step = if self.combat_had_attackers {
+                    Step::DeclareBlockers
+                } else {
+                    Step::EndOfCombat
+                };
                 self.blockers_declared = false;
             }
             Step::DeclareBlockers => {
@@ -713,6 +721,7 @@ impl Game {
     }
 
     pub(super) fn clear_combat(&mut self) {
+        self.combat_had_attackers = false;
         for permanent in &mut self.battlefield {
             permanent.attacking = false;
             permanent.attacking_band = None;

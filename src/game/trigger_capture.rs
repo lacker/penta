@@ -409,6 +409,24 @@ impl Game {
                         Self::ability_resolver(effective.origin, &ability),
                         true,
                     ),
+                    DeclarativeAbilityDef::Keyword(
+                        keyword @ (KeywordAbility::Undying | KeywordAbility::Persist),
+                    ) => {
+                        let expanded = match keyword {
+                            KeywordAbility::Undying => &abilities::UNDYING_TRIGGER,
+                            _ => &abilities::PERSIST_TRIGGER,
+                        };
+                        let DeclarativeAbilityDef::Triggered(definition) = expanded.definition
+                        else {
+                            unreachable!("death-return keywords expand to triggers")
+                        };
+                        (
+                            definition,
+                            expanded.declarative_effect().unwrap_or(EffectDef::None),
+                            Self::ability_resolver(effective.origin, expanded),
+                            true,
+                        )
+                    }
                     DeclarativeAbilityDef::Keyword(KeywordAbility::Flanking) => {
                         let expanded = abilities::flanking_trigger();
                         let DeclarativeAbilityDef::Triggered(definition) = expanded.definition

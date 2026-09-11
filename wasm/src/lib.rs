@@ -44,7 +44,7 @@ const BOT_ACTION_LIMIT: usize = 50_000;
 /// Version of the browser/host command-journal envelope. Changes to command
 /// encoding or interpretation move this independently from the bot wire and
 /// core simulation fingerprint.
-const REPLAY_VERSION: u32 = 2;
+const REPLAY_VERSION: u32 = 3;
 
 /// What a host says when its clock simply expired. Journaled verbatim like
 /// any other reason, and recognised here so that the ordinary ending keeps
@@ -605,6 +605,22 @@ impl WebGame {
         Ok(())
     }
 
+    /// Accept an external opponent's voluntary concession, regardless of priority.
+    /// # Errors
+    /// Rejects non-external opponents or an unavailable concession.
+    #[wasm_bindgen(js_name = opponentConcede)]
+    pub fn opponent_concede(&mut self) -> Result<(), JsValue> {
+        if !matches!(self.bot, BotPolicy::External) {
+            return Err(js_error("the opponent is not external"));
+        }
+        let opponent = self.human.opponent();
+        let observation = self.session.observe(opponent);
+        self.apply_advancing_action(opponent, &observation, Action::Concede)?;
+        self.advance_until_human_choice()?;
+        self.journal.push(json!({ "t": "botConcede" }));
+        Ok(())
+    }
+
     /// Answers an external seat's decision, including private sideboarding.
     /// # Errors
     /// Rejects a stale decision, invalid selection, or a seat without control.
@@ -799,6 +815,7 @@ impl WebGame {
                 required_json_u32(command, "command", "decision")?,
                 &command["options"].to_string(),
             ),
+            "botConcede" => self.opponent_concede(),
             "botAct" => self.opponent_act(required_json_u32(command, "command", "index")?),
             "loseOnTime" => {
                 let seat = required_json_string(command, "command", "seat")?;

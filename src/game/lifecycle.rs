@@ -248,6 +248,7 @@ impl Game {
             consecutive_passes: 0,
             step: Step::Upkeep,
             attackers_declared: false,
+            combat_had_attackers: false,
             creature_died_this_turn: false,
             creatures_died_this_turn: 0,
             lost_life_this_turn: [false; 2],

@@ -444,6 +444,11 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
             crate::card::GameActionDef::Sacrifice { object }
             | crate::card::GameActionDef::DiscardCards { object },
         )
+        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+            object,
+            zone: ZoneKind::Graveyard | ZoneKind::Exile,
+            ..
+        })
         | EffectDef::MoveToZone {
             object,
             zone: ZoneKind::Graveyard | ZoneKind::Exile,

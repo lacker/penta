@@ -247,6 +247,7 @@ impl Game {
             consecutive_passes: checkpoint.consecutive_passes,
             step: parse_step(str_field(observation, "step")?)?,
             attackers_declared: checkpoint.attackers_declared,
+            combat_had_attackers: checkpoint.combat_had_attackers,
             creature_died_this_turn: checkpoint.creature_died_this_turn,
             creatures_died_this_turn: checkpoint.creatures_died_this_turn,
             damage_cannot_be_prevented_this_turn: checkpoint.damage_cannot_be_prevented_this_turn,
@@ -397,6 +398,19 @@ impl Game {
         )?
         .into_iter()
         .collect();
+        if let Some(reveals) = observation.get("publicReveals") {
+            for reveal in array(reveals)? {
+                let definition = card_definition_id_field(reveal, "definition")?;
+                if game.catalog.get(definition).is_none() {
+                    return Err("public reveal names an unknown card definition".into());
+                }
+                game.events.push(GameEvent::CardRevealed {
+                    player: seat_value(field(reveal, "seat")?)?,
+                    card: GameObjectId(u32_field(reveal, "objectId")?),
+                    definition,
+                });
+            }
+        }
         game.last_seen_hands[viewer.index()] =
             parse_last_seen_hand(observation.get("lastSeenHand"))?;
         if game.pending_decisions.iter().any(|decision| {

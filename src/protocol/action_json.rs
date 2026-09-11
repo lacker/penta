@@ -229,13 +229,10 @@ pub fn action_json(action: &Action) -> Value {
 ///
 /// Two differences from [`PlayerObservation::legal_actions`]:
 ///
-/// Conceding is dropped. It is legal in every state, and for a bot it is
-/// strictly dominated — resigning can only lose a game that playing on might
-/// win — so both built-in policies already refuse it and no rational bot
-/// would pick it. Leaving it in made uniform-random exploration resign on
-/// turn one, which is a poor action space for the audience this protocol is
-/// for. Humans still concede through the browser, which reads the engine's
-/// list directly.
+/// Conceding is omitted from indexed choices so random exploration does not
+/// resign incidentally and existing indices remain stable. Bot callers can
+/// deliberately resign through [`super::BotGame::concede`]; browser callers
+/// can also use the engine's action list directly.
 ///
 /// Pending decisions are expanded. The engine lists one template action with
 /// empty `options`, expecting the caller to fill in ids from the decision

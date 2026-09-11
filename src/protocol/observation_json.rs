@@ -291,6 +291,9 @@ pub fn observation_json_for_format(
             "seat": seat_name(*player),
             "cards": card_list_json(catalog, cards),
         })),
+        "publicReveals": observation.public_reveals.iter().map(|(player, card, definition)| json!({
+            "seat": seat_name(*player), "objectId": card.0, "definition": definition,
+        })).collect::<Vec<_>>(),
         "librarySizes": observation.library_sizes,
         "revealedLibraryTop": observation
             .revealed_library_top

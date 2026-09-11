@@ -115,6 +115,7 @@ impl Game {
             .filter(|permanent| permanent.controller == self.active_player && permanent.attacking)
             .map(|permanent| permanent.card.id)
             .collect::<Vec<_>>();
+        self.combat_had_attackers |= !attackers.is_empty();
         if attackers.is_empty() {
             return;
         }

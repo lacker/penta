@@ -56,6 +56,8 @@ fn undying_returns_the_creature_once_with_a_counter() {
         .push(creature(10_001, cards::STRANGLEROOT_GEIST, PlayerId::One));
 
     game.destroy_permanent(CardInstanceId(10_001));
+    game.finish_rules_procedure();
+    pass_until_decision(&mut game);
 
     assert_eq!(
         game.battlefield.len(),
@@ -94,6 +96,8 @@ fn undying_returns_it_to_its_owner_not_whoever_killed_it() {
     game.battlefield.push(geist);
 
     game.destroy_permanent(CardInstanceId(10_001));
+    game.finish_rules_procedure();
+    pass_until_decision(&mut game);
 
     assert_eq!(
         game.battlefield[0].controller,
@@ -117,6 +121,8 @@ fn undying_return_finishes_entry_replacements_before_publishing_entry_triggers()
     let event_start = game.events().len();
 
     game.destroy_permanent(CardInstanceId(10_002));
+    game.finish_rules_procedure();
+    pass_until_decision(&mut game);
 
     let order = game
         .observe(PlayerId::One)
@@ -136,8 +142,8 @@ fn undying_return_finishes_entry_replacements_before_publishing_entry_triggers()
                 definition: cards::AUGUR_OF_BOLAS,
                 ..
             },
-            ..
-        }
+            source, ..
+        } if *source != GameObjectId(10_002)
     )));
 
     game.apply(
@@ -186,6 +192,8 @@ fn a_plus_one_counter_boosts_stats_whatever_put_it_there() {
     game.battlefield
         .push(creature(10_001, cards::STRANGLEROOT_GEIST, PlayerId::One));
     game.destroy_permanent(CardInstanceId(10_001));
+    game.finish_rules_procedure();
+    pass_until_decision(&mut game);
 
     let returned = &game.battlefield[0];
     assert_eq!(game.power(returned), Some(3), "2/1 plus a counter is 3/2");

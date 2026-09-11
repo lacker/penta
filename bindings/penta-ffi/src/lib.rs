@@ -316,6 +316,29 @@ pub unsafe extern "C" fn penta_act(game: *mut BotGame, action_index: u32) -> i32
     }
 }
 
+/// Concede the current game as seat 0 or 1. Returns 0 on success, -1 on error.
+///
+/// # Safety
+/// `game` must be a live pointer from [`penta_new`].
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn penta_concede(game: *mut BotGame, seat: i32) -> i32 {
+    let Some(game) = (unsafe { game.as_mut() }) else {
+        set_error("game is null");
+        return -1;
+    };
+    let Some(seat) = seat_from_code(seat) else {
+        set_error("seat must be 0 (p1) or 1 (p2)");
+        return -1;
+    };
+    match game.concede(seat) {
+        Ok(()) => 0,
+        Err(message) => {
+            set_error(&message);
+            -1
+        }
+    }
+}
+
 /// Answers a pending decision with explicit option ids, for multi-pick
 /// decisions where the default expansion in `legalActions` is not wanted.
 /// Returns 0 on success, -1 on error (see [`penta_last_error`]).

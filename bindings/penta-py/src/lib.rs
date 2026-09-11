@@ -203,6 +203,13 @@ impl Game {
         self.inner.act(action_index).map_err(PyValueError::new_err)
     }
 
+    /// Concede the current game as p1 or p2, independently of priority.
+    fn concede(&mut self, seat: &str) -> PyResult<()> {
+        self.inner
+            .concede(seat_from_name(seat)?)
+            .map_err(PyValueError::new_err)
+    }
+
     /// Answers a pending decision with explicit option ids, for multi-pick
     /// decisions where the default expansion in `legalActions` is not what
     /// you want. The observation's `decision` object lists the options.

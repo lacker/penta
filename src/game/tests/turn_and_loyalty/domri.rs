@@ -53,6 +53,10 @@ fn domri_plus_one_filters_reveals_and_preserves_a_declined_or_ineligible_top_car
         }
     )));
 
+    let revealed = taken.observe(PlayerId::Two).public_reveals;
+    assert!(revealed.iter().any(|(owner, _, definition)|
+        *owner == PlayerId::One && *definition == cards::SAVANNAH_LIONS));
+
     let (mut declined, domri) = setup(cards::SAVANNAH_LIONS);
     activate_domri_plus_one(&mut declined, domri);
     let decision = declined.observe(PlayerId::One).decision.unwrap();
@@ -65,6 +69,7 @@ fn domri_plus_one_filters_reveals_and_preserves_a_declined_or_ineligible_top_car
             },
         )
         .unwrap();
+    assert!(declined.observe(PlayerId::Two).public_reveals.is_empty());
     assert_eq!(
         declined.players[0].library.last().unwrap().definition,
         cards::SAVANNAH_LIONS

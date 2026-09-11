@@ -256,6 +256,7 @@ impl Game {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
+            | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })
             | EffectDef::MoveToZone { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }

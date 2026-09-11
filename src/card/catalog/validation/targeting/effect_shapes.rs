@@ -446,7 +446,7 @@ fn validate_effect_target_shapes(
         | EffectDef::Endure { object, .. }
         | EffectDef::ChooseCounterKind { object, .. }
         | EffectDef::ModifyCounters { object, .. }
-        | EffectDef::MoveToZone { object, .. } => {
+        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { object, .. }) | EffectDef::MoveToZone { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
         EffectDef::CopyStackObject(copy) => {

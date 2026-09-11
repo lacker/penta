@@ -811,6 +811,15 @@ pub(super) fn child_abilities(ability: &AbilityDef) -> Vec<&AbilityDef> {
     ) {
         children.push(&crate::card::abilities::REBOUND_OFFER);
     }
+    match ability.definition {
+        DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Undying) => {
+            children.push(&crate::card::abilities::UNDYING_TRIGGER)
+        }
+        DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Persist) => {
+            children.push(&crate::card::abilities::PERSIST_TRIGGER)
+        }
+        _ => {}
+    }
     match ability.effect.definition {
         AbilityProgramDef::Effects(effect) => collect_effect_abilities(effect, &mut children),
         AbilityProgramDef::Replacement(effect) => {

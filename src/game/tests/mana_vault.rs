@@ -152,6 +152,7 @@ fn multiple_upkeep_choices_do_not_reuse_stale_mana() {
 #[test]
 fn tapped_vault_deals_one_at_the_draw_step() {
     let mut game = ready_game();
+    game.turn = 2; // The starting player skips the first turn's entire draw step.
     let mut vault = creature(10_000, cards::MANA_VAULT, PlayerId::One);
     vault.tapped = true;
     game.battlefield.push(vault);
@@ -172,6 +173,7 @@ fn tapped_vault_deals_one_at_the_draw_step() {
 #[test]
 fn untapping_in_upkeep_prevents_the_draw_step_damage_trigger() {
     let mut game = ready_game();
+    game.turn = 2; // The starting player skips the first turn's entire draw step.
     let mut vault = creature(10_000, cards::MANA_VAULT, PlayerId::One);
     vault.tapped = true;
     game.battlefield.push(vault);
@@ -252,6 +254,7 @@ fn untap_restriction_wins_over_smokes_choice_procedure() {
 #[test]
 fn draw_trigger_checks_tapped_both_times() {
     let mut game = ready_game();
+    game.turn = 2; // The starting player skips the first turn's entire draw step.
     let mut vault = creature(10_000, cards::MANA_VAULT, PlayerId::One);
     vault.tapped = true;
     game.battlefield.push(vault);
@@ -281,6 +284,7 @@ fn draw_trigger_checks_tapped_both_times() {
 #[test]
 fn draw_trigger_uses_last_known_tapped_status() {
     let mut game = ready_game();
+    game.turn = 2; // The starting player skips the first turn's entire draw step.
     let mut vault = creature(10_000, cards::MANA_VAULT, PlayerId::One);
     vault.tapped = true;
     let vault_id = vault.card.id;
@@ -305,6 +309,7 @@ fn draw_trigger_uses_last_known_tapped_status() {
 #[test]
 fn tapping_it_makes_three_and_buys_the_draw_step_damage() {
     let mut game = ready_game();
+    game.turn = 2; // The starting player skips the first turn's entire draw step.
     let vault = game
         .put_onto_battlefield(PlayerId::One, cards::MANA_VAULT)
         .expect("cataloged");

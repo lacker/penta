@@ -29,6 +29,7 @@ pub(in crate::game::state_checkpoint) struct GameSnapshot {
     pub(in crate::game::state_checkpoint) next_continuous_effect_timestamp: u64,
     pub(in crate::game::state_checkpoint) consecutive_passes: u8,
     pub(in crate::game::state_checkpoint) attackers_declared: bool,
+    pub(in crate::game::state_checkpoint) combat_had_attackers: bool,
     pub(in crate::game::state_checkpoint) blockers_declared: bool,
     pub(in crate::game::state_checkpoint) untap_pending: bool,
     pub(in crate::game::state_checkpoint) cleanup_pending: bool,

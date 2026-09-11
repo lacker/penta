@@ -96,11 +96,27 @@ impl HostedGame {
         for command in commands {
             if let Some(index) = command.as_u64().and_then(|index| u32::try_from(index).ok()) {
                 game.act(index)?;
+            } else if let Some(seat) = command["concede"].as_str() {
+                game.concede(seat)?;
             } else {
                 game.choose_decision(&command["options"].to_string())?;
             }
         }
         Ok(game)
+    }
+
+    /// Concede as p1 or p2, regardless of which seat holds priority.
+    /// # Errors
+    /// Rejects an invalid seat or an unavailable concession.
+    pub fn concede(&mut self, seat: &str) -> Result<(), JsValue> {
+        let player = match seat {
+            "p1" => PlayerId::One,
+            "p2" => PlayerId::Two,
+            _ => return Err(js_error("seat must be p1 or p2")),
+        };
+        self.game.concede(player).map_err(js_error)?;
+        self.history.push(serde_json::json!({"concede": seat}));
+        Ok(())
     }
 
     /// Supplies the deciding seat's explicit option IDs.

@@ -772,3 +772,25 @@ fn optional_single_choices_expose_decline_and_each_acceptance_by_index() {
         ]
     );
 }
+
+#[test]
+fn explicit_concession_does_not_require_priority_or_change_action_indices() {
+    for loser in [PlayerId::One, PlayerId::Two] {
+        let mut game =
+            BotGame::new("Sligh", "Goblins", Opponent::External, PlayerId::Two, 9).unwrap();
+        let seat = game.decision_seat().unwrap();
+        let before: Value = serde_json::from_str(&game.observe_json(seat)).unwrap();
+        assert!(
+            before["legalActions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|action| action["type"] != "Concede")
+        );
+        game.concede(loser).unwrap();
+        assert!(
+            matches!(game.result(), Some(GameResult::Winner { winner: player, reason: crate::WinReason::OpponentConceded }) if player == loser.opponent())
+        );
+        assert!(game.concede(loser).is_err());
+    }
+}

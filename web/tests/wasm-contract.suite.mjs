@@ -467,3 +467,20 @@ test("the Random setup choice is a placeholder, never a deck name", async () => 
   const game = new WebGame("Goblins", "Goblins", "Handcrafted", true, 1);
   game.free();
 });
+
+
+test("external concession is explicit, seat safe, and replayable", async () => {
+  await initializeWasm();
+  const game = new WebGame("The Deck", "Goblins", "External", true, 23);
+  let replay;
+  try {
+    const before = JSON.parse(game.opponentObserveJson());
+    assert.deepEqual(before.publicReveals, []);
+    assert.ok(before.legalActions.every(action => action.type !== "Concede"));
+    game.opponentConcede();
+    const record = game.replayJson();
+    assert.ok(JSON.parse(record).commands.some(command => command.t === "botConcede"));
+    replay = WebGame.fromReplayJson(record);
+    assert.deepEqual(JSON.parse(replay.opponentObserveJson()), JSON.parse(game.opponentObserveJson()));
+  } finally { replay?.free(); game.free(); }
+});

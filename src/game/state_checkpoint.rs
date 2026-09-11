@@ -529,6 +529,7 @@ impl Game {
             next_continuous_effect_timestamp: self.next_continuous_effect_timestamp,
             consecutive_passes: self.consecutive_passes,
             attackers_declared: self.attackers_declared,
+            combat_had_attackers: self.combat_had_attackers,
             blockers_declared: self.blockers_declared,
             untap_pending: self.untap_pending,
             cleanup_pending: self.cleanup_pending,

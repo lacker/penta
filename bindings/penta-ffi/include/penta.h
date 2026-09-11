@@ -96,6 +96,9 @@ char *penta_observe_json(const PentaGame *game, int32_t seat);
  * on success, -1 on error. */
 int32_t penta_act(PentaGame *game, uint32_t action_index);
 
+/* Concede the current game as seat 0 or 1, regardless of priority. */
+int32_t penta_concede(PentaGame *game, int32_t seat);
+
 /* Answers a pending decision with explicit option ids (from the
  * observation's "decision" object), for multi-pick decisions where the
  * default in legalActions is not wanted. 0 on success, -1 on error. */

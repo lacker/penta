@@ -152,7 +152,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::PutOntoBattlefieldThen { .. } => "PutOntoBattlefieldThen",
         EffectDef::Transform { .. } => "Transform",
         EffectDef::PutIntoLibraryBeneathTop { .. } => "PutIntoLibraryBeneathTop",
-        EffectDef::MoveToZone { .. } => "MoveToZone",
+        EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. }) | EffectDef::MoveToZone { .. } => "MoveToZone",
         EffectDef::WithBattlefieldArrival { .. } => "WithBattlefieldArrival",
         EffectDef::WithZoneMoveResult { .. } => "WithZoneMoveResult",
         EffectDef::ConditionalStatic(_) => "ConditionalStatic",

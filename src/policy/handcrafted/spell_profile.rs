@@ -475,7 +475,12 @@ impl HandcraftedPolicy {
             }
             // Returning a spell is not a counter, but it answers one the
             // same way, so the policy weighs it as one.
-            EffectDef::MoveToZone {
+            EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+                object,
+                zone: ZoneKind::Hand,
+                ..
+            })
+            | EffectDef::MoveToZone {
                 object,
                 zone: ZoneKind::Hand,
                 ..
@@ -621,6 +626,7 @@ impl HandcraftedPolicy {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
+            | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })
             | EffectDef::MoveToZone { .. }
             | EffectDef::Attach { .. }
             | EffectDef::AttachToSource { .. }

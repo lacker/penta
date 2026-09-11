@@ -944,3 +944,5 @@ use old_school_spells::game_with_test_fused_split;
 use search_and_reveal::stack_library;
 
 pub(in crate::game) mod composed_mechanic_programs;
+
+mod playtest_regressions;

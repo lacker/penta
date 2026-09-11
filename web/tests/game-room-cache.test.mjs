@@ -71,6 +71,11 @@ class TestWebGame {
     this.opponentDeciding = true;
   }
 
+  opponentConcede() {
+    this.state = { ...this.state, result: { loser: "bot", reason: "OpponentConceded" } };
+    this.opponentDeciding = false;
+  }
+
   opponentAct() {
     this.state = structuredClone(SAFE_AFTER_DECLINE);
     this.opponentDeciding = false;
@@ -268,4 +273,26 @@ test("tournament rooms persist bot sideboard selections without a move clock", a
   const reloaded = new GameRoom(durableState(storage));
   const state = await (await reloaded.fetch(request("state", { token: started.humanToken }))).json();
   assert.equal(state.view, "safe-after-decline");
+});
+
+
+test("only the authenticated bot can submit a replayed bot concession", async () => {
+  const storage = new MemoryStorage();
+  const room = new GameRoom(durableState(storage));
+  const started = await (await room.fetch(request("start", { body: {
+    humanDeck: "human deck", botDeck: "bot deck", botPolicy: "external", humanFirst: true, seed: 7,
+  } }))).json();
+  const refused = await room.fetch(request("command", {
+    token: started.humanToken, body: { t: "botConcede" },
+  }));
+  assert.equal(refused.status, 403);
+  const accepted = await room.fetch(request("command", {
+    token: started.botToken, body: { t: "botConcede" },
+  }));
+  assert.equal(accepted.status, 200);
+  const record = await (await room.fetch(request("record", { token: started.humanToken }))).json();
+  assert.deepEqual(record.commands, [{ t: "botConcede" }]);
+  const restored = new GameRoom(durableState(storage));
+  const view = await (await restored.fetch(request("state", { token: started.humanToken }))).json();
+  assert.equal(view.result.loser, "bot");
 });

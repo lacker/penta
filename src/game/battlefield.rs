@@ -3,16 +3,15 @@ use std::borrow::Cow;
 use super::{
     AbilitySourceRef, ApplicableZoneMoveReplacement, AppliedRuleDef, BattlefieldArrival,
     BattlefieldExit, BattlefieldExitCause, BattlefieldExitCompletion,
-    BattlefieldExitReplacementAction, BattlefieldExitSnapshot, CardInstance, CardPartId,
-    CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption,
-    DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone,
-    DeclarativeAbilityDef, EffectDef, EffectResolutionContext, EntryCompletion,
+    BattlefieldExitReplacementAction, BattlefieldExitSnapshot, CardInstance, CommittedTriggerEvent,
+    CounterKind, DecisionContinuation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
+    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, EffectResolutionContext,
     FrozenZoneMoveReplacement, Game, GameEvent, GameObjectId, KeywordAbility, ObjectInstance,
-    PendingBattlefieldEntry, PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent,
-    PlayerId, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedAbilityOperation, ResolvedContinuousEffectKind, RetiredObject,
-    ScopedEffect, StackObject, StackObjectKind, Step, Target, TriggerContext, ZoneKind,
-    ZoneMoveCauseDef, ZonePlacement, remove_card,
+    PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent, PlayerId,
+    ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedAbilityOperation, ResolvedContinuousEffectKind, RetiredObject, ScopedEffect,
+    StackObject, StackObjectKind, Step, Target, TriggerContext, ZoneKind, ZoneMoveCauseDef,
+    ZonePlacement, remove_card,
 };
 use crate::Binding;
 
@@ -476,33 +475,6 @@ impl Game {
             moves,
             replacements,
             completion: completion.map(Box::new),
-        });
-    }
-
-    /// Undying and persist both bring the card straight back with one
-    /// counter on it; which counter is the whole of the difference.
-    pub(super) fn return_top_graveyard_card_with_counter(
-        &mut self,
-        owner: PlayerId,
-        presented: CardPartId,
-        counter: CounterKind,
-    ) {
-        let Some(card) = self.players[owner.index()].graveyard.pop() else {
-            return;
-        };
-        let mut permanent = Permanent::entering(
-            card,
-            presented,
-            owner,
-            self.turns_started[owner.index()],
-            self.turn,
-        );
-        permanent.add_counters(counter, 1);
-        self.enqueue_battlefield_entry(PendingBattlefieldEntry {
-            permanent,
-            from: ZoneKind::Graveyard,
-            completion: EntryCompletion::None,
-            redirected_to: None,
         });
     }
 

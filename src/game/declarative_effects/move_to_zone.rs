@@ -56,7 +56,7 @@ pub(super) struct MoveToZoneClause {
 }
 
 impl Game {
-    pub(super) fn resolve_move_to_zone_effect(
+    pub(in crate::game) fn resolve_move_to_zone_effect(
         &mut self,
         effect: EffectDef,
         object: &StackObject,
@@ -64,23 +64,21 @@ impl Game {
         scoped: ScopedEffect,
     ) {
         let (move_effect, arrival) = match effect {
-            effect @ EffectDef::MoveToZone { .. } => (effect, BattlefieldArrivalDef::DEFAULT),
-            EffectDef::WithBattlefieldArrival {
-                effect: move_effect @ &EffectDef::MoveToZone { .. },
-                arrival,
-            } => (*move_effect, arrival),
-            EffectDef::WithBattlefieldArrival { .. } => {
-                unreachable!("battlefield arrival must wrap a zone move")
-            }
-            _ => unreachable!("move-to-zone resolver received another effect"),
+            EffectDef::WithBattlefieldArrival { effect, arrival } => (*effect, arrival),
+            effect => (effect, BattlefieldArrivalDef::DEFAULT),
         };
-        let EffectDef::MoveToZone {
+        let (EffectDef::MoveToZone {
             object: recipient,
             zone,
             placement,
-        } = move_effect
+        }
+        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+            object: recipient,
+            zone,
+            placement,
+        })) = move_effect
         else {
-            unreachable!("move effect was checked above")
+            unreachable!("battlefield arrival must wrap a zone move")
         };
         self.resolve_move_to_zone(
             MoveToZoneClause {
@@ -110,11 +108,19 @@ impl Game {
         let move_recipient = match effect {
             EffectDef::MoveToZone {
                 object: recipient, ..
-            } => Some(*recipient),
+            }
+            | EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+                object: recipient,
+                ..
+            }) => Some(*recipient),
             EffectDef::WithBattlefieldArrival { effect: inner, .. } => match **inner {
                 EffectDef::MoveToZone {
                     object: recipient, ..
-                } => Some(recipient),
+                }
+                | EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+                    object: recipient,
+                    ..
+                }) => Some(recipient),
                 _ => unreachable!("battlefield arrival must wrap a zone move"),
             },
             _ => None,

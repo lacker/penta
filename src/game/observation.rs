@@ -302,6 +302,9 @@ pub struct PlayerObservation {
     pub hand: Vec<(GameObjectId, CardDefinitionId)>,
     pub opponent_hand_size: usize,
     pub last_seen_hand: Option<(PlayerId, Vec<(GameObjectId, CardDefinitionId)>)>,
+    /// Public reveal history for this game, in event order: owner, object at
+    /// reveal time, and printed identity. Historical IDs never follow hidden moves.
+    pub public_reveals: Vec<(PlayerId, GameObjectId, CardDefinitionId)>,
     pub library_sizes: [usize; 2],
     /// The top card of the viewer's own library, when something lets them
     /// look at it. `None` in the ordinary game, where a library is face

@@ -104,7 +104,7 @@ not require a new semantic action constructor.
 `Choose(GameActionChoiceDef)` contains the chooser, candidate query, count,
 visibility, binding, and action to perform on that binding. `Sequence` composes
 actions in order. The initial semantic operations are `DiscardCards`,
-`Sacrifice`, `SacrificeYours`, and `GainControl`. The two sacrifice forms state
+`Sacrifice`, `SacrificeYours`, `GainControl`, and `MoveToZone`. The two sacrifice forms state
 who must sacrifice: each object's controller, or the executing player.
 Neither lowers to a generic zone move.
 
@@ -175,3 +175,19 @@ prepared engine uses its existing reference fallback for these programs.
 See [named mechanic programs](composed-mechanics.md) for payment provenance and
 lexical cost parameters, and [implementing cards](implementing-cards.md) for
 the extension and validation boundaries.
+
+## Death-return keywords
+
+Undying and persist expand each effective keyword instance into an ordinary
+zone-change trigger. The intervening condition reads the source's last-known
+counter state. Its action program uses `actions::move_to_zone` to return the
+exact `ZoneChangeResultOfTriggeringObject`; it never follows a later move or
+selects the top card of a graveyard. Both keywords can trigger on one death,
+and their controller orders those triggers through the ordinary stack rules.
+
+`EffectDef::WithBattlefieldArrival` wraps that action's `as_effect()` with the
+entry counter and ordinary owner-control default. Counters are part of the
+prospective entry, so replacements and entry triggers observe them correctly.
+The original `EffectDef::MoveToZone` form and the action use one resolver.
+This adds effect execution, not a new payable zone-move cost; the existing
+payment planner continues to reject unsupported action obligations.

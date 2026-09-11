@@ -633,6 +633,7 @@ impl Game {
                 | EffectDef::LandwalkCanBeBlocked(_)
                 | EffectDef::CannotAttackUnless(_)
                 | EffectDef::PutIntoLibraryBeneathTop { .. }
+                | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })
                 | EffectDef::MoveToZone { .. }
                 | EffectDef::PhaseOut { .. }
                 | EffectDef::CreateToken { .. }

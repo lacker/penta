@@ -269,6 +269,13 @@ int main(void) {
         return 1;
     }
 
+    PentaGame *conceding = penta_new("{\"p1Deck\":\"Sligh\",\"p2Deck\":\"Goblins\",\"opponent\":\"external\"}");
+    if (!conceding) return fail("concession setup");
+    if (penta_concede(conceding, 7) != -1) return fail("invalid concession seat");
+    if (penta_concede(conceding, 1) != 0) return fail("penta_concede");
+    if (penta_result(conceding) != 1) return fail("concession winner");
+    penta_free(conceding);
+
     printf("smoke test passed\n");
     return 0;
 }

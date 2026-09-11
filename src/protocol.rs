@@ -122,7 +122,9 @@ pub const SIMULATION_FINGERPRINT_NUL: &str = concat!(env!("PENTA_SIMULATION_FING
 /// Named additive facilities emitted by this wire epoch. Consumers may ignore
 /// capabilities they do not use; hosted bots may require the subset they use.
 pub const PROTOCOL_CAPABILITIES: &[&str] = &[
+    "action.concede.v1",
     "match.first-to-two-wins.v1",
+    "observation.public-reveals.v1",
     "reconstruction.checkpoint.v15",
     "rules.restart-game.v1",
 ];

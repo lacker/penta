@@ -180,7 +180,7 @@ impl Game {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
-            | EffectDef::MoveToZone { .. }
+            | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. }) | EffectDef::MoveToZone { .. }
             | EffectDef::WithBattlefieldArrival { .. }
             | EffectDef::WithZoneMoveResult { .. }
             | EffectDef::WithRule { .. }

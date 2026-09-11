@@ -28,6 +28,9 @@ use super::model::{
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 
+mod death_return;
+pub(crate) use death_return::{PERSIST_TRIGGER, UNDYING_TRIGGER};
+
 /// "If this card is in your opening hand, you may begin the game with it on
 /// the battlefield." The pregame runtime supplies the source card; the move
 /// remains an ordinary declarative zone-change effect.

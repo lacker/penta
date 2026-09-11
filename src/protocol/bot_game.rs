@@ -379,6 +379,18 @@ impl BotGame {
         self.advance()
     }
 
+    /// Concede the current game as `seat`, even while the other seat has priority.
+    /// This does not change the indexed action list.
+    ///
+    /// # Errors
+    /// Returns an error if the engine cannot accept a concession in this state.
+    pub fn concede(&mut self, seat: PlayerId) -> Result<(), String> {
+        self.game
+            .apply(seat, Action::Concede)
+            .map_err(|error| error.to_string())?;
+        self.advance()
+    }
+
     /// Answers the pending decision with an explicit set of option ids, for
     /// multi-pick decisions where the default expansion is not what you want.
     /// The observation's `decision` object lists the options and bounds.

@@ -20,6 +20,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::PlayerRefDef;
@@ -236,6 +237,19 @@ pub(in crate::card::sets) static COMMANDER_S_PLATE_305: CardRecord = CardRecord:
     crate::card::CardRules::unsupported(),
 );
 
+// CMR 319 — Jeweled Lotus
+pub(in crate::card::sets) static JEWELED_LOTUS: CardRecord = CardRecord::new(
+    "Jeweled Lotus",
+    "3c7de64b-3dc8-47dd-8999-4353b5a3a06f",
+    "Alayna Danner",
+    CardRules::new_artifact(mana_cost!("{0}")).with_ability(AbilityDef::activated_mana(
+        "{T}, Sacrifice this artifact: Add three mana of any one color. Spend this mana only to cast your commander.",
+        &[CostDef::TapSource, CostDef::SacrificeSource],
+        EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)
+            .with_restrictions(&[ManaRestrictionDef::CastYourCommander])),
+    )),
+);
+
 // CMR 354 — Rejuvenating Springs
 pub(in crate::card::sets) static REJUVENATING_SPRINGS_354: CardRecord = CardRecord::new(
     "Rejuvenating Springs",
@@ -369,6 +383,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANNOYED_ALTISAUR,
     &APEX_DEVASTATOR_217,
     &COMMANDER_S_PLATE_305,
+    &JEWELED_LOTUS,
     &REJUVENATING_SPRINGS_354,
     &SPECTATOR_SEATING_356,
     &VAULT_OF_CHAMPIONS_360,

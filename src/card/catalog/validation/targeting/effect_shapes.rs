@@ -697,6 +697,7 @@ fn validate_effect_target_shapes(
             },
             crate::card::ManaSelectionDef::One(_)
             | crate::card::ManaSelectionDef::ColorsOfLinkedExiles
+            | crate::card::ManaSelectionDef::UnspentPool
             | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
         },
         // The ballot is a predicate, not a target: nothing is pointed at.

@@ -124,6 +124,11 @@ combat damage, simultaneous trigger ordering, and frozen source, target, and
 event information for stack abilities. Explicit mana abilities remain
 immediate rather than using the stack.
 
+Runtime Commander games are not implemented. Commander deck validation does
+not designate commanders in a game. Jeweled Lotus works in supported games,
+where its original mana cannot be spent. Doubling Cube adds separate mana
+without the original mana's restrictions, spend effects, or source properties.
+
 ## Built-in decks
 
 Deck files and display metadata live in [`decks/`](../decks/README.md). Every

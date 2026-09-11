@@ -21,6 +21,12 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
         return false;
     };
     let selection_is_supported = match mana.mana {
+        ManaSelectionDef::UnspentPool => {
+            choices_are_supported
+                && mana.also.is_none()
+                && mana.variable_amount.is_none()
+                && mana.amount_override.is_none()
+        }
         ManaSelectionDef::One(ManaTypeDef::Fixed(_)) => true,
         ManaSelectionDef::One(ManaTypeDef::ChosenColor)
         | ManaSelectionDef::ColorsOfLinkedExiles => choices_are_supported,
@@ -51,8 +57,10 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
     // permanent as the ability is offered, exactly as the counted forms above
     // are, so a printed amount of zero is the whole amount only when no value
     // replaces it.
-    let amount_is_known = matches!(mana.mana, ManaSelectionDef::ChoiceOfBundles(_))
-        || mana.amount > 0
+    let amount_is_known = matches!(
+        mana.mana,
+        ManaSelectionDef::ChoiceOfBundles(_) | ManaSelectionDef::UnspentPool
+    ) || mana.amount > 0
         || matches!(
             mana.variable_amount,
             Some(
@@ -71,7 +79,7 @@ pub(in super::super) fn shared_mana_effect(effect: EffectDef, choices_are_suppor
                 ManaRestrictionDef::CastSpell(object)
                 | ManaRestrictionDef::CannotCastSpell(object)
                 | ManaRestrictionDef::ActivateAbility(object) => shared_object_predicate(object),
-                ManaRestrictionDef::Payment(_) => true,
+                ManaRestrictionDef::CastYourCommander | ManaRestrictionDef::Payment(_) => true,
                 ManaRestrictionDef::Special(_) => false,
             })
         && mana

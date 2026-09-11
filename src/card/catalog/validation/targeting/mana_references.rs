@@ -30,6 +30,7 @@ fn validate_mana_references(
         },
         crate::card::ManaSelectionDef::One(_)
         | crate::card::ManaSelectionDef::ColorsOfLinkedExiles
+        | crate::card::ManaSelectionDef::UnspentPool
         | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
     }
 }

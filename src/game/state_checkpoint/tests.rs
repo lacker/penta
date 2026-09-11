@@ -807,3 +807,34 @@ fn checkpoint_round_trips_the_ordered_turn_phase_queue_and_resume_boundary() {
 }
 
 mod cost_lists;
+
+#[test]
+fn mana_pool_doubling_checkpoint_preserves_restricted_and_new_mana() {
+    use crate::game::tests::{creature, ready_game};
+    let mut game = ready_game();
+    let lotus = creature(10_000, crate::card::cards::JEWELED_LOTUS, PlayerId::One);
+    let cube = creature(10_001, crate::card::cards::DOUBLING_CUBE, PlayerId::One);
+    let sources = [lotus.card.id, cube.card.id];
+    game.battlefield.extend([lotus, cube]);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 3);
+    for source in sources {
+        let action = game.legal_actions(PlayerId::One).into_iter().find(|action| matches!(action,
+            Action::ActivateManaAbility { source: id, color: ManaColor::Blue | ManaColor::Colorless, .. } if *id == source))
+            .expect("mana ability is offered");
+        game.apply(PlayerId::One, action)
+            .expect("mana ability resolves");
+        let (_, rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 90_501);
+        assert_eq!(rebuilt.players[0].mana, game.players[0].mana);
+        assert_eq!(
+            rebuilt.legal_actions(PlayerId::One),
+            game.legal_actions(PlayerId::One)
+        );
+        game = rebuilt;
+    }
+    assert_eq!(game.players[0].mana_pool.blue, 6);
+    assert_eq!(
+        game.eligible_mana_pool(PlayerId::One, &crate::game::ManaPaymentPurpose::Other)
+            .blue,
+        3
+    );
+}

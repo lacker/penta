@@ -90,7 +90,9 @@ impl Game {
                 ManaRestrictionDef::Payment(expected) => {
                     matches!(purpose, ManaPaymentPurpose::Payment { label: Some(actual), .. } if actual == expected)
                 }
-                ManaRestrictionDef::Special(_) => false,
+                // Supported games currently have no designated commanders.
+                // Deck-construction eligibility is not a runtime designation.
+                ManaRestrictionDef::CastYourCommander | ManaRestrictionDef::Special(_) => false,
             })
             && match purpose {
                 ManaPaymentPurpose::Payment { snow: true, .. } => mana

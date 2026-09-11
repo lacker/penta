@@ -29,6 +29,7 @@ fn triggered_mana_program_is_immediate(effect: EffectDef) -> bool {
                         | crate::card::ManaTypeSourceDef::CouldBeProducedBy(_) => false,
                     },
                     crate::card::ManaSelectionDef::ColorsOfLinkedExiles
+                    | crate::card::ManaSelectionDef::UnspentPool
                     | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => false,
                 }
         }

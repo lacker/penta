@@ -640,6 +640,9 @@ impl ManaTypeSetDef {
 /// the pool.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ManaSelectionDef {
+    /// Add one mana of each type for each unspent mana of that type.
+    /// Counts the pool after activation costs; does not copy source or payload.
+    UnspentPool,
     One(ManaTypeDef),
     /// One colour picked from a list, with the whole amount in that colour.
     /// A dual land offers "add {W} or {U}", not a mixture.
@@ -670,6 +673,8 @@ pub enum ManaRestrictionDef {
     /// stays open, so a Powerstone's mana still activates abilities and pays
     /// for anything that is not a cast at all.
     CannotCastSpell(ObjectPredicateDef),
+    /// Spend only to cast a commander designated for the player spending it.
+    CastYourCommander,
     ActivateAbility(ObjectPredicateDef),
     /// This mana can be spent only on a payment with the named semantic purpose.
     Payment(super::AbilityLabel),
@@ -740,6 +745,15 @@ pub struct ManaAmountOverrideDef {
 }
 
 impl AddManaEffectDef {
+    #[must_use]
+    pub const fn double_unspent_pool() -> Self {
+        Self {
+            mana: ManaSelectionDef::UnspentPool,
+            amount: 0,
+            ..Self::one(ManaColor::Colorless)
+        }
+    }
+
     #[must_use]
     pub const fn one(mana: ManaColor) -> Self {
         Self::one_of_type(ManaTypeDef::Fixed(mana))

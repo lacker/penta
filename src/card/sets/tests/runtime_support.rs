@@ -537,6 +537,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                             && !matches!(
                                 mana.mana,
                                 ManaSelectionDef::ColorsOfLinkedExiles
+                                    | ManaSelectionDef::UnspentPool
                                     | ManaSelectionDef::ChoiceOfBundles(_)
                             )
                     }

@@ -1,5 +1,9 @@
 # Sacred Torch Showdown 2026 — 2nd place, Daniel Sondike (2026-07-25).
 # Source: https://melee.gg/Decklist/View/fada19a4-ee1a-41a4-aa26-b49400ff4cf7
+name: "GAT"
+id: gat
+order: 3
+description: "Returns Daniel Sondike's GAT list from the Sacred Torch Showdown."
 main:
   Meddling Mage: 4
   Quirion Dryad: 4

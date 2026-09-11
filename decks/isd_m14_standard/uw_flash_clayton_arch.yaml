@@ -8,6 +8,10 @@
 # published list is illegal in this format. This playable transcription uses
 # 3 Celestial Flare as the likely correction; no definitive correction source
 # could be found.
+name: "Arch U/W Flash"
+order: 7
+aliases: ["clayton arch u/w flash", "u/w flash clayton arch", "uw_flash_clayton_arch"]
+description: "Returns a legality-corrected version of Clayton Arch's seventh-place U/W Flash deck from SCG Open Atlanta."
 main:
   Glacial Fortress: 4
   Ghost Quarter: 2

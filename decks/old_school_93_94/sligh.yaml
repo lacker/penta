@@ -1,3 +1,6 @@
+name: "Sligh"
+order: 2
+description: "Returns a representative powered EC Sligh deck."
 main:
   Mountain: 14
   Mishra's Factory: 4

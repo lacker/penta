@@ -1,5 +1,9 @@
 # Naya Midrange — Brian Braun-Duin test deck (Standard, 2013-01-02).
 # Source: https://articles.starcitygames.com/articles/todd-vs-bbd-omnidoor-thragfire-vs-naya-midrange/
+name: "Braun-Duin Naya Midrange"
+order: 10
+aliases: ["brian braun-duin naya midrange", "naya midrange brian braun-duin", "naya_midrange_brian_braun_duin"]
+description: "Returns Brian Braun-Duin's Naya Midrange test deck from January 2013."
 main:
   Avacyn's Pilgrim: 4
   Huntmaster of the Fells: 4

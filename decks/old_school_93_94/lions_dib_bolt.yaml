@@ -1,3 +1,7 @@
+name: "Lion Dib Bolt"
+order: 11
+aliases: ["lions/dib bolt", "lions dib bolt"]
+description: "Returns the Lion/Dib shell with its burn package."
 main:
   Island: 5
   Plains: 5

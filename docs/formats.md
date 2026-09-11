@@ -126,6 +126,9 @@ immediate rather than using the stack.
 
 ## Built-in decks
 
+Deck files and display metadata live in [`decks/`](../decks/README.md). Every
+YAML deck is automatically registered at build time; see that guide to add one.
+
 ### Old School 93/94
 
 The fifteen built-in EC archetypes are:

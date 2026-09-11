@@ -2,6 +2,10 @@
 # MTGTop8 records the tournament as 2013-09-14.
 # Source: https://www.mtgtop8.com/event?e=5640&d=232700&f=ST
 # Contemporary source: https://articles.starcitygames.com/articles/putting-the-cap-on-standard/
+name: "Smith Naya Midrange"
+order: 4
+aliases: ["jimmie smith naya midrange", "naya midrange jimmie smith", "naya_midrange_jimmie_smith"]
+description: "Returns Jimmie Smith's fourth-place Naya Midrange deck from SCG Open Atlanta."
 main:
   Clifftop Retreat: 3
   Kessig Wolf Run: 2

@@ -1,5 +1,9 @@
 # Sacred Torch Showdown 2026 — 6th place, TentacleFan (2026-07-25).
 # Source: https://melee.gg/Decklist/View/36166173-5b84-4302-b5b4-b4910102c38d
+name: "Landstill"
+id: landstill
+order: 4
+description: "Returns the sixth-place Landstill list from the Sacred Torch Showdown."
 main:
   Decree of Justice: 3
   Wrath of God: 2
@@ -28,6 +32,6 @@ sideboard:
   Meddling Mage: 4
   Annul: 2
   Teferi's Response: 2
-  Circle of Protection: Red: 1
+  "Circle of Protection: Red": 1
   Thawing Glaciers: 1
   Tormod's Crypt: 1

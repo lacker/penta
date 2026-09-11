@@ -1,3 +1,6 @@
+name: "Counterburn"
+order: 9
+description: "Returns a representative powered EC Counterburn deck."
 main:
   Island: 8
   Volcanic Island: 4

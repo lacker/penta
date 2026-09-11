@@ -1,5 +1,9 @@
 # Sacred Torch Showdown 2026 — 3rd place, Bryan Gulotta (2026-07-25).
 # Source: https://melee.gg/Decklist/View/369165d3-26e3-4b32-aaf7-b49200ccf285
+name: "Replenish"
+id: replenish
+order: 7
+description: "Returns Bryan Gulotta's Replenish list from the Sacred Torch Showdown."
 main:
   Replenish: 4
   Swords to Plowshares: 4

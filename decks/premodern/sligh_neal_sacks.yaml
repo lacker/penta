@@ -1,5 +1,9 @@
 # Sacred Torch Showdown 2026 — 1st place, Neal Sacks (2026-07-25).
 # Source: https://melee.gg/Decklist/View/bbcff668-1c26-4b8f-9418-b4900107099c
+name: "Sligh"
+id: sligh
+order: 2
+description: "Returns Neal Sacks's Sligh list from the Sacred Torch Showdown."
 main:
   Grim Lavamancer: 4
   Jackal Pup: 4

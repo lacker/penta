@@ -1,3 +1,7 @@
+name: "GR Aggro"
+order: 13
+aliases: ["g/r aggro"]
+description: "Returns a representative powered green-red aggro deck."
 main:
   Forest: 6
   Mountain: 5

@@ -2,6 +2,10 @@
 # MTGTop8 records the tournament as 2013-09-14.
 # Source: https://www.mtgtop8.com/event?e=5640&d=232702&f=ST
 # Contemporary source: https://articles.starcitygames.com/articles/putting-the-cap-on-standard/
+name: "Lorren U/W Flash"
+order: 6
+aliases: ["phillip lorren u/w flash", "u/w flash phillip lorren", "uw_flash_phillip_lorren"]
+description: "Returns Phillip Lorren's sixth-place U/W Flash deck from SCG Open Atlanta."
 main:
   Cavern of Souls: 1
   Encroaching Wastes: 1

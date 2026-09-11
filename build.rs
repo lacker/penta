@@ -6,6 +6,9 @@ use std::path::{Path, PathBuf};
 use sha2::{Digest, Sha256};
 use toml::Value;
 
+#[path = "src/decks/codegen.rs"]
+mod deck_codegen;
+
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 struct PackageId {
     name: String,
@@ -218,7 +221,7 @@ fn simulation_dependency_closure(
     assert_eq!(
         &resolved_names,
         direct_dependencies,
-        "{} does not resolve every normal penta dependency from its manifest",
+        "{} does not resolve every simulation dependency",
         path.display()
     );
     let mut pending = roots;
@@ -297,7 +300,7 @@ fn is_simulation_input(path: &Path) -> bool {
     };
     matches!(
         path.extension().and_then(|extension| extension.to_str()),
-        Some("rs" | "yaml")
+        Some("rs" | "yaml" | "yml")
     ) && name != "tests.rs"
         && !name.ends_with("_tests.rs")
         && !path
@@ -632,7 +635,16 @@ fn main() {
     let root = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").expect("manifest directory"));
     generate_card_ids(&root);
     let (files, directories) = tracked_files(&root);
-    let direct_dependencies = dependency_names(&canonical_manifest(&root));
+    let deck_output = PathBuf::from(std::env::var_os("OUT_DIR").expect("Cargo output directory"));
+    fs::write(
+        deck_output.join("builtin_decks.rs"),
+        deck_codegen::generate(&root, &files),
+    )
+    .expect("write generated deck registry");
+    let mut direct_dependencies = dependency_names(&canonical_manifest(&root));
+    // The YAML compiler now contributes production deck data, so its resolved
+    // implementation belongs to the simulation identity alongside runtime code.
+    direct_dependencies.insert("serde_yaml_ng".to_owned());
     let lockfile = lockfile(&root);
     let dependencies = simulation_dependency_closure(&lockfile, &direct_dependencies);
     println!("cargo::rerun-if-changed={}", lockfile.display());

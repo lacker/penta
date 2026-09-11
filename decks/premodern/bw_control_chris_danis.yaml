@@ -1,5 +1,10 @@
 # Sacred Torch Showdown 2026 — 5th place, Chris Danis (2026-07-25).
 # Source: https://melee.gg/Decklist/View/bdfa5724-8bcb-4c61-923d-b491017848f8
+name: "BW Control"
+id: bw_control
+order: 6
+aliases: ["bw-control"]
+description: "Returns Chris Danis's BW Control list from the Sacred Torch Showdown."
 main:
   Eternal Dragon: 3
   Exalted Angel: 2

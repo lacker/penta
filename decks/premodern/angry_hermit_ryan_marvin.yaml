@@ -1,5 +1,10 @@
 # Sacred Torch Showdown 2026 — 8th place, Ryan Marvin (2026-07-25).
 # Source: https://melee.gg/Decklist/View/3d756cca-4ba1-4ebf-b53b-b49200508ec1
+name: "Angry Hermit"
+id: angry_hermit
+order: 8
+aliases: ["angry-hermit"]
+description: "Returns Ryan Marvin's Angry Hermit list from the Sacred Torch Showdown."
 main:
   Hermit Druid: 4
   Phyrexian Dreadnought: 4

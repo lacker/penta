@@ -1,3 +1,6 @@
+name: "Goblins"
+order: 1
+description: "Returns a representative powered EC Goblins deck."
 main:
   Mountain: 17
   Mishra's Factory: 1

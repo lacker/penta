@@ -2,6 +2,10 @@
 # MTGTop8 records the tournament as 2013-09-14.
 # Source: https://www.mtgtop8.com/event?e=5640&d=232704&f=ST
 # Contemporary source: https://articles.starcitygames.com/articles/putting-the-cap-on-standard/
+name: "Kuenzinger Junk Reanimator"
+order: 8
+aliases: ["drew kuenzinger junk reanimator", "junk reanimator drew kuenzinger", "junk_reanimator_drew_kuenzinger"]
+description: "Returns Drew Kuenzinger's eighth-place Junk Reanimator deck from SCG Open Atlanta."
 main:
   Cavern of Souls: 1
   Forest: 2

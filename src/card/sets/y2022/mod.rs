@@ -11,3 +11,9 @@ pub mod streets_of_new_capenna_commander;
 pub mod the_brothers_war;
 
 pub(super) use super::{CardRecord, PrintingRecord};
+
+pub mod unfinity;
+
+pub mod warhammer_40_000_commander;
+
+pub mod the_brothers_war_commander;

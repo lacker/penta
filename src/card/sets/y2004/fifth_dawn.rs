@@ -42,6 +42,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// 5DN 4 — Auriok Salvagers
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AURIOK_SALVAGERS_4: CardRecord = CardRecord::new(
+    "Auriok Salvagers",
+    "09c9cd1b-9260-4f98-ac7a-25bb5ae3e06d",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
 // 5DN 27 — Condescend
 pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
     "Condescend",
@@ -169,6 +178,15 @@ pub(in crate::card::sets) static FURNACE_WHELP: CardRecord = CardRecord::new(
     ]),
 );
 
+// 5DN 75 — Mana Geyser
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MANA_GEYSER_75: CardRecord = CardRecord::new(
+    "Mana Geyser",
+    "3929662e-99d7-48e9-afac-1852af8be722",
+    "Martina Pilcerova",
+    crate::card::CardRules::unsupported(),
+);
+
 // 5DN 85 — Dawn's Reflection
 pub(in crate::card::sets) static DAWNS_REFLECTION: CardRecord = CardRecord::new(
     "Dawn's Reflection",
@@ -225,6 +243,33 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new(
     ),
 );
 
+// 5DN 104 — Avarice Totem
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AVARICE_TOTEM_104: CardRecord = CardRecord::new(
+    "Avarice Totem",
+    "53a5cfa8-4091-445c-8641-64402cca7d2d",
+    "Ben Thompson",
+    crate::card::CardRules::unsupported(),
+);
+
+// 5DN 106 — Battered Golem
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BATTERED_GOLEM_106: CardRecord = CardRecord::new(
+    "Battered Golem",
+    "f69add35-c529-4b30-8e64-f09b8308432f",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
+);
+
+// 5DN 107 — Blasting Station
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLASTING_STATION_107: CardRecord = CardRecord::new(
+    "Blasting Station",
+    "71e2f832-6601-4232-b250-fd1c88538fbd",
+    "Stephen Tappin",
+    crate::card::CardRules::unsupported(),
+);
+
 // 5DN 110 — Clock of Omens
 pub(in crate::card::sets) static CLOCK_OF_OMENS: CardRecord = CardRecord::new(
     "Clock of Omens",
@@ -246,6 +291,15 @@ pub(in crate::card::sets) static CLOCK_OF_OMENS: CardRecord = CardRecord::new(
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
     )),
+);
+
+// 5DN 112 — Conjurer's Bauble
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CONJURER_S_BAUBLE_112: CardRecord = CardRecord::new(
+    "Conjurer's Bauble",
+    "2d32960e-d182-455f-8e74-eb11b10050da",
+    "Darrell Riche",
+    crate::card::CardRules::unsupported(),
 );
 
 // 5DN 114 — Crucible of Worlds
@@ -333,6 +387,15 @@ CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
         ]),
 );
 
+// 5DN 127 — Grinding Station
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRINDING_STATION_127: CardRecord = CardRecord::new(
+    "Grinding Station",
+    "df1df511-b52c-45cd-9503-ffce4271a802",
+    "Greg Staples",
+    crate::card::CardRules::unsupported(),
+);
+
 // 5DN 128 — Guardian Idol
 pub(in crate::card::sets) static GUARDIAN_IDOL: CardRecord = CardRecord::new(
     "Guardian Idol",
@@ -373,6 +436,33 @@ pub(in crate::card::sets) static GUARDIAN_IDOL: CardRecord = CardRecord::new(
     ]),
 );
 
+// 5DN 134 — Krark-Clan Ironworks
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KRARK_CLAN_IRONWORKS_134: CardRecord = CardRecord::new(
+    "Krark-Clan Ironworks",
+    "c60174d6-1f9d-4870-b3db-34d6fcb3f6ab",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
+// 5DN 135 — Lantern of Insight
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LANTERN_OF_INSIGHT_135: CardRecord = CardRecord::new(
+    "Lantern of Insight",
+    "cb0e4c78-75fe-4692-b177-974b148f0614",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
+// 5DN 142 — Paradise Mantle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PARADISE_MANTLE_142: CardRecord = CardRecord::new(
+    "Paradise Mantle",
+    "1252e9e2-2dd5-4bd6-aa56-f0a0ba056a77",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
 // 5DN 143 — Pentad Prism
 pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
     "Pentad Prism",
@@ -403,20 +493,40 @@ pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
         ]),
 );
 
+// 5DN 156 — Staff of Domination
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STAFF_OF_DOMINATION_156: CardRecord = CardRecord::new(
+    "Staff of Domination",
+    "7980fc3b-71d5-427d-bd42-087256fd2059",
+    "Ben Thompson",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AURIOK_SALVAGERS_4,
     &CONDESCEND,
     &SERUM_VISIONS,
     &TRINKET_MAGE,
     &NIGHTS_WHISPER,
     &FURNACE_WHELP,
+    &MANA_GEYSER_75,
     &DAWNS_REFLECTION,
     &ETERNAL_WITNESS,
+    &AVARICE_TOTEM_104,
+    &BATTERED_GOLEM_106,
+    &BLASTING_STATION_107,
     &CLOCK_OF_OMENS,
+    &CONJURER_S_BAUBLE_112,
     &CRUCIBLE_OF_WORLDS,
     &DOOR_TO_NOTHINGNESS,
     &ENGINEERED_EXPLOSIVES,
+    &GRINDING_STATION_127,
     &GUARDIAN_IDOL,
+    &KRARK_CLAN_IRONWORKS_134,
+    &LANTERN_OF_INSIGHT_135,
+    &PARADISE_MANTLE_142,
     &PENTAD_PRISM,
+    &STAFF_OF_DOMINATION_156,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

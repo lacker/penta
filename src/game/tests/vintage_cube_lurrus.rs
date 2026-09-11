@@ -301,10 +301,12 @@ mod companion {
             main.push(cards::MOUNTAIN);
         }
         let opponent = crate::Deck {
+            commanders: Vec::new(),
             main: vec![cards::MOUNTAIN; 40],
             sideboard: Vec::new(),
         };
         let mine = crate::Deck {
+            commanders: Vec::new(),
             main,
             sideboard: sideboard.to_vec(),
         };

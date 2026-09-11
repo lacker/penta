@@ -245,6 +245,15 @@ pub(in crate::card::sets) static KRAKEN_HATCHLING: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{U}"), &["Kraken"], 0, 4),
 );
 
+// ZEN 57 — Mindbreak Trap
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MINDBREAK_TRAP_57: CardRecord = CardRecord::new(
+    "Mindbreak Trap",
+    "4f51140b-6254-431a-8810-94307bfdfbbe",
+    "Christopher Moeller",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 58 — Paralyzing Grasp
 pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new(
     "Paralyzing Grasp",
@@ -375,6 +384,15 @@ CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire", "Shaman"], 1, 1).with
     ),
 );
 
+// ZEN 82 — Bloodchief Ascension
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOODCHIEF_ASCENSION_82: CardRecord = CardRecord::new(
+    "Bloodchief Ascension",
+    "aa213dbb-c52a-4084-92aa-d0b5d97a97d9",
+    "Adi Granov",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 83 — Bloodghast
 pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
     "Bloodghast",
@@ -491,6 +509,15 @@ pub(in crate::card::sets) static GIANT_SCORPION: CardRecord = CardRecord::new(
     "Raymond Swanland",
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Scorpion"], 1, 3)
         .with_abilities(&[abilities::deathtouch()]),
+);
+
+// ZEN 109 — Ravenous Trap
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAVENOUS_TRAP_109: CardRecord = CardRecord::new(
+    "Ravenous Trap",
+    "f4540013-11f9-4a8b-ad54-61f467f04756",
+    "Cyril Van Der Haegen",
+    crate::card::CardRules::unsupported(),
 );
 
 // ZEN 111 — Sorin Markov
@@ -667,6 +694,15 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
     ]),
 );
 
+// ZEN 127 — Goblin Ruinblaster
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_RUINBLASTER_127: CardRecord = CardRecord::new(
+    "Goblin Ruinblaster",
+    "0d95d1f3-7ec1-4279-ade7-3f339f2f33da",
+    "Matt Cavotta",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZEN 128 — Goblin Shortcutter
 pub(in crate::card::sets) static GOBLIN_SHORTCUTTER: CardRecord = CardRecord::new(
     "Goblin Shortcutter",
@@ -769,6 +805,15 @@ pub(in crate::card::sets) static SLAUGHTER_CRY: CardRecord = CardRecord::new(
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),
+);
+
+// ZEN 154 — Warren Instigator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WARREN_INSTIGATOR_154: CardRecord = CardRecord::new(
+    "Warren Instigator",
+    "98637219-40d8-414c-939d-e2c90b909725",
+    "Andrew Robinson",
+    crate::card::CardRules::unsupported(),
 );
 
 // ZEN 168 — Lotus Cobra
@@ -1092,15 +1137,18 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PILLARFIELD_OX,
     &INTO_THE_ROIL,
     &KRAKEN_HATCHLING,
+    &MINDBREAK_TRAP_57,
     &PARALYZING_GRASP,
     &RITE_OF_REPLICATION,
     &SPELL_PIERCE,
     &WELKIN_TERN,
     &BLOOD_SEEKER,
+    &BLOODCHIEF_ASCENSION_82,
     &BLOODGHAST,
     &DISFIGURE,
     &GATEKEEPER_OF_MALAKIR,
     &GIANT_SCORPION,
+    &RAVENOUS_TRAP_109,
     &SORIN_MARKOV,
     &VAMPIRE_HEXMAGE,
     &VAMPIRE_LACERATOR,
@@ -1108,10 +1156,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLADETUSK_BOAR,
     &BURST_LIGHTNING,
     &GOBLIN_BUSHWHACKER,
+    &GOBLIN_RUINBLASTER_127,
     &GOBLIN_SHORTCUTTER,
     &GOBLIN_WAR_PAINT,
     &MARK_OF_MUTINY,
     &SLAUGHTER_CRY,
+    &WARREN_INSTIGATOR_154,
     &LOTUS_COBRA,
     &RAMPAGING_BALOTHS,
     &VASTWOOD_GORGER,

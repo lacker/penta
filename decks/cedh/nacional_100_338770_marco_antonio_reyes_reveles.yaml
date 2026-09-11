@@ -1,0 +1,110 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 100th place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/aH8CUCiEQFcPCGpTSzdu7vmm2FN2
+# TopDeck entry ID: RW50cnk6MzM4Nzcw
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 100th place, Marco Antonio Reyes Reveles"
+id: nacional_100_338770_marco_antonio_reyes_reveles
+description: "Exact tournament decklist for Marco Antonio Reyes Reveles, 100th place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Marneus Calgar": 1
+main:
+  "Adarkar Wastes": 1
+  "Amphibian Downpour": 1
+  "An Offer You Can't Refuse": 1
+  "Arcane Sanctum": 1
+  "Arcane Signet": 1
+  "Archivist of Oghma": 1
+  "Arid Mesa": 1
+  "Ashnod's Altar": 1
+  "Beseech the Mirror": 1
+  "Bilbo's Gambit": 1
+  "Bleachbone Verge": 1
+  "Borne Upon a Wind": 1
+  "Command Tower": 1
+  "Cyclonic Rift": 1
+  "Dark Ritual": 1
+  "Demonic Consultation": 1
+  "Demonic Tutor": 1
+  "Diabolic Intent": 1
+  "Dispel": 1
+  "Dovin's Veto": 1
+  "Drowned Catacomb": 1
+  "Enlightened Tutor": 1
+  "Exotic Orchard": 1
+  "Faerie Artisans": 1
+  "Faerie Mastermind": 1
+  "Fellwar Stone": 1
+  "Fetid Heath": 1
+  "Flooded Strand": 1
+  "Flusterstorm": 1
+  "Gemstone Caverns": 1
+  "Glacial Fortress": 1
+  "Gloomlake Verge": 1
+  "Godless Shrine": 1
+  "Grand Abolisher": 1
+  "Hallowed Fountain": 1
+  "Imposter Mech": 1
+  "Into the Flood Maw": 1
+  "Island": 1
+  "Isolated Chapel": 1
+  "Kambal, Profiteering Mayor": 1
+  "Laboratory Maniac": 1
+  "Lotho, Corrupt Shirriff": 1
+  "Lotus Petal": 1
+  "Marsh Flats": 1
+  "Mental Misstep": 1
+  "Meticulous Archive": 1
+  "Mind Stone": 1
+  "Mirrormade": 1
+  "Mister Fantastic, Reed Richards": 1
+  "Mockingbird": 1
+  "Mondrak, Glory Dominus": 1
+  "Muddle the Mixture": 1
+  "Mystic Remora": 1
+  "Mystical Tutor": 1
+  "Nadir Kraken": 1
+  "Negate": 1
+  "No More Lies": 1
+  "Opposition Agent": 1
+  "Orcish Bowmasters": 1
+  "Plains": 1
+  "Plaza of Heroes": 1
+  "Pongify": 1
+  "Profane Tutor": 1
+  "Rapid Hybridization": 1
+  "Reflecting Pool": 1
+  "Reliquary Tower": 1
+  "Scuttletide": 1
+  "Sevinne's Reclamation": 1
+  "Shadowy Backstreet": 1
+  "Silence": 1
+  "Smothering Tithe": 1
+  "Sol Ring": 1
+  "Spell Pierce": 1
+  "Step Through": 1
+  "Stridehangar Automaton": 1
+  "Strix Serenade": 1
+  "Sunken Ruins": 1
+  "Swamp": 1
+  "Swords to Plowshares": 1
+  "Talisman of Dominance": 1
+  "Talisman of Hierarchy": 1
+  "Talisman of Progress": 1
+  "Tataru Taru": 1
+  "The One Ring": 1
+  "The Queen of Dale": 1
+  "Thought Vessel": 1
+  "Time Sieve": 1
+  "Tivit, Seller of Secrets": 1
+  "Training Grounds": 1
+  "Undercity Sewers": 1
+  "Urza's Saga": 1
+  "Verdant Catacombs": 1
+  "Voice of Victory": 1
+  "Volatile Stormdrake": 1
+  "Wan Shi Tong, Librarian": 1
+  "Warren Soultrader": 1
+  "Watery Grave": 1
+  "Windswept Heath": 1
+  "Wishclaw Talisman": 1
+sideboard: {}

@@ -13,6 +13,10 @@ fn parse_continuation(
     game: &Game,
 ) -> Result<DecisionContinuation, String> {
     Ok(match value {
+        DecisionContinuationSnapshot::CommanderReturn { remaining, selected } => DecisionContinuation::CommanderReturn {
+            remaining: remaining.iter().map(|(owner, cards)| Ok((player(*owner)?, cards.iter().copied().map(GameObjectId).collect()))).collect::<Result<Vec<_>, String>>()?,
+            selected: selected.iter().copied().map(GameObjectId).collect(),
+        },
         DecisionContinuationSnapshot::ActionChoice {
             player: chooser,
             branch,

@@ -130,6 +130,7 @@ pub const PROTOCOL_CAPABILITIES: &[&str] = &[
     "match.first-to-two-wins.v1",
     "observation.public-reveals.v1",
     "reconstruction.checkpoint.v17",
+    "rules.commander.v1",
     "rules.restart-game.v1",
 ];
 

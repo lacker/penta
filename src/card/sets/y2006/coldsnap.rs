@@ -81,6 +81,33 @@ pub(in crate::card::sets) static WALL_OF_SHARDS: CardRecord = CardRecord::new(
         ]),
 );
 
+// CSP 27 — Arcum Dagsson
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCUM_DAGSSON_27: CardRecord = CardRecord::new(
+    "Arcum Dagsson",
+    "dd9d3ce7-53db-4808-88bc-03c120211f81",
+    "Pete Venters",
+    crate::card::CardRules::unsupported(),
+);
+
+// CSP 29 — Commandeer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COMMANDEER_29: CardRecord = CardRecord::new(
+    "Commandeer",
+    "7e6e6204-c622-4efe-ac4f-8195528cec9c",
+    "John Matson",
+    crate::card::CardRules::unsupported(),
+);
+
+// CSP 31 — Counterbalance
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COUNTERBALANCE_31: CardRecord = CardRecord::new(
+    "Counterbalance",
+    "c329ff2b-0331-4934-a8df-870dd7bf402b",
+    "John Zeleznik",
+    crate::card::CardRules::unsupported(),
+);
+
 // CSP 33 — Flashfreeze
 pub(in crate::card::sets) static FLASHFREEZE: CardRecord = CardRecord::new(
     "Flashfreeze",
@@ -249,6 +276,15 @@ pub(in crate::card::sets) static BRAID_OF_FIRE: CardRecord = CardRecord::new(
     ),
 );
 
+// CSP 81 — Fury of the Horde
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FURY_OF_THE_HORDE_81: CardRecord = CardRecord::new(
+    "Fury of the Horde",
+    "f3223ef9-787a-40ac-8ab2-79ac75664aa2",
+    "Stephen Tappin",
+    crate::card::CardRules::unsupported(),
+);
+
 // CSP 86 — Karplusan Minotaur
 pub(in crate::card::sets) static KARPLUSAN_MINOTAUR: CardRecord = CardRecord::new(
     "Karplusan Minotaur",
@@ -282,6 +318,15 @@ CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Minotaur", "Warrior"], 3, 3)
         ]),
 );
 
+// CSP 96 — Rite of Flame
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RITE_OF_FLAME_96: CardRecord = CardRecord::new(
+    "Rite of Flame",
+    "c062caf7-f0eb-44db-9f74-e6711a13fada",
+    "Dany Orizio",
+    crate::card::CardRules::unsupported(),
+);
+
 // CSP 102 — Arctic Nishoba
 pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
     "Arctic Nishoba",
@@ -299,6 +344,15 @@ pub(in crate::card::sets) static ARCTIC_NISHOBA: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// CSP 105 — Boreal Druid
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BOREAL_DRUID_105: CardRecord = CardRecord::new(
+    "Boreal Druid",
+    "473d3633-6dc7-4026-a50e-3ea76b9e8c20",
+    "Dan Dos Santos",
+    crate::card::CardRules::unsupported(),
 );
 
 // CSP 138 — Mishra's Bauble
@@ -417,14 +471,20 @@ pub(in crate::card::sets) static DARK_DEPTHS: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COVER_OF_WINTER,
     &WALL_OF_SHARDS,
+    &ARCUM_DAGSSON_27,
+    &COMMANDEER_29,
+    &COUNTERBALANCE_31,
     &FLASHFREEZE,
     &VEXING_SPHINX,
     &BALDUVIAN_FALLEN,
     &DEATHMARK,
     &HERALD_OF_LESHRAC,
     &BRAID_OF_FIRE,
+    &FURY_OF_THE_HORDE_81,
     &KARPLUSAN_MINOTAUR,
+    &RITE_OF_FLAME_96,
     &ARCTIC_NISHOBA,
+    &BOREAL_DRUID_105,
     &MISHRA_S_BAUBLE,
     &PHYREXIAN_SOULGORGER,
     &DARK_DEPTHS,

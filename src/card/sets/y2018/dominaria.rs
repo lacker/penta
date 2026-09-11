@@ -247,6 +247,15 @@ pub(in crate::card::sets) static LYRA_DAWNBRINGER: CardRecord = CardRecord::new(
         ]),
 );
 
+// DOM 36 — Teshar, Ancestor's Apostle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TESHAR_ANCESTOR_S_APOSTLE_36: CardRecord = CardRecord::new(
+    "Teshar, Ancestor's Apostle",
+    "f6d115b4-51d5-4898-b56c-2729aa428018",
+    "Even Amundsen",
+    crate::card::CardRules::unsupported(),
+);
+
 // DOM 68 — Tempest Djinn
 pub(in crate::card::sets) static TEMPEST_DJINN: CardRecord = CardRecord::new(
     "Tempest Djinn",
@@ -289,6 +298,15 @@ pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
             ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
         ])),
     )),
+);
+
+// DOM 93 — Final Parting
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FINAL_PARTING_93: CardRecord = CardRecord::new(
+    "Final Parting",
+    "de8803f6-9efa-4323-b8c5-29bdd5a48f9a",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
 );
 
 // DOM 97 — Knight of Malice
@@ -337,6 +355,24 @@ pub(in crate::card::sets) static GHITU_LAVARUNNER: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// DOM 146 — Squee, the Immortal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SQUEE_THE_IMMORTAL_146: CardRecord = CardRecord::new(
+    "Squee, the Immortal",
+    "a3974c62-a524-454e-9ce7-2c23b704e5cb",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 151 — Warlord's Fury
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WARLORD_S_FURY_151: CardRecord = CardRecord::new(
+    "Warlord's Fury",
+    "0ebd63cf-7e8c-4c8d-844d-98535d5f3039",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
 );
 
 // DOM 164 — Grow from the Ashes
@@ -564,21 +600,65 @@ CardRules::new_artifact(mana_cost!("{4}"))
         ]),
 );
 
+// DOM 224 — Mox Amber
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MOX_AMBER_224: CardRecord = CardRecord::new(
+    "Mox Amber",
+    "66024e69-ad60-4c9a-a0ca-da138d33ad80",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 234 — Traxos, Scourge of Kroog
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TRAXOS_SCOURGE_OF_KROOG_234: CardRecord = CardRecord::new(
+    "Traxos, Scourge of Kroog",
+    "dab80216-3df7-4e4f-8732-16dd6cac6bcf",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 236 — Voltaic Servant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VOLTAIC_SERVANT_236: CardRecord = CardRecord::new(
+    "Voltaic Servant",
+    "28564ac6-8b9b-4b99-9630-8fb3158d354c",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
+// DOM 238 — Cabal Stronghold
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CABAL_STRONGHOLD_238: CardRecord = CardRecord::new(
+    "Cabal Stronghold",
+    "0bda51ef-ee3e-48d4-92e2-c9083bbe0f80",
+    "Dimitar Marinski",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KARN_SCION_OF_URZA,
     &ADAMANT_WILL,
     &KNIGHT_OF_GRACE,
     &LYRA_DAWNBRINGER,
+    &TESHAR_ANCESTOR_S_APOSTLE_36,
     &TEMPEST_DJINN,
     &CAST_DOWN,
+    &FINAL_PARTING_93,
     &KNIGHT_OF_MALICE,
     &GHITU_LAVARUNNER,
+    &SQUEE_THE_IMMORTAL_146,
+    &WARLORD_S_FURY_151,
     &GROW_FROM_THE_ASHES,
     &MULDROTHA_THE_GRAVETIDE,
     &TATYOVA_BENTHIC_DRUID,
     &TEFERI_HERO_OF_DOMINARIA,
     &DAMPING_SPHERE,
     &HELM_OF_THE_HOST,
+    &MOX_AMBER_224,
+    &TRAXOS_SCOURGE_OF_KROOG_234,
+    &VOLTAIC_SERVANT_236,
+    &CABAL_STRONGHOLD_238,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

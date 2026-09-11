@@ -41,6 +41,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// DMC 8 — The Reaver Cleaver
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_REAVER_CLEAVER_8: CardRecord = CardRecord::new(
+    "The Reaver Cleaver",
+    "5bcd1591-b5b9-49fc-9f2a-45f31ed1871e",
+    "Yigit Koroglu",
+    crate::card::CardRules::unsupported(),
+);
+
 // DMC 10 — Cadric, Soul Kindler
 pub(in crate::card::sets) static CADRIC_SOUL_KINDLER: CardRecord = CardRecord::new(
     "Cadric, Soul Kindler",
@@ -148,7 +157,31 @@ pub(in crate::card::sets) static TORSTEN_FOUNDER_OF_BENALIA: CardRecord = CardRe
         ]),
 );
 
+// DMC 49 — Dihada, Binder of Wills
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIHADA_BINDER_OF_WILLS_49: CardRecord = CardRecord::new(
+    "Dihada, Binder of Wills",
+    "cea0ea07-6963-4de1-953d-b1ac41d8c6b5",
+    "Néstor Ossandón Leal",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMC 93 — Gerrard's Hourglass Pendant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GERRARD_S_HOURGLASS_PENDANT_93: CardRecord = CardRecord::new(
+    "Gerrard's Hourglass Pendant",
+    "091135ec-4f4c-432c-bd6c-e7e2fb7561a3",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&CADRIC_SOUL_KINDLER, &TORSTEN_FOUNDER_OF_BENALIA];
+    &[
+    &THE_REAVER_CLEAVER_8,
+    &CADRIC_SOUL_KINDLER,
+    &TORSTEN_FOUNDER_OF_BENALIA,
+    &DIHADA_BINDER_OF_WILLS_49,
+    &GERRARD_S_HOURGLASS_PENDANT_93,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,5 +1,8 @@
 //! Edge of Eternities card inventory.
 
+use crate::card::ReplacementAbilityDef;
+use crate::card::ReplacementConditionDef;
+use crate::card::ReplacementEventDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostObjectIndex;

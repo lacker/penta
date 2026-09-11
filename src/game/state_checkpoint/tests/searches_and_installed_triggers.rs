@@ -82,6 +82,7 @@ fn a_delayed_trigger_installed_by_a_spell_reconstructs() {
 fn a_hand_search_checkpoint_preserves_duplicate_card_object_ids() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
+        commanders: Vec::new(),
         main: vec![crate::card::cards::MOUNTAIN; 60],
         sideboard: Vec::new(),
     };
@@ -158,6 +159,7 @@ fn a_hand_search_checkpoint_preserves_duplicate_card_object_ids() {
 fn uncataloged_executable_state_fails_closed() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
+        commanders: Vec::new(),
         main: vec![crate::card::cards::MOUNTAIN; 60],
         sideboard: Vec::new(),
     };
@@ -182,6 +184,7 @@ fn uncataloged_executable_state_fails_closed() {
 fn an_emblem_rebuilds_with_identity_and_source_provenance() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
+        commanders: Vec::new(),
         main: vec![crate::card::cards::MOUNTAIN; 60],
         sideboard: Vec::new(),
     };

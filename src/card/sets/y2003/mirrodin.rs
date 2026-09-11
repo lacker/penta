@@ -86,6 +86,42 @@ pub(in crate::card::sets) static RAISE_THE_ALARM: CardRecord = CardRecord::new(
     )),
 );
 
+// MRD 19 — Rule of Law
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RULE_OF_LAW_19: CardRecord = CardRecord::new(
+    "Rule of Law",
+    "246a68e9-fd19-4a1e-8c7b-fcd3f7306dfb",
+    "Scott M. Fischer",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 34 — Dream's Grip
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DREAM_S_GRIP_34: CardRecord = CardRecord::new(
+    "Dream's Grip",
+    "7ffaa6a2-7c86-45b4-8892-b837e05f11a6",
+    "Jim Nelson",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 35 — Fabricate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FABRICATE_35: CardRecord = CardRecord::new(
+    "Fabricate",
+    "a742e23c-1991-4dce-b670-dea92a1cf4ec",
+    "Glen Angus",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 47 — Quicksilver Elemental
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static QUICKSILVER_ELEMENTAL_47: CardRecord = CardRecord::new(
+    "Quicksilver Elemental",
+    "2905f6ac-d054-454b-8e1a-9c32db13a581",
+    "Tony Szczudlo",
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 53 — Thirst for Knowledge
 pub(in crate::card::sets) static THIRST_FOR_KNOWLEDGE: CardRecord = CardRecord::new(
     "Thirst for Knowledge",
@@ -110,6 +146,15 @@ pub(in crate::card::sets) static THIRST_FOR_KNOWLEDGE: CardRecord = CardRecord::
             )),
         ]),
     )]),
+);
+
+// MRD 54 — Thoughtcast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THOUGHTCAST_54: CardRecord = CardRecord::new(
+    "Thoughtcast",
+    "efb965a7-877a-4302-b507-25b0a9e32d9b",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
 );
 
 // MRD 57 — Barter in Blood
@@ -162,6 +207,33 @@ CardRules::new_sorcery(mana_cost!("{X}{1}{B}"))
         ]),
 );
 
+// MRD 62 — Disciple of the Vault
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DISCIPLE_OF_THE_VAULT_62: CardRecord = CardRecord::new(
+    "Disciple of the Vault",
+    "644359dc-3c4c-4291-876d-7390dc466877",
+    "Matt Thompson",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 99 — Mass Hysteria
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MASS_HYSTERIA_99: CardRecord = CardRecord::new(
+    "Mass Hysteria",
+    "1431354a-fcfa-4f67-a822-6dcc4d13ac3f",
+    "Adam Rex",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 104 — Seething Song
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SEETHING_SONG_104: CardRecord = CardRecord::new(
+    "Seething Song",
+    "9213d580-7953-455f-abbe-99d3db2705cf",
+    "Martina Pilcerova",
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 122 — Hum of the Radix
 pub(in crate::card::sets) static HUM_OF_THE_RADIX: CardRecord = CardRecord::new(
     "Hum of the Radix",
@@ -182,6 +254,24 @@ pub(in crate::card::sets) static HUM_OF_THE_RADIX: CardRecord = CardRecord::new(
             ))),
         ),
     ),
+);
+
+// MRD 130 — Sylvan Scrying
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SYLVAN_SCRYING_130: CardRecord = CardRecord::new(
+    "Sylvan Scrying",
+    "b4ff07b6-be9f-498f-9f36-cbd64f1b10cc",
+    "Scott M. Fischer",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 134 — Tooth and Nail
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TOOTH_AND_NAIL_134: CardRecord = CardRecord::new(
+    "Tooth and Nail",
+    "02f0067c-2d38-46bd-b52e-070c2ce424f0",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
 );
 
 // MRD 141 — Aether Spellbomb
@@ -438,6 +528,15 @@ pub(in crate::card::sets) static IRON_MYR: CardRecord = CardRecord::new(
     ),
 );
 
+// MRD 188 — Isochron Scepter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ISOCHRON_SCEPTER_188: CardRecord = CardRecord::new(
+    "Isochron Scepter",
+    "878b0159-6917-45d3-b9ea-562ac49f0b8f",
+    "Mark Harrison",
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 191 — Leaden Myr
 pub(in crate::card::sets) static LEADEN_MYR: CardRecord = CardRecord::new(
     "Leaden Myr",
@@ -450,6 +549,15 @@ pub(in crate::card::sets) static LEADEN_MYR: CardRecord = CardRecord::new(
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
         ),
     ),
+);
+
+// MRD 195 — Leveler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LEVELER_195: CardRecord = CardRecord::new(
+    "Leveler",
+    "03ffa3c3-dd29-47eb-abf2-7951fadb5c37",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
 );
 
 // MRD 199 — Lightning Greaves
@@ -535,6 +643,33 @@ CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct"], 0, 0).with_a
     ]),
 );
 
+// MRD 228 — Platinum Angel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PLATINUM_ANGEL_228: CardRecord = CardRecord::new(
+    "Platinum Angel",
+    "59bb5aee-b334-4c24-875b-56751d4add02",
+    "Brom",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 237 — Scrabbling Claws
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SCRABBLING_CLAWS_237: CardRecord = CardRecord::new(
+    "Scrabbling Claws",
+    "415027f8-ccef-4b38-ace2-db4e94f066fe",
+    "Thomas M. Baxa",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 238 — Sculpting Steel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SCULPTING_STEEL_238: CardRecord = CardRecord::new(
+    "Sculpting Steel",
+    "3aac5f6f-97c1-4546-94ed-016292e98c9d",
+    "Heather Hudson",
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 241 — Silver Myr
 pub(in crate::card::sets) static SILVER_MYR: CardRecord = CardRecord::new(
     "Silver Myr",
@@ -614,6 +749,24 @@ pub(in crate::card::sets) static TALISMAN_OF_DOMINANCE: CardRecord = CardRecord:
     ]),
 );
 
+// MRD 254 — Talisman of Impulse
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TALISMAN_OF_IMPULSE_254: CardRecord = CardRecord::new(
+    "Talisman of Impulse",
+    "a00b65f7-70d0-4bbd-ac13-be24cc3374ee",
+    "Mike Dringenberg",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 255 — Talisman of Indulgence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TALISMAN_OF_INDULGENCE_255: CardRecord = CardRecord::new(
+    "Talisman of Indulgence",
+    "e14011b3-56ce-4b93-833f-d8403809159c",
+    "Mike Dringenberg",
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 256 — Talisman of Progress
 static TALISMAN_TAP: [CostDef; 1] = [CostDef::TapSource];
 
@@ -643,6 +796,15 @@ pub(in crate::card::sets) static TALISMAN_OF_PROGRESS: CardRecord = CardRecord::
     ]),
 );
 
+// MRD 274 — Welding Jar
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WELDING_JAR_274: CardRecord = CardRecord::new(
+    "Welding Jar",
+    "42b7b73b-4800-4fc7-9a5c-93e00ea88498",
+    "Mark Brill",
+    crate::card::CardRules::unsupported(),
+);
+
 // MRD 276 — Worldslayer
 pub(in crate::card::sets) static WORLDSLAYER: CardRecord = CardRecord::new(
     "Worldslayer",
@@ -667,13 +829,59 @@ CardRules::new_artifact(mana_cost!("{5}"))
         ]),
 );
 
+// MRD 278 — Ancient Den
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANCIENT_DEN_278: CardRecord = CardRecord::new(
+    "Ancient Den",
+    "cc857fbd-8e0f-4bff-8f14-561c9925c484",
+    "Rob Alexander",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 282 — Great Furnace
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GREAT_FURNACE_282: CardRecord = CardRecord::new(
+    "Great Furnace",
+    "2877281d-c85d-4f32-b40d-828b93c4ee8e",
+    "Rob Alexander",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 283 — Seat of the Synod
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SEAT_OF_THE_SYNOD_283: CardRecord = CardRecord::new(
+    "Seat of the Synod",
+    "5da5587d-6b6c-4645-8cc9-2866d1e6911b",
+    "John Avon",
+    crate::card::CardRules::unsupported(),
+);
+
+// MRD 286 — Vault of Whispers
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VAULT_OF_WHISPERS_286: CardRecord = CardRecord::new(
+    "Vault of Whispers",
+    "73866487-33f4-4f64-b100-2c4ddadcd74e",
+    "Rob Alexander",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LEONIN_SKYHUNTER,
     &RAISE_THE_ALARM,
+    &RULE_OF_LAW_19,
+    &DREAM_S_GRIP_34,
+    &FABRICATE_35,
+    &QUICKSILVER_ELEMENTAL_47,
     &THIRST_FOR_KNOWLEDGE,
+    &THOUGHTCAST_54,
     &BARTER_IN_BLOOD,
     &CONSUME_SPIRIT,
+    &DISCIPLE_OF_THE_VAULT_62,
+    &MASS_HYSTERIA_99,
+    &SEETHING_SONG_104,
     &HUM_OF_THE_RADIX,
+    &SYLVAN_SCRYING_130,
+    &TOOTH_AND_NAIL_134,
     &AETHER_SPELLBOMB,
     &BONESPLITTER,
     &CHALICE_OF_THE_VOID,
@@ -684,15 +892,27 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GILDED_LOTUS,
     &GOLD_MYR,
     &IRON_MYR,
+    &ISOCHRON_SCEPTER_188,
     &LEADEN_MYR,
+    &LEVELER_195,
     &LIGHTNING_GREAVES,
     &MINDSLAVER,
     &PENTAVUS,
+    &PLATINUM_ANGEL_228,
+    &SCRABBLING_CLAWS_237,
+    &SCULPTING_STEEL_238,
     &SILVER_MYR,
     &SOLEMN_SIMULACRUM,
     &TALISMAN_OF_DOMINANCE,
+    &TALISMAN_OF_IMPULSE_254,
+    &TALISMAN_OF_INDULGENCE_255,
     &TALISMAN_OF_PROGRESS,
+    &WELDING_JAR_274,
     &WORLDSLAYER,
+    &ANCIENT_DEN_278,
+    &GREAT_FURNACE_282,
+    &SEAT_OF_THE_SYNOD_283,
+    &VAULT_OF_WHISPERS_286,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

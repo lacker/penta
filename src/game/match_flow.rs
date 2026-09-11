@@ -29,11 +29,19 @@ impl Game {
                     .flat_map(|card| super::backing_cards(&card.backing))
                     .collect::<std::collections::BTreeSet<_>>();
                 Deck {
+                    commanders: self
+                        .commanders
+                        .iter()
+                        .filter(|c| c.owner == seat)
+                        .map(|c| c.definition)
+                        .collect(),
                     main: self
                         .physical_cards
                         .iter()
                         .filter(|physical| {
-                            physical.owner == seat && !outside_ids.contains(&physical.id)
+                            physical.owner == seat
+                                && !outside_ids.contains(&physical.id)
+                                && !self.commanders.iter().any(|c| c.physical == physical.id)
                         })
                         .map(|physical| physical.definition)
                         .collect(),
@@ -202,6 +210,7 @@ impl Game {
     fn sideboard_selection(&self, player: PlayerId, options: &[u32]) -> Deck {
         let deck = &self.match_context.as_ref().expect("match context").decks[player.index()];
         let mut selected = Deck {
+            commanders: deck.commanders.clone(),
             main: Vec::new(),
             sideboard: Vec::new(),
         };
@@ -399,6 +408,7 @@ mod tests {
 
     fn game() -> Game {
         let decks = [0, 1].map(|_| Deck {
+            commanders: Vec::new(),
             main: vec![cards::MOUNTAIN; 60],
             sideboard: vec![cards::FOREST; 15],
         });

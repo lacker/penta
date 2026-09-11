@@ -40,6 +40,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// C18 23 — Loyal Apprentice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LOYAL_APPRENTICE_23: CardRecord = CardRecord::new(
+    "Loyal Apprentice",
+    "b5fef5fe-3e59-4fd6-8a88-7c1cee56892f",
+    "Joe Slucher",
+    crate::card::CardRules::unsupported(),
+);
+
+// C18 38 — Arixmethes, Slumbering Isle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARIXMETHES_SLUMBERING_ISLE_38: CardRecord = CardRecord::new(
+    "Arixmethes, Slumbering Isle",
+    "c723c7dc-a452-49ec-a4e5-9e516fe530e9",
+    "Dimitar Marinski",
+    crate::card::CardRules::unsupported(),
+);
+
 // C18 54 — Coveted Jewel
 pub(in crate::card::sets) static COVETED_JEWEL: CardRecord = CardRecord::new(
     "Coveted Jewel",
@@ -200,6 +218,12 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&COVETED_JEWEL, &ENDLESS_ATLAS, &RETROFITTER_FOUNDRY];
+    &[
+    &LOYAL_APPRENTICE_23,
+    &ARIXMETHES_SLUMBERING_ISLE_38,
+    &COVETED_JEWEL,
+    &ENDLESS_ATLAS,
+    &RETROFITTER_FOUNDRY,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,0 +1,110 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 96th place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/90ZPIccF14VmivzC6f7olrGte5q1
+# TopDeck entry ID: RW50cnk6MzM4NzY2
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 96th place, Alejandro Urbina Juarez"
+id: nacional_096_338766_alejandro_urbina_juarez
+description: "Exact tournament decklist for Alejandro Urbina Juarez, 96th place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Noctis, Prince of Lucis": 1
+main:
+  "Adarkar Wastes": 1
+  "Aetherflux Reservoir": 1
+  "An Offer You Can't Refuse": 1
+  "Ancient Tomb": 1
+  "Arcane Signet": 1
+  "Archivist of Oghma": 1
+  "Beseech the Mirror": 1
+  "Black Mage's Rod": 1
+  "Bolas's Citadel": 1
+  "Cabal Ritual": 1
+  "Caves of Koilos": 1
+  "Chalice of the Void": 1
+  "Chrome Mox": 1
+  "City of Brass": 1
+  "Command Tower": 1
+  "Cyclonic Rift": 1
+  "Dark Ritual": 1
+  "Daze": 1
+  "Deadly Rollick": 1
+  "Demonic Consultation": 1
+  "Demonic Tutor": 1
+  "Displacer Kitten": 1
+  "Dovin's Veto": 1
+  "Enlightened Tutor": 1
+  "Entomb": 1
+  "Esper Sentinel": 1
+  "Exotic Orchard": 1
+  "Faerie Mastermind": 1
+  "Fellwar Stone": 1
+  "Fierce Guardianship": 1
+  "Flooded Strand": 1
+  "Flusterstorm": 1
+  "Forbidden Orchard": 1
+  "Force of Negation": 1
+  "Force of Will": 1
+  "Gemstone Caverns": 1
+  "Gemstone Mine": 1
+  "Gifts Ungiven": 1
+  "Godless Shrine": 1
+  "Grand Abolisher": 1
+  "Hallowed Fountain": 1
+  "Imperial Seal": 1
+  "Imposter Mech": 1
+  "Into the Flood Maw": 1
+  "Intuition": 1
+  "Inventors' Fair": 1
+  "Island": 1
+  "Ledger Shredder": 1
+  "Liberator, Urza's Battlethopter": 1
+  "Lion's Eye Diamond": 1
+  "Lotho, Corrupt Shirriff": 1
+  "Lotus Petal": 1
+  "Mana Confluence": 1
+  "Mana Vault": 1
+  "Marsh Flats": 1
+  "Mental Misstep": 1
+  "Miscast": 1
+  "Morphic Pool": 1
+  "Mox Diamond": 1
+  "Mox Opal": 1
+  "Mystic Remora": 1
+  "Mystical Tutor": 1
+  "Opposition Agent": 1
+  "Orcish Bowmasters": 1
+  "Pact of Negation": 1
+  "Plains": 1
+  "Polluted Delta": 1
+  "Praetor's Grasp": 1
+  "Ranger-Captain of Eos": 1
+  "Reflecting Pool": 1
+  "Rhystic Study": 1
+  "Ripples of Undeath": 1
+  "Sea of Clouds": 1
+  "Sensei's Divining Top": 1
+  "Silence": 1
+  "Smothering Tithe": 1
+  "Sol Ring": 1
+  "Solemnity": 1
+  "Spell Pierce": 1
+  "Spellskite": 1
+  "Spire of Industry": 1
+  "Starting Town": 1
+  "Swan Song": 1
+  "Swords to Plowshares": 1
+  "Tainted Pact": 1
+  "Tataru Taru": 1
+  "Teferi, Time Raveler": 1
+  "Thassa's Oracle": 1
+  "The One Ring": 1
+  "Underground River": 1
+  "Underground Sea": 1
+  "Unmarked Grave": 1
+  "Urza's Saga": 1
+  "Vampiric Tutor": 1
+  "Vault of Champions": 1
+  "Vexing Bauble": 1
+  "Voice of Victory": 1
+  "Watery Grave": 1
+  "Wishclaw Talisman": 1
+sideboard: {}

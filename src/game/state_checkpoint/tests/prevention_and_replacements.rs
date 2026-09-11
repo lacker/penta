@@ -93,6 +93,7 @@ fn every_runtime_keyword_has_a_stable_checkpoint_round_trip() {
 fn checkpoint_redacts_opposing_drawn_card_ids() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
+        commanders: Vec::new(),
         main: vec![crate::card::cards::MOUNTAIN; 60],
         sideboard: Vec::new(),
     };
@@ -113,6 +114,7 @@ fn checkpoint_redacts_opposing_drawn_card_ids() {
 fn checkpoint_json_is_a_projection_of_one_typed_snapshot_schema() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
+        commanders: Vec::new(),
         main: vec![crate::card::cards::MOUNTAIN; 60],
         sideboard: Vec::new(),
     };

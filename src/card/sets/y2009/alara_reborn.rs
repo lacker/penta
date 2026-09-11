@@ -87,6 +87,15 @@ pub(in crate::card::sets) static SOUL_MANIPULATION: CardRecord = CardRecord::new
     ),
 );
 
+// ARB 31 — Time Sieve
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TIME_SIEVE_31: CardRecord = CardRecord::new(
+    "Time Sieve",
+    "c620e565-f5e1-467c-a1d1-8d05228b2f37",
+    "Franz Vohwinkel",
+    crate::card::CardRules::unsupported(),
+);
+
 // ARB 92 — Maelstrom Pulse
 pub(in crate::card::sets) static MAELSTROM_PULSE: CardRecord = CardRecord::new(
     "Maelstrom Pulse",
@@ -130,6 +139,15 @@ pub(in crate::card::sets) static PUTRID_LEECH: CardRecord = CardRecord::new(
     ),
 );
 
+// ARB 129 — Wargate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WARGATE_129: CardRecord = CardRecord::new(
+    "Wargate",
+    "8f4fe11d-c404-489a-b17f-34f33b1597e8",
+    "Franz Vohwinkel",
+    crate::card::CardRules::unsupported(),
+);
+
 // ARB 133 — Thopter Foundry
 pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
     "Thopter Foundry",
@@ -168,8 +186,10 @@ pub(in crate::card::sets) static THOPTER_FOUNDRY: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SOUL_MANIPULATION,
+    &TIME_SIEVE_31,
     &MAELSTROM_PULSE,
     &PUTRID_LEECH,
+    &WARGATE_129,
     &THOPTER_FOUNDRY,
 ];
 

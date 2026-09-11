@@ -42,6 +42,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// FRF 1 — Ugin, the Spirit Dragon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UGIN_THE_SPIRIT_DRAGON_1: CardRecord = CardRecord::new(
+    "Ugin, the Spirit Dragon",
+    "58c1e824-c8a9-4312-8e4c-a29a26d189a4",
+    "Raymond Swanland",
+    crate::card::CardRules::unsupported(),
+);
+
 // FRF 28 — Valorous Stance
 pub(in crate::card::sets) static VALOROUS_STANCE: CardRecord = CardRecord::new(
     "Valorous Stance",
@@ -77,6 +86,24 @@ pub(in crate::card::sets) static VALOROUS_STANCE: CardRecord = CardRecord::new(
             ),
         ],
     )]),
+);
+
+// FRF 46 — Reality Shift
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static REALITY_SHIFT_46: CardRecord = CardRecord::new(
+    "Reality Shift",
+    "e01367cb-79f4-4ed9-b12c-66f3c30264a0",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
+);
+
+// FRF 47 — Refocus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static REFOCUS_47: CardRecord = CardRecord::new(
+    "Refocus",
+    "35c78973-f2ae-4c76-802f-793d1022fcbd",
+    "Kev Walker",
+    crate::card::CardRules::unsupported(),
 );
 
 // FRF 72 — Gurmag Angler
@@ -181,11 +208,24 @@ pub(in crate::card::sets) static FLAMEWAKE_PHOENIX: CardRecord = CardRecord::new
     ]),
 );
 
+// FRF 141 — Temur Sabertooth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMUR_SABERTOOTH_141: CardRecord = CardRecord::new(
+    "Temur Sabertooth",
+    "5d54da7c-8828-4d34-bfd0-a654692d3f5a",
+    "Mike Sass",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &UGIN_THE_SPIRIT_DRAGON_1,
     &VALOROUS_STANCE,
+    &REALITY_SHIFT_46,
+    &REFOCUS_47,
     &GURMAG_ANGLER,
     &SOULFLAYER,
     &FLAMEWAKE_PHOENIX,
+    &TEMUR_SABERTOOTH_141,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

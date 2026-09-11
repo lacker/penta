@@ -36,6 +36,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// NEC 13 — Imposter Mech
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IMPOSTER_MECH_13: CardRecord = CardRecord::new(
+    "Imposter Mech",
+    "59b7450c-3163-4f12-9af1-2e998a6c36cf",
+    "Andrew Mar",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEC 14 — Kappa Cannoneer
 pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
     "Kappa Cannoneer",
@@ -83,6 +92,33 @@ pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
                 ]),
             ),
         ]),
+);
+
+// NEC 45 — Swift Reconfiguration
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SWIFT_RECONFIGURATION_45: CardRecord = CardRecord::new(
+    "Swift Reconfiguration",
+    "0bd0b431-534d-4ab7-93ed-b9a25259e88e",
+    "Nicholas Gregory",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEC 46 — Yoshimaru, Ever Faithful
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static YOSHIMARU_EVER_FAITHFUL_46: CardRecord = CardRecord::new(
+    "Yoshimaru, Ever Faithful",
+    "84dcd364-38c1-4987-a066-1c4d4533912e",
+    "Ilse Gort",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEC 56 — Ruthless Technomancer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUTHLESS_TECHNOMANCER_56: CardRecord = CardRecord::new(
+    "Ruthless Technomancer",
+    "b6f8e7b9-d90b-40a5-88f4-4edfae0d01f7",
+    "PINDURSKI",
+    crate::card::CardRules::unsupported(),
 );
 
 // NEC 76 — Shorikai, Genesis Engine
@@ -141,6 +177,13 @@ pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecor
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&KAPPA_CANNONEER, &SHORIKAI_GENESIS_ENGINE];
+    &[
+    &IMPOSTER_MECH_13,
+    &KAPPA_CANNONEER,
+    &SWIFT_RECONFIGURATION_45,
+    &YOSHIMARU_EVER_FAITHFUL_46,
+    &RUTHLESS_TECHNOMANCER_56,
+    &SHORIKAI_GENESIS_ENGINE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

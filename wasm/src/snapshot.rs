@@ -295,6 +295,7 @@ impl WebGame {
             let creature_stats = card.and_then(|card| card.rules.creature_stats());
             json!({
                 "id": id.0,
+                "definition": definition,
                 "name": self.card_name(definition),
                 "art": card_art_value(art.as_ref()),
                 "kind": card.map_or("unknown".into(), |card| {
@@ -317,6 +318,30 @@ impl WebGame {
             .hand
             .iter()
             .map(|(id, definition)| card_in_zone(*id, *definition))
+            .collect::<Vec<_>>();
+        let command_zone = |player: PlayerId| {
+            observation.command_zones[player.index()]
+                .iter()
+                .map(|(id, definition)| card_in_zone(*id, *definition))
+                .collect::<Vec<_>>()
+        };
+        let commanders = observation
+            .commanders
+            .iter()
+            .map(|commander| {
+                let name = self.card_name(commander.definition);
+                json!({
+                    "owner": if commander.owner == self.human { "human" } else { "opponent" },
+                    "definition": commander.definition,
+                    "name": name,
+                    "object": commander.object.map(|object| object.0),
+                    "commandZoneCasts": commander.command_zone_casts,
+                    "combatDamage": {
+                        "human": commander.combat_damage[self.human.index()],
+                        "opponent": commander.combat_damage[opponent.index()],
+                    },
+                })
+            })
             .collect::<Vec<_>>();
         let stack = observation
             .stack
@@ -543,6 +568,7 @@ impl WebGame {
                 },
                 "hand": hand,
                 "graveyard": graveyard(self.human),
+                "commandZone": command_zone(self.human),
             },
             "opponent": {
                 "life": observation.life_totals[opponent.index()],
@@ -557,8 +583,10 @@ impl WebGame {
                     "colorless": observation.mana_pools[opponent.index()].colorless,
                 },
                 "graveyard": graveyard(opponent),
+                "commandZone": command_zone(opponent),
             },
             "battlefield": battlefield,
+            "commanders": commanders,
             "emblems": observation.emblems.iter().map(|emblem| json!({
                 "id": emblem.id.0,
                 "owner": if emblem.controller == self.human { "human" } else { "opponent" },

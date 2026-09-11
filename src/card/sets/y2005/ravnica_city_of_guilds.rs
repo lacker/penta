@@ -111,6 +111,42 @@ CardRules::new_creature(mana_cost!("{4}{U}"), &["Sphinx"], 2, 5).with_abilities(
     ]),
 );
 
+// RAV 42 — Copy Enchantment
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COPY_ENCHANTMENT_42: CardRecord = CardRecord::new(
+    "Copy Enchantment",
+    "ac22117d-bd58-439f-b199-da72bc7160b2",
+    "Joel Thomas",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 43 — Dizzy Spell
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIZZY_SPELL_43: CardRecord = CardRecord::new(
+    "Dizzy Spell",
+    "6e0db10d-fb6d-44df-9ff2-6f1e0e8f8209",
+    "Christopher Moeller",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 46 — Drift of Phantasms
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRIFT_OF_PHANTASMS_46: CardRecord = CardRecord::new(
+    "Drift of Phantasms",
+    "c1096ce5-f776-4028-b231-e6eaee35014b",
+    "Michael Phillippi",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 60 — Muddle the Mixture
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MUDDLE_THE_MIXTURE_60: CardRecord = CardRecord::new(
+    "Muddle the Mixture",
+    "4cc785b0-0a77-4b02-b0b4-2bda2fc621cc",
+    "Luca Zontini",
+    crate::card::CardRules::unsupported(),
+);
+
 // RAV 61 — Peel from Reality
 pub(in crate::card::sets) static PEEL_FROM_REALITY: CardRecord = CardRecord::new(
     "Peel from Reality",
@@ -255,6 +291,24 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
     ),
 );
 
+// RAV 83 — Dimir House Guard
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIMIR_HOUSE_GUARD_83: CardRecord = CardRecord::new(
+    "Dimir House Guard",
+    "9a021caf-d9e7-470b-85be-3af42a3adfd3",
+    "John Zeleznik",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 84 — Dimir Machinations
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIMIR_MACHINATIONS_84: CardRecord = CardRecord::new(
+    "Dimir Machinations",
+    "14bfd72a-78c1-4167-89bf-ea1fccccd5b1",
+    "Greg Staples",
+    crate::card::CardRules::unsupported(),
+);
+
 // RAV 93 — Last Gasp
 pub(in crate::card::sets) static LAST_GASP: CardRecord = CardRecord::new(
     "Last Gasp",
@@ -274,6 +328,15 @@ pub(in crate::card::sets) static LAST_GASP: CardRecord = CardRecord::new(
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )]),
+);
+
+// RAV 116 — Breath of Fury
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BREATH_OF_FURY_116: CardRecord = CardRecord::new(
+    "Breath of Fury",
+    "dbef6f4a-f9a0-4a4c-b8a2-6c3a8fb7e14a",
+    "Kev Walker",
+    crate::card::CardRules::unsupported(),
 );
 
 // RAV 125 — Frenzied Goblin
@@ -350,6 +413,15 @@ CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
     ),
 );
 
+// RAV 156 — Chord of Calling
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHORD_OF_CALLING_156: CardRecord = CardRecord::new(
+    "Chord of Calling",
+    "e064174b-8f07-4fea-9eef-c3b5d0220b1a",
+    "Heather Hudson",
+    crate::card::CardRules::unsupported(),
+);
+
 // RAV 158 — Doubling Season
 // Audit: unsupported — Needs prospective token-creation and counter-placement replacement events, including whether counters are placed by an effect rather than a cost or turn-based action.
 pub(in crate::card::sets) static DOUBLING_SEASON: CardRecord = CardRecord::new(
@@ -387,6 +459,33 @@ CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
             then: None,
         },
     )),
+);
+
+// RAV 184 — Stone-Seeder Hierophant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STONE_SEEDER_HIEROPHANT_184: CardRecord = CardRecord::new(
+    "Stone-Seeder Hierophant",
+    "f4e1b9f9-e58c-4474-9a31-8e5d9f96492e",
+    "William Simpson",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 198 — Congregation at Dawn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CONGREGATION_AT_DAWN_198: CardRecord = CardRecord::new(
+    "Congregation at Dawn",
+    "2f1b950a-b2fe-4afc-bb79-c9f4c272ea36",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 203 — Dimir Infiltrator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIMIR_INFILTRATOR_203: CardRecord = CardRecord::new(
+    "Dimir Infiltrator",
+    "3db9204c-dde8-4241-aac2-1f090566f604",
+    "Jim Nelson",
+    crate::card::CardRules::unsupported(),
 );
 
 // RAV 213 — Lightning Helix
@@ -478,6 +577,33 @@ pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
             .with_activation_timing(ActivationTimingDef::SorcerySpeed),
         ],
     ),
+);
+
+// RAV 255 — Boros Signet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BOROS_SIGNET_255: CardRecord = CardRecord::new(
+    "Boros Signet",
+    "1bae1f86-4639-4424-b47b-fdc826bf6e97",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 257 — Cloudstone Curio
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CLOUDSTONE_CURIO_257: CardRecord = CardRecord::new(
+    "Cloudstone Curio",
+    "47cbda17-d368-4dc3-b41c-95b146468b44",
+    "Heather Hudson",
+    crate::card::CardRules::unsupported(),
+);
+
+// RAV 260 — Dimir Signet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIMIR_SIGNET_260: CardRecord = CardRecord::new(
+    "Dimir Signet",
+    "9a9a1df5-a4e8-49a4-aebe-ca93894ccfcf",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
 );
 
 // RAV 275 — Boros Garrison
@@ -596,19 +722,33 @@ pub(in crate::card::sets) static WATERY_GRAVE: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FAITH_S_FETTERS,
     &BELLTOWER_SPHINX,
+    &COPY_ENCHANTMENT_42,
+    &DIZZY_SPELL_43,
+    &DRIFT_OF_PHANTASMS_46,
+    &MUDDLE_THE_MIXTURE_60,
     &PEEL_FROM_REALITY,
     &REMAND,
     &VEDALKEN_ENTRANCER,
     &DARK_CONFIDANT,
+    &DIMIR_HOUSE_GUARD_83,
+    &DIMIR_MACHINATIONS_84,
     &LAST_GASP,
+    &BREATH_OF_FURY_116,
     &FRENZIED_GOBLIN,
     &REROUTE,
+    &CHORD_OF_CALLING_156,
     &DOUBLING_SEASON,
     &FARSEEK,
+    &STONE_SEEDER_HIEROPHANT_184,
+    &CONGREGATION_AT_DAWN_198,
+    &DIMIR_INFILTRATOR_203,
     &LIGHTNING_HELIX,
     &PUTREFY,
     &SKYKNIGHT_LEGIONNAIRE,
     &DIMIR_GUILDMAGE,
+    &BOROS_SIGNET_255,
+    &CLOUDSTONE_CURIO_257,
+    &DIMIR_SIGNET_260,
     &BOROS_GARRISON,
     &DIMIR_AQUEDUCT,
     &GOLGARI_ROT_FARM,

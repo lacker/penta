@@ -403,6 +403,24 @@ pub(in crate::card::sets) static ARBOR_ELF: CardRecord = CardRecord::new(
     ]),
 );
 
+// WWK 108 — Nature's Claim
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NATURE_S_CLAIM_108: CardRecord = CardRecord::new(
+    "Nature's Claim",
+    "64ae5a91-ac54-4222-832e-d7a740a3f7cb",
+    "Daarken",
+    crate::card::CardRules::unsupported(),
+);
+
+// WWK 115 — Terastodon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TERASTODON_115: CardRecord = CardRecord::new(
+    "Terastodon",
+    "e66d2f62-8a4a-4e8d-93e1-5dc802684106",
+    "Lars Grant-West",
+    crate::card::CardRules::unsupported(),
+);
+
 // WWK 118 — Wolfbriar Elemental
 pub(in crate::card::sets) static WOLFBRIAR_ELEMENTAL: CardRecord = CardRecord::new(
     "Wolfbriar Elemental",
@@ -515,6 +533,15 @@ pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new(
         ]),
 );
 
+// WWK 127 — Lodestone Golem
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LODESTONE_GOLEM_127: CardRecord = CardRecord::new(
+    "Lodestone Golem",
+    "9bb0ee6a-852a-4f1e-8f03-40b6d505bc82",
+    "Chris Rahn",
+    crate::card::CardRules::unsupported(),
+);
+
 // WWK 133 — Celestial Colonnade
 pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::new(
     "Celestial Colonnade",
@@ -609,10 +636,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DRAGONMASTER_OUTCAST,
     &RICOCHET_TRAP,
     &ARBOR_ELF,
+    &NATURE_S_CLAIM_108,
+    &TERASTODON_115,
     &WOLFBRIAR_ELEMENTAL,
     &BASILISK_COLLAR,
     &EVERFLOWING_CHALICE,
     &KITESAIL,
+    &LODESTONE_GOLEM_127,
     &CELESTIAL_COLONNADE,
     &CREEPING_TAR_PIT,
 ];

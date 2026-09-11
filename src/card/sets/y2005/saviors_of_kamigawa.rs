@@ -50,6 +50,24 @@ pub(in crate::card::sets) static ARABA_MOTHRIDER: CardRecord = CardRecord::new(
     ]),
 );
 
+// SOK 38 — Freed from the Real
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FREED_FROM_THE_REAL_38: CardRecord = CardRecord::new(
+    "Freed from the Real",
+    "e9ecee02-12c0-4aed-a679-41bce95e0cda",
+    "Scott M. Fischer",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOK 48 — Oboro Breezecaller
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OBORO_BREEZECALLER_48: CardRecord = CardRecord::new(
+    "Oboro Breezecaller",
+    "a382a9b8-0b19-46c2-a547-a22d6e23d0ac",
+    "Rebecca Guay",
+    crate::card::CardRules::unsupported(),
+);
+
 // SOK 53 — Sakashima the Impostor
 static SAKASHIMA_RETURN: AbilityDef = AbilityDef::activated(
     "{2}{U}{U}: Return Sakashima the Impostor to its owner's hand \
@@ -89,6 +107,15 @@ CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Rogue"], 3, 1)
             ),
             SAKASHIMA_RETURN,
         ]),
+);
+
+// SOK 60 — Twincast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TWINCAST_60: CardRecord = CardRecord::new(
+    "Twincast",
+    "1a367559-1d84-4f6f-9e6e-ff90de420389",
+    "Christopher Moeller",
+    crate::card::CardRules::unsupported(),
 );
 
 // SOK 63 — Death Denied
@@ -164,6 +191,15 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Human", "Samurai"], 3, 3)
         ]),
 );
 
+// SOK 118 — Thoughts of Ruin
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THOUGHTS_OF_RUIN_118: CardRecord = CardRecord::new(
+    "Thoughts of Ruin",
+    "2a0f2db3-41a6-4283-9812-46b6ae6d1df6",
+    "John Avon",
+    crate::card::CardRules::unsupported(),
+);
+
 // SOK 147 — Seek the Horizon
 pub(in crate::card::sets) static SEEK_THE_HORIZON: CardRecord = CardRecord::new(
     "Seek the Horizon",
@@ -214,14 +250,38 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
     ]),
 );
 
+// SOK 162 — Mikokoro, Center of the Sea
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIKOKORO_CENTER_OF_THE_SEA_162: CardRecord = CardRecord::new(
+    "Mikokoro, Center of the Sea",
+    "7ef72797-328e-4303-8ffb-9686086648b8",
+    "John Avon",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOK 164 — Oboro, Palace in the Clouds
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OBORO_PALACE_IN_THE_CLOUDS_164: CardRecord = CardRecord::new(
+    "Oboro, Palace in the Clouds",
+    "ffc2d68e-6543-43ec-b67a-afff1325a32f",
+    "Rob Alexander",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARABA_MOTHRIDER,
+    &FREED_FROM_THE_REAL_38,
+    &OBORO_BREEZECALLER_48,
     &SAKASHIMA_THE_IMPOSTOR,
+    &TWINCAST_60,
     &DEATH_DENIED,
     &HIDETSUGU_S_SECOND_RITE,
     &IIZUKA_THE_RUTHLESS,
+    &THOUGHTS_OF_RUIN_118,
     &SEEK_THE_HORIZON,
     &PITHING_NEEDLE,
+    &MIKOKORO_CENTER_OF_THE_SEA_162,
+    &OBORO_PALACE_IN_THE_CLOUDS_164,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

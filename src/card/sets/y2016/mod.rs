@@ -8,3 +8,5 @@ pub mod oath_of_the_gatewatch;
 pub mod shadows_over_innistrad;
 
 pub(super) use super::{CardRecord, PrintingRecord};
+
+pub mod commander_2016;

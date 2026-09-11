@@ -408,6 +408,31 @@ impl Game {
     /// (CR 707.10), and a spell cast via flashback is exiled wherever else
     /// it would have gone (CR 702.34a).
     fn remove_spell_from_stack(&mut self, index: usize, zone: CounteredSpellZone) {
+        let proposed = &self.stack[index];
+        let requested = match zone {
+            CounteredSpellZone::Hand => Some((ZoneKind::Hand, ZonePlacement::Top)),
+            CounteredSpellZone::Library(placement) => Some((ZoneKind::Library, placement)),
+            _ => None,
+        };
+        let command = if !proposed.is_copy
+            && !proposed
+                .cast
+                .as_ref()
+                .is_some_and(|cast| cast.via_flashback)
+            && let Some((destination, placement)) = requested
+        {
+            let Some(destination) = self.commander_hidden_move_destination(
+                Target::Spell(proposed.id),
+                destination,
+                super::ZoneMoveCause::Rules,
+                placement,
+            ) else {
+                return;
+            };
+            destination == ZoneKind::Command
+        } else {
+            false
+        };
         let object = self.stack.remove(index);
         self.retire_stack_object(&object);
         if object.kind == StackObjectKind::Spell && !object.is_copy {
@@ -416,6 +441,11 @@ impl Game {
                 .card
                 .into_card()
                 .expect("a nontoken spell is backed by a card");
+            if command {
+                let (card, _) = self.zone_change_card(card);
+                self.players[owner.index()].command.push(card);
+                return;
+            }
             let exile_replaces_move = object.cast.as_ref().is_some_and(|cast| {
                 cast.via_flashback
                     || (zone == CounteredSpellZone::Graveyard && cast.exile_if_put_into_graveyard)

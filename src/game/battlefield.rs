@@ -424,6 +424,7 @@ impl Game {
                     .iter()
                     .find(|permanent| permanent.card.id == *id)
                     .map(|permanent| PendingBattlefieldExitMove {
+                        commander_considered: false,
                         object: *id,
                         controller: permanent.controller,
                         // A finality counter says the same thing a
@@ -661,46 +662,7 @@ impl Game {
     }
 
     pub(super) fn return_permanent_to_hand(&mut self, id: GameObjectId) {
-        let listeners = self.battlefield_trigger_listeners();
-        let Some(index) = self
-            .battlefield
-            .iter()
-            .position(|permanent| permanent.card.id == id)
-        else {
-            return;
-        };
-        let damage_sources = self.battlefield[index].damage_sources.clone();
-        let snapshot = self.battlefield_exit_snapshot(&self.battlefield[index]);
-        let permanent = self.remove_battlefield_object(index, &snapshot.last_known);
-        self.record_battlefield_exit(&permanent, BattlefieldExit::Hand);
-        let after = if permanent.card.definition.is_token() {
-            None
-        } else {
-            let owner = permanent.card.owner;
-            let (card, _zone_change) = self.zone_change_card(
-                permanent
-                    .card
-                    .clone()
-                    .into_card()
-                    .expect("a nontoken permanent is backed by a card definition"),
-            );
-            let after = self.printed_trigger_event_object(
-                card.id,
-                card.definition,
-                owner,
-                &crate::CharacteristicContext::Hand,
-            );
-            self.players[owner.index()].hand.push(card);
-            after
-        };
-        let event = CommittedTriggerEvent::ZoneChanged {
-            before: Some(snapshot.object),
-            after,
-            from: ZoneKind::Battlefield,
-            to: ZoneKind::Hand,
-            damage_sources,
-        };
-        self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
+        self.move_permanents_to_zone(&[id], ZoneKind::Hand, ZonePlacement::Top);
     }
 
     /// Puts a permanent at one end of its owner's library through the shared

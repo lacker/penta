@@ -84,6 +84,24 @@ pub(in crate::card::sets) static EXTRAVAGANT_REPLICATION: CardRecord = CardRecor
     ]),
 );
 
+// NCC 36 — Lethal Scheme
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LETHAL_SCHEME_36: CardRecord = CardRecord::new(
+    "Lethal Scheme",
+    "65864680-9520-4eb3-9774-fa478e54a290",
+    "Tuan Duong Chu",
+    crate::card::CardRules::unsupported(),
+);
+
+// NCC 52 — Seize the Spotlight
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SEIZE_THE_SPOTLIGHT_52: CardRecord = CardRecord::new(
+    "Seize the Spotlight",
+    "3b4df2f7-8d17-4484-85a3-b8f3e4dd0c7c",
+    "Ernanda Souza",
+    crate::card::CardRules::unsupported(),
+);
+
 // NCC 81 — Currency Converter
 /// The card goes back to the graveyard it came from -- its owner's, which is
 /// where a card exiled from a graveyard belongs however it got to exile.
@@ -172,7 +190,22 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
     ]),
 );
 
+// NCC 109 — Tivit, Seller of Secrets
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TIVIT_SELLER_OF_SECRETS_109: CardRecord = CardRecord::new(
+    "Tivit, Seller of Secrets",
+    "5326a876-0c56-4368-af10-e9bbd1188d45",
+    "Chris Rahn",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&EXTRAVAGANT_REPLICATION, &CURRENCY_CONVERTER];
+    &[
+    &EXTRAVAGANT_REPLICATION,
+    &LETHAL_SCHEME_36,
+    &SEIZE_THE_SPOTLIGHT_52,
+    &CURRENCY_CONVERTER,
+    &TIVIT_SELLER_OF_SECRETS_109,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -109,6 +109,15 @@ pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new
     ]),
 );
 
+// KTK 34 — Clever Impersonator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CLEVER_IMPERSONATOR_34: CardRecord = CardRecord::new(
+    "Clever Impersonator",
+    "cd8fffd3-81ad-47e3-a27b-d8059f2b506f",
+    "Slawomir Maniak",
+    crate::card::CardRules::unsupported(),
+);
+
 // KTK 37 — Disdainful Stroke
 pub(in crate::card::sets) static DISDAINFUL_STROKE: CardRecord = CardRecord::new(
     "Disdainful Stroke",
@@ -129,6 +138,15 @@ pub(in crate::card::sets) static DISDAINFUL_STROKE: CardRecord = CardRecord::new
         )],
         EffectDef::counter_target(TargetIndex::PRIMARY),
     )]),
+);
+
+// KTK 56 — Stubborn Denial
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STUBBORN_DENIAL_56: CardRecord = CardRecord::new(
+    "Stubborn Denial",
+    "6f8626c4-306f-4e9d-8840-2bb73fe87e87",
+    "James Ryman",
+    crate::card::CardRules::unsupported(),
 );
 
 // KTK 59 — Treasure Cruise
@@ -204,6 +222,24 @@ pub(in crate::card::sets) static MONASTERY_SWIFTSPEAR: CardRecord = CardRecord::
         .with_abilities(&[abilities::haste(), abilities::prowess()]),
 );
 
+// KTK 123 — Tormenting Voice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TORMENTING_VOICE_123: CardRecord = CardRecord::new(
+    "Tormenting Voice",
+    "25af9ac1-a03b-4be7-b726-fb66427b1caa",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 133 — Hardened Scales
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HARDENED_SCALES_133: CardRecord = CardRecord::new(
+    "Hardened Scales",
+    "7dcdf1db-bfaf-4160-8003-1fa2e56b00dc",
+    "Mark Winters",
+    crate::card::CardRules::unsupported(),
+);
+
 // KTK 137 — Hooting Mandrills
 pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new(
     "Hooting Mandrills",
@@ -214,6 +250,33 @@ pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new
     // profitably anyway.
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Ape"], 4, 4)
         .with_abilities(&[abilities::delve(), abilities::trample()]),
+);
+
+// KTK 207 — Temur Ascendancy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMUR_ASCENDANCY_207: CardRecord = CardRecord::new(
+    "Temur Ascendancy",
+    "11746bf1-d813-4ade-8ce4-9935cebef856",
+    "Jaime Jones",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 216 — Altar of the Brood
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ALTAR_OF_THE_BROOD_216: CardRecord = CardRecord::new(
+    "Altar of the Brood",
+    "8d59d264-87ee-4305-bffb-110549331a82",
+    "Erica Yang",
+    crate::card::CardRules::unsupported(),
+);
+
+// KTK 217 — Briber's Purse
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRIBER_S_PURSE_217: CardRecord = CardRecord::new(
+    "Briber's Purse",
+    "7f9951f1-ca51-44a2-8480-602df466f0ab",
+    "Steve Argyle",
+    crate::card::CardRules::unsupported(),
 );
 
 // KTK 227 — Ugin's Nexus
@@ -598,12 +661,19 @@ pub(in crate::card::sets) static WIND_SCARRED_CRAG: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AINOK_BOND_KIN,
     &SEEKER_OF_THE_WAY,
+    &CLEVER_IMPERSONATOR_34,
     &DISDAINFUL_STROKE,
+    &STUBBORN_DENIAL_56,
     &TREASURE_CRUISE,
     &MARDU_SKULLHUNTER,
     &HORDELING_OUTBURST,
     &MONASTERY_SWIFTSPEAR,
+    &TORMENTING_VOICE_123,
+    &HARDENED_SCALES_133,
     &HOOTING_MANDRILLS,
+    &TEMUR_ASCENDANCY_207,
+    &ALTAR_OF_THE_BROOD_216,
+    &BRIBER_S_PURSE_217,
     &UGINS_NEXUS,
     &BLOODFELL_CAVES,
     &BLOSSOMING_SANDS,

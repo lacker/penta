@@ -329,6 +329,15 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
         ]),
 );
 
+// NEO 61 — March of Swirling Mist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MARCH_OF_SWIRLING_MIST_61: CardRecord = CardRecord::new(
+    "March of Swirling Mist",
+    "100171d8-7436-44c8-b4cb-0101ffa05c25",
+    "Iris Compiet",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 63 — Mirrorshell Crab
 pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
     "Mirrorshell Crab",
@@ -407,6 +416,24 @@ pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::n
                 },
             ),
         ]),
+);
+
+// NEO 69 — Moonsnare Prototype
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MOONSNARE_PROTOTYPE_69: CardRecord = CardRecord::new(
+    "Moonsnare Prototype",
+    "9d8bc0e9-a536-4bca-92a6-8dca85e1e984",
+    "Fariba Khamseh",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 82 — Tameshi, Reality Architect
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TAMESHI_REALITY_ARCHITECT_82: CardRecord = CardRecord::new(
+    "Tameshi, Reality Architect",
+    "26594b52-3e9c-4cde-88df-1f4e9e16676e",
+    "Scott M. Fischer",
+    crate::card::CardRules::unsupported(),
 );
 
 // NEO 91 — Clawing Torment
@@ -548,6 +575,24 @@ pub(in crate::card::sets) static CRACKLING_EMERGENCE: CardRecord = CardRecord::n
         ]),
 );
 
+// NEO 138 — Experimental Synthesizer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EXPERIMENTAL_SYNTHESIZER_138: CardRecord = CardRecord::new(
+    "Experimental Synthesizer",
+    "c47931c9-685d-4b83-8299-bc347224b4e8",
+    "Yeong-Hao Han",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 145 — Goro-Goro, Disciple of Ryusei
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GORO_GORO_DISCIPLE_OF_RYUSEI_145: CardRecord = CardRecord::new(
+    "Goro-Goro, Disciple of Ryusei",
+    "1ca736c7-35a9-48c7-b5a9-69b2a6e33ad0",
+    "Mike Jordana",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 148 — Ironhoof Boar
 pub(in crate::card::sets) static IRONHOOF_BOAR: CardRecord = CardRecord::new(
     "Ironhoof Boar",
@@ -583,6 +628,15 @@ pub(in crate::card::sets) static IRONHOOF_BOAR: CardRecord = CardRecord::new(
     ]),
 );
 
+// NEO 154 — March of Reckless Joy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MARCH_OF_RECKLESS_JOY_154: CardRecord = CardRecord::new(
+    "March of Reckless Joy",
+    "780e1bf1-e392-40f2-9e84-764dedc5fcd4",
+    "Fiona Hsieh",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 157 — Rabbit Battery
 pub(in crate::card::sets) static RABBIT_BATTERY: CardRecord = CardRecord::new(
     "Rabbit Battery",
@@ -609,6 +663,15 @@ CardRules::new_artifact_creature(mana_cost!("{R}"), &["Equipment", "Rabbit"], 1,
                 "Reconfigure {R} ({R}: Attach to target creature you control; or unattach from a creature. Reconfigure only as a sorcery. While attached, this isn't a creature.)",
             ),
         ]),
+);
+
+// NEO 168 — Twinshot Sniper
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TWINSHOT_SNIPER_168: CardRecord = CardRecord::new(
+    "Twinshot Sniper",
+    "08a86009-4637-4b6c-9d36-367151583668",
+    "Brent Hollowell",
+    crate::card::CardRules::unsupported(),
 );
 
 // NEO 189 — Greater Tanuki
@@ -726,6 +789,24 @@ pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::
     )),
 );
 
+// NEO 216 — Colossal Skyturtle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COLOSSAL_SKYTURTLE_216: CardRecord = CardRecord::new(
+    "Colossal Skyturtle",
+    "f40bd797-4d12-4098-a1a8-d7e5b7b82ac9",
+    "Nicholas Gregory",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 218 — Enthusiastic Mechanaut
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ENTHUSIASTIC_MECHANAUT_218: CardRecord = CardRecord::new(
+    "Enthusiastic Mechanaut",
+    "ac00521f-1b7d-478d-afe8-6761ea512d8d",
+    "Anna Steinbauer",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 222 — Hinata, Dawn-Crowned
 pub(in crate::card::sets) static HINATA_DAWN_CROWNED: CardRecord = CardRecord::new(
     "Hinata, Dawn-Crowned",
@@ -760,6 +841,24 @@ pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord
     "222a736e-d819-452d-aeda-eb848c4b2302",
     "Chris Rahn",
     CardRules::unsupported(),
+);
+
+// NEO 243 — Containment Construct
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CONTAINMENT_CONSTRUCT_243: CardRecord = CardRecord::new(
+    "Containment Construct",
+    "520e5505-429b-4da0-b25e-14b8d4e81ce3",
+    "Julian Kok Joon Wen",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 247 — High-Speed Hoverbike
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HIGH_SPEED_HOVERBIKE_247: CardRecord = CardRecord::new(
+    "High-Speed Hoverbike",
+    "7c619116-1eae-439d-9b1f-639643458a23",
+    "Julian Kok Joon Wen",
+    crate::card::CardRules::unsupported(),
 );
 
 // NEO 248 — Iron Apprentice
@@ -1008,6 +1107,15 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
     ],
 );
 
+// NEO 371 — Jin-Gitaxias, Progress Tyrant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static JIN_GITAXIAS_PROGRESS_TYRANT_371: CardRecord = CardRecord::new(
+    "Jin-Gitaxias, Progress Tyrant",
+    "01985566-275b-4bf0-8667-c81eb95ad70c",
+    "Ai Nanahira",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 412 — Boseiju, Who Endures
 pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::new(
     "Boseiju, Who Endures",
@@ -1090,6 +1198,24 @@ pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::n
         ]),
 );
 
+// NEO 413 — Eiganjo, Seat of the Empire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EIGANJO_SEAT_OF_THE_EMPIRE_413: CardRecord = CardRecord::new(
+    "Eiganjo, Seat of the Empire",
+    "7c31c48f-6275-4430-8dc9-05d70c332b7a",
+    "ZOUNOSE",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 415 — Sokenzan, Crucible of Defiance
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SOKENZAN_CRUCIBLE_OF_DEFIANCE_415: CardRecord = CardRecord::new(
+    "Sokenzan, Crucible of Defiance",
+    "327333cc-2cc9-44ba-a0e6-d01329c416a3",
+    "Nao Miyoshi",
+    crate::card::CardRules::unsupported(),
+);
+
 // NEO 418 — The Wandering Emperor (alternate printing)
 const THE_WANDERING_EMPEROR_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
     &THE_WANDERING_EMPEROR,
@@ -1098,31 +1224,75 @@ const THE_WANDERING_EMPEROR_ALTERNATE_1: PrintingRecord = PrintingRecord::altern
     "Hisashi Momose",
 );
 
+// NEO 436 — Farewell
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FAREWELL_436: CardRecord = CardRecord::new(
+    "Farewell",
+    "0050b693-7bad-4c0c-baca-0186d153ce2e",
+    "Seb McKinnon",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 449 — The Reality Chip
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_REALITY_CHIP_449: CardRecord = CardRecord::new(
+    "The Reality Chip",
+    "9797bb82-24f6-4dd5-8f5d-b3ea45bb65b8",
+    "Campbell White",
+    crate::card::CardRules::unsupported(),
+);
+
+// NEO 505 — Takenuma, Abandoned Mire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TAKENUMA_ABANDONED_MIRE_505: CardRecord = CardRecord::new(
+    "Takenuma, Abandoned Mire",
+    "13410bd5-acee-4cc9-90e3-dbcf8415bcaf",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IMPERIAL_OATH,
     &LION_SASH,
     &TOUCH_THE_SPIRIT_REALM,
     &THE_WANDERING_EMPEROR,
+    &MARCH_OF_SWIRLING_MIST_61,
     &MIRRORSHELL_CRAB,
     &MOON_CIRCUIT_HACKER,
+    &MOONSNARE_PROTOTYPE_69,
+    &TAMESHI_REALITY_ARCHITECT_82,
     &CLAWING_TORMENT,
     &OKIBA_RECKONER_RAID,
     &VIRUS_BEETLE,
     &CRACKLING_EMERGENCE,
+    &EXPERIMENTAL_SYNTHESIZER_138,
+    &GORO_GORO_DISCIPLE_OF_RYUSEI_145,
     &IRONHOOF_BOAR,
+    &MARCH_OF_RECKLESS_JOY_154,
     &RABBIT_BATTERY,
+    &TWINSHOT_SNIPER_168,
     &GREATER_TANUKI,
     &HARMONIOUS_EMERGENCE,
     &TAMIYO_S_SAFEKEEPING,
+    &COLOSSAL_SKYTURTLE_216,
+    &ENTHUSIASTIC_MECHANAUT_218,
     &HINATA_DAWN_CROWNED,
     &TAMIYO_COMPLEATED_SAGE,
+    &CONTAINMENT_CONSTRUCT_243,
+    &HIGH_SPEED_HOVERBIKE_247,
     &IRON_APPRENTICE,
     &MIRROR_BOX,
     &OTAWARA_SOARING_CITY,
     &SECLUDED_COURTYARD,
     &UNCHARTED_HAVEN,
     &FABLE_OF_THE_MIRROR_BREAKER,
+    &JIN_GITAXIAS_PROGRESS_TYRANT_371,
     &BOSEIJU_WHO_ENDURES,
+    &EIGANJO_SEAT_OF_THE_EMPIRE_413,
+    &SOKENZAN_CRUCIBLE_OF_DEFIANCE_415,
+    &FAREWELL_436,
+    &THE_REALITY_CHIP_449,
+    &TAKENUMA_ABANDONED_MIRE_505,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

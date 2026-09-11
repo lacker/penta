@@ -41,6 +41,20 @@ the bot-wire epoch.
 - Replace the native `EffectDef::MoveToZone` variant with
   `EffectDef::move_to_zone(object, zone, placement)`, a shorthand for the shared
   game action's `as_effect()`. Arrival and move-result wrappers remain supported.
+- Add the `cedh` Commander baseline to the two-player engine, with separate
+  deck commanders, a command zone, individual casting tax, optional return
+  choices, and commander combat damage. Partner and Background designations
+  share the deck model; construction and legality enforcement remain deferred.
+- Import 119 available decks from the 123-entry Nacional de cEDH 100K event,
+  preserving source provenance and whole-card unsupported coverage for newly
+  catalogued cards. Add sourced WotC ban metadata without enforcing legality.
+- Advertise `rules.commander.v1`, optional `commandZones` and `commanders`
+  observations, and a capability-gated commander-damage result. Checkpoints
+  preserve identity and history where reconstructible; pending hand/library
+  replacement choices retain the existing fail-closed limitation. The protocol
+  and checkpoint epochs are unchanged; exact artifacts require the matching
+  simulation fingerprint. See [Commander foundation](docs/commander.md).
+
 - Undying and persist use respondable death triggers and a shared zone-move
   action program bound to the exact graveyard object. Both trigger when present;
   later zone changes cannot redirect a return to another card.

@@ -68,6 +68,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// CLB 2 — Abdel Adrian, Gorion's Ward
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ABDEL_ADRIAN_GORION_S_WARD_2: CardRecord = CardRecord::new(
+    "Abdel Adrian, Gorion's Ward",
+    "396f9198-67b6-45d8-91b4-dc853bff9623",
+    "Karl Kopinski",
+    crate::card::CardRules::unsupported(),
+);
+
 // CLB 8 — Banishment
 pub(in crate::card::sets) static BANISHMENT: CardRecord = CardRecord::new(
     "Banishment",
@@ -565,6 +574,33 @@ pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::
         ]),
 );
 
+// CLB 182 — Ingenious Artillerist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INGENIOUS_ARTILLERIST_182: CardRecord = CardRecord::new(
+    "Ingenious Artillerist",
+    "1d8dd6c3-3699-4dd1-a019-fdb569eaf722",
+    "Gaboleps",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 193 — Reckless Barbarian
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RECKLESS_BARBARIAN_193: CardRecord = CardRecord::new(
+    "Reckless Barbarian",
+    "c912e984-1d27-4da2-9733-d56e437bcf58",
+    "Oleksandr Kozachenko",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 206 — Wild Magic Surge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WILD_MAGIC_SURGE_206: CardRecord = CardRecord::new(
+    "Wild Magic Surge",
+    "c4c89d88-9d40-46b6-bee0-6bc2e2ca8ba1",
+    "Dave Greco",
+    crate::card::CardRules::unsupported(),
+);
+
 // CLB 263 — You Meet in a Tavern (reprint)
 const YOU_MEET_IN_A_TAVERN_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &catalog_afr::YOU_MEET_IN_A_TAVERN,
@@ -680,6 +716,42 @@ CardRules::new_planeswalker(mana_cost!("{2}{R}{G}"), &["Minsc"], 3)
         ]),
 );
 
+// CLB 310 — Dire Mimic
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIRE_MIMIC_310: CardRecord = CardRecord::new(
+    "Dire Mimic",
+    "6e29bae1-0643-4781-9edc-50a8e6d1a3a1",
+    "Igor Kieryluk",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 332 — Patriar's Seal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PATRIAR_S_SEAL_332: CardRecord = CardRecord::new(
+    "Patriar's Seal",
+    "37f920f0-4dfc-477b-af7e-a17dfc9ba455",
+    "Kamila Szutenberg",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 334 — Prized Statue
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PRIZED_STATUE_334: CardRecord = CardRecord::new(
+    "Prized Statue",
+    "58a49829-c354-4823-8cc1-a159fc46c0d7",
+    "Ben Wootten",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 336 — Rug of Smothering
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUG_OF_SMOTHERING_336: CardRecord = CardRecord::new(
+    "Rug of Smothering",
+    "a73d1cb0-d0dc-4f2a-9cf2-954d5889dd08",
+    "Ioannis Fiore",
+    crate::card::CardRules::unsupported(),
+);
+
 // CLB 346 — Basilisk Gate
 pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
     "Basilisk Gate",
@@ -717,6 +789,42 @@ static GATES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
+);
+
+// CLB 382 — Ancient Silver Dragon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANCIENT_SILVER_DRAGON_382: CardRecord = CardRecord::new(
+    "Ancient Silver Dragon",
+    "24d9a4d3-e1d2-42ae-bca4-02bc2cf69c9d",
+    "Pedro Potier",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 505 — Guild Artisan
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GUILD_ARTISAN_505: CardRecord = CardRecord::new(
+    "Guild Artisan",
+    "5a331542-11e4-49dc-be2f-ee56f07ccee0",
+    "Mark Behm",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 507 — Karlach, Fury of Avernus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KARLACH_FURY_OF_AVERNUS_507: CardRecord = CardRecord::new(
+    "Karlach, Fury of Avernus",
+    "231621a3-01dc-41af-827a-94aaa63179ae",
+    "Billy Christian",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 553 — Archivist of Oghma
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCHIVIST_OF_OGHMA_553: CardRecord = CardRecord::new(
+    "Archivist of Oghma",
+    "9a67ef30-a8ef-4437-8c9a-d125a98fbd6b",
+    "Stella Spente",
+    crate::card::CardRules::unsupported(),
 );
 
 // CLB 560 — Displacer Kitten
@@ -771,6 +879,24 @@ pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
     ),
 );
 
+// CLB 607 — Deep Gnome Terramancer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEEP_GNOME_TERRAMANCER_607: CardRecord = CardRecord::new(
+    "Deep Gnome Terramancer",
+    "ac23a376-4b3a-4316-b3e2-2e25ca2b5e76",
+    "David Sladek",
+    crate::card::CardRules::unsupported(),
+);
+
+// CLB 620 — Black Market Connections
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLACK_MARKET_CONNECTIONS_620: CardRecord = CardRecord::new(
+    "Black Market Connections",
+    "8b28572c-d2ba-4834-8630-3d82202ebb6f",
+    "Evyn Fong",
+    crate::card::CardRules::unsupported(),
+);
+
 // CLB 630 — Delayed Blast Fireball
 pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord = CardRecord::new(
     "Delayed Blast Fireball",
@@ -817,6 +943,7 @@ const IZZET_BOILERWORKS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ABDEL_ADRIAN_GORION_S_WARD_2,
     &BANISHMENT,
     &BLESSED_HIPPOGRIFF,
     &GREATSWORD_OF_TYR,
@@ -826,9 +953,22 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUILDSWORN_PROWLER,
     &CARNELIAN_ORB_OF_DRAGONKIND,
     &GUT_TRUE_SOUL_ZEALOT,
+    &INGENIOUS_ARTILLERIST_182,
+    &RECKLESS_BARBARIAN_193,
+    &WILD_MAGIC_SURGE_206,
     &MINSC_BOO_TIMELESS_HEROES,
+    &DIRE_MIMIC_310,
+    &PATRIAR_S_SEAL_332,
+    &PRIZED_STATUE_334,
+    &RUG_OF_SMOTHERING_336,
     &BASILISK_GATE,
+    &ANCIENT_SILVER_DRAGON_382,
+    &GUILD_ARTISAN_505,
+    &KARLACH_FURY_OF_AVERNUS_507,
+    &ARCHIVIST_OF_OGHMA_553,
     &DISPLACER_KITTEN,
+    &DEEP_GNOME_TERRAMANCER_607,
+    &BLACK_MARKET_CONNECTIONS_620,
     &DELAYED_BLAST_FIREBALL,
 ];
 

@@ -15,3 +15,9 @@ pub mod ravnica_clue_edition;
 pub mod the_big_score;
 
 pub(super) use super::{CardRecord, PrintingRecord};
+
+pub mod outlaws_of_thunder_junction_commander;
+
+pub mod murders_at_karlov_manor_commander;
+
+pub mod assassin_s_creed;

@@ -222,6 +222,15 @@ pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
     ]),
 );
 
+// ORI 90 — Dark Petition
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DARK_PETITION_90: CardRecord = CardRecord::new(
+    "Dark Petition",
+    "e9df9c5e-7087-42b2-9001-c89d40a66c68",
+    "Igor Kieryluk",
+    crate::card::CardRules::unsupported(),
+);
+
 // ORI 92 — Demonic Pact
 // Audit: unsupported — Needs per-incarnation history of previously selected upkeep modes, excluding them from later choices; ordinary modal triggers have no persistent used-mode set.
 pub(in crate::card::sets) static DEMONIC_PACT: CardRecord = CardRecord::new(
@@ -229,6 +238,24 @@ pub(in crate::card::sets) static DEMONIC_PACT: CardRecord = CardRecord::new(
     "82c04014-91f9-4197-b4b4-f62c4739a5c2",
     "Aleksi Briclot",
     CardRules::unsupported(),
+);
+
+// ORI 137 — Chandra's Ignition
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHANDRA_S_IGNITION_137: CardRecord = CardRecord::new(
+    "Chandra's Ignition",
+    "7d4c90de-49aa-43ed-a18a-f7f96268e5eb",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
+
+// ORI 155 — Magmatic Insight
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAGMATIC_INSIGHT_155: CardRecord = CardRecord::new(
+    "Magmatic Insight",
+    "f00192e0-439d-43b2-882c-90a2d52103f8",
+    "Ryan Barger",
+    crate::card::CardRules::unsupported(),
 );
 
 // ORI 162 — Skyraker Giant
@@ -353,6 +380,15 @@ pub(in crate::card::sets) static DWYNEN_S_ELITE: CardRecord = CardRecord::new(
     ]),
 );
 
+// ORI 174 — Elemental Bond
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELEMENTAL_BOND_174: CardRecord = CardRecord::new(
+    "Elemental Bond",
+    "554a8769-c840-4c9d-9959-b075c174457b",
+    "David Gaillet",
+    crate::card::CardRules::unsupported(),
+);
+
 // ORI 183 — Joraga Invocation
 // Audit: unsupported — Needs each affected creature to be blocked by at least one creature if able; MustBeBlockedBy requires every matching creature to block, which is a different requirement.
 pub(in crate::card::sets) static JORAGA_INVOCATION: CardRecord = CardRecord::new(
@@ -360,6 +396,24 @@ pub(in crate::card::sets) static JORAGA_INVOCATION: CardRecord = CardRecord::new
     "65c89431-0881-4aa6-ac15-d4c13b075273",
     "Kieran Yanner",
     CardRules::unsupported(),
+);
+
+// ORI 207 — Woodland Bellower
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WOODLAND_BELLOWER_207: CardRecord = CardRecord::new(
+    "Woodland Bellower",
+    "a706d4bb-0b44-4e43-b340-7de799c086b8",
+    "Jasper Sandner",
+    crate::card::CardRules::unsupported(),
+);
+
+// ORI 229 — Hangarback Walker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HANGARBACK_WALKER_229: CardRecord = CardRecord::new(
+    "Hangarback Walker",
+    "791c21fb-fc78-4106-9a42-abc73f41ab8b",
+    "Daarken",
+    crate::card::CardRules::unsupported(),
 );
 
 // ORI 236 — Pyromancer's Goggles
@@ -376,12 +430,18 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HARBINGER_OF_THE_TIDES,
     &JACE_VRYN_S_PRODIGY,
     &JHESSIAN_THIEF,
+    &DARK_PETITION_90,
     &DEMONIC_PACT,
+    &CHANDRA_S_IGNITION_137,
+    &MAGMATIC_INSIGHT_155,
     &SKYRAKER_GIANT,
     &CONCLAVE_NATURALISTS,
     &DWYNEN_GILT_LEAF_DAEN,
     &DWYNEN_S_ELITE,
+    &ELEMENTAL_BOND_174,
     &JORAGA_INVOCATION,
+    &WOODLAND_BELLOWER_207,
+    &HANGARBACK_WALKER_229,
     &PYROMANCER_S_GOGGLES,
 ];
 

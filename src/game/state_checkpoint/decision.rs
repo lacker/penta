@@ -74,6 +74,10 @@ fn continuation_snapshot(
                 player: player.index(), branch: *branch,
                 continuation: effect_continuation_snapshot(game, viewer, object, context, *definition, visible_rebindings)?,
             },
+        DecisionContinuation::CommanderReturn { remaining, selected } => DecisionContinuationSnapshot::CommanderReturn {
+            remaining: remaining.iter().map(|(owner, cards)| (owner.index(), cards.iter().map(|id| id.0).collect())).collect(),
+            selected: selected.iter().map(|id| id.0).collect(),
+        },
         DecisionContinuation::PregameActions { player, actions } => {
             DecisionContinuationSnapshot::PregameActions {
                 player: player.index(),
@@ -937,7 +941,8 @@ fn continuation_snapshot(
                 None => None,
             },
         },
-        DecisionContinuation::LifeGainReplacement { .. }
+        DecisionContinuation::CommanderMove { .. }
+        | DecisionContinuation::LifeGainReplacement { .. }
         // An entry paused mid-flight carries a prospective permanent that
         // this format has no place for yet.
         | DecisionContinuation::BattlefieldEntryExile { .. }

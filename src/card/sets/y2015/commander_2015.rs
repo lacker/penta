@@ -34,6 +34,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// C15 11 — Gigantoplasm
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GIGANTOPLASM_11: CardRecord = CardRecord::new(
+    "Gigantoplasm",
+    "27163b43-61e2-495c-b544-55c349eba99c",
+    "Kev Walker",
+    crate::card::CardRules::unsupported(),
+);
+
 // C15 14 — Mystic Confluence
 pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new(
     "Mystic Confluence",
@@ -180,6 +189,33 @@ pub(in crate::card::sets) static CALLER_OF_THE_PACK: CardRecord = CardRecord::ne
         .with_abilities(&[abilities::trample(), abilities::myriad()]),
 );
 
+// C15 37 — Great Oak Guardian
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GREAT_OAK_GUARDIAN_37: CardRecord = CardRecord::new(
+    "Great Oak Guardian",
+    "be0637cd-ccc4-4314-801d-9f780e5476c2",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
+// C15 55 — Thought Vessel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THOUGHT_VESSEL_55: CardRecord = CardRecord::new(
+    "Thought Vessel",
+    "e0cd769e-1aaf-458c-849f-3b6ebc7fd8c5",
+    "rk post",
+    crate::card::CardRules::unsupported(),
+);
+
+// C15 56 — Command Beacon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COMMAND_BEACON_56: CardRecord = CardRecord::new(
+    "Command Beacon",
+    "166fa02f-e456-48ca-8ac3-d217afceff4d",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
 // C15 69 — Faith's Fetters (reprint)
 const FAITH_S_FETTERS_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2005::ravnica_city_of_guilds::FAITH_S_FETTERS,
@@ -195,10 +231,14 @@ const NINJA_OF_THE_DEEP_HOURS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &GIGANTOPLASM_11,
     &MYSTIC_CONFLUENCE,
     &DREAD_SUMMONS,
     &FIERY_CONFLUENCE,
     &CALLER_OF_THE_PACK,
+    &GREAT_OAK_GUARDIAN_37,
+    &THOUGHT_VESSEL_55,
+    &COMMAND_BEACON_56,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

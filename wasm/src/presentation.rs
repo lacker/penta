@@ -320,6 +320,10 @@ pub(super) fn win_reason_text(reason: penta::WinReason, human_lost: bool) -> &'s
         (penta::WinReason::WonByAnEffect, true) => "opponent won with an effect",
         (penta::WinReason::OpponentRanOutOfTime, false) => "opponent ran out of time",
         (penta::WinReason::OpponentRanOutOfTime, true) => "you ran out of time",
+        (penta::WinReason::OpponentCommanderDamage, false) => {
+            "opponent took lethal commander damage"
+        }
+        (penta::WinReason::OpponentCommanderDamage, true) => "you took lethal commander damage",
         (penta::WinReason::OpponentPoisoned, false) => "opponent was poisoned",
         (penta::WinReason::OpponentPoisoned, true) => "you were poisoned",
     }

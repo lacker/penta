@@ -27,6 +27,25 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// LCC 22 — Altar of the Wretched // Wretched Bonemass
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22: CardRecord =
+    CardRecord::new(
+        "Altar of the Wretched // Wretched Bonemass",
+        "5842332a-b27b-49ac-948d-f88a21deb1de",
+        "Helge C. Balzer",
+        crate::card::CardRules::unsupported(),
+    );
+
+// LCC 70 — Charismatic Conqueror
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHARISMATIC_CONQUEROR_70: CardRecord = CardRecord::new(
+    "Charismatic Conqueror",
+    "599c934d-bfff-43ce-a545-6e3cde124515",
+    "Bram Sels",
+    crate::card::CardRules::unsupported(),
+);
+
 // LCC 86 — Broadside Bombardiers
 pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord::new(
     "Broadside Bombardiers",
@@ -68,6 +87,15 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
     ]),
 );
 
+// LCC 88 — Wrathful Raptors
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WRATHFUL_RAPTORS_88: CardRecord = CardRecord::new(
+    "Wrathful Raptors",
+    "49243e92-93e3-4090-b4f7-86fa4ca2fef5",
+    "April Prime",
+    crate::card::CardRules::unsupported(),
+);
+
 // LCC 106 — Chimil, the Inner Sun
 // Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
 pub(in crate::card::sets) static CHIMIL_THE_INNER_SUN: CardRecord = CardRecord::new(
@@ -77,7 +105,23 @@ pub(in crate::card::sets) static CHIMIL_THE_INNER_SUN: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
+// LCC 124 — Pantlaza, Sun-Favored
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PANTLAZA_SUN_FAVORED_124: CardRecord = CardRecord::new(
+    "Pantlaza, Sun-Favored",
+    "150a35f8-bbdc-4f6e-98e3-3bd6a3b8154a",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&BROADSIDE_BOMBARDIERS, &CHIMIL_THE_INNER_SUN];
+    &[
+    &ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22,
+    &CHARISMATIC_CONQUEROR_70,
+    &BROADSIDE_BOMBARDIERS,
+    &WRATHFUL_RAPTORS_88,
+    &CHIMIL_THE_INNER_SUN,
+    &PANTLAZA_SUN_FAVORED_124,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

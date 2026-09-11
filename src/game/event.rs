@@ -82,6 +82,8 @@ pub enum WinReason {
     /// action rather than an effect, so it is not
     /// [`Self::OpponentLostToAnEffect`].
     OpponentPoisoned,
+    /// At least 21 combat damage from one designated physical commander.
+    OpponentCommanderDamage,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -254,6 +256,7 @@ impl GameEvent {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum BattlefieldExit {
+    Command,
     Graveyard,
     Exile,
     Hand,

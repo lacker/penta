@@ -22,5 +22,17 @@ pub(in crate::card::sets) static SLIVER_GRAVEMOTHER: CardRecord = CardRecord::ne
     CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&SLIVER_GRAVEMOTHER];
+// CMM 750 — Skittering Cicada
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SKITTERING_CICADA_750: CardRecord = CardRecord::new(
+    "Skittering Cicada",
+    "4a430137-70d9-45fc-acaa-87b29ea0d588",
+    "Denis Zhbankov",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SLIVER_GRAVEMOTHER,
+    &SKITTERING_CICADA_750,
+];
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

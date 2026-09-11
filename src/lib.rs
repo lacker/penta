@@ -86,15 +86,15 @@ pub use casting::{
 };
 pub use deck::{Deck, DeckError, ValidatedDeck};
 pub use formats::{
-    CubeFormatDefinition, Format, FormatCategory, FormatDefinition, FormatRules,
-    SetFormatDefinition,
+    CommanderFormatDefinition, CubeFormatDefinition, Format, FormatCategory, FormatDefinition,
+    FormatRules, SetFormatDefinition,
 };
 pub use game::{
-    BattlefieldExit, CardCounterObservation, CounterObservation, DecisionObservation,
-    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, EmblemObservation, Game,
-    GameError, GameEvent, GameResult, Mana, ManaPool, ManaSource, ObjectCharacteristics,
-    PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide, PlayerObservation,
-    StackObjectKind, Step, WinReason, ZoneCard, ZoneChangeOutcome, ZoneError,
+    BattlefieldExit, CardCounterObservation, CommanderObservation, CounterObservation,
+    DecisionObservation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    EmblemObservation, Game, GameError, GameEvent, GameResult, Mana, ManaPool, ManaSource,
+    ObjectCharacteristics, PermanentObservation, PhysicalFaceObservation, PhysicalFaceSide,
+    PlayerObservation, StackObjectKind, Step, WinReason, ZoneCard, ZoneChangeOutcome, ZoneError,
 };
 pub use ids::{
     AbilityId, AdditionalCostId, AdditionalCostIndex, AdditionalCostObjectIndex, AlternativeCostId,

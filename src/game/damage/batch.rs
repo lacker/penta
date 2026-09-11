@@ -199,6 +199,11 @@ impl Game {
     ) {
         // Only now do the results change life totals, counters, and marks.
         for damage in prepared {
+            if damage.combat
+                && let Target::Player(player) = damage.target
+            {
+                self.record_commander_damage(damage.source, player, damage.amount);
+            }
             match damage.target {
                 Target::Player(player) if damage.source_properties.has_infect => {
                     self.add_player_counters(player, CounterKind::Poison, damage.amount);

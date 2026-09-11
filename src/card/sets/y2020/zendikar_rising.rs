@@ -56,6 +56,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// ZNR 4 — Archon of Emeria
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCHON_OF_EMERIA_4: CardRecord = CardRecord::new(
+    "Archon of Emeria",
+    "228c1650-da3c-4099-91b6-18e3873c9cdb",
+    "Ryan Pancoast",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZNR 9 — Dauntless Unity
 pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
     "Dauntless Unity",
@@ -245,6 +254,34 @@ pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::n
         ]),
 );
 
+// ZNR 60 — Glasspool Mimic // Glasspool Shore
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GLASSPOOL_MIMIC_GLASSPOOL_SHORE_60: CardRecord = CardRecord::new(
+    "Glasspool Mimic // Glasspool Shore",
+    "5adcb500-8c77-4925-8e2c-1243502827d1",
+    "Johan Grenier",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 76 — Sea Gate Restoration // Sea Gate, Reborn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SEA_GATE_RESTORATION_SEA_GATE_REBORN_76: CardRecord =
+    CardRecord::new(
+        "Sea Gate Restoration // Sea Gate, Reborn",
+        "193071fe-180b-4d35-ba78-9c16675c29fc",
+        "Adam Paquette",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 80 — Silundi Vision // Silundi Isle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SILUNDI_VISION_SILUNDI_ISLE_80: CardRecord = CardRecord::new(
+    "Silundi Vision // Silundi Isle",
+    "11568cdf-6148-494c-8b98-f5ca5797d775",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZNR 85 — Thieving Skydiver
 pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new(
     "Thieving Skydiver",
@@ -395,6 +432,15 @@ pub(in crate::card::sets) static HIGHBORN_VAMPIRE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Vampire", "Warrior"], 4, 3),
 );
 
+// ZNR 111 — Malakir Rebirth // Malakir Mire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MALAKIR_REBIRTH_MALAKIR_MIRE_111: CardRecord = CardRecord::new(
+    "Malakir Rebirth // Malakir Mire",
+    "609d3ecf-f88d-4268-a8d3-4bf2bcf5df60",
+    "Marta Nael",
+    crate::card::CardRules::unsupported(),
+);
+
 // ZNR 112 — Marauding Blight-Priest
 pub(in crate::card::sets) static MARAUDING_BLIGHT_PRIEST: CardRecord = CardRecord::new(
     "Marauding Blight-Priest",
@@ -447,6 +493,43 @@ pub(in crate::card::sets) static NULLPRIEST_OF_OBLIVION: CardRecord = CardRecord
     ]),
 );
 
+// ZNR 153 — Relic Robber
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RELIC_ROBBER_153: CardRecord = CardRecord::new(
+    "Relic Robber",
+    "4540205c-eee8-4db3-8757-710de874b313",
+    "Slawomir Maniak",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 156 — Roiling Vortex
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ROILING_VORTEX_156: CardRecord = CardRecord::new(
+    "Roiling Vortex",
+    "0b057eb7-8439-4d26-89df-c345ab2773e1",
+    "Campbell White",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 164 — Sneaking Guide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SNEAKING_GUIDE_164: CardRecord = CardRecord::new(
+    "Sneaking Guide",
+    "569c9e8c-7808-49d0-82c1-72d5b835f51c",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+// ZNR 166 — Spikefield Hazard // Spikefield Cave
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPIKEFIELD_HAZARD_SPIKEFIELD_CAVE_166: CardRecord =
+    CardRecord::new(
+        "Spikefield Hazard // Spikefield Cave",
+        "a69541db-3f4e-412f-aa8e-dec1e74f74dc",
+        "Tomasz Jedruszek",
+        crate::card::CardRules::unsupported(),
+    );
+
 // ZNR 167 — Spitfire Lagac
 pub(in crate::card::sets) static SPITFIRE_LAGAC: CardRecord = CardRecord::new(
     "Spitfire Lagac",
@@ -467,6 +550,25 @@ pub(in crate::card::sets) static SPITFIRE_LAGAC: CardRecord = CardRecord::new(
             EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
         ),
     ]),
+);
+
+// ZNR 174 — Valakut Awakening // Valakut Stoneforge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VALAKUT_AWAKENING_VALAKUT_STONEFORGE_174: CardRecord =
+    CardRecord::new(
+        "Valakut Awakening // Valakut Stoneforge",
+        "228e551e-023a-4c9a-8f32-58dae6ffdf7f",
+        "Campbell White",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 179 — Ashaya, Soul of the Wild
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ASHAYA_SOUL_OF_THE_WILD_179: CardRecord = CardRecord::new(
+    "Ashaya, Soul of the Wild",
+    "74943390-d25f-47cb-90bb-cbf70c87f4a2",
+    "Chase Stone",
+    crate::card::CardRules::unsupported(),
 );
 
 // ZNR 181 — Broken Wings
@@ -705,6 +807,16 @@ CardRules::new_artifact(mana_cost!("{4}"))
         ]),
 );
 
+// ZNR 259 — Brightclimb Pathway // Grimclimb Pathway
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRIGHTCLIMB_PATHWAY_GRIMCLIMB_PATHWAY_259: CardRecord =
+    CardRecord::new(
+        "Brightclimb Pathway // Grimclimb Pathway",
+        "d24c3d51-795d-4c01-a34a-3280fccd2d78",
+        "Johannes Voss",
+        crate::card::CardRules::unsupported(),
+    );
+
 // ZNR 262 — Crawling Barrens
 pub(in crate::card::sets) static CRAWLING_BARRENS: CardRecord = CardRecord::new(
     "Crawling Barrens",
@@ -745,6 +857,55 @@ pub(in crate::card::sets) static CRAWLING_BARRENS: CardRecord = CardRecord::new(
             ]),
         ),
     ]),
+);
+
+// ZNR 263 — Needleverge Pathway // Pillarverge Pathway
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEEDLEVERGE_PATHWAY_PILLARVERGE_PATHWAY_263: CardRecord =
+    CardRecord::new(
+        "Needleverge Pathway // Pillarverge Pathway",
+        "6559047e-6ede-4815-a3a0-389062094f9d",
+        "Piotr Dura",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 264 — Riverglide Pathway // Lavaglide Pathway
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RIVERGLIDE_PATHWAY_LAVAGLIDE_PATHWAY_264: CardRecord =
+    CardRecord::new(
+        "Riverglide Pathway // Lavaglide Pathway",
+        "2668ac91-6cda-4f81-a08d-4fc5f9cb35b2",
+        "Kieran Yanner",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 286 — Clearwater Pathway // Murkwater Pathway
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CLEARWATER_PATHWAY_MURKWATER_PATHWAY_286: CardRecord =
+    CardRecord::new(
+        "Clearwater Pathway // Murkwater Pathway",
+        "b0fe4b53-18f6-42eb-b03f-cab3e5a7fba6",
+        "Johannes Voss",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 287 — Cragcrown Pathway // Timbercrown Pathway
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRAGCROWN_PATHWAY_TIMBERCROWN_PATHWAY_287: CardRecord =
+    CardRecord::new(
+        "Cragcrown Pathway // Timbercrown Pathway",
+        "050602c0-b5b7-4076-af33-0f7a58d0b260",
+        "Sam Burley",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 300 — Moraug, Fury of Akoum
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MORAUG_FURY_OF_AKOUM_300: CardRecord = CardRecord::new(
+    "Moraug, Fury of Akoum",
+    "aecfbd48-7da0-4b44-b9a2-d31412f65eb1",
+    "Dominik Mayer",
+    crate::card::CardRules::unsupported(),
 );
 
 // ZNR 319 — Luminarch Aspirant
@@ -788,23 +949,72 @@ const THIEVING_SKYDIVER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
     "Kieran Yanner",
 );
 
+// ZNR 336 — Agadeem's Awakening // Agadeem, the Undercrypt
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AGADEEM_S_AWAKENING_AGADEEM_THE_UNDERCRYPT_336: CardRecord =
+    CardRecord::new(
+        "Agadeem's Awakening // Agadeem, the Undercrypt",
+        "499c2b20-e83e-40ff-919e-1d134ad50c0a",
+        "Dmitry Burmak",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 354 — Shatterskull Smashing // Shatterskull, the Hammer Pass
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHATTERSKULL_SMASHING_SHATTERSKULL_354: CardRecord =
+    CardRecord::new(
+        "Shatterskull Smashing // Shatterskull, the Hammer Pass",
+        "243d374f-5b40-4cff-99f5-079ba873d44b",
+        "Adam Paquette",
+        crate::card::CardRules::unsupported(),
+    );
+
+// ZNR 374 — Forsaken Monument
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FORSAKEN_MONUMENT_374: CardRecord = CardRecord::new(
+    "Forsaken Monument",
+    "0c8f362c-f035-48b3-8e74-ef23240b44f7",
+    "Piotr Dura",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ARCHON_OF_EMERIA_4,
     &DAUNTLESS_UNITY,
     &FELIDAR_RETREAT,
     &SKYCLAVE_APPARITION,
+    &GLASSPOOL_MIMIC_GLASSPOOL_SHORE_60,
+    &SEA_GATE_RESTORATION_SEA_GATE_REBORN_76,
+    &SILUNDI_VISION_SILUNDI_ISLE_80,
     &THIEVING_SKYDIVER,
     &BLOODCHIEFS_THIRST,
     &FEED_THE_SWARM,
     &HIGHBORN_VAMPIRE,
+    &MALAKIR_REBIRTH_MALAKIR_MIRE_111,
     &MARAUDING_BLIGHT_PRIEST,
     &NULLPRIEST_OF_OBLIVION,
+    &RELIC_ROBBER_153,
+    &ROILING_VORTEX_156,
+    &SNEAKING_GUIDE_164,
+    &SPIKEFIELD_HAZARD_SPIKEFIELD_CAVE_166,
     &SPITFIRE_LAGAC,
+    &VALAKUT_AWAKENING_VALAKUT_STONEFORGE_174,
+    &ASHAYA_SOUL_OF_THE_WILD_179,
     &BROKEN_WINGS,
     &GNARLID_COLONY,
     &OMNATH_LOCUS_OF_CREATION,
     &LITHOFORM_ENGINE,
+    &BRIGHTCLIMB_PATHWAY_GRIMCLIMB_PATHWAY_259,
     &CRAWLING_BARRENS,
+    &NEEDLEVERGE_PATHWAY_PILLARVERGE_PATHWAY_263,
+    &RIVERGLIDE_PATHWAY_LAVAGLIDE_PATHWAY_264,
+    &CLEARWATER_PATHWAY_MURKWATER_PATHWAY_286,
+    &CRAGCROWN_PATHWAY_TIMBERCROWN_PATHWAY_287,
+    &MORAUG_FURY_OF_AKOUM_300,
     &LUMINARCH_ASPIRANT,
+    &AGADEEM_S_AWAKENING_AGADEEM_THE_UNDERCRYPT_336,
+    &SHATTERSKULL_SMASHING_SHATTERSKULL_354,
+    &FORSAKEN_MONUMENT_374,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

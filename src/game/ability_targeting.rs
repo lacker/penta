@@ -672,7 +672,8 @@ impl Game {
             ZoneKind::Hand => player.hand.iter(),
             ZoneKind::Graveyard => player.graveyard.iter(),
             ZoneKind::Exile => player.exile.iter(),
-            ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => [].iter(),
+            ZoneKind::Command => player.command.iter(),
+            ZoneKind::Battlefield | ZoneKind::Stack => [].iter(),
         })
     }
 
@@ -685,6 +686,7 @@ impl Game {
             ZoneKind::Hand,
             ZoneKind::Graveyard,
             ZoneKind::Exile,
+            ZoneKind::Command,
         ]
         .into_iter()
         .find_map(|zone| {
@@ -709,6 +711,7 @@ impl Game {
                     ZoneKind::Hand,
                     ZoneKind::Graveyard,
                     ZoneKind::Exile,
+                    ZoneKind::Command,
                 ]
                 .into_iter()
                 .find_map(|zone| {
@@ -716,6 +719,7 @@ impl Game {
                         ZoneKind::Library => &state.library,
                         ZoneKind::Hand => &state.hand,
                         ZoneKind::Graveyard => &state.graveyard,
+                        ZoneKind::Command => &state.command,
                         _ => &state.exile,
                     };
                     cards
@@ -730,6 +734,7 @@ impl Game {
             ZoneKind::Library => &mut state.library,
             ZoneKind::Hand => &mut state.hand,
             ZoneKind::Graveyard => &mut state.graveyard,
+            ZoneKind::Command => &mut state.command,
             _ => &mut state.exile,
         };
         cards.get_mut(index)

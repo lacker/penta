@@ -229,6 +229,33 @@ const fn landscape_abilities(
     ]
 }
 
+// MH3 7 — Glaring Fleshraker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GLARING_FLESHRAKER_7: CardRecord = CardRecord::new(
+    "Glaring Fleshraker",
+    "80c2a3c7-1486-4ff9-88ec-79ec67a437f8",
+    "Raph Lomotan",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 10 — Kozilek, the Broken Reality
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KOZILEK_THE_BROKEN_REALITY_10: CardRecord = CardRecord::new(
+    "Kozilek, the Broken Reality",
+    "04066abb-44d2-4730-9cc3-2584bc4c7d8c",
+    "Brent Hollowell",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 11 — Kozilek's Command
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KOZILEK_S_COMMAND_11: CardRecord = CardRecord::new(
+    "Kozilek's Command",
+    "92585587-cfdc-406a-9114-4f6dd8802c37",
+    "Yeong-Hao Han",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 18 — Aerie Auxiliary
 pub(in crate::card::sets) static AERIE_AUXILIARY: CardRecord = CardRecord::new(
     "Aerie Auxiliary",
@@ -271,6 +298,15 @@ pub(in crate::card::sets) static DOG_UMBRA: CardRecord = CardRecord::new(
     "Dog Umbra",
     "8d4ba710-eddb-40ca-b2fe-0e4e778aab9c",
     "Brian Valeza",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 26 — Flare of Fortitude
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLARE_OF_FORTITUDE_26: CardRecord = CardRecord::new(
+    "Flare of Fortitude",
+    "37b41b59-0296-443b-8a62-8d5c4641ef66",
+    "Winona Nelson",
     crate::card::CardRules::unsupported(),
 );
 
@@ -576,6 +612,15 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
     )),
 );
 
+// MH3 51 — Amphibian Downpour
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AMPHIBIAN_DOWNPOUR_51: CardRecord = CardRecord::new(
+    "Amphibian Downpour",
+    "2d8aeca5-622a-45be-8168-07e7c00e3092",
+    "Omar Rayyan",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 53 — Brainsurge
 pub(in crate::card::sets) static BRAINSURGE: CardRecord = CardRecord::new(
     "Brainsurge",
@@ -608,6 +653,24 @@ pub(in crate::card::sets) static BRAINSURGE: CardRecord = CardRecord::new(
     )),
 );
 
+// MH3 54 — Consign to Memory
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CONSIGN_TO_MEMORY_54: CardRecord = CardRecord::new(
+    "Consign to Memory",
+    "bc95af55-d1dd-4fe6-adb0-3ad6db20d986",
+    "Ben Hill",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 63 — Harbinger of the Seas
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HARBINGER_OF_THE_SEAS_63: CardRecord = CardRecord::new(
+    "Harbinger of the Seas",
+    "00212714-a410-4cbc-bf1c-f90d7d77378c",
+    "Winona Nelson",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 69 — Serum Visionary
 pub(in crate::card::sets) static SERUM_VISIONARY: CardRecord = CardRecord::new(
     "Serum Visionary",
@@ -627,6 +690,24 @@ pub(in crate::card::sets) static SERUM_VISIONARY: CardRecord = CardRecord::new(
             ]),
         ),
     ),
+);
+
+// MH3 71 — Strix Serenade
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STRIX_SERENADE_71: CardRecord = CardRecord::new(
+    "Strix Serenade",
+    "42ac5ac7-b2f9-4e6f-af41-7e42ac816374",
+    "Filipe Pagliuso",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 79 — Volatile Stormdrake
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VOLATILE_STORMDRAKE_79: CardRecord = CardRecord::new(
+    "Volatile Stormdrake",
+    "2e6e3232-8bb8-4504-9597-dfdfc6d634bd",
+    "Campbell White",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH3 80 — Accursed Marauder
@@ -1067,12 +1148,39 @@ pub(in crate::card::sets) static GALVANIC_DISCHARGE: CardRecord = CardRecord::ne
     )),
 );
 
+// MH3 123 — Ghostfire Slice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GHOSTFIRE_SLICE_123: CardRecord = CardRecord::new(
+    "Ghostfire Slice",
+    "2adea3ee-138f-455b-a001-586883c44758",
+    "Johann Bodin",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 124 — Glimpse the Impossible
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GLIMPSE_THE_IMPOSSIBLE_124: CardRecord = CardRecord::new(
+    "Glimpse the Impossible",
+    "133ad0dd-5b61-4c38-9264-0b0e75b95d95",
+    "Justine Jones",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 128 — Molten Gatekeeper
 // Audit: unsupported — Needs unearth; see First-Sphere Gargantua. The entry-damage trigger itself is expressible.
 pub(in crate::card::sets) static MOLTEN_GATEKEEPER: CardRecord = CardRecord::new(
     "Molten Gatekeeper",
     "9f5ba065-2806-4e99-a330-168cfe76250f",
     "Joe Slucher",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 136 — Siege Smash
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SIEGE_SMASH_136: CardRecord = CardRecord::new(
+    "Siege Smash",
+    "f33e3b25-76f5-4263-a309-9ea97f2d8248",
+    "Joshua Cairos",
     crate::card::CardRules::unsupported(),
 );
 
@@ -1783,6 +1891,15 @@ pub(in crate::card::sets) static FAITHFUL_WATCHDOG: CardRecord = CardRecord::new
     ]),
 );
 
+// MH3 195 — Obstinate Gargoyle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OBSTINATE_GARGOYLE_195: CardRecord = CardRecord::new(
+    "Obstinate Gargoyle",
+    "40cf39f2-7382-405d-a14b-7eb8726cd38a",
+    "Craig J Spearing",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 197 — Phlage, Titan of Fire's Fury
 pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
     CardRecord::new(
@@ -1981,6 +2098,15 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             crate::card::CardNameDef::Binding(Binding!("disruptor_flute_name")),
         ),
     ]),
+);
+
+// MH3 212 — Vexing Bauble
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VEXING_BAUBLE_212: CardRecord = CardRecord::new(
+    "Vexing Bauble",
+    "29f11089-658f-42e6-aeb0-09b512ad2479",
+    "Tony Foti",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH3 217 — Bountiful Landscape
@@ -2335,6 +2461,24 @@ pub(in crate::card::sets) static TWISTED_LANDSCAPE: CardRecord = CardRecord::new
     )),
 );
 
+// MH3 233 — Ugin's Labyrinth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UGIN_S_LABYRINTH_233: CardRecord = CardRecord::new(
+    "Ugin's Labyrinth",
+    "020e1348-1a35-4cc8-bad6-9fbddfa79277",
+    "Mark Poole",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 234 — Urza's Cave
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static URZA_S_CAVE_234: CardRecord = CardRecord::new(
+    "Urza's Cave",
+    "926916ed-2f22-4ba9-9427-194886ad6c1e",
+    "Mark Poole",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 237 — Ajani, Nacatl Pariah // Ajani, Nacatl Avenger
 const CAT_WARRIOR_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1).with_art(
@@ -2498,6 +2642,16 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
     ],
 );
 
+// MH3 238 — Razorgrass Ambush // Razorgrass Field
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAZORGRASS_AMBUSH_RAZORGRASS_FIELD_238: CardRecord =
+    CardRecord::new(
+        "Razorgrass Ambush // Razorgrass Field",
+        "57065dca-f90e-4184-bbc4-95d726a4160b",
+        "Cristi Balanescu",
+        crate::card::CardRules::unsupported(),
+    );
+
 // MH3 239 — Witch Enchanter // Witch-Blessed Meadow
 pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_mdfc(
     "Witch Enchanter // Witch-Blessed Meadow",
@@ -2554,6 +2708,16 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
         ),
     ],
 );
+
+// MH3 240 — Hydroelectric Specimen // Hydroelectric Laboratory
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HYDROELECTRIC_SPECIMEN_HYDROELECTRI_240: CardRecord =
+    CardRecord::new(
+        "Hydroelectric Specimen // Hydroelectric Laboratory",
+        "8689ecd7-e9a6-458b-99d2-6dbaca527f00",
+        "Raoul Vitale",
+        crate::card::CardRules::unsupported(),
+    );
 
 // MH3 241 — Sink into Stupor // Soporific Springs
 pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_mdfc(
@@ -2620,6 +2784,73 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
     ],
 );
 
+// MH3 243 — Boggart Trawler // Boggart Bog
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BOGGART_TRAWLER_BOGGART_BOG_243: CardRecord = CardRecord::new(
+    "Boggart Trawler // Boggart Bog",
+    "d0d484a6-5610-4f1d-95ec-eda273c255e4",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 244 — Fell the Profane // Fell Mire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FELL_THE_PROFANE_FELL_MIRE_244: CardRecord = CardRecord::new(
+    "Fell the Profane // Fell Mire",
+    "a3cb782d-c459-468d-9779-9b5669abc337",
+    "Yeong-Hao Han",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 246 — Pinnacle Monk // Mystic Peak
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PINNACLE_MONK_MYSTIC_PEAK_246: CardRecord = CardRecord::new(
+    "Pinnacle Monk // Mystic Peak",
+    "24d4f26e-7f96-4b38-867e-4fac819b2679",
+    "Jason A. Engle",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 248 — Sundering Eruption // Volcanic Fissure
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNDERING_ERUPTION_VOLCANIC_FISSURE_248: CardRecord =
+    CardRecord::new(
+        "Sundering Eruption // Volcanic Fissure",
+        "50686ac7-346c-43d1-bdaa-28d46a12ad93",
+        "Yohann Schepacz",
+        crate::card::CardRules::unsupported(),
+    );
+
+// MH3 249 — Bridgeworks Battle // Tanglespan Bridgeworks
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRIDGEWORKS_BATTLE_TANGLESPAN_BRIDGEWORKS_249: CardRecord =
+    CardRecord::new(
+        "Bridgeworks Battle // Tanglespan Bridgeworks",
+        "ebef3db0-2b58-4581-a79c-fbca9a059e63",
+        "Ron Spears",
+        crate::card::CardRules::unsupported(),
+    );
+
+// MH3 250 — Disciple of Freyalise // Garden of Freyalise
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DISCIPLE_OF_FREYALISE_GARDEN_OF_FREYALISE_250: CardRecord =
+    CardRecord::new(
+        "Disciple of Freyalise // Garden of Freyalise",
+        "a8e9ea5a-5e10-4b77-baef-0352ff035483",
+        "Valera Lutfullina",
+        crate::card::CardRules::unsupported(),
+    );
+
+// MH3 261 — Waterlogged Teachings // Inundated Archive
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WATERLOGGED_TEACHINGS_INUNDATED_ARCHIVE_261: CardRecord =
+    CardRecord::new(
+        "Waterlogged Teachings // Inundated Archive",
+        "060f9675-4921-4cbb-bae2-54c85c679fd4",
+        "Douglas Shuler",
+        crate::card::CardRules::unsupported(),
+    );
+
 // MH3 284 — Annoyed Altisaur (reprint)
 const ANNOYED_ALTISAUR_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2020::commander_legends::ANNOYED_ALTISAUR,
@@ -2632,6 +2863,42 @@ const PRIEST_OF_TITANIA_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y1998::urzas_saga::PRIEST_OF_TITANIA,
     "eb11921b-1b28-483f-a707-4de21a6daa31",
     "Rebecca Guay",
+);
+
+// MH3 320 — Echoes of Eternity
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ECHOES_OF_ETERNITY_320: CardRecord = CardRecord::new(
+    "Echoes of Eternity",
+    "ae70f03f-cf60-418b-98e3-bc868e739656",
+    "Clint Lockwood",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 334 — Party Thrasher
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PARTY_THRASHER_334: CardRecord = CardRecord::new(
+    "Party Thrasher",
+    "52bb8272-e60f-4aa1-8f98-6110715a78fa",
+    "Ina Wong",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 335 — Powerbalance
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static POWERBALANCE_335: CardRecord = CardRecord::new(
+    "Powerbalance",
+    "8a64a5c4-ebae-472b-8f90-dcdd8ab8bc26",
+    "Leanna Crossan",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 350 — Archway of Innovation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCHWAY_OF_INNOVATION_350: CardRecord = CardRecord::new(
+    "Archway of Innovation",
+    "472905ac-1eb9-4951-8180-b8c35fbab3d7",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH3 351 — Arena of Glory
@@ -2755,6 +3022,96 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
                 },
             ),
         ]),
+);
+
+// MH3 383 — Ulamog, the Defiler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ULAMOG_THE_DEFILER_383: CardRecord = CardRecord::new(
+    "Ulamog, the Defiler",
+    "339f83ca-4f46-4246-be23-5ca4add31d81",
+    "Vincent Proce",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 387 — Null Elemental Blast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NULL_ELEMENTAL_BLAST_387: CardRecord = CardRecord::new(
+    "Null Elemental Blast",
+    "7114c9c8-5370-42e0-8aaf-dc05e2422a76",
+    "Milivoj Ćeran",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 400 — Flare of Denial
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLARE_OF_DENIAL_400: CardRecord = CardRecord::new(
+    "Flare of Denial",
+    "0149c119-83ea-46f5-9e22-33a674ddddb6",
+    "Jason A. Engle",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 409 — Grim Servant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_SERVANT_409: CardRecord = CardRecord::new(
+    "Grim Servant",
+    "77251806-c2b6-448c-a95e-a1943ca0bfd8",
+    "David Astruga",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 410 — Marionette Apprentice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MARIONETTE_APPRENTICE_410: CardRecord = CardRecord::new(
+    "Marionette Apprentice",
+    "22b5a3dd-0b5a-434e-afee-a83b0279fd15",
+    "Steve Ellis",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 411 — Necrodominance
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NECRODOMINANCE_411: CardRecord = CardRecord::new(
+    "Necrodominance",
+    "f810a2d7-efbe-4ea1-83d1-d594a8eaf88b",
+    "Robin Olausson",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 414 — Warren Soultrader
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WARREN_SOULTRADER_414: CardRecord = CardRecord::new(
+    "Warren Soultrader",
+    "17fd4d15-413f-41c5-b3e0-71bbb52851bc",
+    "Pete Venters",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 416 — Flare of Duplication
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLARE_OF_DUPLICATION_416: CardRecord = CardRecord::new(
+    "Flare of Duplication",
+    "170483c2-4e50-4cc8-9481-3330057d91bb",
+    "Olivier Bernard",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 421 — Unstable Amulet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNSTABLE_AMULET_421: CardRecord = CardRecord::new(
+    "Unstable Amulet",
+    "25f01df9-c4fa-4598-84c1-217bde6b1841",
+    "José Parodi",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 427 — Monstrous Vortex
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MONSTROUS_VORTEX_427: CardRecord = CardRecord::new(
+    "Monstrous Vortex",
+    "0970efb6-427f-4d5b-9b66-eda4b91015bd",
+    "Deruchenko Alexander",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH3 443 — Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar
@@ -3046,6 +3403,16 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
     ],
 );
 
+// MH3 445 — Ral, Monsoon Mage // Ral, Leyline Prodigy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAL_MONSOON_MAGE_RAL_LEYLINE_PRODIGY_445: CardRecord =
+    CardRecord::new(
+        "Ral, Monsoon Mage // Ral, Leyline Prodigy",
+        "0a7344ed-f94d-4983-a654-3896cf2e2396",
+        "Borja Pindado",
+        crate::card::CardRules::unsupported(),
+    );
+
 // MH3 448 — Guide of Souls
 pub(in crate::card::sets) static GUIDE_OF_SOULS: CardRecord = CardRecord::new(
     "Guide of Souls",
@@ -3126,6 +3493,15 @@ pub(in crate::card::sets) static GUIDE_OF_SOULS: CardRecord = CardRecord::new(
         ]),
 );
 
+// MH3 450 — Dreamtide Whale
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DREAMTIDE_WHALE_450: CardRecord = CardRecord::new(
+    "Dreamtide Whale",
+    "966e2066-ef45-4882-a420-247115a319b9",
+    "Ron Spears",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 452 — Crabomination
 pub(in crate::card::sets) static CRABOMINATION: CardRecord = CardRecord::new(
     "Crabomination",
@@ -3165,6 +3541,15 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Crab", "Demon"], 5, 5).with_
             }),
         ),
     ]),
+);
+
+// MH3 455 — Ripples of Undeath
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RIPPLES_OF_UNDEATH_455: CardRecord = CardRecord::new(
+    "Ripples of Undeath",
+    "0136a022-6b16-4b33-a817-946ded4e9dd5",
+    "Ben Wootten",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH3 457 — Detective's Phoenix (alternate printing)
@@ -3234,6 +3619,24 @@ pub(in crate::card::sets) static WIGHT_OF_THE_RELIQUARY: CardRecord = CardRecord
     ]),
 );
 
+// MH3 462 — Winter Moon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WINTER_MOON_462: CardRecord = CardRecord::new(
+    "Winter Moon",
+    "1ea94321-7311-4543-bdc0-23938a8904c3",
+    "Drew Baker",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH3 474 — Herigast, Erupting Nullkite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HERIGAST_ERUPTING_NULLKITE_474: CardRecord = CardRecord::new(
+    "Herigast, Erupting Nullkite",
+    "72a86d7d-a7a4-4a26-b92a-0518af2d9646",
+    "Lucas Graciano",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH3 484 — Six (alternate printing)
 const SIX_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
     &SIX,
@@ -3244,15 +3647,24 @@ const SIX_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEVOURER_OF_DESTINY,
+    &GLARING_FLESHRAKER_7,
+    &KOZILEK_THE_BROKEN_REALITY_10,
+    &KOZILEK_S_COMMAND_11,
     &AERIE_AUXILIARY,
     &DOG_UMBRA,
+    &FLARE_OF_FORTITUDE_26,
     &MANDIBULAR_KITE,
     &OCELOT_PRIDE,
     &PHELIA_EXUBERANT_SHEPHERD,
     &STATIC_PRISON,
     &THRABEN_CHARM,
+    &AMPHIBIAN_DOWNPOUR_51,
     &BRAINSURGE,
+    &CONSIGN_TO_MEMORY_54,
+    &HARBINGER_OF_THE_SEAS_63,
     &SERUM_VISIONARY,
+    &STRIX_SERENADE_71,
+    &VOLATILE_STORMDRAKE_79,
     &ACCURSED_MARAUDER,
     &EMPEROR_OF_BONES,
     &NETHERGOYF,
@@ -3262,7 +3674,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AMPED_RAPTOR,
     &DETECTIVES_PHOENIX,
     &GALVANIC_DISCHARGE,
+    &GHOSTFIRE_SLICE_123,
+    &GLIMPSE_THE_IMPOSSIBLE_124,
     &MOLTEN_GATEKEEPER,
+    &SIEGE_SMASH_136,
     &BASKING_BROODSCALE,
     &COLLECTIVE_RESISTANCE,
     &COLOSSAL_DREADMASK,
@@ -3279,11 +3694,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONDUIT_GOBLIN,
     &EXPANDING_OOZE,
     &FAITHFUL_WATCHDOG,
+    &OBSTINATE_GARGOYLE_195,
     &PHLAGE_TITAN_OF_FIRES_FURY,
     &PSYCHIC_FROG,
     &SNAPPING_VOIDCRAW,
     &WRITHING_CHRYSALIS,
     &DISRUPTOR_FLUTE,
+    &VEXING_BAUBLE_212,
     &BOUNTIFUL_LANDSCAPE,
     &CONTAMINATED_LANDSCAPE,
     &DECEPTIVE_LANDSCAPE,
@@ -3295,16 +3712,46 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SHIFTING_WOODLAND,
     &TRANQUIL_LANDSCAPE,
     &TWISTED_LANDSCAPE,
+    &UGIN_S_LABYRINTH_233,
+    &URZA_S_CAVE_234,
     &AJANI_NACATL_PARIAH,
+    &RAZORGRASS_AMBUSH_RAZORGRASS_FIELD_238,
     &WITCH_ENCHANTER,
+    &HYDROELECTRIC_SPECIMEN_HYDROELECTRI_240,
     &SINK_INTO_STUPOR,
+    &BOGGART_TRAWLER_BOGGART_BOG_243,
+    &FELL_THE_PROFANE_FELL_MIRE_244,
+    &PINNACLE_MONK_MYSTIC_PEAK_246,
+    &SUNDERING_ERUPTION_VOLCANIC_FISSURE_248,
+    &BRIDGEWORKS_BATTLE_TANGLESPAN_BRIDGEWORKS_249,
+    &DISCIPLE_OF_FREYALISE_GARDEN_OF_FREYALISE_250,
+    &WATERLOGGED_TEACHINGS_INUNDATED_ARCHIVE_261,
+    &ECHOES_OF_ETERNITY_320,
+    &PARTY_THRASHER_334,
+    &POWERBALANCE_335,
+    &ARCHWAY_OF_INNOVATION_350,
     &ARENA_OF_GLORY,
     &NADU_WINGED_WISDOM,
+    &ULAMOG_THE_DEFILER_383,
+    &NULL_ELEMENTAL_BLAST_387,
+    &FLARE_OF_DENIAL_400,
+    &GRIM_SERVANT_409,
+    &MARIONETTE_APPRENTICE_410,
+    &NECRODOMINANCE_411,
+    &WARREN_SOULTRADER_414,
+    &FLARE_OF_DUPLICATION_416,
+    &UNSTABLE_AMULET_421,
+    &MONSTROUS_VORTEX_427,
     &TAMIYO_INQUISITIVE_STUDENT,
     &SORIN_OF_HOUSE_MARKOV,
+    &RAL_MONSOON_MAGE_RAL_LEYLINE_PRODIGY_445,
     &GUIDE_OF_SOULS,
+    &DREAMTIDE_WHALE_450,
     &CRABOMINATION,
+    &RIPPLES_OF_UNDEATH_455,
     &WIGHT_OF_THE_RELIQUARY,
+    &WINTER_MOON_462,
+    &HERIGAST_ERUPTING_NULLKITE_474,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[

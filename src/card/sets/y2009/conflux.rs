@@ -113,6 +113,24 @@ CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_ta
     )),
 );
 
+// CON 31 — Master Transmuter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MASTER_TRANSMUTER_31: CardRecord = CardRecord::new(
+    "Master Transmuter",
+    "252482b2-aaa7-49f3-af8c-30923ca98994",
+    "Chippy",
+    crate::card::CardRules::unsupported(),
+);
+
+// CON 48 — Kederekt Parasite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KEDEREKT_PARASITE_48: CardRecord = CardRecord::new(
+    "Kederekt Parasite",
+    "878c7d8c-4df0-43ac-8197-d89c8be5e70d",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
 // CON 60 — Canyon Minotaur
 pub(in crate::card::sets) static CANYON_MINOTAUR: CardRecord = CardRecord::new(
     "Canyon Minotaur",
@@ -204,6 +222,15 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecor
         ]),
 );
 
+// CON 116 — Magister Sphinx
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAGISTER_SPHINX_116: CardRecord = CardRecord::new(
+    "Magister Sphinx",
+    "cd2abff9-6927-42cc-8cf1-a0876d3a45d7",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
 // CON 120 — Nicol Bolas, Planeswalker
 pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardRecord::new(
     "Nicol Bolas, Planeswalker",
@@ -274,6 +301,15 @@ pub(in crate::card::sets) static PROGENITUS: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// CON 135 — Bone Saw
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BONE_SAW_135: CardRecord = CardRecord::new(
+    "Bone Saw",
+    "a3bf79d6-4b4a-4fdd-a831-36eff2523661",
+    "Pete Venters",
+    crate::card::CardRules::unsupported(),
+);
+
 // CON 142 — Exotic Orchard
 pub(in crate::card::sets) static EXOTIC_ORCHARD: CardRecord = CardRecord::new(
     "Exotic Orchard",
@@ -323,11 +359,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AVEN_SQUIRE,
     &CELESTIAL_PURGE,
     &PATH_TO_EXILE,
+    &MASTER_TRANSMUTER_31,
+    &KEDEREKT_PARASITE_48,
     &CANYON_MINOTAUR,
     &NOBLE_HIERARCH,
     &KNIGHT_OF_THE_RELIQUARY,
+    &MAGISTER_SPHINX_116,
     &NICOL_BOLAS_PLANESWALKER,
     &PROGENITUS,
+    &BONE_SAW_135,
     &EXOTIC_ORCHARD,
     &RELIQUARY_TOWER,
 ];

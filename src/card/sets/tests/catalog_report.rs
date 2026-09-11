@@ -100,12 +100,31 @@ impl PoolCoverage {
 enum FormatCoverage {
     Sets(SetCoverage),
     Cube(PoolCoverage),
+    Commander(PoolCoverage),
 }
 
 fn coverage_for(root: &Path, catalog: &crate::card::CardCatalog, format: Format) -> FormatCoverage {
     match format.definition() {
         FormatDefinition::Sets(_) => {
             FormatCoverage::Sets(SetCoverage::from_repository(root, catalog, format))
+        }
+        FormatDefinition::Commander(_) => {
+            let ids = crate::decks::BUILTIN_DECKS
+                .iter()
+                .filter(|deck| deck.format == format)
+                .flat_map(|deck| {
+                    let deck = deck.build();
+                    deck.main
+                        .into_iter()
+                        .chain(deck.commanders)
+                        .chain(deck.sideboard)
+                })
+                .collect::<std::collections::BTreeSet<_>>();
+            let names = ids
+                .iter()
+                .filter_map(|id| catalog.get(*id).map(|card| card.name.as_str()))
+                .collect::<Vec<_>>();
+            FormatCoverage::Commander(PoolCoverage::from_catalog(catalog, &names))
         }
         FormatDefinition::Cube(definition) => {
             FormatCoverage::Cube(PoolCoverage::from_catalog(catalog, definition.cards))
@@ -141,6 +160,15 @@ fn write_format_coverage(
                 .expect("writing to a String cannot fail");
             writeln!(report, "    total          {:>6}", coverage.total())
                 .expect("writing to a String cannot fail");
+        }
+        FormatCoverage::Commander(coverage) => {
+            writeln!(
+                report,
+                "    imported deck corpus (format legality deferred)"
+            )
+            .expect("String write");
+            write_catalog_coverage(report, coverage.catalog_coverage());
+            writeln!(report, "    total          {:>6}", coverage.total()).expect("String write");
         }
         FormatCoverage::Cube(coverage) => {
             write_catalog_coverage(report, coverage.catalog_coverage());

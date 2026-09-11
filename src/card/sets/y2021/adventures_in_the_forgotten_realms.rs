@@ -102,6 +102,15 @@ pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardR
     )),
 );
 
+// AFR 119 — Shambling Ghast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHAMBLING_GHAST_119: CardRecord = CardRecord::new(
+    "Shambling Ghast",
+    "d96198a7-dd19-4940-bf8f-23135011fc84",
+    "Dave Kendall",
+    crate::card::CardRules::unsupported(),
+);
+
 // AFR 123 — Vampire Spawn
 pub(in crate::card::sets) static VAMPIRE_SPAWN: CardRecord = CardRecord::new(
     "Vampire Spawn",
@@ -125,6 +134,51 @@ pub(in crate::card::sets) static VAMPIRE_SPAWN: CardRecord = CardRecord::new(
     ]),
 );
 
+// AFR 132 — Battle Cry Goblin
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BATTLE_CRY_GOBLIN_132: CardRecord = CardRecord::new(
+    "Battle Cry Goblin",
+    "9766a427-2bb3-4028-a502-d1194cdc93aa",
+    "April Prime",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 147 — Hobgoblin Bandit Lord
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HOBGOBLIN_BANDIT_LORD_147: CardRecord = CardRecord::new(
+    "Hobgoblin Bandit Lord",
+    "09e9dc36-f2d8-4384-98cb-e44c00b02433",
+    "Mark Zug",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 158 — Plundering Barbarian
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PLUNDERING_BARBARIAN_158: CardRecord = CardRecord::new(
+    "Plundering Barbarian",
+    "d875881c-c285-47f1-8a37-e4a0239d47ec",
+    "Andrew Mar",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 164 — Unexpected Windfall
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNEXPECTED_WINDFALL_164: CardRecord = CardRecord::new(
+    "Unexpected Windfall",
+    "bae6a5fb-39f5-4cf8-85f7-661cb4570507",
+    "Alayna Danner",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 176 — Circle of Dreams Druid
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CIRCLE_OF_DREAMS_DRUID_176: CardRecord = CardRecord::new(
+    "Circle of Dreams Druid",
+    "be6fdec0-a2c4-4da2-ae14-961185eaee66",
+    "Sam Guay",
+    crate::card::CardRules::unsupported(),
+);
+
 // AFR 198 — Owlbear
 pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
     "Owlbear",
@@ -142,6 +196,15 @@ pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// AFR 207 — The Tarrasque
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_TARRASQUE_207: CardRecord = CardRecord::new(
+    "The Tarrasque",
+    "8a26fa15-d81f-4152-ae33-e91aa276b3fc",
+    "Filip Burburan",
+    crate::card::CardRules::unsupported(),
 );
 
 // AFR 215 — You Meet in a Tavern
@@ -186,12 +249,99 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
     )),
 );
 
+// AFR 296 — Old Gnawbone
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OLD_GNAWBONE_296: CardRecord = CardRecord::new(
+    "Old Gnawbone",
+    "16ead969-8ba4-4587-a68d-47730943605e",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 304 — Oswald Fiddlebender
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OSWALD_FIDDLEBENDER_304: CardRecord = CardRecord::new(
+    "Oswald Fiddlebender",
+    "853c9db7-504e-4dfb-8067-abd2a36f6a1a",
+    "Phil Stone",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 317 — Delina, Wild Mage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DELINA_WILD_MAGE_317: CardRecord = CardRecord::new(
+    "Delina, Wild Mage",
+    "c4f1dc68-868b-4f3f-b10a-62842d88edc4",
+    "Justine Mara Andersen",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 322 — Xorn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static XORN_322: CardRecord = CardRecord::new(
+    "Xorn",
+    "713a6502-5239-449a-b04a-c82d525f9916",
+    "Justine Jones",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 351 — Den of the Bugbear
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEN_OF_THE_BUGBEAR_351: CardRecord = CardRecord::new(
+    "Den of the Bugbear",
+    "565be37a-4c14-420b-a07c-18e21f7fd731",
+    "Jeff Easley",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 358 — Treasure Vault
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TREASURE_VAULT_358: CardRecord = CardRecord::new(
+    "Treasure Vault",
+    "8d75f53d-d105-4973-ab2e-58cdf3a41eed",
+    "Erol Otus",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 363 — Loyal Warhound
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LOYAL_WARHOUND_363: CardRecord = CardRecord::new(
+    "Loyal Warhound",
+    "bce58575-7607-49a4-a7c9-b23b715c3bf5",
+    "Dmitry Burmak",
+    crate::card::CardRules::unsupported(),
+);
+
+// AFR 373 — Asmodeus the Archfiend
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ASMODEUS_THE_ARCHFIEND_373: CardRecord = CardRecord::new(
+    "Asmodeus the Archfiend",
+    "1a0bbab6-b9ad-456d-ab4a-485dd8d89b35",
+    "Aleksi Briclot",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PORTABLE_HOLE,
     &YOU_HEAR_SOMETHING_ON_WATCH,
+    &SHAMBLING_GHAST_119,
     &VAMPIRE_SPAWN,
+    &BATTLE_CRY_GOBLIN_132,
+    &HOBGOBLIN_BANDIT_LORD_147,
+    &PLUNDERING_BARBARIAN_158,
+    &UNEXPECTED_WINDFALL_164,
+    &CIRCLE_OF_DREAMS_DRUID_176,
     &OWLBEAR,
+    &THE_TARRASQUE_207,
     &YOU_MEET_IN_A_TAVERN,
+    &OLD_GNAWBONE_296,
+    &OSWALD_FIDDLEBENDER_304,
+    &DELINA_WILD_MAGE_317,
+    &XORN_322,
+    &DEN_OF_THE_BUGBEAR_351,
+    &TREASURE_VAULT_358,
+    &LOYAL_WARHOUND_363,
+    &ASMODEUS_THE_ARCHFIEND_373,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

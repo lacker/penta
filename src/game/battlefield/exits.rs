@@ -52,6 +52,13 @@ impl Game {
             return false;
         };
         for pending in pending.iter_mut().rev() {
+            if let DecisionContinuation::CommanderMove { completion: pending_completion, .. } = &mut pending.continuation {
+                *pending_completion = Some(Box::new(match pending_completion.take() {
+                    None => completion,
+                    Some(earlier) => BattlefieldExitCompletion::Completions(vec![*earlier, completion]),
+                }));
+                return true;
+            }
             let DecisionContinuation::BattlefieldExitReplacement { batch, .. } =
                 &mut pending.continuation
             else {
@@ -133,6 +140,7 @@ impl Game {
                     [candidate] => {
                         let pending_before = self.pending_decisions.len();
                         self.apply_battlefield_exit_replacement(&mut batch, candidate);
+                        if matches!(candidate.action, BattlefieldExitReplacementAction::Commander) { return; }
                         if self.has_battlefield_exit_since(pending_before) {
                             let deferred = self.defer_after_battlefield_exit(
                                 pending_before,
@@ -455,6 +463,17 @@ impl Game {
                 action: BattlefieldExitReplacementAction::RegenerationShield,
             });
         }
+        if !proposed.commander_considered
+            && matches!(proposed.destination, ZoneKind::Hand | ZoneKind::Library)
+            && self.is_commander(proposed.object)
+            && let Some(permanent) = self.battlefield.iter().find(|p| p.card.id == proposed.object)
+        {
+            candidates.push(ApplicableZoneMoveReplacement {
+                move_index, presentation: Self::effective_rules_source(permanent),
+                text: "Choose whether to return the commander to the command zone",
+                action: BattlefieldExitReplacementAction::Commander,
+            });
+        }
         candidates
     }
 
@@ -482,7 +501,7 @@ impl Game {
                             BattlefieldExitReplacementAction::Ability { context, .. } => {
                                 context.source.object
                             }
-                            BattlefieldExitReplacementAction::RegenerationShield => {
+                            BattlefieldExitReplacementAction::RegenerationShield | BattlefieldExitReplacementAction::Commander => {
                                 proposed.object
                             }
                         },
@@ -512,6 +531,13 @@ impl Game {
         replacement: &ApplicableZoneMoveReplacement,
     ) {
         match replacement.action {
+            BattlefieldExitReplacementAction::Commander => {
+                let index = replacement.move_index;
+                batch.moves[index].commander_considered = true;
+                let object = batch.moves[index].object;
+                let owner = self.commanders[self.commander_index(object).expect("commander")].owner;
+                self.queue_commander_move(owner, crate::game::commander::CommanderMove::Battlefield { batch: batch.clone(), index });
+            }
             BattlefieldExitReplacementAction::Ability {
                 context,
                 effect,
@@ -664,6 +690,7 @@ impl Game {
         let mut library_arrivals = Vec::new();
         for (permanent, _, _, to) in removed {
             let exit = match to.zone {
+                ZoneKind::Command => BattlefieldExit::Command,
                 ZoneKind::Exile => BattlefieldExit::Exile,
                 ZoneKind::Graveyard => BattlefieldExit::Graveyard,
                 ZoneKind::Hand => BattlefieldExit::Hand,
@@ -671,7 +698,7 @@ impl Game {
                     ZonePlacement::Bottom => BattlefieldExit::LibraryBottom,
                     ZonePlacement::Top | ZonePlacement::FromTop(_) => BattlefieldExit::LibraryTop,
                 },
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                ZoneKind::Battlefield | ZoneKind::Stack => {
                     unreachable!("unsupported battlefield-exit replacement destination")
                 }
             };
@@ -699,8 +726,9 @@ impl Game {
                 ZoneKind::Library => CharacteristicContext::Library,
                 ZoneKind::Hand => CharacteristicContext::Hand,
                 ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+                ZoneKind::Command => CharacteristicContext::Command,
                 ZoneKind::Exile => CharacteristicContext::Exile,
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                ZoneKind::Battlefield | ZoneKind::Stack => {
                     unreachable!("unsupported battlefield-exit replacement destination")
                 }
             };
@@ -711,11 +739,12 @@ impl Game {
                 &context,
             ));
             match to.zone {
+                ZoneKind::Command => self.players[owner.index()].command.push(card),
                 ZoneKind::Exile => self.players[owner.index()].exile.push(card),
                 ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),
                 ZoneKind::Hand => self.players[owner.index()].hand.push(card),
                 ZoneKind::Library => library_arrivals.push((owner, to.placement, card)),
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                ZoneKind::Battlefield | ZoneKind::Stack => {
                     unreachable!("unsupported battlefield-exit replacement destination")
                 }
             }

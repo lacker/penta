@@ -147,6 +147,15 @@ pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
     ),
 );
 
+// MH1 21 — Ranger-Captain of Eos
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RANGER_CAPTAIN_OF_EOS_21: CardRecord = CardRecord::new(
+    "Ranger-Captain of Eos",
+    "af3928b4-813a-4120-8799-de34235d60ac",
+    "Ryan Pancoast",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 24 — Rhox Veteran
 pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
     "Rhox Veteran",
@@ -236,6 +245,15 @@ pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord:
         )
         .with_mode_selection(1, 2, false),
     ),
+);
+
+// MH1 29 — Sisay, Weatherlight Captain
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SISAY_WEATHERLIGHT_CAPTAIN_29: CardRecord = CardRecord::new(
+    "Sisay, Weatherlight Captain",
+    "5a293c45-1e73-4527-be2f-2dcd5c47b610",
+    "Anna Steinbauer",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 37 — Winds of Abandon
@@ -516,6 +534,15 @@ pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord
     crate::card::CardRules::unsupported(),
 );
 
+// MH1 92 — Force of Despair
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FORCE_OF_DESPAIR_92: CardRecord = CardRecord::new(
+    "Force of Despair",
+    "8f497b0d-4448-4201-bd55-c147da1a216d",
+    "Seb McKinnon",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 94 — Graveshifter
 // Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static GRAVESHIFTER: CardRecord = CardRecord::new(
@@ -534,6 +561,15 @@ pub(in crate::card::sets) static PUTRID_GOBLIN: CardRecord = CardRecord::new(
     // which is what makes it a sacrifice engine rather than a beater.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie", "Goblin"], 2, 2)
         .with_ability(abilities::persist()),
+);
+
+// MH1 116 — Yawgmoth, Thran Physician
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static YAWGMOTH_THRAN_PHYSICIAN_116: CardRecord = CardRecord::new(
+    "Yawgmoth, Thran Physician",
+    "8690cbcc-f8fd-41f7-9e28-e61c12b04014",
+    "Mark Winters",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 120 — Bogardan Dragonheart
@@ -617,6 +653,15 @@ pub(in crate::card::sets) static GOATNAP: CardRecord = CardRecord::new(
     )]),
 );
 
+// MH1 128 — Goblin Engineer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_ENGINEER_128: CardRecord = CardRecord::new(
+    "Goblin Engineer",
+    "a55c4d47-5252-40af-961d-c08bc688028a",
+    "Jehan Choo",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 130 — Goblin Oriflamme
 pub(in crate::card::sets) static GOBLIN_ORIFLAMME: CardRecord = CardRecord::new(
     "Goblin Oriflamme",
@@ -639,6 +684,15 @@ pub(in crate::card::sets) static GOBLIN_ORIFLAMME: CardRecord = CardRecord::new(
             ),
         },
     )]),
+);
+
+// MH1 138 — Pashalik Mons
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PASHALIK_MONS_138: CardRecord = CardRecord::new(
+    "Pashalik Mons",
+    "11616853-34b1-4bb1-9590-461e12970ec3",
+    "Even Amundsen",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 143 — Ravenous Giant
@@ -1093,6 +1147,15 @@ pub(in crate::card::sets) static GOOD_FORTUNE_UNICORN: CardRecord = CardRecord::
     ]),
 );
 
+// MH1 216 — Unsettled Mariner
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNSETTLED_MARINER_216: CardRecord = CardRecord::new(
+    "Unsettled Mariner",
+    "eaea2e54-ee50-47b9-a2a5-e3353831248c",
+    "John Stanko",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 217 — Wrenn and Six
 pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
     "Wrenn and Six",
@@ -1195,6 +1258,15 @@ pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new
     ]),
 );
 
+// MH1 225 — Lesser Masticore
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LESSER_MASTICORE_225: CardRecord = CardRecord::new(
+    "Lesser Masticore",
+    "c4c7cba5-6111-40ce-828a-e811301bb283",
+    "Wisnu Tan",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 230 — Talisman of Conviction
 static TALISMAN_TAP: [CostDef; 1] = [CostDef::TapSource];
 
@@ -1272,6 +1344,51 @@ pub(in crate::card::sets) static TALISMAN_OF_CURIOSITY: CardRecord = CardRecord:
     ]),
 );
 
+// MH1 233 — Talisman of Hierarchy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TALISMAN_OF_HIERARCHY_233: CardRecord = CardRecord::new(
+    "Talisman of Hierarchy",
+    "826f99c7-f534-4183-8f0d-efe1609808ac",
+    "Lindsey Look",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 235 — Universal Automaton
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNIVERSAL_AUTOMATON_235: CardRecord = CardRecord::new(
+    "Universal Automaton",
+    "53c682e2-c90f-4f4b-9010-00b099e85518",
+    "Ben Maier",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 238 — Fiery Islet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FIERY_ISLET_238: CardRecord = CardRecord::new(
+    "Fiery Islet",
+    "a3aab13c-9d9d-4507-ae5d-da979990ae1b",
+    "Richard Wright",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 241 — Hall of Heliod's Generosity
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HALL_OF_HELIOD_S_GENEROSITY_241: CardRecord = CardRecord::new(
+    "Hall of Heliod's Generosity",
+    "b5cbd10a-b9a6-4c00-8280-72bb4add4390",
+    "Daniel Ljunggren",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH1 243 — Nurturing Peatland
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NURTURING_PEATLAND_243: CardRecord = CardRecord::new(
+    "Nurturing Peatland",
+    "2744ac83-a79f-4042-8720-688b5adda382",
+    "Noah Bradley",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH1 244 — Prismatic Vista
 pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
     "Prismatic Vista",
@@ -1291,6 +1408,15 @@ pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
             ObjectPredicateDef::Supertype(CardSupertype::Basic),
         ]),
     )),
+);
+
+// MH1 246 — Silent Clearing
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SILENT_CLEARING_246: CardRecord = CardRecord::new(
+    "Silent Clearing",
+    "ac07e230-0297-4e1d-bdfe-119010e0ad8e",
+    "Seb McKinnon",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 247 — Sunbaked Canyon
@@ -1318,19 +1444,25 @@ pub(in crate::card::sets) static WATERLOGGED_GROVE: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EPHEMERATE,
     &GIVER_OF_RUNES,
+    &RANGER_CAPTAIN_OF_EOS_21,
     &RHOX_VETERAN,
     &SETTLE_BEYOND_REALITY,
+    &SISAY_WEATHERLIGHT_CAPTAIN_29,
     &WINDS_OF_ABANDON,
     &ECHO_OF_EONS,
     &FAERIE_SEER,
     &FORCE_OF_NEGATION,
     &URZA_LORD_HIGH_ARTIFICER,
     &FIRST_SPHERE_GARGANTUA,
+    &FORCE_OF_DESPAIR_92,
     &GRAVESHIFTER,
     &PUTRID_GOBLIN,
+    &YAWGMOTH_THRAN_PHYSICIAN_116,
     &BOGARDAN_DRAGONHEART,
     &GOATNAP,
+    &GOBLIN_ENGINEER_128,
     &GOBLIN_ORIFLAMME,
+    &PASHALIK_MONS_138,
     &RAVENOUS_GIANT,
     &SEASONED_PYROMANCER,
     &COLLECTOR_OUPHE,
@@ -1342,12 +1474,20 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WINDING_WAY,
     &FALLEN_SHINOBI,
     &GOOD_FORTUNE_UNICORN,
+    &UNSETTLED_MARINER_216,
     &WRENN_AND_SIX,
     &FARMSTEAD_GLEANER,
+    &LESSER_MASTICORE_225,
     &TALISMAN_OF_CONVICTION,
     &TALISMAN_OF_CREATIVITY,
     &TALISMAN_OF_CURIOSITY,
+    &TALISMAN_OF_HIERARCHY_233,
+    &UNIVERSAL_AUTOMATON_235,
+    &FIERY_ISLET_238,
+    &HALL_OF_HELIOD_S_GENEROSITY_241,
+    &NURTURING_PEATLAND_243,
     &PRISMATIC_VISTA,
+    &SILENT_CLEARING_246,
     &SUNBAKED_CANYON,
     &WATERLOGGED_GROVE,
 ];

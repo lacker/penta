@@ -74,6 +74,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
             .any(|predicate| predicate_negates(predicate, expected)),
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
@@ -185,6 +186,9 @@ fn object_target_subject(object: ObjectPredicateDef, predicate: TargetPredicate)
     }
     if object_predicate_implies(object, ObjectPredicateDef::Attacking) {
         return "attacking creature".into();
+    }
+    if object_predicate_implies(object, ObjectPredicateDef::Commander) {
+        return "commander".into();
     }
     match predicate {
         TargetPredicate::AnyTarget => "target".into(),

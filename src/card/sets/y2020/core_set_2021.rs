@@ -43,6 +43,33 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// M21 36 — Selfless Savior
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SELFLESS_SAVIOR_36: CardRecord = CardRecord::new(
+    "Selfless Savior",
+    "6911759c-7177-402c-a95a-f9f46efaf521",
+    "Ralph Horsley",
+    crate::card::CardRules::unsupported(),
+);
+
+// M21 52 — Ghostly Pilferer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GHOSTLY_PILFERER_52: CardRecord = CardRecord::new(
+    "Ghostly Pilferer",
+    "2810631f-c55c-4947-a26f-4d3ce76024b3",
+    "Craig J Spearing",
+    crate::card::CardRules::unsupported(),
+);
+
+// M21 57 — Miscast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MISCAST_57: CardRecord = CardRecord::new(
+    "Miscast",
+    "033afbd5-9937-4957-98ba-48e469a490bb",
+    "Steve Argyle",
+    crate::card::CardRules::unsupported(),
+);
+
 // M21 71 — Shipwreck Dowser
 pub(in crate::card::sets) static SHIPWRECK_DOWSER: CardRecord = CardRecord::new(
     "Shipwreck Dowser",
@@ -110,6 +137,15 @@ pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
     )),
 );
 
+// M21 139 — Conspicuous Snoop
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CONSPICUOUS_SNOOP_139: CardRecord = CardRecord::new(
+    "Conspicuous Snoop",
+    "5d878dab-5ed2-4ef3-b2c7-472290892854",
+    "Zoltan Boros",
+    crate::card::CardRules::unsupported(),
+);
+
 // M21 150 — Heartfire Immolator
 pub(in crate::card::sets) static HEARTFIRE_IMMOLATOR: CardRecord = CardRecord::new(
     "Heartfire Immolator",
@@ -147,6 +183,15 @@ pub(in crate::card::sets) static HEARTFIRE_IMMOLATOR: CardRecord = CardRecord::n
             ),
         ),
     ]),
+);
+
+// M21 162 — Subira, Tulzidi Caravanner
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUBIRA_TULZIDI_CARAVANNER_162: CardRecord = CardRecord::new(
+    "Subira, Tulzidi Caravanner",
+    "034b8d6d-95ea-434a-967a-e6675a7ce88a",
+    "Leesha Hannigan",
+    crate::card::CardRules::unsupported(),
 );
 
 // M21 164 — Terror of the Peaks
@@ -327,6 +372,15 @@ pub(in crate::card::sets) static WILDWOOD_SCOURGE: CardRecord = CardRecord::new(
     ]),
 );
 
+// M21 228 — Chromatic Orrery
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHROMATIC_ORRERY_228: CardRecord = CardRecord::new(
+    "Chromatic Orrery",
+    "3af78d76-ad5c-44ba-880d-b834bcde5398",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
+);
+
 // M21 232 — Mazemind Tome
 // Audit: unsupported — Needs a state trigger for crossing a counter threshold, with suppression while that trigger is on the stack and an actual exile-result condition before gaining life.
 pub(in crate::card::sets) static MAZEMIND_TOME: CardRecord = CardRecord::new(
@@ -336,17 +390,43 @@ pub(in crate::card::sets) static MAZEMIND_TOME: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// M21 360 — Peer into the Abyss
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PEER_INTO_THE_ABYSS_360: CardRecord = CardRecord::new(
+    "Peer into the Abyss",
+    "a46820e5-67a4-4b28-bd0c-7ed9443d7dfb",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
+// M21 373 — Elder Gargaroth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELDER_GARGAROTH_373: CardRecord = CardRecord::new(
+    "Elder Gargaroth",
+    "8ee9b3ad-0774-4952-b49b-be390182b245",
+    "Nicholas Gregory",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SELFLESS_SAVIOR_36,
+    &GHOSTLY_PILFERER_52,
+    &MISCAST_57,
     &SHIPWRECK_DOWSER,
     &SANGUINE_INDULGENCE,
     &VILLAGE_RITES,
+    &CONSPICUOUS_SNOOP_139,
     &HEARTFIRE_IMMOLATOR,
+    &SUBIRA_TULZIDI_CARAVANNER_162,
     &TERROR_OF_THE_PEAKS,
     &GARRUK_S_UPRISING,
     &LLANOWAR_VISIONARY,
     &PRIMAL_MIGHT,
     &WILDWOOD_SCOURGE,
+    &CHROMATIC_ORRERY_228,
     &MAZEMIND_TOME,
+    &PEER_INTO_THE_ABYSS_360,
+    &ELDER_GARGAROTH_373,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

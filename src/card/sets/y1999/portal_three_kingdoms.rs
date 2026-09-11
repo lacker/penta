@@ -25,6 +25,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// PTK 17 — Ravages of War
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAVAGES_OF_WAR_17: CardRecord = CardRecord::new(
+    "Ravages of War",
+    "11dca9ba-b27f-4af8-9962-3794e743886f",
+    "Fang Yue",
+    crate::card::CardRules::unsupported(),
+);
+
+// PTK 38 — Capture of Jingzhou
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CAPTURE_OF_JINGZHOU_38: CardRecord = CardRecord::new(
+    "Capture of Jingzhou",
+    "d2df84f2-08e8-43e4-825f-dccfe096d92b",
+    "Jack Wei",
+    crate::card::CardRules::unsupported(),
+);
+
 // PTK 71 — Corrupt Court Official
 pub(in crate::card::sets) static CORRUPT_COURT_OFFICIAL: CardRecord = CardRecord::new(
     "Corrupt Court Official",
@@ -60,6 +78,41 @@ pub(in crate::card::sets) static IMPERIAL_SEAL: CardRecord = CardRecord::new(
     )),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&CORRUPT_COURT_OFFICIAL, &IMPERIAL_SEAL];
+// PTK 113 — Imperial Recruiter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IMPERIAL_RECRUITER_113: CardRecord = CardRecord::new(
+    "Imperial Recruiter",
+    "1c473253-3992-4cc1-8b46-5d1da308c537",
+    "Mitsuaki Sagiri",
+    crate::card::CardRules::unsupported(),
+);
+
+// PTK 124 — Warrior's Oath
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WARRIOR_S_OATH_124: CardRecord = CardRecord::new(
+    "Warrior's Oath",
+    "d582861a-ca6e-4b74-adf0-3eb588ea5ed2",
+    "Mitsuaki Sagiri",
+    crate::card::CardRules::unsupported(),
+);
+
+// PTK 153 — Three Visits
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THREE_VISITS_153: CardRecord = CardRecord::new(
+    "Three Visits",
+    "306d22ae-657e-4b52-8cd9-6fc3df9e8376",
+    "Qu Xin",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &RAVAGES_OF_WAR_17,
+    &CAPTURE_OF_JINGZHOU_38,
+    &CORRUPT_COURT_OFFICIAL,
+    &IMPERIAL_SEAL,
+    &IMPERIAL_RECRUITER_113,
+    &WARRIOR_S_OATH_124,
+    &THREE_VISITS_153,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

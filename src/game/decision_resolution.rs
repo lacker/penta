@@ -21,6 +21,24 @@ impl Game {
         // named.
         let pending_options = pending.observation.options.clone();
         match pending.continuation {
+            DecisionContinuation::CommanderReturn {
+                remaining,
+                mut selected,
+            } => {
+                selected.extend(
+                    pending_options
+                        .iter()
+                        .filter(|option| options.contains(&option.id))
+                        .filter_map(|option| option.card.map(|(id, _)| id)),
+                );
+                self.queue_commander_returns(remaining, selected);
+            }
+            DecisionContinuation::CommanderMove {
+                movement,
+                completion,
+            } => {
+                self.finish_commander_move(*movement, options.first() == Some(&0), completion);
+            }
             named @ DecisionContinuation::ActionChoice { .. } => {
                 self.resolve_action_choice(named, &pending.observation, options);
             }

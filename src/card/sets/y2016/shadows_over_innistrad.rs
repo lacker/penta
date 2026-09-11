@@ -42,6 +42,15 @@ const CLUE_TOKEN: TokenCharacteristics = tokens::clue().with_art(CardArt::new(
     "John Avon",
 ));
 
+// SOI 31 — Odric, Lunarch Marshal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ODRIC_LUNARCH_MARSHAL_31: CardRecord = CardRecord::new(
+    "Odric, Lunarch Marshal",
+    "5c77c30f-d813-46e6-9cdd-938b4a6359ad",
+    "Chase Stone",
+    crate::card::CardRules::unsupported(),
+);
+
 // SOI 44 — Thraben Inspector
 pub(in crate::card::sets) static THRABEN_INSPECTOR: CardRecord = CardRecord::new(
     "Thraben Inspector",
@@ -56,6 +65,33 @@ pub(in crate::card::sets) static THRABEN_INSPECTOR: CardRecord = CardRecord::new
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))),
         ),
     ),
+);
+
+// SOI 61 — Essence Flux
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ESSENCE_FLUX_61: CardRecord = CardRecord::new(
+    "Essence Flux",
+    "639bdbb5-8c2d-439d-bcea-dc54da9686ea",
+    "Seb McKinnon",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 98 — Alms of the Vein
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ALMS_OF_THE_VEIN_98: CardRecord = CardRecord::new(
+    "Alms of the Vein",
+    "79b80948-a3cd-4962-8fce-d58f2db7e68e",
+    "David Gaillet",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 102 — Biting Rain
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BITING_RAIN_102: CardRecord = CardRecord::new(
+    "Biting Rain",
+    "5ac62d2f-6834-4d98-b69d-bd7b5831d981",
+    "John Stanko",
+    crate::card::CardRules::unsupported(),
 );
 
 // SOI 105 — Crow of Dark Tidings
@@ -86,6 +122,88 @@ pub(in crate::card::sets) static CROW_OF_DARK_TIDINGS: CardRecord = CardRecord::
             },
         ),
     ]),
+);
+
+// SOI 111 — From Under the Floorboards
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FROM_UNDER_THE_FLOORBOARDS_111: CardRecord = CardRecord::new(
+    "From Under the Floorboards",
+    "3e644706-223d-4e56-9614-b224e281be2f",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 114 — Gisa's Bidding
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GISA_S_BIDDING_114: CardRecord = CardRecord::new(
+    "Gisa's Bidding",
+    "e01e904c-7d8e-447b-90cb-1f4ae3fb304d",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 126 — Murderous Compulsion
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MURDEROUS_COMPULSION_126: CardRecord = CardRecord::new(
+    "Murderous Compulsion",
+    "33b94db1-ac8c-4667-81d5-408df0f30879",
+    "David Palumbo",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 145 — Avacyn's Judgment
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AVACYN_S_JUDGMENT_145: CardRecord = CardRecord::new(
+    "Avacyn's Judgment",
+    "0c5f44ce-1464-4282-9afa-20e9ea44c613",
+    "Victor Adame Minguez",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 173 — Malevolent Whispers
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MALEVOLENT_WHISPERS_173: CardRecord = CardRecord::new(
+    "Malevolent Whispers",
+    "674d33d6-dfd4-4972-aaa3-6de0236a8c45",
+    "Greg Staples",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 189 — Vessel of Volatility
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VESSEL_OF_VOLATILITY_189: CardRecord = CardRecord::new(
+    "Vessel of Volatility",
+    "81647b86-2c84-4a14-8d5a-919f7a5b8bc7",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 200 — Cryptolith Rite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRYPTOLITH_RITE_200: CardRecord = CardRecord::new(
+    "Cryptolith Rite",
+    "2910adcd-882a-46af-8236-ca1a9e2c19ab",
+    "Zack Stella",
+    crate::card::CardRules::unsupported(),
+);
+
+// SOI 203 — Duskwatch Recruiter // Krallenhorde Howler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DUSKWATCH_RECRUITER_KRALLENHORDE_HOWLER_203: CardRecord =
+    CardRecord::new(
+        "Duskwatch Recruiter // Krallenhorde Howler",
+        "e1915d93-c7dd-4bb7-bd5c-63a359a02b97",
+        "Craig J Spearing",
+        crate::card::CardRules::unsupported(),
+    );
+
+// SOI 216 — Loam Dryad
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LOAM_DRYAD_216: CardRecord = CardRecord::new(
+    "Loam Dryad",
+    "61c9441d-18d9-4ec6-859e-e9a7893b54e3",
+    "Jose Cabrera",
+    crate::card::CardRules::unsupported(),
 );
 
 // SOI 223 — Rabid Bite
@@ -175,12 +293,35 @@ pub(in crate::card::sets) static MAGNIFYING_GLASS: CardRecord = CardRecord::new(
     ]),
 );
 
+// SOI 274 — Fortified Village
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FORTIFIED_VILLAGE_274: CardRecord = CardRecord::new(
+    "Fortified Village",
+    "1feb9dc1-671d-43ad-ae22-ed1a9916b140",
+    "Cliff Childs",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ODRIC_LUNARCH_MARSHAL_31,
     &THRABEN_INSPECTOR,
+    &ESSENCE_FLUX_61,
+    &ALMS_OF_THE_VEIN_98,
+    &BITING_RAIN_102,
     &CROW_OF_DARK_TIDINGS,
+    &FROM_UNDER_THE_FLOORBOARDS_111,
+    &GISA_S_BIDDING_114,
+    &MURDEROUS_COMPULSION_126,
+    &AVACYN_S_JUDGMENT_145,
+    &MALEVOLENT_WHISPERS_173,
+    &VESSEL_OF_VOLATILITY_189,
+    &CRYPTOLITH_RITE_200,
+    &DUSKWATCH_RECRUITER_KRALLENHORDE_HOWLER_203,
+    &LOAM_DRYAD_216,
     &RABID_BITE,
     &TIRELESS_TRACKER,
     &MAGNIFYING_GLASS,
+    &FORTIFIED_VILLAGE_274,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

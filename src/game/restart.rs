@@ -59,10 +59,20 @@ impl Game {
             .flat_map(|card| super::backing_cards(&card.backing))
             .collect::<Vec<_>>();
         let decks = [PlayerId::One, PlayerId::Two].map(|seat| Deck {
+            commanders: self
+                .commanders
+                .iter()
+                .filter(|c| c.owner == seat && !omitted.contains(&c.physical))
+                .map(|c| c.definition)
+                .collect(),
             main: self
                 .physical_cards
                 .iter()
-                .filter(|physical| physical.owner == seat && !omitted.contains(&physical.id))
+                .filter(|physical| {
+                    physical.owner == seat
+                        && !omitted.contains(&physical.id)
+                        && !self.commanders.iter().any(|c| c.physical == physical.id)
+                })
                 .map(|physical| physical.definition)
                 .collect(),
             sideboard: self.players[seat.index()]
@@ -95,6 +105,20 @@ impl Game {
                         .build_zone(physical.owner, &[physical.definition])
                         .expect("registered physical card");
                     let card = cards.pop().expect("one card");
+                    if self
+                        .commanders
+                        .iter()
+                        .any(|commander| commander.physical == id)
+                    {
+                        let backing = super::backing_cards(&card.backing)[0];
+                        restarted
+                            .commanders
+                            .push(super::commander::CommanderState::new(
+                                backing,
+                                physical.definition,
+                                physical.owner,
+                            ));
+                    }
                     ids.push(card.id);
                     restarted.players[physical.owner.index()].exile.push(card);
                 }
@@ -194,6 +218,7 @@ impl Game {
                 .chain(&mut player.hand)
                 .chain(&mut player.graveyard)
                 .chain(&mut player.exile)
+                .chain(&mut player.command)
                 .chain(&mut player.outside_game)
             {
                 assign(

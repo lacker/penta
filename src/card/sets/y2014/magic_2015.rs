@@ -73,6 +73,15 @@ pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
     ),
 );
 
+// M15 15 — Hushwing Gryff
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HUSHWING_GRYFF_15: CardRecord = CardRecord::new(
+    "Hushwing Gryff",
+    "7b44eb0d-5a3a-4624-aee4-11d6978fb4b0",
+    "John Severin Brassell",
+    crate::card::CardRules::unsupported(),
+);
+
 // M15 40 — Triplicate Spirits
 pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::new(
     "Triplicate Spirits",
@@ -95,11 +104,47 @@ pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::ne
     ]),
 );
 
+// M15 119 — Ulcerate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ULCERATE_119: CardRecord = CardRecord::new(
+    "Ulcerate",
+    "2e06e6c8-05c0-4d87-9961-605b888bc794",
+    "Johann Bodin",
+    crate::card::CardRules::unsupported(),
+);
+
+// M15 122 — Waste Not
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WASTE_NOT_122: CardRecord = CardRecord::new(
+    "Waste Not",
+    "241d8f7d-3981-47c1-b7b8-748277fa452f",
+    "Matt Stewart",
+    crate::card::CardRules::unsupported(),
+);
+
+// M15 138 — Crowd's Favor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CROWD_S_FAVOR_138: CardRecord = CardRecord::new(
+    "Crowd's Favor",
+    "536b8104-9d8d-444b-8535-62bcbe279de2",
+    "Slawomir Maniak",
+    crate::card::CardRules::unsupported(),
+);
+
 // M15 142 — Frenzied Goblin (reprint)
 const FRENZIED_GOBLIN_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2005::ravnica_city_of_guilds::FRENZIED_GOBLIN,
     "7ddfe382-3a80-45f3-a022-54739c4b69a6",
     "Carl Critchlow",
+);
+
+// M15 143 — Generator Servant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GENERATOR_SERVANT_143: CardRecord = CardRecord::new(
+    "Generator Servant",
+    "74d0c422-4201-4d6f-9df7-659e8b78b541",
+    "Mathias Kollros",
+    crate::card::CardRules::unsupported(),
 );
 
 // M15 145 — Goblin Rabblemaster
@@ -170,6 +215,15 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
         ]),
 );
 
+// M15 164 — Stoke the Flames
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STOKE_THE_FLAMES_164: CardRecord = CardRecord::new(
+    "Stoke the Flames",
+    "1d94c000-52e0-4215-83af-6351dc43e636",
+    "Ryan Barger",
+    crate::card::CardRules::unsupported(),
+);
+
 // M15 194 — Reclamation Sage
 pub(in crate::card::sets) static RECLAMATION_SAGE: CardRecord = CardRecord::new(
     "Reclamation Sage",
@@ -196,11 +250,37 @@ pub(in crate::card::sets) static RECLAMATION_SAGE: CardRecord = CardRecord::new(
     ]),
 );
 
+// M15 209 — Yisan, the Wanderer Bard
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static YISAN_THE_WANDERER_BARD_209: CardRecord = CardRecord::new(
+    "Yisan, the Wanderer Bard",
+    "65cd97cd-6d6e-4512-a050-6851b7527567",
+    "Chase Stone",
+    crate::card::CardRules::unsupported(),
+);
+
+// M15 215 — The Chain Veil
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_CHAIN_VEIL_215: CardRecord = CardRecord::new(
+    "The Chain Veil",
+    "0415cc0e-979e-42cc-a56d-88d13153a7de",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HELIOD_S_PILGRIM,
+    &HUSHWING_GRYFF_15,
     &TRIPLICATE_SPIRITS,
+    &ULCERATE_119,
+    &WASTE_NOT_122,
+    &CROWD_S_FAVOR_138,
+    &GENERATOR_SERVANT_143,
     &GOBLIN_RABBLEMASTER,
+    &STOKE_THE_FLAMES_164,
     &RECLAMATION_SAGE,
+    &YISAN_THE_WANDERER_BARD_209,
+    &THE_CHAIN_VEIL_215,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

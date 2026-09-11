@@ -7,3 +7,5 @@ pub mod throne_of_eldraine;
 pub mod war_of_the_spark;
 
 pub(super) use super::{CardRecord, PrintingRecord};
+
+pub mod commander_2019;

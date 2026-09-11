@@ -59,6 +59,7 @@ fn valid_deck() -> Deck {
         "00000000-0000-0000-0000-000000000003",
     ));
     Deck {
+        commanders: Vec::new(),
         main,
         sideboard: Vec::new(),
     }
@@ -151,6 +152,7 @@ fn restricted_cards_are_limited_across_deck_and_sideboard() {
     let mut main = vec![CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"); 58];
     main.extend([CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000003"); 2]);
     let error = Deck {
+        commanders: Vec::new(),
         main,
         sideboard: Vec::new(),
     }
@@ -177,6 +179,7 @@ fn banned_cards_are_rejected() {
 
     assert_eq!(
         Deck {
+            commanders: Vec::new(),
             main,
             sideboard: Vec::new(),
         }
@@ -194,6 +197,7 @@ fn deck_validation_uses_the_selected_formats_card_pool() {
         "00000000-0000-0000-0000-000000000005",
     ));
     let standard_deck = Deck {
+        commanders: Vec::new(),
         main,
         sideboard: Vec::new(),
     };
@@ -215,6 +219,7 @@ fn deck_validation_uses_the_selected_formats_card_pool() {
     ));
     assert_eq!(
         Deck {
+            commanders: Vec::new(),
             main,
             sideboard: Vec::new(),
         }
@@ -255,6 +260,7 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
     .unwrap();
 
     let legal = Deck {
+        commanders: Vec::new(),
         main: [
             vec![CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"); 56],
             vec![CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000002"); 4],
@@ -267,6 +273,7 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
         .unwrap();
 
     let too_many = Deck {
+        commanders: Vec::new(),
         main: [
             vec![CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"); 55],
             vec![CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000002"); 5],
@@ -548,6 +555,7 @@ fn unspent_mana_burns_at_the_end_of_a_phase() {
 fn mana_emptying_and_burn_follow_the_games_format() {
     let catalog = catalog();
     let deck = Deck {
+        commanders: Vec::new(),
         main: vec![CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"); 60],
         sideboard: Vec::new(),
     };
@@ -593,6 +601,7 @@ fn mana_emptying_and_burn_follow_the_games_format() {
 fn game_validates_decks_against_its_own_catalog() {
     let catalog = catalog();
     let short_deck = Deck {
+        commanders: Vec::new(),
         main: vec![CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"); 59],
         sideboard: Vec::new(),
     };
@@ -884,6 +893,7 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
     ])
     .unwrap();
     let deck = Deck {
+        commanders: Vec::new(),
         main: vec![mountain_definition; 60],
         sideboard: Vec::new(),
     };

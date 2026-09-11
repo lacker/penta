@@ -3,6 +3,7 @@ use crate::hosted::HostedGame;
 
 mod actions;
 mod autopass;
+mod commander_snapshot;
 mod draw_windows;
 mod hosted_concession;
 mod session_api;

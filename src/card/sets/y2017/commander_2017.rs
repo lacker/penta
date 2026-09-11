@@ -68,6 +68,24 @@ CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
     ),
 );
 
+// C17 14 — Bloodline Necromancer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOODLINE_NECROMANCER_14: CardRecord = CardRecord::new(
+    "Bloodline Necromancer",
+    "42bffd03-3821-4b0f-9535-2eb455154587",
+    "Joe Slucher",
+    crate::card::CardRules::unsupported(),
+);
+
+// C17 24 — Curse of Opulence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CURSE_OF_OPULENCE_24: CardRecord = CardRecord::new(
+    "Curse of Opulence",
+    "e23db9d3-d11f-4b2c-8349-687bc0e9d4c2",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
 // C17 37 — Fractured Identity
 pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::new(
     "Fractured Identity",
@@ -111,6 +129,33 @@ pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::ne
     )),
 );
 
+// C17 38 — Inalla, Archmage Ritualist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INALLA_ARCHMAGE_RITUALIST_38: CardRecord = CardRecord::new(
+    "Inalla, Archmage Ritualist",
+    "7c6e803a-451c-4aa6-97a2-400077f32c47",
+    "Yongjae Choi",
+    crate::card::CardRules::unsupported(),
+);
+
+// C17 53 — Herald's Horn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HERALD_S_HORN_53: CardRecord = CardRecord::new(
+    "Herald's Horn",
+    "07b06421-778a-4d23-862b-30fc5fa25928",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
+// C17 54 — Mirror of the Forebears
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIRROR_OF_THE_FOREBEARS_54: CardRecord = CardRecord::new(
+    "Mirror of the Forebears",
+    "82e96f29-ce98-4e2d-8035-da3994ab66db",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
 // C17 55 — Ramos, Dragon Engine
 // Audit: unsupported — Needs a value expression for the number of colors in the triggering cast spell's captured characteristics; AffectedColorCount reads a static effect recipient rather than the cast event.
 pub(in crate::card::sets) static RAMOS_DRAGON_ENGINE: CardRecord = CardRecord::new(
@@ -120,10 +165,25 @@ pub(in crate::card::sets) static RAMOS_DRAGON_ENGINE: CardRecord = CardRecord::n
     CardRules::unsupported(),
 );
 
+// C17 56 — Path of Ancestry
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PATH_OF_ANCESTRY_56: CardRecord = CardRecord::new(
+    "Path of Ancestry",
+    "70e70720-f0b9-4ad7-9366-927d6798d31e",
+    "Alayna Danner",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TEFERIS_PROTECTION,
+    &BLOODLINE_NECROMANCER_14,
+    &CURSE_OF_OPULENCE_24,
     &FRACTURED_IDENTITY,
+    &INALLA_ARCHMAGE_RITUALIST_38,
+    &HERALD_S_HORN_53,
+    &MIRROR_OF_THE_FOREBEARS_54,
     &RAMOS_DRAGON_ENGINE,
+    &PATH_OF_ANCESTRY_56,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -46,6 +46,15 @@ pub(in crate::card::sets) static DEVOTED_RETAINER: CardRecord = CardRecord::new(
         .with_ability(abilities::bushido(ValueDef::Constant(1))),
 );
 
+// CHK 10 — Ghostly Prison
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GHOSTLY_PRISON_10: CardRecord = CardRecord::new(
+    "Ghostly Prison",
+    "82d7de2b-c909-48dc-9ab7-c4a8328e37bb",
+    "Lars Grant-West",
+    crate::card::CardRules::unsupported(),
+);
+
 // CHK 30 — Konda, Lord of Eiganjo
 pub(in crate::card::sets) static KONDA_LORD_OF_EIGANJO: CardRecord = CardRecord::new(
     "Konda, Lord of Eiganjo",
@@ -58,6 +67,15 @@ pub(in crate::card::sets) static KONDA_LORD_OF_EIGANJO: CardRecord = CardRecord:
             abilities::indestructible(),
             abilities::bushido(ValueDef::Constant(5)),
         ]),
+);
+
+// CHK 62 — Gifts Ungiven
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GIFTS_UNGIVEN_62: CardRecord = CardRecord::new(
+    "Gifts Ungiven",
+    "32b91eb5-ea53-4a21-a2e5-9c545a42fa30",
+    "D. Alexander Gregory",
+    crate::card::CardRules::unsupported(),
 );
 
 // CHK 97 — Time Stop
@@ -139,6 +157,24 @@ pub(in crate::card::sets) static BROTHERS_YAMAZAKI: CardRecord = CardRecord::new
     CardRules::unsupported(),
 );
 
+// CHK 163 — Desperate Ritual
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DESPERATE_RITUAL_163: CardRecord = CardRecord::new(
+    "Desperate Ritual",
+    "c8bdb92a-7bdb-434b-8cc0-873969faf566",
+    "Darrell Riche",
+    crate::card::CardRules::unsupported(),
+);
+
+// CHK 175 — Kiki-Jiki, Mirror Breaker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KIKI_JIKI_MIRROR_BREAKER_175: CardRecord = CardRecord::new(
+    "Kiki-Jiki, Mirror Breaker",
+    "162018eb-5483-4fa2-9c5a-abb639eecf91",
+    "Pete Venters",
+    crate::card::CardRules::unsupported(),
+);
+
 // CHK 193 — Through the Breach
 pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new(
     "Through the Breach",
@@ -214,6 +250,24 @@ the rest on the bottom of your library in any order.",
     )]),
 );
 
+// CHK 205 — Dosan the Falling Leaf
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DOSAN_THE_FALLING_LEAF_205: CardRecord = CardRecord::new(
+    "Dosan the Falling Leaf",
+    "ffb190db-48fc-4c39-ae9f-5e304eabb4f4",
+    "Mark Zug",
+    crate::card::CardRules::unsupported(),
+);
+
+// CHK 225 — Kodama's Reach
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KODAMA_S_REACH_225: CardRecord = CardRecord::new(
+    "Kodama's Reach",
+    "85d207ac-0680-47ef-85d9-4323c1321d6f",
+    "Heather Hudson",
+    crate::card::CardRules::unsupported(),
+);
+
 // CHK 239 — Sakura-Tribe Elder
 pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::new(
     "Sakura-Tribe Elder",
@@ -249,6 +303,24 @@ pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::ne
             },
         ),
     ),
+);
+
+// CHK 247 — Time of Need
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TIME_OF_NEED_247: CardRecord = CardRecord::new(
+    "Time of Need",
+    "514577a5-c7ae-4cfc-872a-e3786d78a6c3",
+    "Dany Orizio",
+    crate::card::CardRules::unsupported(),
+);
+
+// CHK 266 — Orochi Hatchery
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OROCHI_HATCHERY_266: CardRecord = CardRecord::new(
+    "Orochi Hatchery",
+    "7e662e2e-f706-4d79-86ed-48b60787a5d0",
+    "Alex Horley-Orlandelli",
+    crate::card::CardRules::unsupported(),
 );
 
 // CHK 268 — Sensei's Divining Top
@@ -289,6 +361,33 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
     ]),
 );
 
+// CHK 273 — Boseiju, Who Shelters All
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BOSEIJU_WHO_SHELTERS_ALL_273: CardRecord = CardRecord::new(
+    "Boseiju, Who Shelters All",
+    "0180d9a8-992c-4d55-8ac4-33a587786993",
+    "Ralph Horsley",
+    crate::card::CardRules::unsupported(),
+);
+
+// CHK 276 — Forbidden Orchard
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FORBIDDEN_ORCHARD_276: CardRecord = CardRecord::new(
+    "Forbidden Orchard",
+    "88d78261-c8c9-4e0e-b157-f70ed46c3a25",
+    "Dany Orizio",
+    crate::card::CardRules::unsupported(),
+);
+
+// CHK 277 — Hall of the Bandit Lord
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HALL_OF_THE_BANDIT_LORD_277: CardRecord = CardRecord::new(
+    "Hall of the Bandit Lord",
+    "59fa5bab-8626-4b45-a3a3-621f6d9509ab",
+    "Paolo Parente",
+    crate::card::CardRules::unsupported(),
+);
+
 // CHK 279 — Minamo, School at Water's Edge
 pub(in crate::card::sets) static MINAMO_SCHOOL_AT_WATERS_EDGE: CardRecord = CardRecord::new(
     "Minamo, School at Water's Edge",
@@ -311,20 +410,51 @@ pub(in crate::card::sets) static MINAMO_SCHOOL_AT_WATERS_EDGE: CardRecord = Card
         ]),
 );
 
+// CHK 282 — Shinka, the Bloodsoaked Keep
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHINKA_THE_BLOODSOAKED_KEEP_282: CardRecord = CardRecord::new(
+    "Shinka, the Bloodsoaked Keep",
+    "d2d5f30e-cc3a-46c1-82a9-2cd73705b2f5",
+    "Thomas M. Baxa",
+    crate::card::CardRules::unsupported(),
+);
+
+// CHK 283 — Shizo, Death's Storehouse
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHIZO_DEATH_S_STOREHOUSE_283: CardRecord = CardRecord::new(
+    "Shizo, Death's Storehouse",
+    "2de9a046-3db1-436e-b666-ba96e2e8c5db",
+    "John Matson",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEVOTED_RETAINER,
+    &GHOSTLY_PRISON_10,
     &KONDA_LORD_OF_EIGANJO,
+    &GIFTS_UNGIVEN_62,
     &TIME_STOP,
     &CURSED_RONIN,
     &DISTRESS,
     &MYOJIN_OF_NIGHT_S_REACH,
     &BATTLE_MAD_RONIN,
     &BROTHERS_YAMAZAKI,
+    &DESPERATE_RITUAL_163,
+    &KIKI_JIKI_MIRROR_BREAKER_175,
     &THROUGH_THE_BREACH,
     &COMMUNE_WITH_NATURE,
+    &DOSAN_THE_FALLING_LEAF_205,
+    &KODAMA_S_REACH_225,
     &SAKURA_TRIBE_ELDER,
+    &TIME_OF_NEED_247,
+    &OROCHI_HATCHERY_266,
     &SENSEIS_DIVINING_TOP,
+    &BOSEIJU_WHO_SHELTERS_ALL_273,
+    &FORBIDDEN_ORCHARD_276,
+    &HALL_OF_THE_BANDIT_LORD_277,
     &MINAMO_SCHOOL_AT_WATERS_EDGE,
+    &SHINKA_THE_BLOODSOAKED_KEEP_282,
+    &SHIZO_DEATH_S_STOREHOUSE_283,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

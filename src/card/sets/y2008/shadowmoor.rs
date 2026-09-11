@@ -86,6 +86,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// SHM 31 — Cerulean Wisps
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CERULEAN_WISPS_31: CardRecord = CardRecord::new(
+    "Cerulean Wisps",
+    "0dca4f46-0aad-484f-b4ea-ed61a4fc1a89",
+    "Jim Nelson",
+    crate::card::CardRules::unsupported(),
+);
+
 // SHM 33 — Counterbore
 pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
     "Counterbore",
@@ -140,6 +149,15 @@ CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(
     ),
 );
 
+// SHM 42 — Knacksaw Clique
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KNACKSAW_CLIQUE_42: CardRecord = CardRecord::new(
+    "Knacksaw Clique",
+    "22353590-f248-460e-a1a5-0b7431a4c82d",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
 // SHM 57 — Beseech the Queen
 pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new(
     "Beseech the Queen",
@@ -172,6 +190,15 @@ CardRules::new_sorcery(mana_cost!("{2/B}{2/B}{2/B}")).with_ability(AbilityDef::s
     )),
 );
 
+// SHM 66 — Faerie Macabre
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FAERIE_MACABRE_66: CardRecord = CardRecord::new(
+    "Faerie Macabre",
+    "ead8befa-27dd-4ec4-b317-1c231407e0ac",
+    "rk post",
+    crate::card::CardRules::unsupported(),
+);
+
 // SHM 86 — Burn Trail
 pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
     "Burn Trail",
@@ -196,6 +223,24 @@ pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
             quantity: CostQuantityDef::Fixed(2),
         }],
     )),
+);
+
+// SHM 88 — Crimson Wisps
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRIMSON_WISPS_88: CardRecord = CardRecord::new(
+    "Crimson Wisps",
+    "a65c81ff-fc5d-4191-93fb-52eb806457b7",
+    "Jim Nelson",
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 110 — Devoted Druid
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEVOTED_DRUID_110: CardRecord = CardRecord::new(
+    "Devoted Druid",
+    "820e2f07-f637-4144-b45a-0e1430dcf55e",
+    "Darrell Riche",
+    crate::card::CardRules::unsupported(),
 );
 
 // SHM 117 — Gloomwidow
@@ -289,6 +334,33 @@ pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
         ]),
 );
 
+// SHM 166 — Helm of the Ghastlord
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HELM_OF_THE_GHASTLORD_166: CardRecord = CardRecord::new(
+    "Helm of the Ghastlord",
+    "653dd5b7-1ad3-4df1-bd2a-4e6ae362a8a2",
+    "Franz Vohwinkel",
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 192 — Murderous Redcap
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MURDEROUS_REDCAP_192: CardRecord = CardRecord::new(
+    "Murderous Redcap",
+    "5f7171f0-7d42-47c9-ab46-93c2bb42c914",
+    "Dave Allsop",
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 208 — Guttural Response
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GUTTURAL_RESPONSE_208: CardRecord = CardRecord::new(
+    "Guttural Response",
+    "e0662ab6-b475-4b8d-ae77-a9b654e611da",
+    "Matt Cavotta",
+    crate::card::CardRules::unsupported(),
+);
+
 // SHM 211 — Manamorphose
 pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new(
     "Manamorphose",
@@ -352,6 +424,15 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
     )),
 );
 
+// SHM 241 — Seedcradle Witch
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SEEDCRADLE_WITCH_241: CardRecord = CardRecord::new(
+    "Seedcradle Witch",
+    "a0ae8525-ce10-40bd-8980-a05fb81a0fac",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
 // SHM 245 — Wilt-Leaf Liege
 // Audit: unsupported — Needs a prospective discard event carrying the causing spell or ability's controller, then replacing the discard destination with battlefield entry; a generic graveyard move cannot distinguish discard from other moves.
 pub(in crate::card::sets) static WILT_LEAF_LIEGE: CardRecord = CardRecord::new(
@@ -361,17 +442,76 @@ pub(in crate::card::sets) static WILT_LEAF_LIEGE: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// SHM 258 — Pili-Pala
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PILI_PALA_258: CardRecord = CardRecord::new(
+    "Pili-Pala",
+    "4892c152-1f4a-4616-8e7f-0ca4911e621a",
+    "Ron Spencer",
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 267 — Umbral Mantle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UMBRAL_MANTLE_267: CardRecord = CardRecord::new(
+    "Umbral Mantle",
+    "10e35711-aec9-4024-a2a6-9efff8c71df2",
+    "Richard Sardinha",
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 271 — Fire-Lit Thicket
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FIRE_LIT_THICKET_271: CardRecord = CardRecord::new(
+    "Fire-Lit Thicket",
+    "0ab9d6ad-f819-4a1e-b4ff-8dc00791f0fd",
+    "Ralph Horsley",
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 277 — Mystic Gate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MYSTIC_GATE_277: CardRecord = CardRecord::new(
+    "Mystic Gate",
+    "3dfa866b-93e2-4365-91b0-f12d1f7c5395",
+    "Fred Fields",
+    crate::card::CardRules::unsupported(),
+);
+
+// SHM 280 — Sunken Ruins
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNKEN_RUINS_280: CardRecord = CardRecord::new(
+    "Sunken Ruins",
+    "9d91a31c-b70a-45bd-a8dd-48d49b277f24",
+    "Warren Mahy",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &CERULEAN_WISPS_31,
     &COUNTERBORE,
+    &KNACKSAW_CLIQUE_42,
     &BESEECH_THE_QUEEN,
+    &FAERIE_MACABRE_66,
     &BURN_TRAIL,
+    &CRIMSON_WISPS_88,
+    &DEVOTED_DRUID_110,
     &GLOOMWIDOW,
     &HOWL_OF_THE_NIGHT_PACK,
     &MOSSBRIDGE_TROLL,
     &WOODFALL_PRIMUS,
+    &HELM_OF_THE_GHASTLORD_166,
+    &MURDEROUS_REDCAP_192,
+    &GUTTURAL_RESPONSE_208,
     &MANAMORPHOSE,
     &BARKSHELL_BLESSING,
+    &SEEDCRADLE_WITCH_241,
     &WILT_LEAF_LIEGE,
+    &PILI_PALA_258,
+    &UMBRAL_MANTLE_267,
+    &FIRE_LIT_THICKET_271,
+    &MYSTIC_GATE_277,
+    &SUNKEN_RUINS_280,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

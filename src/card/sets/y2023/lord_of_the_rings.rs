@@ -146,6 +146,24 @@ pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new(
     )),
 );
 
+// LTR 28 — Samwise the Stouthearted
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SAMWISE_THE_STOUTHEARTED_28: CardRecord = CardRecord::new(
+    "Samwise the Stouthearted",
+    "214c270e-29ca-4d69-bea6-9252ae7707ad",
+    "Irvin Rodriguez",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 56 — Ioreth of the Healing House
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IORETH_OF_THE_HEALING_HOUSE_56: CardRecord = CardRecord::new(
+    "Ioreth of the Healing House",
+    "03ab74cd-978a-49eb-9d38-bc8b472b3cef",
+    "Wei Guan",
+    crate::card::CardRules::unsupported(),
+);
+
 // LTR 60 — Lórien Revealed
 pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new(
     "Lórien Revealed",
@@ -310,6 +328,15 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
                 ObjectPredicateDef::Subtype(SubtypeDef::Literal("Swamp")),
             ),
         ]),
+);
+
+// LTR 120 — Éomer, Marshal of Rohan
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EOMER_MARSHAL_OF_ROHAN_120: CardRecord = CardRecord::new(
+    "Éomer, Marshal of Rohan",
+    "0bd31ce9-9551-4efe-8bd2-b97d8efbf75e",
+    "Jesper Ejsing",
+    crate::card::CardRules::unsupported(),
 );
 
 // LTR 137 — Improvised Club
@@ -582,6 +609,15 @@ CardRules::new_instant(mana_cost!("{1}{U}{R}")).with_ability(
     ),
 );
 
+// LTR 245 — Mithril Coat
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MITHRIL_COAT_245: CardRecord = CardRecord::new(
+    "Mithril Coat",
+    "0fd1fc09-a09d-45e6-8a07-3a8a83b4e6ec",
+    "Igor Krstic",
+    crate::card::CardRules::unsupported(),
+);
+
 // LTR 246 — The One Ring
 // A turn of complete safety, then a card every turn for a life total
 // that runs out faster than it looks like it will.
@@ -646,13 +682,142 @@ pub(in crate::card::sets) static THE_ONE_RING: CardRecord = CardRecord::new(
         ]),
 );
 
+// LTR 250 — Sting, the Glinting Dagger
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STING_THE_GLINTING_DAGGER_250: CardRecord = CardRecord::new(
+    "Sting, the Glinting Dagger",
+    "afbec7e7-f5b9-407e-bf96-2e088710e791",
+    "Nino Is",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 254 — Great Hall of the Citadel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GREAT_HALL_OF_THE_CITADEL_254: CardRecord = CardRecord::new(
+    "Great Hall of the Citadel",
+    "219c7b57-b62b-42d1-85d9-4b57624a3f54",
+    "Campbell White",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 257 — Mines of Moria
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MINES_OF_MORIA_257: CardRecord = CardRecord::new(
+    "Mines of Moria",
+    "0be723d6-4ada-4c3f-b87b-8ab83a4bbb8f",
+    "Arthur Yuan",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 258 — Mount Doom
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MOUNT_DOOM_258: CardRecord = CardRecord::new(
+    "Mount Doom",
+    "b5bc71a1-2344-4bc6-aa60-658cec19d0d6",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 305 — Gandalf the White
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GANDALF_THE_WHITE_305: CardRecord = CardRecord::new(
+    "Gandalf the White",
+    "2c9dc67a-5c26-4044-82b6-d5b6e195ae64",
+    "Dominik Mayer",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 344 — Rivendell
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RIVENDELL_344: CardRecord = CardRecord::new(
+    "Rivendell",
+    "650fa2f4-2916-427c-a0f9-37e2dbe8e1fc",
+    "Josu Solano",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 350 — Borne Upon a Wind
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BORNE_UPON_A_WIND_350: CardRecord = CardRecord::new(
+    "Borne Upon a Wind",
+    "60ebd6a8-2e93-40ee-951a-4fcf12c85e3d",
+    "Alexander Mokhov",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 360 — Glóin, Dwarf Emissary
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GLOIN_DWARF_EMISSARY_360: CardRecord = CardRecord::new(
+    "Glóin, Dwarf Emissary",
+    "6d74d1af-5cc6-422e-949c-de9e39b76154",
+    "Tomas Duchek",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 362 — Moria Marauder
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MORIA_MARAUDER_362: CardRecord = CardRecord::new(
+    "Moria Marauder",
+    "b9e36249-02f5-4c11-9a2b-6be81eb6b490",
+    "Andrea Piparo",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 370 — Lotho, Corrupt Shirriff
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LOTHO_CORRUPT_SHIRRIFF_370: CardRecord = CardRecord::new(
+    "Lotho, Corrupt Shirriff",
+    "69d97af0-8af0-4124-b56f-2633d34e5574",
+    "Ilker Yildiz",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 407 — Boromir, Warden of the Tower
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BOROMIR_WARDEN_OF_THE_TOWER_407: CardRecord = CardRecord::new(
+    "Boromir, Warden of the Tower",
+    "97ec04f9-0563-4490-b252-714df2ddbf58",
+    "Colin Boyer",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 418 — Last March of the Ents
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LAST_MARCH_OF_THE_ENTS_418: CardRecord = CardRecord::new(
+    "Last March of the Ents",
+    "66763118-6a1e-465a-bfe0-6fe18c419875",
+    "David Rapoza",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 437 — Merry, Esquire of Rohan
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MERRY_ESQUIRE_OF_ROHAN_437: CardRecord = CardRecord::new(
+    "Merry, Esquire of Rohan",
+    "259ff889-fc9a-42f7-998d-0ab23c94ad8a",
+    "Tyler Jacobson",
+    crate::card::CardRules::unsupported(),
+);
+
+// LTR 443 — The Grey Havens
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_GREY_HAVENS_443: CardRecord = CardRecord::new(
+    "The Grey Havens",
+    "9714aa30-1db2-4670-9a0b-72acfc3f703c",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EAGLES_OF_THE_NORTH,
     &REPRIEVE,
+    &SAMWISE_THE_STOUTHEARTED_28,
+    &IORETH_OF_THE_HEALING_HOUSE_56,
     &LORIEN_REVEALED,
     &STERN_SCOLDING,
     &ORCISH_BOWMASTERS,
     &TROLL_OF_KHAZAD_DUM,
+    &EOMER_MARSHAL_OF_ROHAN_120,
     &IMPROVISED_CLUB,
     &OLIPHAUNT,
     &RALLY_AT_THE_HORNBURG,
@@ -660,7 +825,22 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GENEROUS_ENT,
     &ARWEN_MORTAL_QUEEN,
     &FLAME_OF_ANOR,
+    &MITHRIL_COAT_245,
     &THE_ONE_RING,
+    &STING_THE_GLINTING_DAGGER_250,
+    &GREAT_HALL_OF_THE_CITADEL_254,
+    &MINES_OF_MORIA_257,
+    &MOUNT_DOOM_258,
+    &GANDALF_THE_WHITE_305,
+    &RIVENDELL_344,
+    &BORNE_UPON_A_WIND_350,
+    &GLOIN_DWARF_EMISSARY_360,
+    &MORIA_MARAUDER_362,
+    &LOTHO_CORRUPT_SHIRRIFF_370,
+    &BOROMIR_WARDEN_OF_THE_TOWER_407,
+    &LAST_MARCH_OF_THE_ENTS_418,
+    &MERRY_ESQUIRE_OF_ROHAN_437,
+    &THE_GREY_HAVENS_443,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

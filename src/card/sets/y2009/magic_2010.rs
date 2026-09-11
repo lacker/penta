@@ -916,6 +916,15 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new(
     ]),
 );
 
+// M10 190 — Lurking Predators
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LURKING_PREDATORS_190: CardRecord = CardRecord::new(
+    "Lurking Predators",
+    "e864c824-89a1-41f6-9481-83b2284471e0",
+    "Mike Bierek",
+    crate::card::CardRules::unsupported(),
+);
+
 // M10 194 — Mold Adder
 pub(in crate::card::sets) static MOLD_ADDER: CardRecord = CardRecord::new(
     "Mold Adder",
@@ -1133,6 +1142,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CUDGEL_TROLL,
     &DEADLY_RECLUSE,
     &ELVISH_ARCHDRUID,
+    &LURKING_PREDATORS_190,
     &MOLD_ADDER,
     &RUNECLAW_BEAR,
     &STAMPEDING_RHINO,

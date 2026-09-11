@@ -31,6 +31,8 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
             Vec::new(),
         ],
         monarch: None,
+        command_zones: [Vec::new(), Vec::new()],
+        commanders: Vec::new(),
         life_totals: [20, 20],
         mana_pools: [crate::ManaPool::default(); 2],
         hand: Vec::new(),

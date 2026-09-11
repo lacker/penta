@@ -88,6 +88,24 @@ pub(in crate::card::sets) static FUMIGATE: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// KLD 25 — Refurbish
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static REFURBISH_25: CardRecord = CardRecord::new(
+    "Refurbish",
+    "f60e2ac4-f21f-4232-abc8-db078472408b",
+    "Johann Bodin",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 44 — Dramatic Reversal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAMATIC_REVERSAL_44: CardRecord = CardRecord::new(
+    "Dramatic Reversal",
+    "dcb59045-2743-48ae-8063-727e551b1c41",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
+
 // KLD 48 — Gearseeker Serpent
 pub(in crate::card::sets) static GEARSEEKER_SERPENT: CardRecord = CardRecord::new(
     "Gearseeker Serpent",
@@ -116,6 +134,15 @@ pub(in crate::card::sets) static GEARSEEKER_SERPENT: CardRecord = CardRecord::ne
             },
         ),
     ]),
+);
+
+// KLD 59 — Padeem, Consul of Innovation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PADEEM_CONSUL_OF_INNOVATION_59: CardRecord = CardRecord::new(
+    "Padeem, Consul of Innovation",
+    "e31b30a7-13e8-408e-a758-60e6e9290808",
+    "Matt Stewart",
+    crate::card::CardRules::unsupported(),
 );
 
 // KLD 60 — Paradoxical Outcome
@@ -181,6 +208,24 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
             }),
         ),
     )),
+);
+
+// KLD 67 — Torrential Gearhulk
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TORRENTIAL_GEARHULK_67: CardRecord = CardRecord::new(
+    "Torrential Gearhulk",
+    "d52868cb-087e-4f91-91bc-455f2e2e7cd7",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 96 — Noxious Gearhulk
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NOXIOUS_GEARHULK_96: CardRecord = CardRecord::new(
+    "Noxious Gearhulk",
+    "9f86e5fe-8723-4494-b4cc-b7ac3a047bd1",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
 );
 
 // KLD 107 — Brazen Scourge
@@ -253,6 +298,33 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                     ),
                 ),
             ]),
+);
+
+// KLD 126 — Reckless Fireweaver
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RECKLESS_FIREWEAVER_126: CardRecord = CardRecord::new(
+    "Reckless Fireweaver",
+    "63ffac51-62c4-4170-85b3-a43d7cfae7d7",
+    "Deruchenko Alexander",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 127 — Renegade Tactics
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RENEGADE_TACTICS_127: CardRecord = CardRecord::new(
+    "Renegade Tactics",
+    "6c06a39c-68bb-4e65-9a6d-9d9bc745201f",
+    "Yeong-Hao Han",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 131 — Spark of Creativity
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPARK_OF_CREATIVITY_131: CardRecord = CardRecord::new(
+    "Spark of Creativity",
+    "718bf224-5e1b-439c-a998-ceec5c0a8903",
+    "Johann Bodin",
+    crate::card::CardRules::unsupported(),
 );
 
 // KLD 138 — Thriving Grubs
@@ -337,6 +409,24 @@ pub(in crate::card::sets) static CLOUDBLAZER: CardRecord = CardRecord::new(
     ]),
 );
 
+// KLD 192 — Aetherflux Reservoir
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AETHERFLUX_RESERVOIR_192: CardRecord = CardRecord::new(
+    "Aetherflux Reservoir",
+    "96b6b2e1-c3e6-464c-8a13-b15deb34e862",
+    "Cliff Childs",
+    crate::card::CardRules::unsupported(),
+);
+
+// KLD 194 — Animation Module
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANIMATION_MODULE_194: CardRecord = CardRecord::new(
+    "Animation Module",
+    "34bdc973-db45-46a6-ac48-ce88fb59920a",
+    "Aaron Miller",
+    crate::card::CardRules::unsupported(),
+);
+
 // KLD 203 — Cultivator's Caravan
 pub(in crate::card::sets) static CULTIVATOR_S_CARAVAN: CardRecord = CardRecord::new(
     "Cultivator's Caravan",
@@ -375,6 +465,15 @@ pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new
             },
         ),
     ]),
+);
+
+// KLD 215 — Foundry Inspector
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FOUNDRY_INSPECTOR_215: CardRecord = CardRecord::new(
+    "Foundry Inspector",
+    "93f827e8-1cc4-4a15-a4be-2e74323963b9",
+    "Jason A. Engle",
+    crate::card::CardRules::unsupported(),
 );
 
 // KLD 230 — Renegade Freighter
@@ -527,6 +626,15 @@ pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new
     ]),
 );
 
+// KLD 247 — Inventors' Fair
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INVENTORS_FAIR_247: CardRecord = CardRecord::new(
+    "Inventors' Fair",
+    "275471e3-ded1-40ac-91ef-369dce5764d9",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
 // KLD 249 — Spirebluff Canal
 pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new(
     "Spirebluff Canal",
@@ -562,21 +670,33 @@ pub(in crate::card::sets) static FLAME_LASH: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AUTHORITY_OF_THE_CONSULS,
     &FUMIGATE,
+    &REFURBISH_25,
+    &DRAMATIC_REVERSAL_44,
     &GEARSEEKER_SERPENT,
+    &PADEEM_CONSUL_OF_INNOVATION_59,
     &PARADOXICAL_OUTCOME,
+    &TORRENTIAL_GEARHULK_67,
+    &NOXIOUS_GEARHULK_96,
     &BRAZEN_SCOURGE,
     &CHANDRA_TORCH_OF_DEFIANCE,
+    &RECKLESS_FIREWEAVER_126,
+    &RENEGADE_TACTICS_127,
+    &SPARK_OF_CREATIVITY_131,
     &THRIVING_GRUBS,
     &BLOSSOMING_DEFENSE,
     &CLOUDBLAZER,
+    &AETHERFLUX_RESERVOIR_192,
+    &ANIMATION_MODULE_194,
     &CULTIVATOR_S_CARAVAN,
     &FILIGREE_FAMILIAR,
+    &FOUNDRY_INSPECTOR_215,
     &RENEGADE_FREIGHTER,
     &SMUGGLER_S_COPTER,
     &BLOOMING_MARSH,
     &BOTANICAL_SANCTUM,
     &CONCEALED_COURTYARD,
     &INSPIRING_VANTAGE,
+    &INVENTORS_FAIR_247,
     &SPIREBLUFF_CANAL,
     &FLAME_LASH,
 ];

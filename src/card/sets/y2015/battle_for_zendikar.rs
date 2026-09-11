@@ -46,6 +46,24 @@ const ELDRAZI_SCION_TOKEN: TokenCharacteristics =
         )])
         .with_art(CardArt::new("b999a0fe-d2d0-4367-9abb-6ce5f3764f19", "Izzy"));
 
+// BFZ 15 — Ulamog, the Ceaseless Hunger
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ULAMOG_THE_CEASELESS_HUNGER_15: CardRecord = CardRecord::new(
+    "Ulamog, the Ceaseless Hunger",
+    "1192f7a9-102e-4b3a-b154-18c8eb332217",
+    "Michael Komarck",
+    crate::card::CardRules::unsupported(),
+);
+
+// BFZ 17 — Void Winnower
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VOID_WINNOWER_17: CardRecord = CardRecord::new(
+    "Void Winnower",
+    "8cbedb0a-34ca-4d42-bb43-cbea0f3c6d02",
+    "Chase Stone",
+    crate::card::CardRules::unsupported(),
+);
+
 // BFZ 25 — Felidar Cub
 pub(in crate::card::sets) static FELIDAR_CUB: CardRecord = CardRecord::new(
     "Felidar Cub",
@@ -199,6 +217,15 @@ CardRules::new_instant(mana_cost!("{2}{G}"))
         ]),
 );
 
+// BFZ 209 — Bring to Light
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRING_TO_LIGHT_209: CardRecord = CardRecord::new(
+    "Bring to Light",
+    "d25b13a4-6282-4426-8b01-9550f7d52d16",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
 // BFZ 223 — Hedron Archive
 pub(in crate::card::sets) static HEDRON_ARCHIVE: CardRecord = CardRecord::new(
     "Hedron Archive",
@@ -222,7 +249,27 @@ pub(in crate::card::sets) static HEDRON_ARCHIVE: CardRecord = CardRecord::new(
     ]),
 );
 
+// BFZ 242 — Sanctum of Ugin
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SANCTUM_OF_UGIN_242: CardRecord = CardRecord::new(
+    "Sanctum of Ugin",
+    "86798d03-9f2d-46bd-a660-13c8dd5535ce",
+    "James Paick",
+    crate::card::CardRules::unsupported(),
+);
+
+// BFZ 249 — Sunken Hollow
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNKEN_HOLLOW_249: CardRecord = CardRecord::new(
+    "Sunken Hollow",
+    "0dd1726f-b899-491a-8b0e-8e3d25f17d3d",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ULAMOG_THE_CEASELESS_HUNGER_15,
+    &VOID_WINNOWER_17,
     &FELIDAR_CUB,
     &STASIS_SNARE,
     &ELDRAZI_SKYSPAWNER,
@@ -230,7 +277,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &VAMPIRIC_RITES,
     &SURE_STRIKE,
     &UNNATURAL_AGGRESSION,
+    &BRING_TO_LIGHT_209,
     &HEDRON_ARCHIVE,
+    &SANCTUM_OF_UGIN_242,
+    &SUNKEN_HOLLOW_249,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -507,6 +507,8 @@ impl Game {
         let has_unlocated_emblem = emblems.len() != self.emblems.len();
         GameSnapshot {
             version: crate::protocol::CHECKPOINT_VERSION,
+            commanders: self.commanders(viewer),
+            commander_considered: self.commanders.iter().map(|c| c.considered.map(|id| id.0)).collect(),
             starting_player: self.starting_player.index(),
             match_state: self.match_checkpoint(viewer),
             current_game_result: self.result,

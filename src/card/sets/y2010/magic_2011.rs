@@ -146,6 +146,15 @@ pub(in crate::card::sets) static ROC_EGG: CardRecord = CardRecord::new(
     ]),
 );
 
+// M11 28 — Serra Ascendant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SERRA_ASCENDANT_28: CardRecord = CardRecord::new(
+    "Serra Ascendant",
+    "1ee65b44-eeb6-418b-b022-a0aef587c738",
+    "Anthony Palumbo",
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 30 — Silence (reprint)
 const SILENCE_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2009::magic_2010::SILENCE,
@@ -653,6 +662,15 @@ pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new(
         ]),
 );
 
+// M11 120 — Viscera Seer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VISCERA_SEER_120: CardRecord = CardRecord::new(
+    "Viscera Seer",
+    "6179f847-e334-4f7f-9a4e-0013942a394f",
+    "John Stanko",
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 130 — Combust
 // Audit: unsupported — Needs only this spell's damage to be unpreventable, without making other damage unpreventable for the turn.
 pub(in crate::card::sets) static COMBUST: CardRecord = CardRecord::new(
@@ -805,6 +823,15 @@ pub(in crate::card::sets) static MANIC_VANDAL: CardRecord = CardRecord::new(
     ),
 );
 
+// M11 153 — Pyretic Ritual
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PYRETIC_RITUAL_153: CardRecord = CardRecord::new(
+    "Pyretic Ritual",
+    "1e577638-a7ed-4bcc-90fb-0cffe87d5a28",
+    "James Paick",
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 155 — Reverberate
 pub(in crate::card::sets) static REVERBERATE: CardRecord = CardRecord::new(
     "Reverberate",
@@ -918,6 +945,24 @@ pub(in crate::card::sets) static BRINDLE_BOAR: CardRecord = CardRecord::new(
             },
         ),
     ),
+);
+
+// M11 168 — Cultivate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CULTIVATE_168: CardRecord = CardRecord::new(
+    "Cultivate",
+    "2ef3dbe4-5c03-4be4-ab48-45b6689b6712",
+    "Anthony Palumbo",
+    crate::card::CardRules::unsupported(),
+);
+
+// M11 172 — Fauna Shaman
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FAUNA_SHAMAN_172: CardRecord = CardRecord::new(
+    "Fauna Shaman",
+    "c685e4c3-eb7b-4b9e-9676-395d69d80974",
+    "Steve Prescott",
+    crate::card::CardRules::unsupported(),
 );
 
 // M11 176 — Garruk's Companion
@@ -1079,6 +1124,15 @@ CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
     )),
 );
 
+// M11 214 — Steel Overseer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STEEL_OVERSEER_214: CardRecord = CardRecord::new(
+    "Steel Overseer",
+    "b9da673d-7cc0-4435-b5a5-5098630f7712",
+    "Chris Rahn",
+    crate::card::CardRules::unsupported(),
+);
+
 // M11 216 — Sword of Vengeance
 pub(in crate::card::sets) static SWORD_OF_VENGEANCE: CardRecord = CardRecord::new(
     "Sword of Vengeance",
@@ -1108,12 +1162,22 @@ pub(in crate::card::sets) static SWORD_OF_VENGEANCE: CardRecord = CardRecord::ne
         ]),
 );
 
+// M11 217 — Temple Bell
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEMPLE_BELL_217: CardRecord = CardRecord::new(
+    "Temple Bell",
+    "8c99cde3-8ba5-44bf-bbaa-1a12c6cac925",
+    "Mark Tedin",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AJANI_S_PRIDEMATE,
     &ASSAULT_GRIFFIN,
     &LEYLINE_OF_SANCTITY,
     &MIGHTY_LEAP,
     &ROC_EGG,
+    &SERRA_ASCENDANT_28,
     &SUN_TITAN,
     &WAR_PRIEST_OF_THUNE,
     &AETHER_ADEPT,
@@ -1135,16 +1199,20 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NIGHTWING_SHADE,
     &PHYLACTERY_LICH,
     &QUAG_SICKNESS,
+    &VISCERA_SEER_120,
     &COMBUST,
     &HOARDING_DRAGON,
     &INFERNO_TITAN,
     &LEYLINE_OF_PUNISHMENT,
     &MANIC_VANDAL,
+    &PYRETIC_RITUAL_153,
     &REVERBERATE,
     &THUNDER_STRIKE,
     &VOLCANIC_STRENGTH,
     &AUTUMN_S_VEIL,
     &BRINDLE_BOAR,
+    &CULTIVATE_168,
+    &FAUNA_SHAMAN_172,
     &GARRUK_S_COMPANION,
     &GARRUK_S_PACKLEADER,
     &GREATER_BASILISK,
@@ -1152,7 +1220,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRIMEVAL_TITAN,
     &SACRED_WOLF,
     &ELIXIR_OF_IMMORTALITY,
+    &STEEL_OVERSEER_214,
     &SWORD_OF_VENGEANCE,
+    &TEMPLE_BELL_217,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[SILENCE_REPRINT];

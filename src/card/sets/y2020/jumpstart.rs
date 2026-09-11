@@ -34,6 +34,15 @@ const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().wit
     CardArt::new("4306be80-d7c9-4bcf-a3de-4bf159475546", "Alayna Danner"),
 );
 
+// JMP 3 — Emiel the Blessed
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EMIEL_THE_BLESSED_3: CardRecord = CardRecord::new(
+    "Emiel the Blessed",
+    "f74dfd07-d17c-4890-82c3-4b12a6029940",
+    "Antonio José Manzanedo",
+    crate::card::CardRules::unsupported(),
+);
+
 // JMP 4 — Release the Dogs
 pub(in crate::card::sets) static RELEASE_THE_DOGS: CardRecord = CardRecord::new(
     "Release the Dogs",
@@ -90,6 +99,30 @@ pub(in crate::card::sets) static CORSAIR_CAPTAIN: CardRecord = CardRecord::new(
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&RELEASE_THE_DOGS, &CORSAIR_CAPTAIN];
+// JMP 24 — Muxus, Goblin Grandee
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MUXUS_GOBLIN_GRANDEE_24: CardRecord = CardRecord::new(
+    "Muxus, Goblin Grandee",
+    "2c716d10-2130-43b7-a939-349d437e1091",
+    "Dmitry Burmak",
+    crate::card::CardRules::unsupported(),
+);
+
+// JMP 28 — Allosaurus Shepherd
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ALLOSAURUS_SHEPHERD_28: CardRecord = CardRecord::new(
+    "Allosaurus Shepherd",
+    "0ee4a931-5d61-49ba-affc-f022263938ca",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &EMIEL_THE_BLESSED_3,
+    &RELEASE_THE_DOGS,
+    &CORSAIR_CAPTAIN,
+    &MUXUS_GOBLIN_GRANDEE_24,
+    &ALLOSAURUS_SHEPHERD_28,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

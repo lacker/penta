@@ -63,6 +63,8 @@ fn policy_observation(
         revealed_library_top: None,
         opponent_revealed_library_top: None,
         companions: Vec::new(),
+        commanders: Vec::new(),
+        command_zones: [Vec::new(), Vec::new()],
         graveyards: [Vec::new(), Vec::new()],
         exiles: [Vec::new(), Vec::new()],
         face_down_exile_sizes: [0, 0],

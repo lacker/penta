@@ -78,6 +78,15 @@ pub(in crate::card::sets) static HERALD_OF_FAITH: CardRecord = CardRecord::new(
     ]),
 );
 
+// M19 21 — Lena, Selfless Champion
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LENA_SELFLESS_CHAMPION_21: CardRecord = CardRecord::new(
+    "Lena, Selfless Champion",
+    "2ffcbcda-2ba3-45e7-80c0-85ea3b7eea0c",
+    "Lucas Graciano",
+    crate::card::CardRules::unsupported(),
+);
+
 // M19 22 — Leonin Vanguard
 pub(in crate::card::sets) static LEONIN_VANGUARD: CardRecord = CardRecord::new(
     "Leonin Vanguard",
@@ -217,6 +226,15 @@ pub(in crate::card::sets) static EXCLUSION_MAGE: CardRecord = CardRecord::new(
     ]),
 );
 
+// M19 61 — Mirror Image
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIRROR_IMAGE_61: CardRecord = CardRecord::new(
+    "Mirror Image",
+    "5b3ffc69-f21b-410e-8993-8c1b4669fc19",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
 // M19 63 — Mystic Archaeologist
 pub(in crate::card::sets) static MYSTIC_ARCHAEOLOGIST: CardRecord = CardRecord::new(
     "Mystic Archaeologist",
@@ -248,6 +266,15 @@ pub(in crate::card::sets) static SKELETON_ARCHER: CardRecord = CardRecord::new(
             ),
         ),
     ]),
+);
+
+// M19 121 — Stitcher's Supplier
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STITCHER_S_SUPPLIER_121: CardRecord = CardRecord::new(
+    "Stitcher's Supplier",
+    "2b737126-50b5-4678-91bf-197b64086fe4",
+    "Chris Seaman",
+    crate::card::CardRules::unsupported(),
 );
 
 // M19 124 — Vampire Neonate
@@ -347,6 +374,15 @@ CardRules::new_enchantment(mana_cost!("{R}")).with_abilities(&[
     ]),
 );
 
+// M19 129 — Apex of Power
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static APEX_OF_POWER_129: CardRecord = CardRecord::new(
+    "Apex of Power",
+    "c827bccf-38f9-4a7c-bd0e-038594a9f63b",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
 // M19 134 — Dark-Dweller Oracle
 pub(in crate::card::sets) static DARK_DWELLER_ORACLE: CardRecord = CardRecord::new(
     "Dark-Dweller Oracle",
@@ -401,6 +437,15 @@ pub(in crate::card::sets) static GOBLIN_MOTIVATOR: CardRecord = CardRecord::new(
             },
         ),
     ),
+);
+
+// M19 144 — Goblin Trashmaster
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_TRASHMASTER_144: CardRecord = CardRecord::new(
+    "Goblin Trashmaster",
+    "2bc69988-3c2d-4b76-a8c0-05926b9bbd08",
+    "Jakub Kasper",
+    crate::card::CardRules::unsupported(),
 );
 
 // M19 149 — Lathliss, Dragon Queen
@@ -509,6 +554,15 @@ pub(in crate::card::sets) static GIGANTOSAURUS: CardRecord = CardRecord::new(
     "c1db84d8-d426-4c0d-b44e-5be7b0f5f5bf",
     "Jonathan Kuo",
     CardRules::new_creature(mana_cost!("{G}{G}{G}{G}{G}"), &["Dinosaur"], 10, 10),
+);
+
+// M19 186 — Goreclaw, Terror of Qal Sisma
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GORECLAW_TERROR_OF_QAL_SISMA_186: CardRecord = CardRecord::new(
+    "Goreclaw, Terror of Qal Sisma",
+    "36d4574a-3266-4497-b145-fb25820d8a7f",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
 );
 
 // M19 208 — Vivien Reid
@@ -766,29 +820,45 @@ pub(in crate::card::sets) static AGGRESSIVE_MAMMOTH: CardRecord = CardRecord::ne
     ]),
 );
 
+// M19 306 — Nexus of Fate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEXUS_OF_FATE_306: CardRecord = CardRecord::new(
+    "Nexus of Fate",
+    "f163cfbf-6df6-4af5-9fe4-23b0d511586a",
+    "Mike Bierek",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HERALD_OF_FAITH,
+    &LENA_SELFLESS_CHAMPION_21,
     &LEONIN_VANGUARD,
     &MILITIA_BUGLER,
     &RESPLENDENT_ANGEL,
     &EXCLUSION_MAGE,
+    &MIRROR_IMAGE_61,
     &MYSTIC_ARCHAEOLOGIST,
     &SKELETON_ARCHER,
+    &STITCHER_S_SUPPLIER_121,
     &VAMPIRE_NEONATE,
     &VAMPIRE_SOVEREIGN,
     &ALPINE_MOON,
+    &APEX_OF_POWER_129,
     &DARK_DWELLER_ORACLE,
     &GOBLIN_MOTIVATOR,
+    &GOBLIN_TRASHMASTER_144,
     &LATHLISS_DRAGON_QUEEN,
     &VIASHINO_PYROMANCER,
     &VOLLEY_VETERAN,
     &GIGANTOSAURUS,
+    &GORECLAW_TERROR_OF_QAL_SISMA_186,
     &VIVIEN_REID,
     &HEROIC_REINFORCEMENTS,
     &DIAMOND_MARE,
     &METEOR_GOLEM,
     &KARGAN_DRAGONRIDER,
     &AGGRESSIVE_MAMMOTH,
+    &NEXUS_OF_FATE_306,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

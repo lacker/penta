@@ -280,6 +280,24 @@ pub(in crate::card::sets) static FAKE_YOUR_OWN_DEATH: CardRecord = CardRecord::n
     )]),
 );
 
+// SNC 102 — Big Score
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BIG_SCORE_102: CardRecord = CardRecord::new(
+    "Big Score",
+    "39d1578f-e2cf-4b93-8204-ed5434feb183",
+    "Gaboleps",
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 108 — Goldhound
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOLDHOUND_108: CardRecord = CardRecord::new(
+    "Goldhound",
+    "c059e4b4-1542-4b5c-810a-9f0abac5792b",
+    "Donato Giancola",
+    crate::card::CardRules::unsupported(),
+);
+
 // SNC 110 — Involuntary Employment
 pub(in crate::card::sets) static INVOLUNTARY_EMPLOYMENT: CardRecord = CardRecord::new(
     "Involuntary Employment",
@@ -315,12 +333,39 @@ pub(in crate::card::sets) static INVOLUNTARY_EMPLOYMENT: CardRecord = CardRecord
     )]),
 );
 
+// SNC 112 — Jaxis, the Troublemaker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static JAXIS_THE_TROUBLEMAKER_112: CardRecord = CardRecord::new(
+    "Jaxis, the Troublemaker",
+    "78127c0c-672f-4e4b-9c23-6a5f237228fd",
+    "Zoltan Boros",
+    crate::card::CardRules::unsupported(),
+);
+
 // SNC 114 — Mayhem Patrol
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAYHEM_PATROL: CardRecord = CardRecord::new(
     "Mayhem Patrol",
     "50162cdd-ba30-48df-93ff-197c7f4a2913",
     "Johan Grenier",
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 122 — Rob the Archives
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ROB_THE_ARCHIVES_122: CardRecord = CardRecord::new(
+    "Rob the Archives",
+    "a3ec95f6-88c8-4daf-882f-8b4bc73452c3",
+    "Steve Argyle",
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 124 — Sticky Fingers
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STICKY_FINGERS_124: CardRecord = CardRecord::new(
+    "Sticky Fingers",
+    "3678fa3d-d41f-4b7a-b25e-6fc5f78876c7",
+    "Mark Behm",
     crate::card::CardRules::unsupported(),
 );
 
@@ -366,6 +411,15 @@ pub(in crate::card::sets) static JEWEL_THIEF: CardRecord = CardRecord::new(
             EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))),
         ),
     ]),
+);
+
+// SNC 160 — Topiary Stomper
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TOPIARY_STOMPER_160: CardRecord = CardRecord::new(
+    "Topiary Stomper",
+    "87bb2699-280f-4e1e-b3f8-73efe6088f31",
+    "Robin Olausson",
+    crate::card::CardRules::unsupported(),
 );
 
 // SNC 161 — Venom Connoisseur
@@ -462,6 +516,15 @@ pub(in crate::card::sets) static BODY_DROPPER: CardRecord = CardRecord::new(
     ]),
 );
 
+// SNC 230 — Void Rend
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VOID_REND_230: CardRecord = CardRecord::new(
+    "Void Rend",
+    "2daab74d-d66b-4164-aa19-24e8d5536f7d",
+    "Rovina Cai",
+    crate::card::CardRules::unsupported(),
+);
+
 // SNC 250 — Jetmir's Garden
 pub(in crate::card::sets) static JETMIRS_GARDEN: CardRecord = CardRecord::new(
     "Jetmir's Garden",
@@ -502,6 +565,24 @@ pub(in crate::card::sets) static ZIATORAS_PROVING_GROUND: CardRecord = CardRecor
     triome(&["Swamp", "Mountain", "Forest"]),
 );
 
+// SNC 426 — Professional Face-Breaker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER_426: CardRecord = CardRecord::new(
+    "Professional Face-Breaker",
+    "2b7e703f-dcd2-4a99-846f-758d4858453a",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+// SNC 440 — Unlicensed Hearse
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNLICENSED_HEARSE_440: CardRecord = CardRecord::new(
+    "Unlicensed Hearse",
+    "9066fb8f-8568-4e87-bee9-573f6c204a26",
+    "Chris Seaman",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GIADA_FONT_OF_HOPE,
     &INSPIRING_OVERSEER,
@@ -510,17 +591,26 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AN_OFFER_YOU_CAN_T_REFUSE,
     &WITNESS_PROTECTION,
     &FAKE_YOUR_OWN_DEATH,
+    &BIG_SCORE_102,
+    &GOLDHOUND_108,
     &INVOLUNTARY_EMPLOYMENT,
+    &JAXIS_THE_TROUBLEMAKER_112,
     &MAYHEM_PATROL,
+    &ROB_THE_ARCHIVES_122,
+    &STICKY_FINGERS_124,
     &WITTY_ROASTMASTER,
     &JEWEL_THIEF,
+    &TOPIARY_STOMPER_160,
     &VENOM_CONNOISSEUR,
     &BODY_DROPPER,
+    &VOID_REND_230,
     &JETMIRS_GARDEN,
     &RAFFINES_TOWER,
     &SPARAS_HEADQUARTERS,
     &XANDERS_LOUNGE,
     &ZIATORAS_PROVING_GROUND,
+    &PROFESSIONAL_FACE_BREAKER_426,
+    &UNLICENSED_HEARSE_440,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

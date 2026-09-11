@@ -36,6 +36,33 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// BNG 27 — Spirit of the Labyrinth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPIRIT_OF_THE_LABYRINTH_27: CardRecord = CardRecord::new(
+    "Spirit of the Labyrinth",
+    "f44e5128-e146-4e46-b313-a40d82719d1d",
+    "Jason Chan",
+    crate::card::CardRules::unsupported(),
+);
+
+// BNG 49 — Retraction Helix
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RETRACTION_HELIX_49: CardRecord = CardRecord::new(
+    "Retraction Helix",
+    "4fe8c0b9-fdf4-4fc0-aa7c-774546cdd792",
+    "Phill Simmer",
+    crate::card::CardRules::unsupported(),
+);
+
+// BNG 61 — Bile Blight
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BILE_BLIGHT_61: CardRecord = CardRecord::new(
+    "Bile Blight",
+    "3ca11057-e50a-4817-924a-5bb504d0780f",
+    "Vincent Proce",
+    crate::card::CardRules::unsupported(),
+);
+
 // BNG 119 — Courser of Kruphix
 pub(in crate::card::sets) static COURSER_OF_KRUPHIX: CardRecord = CardRecord::new(
     "Courser of Kruphix",
@@ -103,6 +130,15 @@ static OTHER_LEGENDS_YOU_CONTROL: ValueDef = ValueDef::Sum(&SumValueDef::new(
     )),
     ValueDef::Constant(-1),
 ));
+
+// BNG 157 — Astral Cornucopia
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ASTRAL_CORNUCOPIA_157: CardRecord = CardRecord::new(
+    "Astral Cornucopia",
+    "a72b8011-c712-418f-869e-42fda3dc0830",
+    "Aleksi Briclot",
+    crate::card::CardRules::unsupported(),
+);
 
 // BNG 159 — Heroes' Podium
 pub(in crate::card::sets) static HEROES_PODIUM: CardRecord = CardRecord::new(
@@ -218,7 +254,11 @@ pub(in crate::card::sets) static TEMPLE_OF_PLENTY: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SPIRIT_OF_THE_LABYRINTH_27,
+    &RETRACTION_HELIX_49,
+    &BILE_BLIGHT_61,
     &COURSER_OF_KRUPHIX,
+    &ASTRAL_CORNUCOPIA_157,
     &HEROES_PODIUM,
     &TEMPLE_OF_ENLIGHTENMENT,
     &TEMPLE_OF_MALICE,

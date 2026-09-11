@@ -196,6 +196,7 @@ impl Game {
             // helper, and are listed so new predicates cannot fall through.
             | ObjectPredicateDef::Any
             | ObjectPredicateDef::Source
+            | ObjectPredicateDef::Commander
             | ObjectPredicateDef::Token
             | ObjectPredicateDef::Tapped
             | ObjectPredicateDef::WasDealtDamageThisTurn

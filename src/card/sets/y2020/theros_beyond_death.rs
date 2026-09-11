@@ -63,11 +63,29 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// THB 18 — Heliod, Sun-Crowned
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HELIOD_SUN_CROWNED_18: CardRecord = CardRecord::new(
+    "Heliod, Sun-Crowned",
+    "01a8576e-cadc-4521-aadd-3a05f0bc4d20",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
+);
+
 // THB 20 — Heliod's Pilgrim (reprint)
 const HELIOD_S_PILGRIM_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2014::magic_2015::HELIOD_S_PILGRIM,
     "cafce2f5-f4f4-465b-96dc-bcdd29d4e4bb",
     "Micah Epstein",
+);
+
+// THB 55 — Nadir Kraken
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NADIR_KRAKEN_55: CardRecord = CardRecord::new(
+    "Nadir Kraken",
+    "7817e039-e509-4b6f-b5a3-deb3769bbdc8",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
 );
 
 // THB 73 — Thassa's Oracle
@@ -141,6 +159,15 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
             ),
         ),
     ),
+);
+
+// THB 87 — Cling to Dust
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CLING_TO_DUST_87: CardRecord = CardRecord::new(
+    "Cling to Dust",
+    "52c2de5f-e486-4cfe-9fb6-be0078ce5f93",
+    "Caio Monteiro",
+    crate::card::CardRules::unsupported(),
 );
 
 // THB 99 — Gray Merchant of Asphodel (reprint)
@@ -334,6 +361,33 @@ pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord:
     ]),
 );
 
+// THB 168 — Destiny Spinner
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DESTINY_SPINNER_168: CardRecord = CardRecord::new(
+    "Destiny Spinner",
+    "ba264166-948b-47d4-b302-64476acc1a55",
+    "Livia Prima",
+    crate::card::CardRules::unsupported(),
+);
+
+// THB 173 — Hyrax Tower Scout
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HYRAX_TOWER_SCOUT_173: CardRecord = CardRecord::new(
+    "Hyrax Tower Scout",
+    "bb7f2638-d757-4df6-90b0-b616534dd3a0",
+    "Micah Epstein",
+    crate::card::CardRules::unsupported(),
+);
+
+// THB 174 — Ilysian Caryatid
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ILYSIAN_CARYATID_174: CardRecord = CardRecord::new(
+    "Ilysian Caryatid",
+    "7cdf8ab8-f221-4f7b-9af9-3849cad1f596",
+    "Winona Nelson",
+    crate::card::CardRules::unsupported(),
+);
+
 // THB 182 — Nessian Hornbeetle
 pub(in crate::card::sets) static NESSIAN_HORNBEETLE: CardRecord = CardRecord::new(
     "Nessian Hornbeetle",
@@ -368,6 +422,15 @@ pub(in crate::card::sets) static NESSIAN_HORNBEETLE: CardRecord = CardRecord::ne
             },
         ),
     ]),
+);
+
+// THB 190 — Nyxbloom Ancient
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NYXBLOOM_ANCIENT_190: CardRecord = CardRecord::new(
+    "Nyxbloom Ancient",
+    "a391da36-0b40-46ea-b771-50d2b920207e",
+    "Filip Burburan",
+    crate::card::CardRules::unsupported(),
 );
 
 // THB 229 — Uro, Titan of Nature's Wrath
@@ -524,17 +587,44 @@ pub(in crate::card::sets) static TERROR_OF_MOUNT_VELUS: CardRecord = CardRecord:
     ]),
 );
 
+// THB 325 — Arasta of the Endless Web
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARASTA_OF_THE_ENDLESS_WEB_325: CardRecord = CardRecord::new(
+    "Arasta of the Endless Web",
+    "03b9304c-9993-4539-9165-48568eb81db1",
+    "Sam Rowan",
+    crate::card::CardRules::unsupported(),
+);
+
+// THB 326 — Dryad of the Ilysian Grove
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRYAD_OF_THE_ILYSIAN_GROVE_326: CardRecord = CardRecord::new(
+    "Dryad of the Ilysian Grove",
+    "36adefc7-44a8-40d0-8bdf-ad12d010b0bd",
+    "Scott Murphy",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &HELIOD_SUN_CROWNED_18,
+    &NADIR_KRAKEN_55,
     &THASSAS_ORACLE,
+    &CLING_TO_DUST_87,
     &MIRE_TRITON,
     &UNDERWORLD_CHARGER,
     &BLOOD_ASPIRANT,
     &UNDERWORLD_BREACH,
     &UNDERWORLD_RAGE_HOUND,
+    &DESTINY_SPINNER_168,
+    &HYRAX_TOWER_SCOUT_173,
+    &ILYSIAN_CARYATID_174,
     &NESSIAN_HORNBEETLE,
+    &NYXBLOOM_ANCIENT_190,
     &URO_TITAN_OF_NATURE_S_WRATH,
     &SOUL_GUIDE_LANTERN,
     &TERROR_OF_MOUNT_VELUS,
+    &ARASTA_OF_THE_ENDLESS_WEB_325,
+    &DRYAD_OF_THE_ILYSIAN_GROVE_326,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

@@ -1,11 +1,11 @@
 use super::{
     ArrivalAttachment, BattlefieldArrival, CardDefinitionId, CardInstance, CardPartId,
     CardStructure, CharacteristicContext, CharacteristicSource, CommittedTriggerEvent, CounterKind,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EntryCompletion, Game, GameEvent,
-    GameObjectId, KeywordAbility, ObjectBacking, PendingBattlefieldEntry, Permanent, PhysicalCard,
-    PhysicalCardId, PlayerId, PublicCard, ReplacementEffectDef, ReplacementEventDef, Target,
-    TriggerContext, ZoneCard, ZoneError, ZoneKind, ZoneMoveCause, ZoneMoveCauseDef, ZonePlacement,
-    applicable_part_ids_ref,
+    DecisionContinuation, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EntryCompletion,
+    Game, GameEvent, GameObjectId, KeywordAbility, ObjectBacking, PendingBattlefieldEntry,
+    Permanent, PhysicalCard, PhysicalCardId, PlayerId, PublicCard, ReplacementEffectDef,
+    ReplacementEventDef, Target, TriggerContext, ZoneCard, ZoneError, ZoneKind, ZoneMoveCause,
+    ZoneMoveCauseDef, ZonePlacement, applicable_part_ids_ref,
 };
 
 mod exile_events;
@@ -86,8 +86,19 @@ impl Game {
             library.insert(index, card);
             return Some((id, ZoneKind::Library));
         }
-        let (moved, actual_destination) =
-            self.move_card_from_nonbattlefield_zone(id, from, zone, cause, arriving_controller)?;
+        let pending_before = self.pending_decisions.len();
+        let result =
+            self.move_card_from_nonbattlefield_zone(id, from, zone, cause, arriving_controller);
+        for pending in &mut self.pending_decisions[pending_before..] {
+            if let DecisionContinuation::CommanderMove { movement, .. } = &mut pending.continuation
+                && let super::commander::CommanderMove::Card {
+                    placement: saved, ..
+                } = movement.as_mut()
+            {
+                *saved = placement;
+            }
+        }
+        let (moved, actual_destination) = result?;
         // The move above put it on top, which is where a card goes when
         // nothing says otherwise. Anywhere else is a lift and a reinsert.
         if actual_destination == ZoneKind::Library
@@ -782,8 +793,14 @@ impl Game {
         let destination = self
             .zone_move_replacement_destination(&card, from, requested_to, cause)
             .unwrap_or(requested_to);
+        let destination = self.commander_hidden_move_destination(
+            Target::Card(id),
+            destination,
+            cause,
+            ZonePlacement::Top,
+        )?;
         let shuffles = self.zone_move_replacement_shuffles(&card, from, requested_to, cause);
-        if matches!(destination, ZoneKind::Stack | ZoneKind::Command) {
+        if destination == ZoneKind::Stack {
             return None;
         }
 
@@ -794,7 +811,8 @@ impl Game {
             ZoneKind::Hand => &mut self.players[owner.index()].hand,
             ZoneKind::Graveyard => &mut self.players[owner.index()].graveyard,
             ZoneKind::Exile => &mut self.players[owner.index()].exile,
-            ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => return None,
+            ZoneKind::Command => &mut self.players[owner.index()].command,
+            ZoneKind::Battlefield | ZoneKind::Stack => return None,
         };
         let card = remove_card(cards, id)?;
         let card = if destination == ZoneKind::Battlefield {
@@ -811,7 +829,8 @@ impl Game {
                 ZoneKind::Hand => self.players[owner.index()].hand.push(card.clone()),
                 ZoneKind::Graveyard => self.put_card_into_graveyard(owner, card.clone()),
                 ZoneKind::Exile => self.players[owner.index()].exile.push(card.clone()),
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                ZoneKind::Command => self.players[owner.index()].command.push(card.clone()),
+                ZoneKind::Battlefield | ZoneKind::Stack => {
                     unreachable!("unsupported destinations returned before removing the card")
                 }
             }

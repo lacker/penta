@@ -63,6 +63,15 @@ pub(in crate::card::sets) static ANGEL_OF_FINALITY: CardRecord = CardRecord::new
     ]),
 );
 
+// C13 9 — Darksteel Mutation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DARKSTEEL_MUTATION_9: CardRecord = CardRecord::new(
+    "Darksteel Mutation",
+    "df7d800b-0120-4036-81d7-dec60ccc8057",
+    "Daniel Ljunggren",
+    crate::card::CardRules::unsupported(),
+);
+
 // C13 25 — Unexpectedly Absent
 pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new(
     "Unexpectedly Absent",
@@ -138,6 +147,15 @@ CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(
     ),
 );
 
+// C13 186 — Derevi, Empyrial Tactician
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEREVI_EMPYRIAL_TACTICIAN_186: CardRecord = CardRecord::new(
+    "Derevi, Empyrial Tactician",
+    "3d61a4d4-f0d5-4bc4-8977-57bbb3d97776",
+    "Michael Komarck",
+    crate::card::CardRules::unsupported(),
+);
+
 // C13 279 — Boros Garrison (reprint)
 const BOROS_GARRISON_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2005::ravnica_city_of_guilds::BOROS_GARRISON,
@@ -147,9 +165,11 @@ const BOROS_GARRISON_REPRINT: PrintingRecord = PrintingRecord::reprint(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANGEL_OF_FINALITY,
+    &DARKSTEEL_MUTATION_9,
     &UNEXPECTEDLY_ABSENT,
     &TRUE_NAME_NEMESIS,
     &TOXIC_DELUGE,
+    &DEREVI_EMPYRIAL_TACTICIAN_186,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

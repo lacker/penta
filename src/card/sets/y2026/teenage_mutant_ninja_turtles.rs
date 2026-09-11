@@ -1,5 +1,7 @@
 //! Teenage Mutant Ninja Turtles card inventory.
 
+use super::CardRecord;
+use super::PrintingRecord;
 use super::{CardRecord, PrintingRecord};
 use crate::TargetIndex;
 use crate::card::AbilityDef;
@@ -1894,6 +1896,15 @@ pub(in crate::card::sets) static INSECTOID_EXTERMINATOR: CardRecord = CardRecord
     CardRules::unsupported(),
 );
 
+// TLE 64 — Fire Nation Turret
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FIRE_NATION_TURRET_64: CardRecord = CardRecord::new(
+    "Fire Nation Turret",
+    "f25cc190-05e2-4aba-b214-46f687c07a10",
+    "Fahmi Fauzi",
+    crate::card::CardRules::unsupported(),
+);
+
 // TMT 65 — Lord Dregg, Insect Invader
 // Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
 pub(in crate::card::sets) static LORD_DREGG_INSECT_INVADER: CardRecord = CardRecord::new(
@@ -3337,6 +3348,15 @@ pub(in crate::card::sets) static MICHELANGELO_MUTANT_BFF: CardRecord = CardRecor
     ]),
 );
 
+// TLE 120 — Longshot, Rebel Bowman
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LONGSHOT_REBEL_BOWMAN_120: CardRecord = CardRecord::new(
+    "Longshot, Rebel Bowman",
+    "b36efbe2-3798-43e5-8640-f003c77440a1",
+    "Morry Hollowell",
+    crate::card::CardRules::unsupported(),
+);
+
 // TMT 121 — Michelangelo, Weirdness to 11
 // Audit: unsupported — Needs a replacement for a +1/+1-counter placement event adding one counter per affected controlled creature, including counters placed during battlefield entry.
 pub(in crate::card::sets) static MICHELANGELO_WEIRDNESS_TO_11: CardRecord = CardRecord::new(
@@ -3663,6 +3683,15 @@ pub(in crate::card::sets) static TRANSDIMENSIONAL_BOVINE: CardRecord = CardRecor
             EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(2)),
         ),
     ]),
+);
+
+// TLE 134 — The Cabbage Merchant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_CABBAGE_MERCHANT_134: CardRecord = CardRecord::new(
+    "The Cabbage Merchant",
+    "2fea0356-6684-4730-9eb4-0262856bc1f9",
+    "Patrick Gañas",
+    crate::card::CardRules::unsupported(),
 );
 
 // TMT 135 — Turtle Power!
@@ -5273,6 +5302,15 @@ const MICHELANGELO_MUTANT_BFF_ALTERNATE_1: PrintingRecord = PrintingRecord::alte
     "Daniel Elson",
 );
 
+// TLE 198 — Smellerbee, Rebel Fighter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SMELLERBEE_REBEL_FIGHTER_198: CardRecord = CardRecord::new(
+    "Smellerbee, Rebel Fighter",
+    "2f1cae39-6120-4630-83c6-9ededc96308c",
+    "Enishi",
+    crate::card::CardRules::unsupported(),
+);
+
 // TMT 199 — Raphael, Most Attitude (alternate printing)
 const RAPHAEL_MOST_ATTITUDE_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
     &RAPHAEL_MOST_ATTITUDE,
@@ -6312,6 +6350,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DREAM_BEAVERS,
     &FOOT_MYSTIC,
     &INSECTOID_EXTERMINATOR,
+    &FIRE_NATION_TURRET_64,
     &LORD_DREGG_INSECT_INVADER,
     &MADAME_NULL_POWER_BROKER,
     &NINJA_TEEN,
@@ -6368,6 +6407,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MICHELANGELO_GAME_MASTER,
     &MICHELANGELO_IMPROVISER,
     &MICHELANGELO_MUTANT_BFF,
+    &LONGSHOT_REBEL_BOWMAN_120,
     &MICHELANGELO_WEIRDNESS_TO_11,
     &MICHELANGELO_S_TECHNIQUE,
     &MONA_LISA_SCIENCE_GEEK,
@@ -6382,6 +6422,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SAVED_BY_THE_SHELL,
     &TENDERIZE,
     &TRANSDIMENSIONAL_BOVINE,
+    &THE_CABBAGE_MERCHANT_134,
     &TURTLE_POWER,
     &VENUS_TORN_BETWEEN_WORLDS,
     &WEST_WIND_AVATAR,
@@ -6437,6 +6478,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NORTHAMPTON_FARM,
     &TCRI_BUILDING,
     &TURTLE_LAIR,
+    &SMELLERBEE_REBEL_FIGHTER_198,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[

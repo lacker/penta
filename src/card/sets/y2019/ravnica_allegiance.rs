@@ -76,6 +76,15 @@ pub(in crate::card::sets) static ARCHWAY_ANGEL: CardRecord = CardRecord::new(
     ]),
 );
 
+// RNA 22 — Smothering Tithe
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SMOTHERING_TITHE_22: CardRecord = CardRecord::new(
+    "Smothering Tithe",
+    "7af082fa-86a3-4f7b-966d-2be1f1d0c0bc",
+    "Mark Behm",
+    crate::card::CardRules::unsupported(),
+);
+
 // RNA 40 — Gateway Sneak
 pub(in crate::card::sets) static GATEWAY_SNEAK: CardRecord = CardRecord::new(
     "Gateway Sneak",
@@ -130,6 +139,15 @@ CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Sphinx"], 4, 4).with_abiliti
     ]),
 );
 
+// RNA 107 — Light Up the Stage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LIGHT_UP_THE_STAGE_107: CardRecord = CardRecord::new(
+    "Light Up the Stage",
+    "9287b848-2aeb-4c70-ac4a-acafb871b7a4",
+    "Dmitry Burmak",
+    crate::card::CardRules::unsupported(),
+);
+
 // RNA 115 — Skewer the Critics
 pub(in crate::card::sets) static SKEWER_THE_CRITICS: CardRecord = CardRecord::new(
     "Skewer the Critics",
@@ -173,6 +191,42 @@ pub(in crate::card::sets) static BIOGENIC_UPGRADE: CardRecord = CardRecord::new(
     "0dd73fb2-453f-40b9-8beb-dfa99e6a706e",
     "Tomasz Jedruszek",
     CardRules::unsupported(),
+);
+
+// RNA 131 — Incubation Druid
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INCUBATION_DRUID_131: CardRecord = CardRecord::new(
+    "Incubation Druid",
+    "075bbe5d-d0f3-4be3-a3a6-072d5d3d614c",
+    "Daniel Ljunggren",
+    crate::card::CardRules::unsupported(),
+);
+
+// RNA 139 — Saruli Caretaker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SARULI_CARETAKER_139: CardRecord = CardRecord::new(
+    "Saruli Caretaker",
+    "ef3358cb-714c-49bf-b7e9-a69d02d7799e",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
+);
+
+// RNA 158 — Biomancer's Familiar
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BIOMANCER_S_FAMILIAR_158: CardRecord = CardRecord::new(
+    "Biomancer's Familiar",
+    "d38c9891-36d1-4565-9c4a-1cd9dbf8c048",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
+// RNA 161 — Cindervines
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CINDERVINES_161: CardRecord = CardRecord::new(
+    "Cindervines",
+    "9f970f79-3051-4ba1-badb-697ef321cbb3",
+    "Mark Behm",
+    crate::card::CardRules::unsupported(),
 );
 
 // RNA 171 — Final Payment
@@ -271,6 +325,33 @@ pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
     )),
 );
 
+// RNA 189 — Lavinia, Azorius Renegade
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LAVINIA_AZORIUS_RENEGADE_189: CardRecord = CardRecord::new(
+    "Lavinia, Azorius Renegade",
+    "c497d496-1232-4614-93b0-9864fa93c29f",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
+// RNA 195 — Prime Speaker Vannifar
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PRIME_SPEAKER_VANNIFAR_195: CardRecord = CardRecord::new(
+    "Prime Speaker Vannifar",
+    "84abfc59-10a7-4cb5-9cdd-81797116c810",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
+// RNA 201 — Rhythm of the Wild
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RHYTHM_OF_THE_WILD_201: CardRecord = CardRecord::new(
+    "Rhythm of the Wild",
+    "84062ce2-fea2-4e06-b83b-7cc597fb2a1b",
+    "Tomasz Jedruszek",
+    crate::card::CardRules::unsupported(),
+);
+
 // RNA 232 — Gate Colossus
 pub(in crate::card::sets) static GATE_COLOSSUS: CardRecord = CardRecord::new(
     "Gate Colossus",
@@ -324,13 +405,22 @@ pub(in crate::card::sets) static GATE_COLOSSUS: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARCHWAY_ANGEL,
+    &SMOTHERING_TITHE_22,
     &GATEWAY_SNEAK,
     &SPHINX_OF_FORESIGHT,
+    &LIGHT_UP_THE_STAGE_107,
     &SKEWER_THE_CRITICS,
     &BIOGENIC_UPGRADE,
+    &INCUBATION_DRUID_131,
+    &SARULI_CARETAKER_139,
+    &BIOMANCER_S_FAMILIAR_158,
+    &CINDERVINES_161,
     &FINAL_PAYMENT,
     &FIREBLADE_ARTIST,
     &GROWTH_SPIRAL,
+    &LAVINIA_AZORIUS_RENEGADE_189,
+    &PRIME_SPEAKER_VANNIFAR_195,
+    &RHYTHM_OF_THE_WILD_201,
     &GATE_COLOSSUS,
 ];
 

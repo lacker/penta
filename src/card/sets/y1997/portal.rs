@@ -390,6 +390,15 @@ pub(in crate::card::sets) static HORNED_TURTLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Turtle"], 1, 4),
 );
 
+// POR 64 — Personal Tutor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PERSONAL_TUTOR_64: CardRecord = CardRecord::new(
+    "Personal Tutor",
+    "1edc3917-fded-4773-8f8d-62bd861c1131",
+    "D. Alexander Gregory",
+    crate::card::CardRules::unsupported(),
+);
+
 // POR 65 — Phantom Warrior
 pub(in crate::card::sets) static PHANTOM_WARRIOR: CardRecord = CardRecord::new(
     "Phantom Warrior",
@@ -624,6 +633,15 @@ pub(in crate::card::sets) static CRAVEN_GIANT: CardRecord = CardRecord::new(
     ),
 );
 
+// POR 136 — Last Chance
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LAST_CHANCE_136: CardRecord = CardRecord::new(
+    "Last Chance",
+    "86f2c423-1694-466e-9a7d-4ec99e53578d",
+    "Hannibal King",
+    crate::card::CardRules::unsupported(),
+);
+
 // POR 137 — Lava Axe
 pub(in crate::card::sets) static LAVA_AXE: CardRecord = CardRecord::new(
     "Lava Axe",
@@ -759,6 +777,15 @@ pub(in crate::card::sets) static GORILLA_WARRIOR: CardRecord = CardRecord::new(
     "38f9c3f3-0d4d-4eec-bd14-9be3233178dc",
     "John Matson",
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Ape", "Warrior"], 3, 2),
+);
+
+// POR 172 — Mobilize
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MOBILIZE_172: CardRecord = CardRecord::new(
+    "Mobilize",
+    "9712ecaa-4059-44ba-98b7-07bfe7411b5b",
+    "Rebecca Guay",
+    crate::card::CardRules::unsupported(),
 );
 
 // POR 173 — Monstrous Growth
@@ -915,6 +942,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FLUX,
     &GIANT_OCTOPUS,
     &HORNED_TURTLE,
+    &PERSONAL_TUTOR_64,
     &PHANTOM_WARRIOR,
     &THEFT_OF_DREAMS,
     &TIDAL_SURGE,
@@ -927,6 +955,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SERPENT_WARRIOR,
     &BLAZE,
     &CRAVEN_GIANT,
+    &LAST_CHANCE_136,
     &LAVA_AXE,
     &RAGING_GOBLIN,
     &RAIN_OF_SALT,
@@ -936,6 +965,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BULL_HIPPO,
     &CHARGING_RHINO,
     &GORILLA_WARRIOR,
+    &MOBILIZE_172,
     &MONSTROUS_GROWTH,
     &NATURAL_SPRING,
     &NEEDLE_STORM,

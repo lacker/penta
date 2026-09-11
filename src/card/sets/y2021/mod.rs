@@ -11,3 +11,5 @@ pub mod modern_horizons_2;
 pub mod strixhaven_school_of_mages;
 
 pub(super) use super::{CardRecord, PrintingRecord};
+
+pub mod forgotten_realms_commander;

@@ -50,6 +50,15 @@ const PEST_TOKEN: TokenCharacteristics =
             "Ilse Gort",
         ));
 
+// C21 44 — Stinging Study
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STINGING_STUDY_44: CardRecord = CardRecord::new(
+    "Stinging Study",
+    "b8840226-1693-44bc-a067-e50198c5e17e",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
 // C21 53 — Laelia, the Blade Reforged
 pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord =
     CardRecord::new(
@@ -139,7 +148,41 @@ pub(in crate::card::sets) static PEST_INFESTATION: CardRecord = CardRecord::new(
     )),
 );
 
+// C21 338 — Angel of the Ruins
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANGEL_OF_THE_RUINS_338: CardRecord = CardRecord::new(
+    "Angel of the Ruins",
+    "b2babb93-6b30-4446-bf51-b0303e2e9a27",
+    "Viko Menezes",
+    crate::card::CardRules::unsupported(),
+);
+
+// C21 377 — Cursed Mirror
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CURSED_MIRROR_377: CardRecord = CardRecord::new(
+    "Cursed Mirror",
+    "0c3bbdd4-146c-40ea-99e8-6cef0d04e953",
+    "David Gaillet",
+    crate::card::CardRules::unsupported(),
+);
+
+// C21 382 — Rionya, Fire Dancer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RIONYA_FIRE_DANCER_382: CardRecord = CardRecord::new(
+    "Rionya, Fire Dancer",
+    "536c2936-2fdc-4664-97fd-bd580fc2d90e",
+    "Heonhwa",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&LAELIA_THE_BLADE_REFORGED, &PEST_INFESTATION];
+    &[
+    &STINGING_STUDY_44,
+    &LAELIA_THE_BLADE_REFORGED,
+    &PEST_INFESTATION,
+    &ANGEL_OF_THE_RUINS_338,
+    &CURSED_MIRROR_377,
+    &RIONYA_FIRE_DANCER_382,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

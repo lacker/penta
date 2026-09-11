@@ -2,6 +2,7 @@
 fn a_supported_draw_action_window_rebuilds_and_resumes() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
+        commanders: Vec::new(),
         main: vec![crate::card::cards::MOUNTAIN; 60],
         sideboard: vec![crate::card::cards::FOREST],
     };

@@ -126,6 +126,33 @@ pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecor
         ]),
 );
 
+// BRO 22 — Recommission
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RECOMMISSION_22: CardRecord = CardRecord::new(
+    "Recommission",
+    "2a64e330-1257-4ec3-9a75-889cdcac3ade",
+    "Andrew Mar",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 23 — Recruitment Officer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RECRUITMENT_OFFICER_23: CardRecord = CardRecord::new(
+    "Recruitment Officer",
+    "c226656b-68d5-4df2-b313-a323a728c520",
+    "Johan Grenier",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 26 — Soul Partition
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SOUL_PARTITION_26: CardRecord = CardRecord::new(
+    "Soul Partition",
+    "28bb8ec0-9729-4aa1-8ce4-a3a5598b0d70",
+    "Kekai Kotaki",
+    crate::card::CardRules::unsupported(),
+);
+
 // BRO 72 — Weakstone's Subjugation
 static AN_ARTIFACT_OR_CREATURE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -167,6 +194,15 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
         ]),
 );
 
+// BRO 77 — Combat Courier
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COMBAT_COURIER_77: CardRecord = CardRecord::new(
+    "Combat Courier",
+    "171edf80-ffc1-4894-9be5-c3e93a96f734",
+    "Alix Branwyn",
+    crate::card::CardRules::unsupported(),
+);
+
 // BRO 98 — Gixian Infiltrator
 pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::new(
     "Gixian Infiltrator",
@@ -190,6 +226,24 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
             },
         ),
     ),
+);
+
+// BRO 127 — Bitter Reunion
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BITTER_REUNION_127: CardRecord = CardRecord::new(
+    "Bitter Reunion",
+    "345a1c80-41d6-43b1-83ab-1aa56dd06b1b",
+    "Jake Murray",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 131 — Dwarven Forge-Chanter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DWARVEN_FORGE_CHANTER_131: CardRecord = CardRecord::new(
+    "Dwarven Forge-Chanter",
+    "bbd6a95a-11b9-43aa-b293-20a3102bae71",
+    "Bartłomiej Gaweł",
+    crate::card::CardRules::unsupported(),
 );
 
 // BRO 136 — Giant Cindermaw
@@ -306,6 +360,24 @@ pub(in crate::card::sets) static BUSHWHACK: CardRecord = CardRecord::new(
             ),
         ],
     )),
+);
+
+// BRO 175 — Citanul Stalwart
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CITANUL_STALWART_175: CardRecord = CardRecord::new(
+    "Citanul Stalwart",
+    "a842a945-21d9-432c-b970-6da65b16f309",
+    "Alexandr Leskinen",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 185 — Gwenna, Eyes of Gaea
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GWENNA_EYES_OF_GAEA_185: CardRecord = CardRecord::new(
+    "Gwenna, Eyes of Gaea",
+    "7ee387b7-18e4-41b7-aefe-f2b5954e3051",
+    "Steve Prescott",
+    crate::card::CardRules::unsupported(),
 );
 
 // BRO 199 — Haywire Mite
@@ -641,15 +713,68 @@ pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::ne
     ]),
 );
 
+// BRO 305 — Myrel, Shield of Argive
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MYREL_SHIELD_OF_ARGIVE_305: CardRecord = CardRecord::new(
+    "Myrel, Shield of Argive",
+    "977da60c-073a-42d1-b9f5-789a2b7071b8",
+    "Ryan Pancoast",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 313 — Drafna, Founder of Lat-Nam
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAFNA_FOUNDER_OF_LAT_NAM_313: CardRecord = CardRecord::new(
+    "Drafna, Founder of Lat-Nam",
+    "c3f9fd87-5c9b-4732-b8a5-f6be360a5fa5",
+    "Lie Setiawan",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 363 — Cityscape Leveler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CITYSCAPE_LEVELER_363: CardRecord = CardRecord::new(
+    "Cityscape Leveler",
+    "35d2bcd1-3ed3-4b99-9bb6-d0fa0a9f2ea1",
+    "Leon Tukker",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 364 — Liberator, Urza's Battlethopter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LIBERATOR_URZA_S_BATTLETHOPTER_364: CardRecord = CardRecord::new(
+    "Liberator, Urza's Battlethopter",
+    "04acd5af-bd55-4c16-9b6d-10822d564c14",
+    "Ekaterina Burmak",
+    crate::card::CardRules::unsupported(),
+);
+
+// BRO 368 — Thran Spider
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THRAN_SPIDER_368: CardRecord = CardRecord::new(
+    "Thran Spider",
+    "42c400de-25cb-4865-ad1b-9a8a8da3da55",
+    "Joshua Cairos",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEADLY_RIPOSTE,
     &LORAN_OF_THE_THIRD_PATH,
+    &RECOMMISSION_22,
+    &RECRUITMENT_OFFICER_23,
+    &SOUL_PARTITION_26,
     &WEAKSTONE_S_SUBJUGATION,
+    &COMBAT_COURIER_77,
     &GIXIAN_INFILTRATOR,
+    &BITTER_REUNION_127,
+    &DWARVEN_FORGE_CHANTER_131,
     &GIANT_CINDERMAW,
     &OBLITERATING_BOLT,
     &SCRAPWORK_MUTT,
     &BUSHWHACK,
+    &CITANUL_STALWART_175,
+    &GWENNA_EYES_OF_GAEA_185,
     &HAYWIRE_MITE,
     &THIRD_PATH_ICONOCLAST,
     &GOBLIN_FIREBOMB,
@@ -657,6 +782,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PORTAL_TO_PHYREXIA,
     &DEMOLITION_FIELD,
     &TOCASIA_S_DIG_SITE,
+    &MYREL_SHIELD_OF_ARGIVE_305,
+    &DRAFNA_FOUNDER_OF_LAT_NAM_313,
+    &CITYSCAPE_LEVELER_363,
+    &LIBERATOR_URZA_S_BATTLETHOPTER_364,
+    &THRAN_SPIDER_368,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

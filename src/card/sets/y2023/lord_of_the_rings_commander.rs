@@ -37,6 +37,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// LTC 32 — Gimli of the Glittering Caves
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GIMLI_OF_THE_GLITTERING_CAVES_32: CardRecord = CardRecord::new(
+    "Gimli of the Glittering Caves",
+    "5afc0319-9e17-4e81-a0b6-e76645bacb04",
+    "Sidharth Chaturvedi",
+    crate::card::CardRules::unsupported(),
+);
+
 // LTC 56 — Forth Eorlingas!
 pub(in crate::card::sets) static FORTH_EORLINGAS: CardRecord = CardRecord::new(
     "Forth Eorlingas!",
@@ -77,6 +86,15 @@ pub(in crate::card::sets) static FORTH_EORLINGAS: CardRecord = CardRecord::new(
             ))),
         ]),
     )),
+);
+
+// LTC 114 — Cavern-Hoard Dragon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CAVERN_HOARD_DRAGON_114: CardRecord = CardRecord::new(
+    "Cavern-Hoard Dragon",
+    "31540dde-7cea-4eb1-896e-27e21b56f00a",
+    "Antonio José Manzanedo",
+    crate::card::CardRules::unsupported(),
 );
 
 // LTC 159 — Relic of Sauron
@@ -174,6 +192,12 @@ pub(in crate::card::sets) static LEGOLASS_QUICK_REFLEXES: CardRecord = CardRecor
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&FORTH_EORLINGAS, &RELIC_OF_SAURON, &LEGOLASS_QUICK_REFLEXES];
+    &[
+    &GIMLI_OF_THE_GLITTERING_CAVES_32,
+    &FORTH_EORLINGAS,
+    &CAVERN_HOARD_DRAGON_114,
+    &RELIC_OF_SAURON,
+    &LEGOLASS_QUICK_REFLEXES,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

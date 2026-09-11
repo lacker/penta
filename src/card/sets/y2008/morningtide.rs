@@ -124,6 +124,24 @@ pub(in crate::card::sets) static KINDLED_FURY: CardRecord = CardRecord::new(
     )),
 );
 
+// MOR 104 — Shared Animosity
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHARED_ANIMOSITY_104: CardRecord = CardRecord::new(
+    "Shared Animosity",
+    "fe332c46-90f0-4cc0-8bf1-35a3934ff8a0",
+    "Chuck Lukacs",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOR 105 — Spitebellows
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPITEBELLOWS_105: CardRecord = CardRecord::new(
+    "Spitebellows",
+    "43f2104d-aeff-493f-8227-cb95bf3e2eab",
+    "Larry MacDougall",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOR 109 — Taurean Mauler
 // Audit: unsupported — Needs a creature-type characteristic-defining ability applying in every zone and supplying every creature type as copiable values; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static TAUREAN_MAULER: CardRecord = CardRecord::new(
@@ -133,12 +151,39 @@ pub(in crate::card::sets) static TAUREAN_MAULER: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// MOR 115 — Bramblewood Paragon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRAMBLEWOOD_PARAGON_115: CardRecord = CardRecord::new(
+    "Bramblewood Paragon",
+    "3910f5b2-17da-41e4-bf40-1c40b513fa12",
+    "Jim Murray",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOR 117 — Cream of the Crop
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CREAM_OF_THE_CROP_117: CardRecord = CardRecord::new(
+    "Cream of the Crop",
+    "030b0a9d-d0cf-4f3a-97b3-3e1d59226ee6",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOR 143 — Door of Destinies
 // Audit: unsupported — Predicates cannot consume a stored creature-type choice for both spell triggers and a counter-scaled continuous bonus.
 pub(in crate::card::sets) static DOOR_OF_DESTINIES: CardRecord = CardRecord::new(
     "Door of Destinies",
     "ac4800be-5f77-42f5-914c-2a8e647e3af5",
     "Larry MacDougall",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOR 145 — Thornbite Staff
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THORNBITE_STAFF_145: CardRecord = CardRecord::new(
+    "Thornbite Staff",
+    "c1ab3225-64a9-411e-b22b-1869e958b8e5",
+    "Jesper Ejsing",
     crate::card::CardRules::unsupported(),
 );
 
@@ -173,8 +218,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MIND_SPRING,
     &NEGATE,
     &KINDLED_FURY,
+    &SHARED_ANIMOSITY_104,
+    &SPITEBELLOWS_105,
     &TAUREAN_MAULER,
+    &BRAMBLEWOOD_PARAGON_115,
+    &CREAM_OF_THE_CROP_117,
     &DOOR_OF_DESTINIES,
+    &THORNBITE_STAFF_145,
     &MUTAVAULT,
 ];
 

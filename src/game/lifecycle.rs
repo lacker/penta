@@ -75,16 +75,20 @@ impl Game {
                     .map(crate::deck::ValidatedDeck::into_parts)
                     .map_err(|error| GameError::InvalidDeck { player, error })
             } else {
-                Ok((deck.main, deck.sideboard))
+                Ok((deck.main, deck.sideboard, deck.commanders))
             }
         };
         let [deck_one, deck_two] = decks;
-        let (deck_one_main, deck_one_sideboard) = unpack(deck_one, PlayerId::One)?;
-        let (deck_two_main, deck_two_sideboard) = unpack(deck_two, PlayerId::Two)?;
+        let (deck_one_main, deck_one_sideboard, commander_one) = unpack(deck_one, PlayerId::One)?;
+        let (deck_two_main, deck_two_sideboard, commander_two) = unpack(deck_two, PlayerId::Two)?;
+        let designated = [commander_one, commander_two];
         // "Your starting deck" is what a companion reads (CR 702.139a), and
         // the library stops being it the moment a card is drawn, so the
         // question is answered here and the answer kept.
-        let starting_decks = [deck_one_main.clone(), deck_two_main.clone()];
+        let starting_decks = [
+            [deck_one_main.clone(), designated[0].clone()].concat(),
+            [deck_two_main.clone(), designated[1].clone()].concat(),
+        ];
         let sideboards = [deck_one_sideboard.clone(), deck_two_sideboard.clone()];
 
         let format_rules = format.rules();
@@ -141,6 +145,7 @@ impl Game {
                     hand,
                     graveyard: Vec::new(),
                     exile: Vec::new(),
+                    command: Vec::new(),
                     outside_game: Vec::new(),
                     // Filled in below, once the sideboards exist to read.
                     companions: Vec::new(),
@@ -156,6 +161,14 @@ impl Game {
                 build_player(PlayerId::Two, deck_two_main)?,
             ]
         };
+
+        let commanders = super::commander::build_command_zones(
+            &designated,
+            &mut players,
+            &mut physical_cards,
+            &mut next_physical_id,
+            &mut next_object_id,
+        )?;
 
         // Sideboards are owned cards outside the game, rather than a game
         // zone. Allocate their backing and runtime identities only after both
@@ -225,6 +238,8 @@ impl Game {
             catalog,
             prepared_engine,
             physical_cards,
+            commanders,
+            commander_move_answer: None,
             players,
             battlefield: Vec::new(),
             phased_out: Vec::new(),

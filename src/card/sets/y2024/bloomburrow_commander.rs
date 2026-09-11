@@ -85,6 +85,58 @@ pub(in crate::card::sets) static JACKED_RABBIT: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&JACKED_RABBIT];
+// BLC 14 — Fortune Teller's Talent
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FORTUNE_TELLER_S_TALENT_14: CardRecord = CardRecord::new(
+    "Fortune Teller's Talent",
+    "a1d43877-20ab-4e84-a597-4b5e03a6bf90",
+    "Jarel Threat",
+    crate::card::CardRules::unsupported(),
+);
+
+// BLC 17 — Hazel's Brewmaster
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HAZEL_S_BREWMASTER_17: CardRecord = CardRecord::new(
+    "Hazel's Brewmaster",
+    "52af8b70-a9c8-40d7-99da-fa51dc293688",
+    "Simon Dominic",
+    crate::card::CardRules::unsupported(),
+);
+
+// BLC 35 — Trailtracker Scout
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TRAILTRACKER_SCOUT_35: CardRecord = CardRecord::new(
+    "Trailtracker Scout",
+    "36ee967a-3cac-4fff-b616-ec2557c676f2",
+    "Henry Peters",
+    crate::card::CardRules::unsupported(),
+);
+
+// BLC 50 — Pollywog Prodigy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static POLLYWOG_PRODIGY_50: CardRecord = CardRecord::new(
+    "Pollywog Prodigy",
+    "292158eb-cef0-4807-a38f-c5686064b95a",
+    "Caroline Gariba",
+    crate::card::CardRules::unsupported(),
+);
+
+// BLC 56 — Agate Instigator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AGATE_INSTIGATOR_56: CardRecord = CardRecord::new(
+    "Agate Instigator",
+    "163c093e-9b6f-497d-a167-cfee1dbc5106",
+    "Quintin Gleim",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &JACKED_RABBIT,
+    &FORTUNE_TELLER_S_TALENT_14,
+    &HAZEL_S_BREWMASTER_17,
+    &TRAILTRACKER_SCOUT_35,
+    &POLLYWOG_PRODIGY_50,
+    &AGATE_INSTIGATOR_56,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

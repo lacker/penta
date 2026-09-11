@@ -99,6 +99,15 @@ pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
             ]),
 );
 
+// MID 7 — Brutal Cathar // Moonrage Brute
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRUTAL_CATHAR_MOONRAGE_BRUTE_7: CardRecord = CardRecord::new(
+    "Brutal Cathar // Moonrage Brute",
+    "0dbac7ce-a6fa-466e-b6ba-173cf2dec98e",
+    "Karl Kopinski",
+    crate::card::CardRules::unsupported(),
+);
+
 // MID 10 — Cathar Commando
 pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new(
     "Cathar Commando",
@@ -388,8 +397,100 @@ pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::n
     ),
 );
 
+// MID 133 — Cathartic Pyre
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CATHARTIC_PYRE_133: CardRecord = CardRecord::new(
+    "Cathartic Pyre",
+    "b045c28a-39f9-4cd9-8f3a-a626b697f409",
+    "Ryan Yee",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 245 — Teferi, Who Slows the Sunset
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_WHO_SLOWS_THE_SUNSET_245: CardRecord = CardRecord::new(
+    "Teferi, Who Slows the Sunset",
+    "ad2e18d4-986c-4a44-8f26-1b8689339cfb",
+    "Heonhwa",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 254 — Jack-o'-Lantern
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static JACK_O_LANTERN_254: CardRecord = CardRecord::new(
+    "Jack-o'-Lantern",
+    "21b589ab-45a0-480a-a891-581c34f8a9bf",
+    "Josu Hernaiz",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 255 — Moonsilver Key
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MOONSILVER_KEY_255: CardRecord = CardRecord::new(
+    "Moonsilver Key",
+    "87778e37-af92-402e-b037-5fbd6112b682",
+    "Joseph Meehan",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 265 — Overgrown Farmland
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OVERGROWN_FARMLAND_265: CardRecord = CardRecord::new(
+    "Overgrown Farmland",
+    "84a76e0f-49fc-4087-8859-98f4a4deacdf",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 282 — Haunted Ridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HAUNTED_RIDGE_282: CardRecord = CardRecord::new(
+    "Haunted Ridge",
+    "91f67a64-b97d-473a-be9d-c8044ff86605",
+    "Piotr Dura",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 284 — Rockfall Vale
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ROCKFALL_VALE_284: CardRecord = CardRecord::new(
+    "Rockfall Vale",
+    "3bfcc5d4-babd-4b66-95fa-c5ec6c49e93a",
+    "Piotr Dura",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 285 — Shipwreck Marsh
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHIPWRECK_MARSH_285: CardRecord = CardRecord::new(
+    "Shipwreck Marsh",
+    "07ad2562-fc26-40a1-9e6c-21f4f88dc2d8",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
+// MID 336 — Malevolent Hermit // Benevolent Geist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MALEVOLENT_HERMIT_BENEVOLENT_GEIST_336: CardRecord =
+    CardRecord::new(
+        "Malevolent Hermit // Benevolent Geist",
+        "7d0d1d48-559f-48f9-b486-50fc81533443",
+        "Daarken",
+        crate::card::CardRules::unsupported(),
+    );
+
+// MID 365 — Unnatural Growth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNNATURAL_GROWTH_365: CardRecord = CardRecord::new(
+    "Unnatural Growth",
+    "61baa102-9bc0-4f97-89e1-cca4dbd823bd",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ADELINE_RESPLENDENT_CATHAR,
+    &BRUTAL_CATHAR_MOONRAGE_BRUTE_7,
     &CATHAR_COMMANDO,
     &HOMESTEAD_COURAGE,
     &SEARCH_PARTY_CAPTAIN,
@@ -401,6 +502,16 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &INFERNAL_GRASP,
     &STROMKIRK_BLOODTHIEF,
     &ARDENT_ELEMENTALIST,
+    &CATHARTIC_PYRE_133,
+    &TEFERI_WHO_SLOWS_THE_SUNSET_245,
+    &JACK_O_LANTERN_254,
+    &MOONSILVER_KEY_255,
+    &OVERGROWN_FARMLAND_265,
+    &HAUNTED_RIDGE_282,
+    &ROCKFALL_VALE_284,
+    &SHIPWRECK_MARSH_285,
+    &MALEVOLENT_HERMIT_BENEVOLENT_GEIST_336,
+    &UNNATURAL_GROWTH_365,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

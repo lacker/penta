@@ -1,0 +1,110 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 21st place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/XcqWGWH4NQYOz7Ej89txI3NbOCe2
+# TopDeck entry ID: RW50cnk6MzM4Njkx
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 21st place, Alexandro Gtz"
+id: nacional_021_338691_alexandro_gtz
+description: "Exact tournament decklist for Alexandro Gtz, 21st place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Rograkh, Son of Rohgahh": 1
+  "Silas Renn, Seeker Adept": 1
+main:
+  "Ad Nauseam": 1
+  "Ancient Tomb": 1
+  "Arcane Signet": 1
+  "Arid Mesa": 1
+  "Beseech the Mirror": 1
+  "Blood Crypt": 1
+  "Bloodstained Mire": 1
+  "Borne Upon a Wind": 1
+  "Brain Freeze": 1
+  "Cabal Ritual": 1
+  "Chain of Vapor": 1
+  "Chrome Mox": 1
+  "City of Brass": 1
+  "Command Tower": 1
+  "Culling the Weak": 1
+  "Dark Ritual": 1
+  "Deadly Rollick": 1
+  "Deflecting Swat": 1
+  "Demonic Consultation": 1
+  "Demonic Tutor": 1
+  "Diabolic Intent": 1
+  "Dragon's Rage Channeler": 1
+  "Exotic Orchard": 1
+  "Fierce Guardianship": 1
+  "Final Fortune": 1
+  "Flare of Duplication": 1
+  "Flooded Strand": 1
+  "Flusterstorm": 1
+  "Force of Will": 1
+  "Gamble": 1
+  "Gemstone Caverns": 1
+  "Gitaxian Probe": 1
+  "Grinding Station": 1
+  "Guild Artisan": 1
+  "Hexing Squelcher": 1
+  "Imperial Seal": 1
+  "Infernal Plunge": 1
+  "Island": 1
+  "Jeska's Will": 1
+  "Last Chance": 1
+  "Lim-Dûl's Vault": 1
+  "Lion's Eye Diamond": 1
+  "Lotus Petal": 1
+  "Luxury Suite": 1
+  "Mana Confluence": 1
+  "Mana Vault": 1
+  "Marsh Flats": 1
+  "Mental Misstep": 1
+  "Mindbreak Trap": 1
+  "Misty Rainforest": 1
+  "Mountain": 1
+  "Mox Amber": 1
+  "Mox Diamond": 1
+  "Mox Opal": 1
+  "Mystic Remora": 1
+  "Mystical Tutor": 1
+  "Necrodominance": 1
+  "Necropotence": 1
+  "Opposition Agent": 1
+  "Orcish Bowmasters": 1
+  "Pact of Negation": 1
+  "Paradise Mantle": 1
+  "Polluted Delta": 1
+  "Praetor's Grasp": 1
+  "Pyroblast": 1
+  "Ragavan, Nimble Pilferer": 1
+  "Rain of Filth": 1
+  "Raucous Theater": 1
+  "Rhystic Study": 1
+  "Rite of Flame": 1
+  "Scalding Tarn": 1
+  "Simian Spirit Guide": 1
+  "Snow-Covered Island": 1
+  "Snow-Covered Mountain": 1
+  "Snow-Covered Swamp": 1
+  "Sol Ring": 1
+  "Splinter's Technique": 1
+  "Springleaf Drum": 1
+  "Starting Town": 1
+  "Steam Vents": 1
+  "Swamp": 1
+  "Swan Song": 1
+  "Tainted Pact": 1
+  "Thassa's Oracle": 1
+  "The One Ring": 1
+  "Thundering Falls": 1
+  "Undercity Sewers": 1
+  "Underworld Breach": 1
+  "Urza's Saga": 1
+  "Vampiric Tutor": 1
+  "Verdant Catacombs": 1
+  "Wan Shi Tong, Librarian": 1
+  "Watery Grave": 1
+  "Wheel of Fortune": 1
+  "Windfall": 1
+  "Wishclaw Talisman": 1
+  "Wooded Foothills": 1
+  "Yawgmoth's Will": 1
+sideboard: {}

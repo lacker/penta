@@ -82,6 +82,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// AER 48 — Trophy Mage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TROPHY_MAGE_48: CardRecord = CardRecord::new(
+    "Trophy Mage",
+    "19754fe4-2f61-42a3-afa2-3a6a8257b81b",
+    "Anna Steinbauer",
+    crate::card::CardRules::unsupported(),
+);
+
+// AER 49 — Whir of Invention
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WHIR_OF_INVENTION_49: CardRecord = CardRecord::new(
+    "Whir of Invention",
+    "0279fd3c-9252-4958-9d7a-5f33aa25907e",
+    "Christine Choi",
+    crate::card::CardRules::unsupported(),
+);
+
 // AER 51 — Aether Poisoner
 pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
     "Aether Poisoner",
@@ -252,6 +270,24 @@ pub(in crate::card::sets) static DRUID_OF_THE_COWL: CardRecord = CardRecord::new
         .with_abilities(&[abilities::tap_for(ManaColor::Green)]),
 );
 
+// AER 109 — Heroic Intervention
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HEROIC_INTERVENTION_109: CardRecord = CardRecord::new(
+    "Heroic Intervention",
+    "8f5a620c-fde7-4b72-bf8a-efc4f14560c5",
+    "James Ryman",
+    crate::card::CardRules::unsupported(),
+);
+
+// AER 145 — Cogwork Assembler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COGWORK_ASSEMBLER_145: CardRecord = CardRecord::new(
+    "Cogwork Assembler",
+    "6dddacdd-bbc4-4f9b-be1c-5f2c64be3cbc",
+    "Joseph Meehan",
+    crate::card::CardRules::unsupported(),
+);
+
 // AER 151 — Foundry Assembler
 pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new(
     "Foundry Assembler",
@@ -259,6 +295,24 @@ pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new
     "Karl Kopinski",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Assembly-Worker"], 3, 3)
         .with_ability(crate::card::abilities::improvise()),
+);
+
+// AER 154 — Hope of Ghirapur
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HOPE_OF_GHIRAPUR_154: CardRecord = CardRecord::new(
+    "Hope of Ghirapur",
+    "6f4bcadd-7eff-4294-94d5-52482a734d5b",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
+);
+
+// AER 164 — Metallic Mimic
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static METALLIC_MIMIC_164: CardRecord = CardRecord::new(
+    "Metallic Mimic",
+    "1aa4eba9-9e91-4beb-9296-a18baa73a318",
+    "Zack Stella",
+    crate::card::CardRules::unsupported(),
 );
 
 // AER 181 — Walking Ballista
@@ -305,15 +359,31 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new(
     ]),
 );
 
+// AER 184 — Spire of Industry
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPIRE_OF_INDUSTRY_184: CardRecord = CardRecord::new(
+    "Spire of Industry",
+    "8331724d-6fab-454a-b06c-b06e499fa552",
+    "John Avon",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &TROPHY_MAGE_48,
+    &WHIR_OF_INVENTION_49,
     &AETHER_POISONER,
     &FATAL_PUSH,
     &AETHER_CHASER,
     &KARI_ZEV_SKYSHIP_RAIDER,
     &WRANGLE,
     &DRUID_OF_THE_COWL,
+    &HEROIC_INTERVENTION_109,
+    &COGWORK_ASSEMBLER_145,
     &FOUNDRY_ASSEMBLER,
+    &HOPE_OF_GHIRAPUR_154,
+    &METALLIC_MIMIC_164,
     &WALKING_BALLISTA,
+    &SPIRE_OF_INDUSTRY_184,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

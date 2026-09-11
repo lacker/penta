@@ -33,6 +33,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// BOK 33 — Disrupting Shoal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DISRUPTING_SHOAL_33: CardRecord = CardRecord::new(
+    "Disrupting Shoal",
+    "15589745-4c0a-4edf-ad45-3b7fa45e70c5",
+    "Scott M. Fischer",
+    crate::card::CardRules::unsupported(),
+);
+
 // BOK 44 — Ninja of the Deep Hours
 pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecord::new(
     "Ninja of the Deep Hours",
@@ -89,6 +98,24 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
     ]),
 );
 
+// BOK 96 — Blazing Shoal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLAZING_SHOAL_96: CardRecord = CardRecord::new(
+    "Blazing Shoal",
+    "8b915daa-d239-4460-bd6b-e1327fdf7f51",
+    "Glen Angus",
+    crate::card::CardRules::unsupported(),
+);
+
+// BOK 98 — Crack the Earth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRACK_THE_EARTH_98: CardRecord = CardRecord::new(
+    "Crack the Earth",
+    "8ab16152-4617-4deb-b995-195e21f8f485",
+    "Wayne Reynolds",
+    crate::card::CardRules::unsupported(),
+);
+
 // BOK 104 — Fumiko the Lowblood
 pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
     CardRecord::new(
@@ -120,6 +147,15 @@ pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
                 ),
             ]),
     );
+// BOK 107 — Heartless Hidetsugu
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HEARTLESS_HIDETSUGU_107: CardRecord = CardRecord::new(
+    "Heartless Hidetsugu",
+    "4a3ab177-d9ab-46bf-bd92-20a9ecf2d0ad",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
+);
+
 // BOK 154 — Mirror Gallery
 pub(in crate::card::sets) static MIRROR_GALLERY: CardRecord = CardRecord::new(
     "Mirror Gallery",
@@ -207,9 +243,13 @@ CardRules::new_artifact(mana_cost!("{2}"))
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DISRUPTING_SHOAL_33,
     &NINJA_OF_THE_DEEP_HOURS,
     &OKIBA_GANG_SHINOBI,
+    &BLAZING_SHOAL_96,
+    &CRACK_THE_EARTH_98,
     &FUMIKO_THE_LOWBLOOD,
+    &HEARTLESS_HIDETSUGU_107,
     &MIRROR_GALLERY,
     &UMEZAWAS_JITTE,
 ];

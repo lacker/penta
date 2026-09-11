@@ -53,6 +53,12 @@ impl Game {
                 if let Some(selected) = selected {
                     let pending_before = self.pending_decisions.len();
                     self.apply_battlefield_exit_replacement(&mut batch, &selected);
+                    if matches!(
+                        selected.action,
+                        super::super::BattlefieldExitReplacementAction::Commander
+                    ) {
+                        return;
+                    }
                     if self.has_battlefield_exit_since(pending_before) {
                         let deferred = self.defer_after_battlefield_exit(
                             pending_before,

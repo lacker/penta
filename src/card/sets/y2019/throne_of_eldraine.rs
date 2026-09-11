@@ -242,6 +242,15 @@ pub(in crate::card::sets) static CHARMING_PRINCE: CardRecord = CardRecord::new(
     ]),
 );
 
+// ELD 10 — Deafening Silence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEAFENING_SILENCE_10: CardRecord = CardRecord::new(
+    "Deafening Silence",
+    "6072d9b0-d3c7-46f4-bd24-095bb13c4dea",
+    "Igor Kieryluk",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 11 — Faerie Guidemother
 const fn faerie_guidemother_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{W}"), &["Faerie"], 1, 1).with_ability(abilities::flying())
@@ -330,6 +339,15 @@ pub(in crate::card::sets) static GLASS_CASKET: CardRecord = CardRecord::new(
     "Glass Casket",
     "562f1c51-d245-4771-bf61-415297e4f9d5",
     "Anastasia Ovchinnikova",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 18 — Hushbringer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HUSHBRINGER_18: CardRecord = CardRecord::new(
+    "Hushbringer",
+    "663b3e6f-1099-4de8-a0a7-6f1919c38010",
+    "Bastien L. Deharme",
     crate::card::CardRules::unsupported(),
 );
 
@@ -516,6 +534,24 @@ pub(in crate::card::sets) static CHARMED_SLEEP: CardRecord = CardRecord::new(
         ]),
 );
 
+// ELD 41 — Corridor Monitor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CORRIDOR_MONITOR_41: CardRecord = CardRecord::new(
+    "Corridor Monitor",
+    "9347802a-0971-443c-867a-cb9400f18d5c",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 54 — Midnight Clock
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIDNIGHT_CLOCK_54: CardRecord = CardRecord::new(
+    "Midnight Clock",
+    "0f7f1148-7b1b-4969-a2f8-428de1e2e8ff",
+    "Alexander Forssberg",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 62 — Run Away Together
 pub(in crate::card::sets) static RUN_AWAY_TOGETHER: CardRecord = CardRecord::new(
     "Run Away Together",
@@ -551,6 +587,15 @@ pub(in crate::card::sets) static RUN_AWAY_TOGETHER: CardRecord = CardRecord::new
             ),
         ]),
     )]),
+);
+
+// ELD 74 — Witching Well
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WITCHING_WELL_74: CardRecord = CardRecord::new(
+    "Witching Well",
+    "62d3132f-f897-4a7a-9de4-c6388e83f5ad",
+    "John Avon",
+    crate::card::CardRules::unsupported(),
 );
 
 // ELD 76 — Bake into a Pie
@@ -744,6 +789,15 @@ pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new
     bonecrusher_rules(),
 )
 .with_composition(bonecrusher_composition);
+
+// ELD 118 — Claim the Firstborn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CLAIM_THE_FIRSTBORN_118: CardRecord = CardRecord::new(
+    "Claim the Firstborn",
+    "feaf1e6c-c7d9-4ac7-9aeb-c4b5d61548ec",
+    "Iain McCaig",
+    crate::card::CardRules::unsupported(),
+);
 
 // ELD 122 — Embereth Shieldbreaker
 /// The adventure half. Answering an artifact for one red leaves the body
@@ -997,6 +1051,15 @@ pub(in crate::card::sets) static THRILL_OF_POSSIBILITY: CardRecord = CardRecord:
     .with_spell_additional_cost(&CostDef::discard(ObjectPredicateDef::Any))]),
 );
 
+// ELD 161 — The Great Henge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_GREAT_HENGE_161: CardRecord = CardRecord::new(
+    "The Great Henge",
+    "af915ed2-1f34-43f6-85f5-2430325b720f",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 169 — Once Upon a Time
 pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
     "Once Upon a Time",
@@ -1049,6 +1112,15 @@ pub(in crate::card::sets) static WILDBORN_PRESERVER: CardRecord = CardRecord::ne
     "55f76830-369e-4224-9ded-7d1ce04c87e4",
     "Lius Lasahido",
     CardRules::unsupported(),
+);
+
+// ELD 190 — Faeburrow Elder
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FAEBURROW_ELDER_190: CardRecord = CardRecord::new(
+    "Faeburrow Elder",
+    "1ca29912-88b1-413f-ad9d-63d7d1b1ca16",
+    "Raoul Vitale",
+    crate::card::CardRules::unsupported(),
 );
 
 // ELD 197 — Oko, Thief of Crowns
@@ -1141,6 +1213,15 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
                 },
             ),
         ]),
+);
+
+// ELD 217 — Crashing Drawbridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRASHING_DRAWBRIDGE_217: CardRecord = CardRecord::new(
+    "Crashing Drawbridge",
+    "b7d7108f-635c-423b-988a-bc8fc4c6edef",
+    "Mark Behm",
+    crate::card::CardRules::unsupported(),
 );
 
 // ELD 219 — Gingerbrute
@@ -1247,6 +1328,15 @@ pub(in crate::card::sets) static STONECOIL_SERPENT: CardRecord = CardRecord::new
         abilities::trample(),
         abilities::protection_from_multicolored(),
     ]),
+);
+
+// ELD 239 — Castle Embereth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CASTLE_EMBERETH_239: CardRecord = CardRecord::new(
+    "Castle Embereth",
+    "8bb8512e-6913-4be6-8828-24cfcbec042e",
+    "Jaime Jones",
+    crate::card::CardRules::unsupported(),
 );
 
 // ELD 247 — Mystic Sanctuary
@@ -1375,6 +1465,24 @@ pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
     ]),
 );
 
+// ELD 303 — Kenrith, the Returned King
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KENRITH_THE_RETURNED_KING_303: CardRecord = CardRecord::new(
+    "Kenrith, the Returned King",
+    "56c1227e-bea7-47cb-bbec-389a3d585af5",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 331 — Arcane Signet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCANE_SIGNET_331: CardRecord = CardRecord::new(
+    "Arcane Signet",
+    "84128e98-87d6-4c2f-909b-9435a7833e63",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 342 — Emry, Lurker of the Loch
 pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecord::new(
     "Emry, Lurker of the Loch",
@@ -1424,6 +1532,33 @@ pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecor
                 },
             ),
         ]),
+);
+
+// ELD 347 — Mirrormade
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIRRORMADE_347: CardRecord = CardRecord::new(
+    "Mirrormade",
+    "236b40cd-c359-41cc-b530-d7d6fbbe33bf",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 362 — Irencrag Feat
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IRENCRAG_FEAT_362: CardRecord = CardRecord::new(
+    "Irencrag Feat",
+    "257a84d3-bc4e-4bb3-a435-6d243929bd8c",
+    "Yongjae Choi",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 367 — Torbran, Thane of Red Fell
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TORBRAN_THANE_OF_RED_FELL_367: CardRecord = CardRecord::new(
+    "Torbran, Thane of Red Fell",
+    "24b63513-5e53-4357-8b28-cb91790e9a72",
+    "Grzegorz Rutkowski",
+    crate::card::CardRules::unsupported(),
 );
 
 // ELD 372 — Questing Beast
@@ -1487,6 +1622,24 @@ pub(in crate::card::sets) static QUESTING_BEAST: CardRecord = CardRecord::new(
         ]),
 );
 
+// ELD 388 — Castle Garenbrig
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CASTLE_GARENBRIG_388: CardRecord = CardRecord::new(
+    "Castle Garenbrig",
+    "aca10c34-010a-4a9f-a747-2592c4d58c5d",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
+
+// ELD 389 — Castle Locthwain
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CASTLE_LOCTHWAIN_389: CardRecord = CardRecord::new(
+    "Castle Locthwain",
+    "12b8c2e6-5256-4e7e-8d7d-4b386419780a",
+    "Titus Lunter",
+    crate::card::CardRules::unsupported(),
+);
+
 // ELD 391 — Fabled Passage
 pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
     "Fabled Passage",
@@ -1541,33 +1694,50 @@ pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARDENVALE_TACTICIAN,
     &CHARMING_PRINCE,
+    &DEAFENING_SILENCE_10,
     &FAERIE_GUIDEMOTHER,
     &GLASS_CASKET,
+    &HUSHBRINGER_18,
     &LINDEN_THE_STEADFAST_QUEEN,
     &SYR_ALIN_THE_LION_S_CLAW,
     &BRAZEN_BORROWER,
     &CHARMED_SLEEP,
+    &CORRIDOR_MONITOR_41,
+    &MIDNIGHT_CLOCK_54,
     &RUN_AWAY_TOGETHER,
+    &WITCHING_WELL_74,
     &BAKE_INTO_A_PIE,
     &EPIC_DOWNFALL,
     &WISHCLAW_TALISMAN,
     &BONECRUSHER_GIANT,
+    &CLAIM_THE_FIRSTBORN_118,
     &EMBERETH_SHIELDBREAKER,
     &RAGING_REDCAP,
     &RIMROCK_KNIGHT,
     &ROBBER_OF_THE_RICH,
     &SCORCHING_DRAGONFIRE,
     &THRILL_OF_POSSIBILITY,
+    &THE_GREAT_HENGE_161,
     &ONCE_UPON_A_TIME,
     &WILDBORN_PRESERVER,
+    &FAEBURROW_ELDER_190,
     &OKO_THIEF_OF_CROWNS,
+    &CRASHING_DRAWBRIDGE_217,
     &GINGERBRUTE,
     &HERALDIC_BANNER,
     &STONECOIL_SERPENT,
+    &CASTLE_EMBERETH_239,
     &MYSTIC_SANCTUARY,
     &WITCH_S_COTTAGE,
+    &KENRITH_THE_RETURNED_KING_303,
+    &ARCANE_SIGNET_331,
     &EMRY_LURKER_OF_THE_LOCH,
+    &MIRRORMADE_347,
+    &IRENCRAG_FEAT_362,
+    &TORBRAN_THANE_OF_RED_FELL_367,
     &QUESTING_BEAST,
+    &CASTLE_GARENBRIG_388,
+    &CASTLE_LOCTHWAIN_389,
     &FABLED_PASSAGE,
 ];
 

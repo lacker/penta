@@ -479,7 +479,7 @@ impl Game {
                 .iter()
                 .find(|candidate| candidate.id == card)
                 .is_some_and(|instance| self.graveyard_play_is_permitted(instance, player, option)),
-            CastSourceZone::Hand | CastSourceZone::LibraryTop => true,
+            CastSourceZone::Hand | CastSourceZone::LibraryTop | CastSourceZone::Command => true,
         }
     }
 
@@ -514,7 +514,7 @@ impl Game {
                 )
             }
             (
-                CastSourceZone::Hand,
+                CastSourceZone::Hand | CastSourceZone::Command,
                 Some(
                     AlternativeCastKindDef::Overload
                         | AlternativeCastKindDef::Kicked

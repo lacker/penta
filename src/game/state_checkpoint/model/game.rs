@@ -6,6 +6,10 @@ use super::*;
 #[allow(clippy::struct_excessive_bools)]
 pub(in crate::game::state_checkpoint) struct GameSnapshot {
     pub(in crate::game::state_checkpoint) version: u32,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) commanders: Vec<crate::game::CommanderObservation>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) commander_considered: Vec<Option<u32>>,
     #[serde(default)]
     pub(in crate::game::state_checkpoint) starting_player: usize,
     #[serde(default, skip_serializing_if = "Option::is_none")]

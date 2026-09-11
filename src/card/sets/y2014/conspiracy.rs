@@ -60,6 +60,15 @@ pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// CNS 36 — Treasonous Ogre
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TREASONOUS_OGRE_36: CardRecord = CardRecord::new(
+    "Treasonous Ogre",
+    "ae48c31d-6fd9-457f-adb8-37f367724ba1",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
 // CNS 42 — Dack Fayden
 pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
     "Dack Fayden",
@@ -128,7 +137,22 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new(
         ]),
 );
 
+// CNS 51 — Selvala, Explorer Returned
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SELVALA_EXPLORER_RETURNED_51: CardRecord = CardRecord::new(
+    "Selvala, Explorer Returned",
+    "89d4786c-e022-4ae5-9ef3-75886db51f49",
+    "Tyler Jacobson",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&COUNCILS_JUDGMENT, &CUSTODI_SQUIRE, &DACK_FAYDEN];
+    &[
+    &COUNCILS_JUDGMENT,
+    &CUSTODI_SQUIRE,
+    &TREASONOUS_OGRE_36,
+    &DACK_FAYDEN,
+    &SELVALA_EXPLORER_RETURNED_51,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

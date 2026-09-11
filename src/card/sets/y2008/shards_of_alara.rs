@@ -138,6 +138,15 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
         ]),
 );
 
+// ALA 10 — Ethersworn Canonist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ETHERSWORN_CANONIST_10: CardRecord = CardRecord::new(
+    "Ethersworn Canonist",
+    "2aebe7a8-b982-4be4-83ca-3594e8f606b4",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
 // ALA 12 — Guardians of Akrasa
 pub(in crate::card::sets) static GUARDIANS_OF_AKRASA: CardRecord = CardRecord::new(
     "Guardians of Akrasa",
@@ -145,6 +154,51 @@ pub(in crate::card::sets) static GUARDIANS_OF_AKRASA: CardRecord = CardRecord::n
     "Alan Pollack",
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 0, 4)
         .with_abilities(&[abilities::defender(), abilities::exalted()]),
+);
+
+// ALA 21 — Ranger of Eos
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RANGER_OF_EOS_21: CardRecord = CardRecord::new(
+    "Ranger of Eos",
+    "1a30ee26-5f78-4ac2-9105-1baa9ece8a21",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 42 — Etherium Sculptor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ETHERIUM_SCULPTOR_42: CardRecord = CardRecord::new(
+    "Etherium Sculptor",
+    "0d050f2d-bd65-4ab9-9ea6-9deba91b2792",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 44 — Filigree Sages
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FILIGREE_SAGES_44: CardRecord = CardRecord::new(
+    "Filigree Sages",
+    "08790aaf-0142-4b20-89cf-cdaffeea4582",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 60 — Tezzeret the Seeker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEZZERET_THE_SEEKER_60: CardRecord = CardRecord::new(
+    "Tezzeret the Seeker",
+    "3b214b6f-4734-4200-8467-92d7e3469b5d",
+    "Anthony Francisco",
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 63 — Ad Nauseam
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AD_NAUSEAM_63: CardRecord = CardRecord::new(
+    "Ad Nauseam",
+    "0a4ce4a1-65e3-4b40-be35-8fc55a968ec8",
+    "Jeremy Jarvis",
+    crate::card::CardRules::unsupported(),
 );
 
 // ALA 67 — Bone Splinters
@@ -393,6 +447,15 @@ pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
     ),
 );
 
+// ALA 194 — Sharuum the Hegemon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHARUUM_THE_HEGEMON_194: CardRecord = CardRecord::new(
+    "Sharuum the Hegemon",
+    "6589eaa8-95ec-4c97-8155-185487560ae6",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
 // ALA 202 — Tidehollow Sculler
 pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::new(
     "Tidehollow Sculler",
@@ -439,10 +502,34 @@ CardRules::new_artifact_creature(mana_cost!("{W}{B}"), &["Zombie"], 2, 2)
         ]),
 );
 
+// ALA 218 — Relic of Progenitus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RELIC_OF_PROGENITUS_218: CardRecord = CardRecord::new(
+    "Relic of Progenitus",
+    "90c41192-64ef-43aa-9af0-75f0d3f56688",
+    "Jean-Sébastien Rossbach",
+    crate::card::CardRules::unsupported(),
+);
+
+// ALA 220 — Arcane Sanctum
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCANE_SANCTUM_220: CardRecord = CardRecord::new(
+    "Arcane Sanctum",
+    "6edc0681-4252-4d3d-baf3-f03c22af1208",
+    "Anthony Francisco",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANGELIC_BENEDICTION,
     &ELSPETH_KNIGHT_ERRANT,
+    &ETHERSWORN_CANONIST_10,
     &GUARDIANS_OF_AKRASA,
+    &RANGER_OF_EOS_21,
+    &ETHERIUM_SCULPTOR_42,
+    &FILIGREE_SAGES_44,
+    &TEZZERET_THE_SEEKER_60,
+    &AD_NAUSEAM_63,
     &BONE_SPLINTERS,
     &DEATH_BARON,
     &DRAGON_FODDER,
@@ -452,7 +539,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ELVISH_VISIONARY,
     &BLIGHTNING,
     &BRANCHING_BOLT,
+    &SHARUUM_THE_HEGEMON_194,
     &TIDEHOLLOW_SCULLER,
+    &RELIC_OF_PROGENITUS_218,
+    &ARCANE_SANCTUM_220,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

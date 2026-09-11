@@ -12,3 +12,7 @@ pub mod tarkir_dragonstorm;
 pub mod through_the_omenpaths;
 
 pub(super) use super::{CardRecord, PrintingRecord};
+
+pub mod aetherdrift_commander;
+
+pub mod tarkir_dragonstorm_commander;

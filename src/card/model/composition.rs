@@ -531,6 +531,13 @@ impl CardDefinition {
         self.declares_deck_construction(DeckConstructionDef::ChooseABackground)
     }
 
+    /// Whether this card prints Partner, the symmetric permission to lead a
+    /// Commander deck beside another Partner card (CR 702.124a).
+    #[must_use]
+    pub fn has_partner(&self) -> bool {
+        self.declares_deck_construction(DeckConstructionDef::Partner)
+    }
+
     /// What this card asks of a deck it would be the companion of, or
     /// nothing when it is not a companion at all (CR 702.139a).
     #[must_use]

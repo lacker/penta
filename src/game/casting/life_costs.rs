@@ -165,6 +165,7 @@ impl Game {
             .iter()
             .find(|card| card.id == card_id)
             .map(|card| (card, CastSourceZone::Hand))
+            .or_else(|| state.command.iter().find(|card| card.id == card_id).map(|card| (card, CastSourceZone::Command)))
             .or_else(|| {
                 state
                     .graveyard
@@ -240,6 +241,7 @@ impl Game {
     ) -> (Vec<(GameObjectId, CostDef)>, u16, bool) {
         let super::CastCostContext { source_zone, offer } = context;
         let held = match source_zone {
+            CastSourceZone::Command => self.players[player.index()].command.iter().find(|card| card.id == card_id),
             CastSourceZone::Hand => self.players[player.index()]
                 .hand
                 .iter()

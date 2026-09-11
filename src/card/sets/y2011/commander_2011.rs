@@ -32,6 +32,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// CMD 46 — Flusterstorm
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLUSTERSTORM_46: CardRecord = CardRecord::new(
+    "Flusterstorm",
+    "1e2e09bf-e7c8-4f13-bcee-f9c8cbc57993",
+    "Erica Yang",
+    crate::card::CardRules::unsupported(),
+);
+
+// CMD 114 — Chaos Warp
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHAOS_WARP_114: CardRecord = CardRecord::new(
+    "Chaos Warp",
+    "042431bc-0b21-4920-802f-6dd02e4c8721",
+    "Trevor Claxton",
+    crate::card::CardRules::unsupported(),
+);
+
 // CMD 170 — Scavenging Ooze
 /// One when the exiled card was a creature, nothing otherwise.
 static EXILED_A_CREATURE: TargetConditionDef = TargetConditionDef {
@@ -115,6 +133,31 @@ CardRules::new_artifact(mana_cost!("{3}"))
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&SCAVENGING_OOZE, &CHAMPIONS_HELM];
+// CMD 269 — Command Tower
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COMMAND_TOWER_269: CardRecord = CardRecord::new(
+    "Command Tower",
+    "46982091-cc78-4171-8b3d-d07592684728",
+    "Ryan Yee",
+    crate::card::CardRules::unsupported(),
+);
+
+// CMD 277 — Homeward Path
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HOMEWARD_PATH_277: CardRecord = CardRecord::new(
+    "Homeward Path",
+    "b5fb67ed-f4ea-47d6-876a-2ad6a3fc9a18",
+    "Tomasz Jedruszek",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &FLUSTERSTORM_46,
+    &CHAOS_WARP_114,
+    &SCAVENGING_OOZE,
+    &CHAMPIONS_HELM,
+    &COMMAND_TOWER_269,
+    &HOMEWARD_PATH_277,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

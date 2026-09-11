@@ -55,7 +55,7 @@ impl Game {
                 pending.iter().any(|pending| {
                     matches!(
                         pending.continuation,
-                        DecisionContinuation::BattlefieldExitReplacement { .. }
+                        DecisionContinuation::BattlefieldExitReplacement { .. } | DecisionContinuation::CommanderMove { .. }
                     )
                 })
             })

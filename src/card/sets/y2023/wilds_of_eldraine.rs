@@ -1,5 +1,8 @@
 //! Wilds of Eldraine card inventory.
 
+use crate::card::AbilityOperationDef;
+use crate::card::CharacteristicOperationDef;
+use crate::card::PlayerSetDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;

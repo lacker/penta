@@ -68,6 +68,7 @@ mod characteristic_state;
 mod characteristics;
 mod combat;
 mod combat_state;
+mod commander;
 mod companion;
 mod continuous_effects;
 mod continuous_state;
@@ -157,6 +158,7 @@ use prevention_state::{
     ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher,
 };
 
+pub use commander::CommanderObservation;
 pub use decision::{
     DecisionKind, DecisionObservation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
     DecisionVisibility, DecisionZone,
@@ -519,6 +521,7 @@ struct PlayerState {
     hand: Vec<CardInstance>,
     graveyard: Vec<CardInstance>,
     exile: Vec<CardInstance>,
+    command: Vec<CardInstance>,
     /// Cards the player brought in their sideboard. Outside the game is not
     /// a zone, so ordinary zone queries and observations never walk this
     /// collection.
@@ -577,6 +580,8 @@ pub struct Game {
     prepared_engine: PreparedEngine,
     #[allow(dead_code)] // Reserved for backing validation and future meld actions.
     physical_cards: Vec<PhysicalCard>,
+    commanders: Vec<commander::CommanderState>,
+    commander_move_answer: Option<(GameObjectId, bool)>,
     players: [PlayerState; 2],
     battlefield: Vec<Permanent>,
     /// Permanents that are phased out. A phased-out permanent is treated as

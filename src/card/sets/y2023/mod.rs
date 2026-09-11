@@ -13,3 +13,11 @@ pub mod phyrexia_all_will_be_one_commander;
 pub mod wilds_of_eldraine;
 
 pub(super) use super::{CardRecord, PrintingRecord};
+
+pub mod secret_lair_drop;
+
+pub mod march_of_the_machine_the_aftermath;
+
+pub mod wilds_of_eldraine_commander;
+
+pub mod jurassic_world_collection;

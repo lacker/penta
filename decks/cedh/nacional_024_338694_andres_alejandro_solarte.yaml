@@ -1,0 +1,101 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 24th place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/Xe6Fv2p0ygOAnJjHHCZuK3DHcz83
+# TopDeck entry ID: RW50cnk6MzM4Njk0
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 24th place, Andres alejandro solarte"
+id: nacional_024_338694_andres_alejandro_solarte
+description: "Exact tournament decklist for Andres alejandro solarte, 24th place at Nacional de cEDH 100K @ WolfCon 2026."
+# Auxiliary source sections retained in provenance.json and unsupported by gameplay: Stickers.
+commanders:
+  "Urabrask // The Great Work": 1
+main:
+  "_____ Goblin": 1
+  "Ancestral Anger": 1
+  "Ancient Tomb": 1
+  "Arid Mesa": 1
+  "Asgardian Inspiration": 1
+  "Barbarian Ring": 1
+  "Birgi, God of Storytelling // Harnfel, Horn of Bounty": 1
+  "Bloodstained Mire": 1
+  "Bonus Round": 1
+  "Cave-In": 1
+  "Chrome Mox": 1
+  "Crash Through": 1
+  "Crimson Wisps": 1
+  "Crystal Vein": 1
+  "Deflecting Swat": 1
+  "Demand Answers": 1
+  "Desperate Ritual": 1
+  "Dragon's Rage Channeler": 1
+  "Electro, Assaulting Battery": 1
+  "Expedite": 1
+  "Faithless Looting": 1
+  "Final Fortune": 1
+  "Flashback": 1
+  "Fork": 1
+  "Galvanic Relay": 1
+  "Gamble": 1
+  "Gemstone Caverns": 1
+  "Grapeshot": 1
+  "Gut Shot": 1
+  "Haze of Rage": 1
+  "Heroes' Hangout": 1
+  "Hexing Squelcher": 1
+  "Highway Robbery": 1
+  "Impolite Entrance": 1
+  "Jeska's Will": 1
+  "Last Chance": 1
+  "Lava Dart": 1
+  "Light Up the Stage": 1
+  "Lotus Petal": 1
+  "Mana Vault": 1
+  "Meltdown": 1
+  "Might of the Meek": 1
+  "Mountain": 11
+  "Mox Diamond": 1
+  "Needle Drop": 1
+  "Opera Love Song": 1
+  "Overmaster": 1
+  "Past in Flames": 1
+  "Path of the Pyromancer": 1
+  "Pinnacle Monk // Mystic Peak": 1
+  "Prismatic Vista": 1
+  "Pyretic Ritual": 1
+  "Pyroblast": 1
+  "Ragavan, Nimble Pilferer": 1
+  "Reckless Impulse": 1
+  "Redirect Lightning": 1
+  "Reiterate": 1
+  "Renegade Tactics": 1
+  "Rite of Flame": 1
+  "Rob the Archives": 1
+  "Ruby Medallion": 1
+  "Runaway Steam-Kin": 1
+  "Sandstone Needle": 1
+  "Sazacap's Brew": 1
+  "Scalding Tarn": 1
+  "Seething Song": 1
+  "Sentinel Tower": 1
+  "Simian Spirit Guide": 1
+  "Sol Ring": 1
+  "Staff of Compleation": 1
+  "Storm-Kiln Artist": 1
+  "Stormsplitter": 1
+  "Strike It Rich": 1
+  "Sundering Eruption // Volcanic Fissure": 1
+  "The Last Agni Kai": 1
+  "Thrill of Possibility": 1
+  "Treasonous Ogre": 1
+  "Underworld Breach": 1
+  "Untimely Malfunction": 1
+  "Valakut Awakening // Valakut Stoneforge": 1
+  "Vexing Bauble": 1
+  "Virtue of Courage // Embereth Blaze": 1
+  "Vision of Love": 1
+  "Vivi's Persistence": 1
+  "Warlord's Fury": 1
+  "Wheel of Fortune": 1
+  "Wheel of Misfortune": 1
+  "Wooded Foothills": 1
+  "Wrenn's Resolve": 1
+sideboard: {}

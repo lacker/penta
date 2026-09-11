@@ -29,6 +29,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// JOU 1 — Aegis of the Gods
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AEGIS_OF_THE_GODS_1: CardRecord = CardRecord::new(
+    "Aegis of the Gods",
+    "f2b2f381-86a2-42ac-b694-dcde437d574f",
+    "Yefim Kligerman",
+    crate::card::CardRules::unsupported(),
+);
+
 // JOU 5 — Banishing Light
 // Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); an ordinary leaves trigger returns through the stack too late.
 pub(in crate::card::sets) static BANISHING_LIGHT: CardRecord = CardRecord::new(
@@ -36,6 +45,15 @@ pub(in crate::card::sets) static BANISHING_LIGHT: CardRecord = CardRecord::new(
     "fbaa4800-30cc-4a80-a6cc-9a24ada9eb40",
     "Willian Murai",
     CardRules::unsupported(),
+);
+
+// JOU 10 — Eidolon of Rhetoric
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EIDOLON_OF_RHETORIC_10: CardRecord = CardRecord::new(
+    "Eidolon of Rhetoric",
+    "c3bc8b9e-4d22-41ba-b593-d383fd301ef9",
+    "Ryan Yee",
+    crate::card::CardRules::unsupported(),
 );
 
 // JOU 37 — Dictate of Kruphix
@@ -58,6 +76,24 @@ pub(in crate::card::sets) static DICTATE_OF_KRUPHIX: CardRecord = CardRecord::ne
             },
         ),
     ]),
+);
+
+// JOU 94 — Eidolon of the Great Revel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EIDOLON_OF_THE_GREAT_REVEL_94: CardRecord = CardRecord::new(
+    "Eidolon of the Great Revel",
+    "a6c10816-e825-452a-90b0-80eb9f20bd6d",
+    "Cyril Van Der Haegen",
+    crate::card::CardRules::unsupported(),
+);
+
+// JOU 115 — Twinflame
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TWINFLAME_115: CardRecord = CardRecord::new(
+    "Twinflame",
+    "207128b3-2de3-495a-bf29-eec50c3bd752",
+    "Chase Stone",
+    crate::card::CardRules::unsupported(),
 );
 
 // JOU 126 — Heroes' Bane
@@ -148,8 +184,12 @@ pub(in crate::card::sets) static TEMPLE_OF_MALADY: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AEGIS_OF_THE_GODS_1,
     &BANISHING_LIGHT,
+    &EIDOLON_OF_RHETORIC_10,
     &DICTATE_OF_KRUPHIX,
+    &EIDOLON_OF_THE_GREAT_REVEL_94,
+    &TWINFLAME_115,
     &HEROES_BANE,
     &MANA_CONFLUENCE,
     &TEMPLE_OF_EPIPHANY,

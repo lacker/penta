@@ -62,6 +62,9 @@ impl Game {
         let [outside_one, outside_two] = outside_game;
         let mut outside_game = [outside_one?, outside_two?];
 
+        let command_zones = if let Some(zones) = observation.get("commandZones") {
+            parse_two_public_zones(zones, &catalog)?
+        } else { [Vec::new(), Vec::new()] };
         let mut graveyards = parse_two_public_zones(field(observation, "graveyards")?, &catalog)?;
         let mut exiles = parse_two_public_zones(field(observation, "exiles")?, &catalog)?;
         let life = i16_pair(field(observation, "life")?)?;
@@ -122,6 +125,7 @@ impl Game {
             library: libraries[player.index()].clone(),
             tried_to_draw_from_empty_library: tried_empty[player.index()],
             hand: checkpoint_hands[player.index()].clone(),
+            command: command_zones[player.index()].clone(),
             graveyard: graveyards[player.index()].clone(),
             exile: exiles[player.index()].clone(),
             outside_game: outside_game[player.index()].clone(),
@@ -228,6 +232,8 @@ impl Game {
             catalog,
             prepared_engine,
             physical_cards: Vec::new(),
+            commanders: Vec::new(),
+            commander_move_answer: None,
             players,
             battlefield: Vec::new(),
             phased_out: Vec::new(),
@@ -432,6 +438,7 @@ impl Game {
             );
         }
         game.restore_physical_cards();
+        game.restore_commanders(&checkpoint.commanders, &checkpoint.commander_considered)?;
         Ok(game)
     }
 }

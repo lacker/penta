@@ -19,6 +19,29 @@ fn categories_partition_every_format_in_registry_order() {
 }
 
 #[test]
+fn cedh_is_a_commander_format_with_deferred_legality_metadata() {
+    assert_eq!(Format::Cedh.category(), FormatCategory::Commander);
+    assert_eq!(Format::Cedh.slug(), "cedh");
+    assert_eq!(Format::Cedh.rules().starting_life, 40);
+    assert!(Format::Cedh.defers_deck_legality());
+    assert!(Format::Cedh.allows_card(&CardDefinition::new(
+        CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
+        "Any catalog identity",
+        sets::alpha::SET,
+        crate::card::CardRules::unsupported(),
+    )));
+    assert!(Format::Cedh.is_banned("Mana Crypt"));
+    assert!(!Format::Cedh.is_banned("Lutri, the Spellchaser"));
+    assert_eq!(
+        Format::Cedh
+            .commander_definition()
+            .expect("Commander metadata")
+            .companion_only_banned_cards,
+        &["Lutri, the Spellchaser"]
+    );
+}
+
+#[test]
 fn cubes_are_singleton_pools_rather_than_set_windows() {
     for &format in FormatCategory::Cube.formats() {
         let definition = format.cube_definition().expect("a cube definition");

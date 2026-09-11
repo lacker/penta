@@ -65,6 +65,19 @@ pub(in crate::card::sets) static BALEFUL_STRIX: CardRecord = CardRecord::new(
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&BEETLEBACK_CHIEF, &BALEFUL_STRIX];
+// PC2 101 — Maelstrom Wanderer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAELSTROM_WANDERER_101: CardRecord = CardRecord::new(
+    "Maelstrom Wanderer",
+    "9129baf5-ffa9-4ffb-bcab-19d6a42dbfcc",
+    "Thomas M. Baxa",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BEETLEBACK_CHIEF,
+    &BALEFUL_STRIX,
+    &MAELSTROM_WANDERER_101,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,0 +1,103 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 117th place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/PVcErOc20tXFeXv0QLBxQTdfQaB3
+# TopDeck entry ID: RW50cnk6MzM4Nzg3
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 117th place, Mau Gondola"
+id: nacional_117_338787_mau_gondola
+description: "Exact tournament decklist for Mau Gondola, 117th place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Magda, Brazen Outlaw": 1
+main:
+  "Adaptive Automaton": 1
+  "Agatha's Soul Cauldron": 1
+  "Ancient Tomb": 1
+  "Ash Barrens": 1
+  "Axgard Cavalry": 1
+  "Barkform Harvester": 1
+  "Battered Golem": 1
+  "Blazing Firesinger // Seething Song": 1
+  "Blood Moon": 1
+  "Bloodfire Dwarf": 1
+  "Bottle-Cap Blast": 1
+  "Buried Ruin": 1
+  "Cavern of Souls": 1
+  "Chaos Warp": 1
+  "Clock of Omens": 1
+  "Clown Car": 1
+  "Command Beacon": 1
+  "Command Tower": 1
+  "Cursed Mirror": 1
+  "Damping Sphere": 1
+  "Deflecting Swat": 1
+  "Desert of the Fervent": 1
+  "Disruptor Flute": 1
+  "Dwarven Bloodboiler": 1
+  "Dwarven Grunt": 1
+  "Dwarven Miner": 1
+  "Dwarven Scorcher": 1
+  "Dwarven Trader": 1
+  "Enslaved Dwarf": 1
+  "Final Fortune": 1
+  "Flywheel Racer": 1
+  "Forgotten Cave": 1
+  "Galvanic Blast": 1
+  "Gamble": 1
+  "Gemstone Caverns": 1
+  "Glóin, Dwarf Emissary": 1
+  "Goblin Welder": 1
+  "God-Pharaoh's Statue": 1
+  "Great Furnace": 1
+  "Hexing Squelcher": 1
+  "High-Speed Hoverbike": 1
+  "Holdout Settlement": 1
+  "Jeska's Will": 1
+  "Last Chance": 1
+  "Liberated Dwarf": 1
+  "Lifecraft Engine": 1
+  "Lightning Bolt": 1
+  "Lightning Greaves": 1
+  "Liquimetal Torque": 1
+  "Magda, the Hoardmaster": 1
+  "Magus of the Moon": 1
+  "Maskwood Nexus": 1
+  "Metallic Mimic": 1
+  "Mines of Moria": 1
+  "Mirror of the Forebears": 1
+  "Mountain": 8
+  "Pinnacle Monk // Mystic Peak": 1
+  "Portal to Phyrexia": 1
+  "Pyroblast": 1
+  "Ragavan, Nimble Pilferer": 1
+  "Red Elemental Blast": 1
+  "Relic of Legends": 1
+  "Return the Favor": 1
+  "Ricochet Trap": 1
+  "Roaming Throne": 1
+  "Sculpting Steel": 1
+  "Shinka, the Bloodsoaked Keep": 1
+  "Sokenzan, Crucible of Defiance": 1
+  "Sol Ring": 1
+  "Springleaf Drum": 1
+  "Sundering Eruption // Volcanic Fissure": 1
+  "Survivors' Encampment": 1
+  "Swiftfoot Boots": 1
+  "Talon Gates of Madara": 1
+  "Tangle Wire": 1
+  "Tezzeret, Cruel Captain": 1
+  "The One Ring": 1
+  "Thorn of Amethyst": 1
+  "Tibalt's Trickery": 1
+  "Torpor Orb": 1
+  "Treasure Vault": 1
+  "Twinshot Sniper": 1
+  "Universal Automaton": 1
+  "Unlicensed Hearse": 1
+  "Untimely Malfunction": 1
+  "Urza's Cave": 1
+  "Urza's Saga": 1
+  "Vandalblast": 1
+  "Vexing Bauble": 1
+  "Winter Orb": 1
+  "Xorn": 1
+  "Zoyowa's Justice": 1
+sideboard: {}

@@ -474,6 +474,9 @@ impl Game {
         source_zone: CastSourceZone,
     ) -> CardInstance {
         match source_zone {
+            CastSourceZone::Command => {
+                remove_card(&mut self.players[player.index()].command, card_id)
+            }
             CastSourceZone::Hand => remove_card(&mut self.players[player.index()].hand, card_id),
             CastSourceZone::Graveyard => {
                 // Cast out of a graveyard is a card leaving it, which the

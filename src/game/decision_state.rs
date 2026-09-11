@@ -233,6 +233,14 @@ pub(super) enum CounteredSpellZone {
 
 #[derive(Clone, Debug)]
 pub(super) enum DecisionContinuation {
+    CommanderReturn {
+        remaining: Vec<(PlayerId, Vec<GameObjectId>)>,
+        selected: Vec<GameObjectId>,
+    },
+    CommanderMove {
+        movement: Box<super::commander::CommanderMove>,
+        completion: Option<Box<super::BattlefieldExitCompletion>>,
+    },
     ActionChoice {
         player: PlayerId,
         choices: Vec<ResolvedEffectPayment>,

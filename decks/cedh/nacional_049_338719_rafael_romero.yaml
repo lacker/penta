@@ -1,0 +1,110 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 49th place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/T8of9In9gWgRL1x5I27evfOlQBz2
+# TopDeck entry ID: RW50cnk6MzM4NzE5
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 49th place, Rafael Romero"
+id: nacional_049_338719_rafael_romero
+description: "Exact tournament decklist for Rafael Romero, 49th place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Y'shtola, Night's Blessed": 1
+main:
+  "Aetherflux Reservoir": 1
+  "An Offer You Can't Refuse": 1
+  "Ancient Tomb": 1
+  "Arcane Denial": 1
+  "Arcane Signet": 1
+  "Arid Mesa": 1
+  "Armageddon": 1
+  "Beseech the Mirror": 1
+  "Bloodstained Mire": 1
+  "Bolas's Citadel": 1
+  "Cavern of Souls": 1
+  "Chain of Smog": 1
+  "Chrome Mox": 1
+  "City of Brass": 1
+  "Command Tower": 1
+  "Counterspell": 1
+  "Curiosity": 1
+  "Cyclonic Rift": 1
+  "Damn": 1
+  "Dark Ritual": 1
+  "Deadly Rollick": 1
+  "Demonic Consultation": 1
+  "Demonic Tutor": 1
+  "Diabolic Intent": 1
+  "Dovin's Veto": 1
+  "Enlightened Tutor": 1
+  "Esper Sentinel": 1
+  "Exotic Orchard": 1
+  "Faerie Mastermind": 1
+  "Farewell": 1
+  "Fellwar Stone": 1
+  "Fierce Guardianship": 1
+  "Flawless Maneuver": 1
+  "Flow State": 1
+  "Flusterstorm": 1
+  "Force of Negation": 1
+  "Force of Will": 1
+  "Gleaming Splendor": 1
+  "Godless Shrine": 1
+  "Grand Abolisher": 1
+  "Hallowed Fountain": 1
+  "Heliod, Sun-Crowned": 1
+  "Helm of the Ghastlord": 1
+  "Island": 1
+  "Lotho, Corrupt Shirriff": 1
+  "Lotus Petal": 1
+  "Mana Confluence": 1
+  "Mana Drain": 1
+  "Mental Misstep": 1
+  "Meticulous Archive": 1
+  "Mindbreak Trap": 1
+  "Misty Rainforest": 1
+  "Mox Diamond": 1
+  "Mystic Remora": 1
+  "Mystical Tutor": 1
+  "Necropotence": 1
+  "Ophidian Eye": 1
+  "Opposition Agent": 1
+  "Orcish Bowmasters": 1
+  "Pact of Negation": 1
+  "Path to Exile": 1
+  "Plains": 1
+  "Polluted Delta": 1
+  "Professor Onyx": 1
+  "Reflecting Pool": 1
+  "Reliquary Tower": 1
+  "Rhystic Study": 1
+  "Sensei's Divining Top": 1
+  "Shadowy Backstreet": 1
+  "Silence": 1
+  "Smothering Tithe": 1
+  "Snapcaster Mage": 1
+  "Snuff Out": 1
+  "Sol Ring": 1
+  "Spell Pierce": 1
+  "Spellseeker": 1
+  "Spider-Sense": 1
+  "Splinter's Technique": 1
+  "Starting Town": 1
+  "Stifle": 1
+  "Stock Up": 1
+  "Swamp": 1
+  "Swan Song": 1
+  "Swords to Plowshares": 1
+  "Tainted Pact": 1
+  "Talisman of Hierarchy": 1
+  "Teferi's Protection": 1
+  "Thassa's Oracle": 1
+  "The One Ring": 1
+  "The Queen of Dale": 1
+  "Undercity Sewers": 1
+  "Urborg, Tomb of Yawgmoth": 1
+  "Urza's Saga": 1
+  "Vampiric Tutor": 1
+  "Verdant Catacombs": 1
+  "Walking Ballista": 1
+  "Watery Grave": 1
+  "Windswept Heath": 1
+  "Yawgmoth's Will": 1
+sideboard: {}

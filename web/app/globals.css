@@ -2944,3 +2944,100 @@ button {
 .sideboard-columns li button { flex-shrink: 0; }
 .match-buttons { display: flex; gap: 12px; margin: 18px 0; }
 @media (max-width: 600px) { .sideboard-columns { grid-template-columns: 1fr; } }
+
+.command-zone {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  min-height: 72px;
+  padding: 7px 12px;
+  color: #e9e0cf;
+  background: #1d2325;
+  border-block: 1px dashed #73604799;
+}
+
+.command-zone-heading {
+  display: flex;
+  flex: 0 0 108px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  color: #d9bb83;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.command-zone-heading span,
+.commander-history > span {
+  color: #aaa598;
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.command-zone-content {
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.command-zone-card,
+.commander-history {
+  display: grid;
+  grid-template-columns: 36px minmax(90px, auto);
+  align-items: center;
+  gap: 3px 7px;
+  min-width: 180px;
+  padding: 5px 8px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: #292e32;
+  border: 1px solid #564c3d;
+  border-radius: 5px;
+}
+
+button.command-zone-card { cursor: pointer; }
+button.command-zone-card:not(:disabled):hover,
+button.command-zone-card.is-selected { border-color: #d3a85a; background: #37332a; }
+button.command-zone-card:disabled { cursor: default; opacity: .82; }
+.command-zone-card .card-art { grid-row: span 2; width: 36px; height: 48px; }
+.command-zone-card-name { overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.commander-stats { grid-column: 2; color: #c5bdaf; font-size: 10px; line-height: 1.35; }
+.commander-history { grid-template-columns: 1fr; min-width: 190px; }
+.commander-history .commander-stats { grid-column: 1; }
+
+@media (max-width: 620px) {
+  .command-zone { gap: 6px; padding-inline: 7px; }
+  .command-zone-heading { flex-basis: 76px; font-size: 10px; }
+  .command-zone-heading span { display: none; }
+  .command-zone-card, .commander-history { min-width: 155px; }
+}
+
+.battlefield-region { display: contents; }
+.commander-board {
+  display: grid;
+  grid-template-columns: 225px minmax(0, 1fr);
+  min-height: 0;
+  gap: 8px;
+}
+.commander-board .command-zone {
+  min-height: 0;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  overflow: hidden;
+}
+.commander-board .command-zone-heading { flex: 0 0 auto; font-size: 10px; }
+.commander-board .command-zone-heading span { display: none; }
+.commander-board .command-zone-content { flex-direction: column; overflow-y: auto; }
+.commander-board .command-zone-card,
+.commander-board .commander-history { flex-shrink: 0; min-width: 0; }
+.commander-board .command-zone-card { grid-template-columns: 36px minmax(0, 1fr); }
+@media (max-width: 620px) {
+  .commander-board { grid-template-columns: 175px minmax(0, 1fr); gap: 4px; }
+}

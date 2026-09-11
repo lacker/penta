@@ -75,6 +75,15 @@ pub(in crate::card::sets) static GODS_WILLING: CardRecord = CardRecord::new(
     )),
 );
 
+// THS 65 — Swan Song
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SWAN_SONG_65: CardRecord = CardRecord::new(
+    "Swan Song",
+    "efd26041-059b-4a1e-9ce8-c3cfd69a3721",
+    "Peter Mohrbacher",
+    crate::card::CardRules::unsupported(),
+);
+
 // THS 89 — Gray Merchant of Asphodel
 pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRecord::new(
     "Gray Merchant of Asphodel",
@@ -126,6 +135,15 @@ pub(in crate::card::sets) static HERO_S_DOWNFALL: CardRecord = CardRecord::new(
     ]),
 );
 
+// THS 119 — Dragon Mantle
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRAGON_MANTLE_119: CardRecord = CardRecord::new(
+    "Dragon Mantle",
+    "d97b1080-9001-4751-b2f5-7f56d9f58dff",
+    "Anthony Palumbo",
+    crate::card::CardRules::unsupported(),
+);
+
 // THS 127 — Lightning Strike
 pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
     "Lightning Strike",
@@ -143,6 +161,15 @@ pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
             ValueDef::Constant(3),
         ),
     )),
+);
+
+// THS 135 — Purphoros, God of the Forge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PURPHOROS_GOD_OF_THE_FORGE_135: CardRecord = CardRecord::new(
+    "Purphoros, God of the Forge",
+    "7bf6baf2-d20b-467d-8929-abefcf7dfa99",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
 );
 
 // THS 169 — Nylea's Presence
@@ -299,6 +326,24 @@ pub(in crate::card::sets) static BURNISHED_HART: CardRecord = CardRecord::new(
     ]),
 );
 
+// THS 220 — Pyxis of Pandemonium
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PYXIS_OF_PANDEMONIUM_220: CardRecord = CardRecord::new(
+    "Pyxis of Pandemonium",
+    "dbc6a246-f32a-4dc0-9785-4038804f372f",
+    "David Palumbo",
+    crate::card::CardRules::unsupported(),
+);
+
+// THS 223 — Nykthos, Shrine to Nyx
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NYKTHOS_SHRINE_TO_NYX_223: CardRecord = CardRecord::new(
+    "Nykthos, Shrine to Nyx",
+    "834b27a0-dfd7-4f96-8cde-cacac4b24acc",
+    "Jung Park",
+    crate::card::CardRules::unsupported(),
+);
+
 // THS 224 — Temple of Abandon
 pub(in crate::card::sets) static TEMPLE_OF_ABANDON: CardRecord = CardRecord::new(
     "Temple of Abandon",
@@ -416,13 +461,18 @@ pub(in crate::card::sets) static TEMPLE_OF_TRIUMPH: CardRecord = CardRecord::new
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GODS_WILLING,
+    &SWAN_SONG_65,
     &GRAY_MERCHANT_OF_ASPHODEL,
     &HERO_S_DOWNFALL,
+    &DRAGON_MANTLE_119,
     &LIGHTNING_STRIKE,
+    &PURPHOROS_GOD_OF_THE_FORGE_135,
     &NYLEAS_PRESENCE,
     &ORDEAL_OF_NYLEA,
     &SYLVAN_CARYATID,
     &BURNISHED_HART,
+    &PYXIS_OF_PANDEMONIUM_220,
+    &NYKTHOS_SHRINE_TO_NYX_223,
     &TEMPLE_OF_ABANDON,
     &TEMPLE_OF_DECEIT,
     &TEMPLE_OF_MYSTERY,

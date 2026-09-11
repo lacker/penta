@@ -89,5 +89,87 @@ CardRules::new_creature(
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COUNCIL_OF_REEDS];
+// MSC 56 — Loki's Scepter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LOKI_S_SCEPTER_56: CardRecord = CardRecord::new(
+    "Loki's Scepter",
+    "57e90938-9225-4c15-b4fb-aad2cced2e6a",
+    "L J Koh",
+    crate::card::CardRules::unsupported(),
+);
+
+// MSC 106 — H.E.R.B.I.E., Lovable Robot
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static H_E_R_B_I_E_LOVABLE_ROBOT_106: CardRecord = CardRecord::new(
+    "H.E.R.B.I.E., Lovable Robot",
+    "5e2f9f4c-dbdd-4da6-b08f-1f4d3fcb1328",
+    "Nanna Marie Steffensen",
+    crate::card::CardRules::unsupported(),
+);
+
+// MSC 395 — Black Widow, Agile Avenger
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLACK_WIDOW_AGILE_AVENGER_395: CardRecord = CardRecord::new(
+    "Black Widow, Agile Avenger",
+    "0b165b56-ad86-4d8c-91e2-1464b2ac5c6d",
+    "Junggeun Yoon",
+    crate::card::CardRules::unsupported(),
+);
+
+// MSC 654 — Doctor Doom, Unrivaled
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DOCTOR_DOOM_UNRIVALED_654: CardRecord = CardRecord::new(
+    "Doctor Doom, Unrivaled",
+    "2973e855-fe93-41a1-a62e-4699ef2c3d1d",
+    "Vilhelmas Banys",
+    crate::card::CardRules::unsupported(),
+);
+
+// MSC 678 — Asgardian Inspiration
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ASGARDIAN_INSPIRATION_678: CardRecord = CardRecord::new(
+    "Asgardian Inspiration",
+    "d1fe7eef-2636-484f-b476-4dc9c9dbfddd",
+    "Nathaniel Himawan",
+    crate::card::CardRules::unsupported(),
+);
+
+// MSC 707 — The Vision and Scarlet Witch
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_VISION_AND_SCARLET_WITCH_707: CardRecord = CardRecord::new(
+    "The Vision and Scarlet Witch",
+    "930afb5f-54b7-4cca-8c28-3e48938f3a43",
+    "Tyler Walpole",
+    crate::card::CardRules::unsupported(),
+);
+
+// MSC 719 — Devil Dinosaur
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DEVIL_DINOSAUR_719: CardRecord = CardRecord::new(
+    "Devil Dinosaur",
+    "fcb4c268-441f-41cf-8c25-538eefc6a710",
+    "Wero Gallo",
+    crate::card::CardRules::unsupported(),
+);
+
+// MSC 754 — Fogwell's Gym
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FOGWELL_S_GYM_754: CardRecord = CardRecord::new(
+    "Fogwell's Gym",
+    "e63523d5-0f2c-436a-b411-662eb11fd150",
+    "Pace Wilder",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &COUNCIL_OF_REEDS,
+    &LOKI_S_SCEPTER_56,
+    &H_E_R_B_I_E_LOVABLE_ROBOT_106,
+    &BLACK_WIDOW_AGILE_AVENGER_395,
+    &DOCTOR_DOOM_UNRIVALED_654,
+    &ASGARDIAN_INSPIRATION_678,
+    &THE_VISION_AND_SCARLET_WITCH_707,
+    &DEVIL_DINOSAUR_719,
+    &FOGWELL_S_GYM_754,
+];
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

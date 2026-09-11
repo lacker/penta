@@ -184,6 +184,15 @@ pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// MH2 39 — Dress Down
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRESS_DOWN_39: CardRecord = CardRecord::new(
+    "Dress Down",
+    "04f9f061-67b8-4427-9fcb-b3ccfee8fc5d",
+    "Iain McCaig",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 46 — Hard Evidence
 pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
     "Hard Evidence",
@@ -287,6 +296,24 @@ CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Dragon"], 3, 3).with_abiliti
     ]),
 );
 
+// MH2 61 — Scuttletide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SCUTTLETIDE_61: CardRecord = CardRecord::new(
+    "Scuttletide",
+    "38e4ce27-aba2-4a3f-8de7-d442323d8be2",
+    "Yeong-Hao Han",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 66 — Step Through
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STEP_THROUGH_66: CardRecord = CardRecord::new(
+    "Step Through",
+    "716534cb-aa89-4de7-9aa5-8d8aa4422a6a",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 67 — Subtlety
 pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new(
     "Subtlety",
@@ -333,6 +360,15 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new(
                 )],
             ),
         ]),
+);
+
+// MH2 68 — Suspend
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUSPEND_68: CardRecord = CardRecord::new(
+    "Suspend",
+    "40af215c-d3f7-42f0-85cd-77a3fcd919ba",
+    "Lake Hurwitz",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 75 — Archon of Cruelty
@@ -518,6 +554,15 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
         ]),
 );
 
+// MH2 88 — Hell Mongrel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HELL_MONGREL_88: CardRecord = CardRecord::new(
+    "Hell Mongrel",
+    "f7da32a3-8e33-4603-abd2-8db144062f6a",
+    "Robbie Trevino",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 91 — Loathsome Curator
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOATHSOME_CURATOR: CardRecord = CardRecord::new(
@@ -552,6 +597,24 @@ pub(in crate::card::sets) static NESTED_SHAMBLER: CardRecord = CardRecord::new(
             ),
         ),
     ),
+);
+
+// MH2 96 — Persist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PERSIST_96: CardRecord = CardRecord::new(
+    "Persist",
+    "90f390c3-af1c-424f-9721-e26e9321e5a3",
+    "Milivoj Ćeran",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 106 — Unmarked Grave
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNMARKED_GRAVE_106: CardRecord = CardRecord::new(
+    "Unmarked Grave",
+    "492b368b-de32-45c1-8459-238aae54f9fc",
+    "James Paick",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 107 — Vermin Gorger
@@ -619,6 +682,15 @@ pub(in crate::card::sets) static VILE_ENTOMBER: CardRecord = CardRecord::new(
             ),
         ],
     ),
+);
+
+// MH2 115 — Blazing Rootwalla
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLAZING_ROOTWALLA_115: CardRecord = CardRecord::new(
+    "Blazing Rootwalla",
+    "4404fc9c-ef02-479c-9638-0cc163f0b48f",
+    "Jokubas Uogintas",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 121 — Dragon's Rage Channeler
@@ -727,6 +799,24 @@ CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Elemental", "Incarnation"], 
         ]),
 );
 
+// MH2 127 — Galvanic Relay
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GALVANIC_RELAY_127: CardRecord = CardRecord::new(
+    "Galvanic Relay",
+    "06373318-e548-4664-b227-17e3b6fd0a88",
+    "Lucas Staniec",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 132 — Harmonic Prodigy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HARMONIC_PRODIGY_132: CardRecord = CardRecord::new(
+    "Harmonic Prodigy",
+    "22579ac0-ad3f-4000-a65a-46a17a7f1aa5",
+    "Paul Scott Canavan",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 135 — Mine Collapse
 pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new(
     "Mine Collapse",
@@ -817,6 +907,33 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
             abilities::dashed_haste(),
             abilities::dashed_return(),
         ]),
+);
+
+// MH2 139 — Revolutionist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static REVOLUTIONIST_139: CardRecord = CardRecord::new(
+    "Revolutionist",
+    "bb8f3008-a3ba-4f73-afa6-ad81074b3196",
+    "Scott Murphy",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 143 — Strike It Rich
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STRIKE_IT_RICH_143: CardRecord = CardRecord::new(
+    "Strike It Rich",
+    "1c7c2814-a617-4123-acdf-1b01b2768210",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 144 — Tavern Scoundrel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TAVERN_SCOUNDREL_144: CardRecord = CardRecord::new(
+    "Tavern Scoundrel",
+    "55082c8a-d792-4cd8-94b1-d80c65804463",
+    "Cynthia Sheppard",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 145 — Unholy Heat
@@ -943,6 +1060,15 @@ pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::ne
         .with_source_zones(&[ZoneKind::Graveyard])
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),
+);
+
+// MH2 151 — Chatterfang, Squirrel General
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHATTERFANG_SQUIRREL_GENERAL_151: CardRecord = CardRecord::new(
+    "Chatterfang, Squirrel General",
+    "1785cf85-1ac0-4246-9b89-1a8221a8e1b2",
+    "Jason A. Engle",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 157 — Endurance
@@ -1159,6 +1285,15 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
         ]),
 );
 
+// MH2 215 — Terminal Agony
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TERMINAL_AGONY_215: CardRecord = CardRecord::new(
+    "Terminal Agony",
+    "314e94ad-0e12-48bb-aae1-2c842943114a",
+    "Lucas Graciano",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 216 — Territorial Kavu
 pub(in crate::card::sets) static TERRITORIAL_KAVU: CardRecord = CardRecord::new(
     "Territorial Kavu",
@@ -1276,6 +1411,15 @@ pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
         ]),
 );
 
+// MH2 228 — Liquimetal Torque
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LIQUIMETAL_TORQUE_228: CardRecord = CardRecord::new(
+    "Liquimetal Torque",
+    "13c6101a-da40-4785-8ccb-4e779bbbdb55",
+    "Brian Snõddy",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 231 — Nettlecyst
 /// "Artifact and/or enchantment" is one query rather than two sums: a
 /// permanent that is both is counted once, and Nettlecyst counts itself.
@@ -1310,6 +1454,42 @@ pub(in crate::card::sets) static NETTLECYST: CardRecord = CardRecord::new(
         ]),
 );
 
+// MH2 232 — Ornithopter of Paradise
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ORNITHOPTER_OF_PARADISE_232: CardRecord = CardRecord::new(
+    "Ornithopter of Paradise",
+    "025b0f0f-daf6-4071-82e7-39c015447ce4",
+    "Raoul Vitale",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 247 — Goldmire Bridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOLDMIRE_BRIDGE_247: CardRecord = CardRecord::new(
+    "Goldmire Bridge",
+    "dbe2a1fa-196f-497f-a15f-0b3b04da9cbb",
+    "Aaron Miller",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 249 — Mistvault Bridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MISTVAULT_BRIDGE_249: CardRecord = CardRecord::new(
+    "Mistvault Bridge",
+    "9f36a6e2-3e51-4a30-a225-10cfe6650b9d",
+    "Mathias Kollros",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 252 — Razortide Bridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAZORTIDE_BRIDGE_252: CardRecord = CardRecord::new(
+    "Razortide Bridge",
+    "e7ea7395-430e-4036-92c9-17a850ec2371",
+    "Rob Alexander",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 261 — Yavimaya, Cradle of Growth
 pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord = CardRecord::new(
     "Yavimaya, Cradle of Growth",
@@ -1328,6 +1508,42 @@ pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord = CardRec
                 effect: AppliedEffectDef::add_basic_land_types(&[BasicLandType::Forest]),
             },
         )),
+);
+
+// MH2 328 — Esper Sentinel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ESPER_SENTINEL_328: CardRecord = CardRecord::new(
+    "Esper Sentinel",
+    "676758ee-dac8-4c97-8a62-fff25bcbb6df",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 333 — Serra's Emissary
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SERRA_S_EMISSARY_333: CardRecord = CardRecord::new(
+    "Serra's Emissary",
+    "8de657fb-e68e-4400-9a12-60aaaa075fc4",
+    "Nils Hamm",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 341 — Thought Monitor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THOUGHT_MONITOR_341: CardRecord = CardRecord::new(
+    "Thought Monitor",
+    "55c98ef7-be05-4bcf-be4b-62a437297330",
+    "Martina Pilcerova",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 343 — Kitchen Imp
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KITCHEN_IMP_343: CardRecord = CardRecord::new(
+    "Kitchen Imp",
+    "20c7b777-c002-45c7-b2bb-d21dab591445",
+    "Evyn Fong",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 355 — Ignoble Hierarch
@@ -1350,6 +1566,15 @@ pub(in crate::card::sets) static IGNOBLE_HIERARCH: CardRecord = CardRecord::new(
             ])),
         ),
     ]),
+);
+
+// MH2 358 — Timeless Witness
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TIMELESS_WITNESS_358: CardRecord = CardRecord::new(
+    "Timeless Witness",
+    "8a0f47b0-2254-4df2-b3dc-74c1d3811d2f",
+    "Deruchenko Alexander",
+    crate::card::CardRules::unsupported(),
 );
 
 // MH2 380 — Urza's Saga
@@ -1450,6 +1675,24 @@ pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
         ]),
 );
 
+// MH2 401 — Profane Tutor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PROFANE_TUTOR_401: CardRecord = CardRecord::new(
+    "Profane Tutor",
+    "0c7f7fdb-9c38-43f8-acb9-6ea1797387a6",
+    "Richard Kane Ferguson",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 411 — Chatterstorm
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CHATTERSTORM_411: CardRecord = CardRecord::new(
+    "Chatterstorm",
+    "4c1b91d8-39c4-4ab1-996b-2a5a78243fd4",
+    "Milivoj Ćeran",
+    crate::card::CardRules::unsupported(),
+);
+
 // MH2 421 — Goblin Anarchomancer
 pub(in crate::card::sets) static GOBLIN_ANARCHOMANCER: CardRecord = CardRecord::new(
     "Goblin Anarchomancer",
@@ -1538,42 +1781,99 @@ pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new
         ]),
 );
 
+// MH2 451 — Necrogoyf
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NECROGOYF_451: CardRecord = CardRecord::new(
+    "Necrogoyf",
+    "11a2d158-d69e-4854-b84f-9f271e36101c",
+    "Nicholas Gregory",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 462 — Sanctum Weaver
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SANCTUM_WEAVER_462: CardRecord = CardRecord::new(
+    "Sanctum Weaver",
+    "15fd218c-3e14-4b82-9e03-16a0fad1b530",
+    "Kimonas Theodossiou",
+    crate::card::CardRules::unsupported(),
+);
+
+// MH2 470 — Diamond Lion
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIAMOND_LION_470: CardRecord = CardRecord::new(
+    "Diamond Lion",
+    "2116f1a3-f621-4bef-b5bd-fa4a644f76b1",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PRISMATIC_ENDING,
     &SOLITUDE,
     &UNBOUNDED_POTENTIAL,
+    &DRESS_DOWN_39,
     &HARD_EVIDENCE,
     &LOSE_FOCUS,
     &MURKTIDE_REGENT,
+    &SCUTTLETIDE_61,
+    &STEP_THROUGH_66,
     &SUBTLETY,
+    &SUSPEND_68,
     &ARCHON_OF_CRUELTY,
     &BONE_SHARDS,
     &DAMN,
     &GRIEF,
+    &HELL_MONGREL_88,
     &LOATHSOME_CURATOR,
     &NESTED_SHAMBLER,
+    &PERSIST_96,
+    &UNMARKED_GRAVE_106,
     &VERMIN_GORGER,
     &VILE_ENTOMBER,
+    &BLAZING_ROOTWALLA_115,
     &DRAGON_S_RAGE_CHANNELER,
     &FURY,
+    &GALVANIC_RELAY_127,
+    &HARMONIC_PRODIGY_132,
     &MINE_COLLAPSE,
     &RAGAVAN_NIMBLE_PILFERER,
+    &REVOLUTIONIST_139,
+    &STRIKE_IT_RICH_143,
+    &TAVERN_SCOUNDREL_144,
     &UNHOLY_HEAT,
     &ABUNDANT_HARVEST,
     &AEVE_PROGENITOR_OOZE,
     &BANNERHIDE_KRUSHOK,
+    &CHATTERFANG_SQUIRREL_GENERAL_151,
     &ENDURANCE,
     &URBAN_DAGGERTOOTH,
     &CAPTURED_BY_LAGACS,
     &GRIST_THE_HUNGER_TIDE,
+    &TERMINAL_AGONY_215,
     &TERRITORIAL_KAVU,
     &KALDRA_COMPLEAT,
+    &LIQUIMETAL_TORQUE_228,
     &NETTLECYST,
+    &ORNITHOPTER_OF_PARADISE_232,
+    &GOLDMIRE_BRIDGE_247,
+    &MISTVAULT_BRIDGE_249,
+    &RAZORTIDE_BRIDGE_252,
     &YAVIMAYA_CRADLE_OF_GROWTH,
+    &ESPER_SENTINEL_328,
+    &SERRA_S_EMISSARY_333,
+    &THOUGHT_MONITOR_341,
+    &KITCHEN_IMP_343,
     &IGNOBLE_HIERARCH,
+    &TIMELESS_WITNESS_358,
     &URZA_S_SAGA,
+    &PROFANE_TUTOR_401,
+    &CHATTERSTORM_411,
     &GOBLIN_ANARCHOMANCER,
     &DAUTHI_VOIDWALKER,
+    &NECROGOYF_451,
+    &SANCTUM_WEAVER_462,
+    &DIAMOND_LION_470,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

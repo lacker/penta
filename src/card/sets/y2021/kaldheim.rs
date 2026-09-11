@@ -102,6 +102,16 @@ pub(in crate::card::sets) static AXGARD_CAVALRY: CardRecord = CardRecord::new(
     ]),
 );
 
+// KHM 123 — Birgi, God of Storytelling // Harnfel, Horn of Bounty
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BIRGI_GOD_OF_STORYTELLING_HARNFEL_H_123: CardRecord =
+    CardRecord::new(
+        "Birgi, God of Storytelling // Harnfel, Horn of Bounty",
+        "44657ab1-0a6a-4a5f-9688-86f239083821",
+        "Eric Deschamps",
+        crate::card::CardRules::unsupported(),
+    );
+
 // KHM 139 — Goldspan Dragon
 pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
     "Goldspan Dragon",
@@ -220,6 +230,15 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
         ]),
 );
 
+// KHM 143 — Open the Omenpaths
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OPEN_THE_OMENPATHS_143: CardRecord = CardRecord::new(
+    "Open the Omenpaths",
+    "4e4023c8-8e7f-42b9-99e5-87e80fc3d6c8",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 149 — Seize the Spoils
 pub(in crate::card::sets) static SEIZE_THE_SPOILS: CardRecord = CardRecord::new(
     "Seize the Spoils",
@@ -271,6 +290,15 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
     ),
 );
 
+// KHM 158 — Vault Robber
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VAULT_ROBBER_158: CardRecord = CardRecord::new(
+    "Vault Robber",
+    "74f68014-489d-4f51-a959-0f335541cb4e",
+    "Slawomir Maniak",
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 170 — Fynn, the Fangbearer
 pub(in crate::card::sets) static FYNN_THE_FANGBEARER: CardRecord = CardRecord::new(
     "Fynn, the Fangbearer",
@@ -298,6 +326,15 @@ pub(in crate::card::sets) static FYNN_THE_FANGBEARER: CardRecord = CardRecord::n
                 },
             ),
         ]),
+);
+
+// KHM 178 — Jaspera Sentinel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static JASPERA_SENTINEL_178: CardRecord = CardRecord::new(
+    "Jaspera Sentinel",
+    "1a68615d-9808-479d-aa80-50651246954e",
+    "Raoul Vitale",
+    crate::card::CardRules::unsupported(),
 );
 
 // KHM 192 — Sarulf's Packmate
@@ -412,6 +449,15 @@ pub(in crate::card::sets) static IMMERSTURM_PREDATOR: CardRecord = CardRecord::n
     ),
 );
 
+// KHM 235 — Bloodline Pretender
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLOODLINE_PRETENDER_235: CardRecord = CardRecord::new(
+    "Bloodline Pretender",
+    "eb8a16f6-55c1-40eb-998f-592bf31916b1",
+    "Slawomir Maniak",
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 239 — Goldvein Pick
 pub(in crate::card::sets) static GOLDVEIN_PICK: CardRecord = CardRecord::new(
     "Goldvein Pick",
@@ -443,6 +489,54 @@ pub(in crate::card::sets) static GOLDVEIN_PICK: CardRecord = CardRecord::new(
             abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
+
+// KHM 241 — Pyre of Heroes
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PYRE_OF_HEROES_241: CardRecord = CardRecord::new(
+    "Pyre of Heroes",
+    "ae9a8e44-f5de-497d-be48-adf1bcbaec97",
+    "Piotr Dura",
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 247 — Weathered Runestone
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WEATHERED_RUNESTONE_247: CardRecord = CardRecord::new(
+    "Weathered Runestone",
+    "0fc2478f-e624-46fb-85af-1254564cd4d2",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 252 — Blightstep Pathway // Searstep Pathway
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY_252: CardRecord =
+    CardRecord::new(
+        "Blightstep Pathway // Searstep Pathway",
+        "0ce39a19-f51d-4a35-ae80-5b82eb15fcff",
+        "Ravenna Tran",
+        crate::card::CardRules::unsupported(),
+    );
+
+// KHM 290 — Barkchannel Pathway // Tidechannel Pathway
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY_290: CardRecord =
+    CardRecord::new(
+        "Barkchannel Pathway // Tidechannel Pathway",
+        "87c33c94-4b56-4a96-9c4c-a376f8d54943",
+        "Grady Frederick",
+        crate::card::CardRules::unsupported(),
+    );
+
+// KHM 314 — Esika, God of the Tree // The Prismatic Bridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ESIKA_GOD_OF_THE_TREE_THE_PRISMATIC_BRIDGE_314: CardRecord =
+    CardRecord::new(
+        "Esika, God of the Tree // The Prismatic Bridge",
+        "ced8571a-24e1-45be-8698-3314b663940a",
+        "Collin Estrada",
+        crate::card::CardRules::unsupported(),
+    );
 
 // KHM 315 — Esika's Chariot
 pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
@@ -494,6 +588,33 @@ pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
         ]),
 );
 
+// KHM 360 — Tibalt's Trickery
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TIBALT_S_TRICKERY_360: CardRecord = CardRecord::new(
+    "Tibalt's Trickery",
+    "9067f5b3-1685-42b6-b838-3e19f1f6b36e",
+    "Anna Podedworna",
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 369 — Maskwood Nexus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MASKWOOD_NEXUS_369: CardRecord = CardRecord::new(
+    "Maskwood Nexus",
+    "45887949-7cc6-4f83-a659-fb3284685c7d",
+    "Jason A. Engle",
+    crate::card::CardRules::unsupported(),
+);
+
+// KHM 373 — The World Tree
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_WORLD_TREE_373: CardRecord = CardRecord::new(
+    "The World Tree",
+    "999fa01b-4e54-4e3e-973d-7af137a53684",
+    "Anastasia Ovchinnikova",
+    crate::card::CardRules::unsupported(),
+);
+
 // KHM 382 — Youthful Valkyrie
 pub(in crate::card::sets) static YOUTHFUL_VALKYRIE: CardRecord = CardRecord::new(
     "Youthful Valkyrie",
@@ -527,16 +648,29 @@ pub(in crate::card::sets) static YOUTHFUL_VALKYRIE: CardRecord = CardRecord::new
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BEHOLD_THE_MULTIVERSE,
     &AXGARD_CAVALRY,
+    &BIRGI_GOD_OF_STORYTELLING_HARNFEL_H_123,
     &GOLDSPAN_DRAGON,
     &MAGDA_BRAZEN_OUTLAW,
+    &OPEN_THE_OMENPATHS_143,
     &SEIZE_THE_SPOILS,
     &TUSKERI_FIREWALKER,
+    &VAULT_ROBBER_158,
     &FYNN_THE_FANGBEARER,
+    &JASPERA_SENTINEL_178,
     &SARULF_S_PACKMATE,
     &SNAKESKIN_VEIL,
     &IMMERSTURM_PREDATOR,
+    &BLOODLINE_PRETENDER_235,
     &GOLDVEIN_PICK,
+    &PYRE_OF_HEROES_241,
+    &WEATHERED_RUNESTONE_247,
+    &BLIGHTSTEP_PATHWAY_SEARSTEP_PATHWAY_252,
+    &BARKCHANNEL_PATHWAY_TIDECHANNEL_PATHWAY_290,
+    &ESIKA_GOD_OF_THE_TREE_THE_PRISMATIC_BRIDGE_314,
     &ESIKA_S_CHARIOT,
+    &TIBALT_S_TRICKERY_360,
+    &MASKWOOD_NEXUS_369,
+    &THE_WORLD_TREE_373,
     &YOUTHFUL_VALKYRIE,
 ];
 

@@ -1,0 +1,110 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 42nd place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/gTnzgd1dT7Q0whRhhHPNcbJO5io1
+# TopDeck entry ID: RW50cnk6MzM4NzEy
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 42nd place, Francisco Gaytan"
+id: nacional_042_338712_francisco_gaytan
+description: "Exact tournament decklist for Francisco Gaytan, 42nd place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Ral, Monsoon Mage // Ral, Leyline Prodigy": 1
+main:
+  "Abandon Attachments": 1
+  "An Offer You Can't Refuse": 1
+  "Ancient Tomb": 1
+  "Artist's Talent": 1
+  "Birgi, God of Storytelling // Harnfel, Horn of Bounty": 1
+  "Bloodstained Mire": 1
+  "Brain Freeze": 1
+  "Chrome Mox": 1
+  "Command Tower": 1
+  "Crystal Vein": 1
+  "Deflecting Swat": 1
+  "Demand Answers": 1
+  "Desperate Ritual": 1
+  "Dragon's Rage Channeler": 1
+  "Electro, Assaulting Battery": 1
+  "Faithless Looting": 1
+  "Fierce Guardianship": 1
+  "Fiery Islet": 1
+  "Flashback": 1
+  "Flooded Strand": 1
+  "Flusterstorm": 1
+  "Frantic Search": 1
+  "Gamble": 1
+  "Gandalf, Goblins' Bane // Flameshape": 1
+  "Gifts Ungiven": 1
+  "Gitaxian Probe": 1
+  "Glimpse the Impossible": 1
+  "Grapeshot": 1
+  "Gut Shot": 1
+  "Heroes' Hangout": 1
+  "Hex Magic": 1
+  "Hexing Squelcher": 1
+  "Hidden Strings": 1
+  "Highway Robbery": 1
+  "Island": 1
+  "Jeska's Will": 1
+  "Jeweled Amulet": 1
+  "Lava Dart": 1
+  "Lightning Bolt": 1
+  "Lock and Load": 1
+  "Long-Term Plans": 1
+  "Lotus Petal": 1
+  "Mana Vault": 1
+  "Mental Misstep": 1
+  "Misty Rainforest": 1
+  "Mountain": 1
+  "Mox Amber": 1
+  "Multiversal Passage": 1
+  "Mystic Remora": 1
+  "Mystical Tutor": 1
+  "Opera Love Song": 1
+  "Pact of Negation": 1
+  "Past in Flames": 1
+  "Personal Tutor": 1
+  "Polluted Delta": 1
+  "Pyretic Ritual": 1
+  "Pyroblast": 1
+  "Ragavan, Nimble Pilferer": 1
+  "Recall": 1
+  "Reckless Impulse": 1
+  "Red Elemental Blast": 1
+  "Redirect Lightning": 1
+  "Reiterate": 1
+  "Rhystic Study": 1
+  "Rite of Flame": 1
+  "Rob the Archives": 1
+  "Romantic Rendezvous": 1
+  "Runaway Steam-Kin": 1
+  "Scalding Tarn": 1
+  "Seething Song": 1
+  "Shatterskull Smashing // Shatterskull, the Hammer Pass": 1
+  "Shivan Reef": 1
+  "Silundi Vision // Silundi Isle": 1
+  "Simian Spirit Guide": 1
+  "Sink into Stupor // Soporific Springs": 1
+  "Snap": 1
+  "Sol Ring": 1
+  "Solve the Equation": 1
+  "Spider-Sense": 1
+  "Springleaf Drum": 1
+  "Steam Vents": 1
+  "Stock Up": 1
+  "Storm-Kiln Artist": 1
+  "Strike It Rich": 1
+  "Sundering Eruption // Volcanic Fissure": 1
+  "Tarnished Citadel": 1
+  "Tavern Scoundrel": 1
+  "The Vision and Scarlet Witch": 1
+  "Thrill of Possibility": 1
+  "Tormenting Voice": 1
+  "Treasonous Ogre": 1
+  "Underworld Breach": 1
+  "Untimely Malfunction": 1
+  "Vision of Love": 1
+  "Will of the Jeskai": 1
+  "Witch's Mark": 1
+  "Wooded Foothills": 1
+  "Wrenn's Resolve": 1
+  "Zoyowa's Justice": 1
+sideboard: {}

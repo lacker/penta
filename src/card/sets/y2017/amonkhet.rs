@@ -82,6 +82,15 @@ pub(in crate::card::sets) static REGAL_CARACAL: CardRecord = CardRecord::new(
     ]),
 );
 
+// AKH 38 — Vizier of Remedies
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VIZIER_OF_REMEDIES_38: CardRecord = CardRecord::new(
+    "Vizier of Remedies",
+    "36ab760e-93e0-4dbc-aaa1-02316f62ed3f",
+    "Randy Gallegos",
+    crate::card::CardRules::unsupported(),
+);
+
 // AKH 75 — Vizier of Tumbling Sands
 pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardRecord::new(
     "Vizier of Tumbling Sands",
@@ -144,6 +153,24 @@ pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
     ]),
 );
 
+// AKH 107 — Shadow of the Grave
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHADOW_OF_THE_GRAVE_107: CardRecord = CardRecord::new(
+    "Shadow of the Grave",
+    "9b0205cb-c163-4332-9624-394e1024bf6a",
+    "Darek Zabrocki",
+    crate::card::CardRules::unsupported(),
+);
+
+// AKH 125 — Combat Celebrant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static COMBAT_CELEBRANT_125: CardRecord = CardRecord::new(
+    "Combat Celebrant",
+    "28b63c3d-2e55-4343-b49a-11fa602ec473",
+    "Chris Rallis",
+    crate::card::CardRules::unsupported(),
+);
+
 // AKH 134 — Glorybringer
 pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
     "Glorybringer",
@@ -183,6 +210,15 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
     ]),
 );
 
+// AKH 175 — Manglehorn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MANGLEHORN_175: CardRecord = CardRecord::new(
+    "Manglehorn",
+    "0aa3a844-97e6-4f5d-a36f-56fea4e06932",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
+);
+
 // AKH 192 — Vizier of the Menagerie
 // Audit: unsupported — Needs a permanent player permission to spend mana of any type on creature spells, including colorless requirements; current any-color permissions do not express that spell scope and any-type conversion.
 pub(in crate::card::sets) static VIZIER_OF_THE_MENAGERIE: CardRecord = CardRecord::new(
@@ -219,6 +255,24 @@ pub(in crate::card::sets) static ENIGMA_DRAKE: CardRecord = CardRecord::new(
     ]),
 );
 
+// AKH 229 — Hazoret's Monument
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HAZORET_S_MONUMENT_229: CardRecord = CardRecord::new(
+    "Hazoret's Monument",
+    "7a0a70f2-f2cb-4a08-a1a7-95c8fc3de6e3",
+    "Richard Wright",
+    crate::card::CardRules::unsupported(),
+);
+
+// AKH 239 — Canyon Slough
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CANYON_SLOUGH_239: CardRecord = CardRecord::new(
+    "Canyon Slough",
+    "8cb273d9-466d-416d-b27d-d1bc8a249076",
+    "Titus Lunter",
+    crate::card::CardRules::unsupported(),
+);
+
 // AKH 241 — Cradle of the Accursed
 pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord::new(
     "Cradle of the Accursed",
@@ -245,11 +299,17 @@ pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REGAL_CARACAL,
+    &VIZIER_OF_REMEDIES_38,
     &VIZIER_OF_TUMBLING_SANDS,
     &BONE_PICKER,
+    &SHADOW_OF_THE_GRAVE_107,
+    &COMBAT_CELEBRANT_125,
     &GLORYBRINGER,
+    &MANGLEHORN_175,
     &VIZIER_OF_THE_MENAGERIE,
     &ENIGMA_DRAKE,
+    &HAZORET_S_MONUMENT_229,
+    &CANYON_SLOUGH_239,
     &CRADLE_OF_THE_ACCURSED,
 ];
 

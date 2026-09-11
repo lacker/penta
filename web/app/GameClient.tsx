@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { createPortal } from "react-dom";
 import { MatchResult } from "./MatchResult";
 import { CardArt } from "./CardArt";
+import { CommandZone } from "./CommandZone";
 import {
   isScryfallId,
   type CardArtMode,
@@ -1158,13 +1159,13 @@ export function GameClient({
       if (declaringBlockers && action.kind === "combat") return false;
       if (declaringBlockers && action.label === "Finish blocking") return false;
       if (action.kind === "pass" || action.cardId == null) return true;
-      // The graveyard is currently summarized as a counter rather than a card
-      // tray. Keep Flashback usable by listing actions whose source is in no
-      // visible hand or battlefield zone; their full labels include targets.
-      const sourceIsInGraveyard =
+      // Keep actions from zones without a selectable card tray visible. Hand,
+      // battlefield, and command-zone cards are selected at their source.
+      const sourceIsOutsideVisibleZones =
         !state.human.hand.some((card) => card.id === action.cardId) &&
+        !state.human.commandZone.some((card) => card.id === action.cardId) &&
         !state.battlefield.some((card) => card.id === action.cardId);
-      if (sourceIsInGraveyard) return true;
+      if (sourceIsOutsideVisibleZones) return true;
       if (action.cardId !== selectedCard) return false;
       if (selectedTargetCard !== null) {
         return action.targetCardId === selectedTargetCard;
@@ -1371,12 +1372,14 @@ export function GameClient({
       ) ?? false));
 
   const selectedSource = state?.battlefield
-    .concat(state.human.hand, state.human.graveyard)
+    .concat(state.human.hand, state.human.graveyard, state.human.commandZone)
     .find((card) => card.id === selectedCard);
   const actionMenuSource = state?.battlefield
-    .concat(state.human.hand, state.human.graveyard)
+    .concat(state.human.hand, state.human.graveyard, state.human.commandZone)
     .find((card) => card.id === cardActionMenu);
-  const xPickerSource = state?.human.hand.find((card) => card.id === xPickerCard);
+  const xPickerSource = state?.human.hand
+    .concat(state.human.commandZone)
+    .find((card) => card.id === xPickerCard);
   const xPickerValues = Array.from(
     new Set(
       state?.actions
@@ -1551,7 +1554,9 @@ export function GameClient({
       setXPickerCard(null);
       setFireballTargets([]);
     }
-    const source = state?.human.hand.find((card) => card.id === id);
+    const source = state?.human.hand
+      .concat(state.human.commandZone)
+      .find((card) => card.id === id);
     const xValues = Array.from(
       new Set(
         matching
@@ -1992,31 +1997,40 @@ export function GameClient({
               />
             </div>
 
-            <Zone
-              cards={opponentPermanents}
-              permanentMarkers={permanentMarkers}
-              decisionSourceId={decisionSourceId}
-              individualizedPermanentIds={individualizedPermanentIds}
-              cardArtMode={cardArtMode}
-              label="Opponent battlefield"
-              actionCount={cardActions}
-              isDraggable={cardIsDraggable}
-              isTargetable={isTargetable}
-              onSelect={selectCard}
-              selectedCard={selectedTargetCard ?? selectedCard}
-              selectedCardIds={fireballTargets
-                .filter((target) => target.startsWith("card:"))
-                .map((target) => Number(target.slice(5)))}
-              animatedCardId={currentOpponentAction?.cardId ?? null}
-              previewManaSourceIds={previewedPayment?.manaSourceIds ?? []}
-              onDragStartCard={beginCardDrag}
-              onDragEndCard={finishCardDrag}
-              dragOverTarget={dragOverTarget}
-              onDragOverTarget={handleTargetDragOver}
-              onDragLeaveTarget={handleTargetDragLeave}
-              onDropTarget={handleTargetDrop}
-              opponent
-            />
+            <div className={state.commanders.some((commander) => commander.owner === "opponent") ? "commander-board" : "battlefield-region"}>
+              <CommandZone
+                cards={state.opponent.commandZone}
+                commanders={state.commanders.filter((commander) => commander.owner === "opponent")}
+                owner="opponent"
+                cardArtMode={cardArtMode}
+              />
+
+              <Zone
+                cards={opponentPermanents}
+                permanentMarkers={permanentMarkers}
+                decisionSourceId={decisionSourceId}
+                individualizedPermanentIds={individualizedPermanentIds}
+                cardArtMode={cardArtMode}
+                label="Opponent battlefield"
+                actionCount={cardActions}
+                isDraggable={cardIsDraggable}
+                isTargetable={isTargetable}
+                onSelect={selectCard}
+                selectedCard={selectedTargetCard ?? selectedCard}
+                selectedCardIds={fireballTargets
+                  .filter((target) => target.startsWith("card:"))
+                  .map((target) => Number(target.slice(5)))}
+                animatedCardId={currentOpponentAction?.cardId ?? null}
+                previewManaSourceIds={previewedPayment?.manaSourceIds ?? []}
+                onDragStartCard={beginCardDrag}
+                onDragEndCard={finishCardDrag}
+                dragOverTarget={dragOverTarget}
+                onDragOverTarget={handleTargetDragOver}
+                onDragLeaveTarget={handleTargetDragLeave}
+                onDropTarget={handleTargetDrop}
+                opponent
+              />
+            </div>
 
             <div
               className={`stack-zone ${state.stack.length === 0 ? "stack-zone-empty" : ""}`}
@@ -2100,30 +2114,42 @@ export function GameClient({
               })}
             </div>
 
-            <Zone
-              cards={humanPermanents}
-              permanentMarkers={permanentMarkers}
-              decisionSourceId={decisionSourceId}
-              individualizedPermanentIds={individualizedPermanentIds}
-              cardArtMode={cardArtMode}
-              label="Your battlefield"
-              actionCount={cardActions}
-              isDraggable={cardIsDraggable}
-              isTargetable={isTargetable}
-              onSelect={selectCard}
-              selectedCard={selectedBlocker ?? selectedTargetCard ?? selectedCard}
-              selectedCardIds={fireballTargets
-                .filter((target) => target.startsWith("card:"))
-                .map((target) => Number(target.slice(5)))}
-              animatedCardId={currentOpponentAction?.cardId ?? null}
-              previewManaSourceIds={previewedPayment?.manaSourceIds ?? []}
-              onDragStartCard={beginCardDrag}
-              onDragEndCard={finishCardDrag}
-              dragOverTarget={dragOverTarget}
-              onDragOverTarget={handleTargetDragOver}
-              onDragLeaveTarget={handleTargetDragLeave}
-              onDropTarget={handleTargetDrop}
-            />
+            <div className={state.commanders.some((commander) => commander.owner === "human") ? "commander-board" : "battlefield-region"}>
+              <CommandZone
+                cards={state.human.commandZone}
+                commanders={state.commanders.filter((commander) => commander.owner === "human")}
+                owner="human"
+                cardArtMode={cardArtMode}
+                actionCount={cardActions}
+                selectedCard={selectedCard}
+                onSelect={selectCard}
+              />
+
+              <Zone
+                cards={humanPermanents}
+                permanentMarkers={permanentMarkers}
+                decisionSourceId={decisionSourceId}
+                individualizedPermanentIds={individualizedPermanentIds}
+                cardArtMode={cardArtMode}
+                label="Your battlefield"
+                actionCount={cardActions}
+                isDraggable={cardIsDraggable}
+                isTargetable={isTargetable}
+                onSelect={selectCard}
+                selectedCard={selectedBlocker ?? selectedTargetCard ?? selectedCard}
+                selectedCardIds={fireballTargets
+                  .filter((target) => target.startsWith("card:"))
+                  .map((target) => Number(target.slice(5)))}
+                animatedCardId={currentOpponentAction?.cardId ?? null}
+                previewManaSourceIds={previewedPayment?.manaSourceIds ?? []}
+                onDragStartCard={beginCardDrag}
+                onDragEndCard={finishCardDrag}
+                dragOverTarget={dragOverTarget}
+                onDragOverTarget={handleTargetDragOver}
+                onDragLeaveTarget={handleTargetDragLeave}
+                onDropTarget={handleTargetDrop}
+              />
+            </div>
 
             {/* Your panel rides the phase strip: it is the only other thing
                 that belongs to you rather than to the board. */}
@@ -2212,6 +2238,7 @@ export function GameClient({
                 onSelect={selectCard}
               />
             )}
+
 
             <HandZone
               cards={state.human.hand}

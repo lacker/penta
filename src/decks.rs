@@ -13,6 +13,7 @@ pub(crate) struct BuiltinDeck {
     pub(crate) name: &'static str,
     pub(crate) aliases: &'static [&'static str],
     source: &'static str,
+    commanders: &'static [(&'static str, usize)],
     main: &'static [(&'static str, usize)],
     sideboard: &'static [(&'static str, usize)],
 }
@@ -36,6 +37,7 @@ impl BuiltinDeck {
                 .collect()
         };
         Deck {
+            commanders: resolve(self.commanders),
             main: resolve(self.main),
             sideboard: resolve(self.sideboard),
         }

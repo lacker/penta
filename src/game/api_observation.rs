@@ -1,5 +1,6 @@
 // Seat observation assembly shares api.rs imports.
 impl Game {
+    #[allow(clippy::too_many_lines)]
     pub fn observe(&self, viewer: PlayerId) -> PlayerObservation {
         let _land_types = self.hold_land_type_query_memo();
         let _listeners = self.hold_board_read_memo();
@@ -49,6 +50,8 @@ impl Game {
             companions: self.observed_companions(viewer),
             revealed_library_top: self.observed_library_top(viewer, viewer),
             opponent_revealed_library_top: self.observed_library_top(viewer, viewer.opponent()),
+            command_zones: [public_cards(&self.players[0].command), public_cards(&self.players[1].command)],
+            commanders: self.commanders(viewer),
             graveyards: [
                 public_cards(&self.players[0].graveyard),
                 public_cards(&self.players[1].graveyard),

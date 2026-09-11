@@ -95,6 +95,28 @@ pub(in crate::card::sets) static BALOTH_PRIME: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&BALOTH_PRIME];
+// EOC 19 — Surge Conductor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SURGE_CONDUCTOR_19: CardRecord = CardRecord::new(
+    "Surge Conductor",
+    "686c005b-39c8-4c6c-bf5a-462774f1d6d9",
+    "Alexandr Leskinen",
+    crate::card::CardRules::unsupported(),
+);
+
+// EOC 23 — Radiant Summit
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RADIANT_SUMMIT_23: CardRecord = CardRecord::new(
+    "Radiant Summit",
+    "1595f80a-b566-49ce-a64f-4289443b1b8d",
+    "Marco Gorlei",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BALOTH_PRIME,
+    &SURGE_CONDUCTOR_19,
+    &RADIANT_SUMMIT_23,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -90,6 +90,15 @@ CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_a
     ]),
 );
 
+// DMU 19 — Guardian of New Benalia
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GUARDIAN_OF_NEW_BENALIA_19: CardRecord = CardRecord::new(
+    "Guardian of New Benalia",
+    "43da76ee-fec3-4b2e-915d-10cf8d518d2c",
+    "Ernanda Souza",
+    crate::card::CardRules::unsupported(),
+);
+
 // DMU 24 — Leyline Binding
 pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
     "Leyline Binding",
@@ -403,6 +412,15 @@ pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord = CardReco
         ]),
 );
 
+// DMU 122 — Electrostatic Infantry
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELECTROSTATIC_INFANTRY_122: CardRecord = CardRecord::new(
+    "Electrostatic Infantry",
+    "5ed2d72f-f1cf-45a7-adf7-969f531721ce",
+    "Kekai Kotaki",
+    crate::card::CardRules::unsupported(),
+);
+
 // DMU 137 — Lightning Strike (reprint)
 const LIGHTNING_STRIKE_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2013::theros::LIGHTNING_STRIKE,
@@ -450,6 +468,24 @@ pub(in crate::card::sets) static MAGNIGOTH_SENTRY: CardRecord = CardRecord::new(
     "Dave Kendall",
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Treefolk"], 4, 4)
         .with_abilities(&[abilities::reach()]),
+);
+
+// DMU 177 — Silverback Elder
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SILVERBACK_ELDER_177: CardRecord = CardRecord::new(
+    "Silverback Elder",
+    "b987664f-0b74-4c0a-b306-14767a55559a",
+    "Alexander Mokhov",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 182 — Tail Swipe
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TAIL_SWIPE_182: CardRecord = CardRecord::new(
+    "Tail Swipe",
+    "95a39b26-8c83-40ea-b492-036251366d73",
+    "Ângelo Bortolini",
+    crate::card::CardRules::unsupported(),
 );
 
 // DMU 183 — Tear Asunder
@@ -581,6 +617,24 @@ pub(in crate::card::sets) static GARNA_BLOODFIST_OF_KELD: CardRecord = CardRecor
         )]),
 );
 
+// DMU 232 — Inscribed Tablet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INSCRIBED_TABLET_232: CardRecord = CardRecord::new(
+    "Inscribed Tablet",
+    "699d8655-d250-4ab6-92c5-376979bbabc7",
+    "Jarel Threat",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 236 — Relic of Legends
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RELIC_OF_LEGENDS_236: CardRecord = CardRecord::new(
+    "Relic of Legends",
+    "64a2809e-c441-416c-90ff-6fb1e246dff3",
+    "Titus Lunter",
+    crate::card::CardRules::unsupported(),
+);
+
 // DMU 246 — Crystal Grotto
 pub(in crate::card::sets) static CRYSTAL_GROTTO: CardRecord = CardRecord::new(
     "Crystal Grotto",
@@ -598,6 +652,15 @@ pub(in crate::card::sets) static CRYSTAL_GROTTO: CardRecord = CardRecord::new(
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
+);
+
+// DMU 252 — Plaza of Heroes
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PLAZA_OF_HEROES_252: CardRecord = CardRecord::new(
+    "Plaza of Heroes",
+    "a2cfcf67-f83c-43af-9e2d-5513fcdde835",
+    "Gabor Szikszai",
+    crate::card::CardRules::unsupported(),
 );
 
 // DMU 282 — Serra Redeemer
@@ -631,6 +694,15 @@ pub(in crate::card::sets) static SERRA_REDEEMER: CardRecord = CardRecord::new(
             ),
         ],
     ),
+);
+
+// DMU 329 — Braids, Arisen Nightmare
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BRAIDS_ARISEN_NIGHTMARE_329: CardRecord = CardRecord::new(
+    "Braids, Arisen Nightmare",
+    "1e20d56c-20df-4fe9-a329-df5768a180af",
+    "Dibujante Nocturno",
+    crate::card::CardRules::unsupported(),
 );
 
 // DMU 339 — Ertai Resurrected
@@ -790,8 +862,36 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
         ]),
 );
 
+// DMU 409 — Rundvelt Hordemaster
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUNDVELT_HORDEMASTER_409: CardRecord = CardRecord::new(
+    "Rundvelt Hordemaster",
+    "060d14a4-e903-4c89-9c3a-baa91f125c4e",
+    "Bruno Biazotto",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 416 — Llanowar Loamspeaker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LLANOWAR_LOAMSPEAKER_416: CardRecord = CardRecord::new(
+    "Llanowar Loamspeaker",
+    "5fdb1dfd-6394-414f-959e-9f129a3ab1a1",
+    "Zara Alfonso",
+    crate::card::CardRules::unsupported(),
+);
+
+// DMU 422 — Thran Portal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THRAN_PORTAL_422: CardRecord = CardRecord::new(
+    "Thran Portal",
+    "eba2995e-f255-46da-abcf-9a6f3996edb1",
+    "Sarah Finnigan",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANOINTED_PEACEKEEPER,
+    &GUARDIAN_OF_NEW_BENALIA_19,
     &LEYLINE_BINDING,
     &PRAYER_OF_BINDING,
     &RESOLUTE_REINFORCEMENTS,
@@ -802,15 +902,25 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CUT_DOWN,
     &PILFER,
     &SHEOLDRED_THE_APOCALYPSE,
+    &ELECTROSTATIC_INFANTRY_122,
     &BITE_DOWN,
     &MAGNIGOTH_SENTRY,
+    &SILVERBACK_ELDER_177,
+    &TAIL_SWIPE_182,
     &TEAR_ASUNDER,
     &BALMOR_BATTLEMAGE_CAPTAIN,
     &GARNA_BLOODFIST_OF_KELD,
+    &INSCRIBED_TABLET_232,
+    &RELIC_OF_LEGENDS_236,
     &CRYSTAL_GROTTO,
+    &PLAZA_OF_HEROES_252,
     &SERRA_REDEEMER,
+    &BRAIDS_ARISEN_NIGHTMARE_329,
     &ERTAI_RESURRECTED,
     &SERRA_PARAGON,
+    &RUNDVELT_HORDEMASTER_409,
+    &LLANOWAR_LOAMSPEAKER_416,
+    &THRAN_PORTAL_422,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =

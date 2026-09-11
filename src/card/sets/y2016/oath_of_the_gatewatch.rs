@@ -44,6 +44,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// OGW 8 — Spatial Contortion
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPATIAL_CONTORTION_8: CardRecord = CardRecord::new(
+    "Spatial Contortion",
+    "4e2acf70-7625-4b77-83c1-0e08436da31f",
+    "Daarken",
+    crate::card::CardRules::unsupported(),
+);
+
+// OGW 12 — Warping Wail
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WARPING_WAIL_12: CardRecord = CardRecord::new(
+    "Warping Wail",
+    "f2ef4db8-b51c-4f52-84f1-6fee31c4a14c",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
 // OGW 26 — Make a Stand
 pub(in crate::card::sets) static MAKE_A_STAND: CardRecord = CardRecord::new(
     "Make a Stand",
@@ -69,6 +87,15 @@ pub(in crate::card::sets) static MAKE_A_STAND: CardRecord = CardRecord::new(
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )]),
+);
+
+// OGW 44 — Dimensional Infiltrator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DIMENSIONAL_INFILTRATOR_44: CardRecord = CardRecord::new(
+    "Dimensional Infiltrator",
+    "0ea28dd5-57b0-4255-a3d9-1c190c446f20",
+    "Chase Stone",
+    crate::card::CardRules::unsupported(),
 );
 
 // OGW 63 — Sphinx of the Final Word
@@ -130,6 +157,15 @@ pub(in crate::card::sets) static UNTAMED_HUNGER: CardRecord = CardRecord::new(
                 },
             ),
         ]),
+);
+
+// OGW 108 — Expedite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EXPEDITE_108: CardRecord = CardRecord::new(
+    "Expedite",
+    "59c65eb7-4353-45ce-9c2e-1791c2804ccf",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
 );
 
 // OGW 141 — Pulse of Murasa
@@ -238,6 +274,15 @@ pub(in crate::card::sets) static AYLI_ETERNAL_PILGRIM: CardRecord = CardRecord::
         ]),
 );
 
+// OGW 172 — Holdout Settlement
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HOLDOUT_SETTLEMENT_172: CardRecord = CardRecord::new(
+    "Holdout Settlement",
+    "cf08c317-6f2d-47e3-ab5b-8af73fd3e404",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
 // OGW 183 — Wastes
 pub(in crate::card::sets) static WASTES: CardRecord = CardRecord::new(
     "Wastes",
@@ -249,12 +294,17 @@ pub(in crate::card::sets) static WASTES: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SPATIAL_CONTORTION_8,
+    &WARPING_WAIL_12,
     &MAKE_A_STAND,
+    &DIMENSIONAL_INFILTRATOR_44,
     &SPHINX_OF_THE_FINAL_WORD,
     &UNTAMED_HUNGER,
+    &EXPEDITE_108,
     &PULSE_OF_MURASA,
     &TAJURU_PATHWARDEN,
     &AYLI_ETERNAL_PILGRIM,
+    &HOLDOUT_SETTLEMENT_172,
     &WASTES,
 ];
 

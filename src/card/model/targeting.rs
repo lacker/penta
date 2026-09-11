@@ -80,6 +80,10 @@ impl CardNameSetDef {
 pub enum ObjectPredicateDef {
     Any,
     Source,
+    /// The physical card was designated as a commander for its owner before
+    /// the game began. This identity survives every zone change and does not
+    /// describe a characteristic copied by another object.
+    Commander,
     /// Whether the object is a token rather than a card represented by a
     /// physical printing. Negate this for the common "nontoken" qualifier.
     Token,

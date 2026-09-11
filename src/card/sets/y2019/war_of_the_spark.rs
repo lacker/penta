@@ -61,6 +61,24 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// WAR 1 — Karn, the Great Creator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KARN_THE_GREAT_CREATOR_1: CardRecord = CardRecord::new(
+    "Karn, the Great Creator",
+    "3ec0c0fb-1a4f-45f4-85b7-346a6d3ce2c5",
+    "Wisnu Tan",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 2 — Ugin, the Ineffable
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UGIN_THE_INEFFABLE_2: CardRecord = CardRecord::new(
+    "Ugin, the Ineffable",
+    "7b003521-3da3-41bf-9765-36630653f902",
+    "Daarken",
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 51 — Finale of Revelation
 pub(in crate::card::sets) static FINALE_OF_REVELATION: CardRecord = CardRecord::new(
     "Finale of Revelation",
@@ -227,6 +245,15 @@ pub(in crate::card::sets) static NARSET_PARTER_OF_VEILS: CardRecord = CardRecord
         ]),
 );
 
+// WAR 68 — Spark Double
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SPARK_DOUBLE_68: CardRecord = CardRecord::new(
+    "Spark Double",
+    "bb8a103c-b776-4501-9441-a45b90391045",
+    "Eric Deschamps",
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 79 — Bolas's Citadel
 pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new(
     "Bolas's Citadel",
@@ -380,12 +407,39 @@ pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::n
         ]),
 );
 
+// WAR 127 — Finale of Promise
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FINALE_OF_PROMISE_127: CardRecord = CardRecord::new(
+    "Finale of Promise",
+    "811b2dda-e1b7-4a46-83cc-5cdc17554836",
+    "Jaime Jones",
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 130 — Grim Initiate
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIM_INITIATE: CardRecord = CardRecord::new(
     "Grim Initiate",
     "29b6ec9d-3861-48bf-a198-dc7efba5d89c",
     "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 137 — Krenko, Tin Street Kingpin
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KRENKO_TIN_STREET_KINGPIN_137: CardRecord = CardRecord::new(
+    "Krenko, Tin Street Kingpin",
+    "37ed04d3-cfa1-4778-aea6-b4c2c29e6e0a",
+    "Mark Behm",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 160 — Finale of Devastation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FINALE_OF_DEVASTATION_160: CardRecord = CardRecord::new(
+    "Finale of Devastation",
+    "985453e7-997e-4d77-a338-cc0290791ebe",
+    "Bayard Wu",
     crate::card::CardRules::unsupported(),
 );
 
@@ -495,6 +549,42 @@ pub(in crate::card::sets) static NISSA_WHO_SHAKES_THE_WORLD: CardRecord =
             ]),
 )
     ;
+
+// WAR 180 — Vivien, Champion of the Wilds
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VIVIEN_CHAMPION_OF_THE_WILDS_180: CardRecord = CardRecord::new(
+    "Vivien, Champion of the Wilds",
+    "ff3986d7-9b3d-4082-8d72-ce59c9fcd5d5",
+    "Magali Villeneuve",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 193 — Dovin's Veto
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DOVIN_S_VETO_193: CardRecord = CardRecord::new(
+    "Dovin's Veto",
+    "5d6b5054-2224-4f68-9d82-3ed17c5dacc4",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 204 — Mayhem Devil
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAYHEM_DEVIL_204: CardRecord = CardRecord::new(
+    "Mayhem Devil",
+    "17416926-168b-49b3-9231-acbb8f8a1d13",
+    "Dmitry Burmak",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 206 — Neoform
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEOFORM_206: CardRecord = CardRecord::new(
+    "Neoform",
+    "92d8f67e-4f2f-4a1f-b190-7c3f39e477e4",
+    "Bram Sels",
+    crate::card::CardRules::unsupported(),
+);
 
 // WAR 220 — Tamiyo, Collector of Tales
 pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
@@ -665,6 +755,24 @@ pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRe
     ]),
 );
 
+// WAR 228 — Ashiok, Dream Render
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ASHIOK_DREAM_RENDER_228: CardRecord = CardRecord::new(
+    "Ashiok, Dream Render",
+    "f2df3258-c053-48a8-974f-d80899b2cd93",
+    "Cynthia Sheppard",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 229 — Dovin, Hand of Control
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DOVIN_HAND_OF_CONTROL_229: CardRecord = CardRecord::new(
+    "Dovin, Hand of Control",
+    "bd6ff745-919b-4688-9e9e-ab7835b3b891",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
 // WAR 234 — Saheeli, Sublime Artificer
 pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
     CardRecord::new(
@@ -721,20 +829,82 @@ pub(in crate::card::sets) static SAHEELI_SUBLIME_ARTIFICER: CardRecord =
             ]),
 );
 
+// WAR 238 — God-Pharaoh's Statue
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOD_PHARAOH_S_STATUE_238: CardRecord = CardRecord::new(
+    "God-Pharaoh's Statue",
+    "7dce06ba-c1e1-45ec-82a7-fc10b0fa8870",
+    "Igor Kieryluk",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 242 — Prismite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PRISMITE_242: CardRecord = CardRecord::new(
+    "Prismite",
+    "40475e96-0283-445f-97fb-1da008707399",
+    "Alayna Danner",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 244 — Blast Zone
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLAST_ZONE_244: CardRecord = CardRecord::new(
+    "Blast Zone",
+    "ea6bc7d5-e8f6-4103-920c-9f7ec5cd6c28",
+    "Chris Ostrowski",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 245 — Emergence Zone
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EMERGENCE_ZONE_245: CardRecord = CardRecord::new(
+    "Emergence Zone",
+    "ab95f6e7-b806-47fe-a071-6c38b3176d94",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
+// WAR 275 — Tezzeret, Master of the Bridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEZZERET_MASTER_OF_THE_BRIDGE_275: CardRecord = CardRecord::new(
+    "Tezzeret, Master of the Bridge",
+    "9ee1eea2-961f-445d-b035-6baed454f289",
+    "Chase Stone",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &KARN_THE_GREAT_CREATOR_1,
+    &UGIN_THE_INEFFABLE_2,
     &FINALE_OF_REVELATION,
     &JACE_WIELDER_OF_MYSTERIES,
     &NARSET_PARTER_OF_VEILS,
+    &SPARK_DOUBLE_68,
     &BOLASS_CITADEL,
     &LILIANA_DREADHORDE_GENERAL,
     &BOLT_BEND,
     &DREADHORDE_ARCANIST,
+    &FINALE_OF_PROMISE_127,
     &GRIM_INITIATE,
+    &KRENKO_TIN_STREET_KINGPIN_137,
+    &FINALE_OF_DEVASTATION_160,
     &NISSA_WHO_SHAKES_THE_WORLD,
+    &VIVIEN_CHAMPION_OF_THE_WILDS_180,
+    &DOVIN_S_VETO_193,
+    &MAYHEM_DEVIL_204,
+    &NEOFORM_206,
     &TAMIYO_COLLECTOR_OF_TALES,
     &TEFERI_TIME_RAVELER,
     &TENTH_DISTRICT_LEGIONNAIRE,
+    &ASHIOK_DREAM_RENDER_228,
+    &DOVIN_HAND_OF_CONTROL_229,
     &SAHEELI_SUBLIME_ARTIFICER,
+    &GOD_PHARAOH_S_STATUE_238,
+    &PRISMITE_242,
+    &BLAST_ZONE_244,
+    &EMERGENCE_ZONE_245,
+    &TEZZERET_MASTER_OF_THE_BRIDGE_275,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

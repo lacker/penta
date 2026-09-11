@@ -60,6 +60,15 @@ pub(in crate::card::sets) static BISHOP_S_SOLDIER: CardRecord = CardRecord::new(
         .with_abilities(&[abilities::lifelink()]),
 );
 
+// XLN 19 — Kinjalli's Sunwing
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KINJALLI_S_SUNWING_19: CardRecord = CardRecord::new(
+    "Kinjalli's Sunwing",
+    "2b9e0b0f-651a-44e6-8fb0-e46bfda0ada9",
+    "Simon Dominic",
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 34 — Settle the Wreckage
 // Audit: unsupported — Needs a completed exile result that counts only attackers actually moved to exile, including replacement effects. WithZoneMoveResult binds attempted recipients and cannot filter their successors by destination for the search maximum.
 pub(in crate::card::sets) static SETTLE_THE_WRECKAGE: CardRecord = CardRecord::new(
@@ -93,6 +102,15 @@ pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecor
             },
         ),
     ),
+);
+
+// XLN 46 — Arcane Adaptation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCANE_ADAPTATION_46: CardRecord = CardRecord::new(
+    "Arcane Adaptation",
+    "bf3edaaf-cf63-4e17-94ae-9d9991d9fb5f",
+    "Mark Behm",
+    crate::card::CardRules::unsupported(),
 );
 
 // XLN 48 — Chart a Course
@@ -265,6 +283,33 @@ pub(in crate::card::sets) static SKULDUGGERY: CardRecord = CardRecord::new(
     )]),
 );
 
+// XLN 132 — Angrath's Marauders
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANGRATH_S_MARAUDERS_132: CardRecord = CardRecord::new(
+    "Angrath's Marauders",
+    "f0bfc9e0-14e8-43ce-8fca-773b7f2387dc",
+    "Victor Adame Minguez",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 154 — Rampaging Ferocidon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAMPAGING_FEROCIDON_154: CardRecord = CardRecord::new(
+    "Rampaging Ferocidon",
+    "39d3c658-1927-4af3-9077-88c4a669c730",
+    "Jonathan Kuo",
+    crate::card::CardRules::unsupported(),
+);
+
+// XLN 158 — Rile
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RILE_158: CardRecord = CardRecord::new(
+    "Rile",
+    "80925750-6c90-42d1-9525-27f1f0313398",
+    "Igor Kieryluk",
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 191 — Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun
 pub(in crate::card::sets) static GROWING_RITES_OF_ITLIMOC: CardRecord = CardRecord::new_dfc(
     "Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun",
@@ -402,6 +447,15 @@ pub(in crate::card::sets) static NEW_HORIZONS: CardRecord = CardRecord::new(
         ]),
 );
 
+// XLN 213 — Verdant Sun's Avatar
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VERDANT_SUN_S_AVATAR_213: CardRecord = CardRecord::new(
+    "Verdant Sun's Avatar",
+    "9dbb5b6a-dc74-4e3e-9de1-5b379abdf2b4",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 222 — Gishath, Sun's Avatar
 pub(in crate::card::sets) static GISHATH_SUN_S_AVATAR: CardRecord = CardRecord::new(
     "Gishath, Sun's Avatar",
@@ -462,6 +516,15 @@ pub(in crate::card::sets) static GISHATH_SUN_S_AVATAR: CardRecord = CardRecord::
         ]),
 );
 
+// XLN 227 — Regisaur Alpha
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static REGISAUR_ALPHA_227: CardRecord = CardRecord::new(
+    "Regisaur Alpha",
+    "d6a322c5-aa4c-4a99-a3ca-48c1353104f0",
+    "Jonathan Kuo",
+    crate::card::CardRules::unsupported(),
+);
+
 // XLN 242 — Pirate's Cutlass
 pub(in crate::card::sets) static PIRATE_S_CUTLASS: CardRecord = CardRecord::new(
     "Pirate's Cutlass",
@@ -497,6 +560,15 @@ pub(in crate::card::sets) static PIRATE_S_CUTLASS: CardRecord = CardRecord::new(
             ),
             abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
+);
+
+// XLN 245 — Sentinel Totem
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SENTINEL_TOTEM_245: CardRecord = CardRecord::new(
+    "Sentinel Totem",
+    "0d8097eb-518a-4b8e-8d6a-a139d4ddcc8f",
+    "Anthony Palumbo",
+    crate::card::CardRules::unsupported(),
 );
 
 // XLN 248 — Sorcerous Spyglass
@@ -592,23 +664,41 @@ pub(in crate::card::sets) static TREASURE_MAP: CardRecord = CardRecord::new_dfc(
     ],
 );
 
+// XLN 254 — Field of Ruin
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FIELD_OF_RUIN_254: CardRecord = CardRecord::new(
+    "Field of Ruin",
+    "d72afb21-7bb0-4fd8-a529-ada92a654f61",
+    "Dimitar Marinski",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BISHOP_S_SOLDIER,
+    &KINJALLI_S_SUNWING_19,
     &SETTLE_THE_WRECKAGE,
     &TERRITORIAL_HAMMERSKULL,
+    &ARCANE_ADAPTATION_46,
     &CHART_A_COURSE,
     &DIVE_DOWN,
     &RIVER_S_REBUKE,
     &STORM_FLEET_SPY,
     &KITESAIL_FREEBOOTER,
     &SKULDUGGERY,
+    &ANGRATH_S_MARAUDERS_132,
+    &RAMPAGING_FEROCIDON_154,
+    &RILE_158,
     &GROWING_RITES_OF_ITLIMOC,
     &JADE_GUARDIAN,
     &NEW_HORIZONS,
+    &VERDANT_SUN_S_AVATAR_213,
     &GISHATH_SUN_S_AVATAR,
+    &REGISAUR_ALPHA_227,
     &PIRATE_S_CUTLASS,
+    &SENTINEL_TOTEM_245,
     &SORCEROUS_SPYGLASS,
     &TREASURE_MAP,
+    &FIELD_OF_RUIN_254,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

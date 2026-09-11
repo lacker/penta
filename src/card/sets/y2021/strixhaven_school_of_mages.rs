@@ -66,6 +66,16 @@ const PEST_TOKEN: TokenCharacteristics =
             "Ilse Gort",
         ));
 
+// STX 6 — Wandering Archaic // Explore the Vastlands
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS_6: CardRecord =
+    CardRecord::new(
+        "Wandering Archaic // Explore the Vastlands",
+        "18a2bdc8-b705-4eb5-b3a5-ff2e2ab8f312",
+        "Wayne Reynolds",
+        crate::card::CardRules::unsupported(),
+    );
+
 // STX 17 — Elite Spellbinder
 pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new(
     "Elite Spellbinder",
@@ -181,6 +191,24 @@ pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
     ]),
 );
 
+// STX 51 — Resculpt
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RESCULPT_51: CardRecord = CardRecord::new(
+    "Resculpt",
+    "1bfb1fcb-a411-4c1c-b8fc-496242ae3a9b",
+    "Torstein Nordstrand",
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 54 — Solve the Equation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SOLVE_THE_EQUATION_54: CardRecord = CardRecord::new(
+    "Solve the Equation",
+    "66c04ee2-c1e0-45fb-aaf5-1b4459df80fc",
+    "Lie Setiawan",
+    crate::card::CardRules::unsupported(),
+);
+
 // STX 64 — Baleful Mastery
 pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
     "Baleful Mastery",
@@ -231,6 +259,15 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
     ]),
 );
 
+// STX 83 — Professor Onyx
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PROFESSOR_ONYX_83: CardRecord = CardRecord::new(
+    "Professor Onyx",
+    "013eeb99-1b66-4fba-ad96-78deee901ea4",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
 // STX 90 — Unwilling Ingredient
 pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::new(
     "Unwilling Ingredient",
@@ -258,6 +295,43 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
         // available with the mana held up.
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),
+);
+
+// STX 115 — Storm-Kiln Artist
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STORM_KILN_ARTIST_115: CardRecord = CardRecord::new(
+    "Storm-Kiln Artist",
+    "fa96b8dc-233a-4884-ab84-235cbc7df0b6",
+    "Manuel Castañón",
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 128 — Ecological Appreciation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ECOLOGICAL_APPRECIATION_128: CardRecord = CardRecord::new(
+    "Ecological Appreciation",
+    "115f3d72-1aaf-4237-91b9-389256e5e5c8",
+    "Lie Setiawan",
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 150 — Flamescroll Celebrant // Revel in Silence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE_150: CardRecord =
+    CardRecord::new(
+        "Flamescroll Celebrant // Revel in Silence",
+        "0dba25e3-2b4f-45d4-965f-3834bcb359ee",
+        "Uriah Voth",
+        crate::card::CardRules::unsupported(),
+    );
+
+// STX 165 — Blade Historian
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLADE_HISTORIAN_165: CardRecord = CardRecord::new(
+    "Blade Historian",
+    "a46d64ec-aca4-428e-bce6-66cd755c8cc3",
+    "Cristi Balanescu",
+    crate::card::CardRules::unsupported(),
 );
 
 // STX 176 — Deadly Brew
@@ -520,12 +594,38 @@ pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
     ]),
 );
 
+// STX 308 — Crackle with Power
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CRACKLE_WITH_POWER_308: CardRecord = CardRecord::new(
+    "Crackle with Power",
+    "d1c038e6-2346-4544-bea1-b64098f63f23",
+    "Micah Epstein",
+    crate::card::CardRules::unsupported(),
+);
+
+// STX 337 — Culling Ritual
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CULLING_RITUAL_337: CardRecord = CardRecord::new(
+    "Culling Ritual",
+    "1ba72e51-ca69-48d4-96dc-df9519468c01",
+    "Lorenzo Mastroianni",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &WANDERING_ARCHAIC_EXPLORE_THE_VASTLANDS_6,
     &ELITE_SPELLBINDER,
     &BURROG_BEFUDDLER,
     &FROST_TRICKSTER,
+    &RESCULPT_51,
+    &SOLVE_THE_EQUATION_54,
     &BALEFUL_MASTERY,
+    &PROFESSOR_ONYX_83,
     &UNWILLING_INGREDIENT,
+    &STORM_KILN_ARTIST_115,
+    &ECOLOGICAL_APPRECIATION_128,
+    &FLAMESCROLL_CELEBRANT_REVEL_IN_SILENCE_150,
+    &BLADE_HISTORIAN_165,
     &DEADLY_BREW,
     &EXPRESSIVE_ITERATION,
     &QUANDRIX_PLEDGEMAGE,
@@ -535,6 +635,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &QUANDRIX_CAMPUS,
     &WITHERBLOOM_CAMPUS,
     &SEDGEMOOR_WITCH,
+    &CRACKLE_WITH_POWER_308,
+    &CULLING_RITUAL_337,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

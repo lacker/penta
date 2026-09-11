@@ -310,6 +310,15 @@ pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::n
         ]),
 );
 
+// J25 36 — Neerdiv, Devious Diver
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEERDIV_DEVIOUS_DIVER_36: CardRecord = CardRecord::new(
+    "Neerdiv, Devious Diver",
+    "070e0081-b0fe-4417-b943-d0496e3b8cd7",
+    "Yuchi Yuki",
+    crate::card::CardRules::unsupported(),
+);
+
 // J25 37 — Plagon, Lord of the Beach
 pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardRecord::new(
     "Plagon, Lord of the Beach",
@@ -360,6 +369,24 @@ pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardReco
                 },
             ),
         ]),
+);
+
+// J25 48 — General Kreat, the Boltbringer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER_48: CardRecord = CardRecord::new(
+    "General Kreat, the Boltbringer",
+    "226fc101-abcc-4ed4-8c0b-3677dc8d8f0a",
+    "Takeuchi Moto",
+    crate::card::CardRules::unsupported(),
+);
+
+// J25 49 — Gornog, the Red Reaper
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GORNOG_THE_RED_REAPER_49: CardRecord = CardRecord::new(
+    "Gornog, the Red Reaper",
+    "c80a88ae-f2f2-426a-88f3-76b5d598c25f",
+    "Ishikawa Kenta",
+    crate::card::CardRules::unsupported(),
 );
 
 // J25 50 — Ivora, Insatiable Heir
@@ -460,7 +487,10 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SCHOLAR_OF_COMBUSTION,
     &SCYTHECAT_CUB,
     &SHARDLESS_OUTLANDER,
+    &NEERDIV_DEVIOUS_DIVER_36,
     &PLAGON_LORD_OF_THE_BEACH,
+    &GENERAL_KREAT_THE_BOLTBRINGER_48,
+    &GORNOG_THE_RED_REAPER_49,
     &IVORA_INSATIABLE_HEIR,
 ];
 

@@ -142,6 +142,24 @@ pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
     )),
 );
 
+// PLC 44 — Pongify
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PONGIFY_44: CardRecord = CardRecord::new(
+    "Pongify",
+    "cce74a84-4441-4f2e-89d8-df0b096790ed",
+    "Heather Hudson",
+    crate::card::CardRules::unsupported(),
+);
+
+// PLC 63 — Big Game Hunter
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BIG_GAME_HUNTER_63: CardRecord = CardRecord::new(
+    "Big Game Hunter",
+    "a61f38a9-6f15-4186-a602-78cdb00f2d75",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
+);
+
 // PLC 70 — Enslave
 pub(in crate::card::sets) static ENSLAVE: CardRecord = CardRecord::new(
     "Enslave",
@@ -228,6 +246,33 @@ CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
     ]),
 );
 
+// PLC 72 — Imp's Mischief
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IMP_S_MISCHIEF_72: CardRecord = CardRecord::new(
+    "Imp's Mischief",
+    "22ec70a6-40b7-41da-a6c0-c140cadf5509",
+    "Thomas M. Baxa",
+    crate::card::CardRules::unsupported(),
+);
+
+// PLC 76 — Muck Drubb
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MUCK_DRUBB_76: CardRecord = CardRecord::new(
+    "Muck Drubb",
+    "e5bda3fc-89e8-44c2-bcfb-d17064bbc391",
+    "Jim Nelson",
+    crate::card::CardRules::unsupported(),
+);
+
+// PLC 122 — Simian Spirit Guide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SIMIAN_SPIRIT_GUIDE_122: CardRecord = CardRecord::new(
+    "Simian Spirit Guide",
+    "5d7f701c-dcdc-4067-8d00-b4b7aadee9ba",
+    "Dave DeVries",
+    crate::card::CardRules::unsupported(),
+);
+
 // PLC 128 — Fungal Behemoth
 pub(in crate::card::sets) static FUNGAL_BEHEMOTH: CardRecord = CardRecord::new(
     "Fungal Behemoth",
@@ -311,8 +356,13 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MANA_TITHE,
     &MESA_ENCHANTRESS,
     &SUNLANCE,
+    &PONGIFY_44,
+    &BIG_GAME_HUNTER_63,
     &ENSLAVE,
     &EXTIRPATE,
+    &IMP_S_MISCHIEF_72,
+    &MUCK_DRUBB_76,
+    &SIMIAN_SPIRIT_GUIDE_122,
     &FUNGAL_BEHEMOTH,
     &URBORG_TOMB_OF_YAWGMOTH,
 ];

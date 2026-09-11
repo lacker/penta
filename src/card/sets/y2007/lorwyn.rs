@@ -246,6 +246,15 @@ pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new(
     )),
 );
 
+// LRW 97 — Wings of Velis Vel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WINGS_OF_VELIS_VEL_97: CardRecord = CardRecord::new(
+    "Wings of Velis Vel",
+    "fb3c1f39-b6ac-4663-9623-bd573a1117b0",
+    "Jim Pavelec",
+    crate::card::CardRules::unsupported(),
+);
+
 // LRW 128 — Nameless Inversion
 // Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static NAMELESS_INVERSION: CardRecord = CardRecord::new(
@@ -284,6 +293,15 @@ pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new(
     )),
 );
 
+// LRW 152 — Blades of Velis Vel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLADES_OF_VELIS_VEL_152: CardRecord = CardRecord::new(
+    "Blades of Velis Vel",
+    "5a3ac629-a8c9-4b84-a8ea-b775d7913238",
+    "Ron Spencer",
+    crate::card::CardRules::unsupported(),
+);
+
 // LRW 173 — Hamletback Goliath
 pub(in crate::card::sets) static HAMLETBACK_GOLIATH: CardRecord = CardRecord::new(
     "Hamletback Goliath",
@@ -313,6 +331,24 @@ pub(in crate::card::sets) static HAMLETBACK_GOLIATH: CardRecord = CardRecord::ne
             },
         ),
     ),
+);
+
+// LRW 175 — Heat Shimmer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HEAT_SHIMMER_175: CardRecord = CardRecord::new(
+    "Heat Shimmer",
+    "a432470c-7f68-4429-970a-3da8eabcf0b8",
+    "Franz Vohwinkel",
+    crate::card::CardRules::unsupported(),
+);
+
+// LRW 186 — Needle Drop
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEEDLE_DROP_186: CardRecord = CardRecord::new(
+    "Needle Drop",
+    "d3f89bcf-46f8-4598-a949-7f10134606aa",
+    "Greg Staples",
+    crate::card::CardRules::unsupported(),
 );
 
 // LRW 194 — Tarfire
@@ -384,6 +420,15 @@ CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(
     ),
 );
 
+// LRW 207 — Elvish Harbinger
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELVISH_HARBINGER_207: CardRecord = CardRecord::new(
+    "Elvish Harbinger",
+    "de789231-8358-4cbd-b8eb-1da4ce5b34c0",
+    "Larry MacDougall",
+    crate::card::CardRules::unsupported(),
+);
+
 // LRW 220 — Imperious Perfect
 pub(in crate::card::sets) static IMPERIOUS_PERFECT: CardRecord = CardRecord::new(
     "Imperious Perfect",
@@ -419,6 +464,33 @@ pub(in crate::card::sets) static IMPERIOUS_PERFECT: CardRecord = CardRecord::new
     ]),
 );
 
+// LRW 257 — Herbal Poultice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HERBAL_POULTICE_257: CardRecord = CardRecord::new(
+    "Herbal Poultice",
+    "b20925a3-dd4f-477c-806a-a3ec0fd2e00d",
+    "Scott Hampton",
+    crate::card::CardRules::unsupported(),
+);
+
+// LRW 259 — Rings of Brighthearth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RINGS_OF_BRIGHTHEARTH_259: CardRecord = CardRecord::new(
+    "Rings of Brighthearth",
+    "fbfd3898-cb06-4bb9-9d52-b319e1fa2217",
+    "Howard Lyon",
+    crate::card::CardRules::unsupported(),
+);
+
+// LRW 260 — Runed Stalactite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUNED_STALACTITE_260: CardRecord = CardRecord::new(
+    "Runed Stalactite",
+    "9be88336-83c7-422d-8826-13ceb8db5534",
+    "Jim Pavelec",
+    crate::card::CardRules::unsupported(),
+);
+
 // LRW 261 — Springleaf Drum
 // Audit: unsupported — Needs an immediate mana-ability payment combining TapSource with a chosen untapped creature; ordinary nonmana activations support that tap payment but the immediate mana path does not.
 pub(in crate::card::sets) static SPRINGLEAF_DRUM: CardRecord = CardRecord::new(
@@ -439,6 +511,33 @@ pub(in crate::card::sets) static THORN_OF_AMETHYST: CardRecord = CardRecord::new
         PlayerRelation::Any,
         mana_cost!("{1}"),
     )),
+);
+
+// LRW 263 — Thousand-Year Elixir
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THOUSAND_YEAR_ELIXIR_263: CardRecord = CardRecord::new(
+    "Thousand-Year Elixir",
+    "18743fd4-2a15-40a2-ac90-e3f0fef07e37",
+    "Richard Sardinha",
+    crate::card::CardRules::unsupported(),
+);
+
+// LRW 265 — Wanderer's Twig
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WANDERER_S_TWIG_265: CardRecord = CardRecord::new(
+    "Wanderer's Twig",
+    "8ea7b2c0-c641-478f-b8d9-17aa17fa1cbe",
+    "Dave Dorman",
+    crate::card::CardRules::unsupported(),
+);
+
+// LRW 270 — Mosswort Bridge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MOSSWORT_BRIDGE_270: CardRecord = CardRecord::new(
+    "Mosswort Bridge",
+    "38234590-812c-4d29-80c1-32b9e1282580",
+    "Jeremy Jarvis",
+    crate::card::CardRules::unsupported(),
 );
 
 // LRW 272 — Shelldock Isle
@@ -515,14 +614,25 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MULLDRIFTER,
     &PESTERMITE,
     &PONDER,
+    &WINGS_OF_VELIS_VEL_97,
     &NAMELESS_INVERSION,
     &THOUGHTSEIZE,
+    &BLADES_OF_VELIS_VEL_152,
     &HAMLETBACK_GOLIATH,
+    &HEAT_SHIMMER_175,
+    &NEEDLE_DROP_186,
     &TARFIRE,
     &WILD_RICOCHET,
+    &ELVISH_HARBINGER_207,
     &IMPERIOUS_PERFECT,
+    &HERBAL_POULTICE_257,
+    &RINGS_OF_BRIGHTHEARTH_259,
+    &RUNED_STALACTITE_260,
     &SPRINGLEAF_DRUM,
     &THORN_OF_AMETHYST,
+    &THOUSAND_YEAR_ELIXIR_263,
+    &WANDERER_S_TWIG_265,
+    &MOSSWORT_BRIDGE_270,
     &SHELLDOCK_ISLE,
     &SHIMMERING_GROTTO,
 ];

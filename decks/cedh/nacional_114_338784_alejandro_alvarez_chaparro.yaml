@@ -1,0 +1,106 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 114th place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/FZZt9grREFgGZ8kjHOigRZ1MsJ33
+# TopDeck entry ID: RW50cnk6MzM4Nzg0
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 114th place, Alejandro Alvarez Chaparro"
+id: nacional_114_338784_alejandro_alvarez_chaparro
+description: "Exact tournament decklist for Alejandro Alvarez Chaparro, 114th place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Arabella, Abandoned Doll": 1
+main:
+  "Adeline, Resplendent Cathar": 1
+  "Alexios, Deimos of Kosmos": 1
+  "Ancient Tomb": 1
+  "Angel's Grace": 1
+  "Archivist of Oghma": 1
+  "Archon of Emeria": 1
+  "Arid Mesa": 1
+  "Aven Mindcensor": 1
+  "Bilbo's Gambit": 1
+  "Blind Obedience": 1
+  "Blinkmoth Nexus": 1
+  "Blood Moon": 1
+  "Bloodstained Mire": 1
+  "Boromir, Warden of the Tower": 1
+  "Breath of Fury": 1
+  "Chrome Mox": 1
+  "Clarion Conqueror": 1
+  "Command Tower": 1
+  "Containment Priest": 1
+  "Dauntless Dismantler": 1
+  "Deafening Silence": 1
+  "Deflecting Swat": 1
+  "Delney, Streetwise Lookout": 1
+  "Doorkeeper Thrull": 1
+  "Drannith Magistrate": 1
+  "Dualcaster Mage": 1
+  "Eiganjo, Seat of the Empire": 1
+  "Enduring Innocence": 1
+  "Enlightened Tutor": 1
+  "Esper Sentinel": 1
+  "Ethersworn Canonist": 1
+  "Flamescroll Celebrant // Revel in Silence": 1
+  "Flare of Duplication": 1
+  "Flare of Fortitude": 1
+  "Flooded Strand": 1
+  "Gemstone Caverns": 1
+  "Giver of Runes": 1
+  "Gleaming Splendor": 1
+  "Glowrider": 1
+  "Goblin Smuggler": 1
+  "Grafdigger's Cage": 1
+  "Grand Abolisher": 1
+  "Hexing Squelcher": 1
+  "High Noon": 1
+  "Homeward Path": 1
+  "Hushbringer": 1
+  "Hushwing Gryff": 1
+  "Imperial Recruiter": 1
+  "Jeska's Will": 1
+  "Lotus Petal": 1
+  "Loyal Apprentice": 1
+  "Magus of the Moon": 1
+  "Marsh Flats": 1
+  "Mishra's Factory": 1
+  "Mountain": 2
+  "Mox Amber": 1
+  "Mox Diamond": 1
+  "Mox Opal": 1
+  "Ocelot Pride": 1
+  "Phyrexian Revoker": 1
+  "Plains": 4
+  "Prismatic Vista": 1
+  "Professional Face-Breaker": 1
+  "Ragavan, Nimble Pilferer": 1
+  "Ranger-Captain of Eos": 1
+  "Razorgrass Ambush // Razorgrass Field": 1
+  "Reconnaissance": 1
+  "Recruiter of the Guard": 1
+  "Redirect Lightning": 1
+  "Rest in Peace": 1
+  "Sacred Foundry": 1
+  "Scalding Tarn": 1
+  "Serra Ascendant": 1
+  "Siege-Gang Lieutenant": 1
+  "Silence": 1
+  "Simian Spirit Guide": 1
+  "Sokenzan, Crucible of Defiance": 1
+  "Sol Ring": 1
+  "Soulless Jailer": 1
+  "Spectator Seating": 1
+  "Springleaf Drum": 1
+  "Subira, Tulzidi Caravanner": 1
+  "Swords to Plowshares": 1
+  "Thalia, Guardian of Thraben": 1
+  "The One Ring": 1
+  "The Queen of Dale": 1
+  "Untimely Malfunction": 1
+  "Urza's Saga": 1
+  "Voice of Victory": 1
+  "Weathered Runestone": 1
+  "Wheel of Fortune": 1
+  "Windswept Heath": 1
+  "Winter Moon": 1
+  "Witch Enchanter // Witch-Blessed Meadow": 1
+  "Wooded Foothills": 1
+sideboard: {}

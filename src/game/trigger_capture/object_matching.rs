@@ -475,6 +475,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => object.id == source,
+            ObjectPredicateDef::Commander => self.is_commander(object.id),
             ObjectPredicateDef::Token => object.token,
             ObjectPredicateDef::Saddled => object.saddled,
             ObjectPredicateDef::HasType(card_type) => object.types.contains(card_type),

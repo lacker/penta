@@ -73,6 +73,15 @@ pub(in crate::card::sets) static DAKMOR_LANCER: CardRecord = CardRecord::new(
     ),
 );
 
+// S99 79 — Grim Tutor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_TUTOR_79: CardRecord = CardRecord::new(
+    "Grim Tutor",
+    "ff00e877-3588-4ba9-a1f2-86f726157017",
+    "Mark Tedin",
+    crate::card::CardRules::unsupported(),
+);
+
 // S99 99 — Goblin Chariot
 pub(in crate::card::sets) static GOBLIN_CHARIOT: CardRecord = CardRecord::new(
     "Goblin Chariot",
@@ -138,6 +147,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EAGER_CADET,
     &VIZZERDRIX,
     &DAKMOR_LANCER,
+    &GRIM_TUTOR_79,
     &GOBLIN_CHARIOT,
     &TRAINED_ORGG,
     &PRIDE_OF_LIONS,

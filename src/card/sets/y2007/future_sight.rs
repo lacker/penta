@@ -48,6 +48,33 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// FUT 18 — Aven Mindcensor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AVEN_MINDCENSOR_18: CardRecord = CardRecord::new(
+    "Aven Mindcensor",
+    "5b8ede8a-5317-4662-b964-a9bd202a4aab",
+    "Rebecca Guay",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 35 — Delay
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DELAY_35: CardRecord = CardRecord::new(
+    "Delay",
+    "e821d337-4bc5-4401-ac9b-34adf4012b73",
+    "Ron Spears",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 42 — Pact of Negation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PACT_OF_NEGATION_42: CardRecord = CardRecord::new(
+    "Pact of Negation",
+    "cca467a2-a2b3-4bdf-9d60-62979f675347",
+    "Jason Chan",
+    crate::card::CardRules::unsupported(),
+);
+
 // FUT 43 — Reality Strobe
 pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new(
     "Reality Strobe",
@@ -167,6 +194,33 @@ CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 1, 1).with_abilitie
     ]),
 );
 
+// FUT 61 — Vedalken Aethermage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VEDALKEN_AETHERMAGE_61: CardRecord = CardRecord::new(
+    "Vedalken Aethermage",
+    "496eb37d-5c8f-4dd7-a0a7-3ed1bd2210d6",
+    "William Simpson",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 66 — Gibbering Descent
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GIBBERING_DESCENT_66: CardRecord = CardRecord::new(
+    "Gibbering Descent",
+    "d4839a0b-47db-4464-9e9a-0e976d468106",
+    "Ittoku",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 73 — Oblivion Crown
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static OBLIVION_CROWN_73: CardRecord = CardRecord::new(
+    "Oblivion Crown",
+    "0cd5486b-c6f4-4cfc-9590-8ffc78b48b0a",
+    "Kev Walker",
+    crate::card::CardRules::unsupported(),
+);
+
 // FUT 76 — Shimian Specter
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
@@ -178,6 +232,15 @@ pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
 
 static BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD: TriggerConditionDef =
     TriggerConditionDef::SourceInZone(ZoneKind::Graveyard);
+
+// FUT 78 — Slaughter Pact
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SLAUGHTER_PACT_78: CardRecord = CardRecord::new(
+    "Slaughter Pact",
+    "42696fdb-de1f-44ae-bef3-b6af068958d0",
+    "Kev Walker",
+    crate::card::CardRules::unsupported(),
+);
 
 // FUT 81 — Bridge from Below
 pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new(
@@ -239,6 +302,33 @@ CardRules::new_creature(mana_cost!("{2}{B}"), &["Imp", "Rebel"], 2, 2)
         ]),
 );
 
+// FUT 84 — Fleshwrither
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLESHWRITHER_84: CardRecord = CardRecord::new(
+    "Fleshwrither",
+    "08e1a646-6925-4a53-a99c-8951af016a7a",
+    "Dave Allsop",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 86 — Grave Scrabbler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRAVE_SCRABBLER_86: CardRecord = CardRecord::new(
+    "Grave Scrabbler",
+    "0f0a08a8-bbb9-4816-b03c-af4d729fce45",
+    "Dave Allsop",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 90 — Street Wraith
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STREET_WRAITH_90: CardRecord = CardRecord::new(
+    "Street Wraith",
+    "672e2815-bbcc-4338-a8ba-9aa97142ea69",
+    "Cyril Van Der Haegen",
+    crate::card::CardRules::unsupported(),
+);
+
 // FUT 94 — Arc Blade
 pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
     "Arc Blade",
@@ -274,6 +364,24 @@ pub(in crate::card::sets) static BOGARDAN_LANCER: CardRecord = CardRecord::new(
         .with_abilities(&[abilities::bloodthirst(1), abilities::flanking()]),
 );
 
+// FUT 100 — Haze of Rage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HAZE_OF_RAGE_100: CardRecord = CardRecord::new(
+    "Haze of Rage",
+    "846134c0-5a8d-4ccb-8451-db29b70be3f5",
+    "Paolo Parente",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 101 — Magus of the Moon
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAGUS_OF_THE_MOON_101: CardRecord = CardRecord::new(
+    "Magus of the Moon",
+    "c06a4443-6851-4873-8fb8-2ef76c9d6d2c",
+    "Franz Vohwinkel",
+    crate::card::CardRules::unsupported(),
+);
+
 // FUT 110 — Bloodshot Trainee
 pub(in crate::card::sets) static BLOODSHOT_TRAINEE: CardRecord = CardRecord::new(
     "Bloodshot Trainee",
@@ -295,6 +403,15 @@ CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Warrior"], 2, 3).with
             object: ObjectPredicateDef::PowerAtLeast(4),
         }),
     ),
+);
+
+// FUT 116 — Grinning Ignus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRINNING_IGNUS_116: CardRecord = CardRecord::new(
+    "Grinning Ignus",
+    "31716a43-2522-46ff-a9a4-b6952cd41f11",
+    "James Kei",
+    crate::card::CardRules::unsupported(),
 );
 
 // FUT 137 — Rites of Flourishing
@@ -339,6 +456,24 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
             ))),
         ),
     ]),
+);
+
+// FUT 139 — Summoner's Pact
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUMMONER_S_PACT_139: CardRecord = CardRecord::new(
+    "Summoner's Pact",
+    "948b026c-cfce-462b-afb6-7a383bd121de",
+    "Chippy",
+    crate::card::CardRules::unsupported(),
+);
+
+// FUT 144 — Edge of Autumn
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EDGE_OF_AUTUMN_144: CardRecord = CardRecord::new(
+    "Edge of Autumn",
+    "03998e86-ef67-4329-b106-61252f3f532a",
+    "Jean-Sébastien Rossbach",
+    crate::card::CardRules::unsupported(),
 );
 
 // FUT 154 — Thornweald Archer
@@ -409,6 +544,15 @@ CardRules::new_artifact(mana_cost!("{7}"))
                 ]),
             },
         )),
+);
+
+// FUT 160 — Cloud Key
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CLOUD_KEY_160: CardRecord = CardRecord::new(
+    "Cloud Key",
+    "b893ab56-44a6-4b3c-bb3e-6deec298cbce",
+    "Trevor Hairsine",
+    crate::card::CardRules::unsupported(),
 );
 
 // FUT 161 — Coalition Relic
@@ -618,6 +762,15 @@ pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new(
         .printed_colors(&[ManaColor::Green]),
 );
 
+// FUT 176 — Grove of the Burnwillows
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GROVE_OF_THE_BURNWILLOWS_176: CardRecord = CardRecord::new(
+    "Grove of the Burnwillows",
+    "e0b4d4b1-6e25-4c4b-a21a-1b7b1c1d6452",
+    "David Hudnut",
+    crate::card::CardRules::unsupported(),
+);
+
 // FUT 177 — Horizon Canopy
 pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new(
     "Horizon Canopy",
@@ -632,28 +785,55 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new(
     )),
 );
 
+// FUT 179 — River of Tears
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RIVER_OF_TEARS_179: CardRecord = CardRecord::new(
+    "River of Tears",
+    "8d5b2058-99fc-4d9b-9e3d-056fa3fd1244",
+    "Chris J. Anderson",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &AVEN_MINDCENSOR_18,
+    &DELAY_35,
+    &PACT_OF_NEGATION_42,
     &REALITY_STROBE,
     &VENSER_SHAPER_SAVANT,
     &VENSERS_DIFFUSION,
     &NARCOMOEBA,
+    &VEDALKEN_AETHERMAGE_61,
+    &GIBBERING_DESCENT_66,
+    &OBLIVION_CROWN_73,
     &SHIMIAN_SPECTER,
+    &SLAUGHTER_PACT_78,
     &BRIDGE_FROM_BELOW,
     &DEEPCAVERN_IMP,
+    &FLESHWRITHER_84,
+    &GRAVE_SCRABBLER_86,
+    &STREET_WRAITH_90,
     &ARC_BLADE,
     &BOGARDAN_LANCER,
+    &HAZE_OF_RAGE_100,
+    &MAGUS_OF_THE_MOON_101,
     &BLOODSHOT_TRAINEE,
+    &GRINNING_IGNUS_116,
     &RITES_OF_FLOURISHING,
     &SPROUT_SWARM,
+    &SUMMONER_S_PACT_139,
+    &EDGE_OF_AUTUMN_144,
     &THORNWEALD_ARCHER,
     &JHOIRA_OF_THE_GHITU,
     &AKROMAS_MEMORIAL,
+    &CLOUD_KEY_160,
     &COALITION_RELIC,
     &EPOCHRASITE,
     &SWORD_OF_THE_MEEK,
     &DARKSTEEL_GARRISON,
     &DRYAD_ARBOR,
+    &GROVE_OF_THE_BURNWILLOWS_176,
     &HORIZON_CANOPY,
+    &RIVER_OF_TEARS_179,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

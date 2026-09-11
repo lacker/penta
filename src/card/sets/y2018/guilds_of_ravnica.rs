@@ -117,6 +117,15 @@ pub(in crate::card::sets) static BURGLAR_RAT: CardRecord = CardRecord::new(
     ]),
 );
 
+// GRN 75 — Mausoleum Secrets
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAUSOLEUM_SECRETS_75: CardRecord = CardRecord::new(
+    "Mausoleum Secrets",
+    "26f7cf38-78cc-4139-9f2a-4dd0be7d9da8",
+    "Adam Paquette",
+    crate::card::CardRules::unsupported(),
+);
+
 // GRN 77 — Midnight Reaper
 pub(in crate::card::sets) static MIDNIGHT_REAPER: CardRecord = CardRecord::new(
     "Midnight Reaper",
@@ -168,6 +177,51 @@ CardRules::new_creature(mana_cost!("{3}{R}"), &["Phoenix"], 3, 2).with_abilities
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),
+);
+
+// GRN 99 — Experimental Frenzy
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static EXPERIMENTAL_FRENZY_99: CardRecord = CardRecord::new(
+    "Experimental Frenzy",
+    "4b8f32e2-5dc8-4f1b-8a69-d3ae06378ed8",
+    "Simon Dominic",
+    crate::card::CardRules::unsupported(),
+);
+
+// GRN 103 — Goblin Cratermaker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GOBLIN_CRATERMAKER_103: CardRecord = CardRecord::new(
+    "Goblin Cratermaker",
+    "86ecaedc-08f1-4de7-aae8-056df57940e0",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
+// GRN 109 — Legion Warboss
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LEGION_WARBOSS_109: CardRecord = CardRecord::new(
+    "Legion Warboss",
+    "5e84cb9c-9876-47a4-aea4-78574321bc36",
+    "Alex Konstad",
+    crate::card::CardRules::unsupported(),
+);
+
+// GRN 115 — Runaway Steam-Kin
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUNAWAY_STEAM_KIN_115: CardRecord = CardRecord::new(
+    "Runaway Steam-Kin",
+    "d8c9c111-fbc7-44e1-94bd-1ca164370623",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
+// GRN 119 — Torch Courier
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TORCH_COURIER_119: CardRecord = CardRecord::new(
+    "Torch Courier",
+    "d4c9fc8c-e68f-4636-84b8-877f6ec04b09",
+    "Mark Zug",
+    crate::card::CardRules::unsupported(),
 );
 
 // GRN 121 — Affectionate Indrik
@@ -284,6 +338,24 @@ pub(in crate::card::sets) static ASSASSIN_S_TROPHY: CardRecord = CardRecord::new
     )]),
 );
 
+// GRN 189 — Mnemonic Betrayal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MNEMONIC_BETRAYAL_189: CardRecord = CardRecord::new(
+    "Mnemonic Betrayal",
+    "a5cf45aa-ed34-4add-a2ec-fc11f8c15ffa",
+    "Clint Cearley",
+    crate::card::CardRules::unsupported(),
+);
+
+// GRN 192 — Niv-Mizzet, Parun
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NIV_MIZZET_PARUN_192: CardRecord = CardRecord::new(
+    "Niv-Mizzet, Parun",
+    "6f3d2dc5-7b9d-4af6-9f3b-4de90fbf63c9",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
 // GRN 203 — Swiftblade Vindicator
 pub(in crate::card::sets) static SWIFTBLADE_VINDICATOR: CardRecord = CardRecord::new(
     "Swiftblade Vindicator",
@@ -305,17 +377,45 @@ pub(in crate::card::sets) static THOUSAND_YEAR_STORM: CardRecord = CardRecord::n
     CardRules::unsupported(),
 );
 
+// GRN 228 — Invert // Invent
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INVERT_INVENT_228: CardRecord = CardRecord::new(
+    "Invert // Invent",
+    "054a4e4f-8baa-41cf-b24c-d068e8b9a070",
+    "Mathias Kollros",
+    crate::card::CardRules::unsupported(),
+);
+
+// GRN 242 — Wand of Vertebrae
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WAND_OF_VERTEBRAE_242: CardRecord = CardRecord::new(
+    "Wand of Vertebrae",
+    "87f208bc-e4dc-4d3a-8906-dccde3cc251b",
+    "Volkan Baǵa",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HEALER_S_HAWK,
     &MURMURING_MYSTIC,
     &BURGLAR_RAT,
+    &MAUSOLEUM_SECRETS_75,
     &MIDNIGHT_REAPER,
     &ARCLIGHT_PHOENIX,
+    &EXPERIMENTAL_FRENZY_99,
+    &GOBLIN_CRATERMAKER_103,
+    &LEGION_WARBOSS_109,
+    &RUNAWAY_STEAM_KIN_115,
+    &TORCH_COURIER_119,
     &AFFECTIONATE_INDRIK,
     &CIRCUITOUS_ROUTE,
     &ASSASSIN_S_TROPHY,
+    &MNEMONIC_BETRAYAL_189,
+    &NIV_MIZZET_PARUN_192,
     &SWIFTBLADE_VINDICATOR,
     &THOUSAND_YEAR_STORM,
+    &INVERT_INVENT_228,
+    &WAND_OF_VERTEBRAE_242,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

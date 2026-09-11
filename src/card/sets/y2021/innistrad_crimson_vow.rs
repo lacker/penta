@@ -68,6 +68,15 @@ const BLOOD_TOKEN: TokenCharacteristics = tokens::blood().with_art(CardArt::new(
     "Miranda Meeks",
 ));
 
+// VOW 46 — Welcoming Vampire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WELCOMING_VAMPIRE_46: CardRecord = CardRecord::new(
+    "Welcoming Vampire",
+    "d8f69cea-823c-482b-a605-8138b3d950e6",
+    "Lorenzo Mastroianni",
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 55 — Cruel Witness
 pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
     "Cruel Witness",
@@ -88,6 +97,15 @@ pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
             abilities::surveil(ValueDef::Constant(1)),
         ),
     ]),
+);
+
+// VOW 87 — Wash Away
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WASH_AWAY_87: CardRecord = CardRecord::new(
+    "Wash Away",
+    "43411ade-be80-4535-8baa-7055e78496df",
+    "Brian Valeza",
+    crate::card::CardRules::unsupported(),
 );
 
 // VOW 95 — Blood Fountain
@@ -308,6 +326,15 @@ pub(in crate::card::sets) static ANCESTRAL_ANGER: CardRecord = CardRecord::new(
     )]),
 );
 
+// VOW 164 — Kessig Flamebreather
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KESSIG_FLAMEBREATHER_164: CardRecord = CardRecord::new(
+    "Kessig Flamebreather",
+    "303ad78a-b02a-44dc-afe6-7f95781a5062",
+    "Lius Lasahido",
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 174 — Reckless Impulse
 pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
     "Reckless Impulse",
@@ -494,6 +521,15 @@ pub(in crate::card::sets) static HALANA_AND_ALENA_PARTNERS: CardRecord = CardRec
                 ]),
             ),
         ]),
+);
+
+// VOW 259 — Lantern of the Lost
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LANTERN_OF_THE_LOST_259: CardRecord = CardRecord::new(
+    "Lantern of the Lost",
+    "c2303f11-2c82-44d5-893a-8e71dece7746",
+    "Chris Cold",
+    crate::card::CardRules::unsupported(),
 );
 
 // VOW 261 — Deathcap Glade
@@ -736,23 +772,47 @@ pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::
         ]),
 );
 
+// VOW 359 — Hullbreaker Horror
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HULLBREAKER_HORROR_359: CardRecord = CardRecord::new(
+    "Hullbreaker Horror",
+    "2e073047-fba8-41bd-b260-1eefb084fc80",
+    "Svetlin Velinov",
+    crate::card::CardRules::unsupported(),
+);
+
+// VOW 374 — Alchemist's Gambit
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ALCHEMIST_S_GAMBIT_374: CardRecord = CardRecord::new(
+    "Alchemist's Gambit",
+    "9eab8938-57c9-4e08-b808-09eb02b040a0",
+    "Zoltan Boros",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &WELCOMING_VAMPIRE_46,
     &CRUEL_WITNESS,
+    &WASH_AWAY_87,
     &BLOOD_FOUNTAIN,
     &CONCEALING_CURTAINS,
     &UNDYING_MALICE,
     &ANCESTRAL_ANGER,
+    &KESSIG_FLAMEBREATHER_164,
     &RECKLESS_IMPULSE,
     &VOLDAREN_EPICURE,
     &BRAMBLE_WURM,
     &ULVENWALD_ODDITY,
     &HALANA_AND_ALENA_PARTNERS,
+    &LANTERN_OF_THE_LOST_259,
     &DEATHCAP_GLADE,
     &DREAMROOT_CASCADE,
     &SHATTERED_SANCTUM,
     &STORMCARVED_COAST,
     &SUNDOWN_PASS,
     &BLOODTITHE_HARVESTER,
+    &HULLBREAKER_HORROR_359,
+    &ALCHEMIST_S_GAMBIT_374,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -163,6 +163,7 @@ pub(super) fn result_json(result: GameResult) -> Value {
                     "OpponentTriedToDrawFromEmptyLibrary",
                 WinReason::OpponentRanOutOfTime => "OpponentRanOutOfTime",
                 WinReason::OpponentPoisoned => "OpponentPoisoned",
+                WinReason::OpponentCommanderDamage => "OpponentCommanderDamage",
             },
         }),
     }
@@ -307,6 +308,8 @@ pub fn observation_json_for_format(
         // The viewer's own companions, still outside the game. Empty for
         // every game nobody brought one to, which is nearly all of them.
         "companions": card_list_json(catalog, &observation.companions),
+        "commandZones": [card_list_json(catalog, &observation.command_zones[0]), card_list_json(catalog, &observation.command_zones[1])],
+        "commanders": observation.commanders,
         "graveyards": [
             card_list_json(catalog, &observation.graveyards[0]),
             card_list_json(catalog, &observation.graveyards[1]),

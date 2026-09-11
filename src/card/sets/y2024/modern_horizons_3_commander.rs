@@ -61,6 +61,24 @@ static GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS: SumValueDef = SumValueDef::new(
     ValueDef::Constant(1),
 );
 
+// M3C 32 — Eldrazi Confluence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELDRAZI_CONFLUENCE_32: CardRecord = CardRecord::new(
+    "Eldrazi Confluence",
+    "78ee2013-29dc-4879-9d59-1b492996d297",
+    "Hristo D. Chukov",
+    crate::card::CardRules::unsupported(),
+);
+
+// M3C 33 — Eldritch Immunity
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELDRITCH_IMMUNITY_33: CardRecord = CardRecord::new(
+    "Eldritch Immunity",
+    "64a63b90-dbd6-4b66-8031-a3e230ada5b9",
+    "Carlos Palma Cruchaga",
+    crate::card::CardRules::unsupported(),
+);
+
 // M3C 50 — Barrowgoyf
 /// Where the chosen card is saved, kept apart from the milled pile so that
 /// "them" and "the one you took" are two different sets.
@@ -173,6 +191,15 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new(
         ]),
 );
 
+// M3C 61 — Siege-Gang Lieutenant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SIEGE_GANG_LIEUTENANT_61: CardRecord = CardRecord::new(
+    "Siege-Gang Lieutenant",
+    "2567e5a7-e045-48f1-b749-b1920b948b9b",
+    "Warren Mahy",
+    crate::card::CardRules::unsupported(),
+);
+
 // M3C 70 — Bloodbraid Challenger
 pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord::new(
     "Bloodbraid Challenger",
@@ -196,6 +223,15 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
     ),
 );
 
+// M3C 78 — Horizon of Progress
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HORIZON_OF_PROGRESS_78: CardRecord = CardRecord::new(
+    "Horizon of Progress",
+    "5ae3a9c8-194e-421b-b77d-9c8784442651",
+    "Julian Kok Joon Wen",
+    crate::card::CardRules::unsupported(),
+);
+
 // M3C 80 — Planar Nexus
 pub(in crate::card::sets) static PLANAR_NEXUS: CardRecord = CardRecord::new(
     "Planar Nexus",
@@ -213,6 +249,15 @@ pub(in crate::card::sets) static PLANAR_NEXUS: CardRecord = CardRecord::new(
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
+);
+
+// M3C 131 — Lazotep Quarry
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LAZOTEP_QUARRY_131: CardRecord = CardRecord::new(
+    "Lazotep Quarry",
+    "656ddd43-c70c-4927-9a02-fef5732708da",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
 );
 
 // M3C 134 — Talon Gates of Madara
@@ -273,10 +318,15 @@ const BASILISK_GATE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ULALEK_FUSED_ATROCITY,
+    &ELDRAZI_CONFLUENCE_32,
+    &ELDRITCH_IMMUNITY_33,
     &BARROWGOYF,
     &PYROGOYF,
+    &SIEGE_GANG_LIEUTENANT_61,
     &BLOODBRAID_CHALLENGER,
+    &HORIZON_OF_PROGRESS_78,
     &PLANAR_NEXUS,
+    &LAZOTEP_QUARRY_131,
     &TALON_GATES_OF_MADARA,
 ];
 

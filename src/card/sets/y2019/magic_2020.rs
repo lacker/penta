@@ -164,6 +164,15 @@ pub(in crate::card::sets) static DEVOUT_DECREE: CardRecord = CardRecord::new(
     )]),
 );
 
+// M20 17 — Gauntlets of Light
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GAUNTLETS_OF_LIGHT_17: CardRecord = CardRecord::new(
+    "Gauntlets of Light",
+    "da0d5436-b881-45ac-b8ec-248d88714021",
+    "Ekaterina Burmak",
+    crate::card::CardRules::unsupported(),
+);
+
 // M20 34 — Raise the Alarm (reprint)
 const RAISE_THE_ALARM_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2003::mirrodin::RAISE_THE_ALARM,
@@ -216,6 +225,15 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
     ),
 );
 
+// M20 74 — Scholar of the Ages
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SCHOLAR_OF_THE_AGES_74: CardRecord = CardRecord::new(
+    "Scholar of the Ages",
+    "80137c9a-ea56-4dc7-a503-43fe192c8fce",
+    "Micah Epstein",
+    crate::card::CardRules::unsupported(),
+);
+
 // M20 76 — Spectral Sailor
 pub(in crate::card::sets) static SPECTRAL_SAILOR: CardRecord = CardRecord::new(
     "Spectral Sailor",
@@ -230,6 +248,33 @@ pub(in crate::card::sets) static SPECTRAL_SAILOR: CardRecord = CardRecord::new(
             abilities::draw_cards(ValueDef::Constant(1)),
         ),
     ]),
+);
+
+// M20 77 — Tale's End
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TALE_S_END_77: CardRecord = CardRecord::new(
+    "Tale's End",
+    "1421115b-9a98-4ab2-bcb2-7d8899ce12db",
+    "Randy Vargas",
+    crate::card::CardRules::unsupported(),
+);
+
+// M20 113 — Scheming Symmetry
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SCHEMING_SYMMETRY_113: CardRecord = CardRecord::new(
+    "Scheming Symmetry",
+    "01acc50b-856d-442d-9880-1a892b40643b",
+    "Seb McKinnon",
+    crate::card::CardRules::unsupported(),
+);
+
+// M20 122 — Vilis, Broker of Blood
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VILIS_BROKER_OF_BLOOD_122: CardRecord = CardRecord::new(
+    "Vilis, Broker of Blood",
+    "ecdf2bd9-87b9-470a-ad2e-0ebf98560f87",
+    "Tyler Jacobson",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 136 — Drakuseth, Maw of Flames
@@ -266,6 +311,15 @@ pub(in crate::card::sets) static DRAKUSETH_MAW_OF_FLAMES: CardRecord = CardRecor
                 ])),
             ),
         ]),
+);
+
+// M20 141 — Glint-Horn Buccaneer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GLINT_HORN_BUCCANEER_141: CardRecord = CardRecord::new(
+    "Glint-Horn Buccaneer",
+    "df2df9cb-14f5-470f-b438-20f4ae8d0d59",
+    "Zack Stella",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 144 — Goblin Smuggler
@@ -433,6 +487,15 @@ pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::
     ]),
 );
 
+// M20 198 — Veil of Summer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VEIL_OF_SUMMER_198: CardRecord = CardRecord::new(
+    "Veil of Summer",
+    "aa686c34-1c11-469f-93c2-f9891aea521f",
+    "Lake Hurwitz",
+    crate::card::CardRules::unsupported(),
+);
+
 // M20 208 — Empyrean Eagle
 pub(in crate::card::sets) static EMPYREAN_EAGLE: CardRecord = CardRecord::new(
     "Empyrean Eagle",
@@ -461,6 +524,15 @@ pub(in crate::card::sets) static EMPYREAN_EAGLE: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// M20 222 — Bag of Holding
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BAG_OF_HOLDING_222: CardRecord = CardRecord::new(
+    "Bag of Holding",
+    "49283832-54f2-4619-b4a9-750493c93292",
+    "Dmitry Burmak",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 230 — Manifold Key
@@ -499,6 +571,15 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// M20 233 — Mystic Forge
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MYSTIC_FORGE_233: CardRecord = CardRecord::new(
+    "Mystic Forge",
+    "924a24e7-91b8-4ceb-a136-7a765d98c994",
+    "Titus Lunter",
+    crate::card::CardRules::unsupported(),
 );
 
 // M20 244 — Cryptic Caves
@@ -638,17 +719,26 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ANCESTRAL_BLADE,
     &ANGEL_OF_VITALITY,
     &DEVOUT_DECREE,
+    &GAUNTLETS_OF_LIGHT_17,
     &BRINEBORN_CUTTHROAT,
     &CLOUDKIN_SEER,
+    &SCHOLAR_OF_THE_AGES_74,
     &SPECTRAL_SAILOR,
+    &TALE_S_END_77,
+    &SCHEMING_SYMMETRY_113,
+    &VILIS_BROKER_OF_BLOOD_122,
     &DRAKUSETH_MAW_OF_FLAMES,
+    &GLINT_HORN_BUCCANEER_141,
     &GOBLIN_SMUGGLER,
     &LEYLINE_OF_COMBUSTION,
     &RAPACIOUS_DRAGON,
     &ELVISH_RECLAIMER,
     &LEYLINE_OF_ABUNDANCE,
+    &VEIL_OF_SUMMER_198,
     &EMPYREAN_EAGLE,
+    &BAG_OF_HOLDING_222,
     &MANIFOLD_KEY,
+    &MYSTIC_FORGE_233,
     &CRYPTIC_CAVES,
     &FIELD_OF_THE_DEAD,
     &TWINBLADE_PALADIN,

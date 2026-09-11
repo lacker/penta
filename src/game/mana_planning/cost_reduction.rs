@@ -174,6 +174,8 @@ impl Game {
         // Spellbinder's is still owed long after the Spellbinder is dead.
         let mut increase = if zone == ZoneKind::Exile {
             self.exile_play_surcharge(source, player)
+        } else if zone == ZoneKind::Command {
+            ManaCost { generic: self.commander_tax(source), ..ManaCost::default() }
         } else {
             ManaCost::default()
         };

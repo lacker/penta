@@ -14,6 +14,7 @@ format profile is registered; `make deck-report` reports that separately.
 name: Example Deck
 id: example_deck
 aliases: [Example]
+commanders: {}
 main:
   Mountain: 60
 sideboard: {}
@@ -23,6 +24,10 @@ sideboard: {}
 - `main` and `sideboard` are required card-name mappings with positive integer
   counts. Use `{}` for an empty section. Quote names containing a colon,
   such as `"Circle of Protection: Red"`.
+- `commanders` optionally names the physical card or cards designated for the
+  command zone. Like the other sections, it is a card-name mapping with
+  positive counts; use it only for Commander-family formats. A commander is
+  not also listed in `main` or `sideboard`.
 - `id` defaults to the filename stem. If supplied, it must match that stem
   exactly (for example, `example_deck.yaml` has ID `example_deck`). IDs are
   accepted as lookup names and name the generated Rust constructor,
@@ -57,3 +62,12 @@ Native callers can use `Deck::validate_supported_cards(&catalog)`. It returns
 a missing definition. This check is independent of `validate_for_format`, which
 checks construction and legality. A legal deck can still contain unsupported
 cards, and an inventory can be checked before its format profile exists.
+
+`cedh` is a two-player Commander gameplay baseline, not a claim of complete
+Commander deck validation. Its list files preserve designated commanders and
+the engine checks that every listed identity exists in the catalog; colour
+identity, singleton/count rules, and the Commander ban policy remain deferred
+until the shared Commander validator covers them. See Wizards of the Coast's
+[Commander format page](https://magic.wizards.com/en/formats/commander) for the
+current format description. The ban-list metadata follows
+Wizards of the Coast's [Banned and Restricted List](https://magic.wizards.com/en/banned-restricted-list), retrieved 2026-09-11. In that source, Lutri, the Spellchaser is banned only as a companion, not as a card in a Commander deck.

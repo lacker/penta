@@ -79,6 +79,33 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
         ]),
 );
 
+// ONE 47 — Encroaching Mycosynth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ENCROACHING_MYCOSYNTH_47: CardRecord = CardRecord::new(
+    "Encroaching Mycosynth",
+    "65a2fcc9-2317-48a1-a5eb-234fb3300364",
+    "Martin de Diego Sádaba",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 64 — Minor Misstep
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MINOR_MISSTEP_64: CardRecord = CardRecord::new(
+    "Minor Misstep",
+    "360ca37b-5bbd-4923-a493-7674786a36af",
+    "Lorenzo Mastroianni",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 75 — Unctus, Grand Metatect
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNCTUS_GRAND_METATECT_75: CardRecord = CardRecord::new(
+    "Unctus, Grand Metatect",
+    "164b07e6-48ba-4789-bd8f-7cada1fec8a9",
+    "Andrew Mar",
+    crate::card::CardRules::unsupported(),
+);
+
 // ONE 80 — Annihilating Glare
 pub(in crate::card::sets) static ANNIHILATING_GLARE: CardRecord = CardRecord::new(
     "Annihilating Glare",
@@ -337,6 +364,24 @@ pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new
         )),
 );
 
+// ONE 172 — Infectious Bite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INFECTIOUS_BITE_172: CardRecord = CardRecord::new(
+    "Infectious Bite",
+    "83dfb2a5-cd5c-46c6-9bb8-7c5d00f3e003",
+    "Campbell White",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 189 — Tyrranax Rex
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TYRRANAX_REX_189: CardRecord = CardRecord::new(
+    "Tyrranax Rex",
+    "0fb52b44-da5f-4f7a-a6c2-7924b855e051",
+    "Tuan Duong Chu",
+    crate::card::CardRules::unsupported(),
+);
+
 // ONE 196 — Atraxa, Grand Unifier
 /// Ten cards face up, and one pick per card type from among them: an
 /// artifact, a creature, an enchantment, an instant, a land, a planeswalker,
@@ -467,8 +512,119 @@ pub(in crate::card::sets) static OVIKA_ENIGMA_GOLIATH: CardRecord = CardRecord::
         ]),
 );
 
+// ONE 218 — Tyvar, Jubilant Brawler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TYVAR_JUBILANT_BRAWLER_218: CardRecord = CardRecord::new(
+    "Tyvar, Jubilant Brawler",
+    "66605fe1-9a20-4c95-b53e-1249cedb978b",
+    "Victor Adame Minguez",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 243 — Surgical Skullbomb
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SURGICAL_SKULLBOMB_243: CardRecord = CardRecord::new(
+    "Surgical Skullbomb",
+    "98c2b2af-739f-413c-8c36-da6f78df0acb",
+    "Gaboleps",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 246 — Zenith Chronicler
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ZENITH_CHRONICLER_246: CardRecord = CardRecord::new(
+    "Zenith Chronicler",
+    "1431fe83-7dc7-4c40-8d66-6525560e4323",
+    "Johann Bodin",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 346 — Mondrak, Glory Dominus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MONDRAK_GLORY_DOMINUS_346: CardRecord = CardRecord::new(
+    "Mondrak, Glory Dominus",
+    "1ef1b6a8-0151-4e41-a909-3d519dc19f14",
+    "rishxxv",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 358 — Staff of Compleation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static STAFF_OF_COMPLEATION_358: CardRecord = CardRecord::new(
+    "Staff of Compleation",
+    "315490d2-4d1f-4065-9d18-4682f1d7d066",
+    "Joshua Alvarado",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 388 — Vindictive Flamestoker
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VINDICTIVE_FLAMESTOKER_388: CardRecord = CardRecord::new(
+    "Vindictive Flamestoker",
+    "6c266012-6374-4870-917a-532fadf917ad",
+    "Xavier Ribeiro",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 397 — Soulless Jailer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SOULLESS_JAILER_397: CardRecord = CardRecord::new(
+    "Soulless Jailer",
+    "45354872-4426-445e-8ef0-2df65afdbc53",
+    "Donato Giancola",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 400 — Mirrex
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIRREX_400: CardRecord = CardRecord::new(
+    "Mirrex",
+    "2b7a760f-c9fb-454c-bedd-46a675daf02e",
+    "Adam Burn",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 402 — The Mycosynth Gardens
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THE_MYCOSYNTH_GARDENS_402: CardRecord = CardRecord::new(
+    "The Mycosynth Gardens",
+    "4afcac49-ac80-4561-ba2c-ce9487e9d8fe",
+    "Andrew Mar",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 416 — Elesh Norn, Mother of Machines
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELESH_NORN_MOTHER_OF_MACHINES_416: CardRecord = CardRecord::new(
+    "Elesh Norn, Mother of Machines",
+    "649be99a-fa52-469e-85df-11ecc576ea39",
+    "Richard Whitters",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 427 — Skrelv, Defector Mite
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SKRELV_DEFECTOR_MITE_427: CardRecord = CardRecord::new(
+    "Skrelv, Defector Mite",
+    "2e55ca48-0fe0-44bd-9453-02cda0b7f5da",
+    "Sidharth Chaturvedi",
+    crate::card::CardRules::unsupported(),
+);
+
+// ONE 479 — Myr Convert
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MYR_CONVERT_479: CardRecord = CardRecord::new(
+    "Myr Convert",
+    "19c7d89a-2b02-4faa-83cf-7dcf7faf6c4a",
+    "JungShan",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PLANAR_DISRUPTION,
+    &ENCROACHING_MYCOSYNTH_47,
+    &MINOR_MISSTEP_64,
+    &UNCTUS_GRAND_METATECT_75,
     &ANNIHILATING_GLARE,
     &OFFER_IMMORTALITY,
     &SHEOLDRED_S_EDICT,
@@ -477,8 +633,22 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FURNACE_STRIDER,
     &CANKERBLOOM,
     &CONTAGIOUS_VORRAC,
+    &INFECTIOUS_BITE_172,
+    &TYRRANAX_REX_189,
     &ATRAXA_GRAND_UNIFIER,
     &OVIKA_ENIGMA_GOLIATH,
+    &TYVAR_JUBILANT_BRAWLER_218,
+    &SURGICAL_SKULLBOMB_243,
+    &ZENITH_CHRONICLER_246,
+    &MONDRAK_GLORY_DOMINUS_346,
+    &STAFF_OF_COMPLEATION_358,
+    &VINDICTIVE_FLAMESTOKER_388,
+    &SOULLESS_JAILER_397,
+    &MIRREX_400,
+    &THE_MYCOSYNTH_GARDENS_402,
+    &ELESH_NORN_MOTHER_OF_MACHINES_416,
+    &SKRELV_DEFECTOR_MITE_427,
+    &MYR_CONVERT_479,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

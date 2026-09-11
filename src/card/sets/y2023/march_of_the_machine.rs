@@ -118,6 +118,15 @@ pub(in crate::card::sets) static ELSPETH_S_SMITE: CardRecord = CardRecord::new(
     )]),
 );
 
+// MOM 31 — Phyrexian Censor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PHYREXIAN_CENSOR_31: CardRecord = CardRecord::new(
+    "Phyrexian Censor",
+    "150e17b1-b9fd-4ec4-b305-19596fed14d1",
+    "Alexey Kruglov",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOM 40 — Sunfall
 pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new(
     "Sunfall",
@@ -159,6 +168,15 @@ pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new(
             ]),
         ),
     )),
+);
+
+// MOM 41 — Surge of Salvation
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SURGE_OF_SALVATION_41: CardRecord = CardRecord::new(
+    "Surge of Salvation",
+    "41d25ee5-0348-4206-bb6a-ccb0a599ac87",
+    "Dominik Mayer",
+    crate::card::CardRules::unsupported(),
 );
 
 // MOM 58 — Faerie Mastermind
@@ -272,6 +290,16 @@ pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MOM 190 — Invasion of Ikoria // Zilortha, Apex of Ikoria
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static INVASION_OF_IKORIA_ZILORTHA_APEX_OF_IKORIA_190: CardRecord =
+    CardRecord::new(
+        "Invasion of Ikoria // Zilortha, Apex of Ikoria",
+        "5d59c8f2-f6af-40a6-8dfe-8cc45bf231ce",
+        "Antonio José Manzanedo",
+        crate::card::CardRules::unsupported(),
+    );
+
 // MOM 215 — Wary Thespian
 pub(in crate::card::sets) static WARY_THESPIAN: CardRecord = CardRecord::new(
     "Wary Thespian",
@@ -297,6 +325,33 @@ pub(in crate::card::sets) static WARY_THESPIAN: CardRecord = CardRecord::new(
             abilities::surveil(ValueDef::Constant(1)),
         ),
     ]),
+);
+
+// MOM 221 — Djeru and Hazoret
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DJERU_AND_HAZORET_221: CardRecord = CardRecord::new(
+    "Djeru and Hazoret",
+    "1db1ae7b-ed48-409f-8d50-07c7e8c6c128",
+    "Matt Stewart",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 225 — Ghalta and Mavren
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GHALTA_AND_MAVREN_225: CardRecord = CardRecord::new(
+    "Ghalta and Mavren",
+    "a9ec900f-1e31-4440-a75a-20b256734d5b",
+    "Zezhou Chen",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 259 — Flywheel Racer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FLYWHEEL_RACER_259: CardRecord = CardRecord::new(
+    "Flywheel Racer",
+    "c694485d-a753-4e55-929c-d8e4a53c7d08",
+    "Joshua Cairos",
+    crate::card::CardRules::unsupported(),
 );
 
 // MOM 298 — Etali, Primal Conqueror // Etali, Primal Sickness
@@ -370,6 +425,33 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
     ],
 );
 
+// MOM 299 — Urabrask // The Great Work
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static URABRASK_THE_GREAT_WORK_299: CardRecord = CardRecord::new(
+    "Urabrask // The Great Work",
+    "52173f36-19d2-48be-a8e8-8cbe946759c0",
+    "Kekai Kotaki",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 305 — Drana and Linvala
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DRANA_AND_LINVALA_305: CardRecord = CardRecord::new(
+    "Drana and Linvala",
+    "29a5fe67-beaa-4ee3-b22c-0b8aed6f6f4d",
+    "Anato Finnstark",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 311 — Kogla and Yidaro
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KOGLA_AND_YIDARO_311: CardRecord = CardRecord::new(
+    "Kogla and Yidaro",
+    "a32dbdc6-3321-4d77-8d2f-acbcb1a29090",
+    "Daniel Warren Johnson",
+    crate::card::CardRules::unsupported(),
+);
+
 // MOM 328 — Zephyr Winder
 pub(in crate::card::sets) static ZEPHYR_WINDER: CardRecord = CardRecord::new(
     "Zephyr Winder",
@@ -400,19 +482,58 @@ pub(in crate::card::sets) static ZEPHYR_WINDER: CardRecord = CardRecord::new(
     ]),
 );
 
+// MOM 338 — Elesh Norn // The Argent Etchings
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELESH_NORN_THE_ARGENT_ETCHINGS_338: CardRecord = CardRecord::new(
+    "Elesh Norn // The Argent Etchings",
+    "40307bcf-199c-4487-bfab-cb5fb841dee8",
+    "Ryan Pancoast",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 360 — Hoarding Broodlord
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HOARDING_BROODLORD_360: CardRecord = CardRecord::new(
+    "Hoarding Broodlord",
+    "2cbfb78e-cbab-4511-a887-60dad1a6cb6b",
+    "Filip Burburan",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOM 374 — Realmbreaker, the Invasion Tree
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static REALMBREAKER_THE_INVASION_TREE_374: CardRecord = CardRecord::new(
+    "Realmbreaker, the Invasion Tree",
+    "182520ae-d98f-4ef0-ad32-252f932f5d51",
+    "Kekai Kotaki",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ALABASTER_HOST_INTERCESSOR,
     &ELSPETH_S_SMITE,
+    &PHYREXIAN_CENSOR_31,
     &SUNFALL,
+    &SURGE_OF_SALVATION_41,
     &FAERIE_MASTERMIND,
     &MEETING_OF_MINDS,
     &PREENING_CHAMPION,
     &TEMPORAL_CLEANSING,
     &CORRUPTED_CONVICTION,
     &WRENN_S_RESOLVE,
+    &INVASION_OF_IKORIA_ZILORTHA_APEX_OF_IKORIA_190,
     &WARY_THESPIAN,
+    &DJERU_AND_HAZORET_221,
+    &GHALTA_AND_MAVREN_225,
+    &FLYWHEEL_RACER_259,
     &ETALI_PRIMAL_CONQUEROR,
+    &URABRASK_THE_GREAT_WORK_299,
+    &DRANA_AND_LINVALA_305,
+    &KOGLA_AND_YIDARO_311,
     &ZEPHYR_WINDER,
+    &ELESH_NORN_THE_ARGENT_ETCHINGS_338,
+    &HOARDING_BROODLORD_360,
+    &REALMBREAKER_THE_INVASION_TREE_374,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

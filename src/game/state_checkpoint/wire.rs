@@ -173,6 +173,7 @@ pub(super) fn parse_two_public_zones(
 pub(super) fn max_public_object_id(observation: &Value) -> Option<u32> {
     [
         "hand",
+        "commandZones",
         "graveyards",
         "exiles",
         "battlefield",

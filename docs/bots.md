@@ -1926,3 +1926,15 @@ Version 4 adds exact-session pacing and `sessionAct` commands; regenerate
 older journals with their original build before migrating.
 Exact replay still requires both the recorded replay version and simulation
 fingerprint; an older engine must not interpret an unknown command as a choice.
+
+## Commander games
+
+The opt-in `cedh` format requires `rules.commander.v1`. It uses the existing
+indexed cast actions and generic decisions. `commandZones` is a two-seat array
+of public zone cards. `commanders` records each physical commander's `owner`
+(`p1`/`p2`), `definition`, `commandZoneCasts`, `combatDamage` (p1/p2 order), and
+nullable `objectId`. An unobservable location has no object ID. Cast history and
+damage persist across zone and control changes; copies do not inherit them.
+The result vocabulary adds `OpponentCommanderDamage` for a loss to 21 combat
+damage from one commander. See [Commander foundation](commander.md) for scope,
+corpus provenance, and checkpoint limitations.

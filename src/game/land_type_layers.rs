@@ -482,6 +482,7 @@ impl Game {
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => source.card.id == affected.card.id,
+            ObjectPredicateDef::Commander => self.is_commander(affected.card.id),
             ObjectPredicateDef::Token => affected.card.definition.is_token(),
             ObjectPredicateDef::HasType(CardType::Land) => self
                 .permanent_types_below_static_effects(affected)

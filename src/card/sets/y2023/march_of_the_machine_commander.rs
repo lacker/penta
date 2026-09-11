@@ -56,6 +56,28 @@ pub(in crate::card::sets) static DEATH_GREETER_S_CHAMPION: CardRecord = CardReco
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&DEATH_GREETER_S_CHAMPION];
+// MOC 34 — Path of the Pyromancer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static PATH_OF_THE_PYROMANCER_34: CardRecord = CardRecord::new(
+    "Path of the Pyromancer",
+    "4eeaf326-4521-4508-8032-627677a82dd4",
+    "Dominik Mayer",
+    crate::card::CardRules::unsupported(),
+);
+
+// MOC 118 — Hedron Detonator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static HEDRON_DETONATOR_118: CardRecord = CardRecord::new(
+    "Hedron Detonator",
+    "5194978a-ebc3-442f-97f3-012b3edd92da",
+    "Caroline Gariba",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DEATH_GREETER_S_CHAMPION,
+    &PATH_OF_THE_PYROMANCER_34,
+    &HEDRON_DETONATOR_118,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

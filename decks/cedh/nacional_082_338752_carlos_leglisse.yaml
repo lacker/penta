@@ -1,0 +1,110 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 82nd place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/CY3fBKrqIKS39YptzTrYQd3eSLJ2
+# TopDeck entry ID: RW50cnk6MzM4NzUy
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 82nd place, Carlos Leglisse"
+id: nacional_082_338752_carlos_leglisse
+description: "Exact tournament decklist for Carlos Leglisse, 82nd place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Terra, Magical Adept // Esper Terra": 1
+main:
+  "Abdel Adrian, Gorion's Ward": 1
+  "Ancient Tomb": 1
+  "Animate Dead": 1
+  "Arcane Signet": 1
+  "Arid Mesa": 1
+  "Birds of Paradise": 1
+  "Blood Crypt": 1
+  "Boseiju, Who Endures": 1
+  "Brain Freeze": 1
+  "Breeding Pool": 1
+  "Carpet of Flowers": 1
+  "Chrome Mox": 1
+  "City of Brass": 1
+  "Command Tower": 1
+  "Cyclonic Rift": 1
+  "Dark Ritual": 1
+  "Deadly Rollick": 1
+  "Deflecting Swat": 1
+  "Demonic Consultation": 1
+  "Demonic Tutor": 1
+  "Displacer Kitten": 1
+  "Dress Down": 1
+  "Emergence Zone": 1
+  "Enlightened Tutor": 1
+  "Entomb": 1
+  "Ephemerate": 1
+  "Esper Sentinel": 1
+  "Exotic Orchard": 1
+  "Faerie Mastermind": 1
+  "Fierce Guardianship": 1
+  "Flashback": 1
+  "Flooded Strand": 1
+  "Flusterstorm": 1
+  "Food Chain": 1
+  "Force of Negation": 1
+  "Force of Will": 1
+  "Gaea's Cradle": 1
+  "Gamble": 1
+  "Gemstone Caverns": 1
+  "Gifts Ungiven": 1
+  "Gleaming Splendor": 1
+  "Godless Shrine": 1
+  "Hallowed Fountain": 1
+  "Hexing Squelcher": 1
+  "Ignoble Hierarch": 1
+  "Imperial Seal": 1
+  "Intuition": 1
+  "King T'Challa // Black Panther, Hope Enduring": 1
+  "Lion's Eye Diamond": 1
+  "Lotho, Corrupt Shirriff": 1
+  "Lotus Petal": 1
+  "Mana Confluence": 1
+  "Mana Vault": 1
+  "Marsh Flats": 1
+  "Mental Misstep": 1
+  "Mindbreak Trap": 1
+  "Misty Rainforest": 1
+  "Mnemonic Betrayal": 1
+  "Mox Amber": 1
+  "Mox Diamond": 1
+  "Mox Opal": 1
+  "Mystic Remora": 1
+  "Mystical Tutor": 1
+  "Necromancy": 1
+  "Noxious Revival": 1
+  "Orcish Bowmasters": 1
+  "Overgrown Tomb": 1
+  "Overlord of the Balemurk": 1
+  "Pact of Negation": 1
+  "Polluted Delta": 1
+  "Purphoros, God of the Forge": 1
+  "Rhystic Study": 1
+  "Sacred Foundry": 1
+  "Scalding Tarn": 1
+  "Sevinne's Reclamation": 1
+  "Silence": 1
+  "Smothering Tithe": 1
+  "Sol Ring": 1
+  "Squee, the Immortal": 1
+  "Starting Town": 1
+  "Steam Vents": 1
+  "Stifle": 1
+  "Stomping Ground": 1
+  "Survival of the Fittest": 1
+  "Swan Song": 1
+  "Tainted Pact": 1
+  "Temple Garden": 1
+  "Thassa's Oracle": 1
+  "The Queen of Dale": 1
+  "Toxic Deluge": 1
+  "Trouble in Pairs": 1
+  "Underworld Breach": 1
+  "Vampiric Tutor": 1
+  "Voice of Victory": 1
+  "Walking Ballista": 1
+  "Wan Shi Tong, Librarian": 1
+  "Watery Grave": 1
+  "Windswept Heath": 1
+  "Yawgmoth's Will": 1
+sideboard: {}

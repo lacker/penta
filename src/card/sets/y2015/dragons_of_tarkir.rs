@@ -59,6 +59,15 @@ pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new(
     ]),
 );
 
+// DTK 120 — Sidisi, Undead Vizier
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SIDISI_UNDEAD_VIZIER_120: CardRecord = CardRecord::new(
+    "Sidisi, Undead Vizier",
+    "6ea5dbba-6114-4d97-9363-817ab9e896d3",
+    "Min Yum",
+    crate::card::CardRules::unsupported(),
+);
+
 // DTK 138 — Dragonlord's Servant
 pub(in crate::card::sets) static DRAGONLORD_S_SERVANT: CardRecord = CardRecord::new(
     "Dragonlord's Servant",
@@ -92,6 +101,15 @@ pub(in crate::card::sets) static IMPACT_TREMORS: CardRecord = CardRecord::new(
         ),
         EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
     )]),
+);
+
+// DTK 150 — Rending Volley
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RENDING_VOLLEY_150: CardRecord = CardRecord::new(
+    "Rending Volley",
+    "8234090e-9df1-4915-90ef-8a4bc6212655",
+    "Lucas Graciano",
+    crate::card::CardRules::unsupported(),
 );
 
 // DTK 156 — Seismic Rupture
@@ -236,8 +254,10 @@ pub(in crate::card::sets) static SAVAGE_VENTMAW: CardRecord = CardRecord::new(
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARTFUL_MANEUVER,
+    &SIDISI_UNDEAD_VIZIER_120,
     &DRAGONLORD_S_SERVANT,
     &IMPACT_TREMORS,
+    &RENDING_VOLLEY_150,
     &SEISMIC_RUPTURE,
     &TWIN_BOLT,
     &INSPIRING_CALL,

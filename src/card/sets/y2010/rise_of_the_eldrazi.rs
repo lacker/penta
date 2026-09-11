@@ -48,6 +48,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// ROE 1 — All Is Dust
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ALL_IS_DUST_1: CardRecord = CardRecord::new(
+    "All Is Dust",
+    "62dba377-7446-4517-a504-ee04568fd6cf",
+    "Jason Felix",
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 4 — Emrakul, the Aeons Torn
 pub(in crate::card::sets) static EMRAKUL_THE_AEONS_TORN: CardRecord = CardRecord::new(
     "Emrakul, the Aeons Torn",
@@ -95,6 +104,24 @@ CardRules::new_creature(mana_cost!("{15}"), &["Eldrazi"], 15, 15)
         ]),
 );
 
+// ROE 6 — Kozilek, Butcher of Truth
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static KOZILEK_BUTCHER_OF_TRUTH_6: CardRecord = CardRecord::new(
+    "Kozilek, Butcher of Truth",
+    "067fac91-2483-4678-b86a-2c54a3a480cf",
+    "Michael Komarck",
+    crate::card::CardRules::unsupported(),
+);
+
+// ROE 8 — Not of This World
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NOT_OF_THIS_WORLD_8: CardRecord = CardRecord::new(
+    "Not of This World",
+    "569e2c39-7a49-4a3b-afe5-1862a7da8026",
+    "Izzy",
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 13 — Ulamog's Crusher
 pub(in crate::card::sets) static ULAMOG_S_CRUSHER: CardRecord = CardRecord::new(
     "Ulamog's Crusher",
@@ -112,6 +139,15 @@ pub(in crate::card::sets) static GIDEON_JURA: CardRecord = CardRecord::new(
     "Gideon Jura",
     "e0440668-1b0e-437c-9e42-7166dd14dfe5",
     "Aleksi Briclot",
+    crate::card::CardRules::unsupported(),
+);
+
+// ROE 33 — Linvala, Keeper of Silence
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static LINVALA_KEEPER_OF_SILENCE_33: CardRecord = CardRecord::new(
+    "Linvala, Keeper of Silence",
+    "82b80a09-7e75-4091-a60e-04aff79339a3",
+    "Igor Kieryluk",
     crate::card::CardRules::unsupported(),
 );
 
@@ -182,6 +218,15 @@ pub(in crate::card::sets) static FLEETING_DISTRACTION: CardRecord = CardRecord::
             },
         ]),
     )),
+);
+
+// ROE 91 — Training Grounds
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TRAINING_GROUNDS_91: CardRecord = CardRecord::new(
+    "Training Grounds",
+    "e2cf16f8-6e69-46b3-8453-1d1a2a5670e2",
+    "James Ryman",
+    crate::card::CardRules::unsupported(),
 );
 
 // ROE 98 — Bloodthrone Vampire
@@ -461,6 +506,15 @@ CardRules::new_sorcery(mana_cost!("{3}{R}")).with_ability(
     ),
 );
 
+// ROE 172 — World at War
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WORLD_AT_WAR_172: CardRecord = CardRecord::new(
+    "World at War",
+    "a47a05ad-fe86-481e-b770-e1760be4f852",
+    "Igor Kieryluk",
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 201 — Nest Invader
 pub(in crate::card::sets) static NEST_INVADER: CardRecord = CardRecord::new(
     "Nest Invader",
@@ -553,6 +607,15 @@ pub(in crate::card::sets) static PROPHETIC_PRISM: CardRecord = CardRecord::new(
     ]),
 );
 
+// ROE 227 — Eldrazi Temple
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ELDRAZI_TEMPLE_227: CardRecord = CardRecord::new(
+    "Eldrazi Temple",
+    "315924c9-77e3-405b-9bbf-852ed563c6e3",
+    "James Paick",
+    crate::card::CardRules::unsupported(),
+);
+
 // ROE 228 — Evolving Wilds
 pub(in crate::card::sets) static EVOLVING_WILDS: CardRecord = CardRecord::new(
     "Evolving Wilds",
@@ -584,12 +647,17 @@ pub(in crate::card::sets) static EVOLVING_WILDS: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &ALL_IS_DUST_1,
     &EMRAKUL_THE_AEONS_TORN,
+    &KOZILEK_BUTCHER_OF_TRUTH_6,
+    &NOT_OF_THIS_WORLD_8,
     &ULAMOG_S_CRUSHER,
     &GIDEON_JURA,
+    &LINVALA_KEEPER_OF_SILENCE_33,
     &OUST,
     &DOMESTICATION,
     &FLEETING_DISTRACTION,
+    &TRAINING_GROUNDS_91,
     &BLOODTHRONE_VAMPIRE,
     &CONTAMINATED_GROUND,
     &INQUISITION_OF_KOZILEK,
@@ -600,10 +668,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GOBLIN_TUNNELER,
     &RAID_BOMBARDMENT,
     &TRAITOROUS_INSTINCT,
+    &WORLD_AT_WAR_172,
     &NEST_INVADER,
     &PELAKKA_WURM,
     &WILDHEART_INVOKER,
     &PROPHETIC_PRISM,
+    &ELDRAZI_TEMPLE_227,
     &EVOLVING_WILDS,
 ];
 

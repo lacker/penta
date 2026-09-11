@@ -210,6 +210,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             ids.push(*card);
             ids.extend(exiled.iter().copied());
         }
+        DecisionContinuation::CommanderReturn { selected, .. } => ids.extend(selected),
         DecisionContinuation::BattlefieldExitReplacement { batch, candidates } => {
             extend_battlefield_exit_ids(&mut ids, batch, candidates);
         }
@@ -300,7 +301,8 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             extend_stack_continuation_ids(&mut ids, object, context);
             ids.extend(candidates.iter().copied());
         }
-        DecisionContinuation::ScryBottom { .. }
+        DecisionContinuation::CommanderMove { .. }
+        | DecisionContinuation::ScryBottom { .. }
         | DecisionContinuation::ScryTop { .. }
         | DecisionContinuation::ChosenColorMana { .. }
         | DecisionContinuation::SearchZone { .. }
@@ -369,9 +371,8 @@ fn extend_battlefield_exit_ids(
     );
     ids.extend(candidates.iter().map(|candidate| match candidate.action {
         BattlefieldExitReplacementAction::Ability { context, .. } => context.source.object,
-        BattlefieldExitReplacementAction::RegenerationShield => {
-            batch.moves[candidate.move_index].object
-        }
+        BattlefieldExitReplacementAction::RegenerationShield
+        | BattlefieldExitReplacementAction::Commander => batch.moves[candidate.move_index].object,
     }));
 }
 

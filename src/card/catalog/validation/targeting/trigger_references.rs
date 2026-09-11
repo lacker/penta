@@ -92,6 +92,7 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::Special(_) => Err(unsupported_trigger_event(event)),
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn
@@ -149,6 +150,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         ObjectPredicateDef::HasNonManaActivatedAbility | ObjectPredicateDef::AttachedTo(_) => true,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
+        | ObjectPredicateDef::Commander
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
         | ObjectPredicateDef::WasDealtDamageThisTurn

@@ -74,6 +74,68 @@ pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::n
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&SECURITRON_SQUADRON];
+// PIP 58 — Grim Reaper's Sprint
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRIM_REAPER_S_SPRINT_58: CardRecord = CardRecord::new(
+    "Grim Reaper's Sprint",
+    "18e76286-9e06-42de-b322-eb8aa2cdca3a",
+    "Anton Solovianchyk",
+    crate::card::CardRules::unsupported(),
+);
+
+// PIP 388 — Megaton's Fate
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MEGATON_S_FATE_388: CardRecord = CardRecord::new(
+    "Megaton's Fate",
+    "3e8c93a1-3553-4de7-8441-396aa50b26bb",
+    "Chris Cold",
+    crate::card::CardRules::unsupported(),
+);
+
+// PIP 583 — Bottle-Cap Blast
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BOTTLE_CAP_BLAST_583: CardRecord = CardRecord::new(
+    "Bottle-Cap Blast",
+    "4c4d8bfb-aaf0-41f3-a000-1df6363fb25c",
+    "Liiga Smilshkalne",
+    crate::card::CardRules::unsupported(),
+);
+
+// PIP 594 — Rose, Cutthroat Raider
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ROSE_CUTTHROAT_RAIDER_594: CardRecord = CardRecord::new(
+    "Rose, Cutthroat Raider",
+    "5163087f-163d-4e5e-ae6b-aca192b4358b",
+    "Zezhou Chen",
+    crate::card::CardRules::unsupported(),
+);
+
+// PIP 597 — Vault 21: House Gambit
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VAULT_21_HOUSE_GAMBIT_597: CardRecord = CardRecord::new(
+    "Vault 21: House Gambit",
+    "0f4e60ea-4192-4388-8ad0-e5b3339eb872",
+    "Kieran Yanner",
+    crate::card::CardRules::unsupported(),
+);
+
+// PIP 973 — Sunscorched Divide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SUNSCORCHED_DIVIDE_973: CardRecord = CardRecord::new(
+    "Sunscorched Divide",
+    "a2595012-a6ce-49d1-a1b6-27d06ae1fc64",
+    "Zezhou Chen",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SECURITRON_SQUADRON,
+    &GRIM_REAPER_S_SPRINT_58,
+    &MEGATON_S_FATE_388,
+    &BOTTLE_CAP_BLAST_583,
+    &ROSE_CUTTHROAT_RAIDER_594,
+    &VAULT_21_HOUSE_GAMBIT_597,
+    &SUNSCORCHED_DIVIDE_973,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -20,6 +20,7 @@ impl Game {
     }
 
     pub(super) fn record_spell_cast(&mut self, player: PlayerId, spell: GameObjectId) {
+        self.record_commander_cast(spell);
         self.spells_cast_this_turn[player.index()] =
             self.spells_cast_this_turn[player.index()].saturating_add(1);
         self.spell_cast_history_this_turn.push(spell);
@@ -39,6 +40,7 @@ pub(super) struct SelectedSpellPlan {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum CastSourceZone {
+    Command,
     Hand,
     Graveyard,
     /// A card on an adventure, which its owner may cast from exile as the
@@ -56,6 +58,7 @@ impl CastSourceZone {
     /// printed clause distinguishes the topmost card from the rest.
     pub(super) const fn zone(self) -> crate::card::ZoneKind {
         match self {
+            Self::Command => crate::card::ZoneKind::Command,
             Self::Hand => crate::card::ZoneKind::Hand,
             Self::Graveyard => crate::card::ZoneKind::Graveyard,
             Self::Exile => crate::card::ZoneKind::Exile,
@@ -67,6 +70,7 @@ impl CastSourceZone {
     /// rather than storing an enum whose order could move.
     pub(super) const fn label(self) -> &'static str {
         match self {
+            Self::Command => "command",
             Self::Hand => "hand",
             Self::Graveyard => "graveyard",
             Self::Exile => "exile",
@@ -79,6 +83,7 @@ impl CastSourceZone {
 /// nothing, which is what a spell nobody cast carries anyway.
 pub(super) fn cast_source_zone_from_label(label: &str) -> Option<CastSourceZone> {
     match label {
+        "command" => Some(CastSourceZone::Command),
         "hand" => Some(CastSourceZone::Hand),
         "graveyard" => Some(CastSourceZone::Graveyard),
         "exile" => Some(CastSourceZone::Exile),

@@ -429,6 +429,7 @@ impl WebGame {
                 },
                 object_presentation(&self.catalog, *characteristics).name,
                 match destination {
+                    BattlefieldExit::Command => "returned to the command zone",
                     BattlefieldExit::Graveyard => "was destroyed",
                     BattlefieldExit::Exile => "was exiled",
                     BattlefieldExit::Hand => "returned to hand",

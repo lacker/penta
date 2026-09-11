@@ -79,6 +79,15 @@ pub(in crate::card::sets) static SPELL_SNARE: CardRecord = CardRecord::new(
     )]),
 );
 
+// DIS 34 — Tidespout Tyrant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TIDESPOUT_TYRANT_34: CardRecord = CardRecord::new(
+    "Tidespout Tyrant",
+    "44865244-2b9f-4734-a4da-49613b23ee4d",
+    "Dany Orizio",
+    crate::card::CardRules::unsupported(),
+);
+
 // DIS 47 — Macabre Waltz
 pub(in crate::card::sets) static MACABRE_WALTZ: CardRecord = CardRecord::new(
     "Macabre Waltz",
@@ -239,6 +248,15 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
     ),
 );
 
+// DIS 112 — Grand Arbiter Augustin IV
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GRAND_ARBITER_AUGUSTIN_IV_112: CardRecord = CardRecord::new(
+    "Grand Arbiter Augustin IV",
+    "a2ac328b-923f-48dd-a4f5-de389ade9125",
+    "Zoltan Boros & Gabor Szikszai",
+    crate::card::CardRules::unsupported(),
+);
+
 // DIS 133 — Trygon Predator
 pub(in crate::card::sets) static TRYGON_PREDATOR: CardRecord = CardRecord::new(
     "Trygon Predator",
@@ -271,6 +289,24 @@ pub(in crate::card::sets) static TRYGON_PREDATOR: CardRecord = CardRecord::new(
             },
         ),
     ]),
+);
+
+// DIS 162 — Magewright's Stone
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MAGEWRIGHT_S_STONE_162: CardRecord = CardRecord::new(
+    "Magewright's Stone",
+    "d27e8442-91ce-4106-bfc6-a1f6e0e34c2d",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
+);
+
+// DIS 166 — Simic Signet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SIMIC_SIGNET_166: CardRecord = CardRecord::new(
+    "Simic Signet",
+    "90107d10-e2aa-4cb7-a000-039f0c581b47",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
 );
 
 // DIS 170 — Azorius Chancery
@@ -404,12 +440,16 @@ pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GUARDIAN_OF_THE_GUILDPACT,
     &SPELL_SNARE,
+    &TIDESPOUT_TYRANT_34,
     &MACABRE_WALTZ,
     &WITS_END,
     &UTOPIA_SPRAWL,
     &AZORIUS_FIRST_WING,
     &COILING_ORACLE,
+    &GRAND_ARBITER_AUGUSTIN_IV_112,
     &TRYGON_PREDATOR,
+    &MAGEWRIGHT_S_STONE_162,
+    &SIMIC_SIGNET_166,
     &AZORIUS_CHANCERY,
     &BLOOD_CRYPT,
     &BREEDING_POOL,

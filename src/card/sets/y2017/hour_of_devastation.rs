@@ -33,6 +33,15 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+// HOU 22 — Solemnity
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SOLEMNITY_22: CardRecord = CardRecord::new(
+    "Solemnity",
+    "0a71fb62-acbd-49f5-842f-0fc9fa48afea",
+    "Greg Opalinski",
+    crate::card::CardRules::unsupported(),
+);
+
 // HOU 48 — Striped Riverwinder
 pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::new(
     "Striped Riverwinder",
@@ -47,6 +56,24 @@ pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::n
             &[crate::CostDef::Mana(mana_cost!("{U}"))],
         ),
     ]),
+);
+
+// HOU 73 — Razaketh, the Foulblooded
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAZAKETH_THE_FOULBLOODED_73: CardRecord = CardRecord::new(
+    "Razaketh, the Foulblooded",
+    "e14adff9-33cc-467e-b782-068854c5e7b7",
+    "Chris Rallis",
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 77 — Torment of Hailfire
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TORMENT_OF_HAILFIRE_77: CardRecord = CardRecord::new(
+    "Torment of Hailfire",
+    "f69d77d1-5980-436c-bf48-790939b069aa",
+    "Grzegorz Rutkowski",
+    crate::card::CardRules::unsupported(),
 );
 
 // HOU 83 — Abrade
@@ -134,6 +161,15 @@ pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
     ),
 );
 
+// HOU 104 — Neheb, the Eternal
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEHEB_THE_ETERNAL_104: CardRecord = CardRecord::new(
+    "Neheb, the Eternal",
+    "54231832-d492-4812-b658-4ab9a30fefe2",
+    "Chris Rahn",
+    crate::card::CardRules::unsupported(),
+);
+
 // HOU 138 — Bloodwater Entity
 pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new(
     "Bloodwater Entity",
@@ -168,12 +204,76 @@ pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new
     ]),
 );
 
+// HOU 165 — Mirage Mirror
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MIRAGE_MIRROR_165: CardRecord = CardRecord::new(
+    "Mirage Mirror",
+    "29148d7e-b398-4e19-a29e-d9a660ad5016",
+    "Craig J Spearing",
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 170 — Desert of the Fervent
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DESERT_OF_THE_FERVENT_170: CardRecord = CardRecord::new(
+    "Desert of the Fervent",
+    "f547d664-25ce-4a24-b3ae-7bf3cbdf4703",
+    "Titus Lunter",
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 180 — Ipnu Rivulet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IPNU_RIVULET_180: CardRecord = CardRecord::new(
+    "Ipnu Rivulet",
+    "203011ef-3737-4fd1-bd23-0e531b5a7c32",
+    "James Paick",
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 181 — Ramunap Ruins
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RAMUNAP_RUINS_181: CardRecord = CardRecord::new(
+    "Ramunap Ruins",
+    "af11d41a-0d29-45e9-9d27-a41282b9e292",
+    "Florian de Gesincourt",
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 182 — Scavenger Grounds
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SCAVENGER_GROUNDS_182: CardRecord = CardRecord::new(
+    "Scavenger Grounds",
+    "6cd91eeb-7abf-4538-91dc-47c736dfc237",
+    "Steven Belledin",
+    crate::card::CardRules::unsupported(),
+);
+
+// HOU 184 — Survivors' Encampment
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SURVIVORS_ENCAMPMENT_184: CardRecord = CardRecord::new(
+    "Survivors' Encampment",
+    "c7b0404e-0f42-456b-91ce-f960195c4951",
+    "Jonas De Ro",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SOLEMNITY_22,
     &STRIPED_RIVERWINDER,
+    &RAZAKETH_THE_FOULBLOODED_73,
+    &TORMENT_OF_HAILFIRE_77,
     &ABRADE,
     &CRASH_THROUGH,
     &FIREBRAND_ARCHER,
+    &NEHEB_THE_ETERNAL_104,
     &BLOODWATER_ENTITY,
+    &MIRAGE_MIRROR_165,
+    &DESERT_OF_THE_FERVENT_170,
+    &IPNU_RIVULET_180,
+    &RAMUNAP_RUINS_181,
+    &SCAVENGER_GROUNDS_182,
+    &SURVIVORS_ENCAMPMENT_184,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

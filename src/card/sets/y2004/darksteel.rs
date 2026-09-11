@@ -68,6 +68,24 @@ CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with
     )),
 );
 
+// DST 31 — Reshape
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RESHAPE_31: CardRecord = CardRecord::new(
+    "Reshape",
+    "05a8d65d-0c6f-433d-a818-002c242a17e8",
+    "Jon Foster",
+    crate::card::CardRules::unsupported(),
+);
+
+// DST 35 — Vedalken Engineer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VEDALKEN_ENGINEER_35: CardRecord = CardRecord::new(
+    "Vedalken Engineer",
+    "d06a2d9a-9401-4711-97b6-825652090c4d",
+    "Lars Grant-West",
+    crate::card::CardRules::unsupported(),
+);
+
 // DST 43 — Essence Drain
 pub(in crate::card::sets) static ESSENCE_DRAIN: CardRecord = CardRecord::new(
     "Essence Drain",
@@ -151,6 +169,15 @@ CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with
     )),
 );
 
+// DST 91 — Aether Vial
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static AETHER_VIAL_91: CardRecord = CardRecord::new(
+    "Aether Vial",
+    "741c479b-5e92-4837-9673-9bc72aa11d26",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
 // DST 92 — Angel's Feather
 pub(in crate::card::sets) static ANGEL_S_FEATHER: CardRecord = CardRecord::new(
     "Angel's Feather",
@@ -169,6 +196,15 @@ pub(in crate::card::sets) static ANGEL_S_FEATHER: CardRecord = CardRecord::new(
             },
         },
     )),
+);
+
+// DST 101 — Arcbound Reclaimer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ARCBOUND_RECLAIMER_101: CardRecord = CardRecord::new(
+    "Arcbound Reclaimer",
+    "3e4c5228-1dff-4df0-9d14-f8103364c701",
+    "Jon Foster",
+    crate::card::CardRules::unsupported(),
 );
 
 // DST 109 — Darksteel Colossus
@@ -282,6 +318,15 @@ pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// DST 130 — Mycosynth Lattice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MYCOSYNTH_LATTICE_130: CardRecord = CardRecord::new(
+    "Mycosynth Lattice",
+    "e7e7f15a-074a-4137-88ca-e5d376d146fd",
+    "Anthony S. Waters & Cara Mitten",
+    crate::card::CardRules::unsupported(),
+);
+
 // DST 138 — Serum Powder
 pub(in crate::card::sets) static SERUM_POWDER: CardRecord = CardRecord::new(
     "Serum Powder",
@@ -361,6 +406,24 @@ pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new(
         ]),
 );
 
+// DST 154 — Trinisphere
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TRINISPHERE_154: CardRecord = CardRecord::new(
+    "Trinisphere",
+    "d465597a-362e-4bd0-b547-f11d8807e597",
+    "Tim Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
+// DST 156 — Voltaic Construct
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static VOLTAIC_CONSTRUCT_156: CardRecord = CardRecord::new(
+    "Voltaic Construct",
+    "a1ca55ec-d262-40d8-b654-40e177bcfd6e",
+    "Jeff Easley",
+    crate::card::CardRules::unsupported(),
+);
+
 // DST 157 — Vulshok Morningstar
 pub(in crate::card::sets) static VULSHOK_MORNINGSTAR: CardRecord = CardRecord::new(
     "Vulshok Morningstar",
@@ -405,12 +468,34 @@ pub(in crate::card::sets) static WURM_S_TOOTH: CardRecord = CardRecord::new(
     )),
 );
 
+// DST 163 — Blinkmoth Nexus
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static BLINKMOTH_NEXUS_163: CardRecord = CardRecord::new(
+    "Blinkmoth Nexus",
+    "bf51c665-7823-4d6a-b1da-8c2d93dae10b",
+    "Brian Snõddy",
+    crate::card::CardRules::unsupported(),
+);
+
+// DST 164 — Darksteel Citadel
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DARKSTEEL_CITADEL_164: CardRecord = CardRecord::new(
+    "Darksteel Citadel",
+    "c5d0e808-d67b-4ea3-9c04-d20269fe692c",
+    "John Avon",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ECHOING_TRUTH,
+    &RESHAPE_31,
+    &VEDALKEN_ENGINEER_35,
     &ESSENCE_DRAIN,
     &ECHOING_RUIN,
     &ECHOING_COURAGE,
+    &AETHER_VIAL_91,
     &ANGEL_S_FEATHER,
+    &ARCBOUND_RECLAIMER_101,
     &DARKSTEEL_COLOSSUS,
     &DARKSTEEL_FORGE,
     &DARKSTEEL_INGOT,
@@ -418,10 +503,15 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DRAGON_S_CLAW,
     &KRAKEN_S_EYE,
     &LEONIN_BOLA,
+    &MYCOSYNTH_LATTICE_130,
     &SERUM_POWDER,
     &SKULLCLAMP,
+    &TRINISPHERE_154,
+    &VOLTAIC_CONSTRUCT_156,
     &VULSHOK_MORNINGSTAR,
     &WURM_S_TOOTH,
+    &BLINKMOTH_NEXUS_163,
+    &DARKSTEEL_CITADEL_164,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

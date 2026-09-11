@@ -1,5 +1,9 @@
 //! Duskmourn: House of Horror card inventory.
 
+use crate::card::GraveyardPlayPermissionDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::TokenCountersDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;

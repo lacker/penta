@@ -22,6 +22,10 @@ pub enum DeckConstructionDef {
     /// what the chosen Background then gives the deck is printed on the
     /// Background rather than here.
     ChooseABackground,
+    /// "Partner." This card may lead a Commander deck beside another card
+    /// that also prints Partner (CR 702.124a). The pairing is symmetric;
+    /// neither physical card is the primary commander.
+    Partner,
     /// "Companion — <condition>." The card may be designated a companion
     /// before the game if the starting deck meets the condition, and is then
     /// outside the game rather than in the deck (CR 702.139a). Taking it

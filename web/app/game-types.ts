@@ -90,6 +90,8 @@ export type Emblem = {
 export type Card = {
   /** Current-zone GameObjectId used by actions, targets, and DOM identity. */
   id: number;
+  /** Printed identity, available for cards shown outside the battlefield. */
+  definition?: string;
   /** Logical card part supplying this permanent's visible characteristics. */
   partId?: number;
   /** Physical double-faced topology, independent of copied characteristics. */
@@ -209,6 +211,17 @@ export type PlayerState = {
   hand?: Card[];
   handSize?: number;
   graveyard: Card[];
+  commandZone: Card[];
+};
+
+export type CommanderHistory = {
+  owner: Owner;
+  definition: string;
+  name: string;
+  /** Current object ID when the physical commander is visible to this viewer. */
+  object: number | null;
+  commandZoneCasts: number;
+  combatDamage: { human: number; opponent: number };
 };
 
 export type DecisionOption = {
@@ -279,6 +292,7 @@ export type GameState = {
   human: PlayerState & { hand: Card[] };
   opponent: PlayerState & { handSize: number };
   battlefield: Card[];
+  commanders: CommanderHistory[];
   emblems: Emblem[];
   stack: Array<{
     id: number;

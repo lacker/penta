@@ -322,6 +322,8 @@ pub struct PlayerObservation {
     /// Their own player knows what they brought; nobody else sees this, and
     /// an empty list is what every game without a companion reports.
     pub companions: Vec<(GameObjectId, CardDefinitionId)>,
+    pub command_zones: [Vec<(GameObjectId, CardDefinitionId)>; 2],
+    pub commanders: Vec<super::commander::CommanderObservation>,
     pub graveyards: [Vec<(GameObjectId, CardDefinitionId)>; 2],
     /// Each player's exile as this viewer sees it. A card lying face down
     /// is absent rather than shown, unless the viewer is its owner.

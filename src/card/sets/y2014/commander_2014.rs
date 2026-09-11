@@ -116,6 +116,33 @@ pub(in crate::card::sets) static JAZAL_GOLDMANE: CardRecord = CardRecord::new(
         ]),
 );
 
+// C14 19 — Teferi, Temporal Archmage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TEFERI_TEMPORAL_ARCHMAGE_19: CardRecord = CardRecord::new(
+    "Teferi, Temporal Archmage",
+    "80eec0bd-9eb4-4360-b97b-9c7985a63343",
+    "Tyler Jacobson",
+    crate::card::CardRules::unsupported(),
+);
+
+// C14 33 — Daretti, Scrap Savant
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DARETTI_SCRAP_SAVANT_33: CardRecord = CardRecord::new(
+    "Daretti, Scrap Savant",
+    "cda40e31-ba99-4565-ad92-7c687ff44bd9",
+    "Dan Murayama Scott",
+    crate::card::CardRules::unsupported(),
+);
+
+// C14 34 — Dualcaster Mage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static DUALCASTER_MAGE_34: CardRecord = CardRecord::new(
+    "Dualcaster Mage",
+    "0b80c8a0-0870-4836-bee1-f4a805d119d6",
+    "Matt Stewart",
+    crate::card::CardRules::unsupported(),
+);
+
 // C14 50 — Titania, Protector of Argoth
 pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
     CardRecord::new(
@@ -169,6 +196,9 @@ pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONTAINMENT_PRIEST,
     &JAZAL_GOLDMANE,
+    &TEFERI_TEMPORAL_ARCHMAGE_19,
+    &DARETTI_SCRAP_SAVANT_33,
+    &DUALCASTER_MAGE_34,
     &TITANIA_PROTECTOR_OF_ARGOTH,
 ];
 

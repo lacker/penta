@@ -263,6 +263,15 @@ pub(in crate::card::sets) static SCORCHED_RUSALKA: CardRecord = CardRecord::new(
     ),
 );
 
+// GPT 75 — Shattering Spree
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHATTERING_SPREE_75: CardRecord = CardRecord::new(
+    "Shattering Spree",
+    "d6dcff21-5900-43c4-a38b-cdc19c704ce4",
+    "Pat Lee",
+    crate::card::CardRules::unsupported(),
+);
+
 // GPT 77 — Skarrgan Firebird
 pub(in crate::card::sets) static SKARRGAN_FIREBIRD: CardRecord = CardRecord::new(
     "Skarrgan Firebird",
@@ -396,6 +405,42 @@ pub(in crate::card::sets) static PILLORY_OF_THE_SLEEPLESS: CardRecord = CardReco
         ]),
 );
 
+// GPT 149 — Wild Cantor
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static WILD_CANTOR_149: CardRecord = CardRecord::new(
+    "Wild Cantor",
+    "242dc29e-d8f5-4207-abbf-cf5425f08551",
+    "Glenn Fabry",
+    crate::card::CardRules::unsupported(),
+);
+
+// GPT 152 — Izzet Signet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static IZZET_SIGNET_152: CardRecord = CardRecord::new(
+    "Izzet Signet",
+    "f823be95-bef4-4e86-a924-239be62394bf",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
+// GPT 155 — Orzhov Signet
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ORZHOV_SIGNET_155: CardRecord = CardRecord::new(
+    "Orzhov Signet",
+    "f9298a1d-5b41-46d8-929c-b6980d1e6eb7",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
+// GPT 156 — Sword of the Paruns
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SWORD_OF_THE_PARUNS_156: CardRecord = CardRecord::new(
+    "Sword of the Paruns",
+    "a2225d05-d85c-4304-8226-b056e7dedad7",
+    "Greg Hildebrandt",
+    crate::card::CardRules::unsupported(),
+);
+
 // GPT 157 — Godless Shrine
 pub(in crate::card::sets) static GODLESS_SHRINE: CardRecord = CardRecord::new(
     "Godless Shrine",
@@ -490,12 +535,17 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BLOODSCALE_PROWLER,
     &LEYLINE_OF_LIGHTNING,
     &SCORCHED_RUSALKA,
+    &SHATTERING_SPREE_75,
     &SKARRGAN_FIREBIRD,
     &GRISTLEBACK,
     &LEYLINE_OF_LIFEFORCE,
     &FERAL_ANIMIST,
     &MORTIFY,
     &PILLORY_OF_THE_SLEEPLESS,
+    &WILD_CANTOR_149,
+    &IZZET_SIGNET_152,
+    &ORZHOV_SIGNET_155,
+    &SWORD_OF_THE_PARUNS_156,
     &GODLESS_SHRINE,
     &GRUUL_TURF,
     &IZZET_BOILERWORKS,

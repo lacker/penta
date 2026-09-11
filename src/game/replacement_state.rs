@@ -54,6 +54,7 @@ pub(super) enum BattlefieldExitReplacementAction {
         once: bool,
     },
     RegenerationShield,
+    Commander,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -82,6 +83,7 @@ pub(super) struct PendingBattlefieldExitMove {
     pub(super) counters: Option<(CounterKind, u16)>,
     pub(super) replaced_with_nothing: bool,
     pub(super) applied: Vec<AbilitySourceRef>,
+    pub(super) commander_considered: bool,
 }
 
 /// An effective replacement ability frozen before any member of a

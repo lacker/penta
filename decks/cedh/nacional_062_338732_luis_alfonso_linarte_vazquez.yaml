@@ -1,0 +1,110 @@
+# Nacional de cEDH 100K @ WolfCon 2026, 2026-08-29; 62nd place.
+# Source event: https://edhtop16.com/tournament/nacional-de-cedh-100k-1
+# Source decklist: https://topdeck.gg/deck/nacional-de-cedh-100k-1/x46NmRkLCqVUpn8IYf2lgnarNF53
+# TopDeck entry ID: RW50cnk6MzM4NzMy
+name: "Nacional de cEDH 100K @ WolfCon 2026 — 62nd place, Luis alfonso linarte vazquez"
+id: nacional_062_338732_luis_alfonso_linarte_vazquez
+description: "Exact tournament decklist for Luis alfonso linarte vazquez, 62nd place at Nacional de cEDH 100K @ WolfCon 2026."
+commanders:
+  "Kefka, Court Mage // Kefka, Ruler of Ruin": 1
+main:
+  "An Offer You Can't Refuse": 1
+  "Annul": 1
+  "Arcane Signet": 1
+  "Arena of Glory": 1
+  "Arid Mesa": 1
+  "Blazemire Verge": 1
+  "Blightstep Pathway // Searstep Pathway": 1
+  "Blood Crypt": 1
+  "Bloodchief Ascension": 1
+  "Bloodstained Mire": 1
+  "Brain Freeze": 1
+  "Cabal Ritual": 1
+  "Cascade Bluffs": 1
+  "Chrome Mox": 1
+  "Clearwater Pathway // Murkwater Pathway": 1
+  "Command Tower": 1
+  "Consign to Memory": 1
+  "Counterspell": 1
+  "Cyclonic Rift": 1
+  "Dark Ritual": 1
+  "Demonic Consultation": 1
+  "Demonic Tutor": 1
+  "Desperate Ritual": 1
+  "Dimir Infiltrator": 1
+  "Dimir Signet": 1
+  "Dualcaster Mage": 1
+  "Electroduplicate": 1
+  "Espers to Magicite": 1
+  "Faerie Mastermind": 1
+  "Fellwar Stone": 1
+  "Fierce Guardianship": 1
+  "Flare of Denial": 1
+  "Flashback": 1
+  "Flooded Strand": 1
+  "Flusterstorm": 1
+  "Force of Negation": 1
+  "Force of Will": 1
+  "Gamble": 1
+  "Gifts Ungiven": 1
+  "Grinding Station": 1
+  "Into the Flood Maw": 1
+  "Island": 1
+  "Laboratory Maniac": 1
+  "Lotus Petal": 1
+  "Luxury Suite": 1
+  "Mana Vault": 1
+  "Marsh Flats": 1
+  "Mental Misstep": 1
+  "Mindbreak Trap": 1
+  "Mindcrank": 1
+  "Misdirection": 1
+  "Mockingbird": 1
+  "Morphic Pool": 1
+  "Mountain": 1
+  "Mox Amber": 1
+  "Muddle the Mixture": 1
+  "Mystic Remora": 1
+  "Mystical Tutor": 1
+  "Necropotence": 1
+  "Negate": 1
+  "Opposition Agent": 1
+  "Orcish Bowmasters": 1
+  "Pact of Negation": 1
+  "Plaza of Heroes": 1
+  "Polluted Delta": 1
+  "Pyroblast": 1
+  "Raucous Theater": 1
+  "Reanimate": 1
+  "Rhystic Study": 1
+  "Rite of Flame": 1
+  "Riverglide Pathway // Lavaglide Pathway": 1
+  "Riverpyre Verge": 1
+  "Scalding Tarn": 1
+  "Shivan Reef": 1
+  "Sol Ring": 1
+  "Spell Snare": 1
+  "Spider-Sense": 1
+  "Steam Vents": 1
+  "Strix Serenade": 1
+  "Swamp": 1
+  "Swan Song": 1
+  "Tainted Isle": 1
+  "Tainted Pact": 1
+  "Talisman of Creativity": 1
+  "Talisman of Dominance": 1
+  "Talisman of Indulgence": 1
+  "Thassa's Oracle": 1
+  "Thrill of Possibility": 1
+  "Toxic Deluge": 1
+  "Twinflame": 1
+  "Undercity Sewers": 1
+  "Underground River": 1
+  "Underworld Breach": 1
+  "Vampiric Tutor": 1
+  "Verdant Catacombs": 1
+  "Waste Not": 1
+  "Watery Grave": 1
+  "Windfall": 1
+  "Wooded Foothills": 1
+sideboard: {}

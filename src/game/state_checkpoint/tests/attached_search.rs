@@ -2,6 +2,7 @@
 fn an_attached_aura_search_checkpoint_preserves_its_player() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let deck = crate::Deck {
+        commanders: Vec::new(),
         main: vec![crate::card::cards::MOUNTAIN; 60],
         sideboard: Vec::new(),
     };

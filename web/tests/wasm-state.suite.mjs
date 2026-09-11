@@ -4,6 +4,60 @@ import test from "node:test";
 import { HostedGame } from "../app/wasm/penta_wasm.js";
 import { initializeWasm, WebGame } from "./wasm-test-support.mjs";
 
+test("cEDH opening state presents command zones and commander history", async () => {
+  await initializeWasm();
+  const deck = "Nacional de cEDH 100K @ WolfCon 2026 — 1st place, Gustavo Arrambide";
+  const game = new WebGame(deck, deck, "Handcrafted", true, 9031, "cedh");
+  try {
+    const state = JSON.parse(game.state_json());
+    assert.equal(state.format, "cedh");
+    assert.equal(state.human.life, 40);
+    assert.equal(state.opponent.life, 40);
+    assert.ok(state.human.commandZone.length > 0);
+    assert.ok(state.opponent.commandZone.length > 0);
+    assert.equal(
+      state.commanders.length,
+      state.human.commandZone.length + state.opponent.commandZone.length,
+    );
+    for (const commander of state.commanders) {
+      const zone = state[commander.owner].commandZone;
+      const card = zone.find((candidate) => candidate.definition === commander.definition);
+      assert.ok(card, `${commander.name} remains in its owner's command zone`);
+      assert.equal(commander.object, card.id);
+      assert.equal(commander.commandZoneCasts, 0);
+      assert.deepEqual(commander.combatDamage, { human: 0, opponent: 0 });
+    }
+    assert.ok(
+      state.human.commandZone.every(
+        (commander) => !state.human.hand.some((card) => card.id === commander.id),
+      ),
+      "designated commanders are separate from the opening hand",
+    );
+  } finally {
+    game.free();
+  }
+});
+
+test("Standard opening state retains empty commander contract fields", async () => {
+  await initializeWasm();
+  const game = new WebGame(
+    "Briksza Naya Midrange",
+    "Greer G/R Aggro",
+    "Handcrafted",
+    true,
+    2013,
+    "isd-m14-standard",
+  );
+  try {
+    const state = JSON.parse(game.state_json());
+    assert.deepEqual(state.human.commandZone, []);
+    assert.deepEqual(state.opponent.commandZone, []);
+    assert.deepEqual(state.commanders, []);
+  } finally {
+    game.free();
+  }
+});
+
 test("the game-over message names whoever actually lost", async () => {
   await initializeWasm();
 

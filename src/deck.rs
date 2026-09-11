@@ -12,6 +12,10 @@ use crate::card::{
 pub struct Deck {
     pub main: Vec<CardDefinitionId>,
     pub sideboard: Vec<CardDefinitionId>,
+    /// The physical cards designated to begin in the command zone. They are
+    /// separate from both the library and sideboard.
+    #[serde(default)]
+    pub commanders: Vec<CardDefinitionId>,
 }
 
 impl Deck {
@@ -61,6 +65,24 @@ impl Deck {
         catalog: &CardCatalog,
         format: Format,
     ) -> Result<ValidatedDeck, DeckError> {
+        for id in &self.commanders {
+            if catalog.get(*id).is_none() {
+                return Err(DeckError::UnknownCard(*id));
+            }
+        }
+        // Commander deck construction is intentionally not enforced yet:
+        // cEDH can load authored games while the complete shared Commander
+        // validator (including colour identity and the command zone) lands.
+        // Still reject an ID the catalog does not know, including a designated
+        // commander, so a game never starts from an invented card identity.
+        if format.defers_deck_legality() {
+            for id in self.main.iter().chain(&self.sideboard) {
+                if catalog.get(*id).is_none() {
+                    return Err(DeckError::UnknownCard(*id));
+                }
+            }
+            return Ok(ValidatedDeck(self));
+        }
         let format_rules = format.rules();
         if self.main.len() < format_rules.minimum_main_deck_size {
             return Err(DeckError::MainDeckTooSmall {
@@ -166,7 +188,10 @@ impl Deck {
             });
         }
         self.main_deck_is_singleton(catalog)?;
-        Ok(ValidatedDeck(self))
+        Ok(ValidatedDeck(Deck {
+            commanders: commanders.to_vec(),
+            ..self
+        }))
     }
 
     fn commander_definitions<'a>(
@@ -187,25 +212,36 @@ impl Deck {
     }
 
     /// Who may lead, and who may lead beside whom. One commander answers for
-    /// itself (CR 903.3); a second is legal only where a printed permission
-    /// pairs the two, which today means a commander that chose a Background
-    /// and the Background it chose (CR 702.124a).
+    /// itself (CR 903.3); two require a printed pairing permission. Both
+    /// Partner and Choose a Background are symmetric deck facts even when
+    /// their printed wording appears on only one of the two cards.
     fn commanders_may_lead_together(leaders: &[&CardDefinition]) -> Result<(), DeckError> {
-        let [first, rest @ ..] = leaders else {
-            return Err(DeckError::WrongNumberOfCommanders(0));
-        };
-        if !first.may_be_commander() {
-            return Err(DeckError::NotALegalCommander(first.name.clone()));
-        }
-        for second in rest {
-            if !(first.may_choose_a_background() && second.is_background()) {
-                return Err(DeckError::CommandersDoNotPair {
-                    first: first.name.clone(),
-                    second: second.name.clone(),
-                });
+        match leaders {
+            [] => Err(DeckError::WrongNumberOfCommanders(0)),
+            [commander] if commander.may_be_commander() => Ok(()),
+            [commander] => Err(DeckError::NotALegalCommander(commander.name.clone())),
+            [first, second] => {
+                let background_pair = (first.may_be_commander()
+                    && first.may_choose_a_background()
+                    && second.is_background())
+                    || (second.may_be_commander()
+                        && second.may_choose_a_background()
+                        && first.is_background());
+                let partner_pair = first.may_be_commander()
+                    && second.may_be_commander()
+                    && first.has_partner()
+                    && second.has_partner();
+                if background_pair || partner_pair {
+                    Ok(())
+                } else {
+                    Err(DeckError::CommandersDoNotPair {
+                        first: first.name.clone(),
+                        second: second.name.clone(),
+                    })
+                }
             }
+            _ => Err(DeckError::WrongNumberOfCommanders(leaders.len())),
         }
-        Ok(())
     }
 
     fn main_deck_is_singleton(&self, catalog: &CardCatalog) -> Result<(), DeckError> {
@@ -274,8 +310,14 @@ const COMMANDER_DECK_SIZE: usize = 100;
 pub struct ValidatedDeck(Deck);
 
 impl ValidatedDeck {
-    pub(crate) fn into_parts(self) -> (Vec<CardDefinitionId>, Vec<CardDefinitionId>) {
-        (self.0.main, self.0.sideboard)
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        Vec<CardDefinitionId>,
+        Vec<CardDefinitionId>,
+        Vec<CardDefinitionId>,
+    ) {
+        (self.0.main, self.0.sideboard, self.0.commanders)
     }
 }
 
@@ -374,7 +416,8 @@ mod tests {
     use crate::CardDefinitionId;
     use crate::card::sets;
     use crate::card::{
-        CardCatalog, CardComposition, CardDefinition, CardRules, CardSupertype, ManaCost, cards,
+        AbilityDef, CardCatalog, CardComposition, CardDefinition, CardRules, CardSupertype,
+        DeckConstructionDef, ManaCost, cards,
     };
 
     fn catalog() -> CardCatalog {
@@ -475,6 +518,36 @@ mod tests {
         )
     }
 
+    fn catalog_with_partners() -> (CardCatalog, CardDefinitionId, CardDefinitionId) {
+        let first = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000090002");
+        let second = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000090003");
+        let partner = |id, name| {
+            CardDefinition::new(
+                id,
+                name,
+                sets::commander_legends_baldurs_gate::SET,
+                CardRules::new_creature(ManaCost::new(0, 0), &["Test"], 1, 1)
+                    .with_supertype(CardSupertype::Legendary)
+                    .with_ability(AbilityDef::deck_construction(
+                        "Partner",
+                        DeckConstructionDef::Partner,
+                        "A symmetric commander pairing permission.",
+                    )),
+            )
+        };
+        let mut definitions: Vec<CardDefinition> =
+            catalog().definitions().into_iter().cloned().collect();
+        definitions.extend([
+            partner(first, "Test Partner One"),
+            partner(second, "Test Partner Two"),
+        ]);
+        (
+            CardCatalog::new(definitions).expect("the catalog still builds"),
+            first,
+            second,
+        )
+    }
+
     /// Ninety-nine distinct cards, which is a legal Commander list's size
     /// whatever those cards happen to be. Anything named is skipped so the
     /// caller can lead with it.
@@ -516,10 +589,68 @@ mod tests {
         let deck = Deck {
             main: ninety_nine(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH]),
             sideboard: Vec::new(),
+            commanders: Vec::new(),
         };
 
         deck.validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
             .expect("ninety-nine distinct cards and a legal leader");
+    }
+
+    #[test]
+    fn commander_validation_preserves_the_designated_physical_card() {
+        let catalog = catalog();
+        let deck = Deck {
+            main: ninety_nine(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH]),
+            sideboard: Vec::new(),
+            commanders: Vec::new(),
+        };
+
+        let (_, _, commanders) = deck
+            .validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
+            .expect("the list validates")
+            .into_parts();
+        assert_eq!(commanders, vec![cards::EMRY_LURKER_OF_THE_LOCH]);
+    }
+
+    #[test]
+    fn cedh_defers_construction_but_rejects_unknown_card_identities() {
+        let catalog = catalog();
+        Deck {
+            main: Vec::new(),
+            sideboard: Vec::new(),
+            commanders: vec![cards::EMRY_LURKER_OF_THE_LOCH],
+        }
+        .validate_for_format(&catalog, crate::Format::Cedh)
+        .expect("cEDH construction validation is deliberately deferred");
+
+        let error = Deck {
+            main: vec![CardDefinitionId::from_uuid(
+                "00000000-0000-0000-0000-000000999999",
+            )],
+            sideboard: Vec::new(),
+            commanders: Vec::new(),
+        }
+        .validate_for_format(&catalog, crate::Format::Cedh)
+        .expect_err("an unknown identity still cannot start a game");
+        assert!(matches!(error, DeckError::UnknownCard(_)));
+    }
+
+    #[test]
+    fn partner_commanders_pair_in_either_designation_order() {
+        let (catalog, first, second) = catalog_with_partners();
+        let mut main = ninety_nine(&catalog, &[first, second]);
+        main.pop();
+        let deck = Deck {
+            main,
+            sideboard: Vec::new(),
+            commanders: Vec::new(),
+        };
+
+        deck.clone()
+            .validate_as_commander_deck(&catalog, &[first, second])
+            .expect("two Partner cards lead together");
+        deck.validate_as_commander_deck(&catalog, &[second, first])
+            .expect("Partner has no primary commander");
     }
 
     #[test]
@@ -528,6 +659,7 @@ mod tests {
         let deck = Deck {
             main: ninety_nine(&catalog, &[cards::GRIZZLY_BEARS]),
             sideboard: Vec::new(),
+            commanders: Vec::new(),
         };
 
         let error = deck
@@ -545,6 +677,7 @@ mod tests {
         let deck = Deck {
             main,
             sideboard: Vec::new(),
+            commanders: Vec::new(),
         };
 
         let error = deck
@@ -568,6 +701,7 @@ mod tests {
         let deck = Deck {
             main,
             sideboard: Vec::new(),
+            commanders: Vec::new(),
         };
 
         let error = deck
@@ -586,6 +720,7 @@ mod tests {
         let deck = Deck {
             main,
             sideboard: Vec::new(),
+            commanders: Vec::new(),
         };
 
         deck.validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
@@ -600,6 +735,7 @@ mod tests {
         let deck = Deck {
             main,
             sideboard: Vec::new(),
+            commanders: Vec::new(),
         };
 
         let error = deck
@@ -630,10 +766,14 @@ mod tests {
             let deck = Deck {
                 main,
                 sideboard: Vec::new(),
+                commanders: Vec::new(),
             };
 
-            deck.validate_as_commander_deck(&catalog, &[cards::GUT_TRUE_SOUL_ZEALOT, background])
+            deck.clone()
+                .validate_as_commander_deck(&catalog, &[cards::GUT_TRUE_SOUL_ZEALOT, background])
                 .expect("Gut chose a Background and this is one");
+            deck.validate_as_commander_deck(&catalog, &[background, cards::GUT_TRUE_SOUL_ZEALOT])
+                .expect("a Background has no primary commander designation");
         }
 
         /// Emry may lead, but they print no Background clause, so nothing
@@ -646,6 +786,7 @@ mod tests {
             let deck = Deck {
                 main,
                 sideboard: Vec::new(),
+                commanders: Vec::new(),
             };
 
             let error = deck
@@ -668,6 +809,7 @@ mod tests {
             let deck = Deck {
                 main,
                 sideboard: Vec::new(),
+                commanders: Vec::new(),
             };
 
             let error = deck
@@ -688,6 +830,7 @@ mod tests {
             let deck = Deck {
                 main: ninety_nine(&catalog, &[background]),
                 sideboard: Vec::new(),
+                commanders: Vec::new(),
             };
 
             let error = deck
@@ -704,6 +847,7 @@ mod tests {
             let deck = Deck {
                 main: ninety_nine(&catalog, &[]),
                 sideboard: Vec::new(),
+                commanders: Vec::new(),
             };
 
             assert!(matches!(

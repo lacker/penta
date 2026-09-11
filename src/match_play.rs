@@ -77,7 +77,8 @@ impl MatchContext {
         catalog: &CardCatalog,
         format: Format,
     ) -> bool {
-        pool(deck) == pool(&self.registered[player.index()])
+        deck.commanders == self.registered[player.index()].commanders
+            && pool(deck) == pool(&self.registered[player.index()])
             && deck.clone().validate_for_format(catalog, format).is_ok()
     }
 }

@@ -106,6 +106,24 @@ pub(in crate::card::sets) static KITESAIL_CORSAIR: CardRecord = CardRecord::new(
     ]),
 );
 
+// RIX 45 — Nezahal, Primal Tide
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static NEZAHAL_PRIMAL_TIDE_45: CardRecord = CardRecord::new(
+    "Nezahal, Primal Tide",
+    "48eba418-94ab-46a3-958c-4d5058fc2bcd",
+    "Sam Burley",
+    crate::card::CardRules::unsupported(),
+);
+
+// RIX 59 — Timestream Navigator
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static TIMESTREAM_NAVIGATOR_59: CardRecord = CardRecord::new(
+    "Timestream Navigator",
+    "14770537-209a-4260-88a4-30f4e2b5ede0",
+    "Zezhou Chen",
+    crate::card::CardRules::unsupported(),
+);
+
 // RIX 79 — Moment of Craving
 pub(in crate::card::sets) static MOMENT_OF_CRAVING: CardRecord = CardRecord::new(
     "Moment of Craving",
@@ -233,6 +251,24 @@ pub(in crate::card::sets) static THRASHING_BRONTODON: CardRecord = CardRecord::n
     ]),
 );
 
+// RIX 149 — Thunderherd Migration
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static THUNDERHERD_MIGRATION_149: CardRecord = CardRecord::new(
+    "Thunderherd Migration",
+    "c56de4a3-f5ab-469e-ab66-b8187c8c04a0",
+    "Lars Grant-West",
+    crate::card::CardRules::unsupported(),
+);
+
+// RIX 174 — Zacama, Primal Calamity
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ZACAMA_PRIMAL_CALAMITY_174: CardRecord = CardRecord::new(
+    "Zacama, Primal Calamity",
+    "5aa75f2b-53c5-47c5-96d2-ab796358a96f",
+    "Jaime Jones",
+    crate::card::CardRules::unsupported(),
+);
+
 // RIX 178 — Gleaming Barrier
 pub(in crate::card::sets) static GLEAMING_BARRIER: CardRecord = CardRecord::new(
     "Gleaming Barrier",
@@ -264,6 +300,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOMENT_OF_TRIUMPH,
     &ZETALPA_PRIMAL_DAWN,
     &KITESAIL_CORSAIR,
+    &NEZAHAL_PRIMAL_TIDE_45,
+    &TIMESTREAM_NAVIGATOR_59,
     &MOMENT_OF_CRAVING,
     &BOMBARD,
     &BRASS_S_BOUNTY,
@@ -271,6 +309,8 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FANATICAL_FIREBRAND,
     &GHALTA_PRIMAL_HUNGER,
     &THRASHING_BRONTODON,
+    &THUNDERHERD_MIGRATION_149,
+    &ZACAMA_PRIMAL_CALAMITY_174,
     &GLEAMING_BARRIER,
     &SWAB_GOBLIN,
 ];

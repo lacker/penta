@@ -126,6 +126,15 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
     ]),
 );
 
+// DSC 66 — Giggling Skitterspike
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GIGGLING_SKITTERSPIKE_66: CardRecord = CardRecord::new(
+    "Giggling Skitterspike",
+    "a7360ffb-5a45-490f-9adf-d540a404e64d",
+    "Nino Is",
+    crate::card::CardRules::unsupported(),
+);
+
 // DSC 88 — Growth Spiral (reprint)
 const GROWTH_SPIRAL_REPRINT: PrintingRecord = PrintingRecord::reprint(
     &crate::card::sets::y2019::ravnica_allegiance::GROWTH_SPIRAL,
@@ -148,7 +157,11 @@ const GOLGARI_ROT_FARM_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&METAMORPHOSIS_FANATIC, &URSINE_MONSTROSITY];
+    &[
+    &METAMORPHOSIS_FANATIC,
+    &URSINE_MONSTROSITY,
+    &GIGGLING_SKITTERSPIKE_66,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
     GROWTH_SPIRAL_REPRINT,

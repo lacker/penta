@@ -85,6 +85,24 @@ pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
     ]),
 );
 
+// EVE 22 — Glen Elendra Archmage
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static GLEN_ELENDRA_ARCHMAGE_22: CardRecord = CardRecord::new(
+    "Glen Elendra Archmage",
+    "09516d3d-e6c2-4359-af2a-a4aa244ca033",
+    "Warren Mahy",
+    crate::card::CardRules::unsupported(),
+);
+
+// EVE 37 — Merrow Bonegnawer
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MERROW_BONEGNAWER_37: CardRecord = CardRecord::new(
+    "Merrow Bonegnawer",
+    "09e49aa4-ac23-49b1-b9b7-49d45b56b21d",
+    "Jim Nelson",
+    crate::card::CardRules::unsupported(),
+);
+
 // EVE 41 — Raven's Crime
 pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
     "Raven's Crime",
@@ -173,6 +191,15 @@ CardRules::new_instant(mana_cost!("{W/B}")).with_ability(
     ),
 );
 
+// EVE 94 — Restless Apparition
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RESTLESS_APPARITION_94: CardRecord = CardRecord::new(
+    "Restless Apparition",
+    "dc6480d0-17c5-4ac2-afb2-4d44f089de22",
+    "Jeff Easley",
+    crate::card::CardRules::unsupported(),
+);
+
 // EVE 119 — Desecrator Hag
 // Audit: unsupported — Needs a value that aggregates over a query to be readable inside a query filter. "The creature card with the greatest power" is expressible as a choice among the cards nothing beats, but the maximum is an AggregateObjectValues over the graveyard and a predicate cannot evaluate one, so the comparison silently fails and its negation admits every creature card.
 pub(in crate::card::sets) static DESECRATOR_HAG: CardRecord = CardRecord::new(
@@ -257,15 +284,58 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
         ]),
 );
 
+// EVE 156 — Murkfiend Liege
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static MURKFIEND_LIEGE_156: CardRecord = CardRecord::new(
+    "Murkfiend Liege",
+    "8d8250af-696f-4e28-86ba-29e316d01e56",
+    "Carl Critchlow",
+    crate::card::CardRules::unsupported(),
+);
+
+// EVE 175 — Cascade Bluffs
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static CASCADE_BLUFFS_175: CardRecord = CardRecord::new(
+    "Cascade Bluffs",
+    "c3eede44-270a-481d-850b-b4862b9685ea",
+    "Brandon Kitkouski",
+    crate::card::CardRules::unsupported(),
+);
+
+// EVE 176 — Fetid Heath
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static FETID_HEATH_176: CardRecord = CardRecord::new(
+    "Fetid Heath",
+    "0fbb9790-3744-4dcb-881a-452573298822",
+    "Daarken",
+    crate::card::CardRules::unsupported(),
+);
+
+// EVE 178 — Rugged Prairie
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static RUGGED_PRAIRIE_178: CardRecord = CardRecord::new(
+    "Rugged Prairie",
+    "e31f8b2a-acf4-423c-bc99-8cf44f3c018a",
+    "Fred Fields",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ARCHON_OF_JUSTICE,
     &FLICKERWISP,
+    &GLEN_ELENDRA_ARCHMAGE_22,
+    &MERROW_BONEGNAWER_37,
     &RAVEN_S_CRIME,
     &BLOOM_TENDER,
     &DUSKDALE_WURM,
     &BECKON_APPARITION,
+    &RESTLESS_APPARITION_94,
     &DESECRATOR_HAG,
     &FIGURE_OF_DESTINY,
+    &MURKFIEND_LIEGE_156,
+    &CASCADE_BLUFFS_175,
+    &FETID_HEATH_176,
+    &RUGGED_PRAIRIE_178,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

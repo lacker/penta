@@ -128,7 +128,20 @@ pub(in crate::card::sets) static CROSSWAY_TROUBLEMAKERS: CardRecord = CardRecord
     ]),
 );
 
+// VOC 60 — Shadowgrange Archfiend
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static SHADOWGRANGE_ARCHFIEND_60: CardRecord = CardRecord::new(
+    "Shadowgrange Archfiend",
+    "598bf482-99ce-4b39-a969-7685752382ed",
+    "Oleksandr Kozachenko",
+    crate::card::CardRules::unsupported(),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&OCCULT_EPIPHANY, &CROSSWAY_TROUBLEMAKERS];
+    &[
+    &OCCULT_EPIPHANY,
+    &CROSSWAY_TROUBLEMAKERS,
+    &SHADOWGRANGE_ARCHFIEND_60,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

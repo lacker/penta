@@ -145,11 +145,11 @@ CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(AbilityDef::trigge
             &[crate::card::CostDef::sacrifice_permanent(
                 ObjectPredicateDef::Source,
             )],
-            &EffectDef::MoveToZone {
-                object: EffectRecipientDef::TriggeringZoneChangeResult,
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            &EffectDef::move_to_zone(
+                EffectRecipientDef::TriggeringZoneChangeResult,
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         )),
     )),
 );
@@ -179,11 +179,11 @@ pub(in crate::card::sets) static ARGIVIAN_FIND: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -453,19 +453,19 @@ CardRules::new_creature(mana_cost!("{3}{W}"), &["Griffin"], 2, 2).with_abilities
         abilities::dies_trigger(
             "When this creature dies, exile it, then return the top creature card of your graveyard to the battlefield.",
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
                         player: PlayerRefDef::EffectController,
                         object: ObjectPredicateDef::HasType(CardType::Creature),
                     }),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
             ]),
         ),
     ]),
@@ -683,11 +683,11 @@ pub(in crate::card::sets) static ARGIVIAN_RESTORATION: CardRecord = CardRecord::
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -860,24 +860,24 @@ pub(in crate::card::sets) static PARADIGM_SHIFT: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
         "Exile all cards from your library. Then shuffle your graveyard into your library.",
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Library],
                     PlayerSetDef::Related(PlayerRelation::You),
                 ))),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
                     PlayerSetDef::Related(PlayerRelation::You),
                 ))),
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
             EffectDef::ShuffleLibrary {
                 player: EffectRecipientDef::Controller,
             },
@@ -939,11 +939,11 @@ pub(in crate::card::sets) static PHANTOM_WINGS: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "Sacrifice this Aura: Return enchanted creature to its owner's hand.",
                 &[CostDef::SacrificeSource],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::AttachedPermanent,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -1003,11 +1003,11 @@ pub(in crate::card::sets) static RELEARN: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1057,11 +1057,11 @@ pub(in crate::card::sets) static TIMID_DRAKE: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1484,11 +1484,11 @@ pub(in crate::card::sets) static SHATTERED_CRYPT: CardRecord = CardRecord::new(
             },
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::ChosenX,
@@ -1528,11 +1528,11 @@ CardRules::new_enchantment(mana_cost!("{2}{B}{B}")).with_ability(
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -2322,22 +2322,22 @@ CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 4, 3).with_abil
         abilities::dies_trigger(
             "When this creature dies, exile it, then shuffle all creature cards from your graveyard into your library.",
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
                             ObjectPredicateDef::HasType(CardType::Creature),
                             &[ZoneKind::Graveyard],
                             PlayerRelation::You,
                         ),
                     )),
-                    zone: ZoneKind::Library,
-                    placement: ZonePlacement::Top,
-                },
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::Controller,
                 },
@@ -2997,13 +2997,13 @@ pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::BottomOfGraveyard(
-                    PlayerRefDef::Target(TargetIndex::PRIMARY),
-                )),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::BottomOfGraveyard(PlayerRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{1}, Sacrifice this artifact: Exile target card from a graveyard. Draw a card.",
@@ -3022,11 +3022,11 @@ pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new
             EffectDef::Sequence(
                 &const {
                     [
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
                         EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
                             amount: ValueDef::Constant(1),

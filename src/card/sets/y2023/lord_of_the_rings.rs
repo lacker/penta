@@ -125,11 +125,11 @@ pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new(
         // countered is answered all the same -- and its controller keeps the card,
         // which is the price. Drawing pays for the tempo either way.
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

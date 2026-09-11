@@ -137,11 +137,11 @@ pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new(
                 another: false,
                 excludes_source: false,
             }],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::target_objects(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::target_objects(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -384,11 +384,11 @@ pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -797,11 +797,11 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new(
                 chooser: TargetChooserDef::Controller,
             }],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(5)),
             ]),
         ),
@@ -916,11 +916,11 @@ pub(in crate::card::sets) static GRAVE_ROBBERS: CardRecord = CardRecord::new(
                 },
             )],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(2),
@@ -2291,11 +2291,11 @@ pub(in crate::card::sets) static SKULL_OF_ORM: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -2336,15 +2336,15 @@ pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::cards_owned_by_target(
+        EffectDef::move_to_zone(
+            EffectRecipientDef::cards_owned_by_target(
                 ObjectPredicateDef::Any,
                 &[ZoneKind::Graveyard],
                 TargetIndex::PRIMARY,
             ),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 

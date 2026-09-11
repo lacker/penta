@@ -112,25 +112,25 @@ pub const fn ability_cost_increase_for_name(
 }
 
 const SEARCH_AND_EXILE_HAND_BINDING: Binding = Binding!("search_and_exile_hand");
-const SEARCH_AND_EXILE_HAND_MOVE: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(SEARCH_AND_EXILE_HAND_BINDING)),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
+const SEARCH_AND_EXILE_HAND_MOVE: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::objects(ObjectSetDef::Binding(SEARCH_AND_EXILE_HAND_BINDING)),
+    ZoneKind::Exile,
+    ZonePlacement::Top,
+);
 const SEARCH_AND_EXILE_LIBRARY_BINDING: Binding = Binding!("search_and_exile_library");
-const SEARCH_AND_EXILE_LIBRARY_MOVE: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(SEARCH_AND_EXILE_LIBRARY_BINDING)),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
+const SEARCH_AND_EXILE_LIBRARY_MOVE: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::objects(ObjectSetDef::Binding(SEARCH_AND_EXILE_LIBRARY_BINDING)),
+    ZoneKind::Exile,
+    ZonePlacement::Top,
+);
 const SEARCH_AND_EXILE_GRAVEYARD_BINDING: Binding = Binding!("search_and_exile_graveyard");
-const SEARCH_AND_EXILE_GRAVEYARD_MOVE: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+const SEARCH_AND_EXILE_GRAVEYARD_MOVE: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::objects(ObjectSetDef::Binding(
         SEARCH_AND_EXILE_GRAVEYARD_BINDING,
     )),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
+    ZoneKind::Exile,
+    ZonePlacement::Top,
+);
 
 /// Searches one player's graveyard, hand, or library for matching cards and
 /// exiles the cards found. Public graveyards contribute every match; hidden
@@ -200,11 +200,11 @@ const fn search_named_cards_and_exile(
             visibility: ChoiceVisibilityDef::Public,
             then: &SEARCH_AND_EXILE_GRAVEYARD_MOVE,
         }),
-        ZoneKind::Graveyard => EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects(candidates),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+        ZoneKind::Graveyard => EffectDef::move_to_zone(
+            EffectRecipientDef::objects(candidates),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
         ZoneKind::Hand => EffectDef::Choose(ChooseDef {
             binding: ObjectChoiceBindingDef::Objects(SEARCH_AND_EXILE_HAND_BINDING),
             unchosen: None,

@@ -357,11 +357,11 @@ pub(super) fn effect_choice_prompt(
         return "Choose objects";
     };
     match effect {
-        EffectDef::MoveToZone {
+        EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
             object,
             zone,
             placement,
-        } if recipient_uses_binding(object, ObjectChoiceBindingDef::Objects(binding)) => {
+        }) if recipient_uses_binding(object, ObjectChoiceBindingDef::Objects(binding)) => {
             match (zone, placement) {
                 (ZoneKind::Hand, _) => "Put a card into your hand",
                 (ZoneKind::Library, crate::card::ZonePlacement::Top) => {
@@ -448,12 +448,7 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
                 zone: ZoneKind::Graveyard | ZoneKind::Exile,
                 ..
             },
-        )
-        | EffectDef::MoveToZone {
-            object,
-            zone: ZoneKind::Graveyard | ZoneKind::Exile,
-            ..
-        } => recipient_uses_binding(object, binding),
+        ) => recipient_uses_binding(object, binding),
         EffectDef::Sequence(effects) => effects
             .iter()
             .copied()
@@ -530,11 +525,11 @@ fn effect_matches_group_operation(
         recipient_uses_binding(recipient, ObjectChoiceBindingDef::Objects(binding))
     };
     match effect {
-        EffectDef::MoveToZone {
+        EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
             object,
             zone: ZoneKind::Hand,
             ..
-        } if matches!(operation, GroupOperation::MoveToHand) => recipient_matches(object),
+        }) if matches!(operation, GroupOperation::MoveToHand) => recipient_matches(object),
         EffectDef::MoveObjects(definition)
             if matches!(operation, GroupOperation::MoveToHand)
                 && definition.zone == ZoneKind::Hand =>

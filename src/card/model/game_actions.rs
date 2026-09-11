@@ -33,6 +33,7 @@ pub enum GameActionDef {
     MoveToZone {
         object: EffectRecipientDef,
         zone: ZoneKind,
+        /// Which end of a library receives the objects; ignored for other zones.
         placement: super::ZonePlacement,
     },
     GainControl {

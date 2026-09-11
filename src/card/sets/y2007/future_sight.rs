@@ -54,11 +54,11 @@ CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Return target permanent to its owner's hand. Exile Reality Strobe with three time counters on it.",
             &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
             &[(CounterKind::named("time"), 3)],
@@ -97,11 +97,11 @@ pub(in crate::card::sets) static VENSER_SHAPER_SAVANT: CardRecord = CardRecord::
                         },
                     ]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -129,11 +129,11 @@ pub(in crate::card::sets) static VENSERS_DIFFUSION: CardRecord = CardRecord::new
                 },
             ]),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -154,11 +154,11 @@ CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 1, 1).with_abilitie
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    )
                 },
             },
         )
@@ -210,11 +210,11 @@ CardRules::new_enchantment(mana_cost!("{B}{B}{B}")).with_abilities(&[
                 Some(ZoneKind::Graveyard),
             ),
             &BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD,
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),
@@ -469,11 +469,11 @@ CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 1, 1).with_a
             ),
             EffectDef::Sequence(&const {
                 [
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::TriggeringZoneChangeResult,
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::TriggeringZoneChangeResult,
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::AddCounters {
                         object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
                         kind: CounterKind::named("time"),
@@ -540,11 +540,11 @@ pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new
                     effect: &const {
                         EffectDef::WithBattlefieldArrival {
                             effect: &const {
-                                EffectDef::MoveToZone {
-                                    object: EffectRecipientDef::Source,
-                                    zone: ZoneKind::Battlefield,
-                                    placement: ZonePlacement::Top,
-                                }
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::Source,
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                )
                             },
                             arrival: crate::card::BattlefieldArrivalDef {
                                 attachment: Some(ArrivalAttachmentDef::ArrivalToHost(

@@ -254,11 +254,11 @@ pub(in crate::card::sets) static CIVIC_GUILDMAGE: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -285,11 +285,11 @@ pub(in crate::card::sets) static DISEMPOWER: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             ]),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -866,16 +866,16 @@ CardRules::new_enchantment(mana_cost!("{3}{U}{U}"))
         .with_abilities(&[
             abilities::enters_trigger(
                 "When this enchantment enters, exile all cards from all graveyards.",
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::new(
                             ObjectPredicateDef::Any,
                             &[ZoneKind::Graveyard],
                         ),
                     )),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::triggered(
                 "Whenever a player casts a spell, counter it if a card with the same name is in a graveyard or a nontoken permanent with the same name is on the battlefield.",
@@ -1615,11 +1615,11 @@ pub(in crate::card::sets) static ASHEN_POWDER: CardRecord = CardRecord::new(
             },
         )],
         EffectDef::WithBattlefieldArrival {
-            effect: &EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            effect: &EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
             arrival: BattlefieldArrivalDef {
                 controller: Some(PlayerRelation::You),
                 ..BattlefieldArrivalDef::DEFAULT
@@ -2225,14 +2225,14 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new(
         "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
         EffectDef::WithZoneMoveResult {
             effect: &const {
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
                         player: PlayerRefDef::EffectController,
                         object: ObjectPredicateDef::HasType(CardType::Creature),
                     }),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                }
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                )
             },
             binding: ParentBinding,
             then: &const {
@@ -2252,11 +2252,11 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new(
                                         step: TurnStepDef::End,
                                         player: PlayerRelation::Any,
                                     },
-                                    EffectDef::MoveToZone {
-                                        object: EffectRecipientDef::Source,
-                                        zone: ZoneKind::Exile,
-                                        placement: ZonePlacement::Top,
-                                    },
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::Source,
+                                        ZoneKind::Exile,
+                                        ZonePlacement::Top,
+                                    ),
                                 )
                             }),
                         ]
@@ -3248,11 +3248,11 @@ pub(in crate::card::sets) static FALLOW_EARTH: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Land),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -3609,11 +3609,11 @@ pub(in crate::card::sets) static SEEDLING_CHARM: CardRecord = CardRecord::new(
                         )),
                     ]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Regenerate target green creature.",
@@ -4371,11 +4371,11 @@ CardRules::new_artifact(mana_cost!("{5}")).with_ability(
                     ObjectPredicateDef::HasType(CardType::Land),
                 ]),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         )
         .with_activation_timing(crate::card::ActivationTimingDef::SorcerySpeed),
     ),

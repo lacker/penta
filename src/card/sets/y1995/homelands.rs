@@ -664,11 +664,11 @@ CardRules::new_creature(mana_cost!("{4}{U}"), &["Wall"], 4, 5).with_abilities(&[
                         step: TurnStepDef::End,
                         player: PlayerRelation::Any,
                     },
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 ))),
             ]),
         ),
@@ -1361,11 +1361,11 @@ CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(
                 owner: None,
             })],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
                     "At the beginning of the next turn's upkeep, draw a card.",
                     TriggerEventDef::StepBegins {
@@ -1439,8 +1439,8 @@ pub(in crate::card::sets) static SENGIR_AUTOCRAT: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 None,
             ),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Token,
                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Serf")),
@@ -1448,9 +1448,9 @@ pub(in crate::card::sets) static SENGIR_AUTOCRAT: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -2383,11 +2383,11 @@ CardRules::new_creature(mana_cost!("{2}{G}"), &["Badger"], 2, 2).with_ability(
                 2,
             )],
             EffectDef::WithZoneMoveResult {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 binding: Binding!("rysorian_badger_exiled"),
                 then: &EffectDef::IfCondition {
                     condition: &TriggerConditionDef::ObjectSetCount(

@@ -24,11 +24,11 @@ fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 4] {
             otherwise: Some(child),
             optional: true,
         },
-        after(EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        }),
+        after(EffectDef::move_to_zone(
+            EffectRecipientDef::Source,
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        )),
     ]
 }
 

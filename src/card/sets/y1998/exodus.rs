@@ -426,11 +426,11 @@ pub(in crate::card::sets) static SHACKLES: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{W}: Return this Aura to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{W}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -540,11 +540,11 @@ CardRules::new_creature(mana_cost!("{2}{W}"), &["Human"], 2, 2).with_ability(
                 },
                 1,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -669,11 +669,11 @@ CardRules::new_sorcery(mana_cost!("{X}{U}")).with_ability(
                 },
             )],
             CostDef::discard(ObjectPredicateDef::HasType(CardType::Creature)).with_quantity(CostQuantityDef::ChosenX),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -750,11 +750,11 @@ pub(in crate::card::sets) static EPHEMERON: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
             &[CostDef::discard(ObjectPredicateDef::Any)],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -776,11 +776,11 @@ CardRules::new_enchantment(mana_cost!("{1}{U}{U}")).with_ability(
             )],
             EffectDef::PayOr(crate::card::PayOrDef::optional(
                 &[CostDef::Mana(mana_cost!("{1}"))],
-                &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             )),
         ),
     ),
@@ -896,11 +896,11 @@ CardRules::new_enchantment(mana_cost!("{2}{U}")).with_ability(AbilityDef::trigge
             minimum: 1,
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
-            then: &EffectDef::MoveToZone {
-                object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            then: &EffectDef::move_to_zone(
+                EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         }),
     )),
 );
@@ -980,11 +980,11 @@ CardRules::new_creature(mana_cost!("{3}{U}"), &["Illusion"], 2, 3).with_abilitie
         AbilityDef::triggered(
             "When this creature becomes the target of a spell or ability, return this creature to its owner's hand.",
             TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1108,11 +1108,11 @@ CardRules::new_creature(mana_cost!("{4}{U}"), &["Human", "Wizard"], 2, 2).with_a
                 },
                 1,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -1153,11 +1153,11 @@ pub(in crate::card::sets) static THALAKOS_SCOUT: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
             &[CostDef::discard(ObjectPredicateDef::Any)],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1196,11 +1196,11 @@ pub(in crate::card::sets) static WAYWARD_SOUL: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{U}: Put this creature on top of its owner's library.",
             &[CostDef::Mana(mana_cost!("{U}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1419,11 +1419,11 @@ pub(in crate::card::sets) static DEATH_S_DUET: CardRecord = CardRecord::new(
             },
             ValueDef::Constant(2),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1652,11 +1652,11 @@ pub(in crate::card::sets) static PIT_SPAWN: CardRecord = CardRecord::new(
                 ),
                 ..crate::card::DamageEventMatcherDef::from(ObjectRefDef::Source)
             }),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::DamagedObject,
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::DamagedObject,
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1701,11 +1701,11 @@ pub(in crate::card::sets) static RECURRING_NIGHTMARE: CardRecord = CardRecord::n
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ),
@@ -1870,11 +1870,11 @@ CardRules::new_enchantment(mana_cost!("{2}{B}{B}")).with_abilities(&[
                 minimum: 1,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Private,
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                    zone: ZoneKind::Library,
-                    placement: ZonePlacement::Top,
-                },
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
             }),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
@@ -1898,11 +1898,11 @@ CardRules::new_creature(mana_cost!("{4}{R}"), &["Human", "Wizard"], 2, 2).with_a
                 },
                 1,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -2483,11 +2483,11 @@ CardRules::new_creature(mana_cost!("{2}{G}"), &["Human"], 2, 2).with_ability(
                 },
                 1,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -2582,11 +2582,11 @@ pub(in crate::card::sets) static JACKALOPE_HERD: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "When you cast a spell, return this creature to its owner's hand.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -2841,11 +2841,11 @@ pub(in crate::card::sets) static RECLAIM: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -3170,11 +3170,11 @@ pub(in crate::card::sets) static ERRATIC_PORTAL: CardRecord = CardRecord::new(
         EffectDef::PayOr(
             crate::card::PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{1}"))],
-                &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             )
             .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
                 ObjectRefDef::Target(TargetIndex::PRIMARY),

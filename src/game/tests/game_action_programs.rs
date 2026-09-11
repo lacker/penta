@@ -407,3 +407,47 @@ fn game_action_programs_zone_moves_sequence_through_exact_successors() {
     assert_eq!(game.battlefield[0].card.definition, definition);
     assert_ne!(game.battlefield[0].card.id, source);
 }
+
+#[test]
+fn game_action_programs_zone_move_choices_keep_prompts_and_reference_fallback() {
+    static EXILE: [AbilityDef; 1] = [AbilityDef::triggered(
+        "Exile a card from your hand",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        actions::choose(
+            Binding!("objects"),
+            ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Hand],
+                PlayerSetDef::Related(PlayerRelation::You),
+            )),
+            &actions::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("objects"))),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+        )
+        .with_visibility(ChoiceVisibilityDef::Private)
+        .as_effect(),
+    )];
+    let (mut reference, _) = staged(&EXILE);
+    add_hand(&mut reference, 2);
+    let mut prepared = reference.clone();
+    prepared.set_prepared_engine_enabled(true);
+    for game in [&mut reference, &mut prepared] {
+        start(game);
+        let decision = game.observe(PlayerId::One).decision.unwrap();
+        assert_eq!(decision.prompt, "Exile a card");
+        assert_eq!(decision.visibility, DecisionVisibility::Private);
+        assert_eq!(decision.preference, DecisionPreference::RemovalChoice);
+        assert_eq!(decision.options.len(), 2);
+        choose_decision_by_label(game, PlayerId::One, "Island");
+        assert_eq!(game.players[0].hand.len(), 1);
+        assert_eq!(game.players[0].exile.len(), 1);
+        assert!(game.players[0].graveyard.is_empty());
+    }
+    assert_eq!(reference.players, prepared.players);
+    assert_eq!(reference.events, prepared.events);
+}

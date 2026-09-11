@@ -146,11 +146,11 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                     minimum: 1,
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
-                    then: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 }),
             ),
             AbilityDef::activated(
@@ -248,11 +248,11 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
                 // Third from the top, so two cards have to be drawn before it comes back --
                 // and unlike a bounce it answers a permanent that would rather be in a hand
                 // or a graveyard.
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Library,
-                    placement: ZonePlacement::FromTop(3),
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Library,
+                    ZonePlacement::FromTop(3),
+                ),
             ),
             AbilityDef::activated(
                 "\u{2212}8: You get an emblem with \"Whenever you draw a card, exile target permanent an \
@@ -266,11 +266,11 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 )]),
             ),
         ]),

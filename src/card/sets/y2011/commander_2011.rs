@@ -72,11 +72,11 @@ CardRules::new_creature(
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::IfTargetMatches(&EXILED_A_CREATURE),
                 },
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-},
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+),
             ])),
     ),
 );

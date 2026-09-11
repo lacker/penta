@@ -98,11 +98,11 @@ pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::ne
             .with_controller(PlayerRefDef::OpponentOf(ObjectRefDef::Target(
                 TargetIndex::PRIMARY,
             ))),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ]),
     )),
 );

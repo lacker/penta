@@ -190,11 +190,11 @@ pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord:
                             owner: None,
                         },
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Exile target creature you control, then return it to the battlefield under \
@@ -256,11 +256,11 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
                 },
             )],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 // The searcher is the creature's controller, read from the announced
                 // target: by now the creature is in exile and cannot be asked.
                 EffectDef::SearchZone {
@@ -301,11 +301,11 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
                 // so the set is bound before it is emptied and the search reads the count
                 // off that binding rather than off a board the creatures have left.
                 &EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::SearchZone {
                         player: EffectRecipientDef::Opponent,
                         source: ZoneKind::Library,
@@ -954,11 +954,11 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                     },
                     1,
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "−1: This planeswalker deals 1 damage to any target.",

@@ -458,11 +458,11 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                             owner: Some(PlayerRelation::You),
                         },
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 ),
             ]),
 )
@@ -529,11 +529,11 @@ pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::n
                 )],
                 // The draw is not conditional on the optional bounce target.
                 EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(1),

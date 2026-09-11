@@ -418,11 +418,11 @@ pub(in crate::card::sets) static COASTAL_DRAKE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kavu")),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -925,11 +925,11 @@ pub(in crate::card::sets) static URBORG_UPRISING: CardRecord = CardRecord::new(
             2,
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -2276,11 +2276,11 @@ pub(in crate::card::sets) static SQUEE_S_EMBRACE: CardRecord = CardRecord::new(
             abilities::dies_trigger_matching(
                 "When enchanted creature dies, return that card to its owner's hand.",
                 ObjectPredicateDef::AttachedToSource,
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -2348,11 +2348,11 @@ pub(in crate::card::sets) static TEMPORAL_SPRING: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::Any,
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -2488,11 +2488,11 @@ pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_split(
                         [
                             EffectDef::WithBattlefieldArrival {
                                 effect: &const {
-                                    EffectDef::MoveToZone {
-                                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                        zone: ZoneKind::Battlefield,
-                                        placement: ZonePlacement::Top,
-                                    }
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                        ZoneKind::Battlefield,
+                                        ZonePlacement::Top,
+                                    )
                                 },
                                 arrival: crate::card::BattlefieldArrivalDef {
                                     controller: Some(PlayerRelation::You),

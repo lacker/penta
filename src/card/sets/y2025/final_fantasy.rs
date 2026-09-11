@@ -202,11 +202,11 @@ pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),

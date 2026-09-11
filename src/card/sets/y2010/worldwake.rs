@@ -161,11 +161,11 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::HasType(CardType::Creature),
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 ),
                 AbilityDef::activated_with_targets(
                     "−12: Exile all cards from target player's library, then that player shuffles their hand \
@@ -173,8 +173,8 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
                     &[CostDef::Loyalty(-12)],
                     &A_PLAYER,
                     EffectDef::Sequence(&[
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
                                 // Their whole library, named by owner rather than by relation: the ultimate
                                 // points at a player and empties that one.
                                 ObjectQueryDef::owned_by(
@@ -183,20 +183,20 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
                                     PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                                 ),
                             )),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
                                 ObjectQueryDef::owned_by(
                                     ObjectPredicateDef::Any,
                                     &[ZoneKind::Hand],
                                     PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                                 ),
                             )),
-                            zone: ZoneKind::Library,
-                            placement: ZonePlacement::Top,
-                        },
+                            ZoneKind::Library,
+                            ZonePlacement::Top,
+                        ),
                         // The shuffle is what leaves them a library at all, so it is the whole
                         // difference between this and drawing from nothing next upkeep.
                         EffectDef::ShuffleLibrary {

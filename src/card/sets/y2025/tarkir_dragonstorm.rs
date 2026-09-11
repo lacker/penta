@@ -84,11 +84,11 @@ static UP_TO_ONE_COLORED_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::u
     1,
 )];
 
-static UGIN_EXILES_IT: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
+static UGIN_EXILES_IT: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    ZoneKind::Exile,
+    ZonePlacement::Top,
+);
 
 pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord::new(
     "Ugin, Eye of the Storms",
@@ -576,13 +576,11 @@ pub(in crate::card::sets) static AINOK_WAYFARER: CardRecord = CardRecord::new(
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::Sequence(&[
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                ParentBinding,
-                            )),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                         // "If you don't" is read off what was taken rather
                         // than off what was offered: declining and having
                         // nothing to take both leave the counter.

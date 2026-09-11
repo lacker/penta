@@ -542,11 +542,11 @@ pub(in crate::card::sets) static AVEN_FOGBRINGER: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Land),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1866,13 +1866,13 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
                 then: &const {
                     EffectDef::Sequence(&const {
                         [
-                            EffectDef::MoveToZone {
-                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
                                     ParentBinding,
                                 )),
-                                zone: ZoneKind::Library,
-                                placement: ZonePlacement::Top,
-                            },
+                                ZoneKind::Library,
+                                ZonePlacement::Top,
+                            ),
                             EffectDef::ShuffleLibrary {
                                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             },
@@ -1929,11 +1929,11 @@ pub(in crate::card::sets) static NANTUKO_TRACER: CardRecord = CardRecord::new(
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Bottom,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Library,
+                        ZonePlacement::Bottom,
+                    )
                 },
             },
         ),

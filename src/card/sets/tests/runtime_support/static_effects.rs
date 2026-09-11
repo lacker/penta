@@ -464,7 +464,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::ChooseColor { .. }
         | EffectDef::BecomeCopyOf { .. }
         | EffectDef::PutIntoLibraryBeneathTop { .. }
-        | EffectDef::MoveToZone { .. }
         | EffectDef::WithBattlefieldArrival { .. }
         | EffectDef::WithZoneMoveResult { .. }
         | EffectDef::CreateEmblem { .. }

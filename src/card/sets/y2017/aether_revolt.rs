@@ -186,13 +186,13 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
                                     step: TurnStepDef::EndOfCombat,
                                     player: PlayerRelation::Any,
                                 },
-                                EffectDef::MoveToZone {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
                                         ParentBinding,
                                     )),
-                                    zone: ZoneKind::Exile,
-                                    placement: ZonePlacement::Top,
-                                },
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
                             ))),
                     }),
             ),

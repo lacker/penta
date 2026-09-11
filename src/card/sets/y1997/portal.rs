@@ -51,11 +51,11 @@ pub(in crate::card::sets) static ALABASTER_DRAGON: CardRecord = CardRecord::new(
         abilities::dies_trigger(
             "When this creature dies, shuffle it into its owner's library.",
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Library,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
                         ObjectRefDef::TriggeringObject,
@@ -136,11 +136,11 @@ pub(in crate::card::sets) static BREATH_OF_LIFE: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -489,11 +489,11 @@ pub(in crate::card::sets) static TIME_EBB: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -539,11 +539,11 @@ pub(in crate::card::sets) static GRAVEDIGGER: CardRecord = CardRecord::new(
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    )
                 },
             },
         ),

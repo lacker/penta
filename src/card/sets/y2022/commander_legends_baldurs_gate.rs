@@ -303,11 +303,11 @@ fn sword_coast_serpent_composition() -> CardComposition {
                             ObjectPredicateDef::HasType(CardType::Creature),
                         )]
                     },
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
             )

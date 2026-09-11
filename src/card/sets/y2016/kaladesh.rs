@@ -94,13 +94,13 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
                     then: &EffectDef::Sequence(
                         &const {
                             [
-                                EffectDef::MoveToZone {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
                                         ParentBinding,
                                     )),
-                                    zone: ZoneKind::Hand,
-                                    placement: ZonePlacement::Top,
-                                },
+                                    ZoneKind::Hand,
+                                    ZonePlacement::Top,
+                                ),
                                 EffectDef::DrawCards {
                                     recipient: EffectRecipientDef::Controller,
                                     amount: ValueDef::BoundObjectCount(Binding!(

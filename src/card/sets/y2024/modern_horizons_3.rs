@@ -158,11 +158,11 @@ CardRules::new_creature(mana_cost!("{5}{C}{C}"), &["Eldrazi"], 6, 6).with_abilit
             &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
                 &ObjectPredicateDef::ColorCount(0),
             ))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -537,20 +537,18 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::any_number(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
-                EffectDef::MoveToZone {
+                EffectDef::move_to_zone(
                     // Every player the slot chose, not just one: the singular
                     // cards_owned_by_target helper names a single target and
                     // this slot holds any number of them.
-                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
-                        ObjectQueryDef::owned_by(
-                            ObjectPredicateDef::Any,
-                            &[ZoneKind::Graveyard],
-                            PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
-                        ),
-                    )),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                    ))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),
@@ -815,11 +813,11 @@ pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardReco
             &[CostDef::Mana(mana_cost!("{3}{B}"))],
             EffectDef::WithBattlefieldArrival {
                 effect: &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    )
                 },
                 arrival: BattlefieldArrivalDef {
                     modifications: &[BattlefieldEntryModificationDef::Tapped],
@@ -1267,11 +1265,11 @@ pub(in crate::card::sets) static EVOLUTION_WITNESS: CardRecord = CardRecord::new
                         owner: Some(PlayerRelation::You),
                     },
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -1513,11 +1511,11 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                         minimum: 0,
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     }),
                 ]),
             ),
@@ -1608,11 +1606,11 @@ pub(in crate::card::sets) static SOWING_MYCOSPAWN: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Land),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -2573,11 +2571,11 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
                     )] },
                 // Returning a spell is not countering it: one that cannot be countered is
                 // answered all the same, and its controller keeps the card.
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ))
             },
         ),
@@ -2855,11 +2853,11 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                 },
                             )] },
                         EffectDef::Sequence(&const { [
-                            EffectDef::MoveToZone {
-                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                zone: ZoneKind::Hand,
-                                placement: ZonePlacement::Top,
-                            },
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
                             EffectDef::AddMana(
                                 AddManaEffectDef::any_color()
                                     // "If it's a green card, add one mana of any color." One mana when the card

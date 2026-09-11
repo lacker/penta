@@ -540,13 +540,13 @@ pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord:
                         minimum: 1,
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(
                                 ParentBinding,
                             )),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     })
                 },
             },

@@ -860,11 +860,11 @@ pub(in crate::card::sets) static RESURRECTION: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -974,11 +974,11 @@ pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                 amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
@@ -1818,11 +1818,11 @@ pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::spell_with_targets(
         "Return target creature to its owner's hand.",
         &ENCHANT_CREATURE_TARGET,
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )]),
 );
 
@@ -1962,13 +1962,13 @@ pub(in crate::card::sets) static ANIMATE_DEAD: CardRecord = CardRecord::new(
                 // object, so a following effect would have nothing left to name.
                 EffectDef::WithBattlefieldArrival {
                     effect: &const {
-                        EffectDef::MoveToZone {
+                        EffectDef::move_to_zone(
                             // "Return enchanted creature card": what the Aura is already attached
                             // to, which is the card its own spell targeted.
-                            object: EffectRecipientDef::AttachedPermanent,
-                            zone: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                        }
+                            EffectRecipientDef::AttachedPermanent,
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        )
                     },
                     arrival: crate::card::BattlefieldArrivalDef {
                         controller: Some(PlayerRelation::You),
@@ -2416,11 +2416,11 @@ CardRules::new_creature(mana_cost!("{B}{B}"), &["Spirit"], 1, 1).with_abilities(
                 },
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -2586,11 +2586,11 @@ pub(in crate::card::sets) static RAISE_DEAD: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )]),
 );
 
@@ -4445,11 +4445,11 @@ pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )]),
 );
 

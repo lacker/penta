@@ -107,11 +107,11 @@ pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new(
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::Any,
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 ),
                 // Their creatures, not everyone's: the Command is a Fog you get to keep
                 // the draw off, and tapping your own would defeat the point.

@@ -969,11 +969,11 @@ pub(in crate::card::sets) static BOOMERANG: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::Any,
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1138,11 +1138,11 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),
@@ -1378,13 +1378,13 @@ CardRules::new_sorcery(mana_cost!("{X}{X}{U}")).with_abilities(&[
                             ParentBinding,
                         )),
                         visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(
                                 ParentBinding,
                             )),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     }),
                 }),
             },
@@ -1881,11 +1881,11 @@ pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Zombie"], 2, 1).with_ability(
         abilities::dies_trigger(
             "When this creature dies, exile it.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::TriggeringZoneChangeResult,
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::TriggeringZoneChangeResult,
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -2104,11 +2104,11 @@ pub(in crate::card::sets) static HELLS_CARETAKER: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         )
         .with_activation_timing(ActivationTimingDef::YourUpkeep),
     ),
@@ -2547,11 +2547,11 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),
@@ -3926,11 +3926,11 @@ CardRules::new_enchantment(mana_cost!("{1}{G}"))
                                         EffectDef::PayOr(PayOrDef::unless(
                                             &[CostDef::PayLife(4)],
                                             &const {
-                                                EffectDef::MoveToZone {
-                                                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                                                    zone: ZoneKind::Library,
-                                                    placement: ZonePlacement::Top,
-                                                }
+                                                EffectDef::move_to_zone(
+                                                    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                                                    ZoneKind::Library,
+                                                    ZonePlacement::Top,
+                                                )
                                             },
                                         ))
                                     },
@@ -4107,11 +4107,11 @@ pub(in crate::card::sets) static ADUN_OAKENSHIELD: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )),
 );
 
@@ -5671,11 +5671,11 @@ pub(in crate::card::sets) static KARAKAS: CardRecord = CardRecord::new(
                         ObjectPredicateDef::Supertype(CardSupertype::Legendary),
                     ]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );

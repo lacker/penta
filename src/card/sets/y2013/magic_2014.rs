@@ -1051,11 +1051,11 @@ CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Rogue"], 2, 1).with_ab
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-},
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+),
         ),
     ),
 );

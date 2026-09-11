@@ -240,11 +240,11 @@ CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_ta
             },
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             },
         ]),
     )),
@@ -330,11 +330,11 @@ pub(in crate::card::sets) static FORCED_WORSHIP: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{2}{W}: Return this Aura to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{2}{W}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -538,11 +538,11 @@ pub(in crate::card::sets) static REMEMBER_THE_FALLEN: CardRecord = CardRecord::n
                             owner: Some(PlayerRelation::You),
                         },
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Return target artifact card from your graveyard to your hand.",
@@ -554,11 +554,11 @@ pub(in crate::card::sets) static REMEMBER_THE_FALLEN: CardRecord = CardRecord::n
                             owner: Some(PlayerRelation::You),
                         },
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 ),
             ],
         )
@@ -712,11 +712,11 @@ CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
                 )],
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 },
             )),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -1209,11 +1209,11 @@ pub(in crate::card::sets) static VAPOR_SNAG: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                     ObjectRefDef::Target(TargetIndex::PRIMARY),
@@ -1461,11 +1461,11 @@ CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Cleric"], 2, 2)
                             owner: Some(PlayerRelation::You),
                         },
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Target opponent reveals their hand. You choose a noncreature card from it. That player discards that card.",
@@ -1546,11 +1546,11 @@ CardRules::new_enchantment(mana_cost!("{B}{B}"))
             ),
             abilities::dies_trigger(
                 "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -1809,11 +1809,11 @@ CardRules::new_creature(mana_cost!("{5}{B}{B}"), &["Phyrexian", "Praetor"], 6, 6
                     controller: None,
                     owner: Some(PlayerRelation::You),
                 })],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::triggered(
                 "At the beginning of each opponent's upkeep, that player sacrifices a creature.",
@@ -2556,11 +2556,11 @@ CardRules::new_creature(mana_cost!("{5}{G}"), &["Phyrexian", "Cleric"], 3, 3).wi
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Bottom,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Library,
+                        ZonePlacement::Bottom,
+                    ),
                 ),
             ],
         ),
@@ -2807,11 +2807,11 @@ pub(in crate::card::sets) static NOXIOUS_REVIVAL: CardRecord = CardRecord::new(
                 owner: None,
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -3055,11 +3055,11 @@ pub(in crate::card::sets) static BATTERSKULL: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{3}: Return this Equipment to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{3}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             abilities::equip(&[CostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
         ]),
@@ -3111,11 +3111,11 @@ CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
                 owner: None,
             })],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
                     kind: CounterKind::named("charge"),

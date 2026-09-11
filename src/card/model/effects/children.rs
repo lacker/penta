@@ -178,7 +178,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Cascade
         | EffectDef::ExileTopOfLibraryToPlay { .. }
         | EffectDef::MayCastTargetWithoutPaying { .. }
-        | EffectDef::MoveToZone { .. }
         | EffectDef::RevealHand { .. }
         | EffectDef::RemoveFromCombat { .. }
         | EffectDef::None
@@ -266,11 +265,11 @@ mod tests {
 
     #[test]
     fn battlefield_arrival_wraps_a_zone_move() {
-        static MOVE: EffectDef = EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        };
+        static MOVE: EffectDef = EffectDef::move_to_zone(
+            EffectRecipientDef::Source,
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        );
         let wrapped = EffectDef::WithBattlefieldArrival {
             effect: &MOVE,
             arrival: super::super::BattlefieldArrivalDef {
@@ -284,11 +283,11 @@ mod tests {
 
     #[test]
     fn zone_move_result_exposes_the_move_and_follow_up() {
-        static MOVE: EffectDef = EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        };
+        static MOVE: EffectDef = EffectDef::move_to_zone(
+            EffectRecipientDef::Source,
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        );
         let wrapped = EffectDef::WithZoneMoveResult {
             effect: &MOVE,
             binding: Binding!("objects"),

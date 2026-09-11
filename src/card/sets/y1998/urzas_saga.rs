@@ -379,11 +379,11 @@ CardRules::new_creature(
             controller: None,
             owner: Some(PlayerRelation::You),
         })],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -888,11 +888,11 @@ pub(in crate::card::sets) static BARRIN_MASTER_WIZARD: CardRecord = CardRecord::
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )),
 );
 
@@ -1137,15 +1137,15 @@ pub(in crate::card::sets) static HIBERNATION: CardRecord = CardRecord::new(
     // killing anything -- they get it all back, a turn later.
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
         "Return all green permanents to their owners' hands.",
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::matching_objects(
+        EffectDef::move_to_zone(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::Color(ManaColor::Green),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1294,11 +1294,11 @@ pub(in crate::card::sets) static RESCIND: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Any,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -1455,11 +1455,11 @@ pub(in crate::card::sets) static STERN_PROCTOR: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Enchantment),
                 ]),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -1490,15 +1490,15 @@ pub(in crate::card::sets) static SUNDER: CardRecord = CardRecord::new(
     // turn one for whoever has the cheaper deck.
     CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::spell(
         "Return all lands to their owners' hands.",
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::matching_objects(
+        EffectDef::move_to_zone(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::HasType(CardType::Land),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 

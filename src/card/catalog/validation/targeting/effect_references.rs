@@ -640,8 +640,7 @@ fn validate_effect_references(
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::Endure { object, .. }
         | EffectDef::ChooseCounterKind { object, .. }
-        | EffectDef::ModifyCounters { object, .. }
-        | EffectDef::MoveToZone { object, .. } => {
+        | EffectDef::ModifyCounters { object, .. } => {
             validate_recipient_target_references(object, target_count, scope)
         }
         EffectDef::CopyStackObject(copy) => {

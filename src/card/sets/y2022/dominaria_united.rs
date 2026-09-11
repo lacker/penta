@@ -262,11 +262,11 @@ pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
                     },
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -411,11 +411,11 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
                                 "When this permanent is put into a graveyard from the battlefield, exile it and you gain 2 \
                                  life.",
                                 EffectDef::Sequence(&[
-                                    EffectDef::MoveToZone {
-                                        object: EffectRecipientDef::TriggeringZoneChangeResult,
-                                        zone: ZoneKind::Exile,
-                                        placement: ZonePlacement::Top,
-                                    },
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::TriggeringZoneChangeResult,
+                                        ZoneKind::Exile,
+                                        ZonePlacement::Top,
+                                    ),
                                     EffectDef::GainLife {
                                         recipient: EffectRecipientDef::Controller,
                                         amount: ValueDef::Constant(2),

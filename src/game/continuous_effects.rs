@@ -634,7 +634,6 @@ impl Game {
                 | EffectDef::LandwalkCanBeBlocked(_)
                 | EffectDef::CannotAttackUnless(_)
                 | EffectDef::PutIntoLibraryBeneathTop { .. }
-                | EffectDef::MoveToZone { .. }
                 | EffectDef::PhaseOut { .. }
                 | EffectDef::CreateToken { .. }
                 | EffectDef::CreateAttachedToken { .. }

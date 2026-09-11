@@ -198,11 +198,11 @@ pub(in crate::card::sets) static ANGELIC_EDICT: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             ]),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -627,11 +627,11 @@ CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Avatar"], 4, 7).with_abiliti
                 },
                 1,
             )], EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-},
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                     amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
@@ -822,11 +822,11 @@ pub(in crate::card::sets) static AGORAPHOBIA: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{2}{U}: Return this Aura to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{2}{U}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -1016,11 +1016,11 @@ pub(in crate::card::sets) static KEYMASTER_ROGUE: CardRecord = CardRecord::new(
                 // Mandatory and unaimed: a minimum of one with no target slot, so the
                 // bounce cannot be answered with nothing and cannot be responded to by
                 // protecting the creature it will name.
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             }),
         ),
     ]),
@@ -1044,11 +1044,11 @@ pub(in crate::card::sets) static LEYLINE_PHANTOM: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "When this creature deals combat damage, return it to its owner's hand.",
             TriggerEventDef::combat_damage_dealt_by(ObjectPredicateDef::Source),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -1350,11 +1350,11 @@ pub(in crate::card::sets) static TOTALLY_LOST: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1726,13 +1726,13 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}{B}"), &["Demon"], 7, 7).with_abili
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
                         then: &EffectDef::WithBattlefieldArrival {
-                            effect: &EffectDef::MoveToZone {
-                                object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                            effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(
                                     ParentBinding,
                                 )),
-                                zone: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                            },
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
                             arrival: BattlefieldArrivalDef {
                                 controller: Some(PlayerRelation::You),
                                 ..BattlefieldArrivalDef::DEFAULT
@@ -1830,11 +1830,11 @@ CardRules::new_creature(
         )], // One opponent means one target here. Choosing none is already a
             // legal target selection, so the printed "may" adds nothing.
             EffectDef::WithBattlefieldArrival {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 arrival: crate::card::BattlefieldArrivalDef {
                     controller: Some(PlayerRelation::You),
                     ..crate::card::BattlefieldArrivalDef::DEFAULT
@@ -3266,11 +3266,11 @@ pub(in crate::card::sets) static WILDWOOD_REBIRTH: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -3642,11 +3642,11 @@ CardRules::new_creature(mana_cost!("{3}{W}{B}{B}"), &["Angel"], 5, 5)
                         minimum: 1,
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                            zone: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                        },
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
                     }),
                 )]),
             ),
@@ -3729,11 +3729,11 @@ CardRules::new_creature(mana_cost!("{4}{U}{B}"), &["Horror"], 4, 4).with_ability
         abilities::enters_trigger_with_targets("When this creature enters, return target permanent to its owner's hand, then that player discards a card.", &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Any,
             )], EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-},
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+),
                 EffectDef::Discard {
                     recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(1),
@@ -4439,11 +4439,11 @@ pub(in crate::card::sets) static MORTUS_STRIDER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Skeleton"], 1, 1).with_ability(
         abilities::dies_trigger(
             "When this creature dies, return it to its owner's hand.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::TriggeringZoneChangeResult,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::TriggeringZoneChangeResult,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -4809,11 +4809,11 @@ pub(in crate::card::sets) static SIMIC_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),
@@ -4964,11 +4964,11 @@ CardRules::new_creature(mana_cost!("{4}{W}{B}"), &["Thrull"], 4, 4).with_abiliti
             })],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-},
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+),
             },
         ),
     ]),
@@ -5413,11 +5413,11 @@ pub(in crate::card::sets) static SHATTERING_BLOW: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Artifact),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 

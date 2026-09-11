@@ -120,11 +120,11 @@ pub(in crate::card::sets) static BANISHMENT_DECREE: CardRecord = CardRecord::new
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             ]),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -608,11 +608,11 @@ pub(in crate::card::sets) static QUICKSILVER_GEYSER: CardRecord = CardRecord::ne
             },
             2,
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -692,11 +692,11 @@ pub(in crate::card::sets) static STEEL_SABOTAGE: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),
@@ -990,11 +990,11 @@ pub(in crate::card::sets) static MORBID_PLUNDER: CardRecord = CardRecord::new(
             },
             2,
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1408,11 +1408,11 @@ pub(in crate::card::sets) static INTO_THE_CORE: CardRecord = CardRecord::new(
             excludes_source: false,
             chooser: TargetChooserDef::Controller,
         }],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1806,15 +1806,15 @@ CardRules::new_sorcery(mana_cost!("{5}{G}{G}{G}"))
         .with_ability(AbilityDef::spell(
             "Return all cards from your graveyard to your hand. Exile this spell. You have no maximum hand size for the rest of the game.",
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::matching_objects(
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::Any,
                         &[ZoneKind::Graveyard],
                         PlayerRelation::You,
                     ),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Controller,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
@@ -1972,11 +1972,11 @@ CardRules::new_creature(mana_cost!("{B}{G}{G}"), &["Phyrexian", "Zombie", "Elf"]
                 })],
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 },
             ),
         ]),
@@ -2882,11 +2882,11 @@ CardRules::new_artifact(mana_cost!("{7}")).with_abilities(&[
         ),
         abilities::dies_trigger(
             "When this artifact is put into a graveyard from the battlefield, return it to its owner's hand.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::TriggeringZoneChangeResult,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::TriggeringZoneChangeResult,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -3005,11 +3005,11 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Thopter"], 5, 5)
                     amount: 0,
                 },
                 EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
                         .with_abilities(&[abilities::flying()])
                         .with_amount(5),

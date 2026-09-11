@@ -201,11 +201,11 @@ pub(in crate::card::sets) static BLINKING_SPIRIT: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{0}: Return this creature to its owner's hand.",
             &[],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: crate::card::ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                crate::card::ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -398,11 +398,11 @@ pub(in crate::card::sets) static HALLOWED_GROUND: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: crate::card::ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                crate::card::ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -1705,11 +1705,11 @@ pub(in crate::card::sets) static FOUL_FAMILIAR: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{B}, Pay 1 life: Return this creature to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{B}")), CostDef::PayLife(1)],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: crate::card::ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                crate::card::ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -4296,11 +4296,11 @@ pub(in crate::card::sets) static HYMN_OF_REBIRTH: CardRecord = CardRecord::new(
             },
         )],
         EffectDef::WithBattlefieldArrival {
-            effect: &EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: crate::card::ZonePlacement::Top,
-            },
+            effect: &EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                crate::card::ZonePlacement::Top,
+            ),
             arrival: crate::card::BattlefieldArrivalDef {
                 controller: Some(PlayerRelation::You),
                 ..crate::card::BattlefieldArrivalDef::DEFAULT

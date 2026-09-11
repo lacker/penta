@@ -165,11 +165,11 @@ CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Giant"], 6, 6).with_abilitie
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
             },
         ),
     ]),
@@ -218,11 +218,11 @@ pub(in crate::card::sets) static AETHER_ADEPT: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -969,20 +969,20 @@ CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(5),
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 ),
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
             EffectDef::ShuffleLibrary {
                 player: EffectRecipientDef::Controller,
             },

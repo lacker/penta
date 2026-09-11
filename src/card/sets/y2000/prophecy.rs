@@ -215,11 +215,11 @@ pub(in crate::card::sets) static EXCISE: CardRecord = CardRecord::new(
             PayOrDef::unless(
                 &[CostDef::GenericMana(ValueDef::ChosenX)],
                 &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    )
                 },
             )
             .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(

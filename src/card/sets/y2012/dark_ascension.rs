@@ -139,15 +139,15 @@ pub(in crate::card::sets) static ARCHANGELS_LIGHT: CardRecord = CardRecord::new(
                     2,
                 )),
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 ),
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
             EffectDef::ShuffleLibrary {
                 player: EffectRecipientDef::Controller,
             },
@@ -646,11 +646,11 @@ pub(in crate::card::sets) static THRABEN_HERETIC: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -878,11 +878,11 @@ pub(in crate::card::sets) static GRIPTIDE: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -984,11 +984,11 @@ pub(in crate::card::sets) static MYSTIC_RETRIEVAL: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{R}"))]),
     ]),
@@ -1073,11 +1073,11 @@ pub(in crate::card::sets) static SAVING_GRASP: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{W}"))]),
     ]),
@@ -1763,8 +1763,8 @@ CardRules::new_sorcery(mana_cost!("{3}{B}{B}{B}")).with_ability(AbilityDef::spel
         "Return all Zombie creature cards from your graveyard to the battlefield tapped, then destroy all Humans.",
         EffectDef::Sequence(&[
             EffectDef::WithBattlefieldArrival {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::matching_objects(
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
                             ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
@@ -1772,9 +1772,9 @@ CardRules::new_sorcery(mana_cost!("{3}{B}{B}{B}")).with_ability(AbilityDef::spel
                         &[ZoneKind::Graveyard],
                         PlayerRelation::You,
                     ),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 arrival: BattlefieldArrivalDef {
                     modifications: &[BattlefieldEntryModificationDef::Tapped],
                     ..BattlefieldArrivalDef::DEFAULT
@@ -3630,13 +3630,13 @@ CardRules::new_land(&[]).with_abilities(&[
                     },
                     binding: Binding!("haunted_fengraf_card"),
                 },
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(
                         Binding!("haunted_fengraf_card"),
                     )),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ]),
         ),
     ]),

@@ -67,16 +67,11 @@ impl Game {
             EffectDef::WithBattlefieldArrival { effect, arrival } => (*effect, arrival),
             effect => (effect, BattlefieldArrivalDef::DEFAULT),
         };
-        let (EffectDef::MoveToZone {
+        let EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
             object: recipient,
             zone,
             placement,
-        }
-        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
-            object: recipient,
-            zone,
-            placement,
-        })) = move_effect
+        }) = move_effect
         else {
             unreachable!("battlefield arrival must wrap a zone move")
         };
@@ -106,18 +101,12 @@ impl Game {
         scoped: ScopedEffect,
     ) {
         let move_recipient = match effect {
-            EffectDef::MoveToZone {
-                object: recipient, ..
-            }
-            | EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+            EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
                 object: recipient,
                 ..
             }) => Some(*recipient),
             EffectDef::WithBattlefieldArrival { effect: inner, .. } => match **inner {
-                EffectDef::MoveToZone {
-                    object: recipient, ..
-                }
-                | EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
+                EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
                     object: recipient,
                     ..
                 }) => Some(recipient),

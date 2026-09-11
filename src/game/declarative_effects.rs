@@ -825,7 +825,7 @@ impl Game {
                 effect,
                 duration,
             } => self.resolve_applied_effect(recipient, effect, duration, object, &context, scoped),
-            effect @ (EffectDef::MoveToZone { .. } | EffectDef::WithBattlefieldArrival { .. }) => {
+            effect @ EffectDef::WithBattlefieldArrival { .. } => {
                 self.resolve_move_to_zone_effect(effect, object, &context, scoped);
             }
             EffectDef::WithZoneMoveResult {

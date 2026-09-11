@@ -60,11 +60,11 @@ static SAKASHIMA_RETURN: AbilityDef = AbilityDef::activated(
             step: TurnStepDef::End,
             player: PlayerRelation::Any,
         },
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: crate::card::ZoneKind::Hand,
-            placement: crate::card::ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Source,
+            crate::card::ZoneKind::Hand,
+            crate::card::ZonePlacement::Top,
+        ),
     ))),
 );
 
@@ -111,11 +111,11 @@ pub(in crate::card::sets) static DEATH_DENIED: CardRecord = CardRecord::new(
                 },
                 ValueDef::ChosenX,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )),
 );
 

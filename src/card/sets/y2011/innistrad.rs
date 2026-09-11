@@ -123,11 +123,11 @@ static CREATURE_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matchi
 /// The common continuation after this set randomly selects a card from its
 /// controller's graveyard. The selection binds the old graveyard object; the
 /// move creates and follows its hand-zone successor.
-static RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("random_graveyard_cards"))),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-};
+static RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("random_graveyard_cards"))),
+    ZoneKind::Hand,
+    ZonePlacement::Top,
+);
 
 static NO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCastLastTurn {
     quantifier: QuantifierDef::Every,
@@ -233,11 +233,11 @@ CardRules::new_creature(mana_cost!("{4}{W}"), &["Angel"], 4, 4).with_abilities(&
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-},
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+),
         ),
     ]),
 );
@@ -908,11 +908,11 @@ pub(in crate::card::sets) static PURIFY_THE_GRAVE: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{W}"))]),
     ]),
@@ -1000,11 +1000,11 @@ pub(in crate::card::sets) static SILVERCHASE_FOX: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -1606,11 +1606,11 @@ pub(in crate::card::sets) static GRASP_OF_PHANTOMS: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{7}{U}"))]),
     ]),
@@ -1676,11 +1676,11 @@ pub(in crate::card::sets) static LANTERN_SPIRIT: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{U}: Return this creature to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{U}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1707,11 +1707,11 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new(
                 zone: ZoneKind::Graveyard,
                 placement: ZonePlacement::Top,
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex(1)),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ]),
     )),
 );
@@ -1806,11 +1806,11 @@ CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
                 ),
             ],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex(1)),
-                    zone: ZoneKind::Library,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex(1)),
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -1880,15 +1880,15 @@ CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Spirit"], 5, 1).with_abiliti
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceOnBattlefield,
                 then: &EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::matching_objects(
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::matching_objects(
                             ObjectPredicateDef::Source,
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
                     },
@@ -1991,11 +1991,11 @@ pub(in crate::card::sets) static RUNIC_REPETITION: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -2064,11 +2064,11 @@ pub(in crate::card::sets) static SILENT_DEPARTURE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{4}{U}"))]),
     ]),
@@ -2760,11 +2760,11 @@ pub(in crate::card::sets) static GHOULCALLERS_CHANT: CardRecord = CardRecord::ne
                         owner: Some(PlayerRelation::You),
                     },
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Return two target Zombie cards from your graveyard to your hand.",
@@ -2786,11 +2786,11 @@ pub(in crate::card::sets) static GHOULCALLERS_CHANT: CardRecord = CardRecord::ne
                     excludes_source: false,
                     chooser: TargetChooserDef::Controller,
                 }],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),
@@ -3143,8 +3143,8 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Union(&[
                     ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                     ObjectSetDef::Query(ObjectQueryDef::new(
                         ObjectPredicateDef::All(&[
@@ -3156,9 +3156,9 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
                         &[ZoneKind::Battlefield],
                     )),
                 ])),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{B}{B}"))]),
     ]),
@@ -3301,11 +3301,11 @@ pub(in crate::card::sets) static UNBURIAL_RITES: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{W}"))]),
     ]),
@@ -5710,13 +5710,13 @@ pub(in crate::card::sets) static GEIST_OF_SAINT_TRAFT: CardRecord = CardRecord::
                                     step: TurnStepDef::EndOfCombat,
                                     player: PlayerRelation::Any,
                                 },
-                                EffectDef::MoveToZone {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
                                         ParentBinding,
                                     )),
-                                    zone: ZoneKind::Exile,
-                                    placement: ZonePlacement::Top,
-                                },
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
                             ),
                         )),
                     }),
@@ -6007,16 +6007,16 @@ CardRules::new_artifact(mana_cost!("{4}"))
                 ],
                 EffectDef::WithZoneMoveResult {
                     effect: &EffectDef::WithBattlefieldArrival {
-                        effect: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Query(
                                 ObjectQueryDef::new(
                                     ObjectPredicateDef::HasType(CardType::Creature),
                                     &[ZoneKind::Graveyard],
                                 ),
                             )),
-                            zone: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                        },
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
                         arrival: crate::card::BattlefieldArrivalDef {
                             controller: Some(PlayerRelation::You),
                             ..crate::card::BattlefieldArrivalDef::DEFAULT

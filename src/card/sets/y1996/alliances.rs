@@ -132,11 +132,11 @@ pub(in crate::card::sets) static EXILE: CardRecord = CardRecord::new(
             ]),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::TargetToughness(TargetIndex::PRIMARY),
@@ -344,11 +344,11 @@ pub(in crate::card::sets) static REINFORCEMENTS: CardRecord = CardRecord::new(
             },
             3,
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -650,11 +650,11 @@ CardRules::new_enchantment(mana_cost!("{2}{U}"))
                     Some(ZoneKind::Graveyard),
                 )),
                 EffectDef::WithBattlefieldArrival {
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::TriggeringZoneChangeResult,
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::TriggeringZoneChangeResult,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
                     arrival: crate::card::BattlefieldArrivalDef {
                         controller: Some(PlayerRelation::You),
                         ..crate::card::BattlefieldArrivalDef::DEFAULT
@@ -917,17 +917,17 @@ CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
         AbilityDef::triggered(
             "When this enchantment's cumulative upkeep isn't paid, exile all cards from your library.",
             TriggerEventDef::PaymentNotPaid(crate::card::AbilityLabel::CUMULATIVE_UPKEEP),
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::Query(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(
                     crate::card::ObjectQueryDef::owned_by(
                         ObjectPredicateDef::Any,
                         &[ZoneKind::Library],
                         PlayerSetDef::Related(PlayerRelation::You),
                     ),
                 )),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         AbilityDef::activated(
             "Exile the top card of your library: Prevent the next 1 damage that would be dealt to you this turn.",
@@ -982,11 +982,11 @@ pub(in crate::card::sets) static VISCERID_ARMOR: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{1}{U}: Return this Aura to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{1}{U}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -1287,11 +1287,11 @@ pub(in crate::card::sets) static MISINFORMATION: CardRecord = CardRecord::new(
             },
             3,
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Library,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -2593,11 +2593,11 @@ CardRules::new_creature(mana_cost!("{1}{G}{W}{U}"), &["Phelddagrif"], 4, 4)
                     PlayerRelation::Opponent,
                 ))],
                 EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::May {
                         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         effect: &EffectDef::DrawCards {
@@ -2830,14 +2830,14 @@ pub(in crate::card::sets) static SOLDEVI_DIGGER: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated(
         "{2}: Put the top card of your graveyard on the bottom of your library.",
         &[CostDef::Mana(mana_cost!("{2}"))],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+        EffectDef::move_to_zone(
+            EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
                 player: PlayerRefDef::EffectController,
                 object: ObjectPredicateDef::Any,
             }),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Bottom,
-        },
+            ZoneKind::Library,
+            ZonePlacement::Bottom,
+        ),
     )),
 );
 
@@ -3027,11 +3027,11 @@ pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new(
                             step: TurnStepDef::Cleanup,
                             player: PlayerRelation::Any,
                         },
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Source,
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     )
                     })),
                 ]

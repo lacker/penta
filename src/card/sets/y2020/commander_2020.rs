@@ -60,13 +60,13 @@ CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Elemental", "Whale"], 3, 3)
                         minimum: 1,
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::object(ObjectRefDef::Binding(
                                 ParentBinding,
                             )),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     }),
                 },
             ),

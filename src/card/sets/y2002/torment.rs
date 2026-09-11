@@ -187,14 +187,14 @@ pub(in crate::card::sets) static MORNINGTIDE: CardRecord = CardRecord::new(
     // them was a sideboard staple.
     CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
         "Exile all graveyards.",
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+        EffectDef::move_to_zone(
+            EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
                 ObjectPredicateDef::Any,
                 &[ZoneKind::Graveyard],
             ))),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -435,16 +435,16 @@ pub(in crate::card::sets) static CHURNING_EDDY: CardRecord = CardRecord::new(
             }),
         ],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex(1)),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex(1)),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ]),
     )),
 );
@@ -542,11 +542,11 @@ pub(in crate::card::sets) static GHOSTLY_WINGS: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "Discard a card: Return enchanted creature to its owner's hand.",
                 &[CostDef::discard(ObjectPredicateDef::Any)],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::AttachedPermanent,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::AttachedPermanent,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -635,11 +635,11 @@ pub(in crate::card::sets) static SKYWING_AVEN: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Discard a card: Return this creature to its owner's hand.",
             &[CostDef::discard(ObjectPredicateDef::Any)],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -948,18 +948,18 @@ CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(
                         then: &const {
                             EffectDef::Sequence(&const {
                                 [
-                                    EffectDef::MoveToZone {
-                                        object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::object(ObjectRefDef::Binding(
                                             ParentBinding,
                                         )),
-                                        zone: ZoneKind::Exile,
-                                        placement: ZonePlacement::Top,
-                                    },
-                                    EffectDef::MoveToZone {
-                                        object: EffectRecipientDef::Source,
-                                        zone: ZoneKind::Battlefield,
-                                        placement: ZonePlacement::Top,
-                                    },
+                                        ZoneKind::Exile,
+                                        ZonePlacement::Top,
+                                    ),
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::Source,
+                                        ZoneKind::Battlefield,
+                                        ZonePlacement::Top,
+                                    ),
                                 ]
                             })
                         },

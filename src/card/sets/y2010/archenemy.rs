@@ -38,11 +38,11 @@ pub(in crate::card::sets) static REASSEMBLING_SKELETON: CardRecord = CardRecord:
             "{1}{B}: Return this card from your graveyard to the battlefield tapped.",
             &[CostDef::Mana(mana_cost!("{1}{B}"))],
             EffectDef::WithBattlefieldArrival {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Source),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::object(ObjectRefDef::Source),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 arrival: crate::card::BattlefieldArrivalDef {
                     modifications: &[BattlefieldEntryModificationDef::Tapped],
                     ..crate::card::BattlefieldArrivalDef::DEFAULT

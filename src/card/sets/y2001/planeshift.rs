@@ -443,11 +443,11 @@ pub(in crate::card::sets) static ESCAPE_ROUTES: CardRecord = CardRecord::new(
                     ]),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -754,11 +754,11 @@ pub(in crate::card::sets) static LORD_OF_THE_UNDEAD: CardRecord = CardRecord::ne
                     },
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1523,11 +1523,11 @@ const fn return_a_creature_you_control(object: ObjectPredicateDef) -> EffectDef 
         // itself a const fn call, which a temporary inside a const fn body
         // will not promote to `'static`.
         then: &const {
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            }
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            )
         },
     })
 }
@@ -1556,11 +1556,11 @@ pub(in crate::card::sets) static CAVERN_HARPY: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Pay 1 life: Return this creature to its owner's hand.",
             &[CostDef::PayLife(1)],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1589,11 +1589,11 @@ pub(in crate::card::sets) static CROSIS_S_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Any,
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Destroy target nonblack creature. It can't be regenerated.",
@@ -1645,11 +1645,11 @@ pub(in crate::card::sets) static DARIGAAZ_S_CHARM: CardRecord = CardRecord::new(
                         owner: Some(PlayerRelation::You),
                     },
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Darigaaz's Charm deals 3 damage to any target.",
@@ -2381,13 +2381,13 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new(
                         then: &const {
                             EffectDef::Sequence(&const {
                                 [
-                                    EffectDef::MoveToZone {
-                                        object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::object(ObjectRefDef::Binding(
                                             ParentBinding,
                                         )),
-                                        zone: ZoneKind::Exile,
-                                        placement: ZonePlacement::Top,
-                                    },
+                                        ZoneKind::Exile,
+                                        ZonePlacement::Top,
+                                    ),
                                     EffectDef::Untap {
                                         object: EffectRecipientDef::Source,
                                     },

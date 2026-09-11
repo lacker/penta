@@ -49,8 +49,8 @@ CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with
         &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
             &ObjectPredicateDef::HasType(CardType::Land),
         ))],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+        EffectDef::move_to_zone(
+            EffectRecipientDef::objects(ObjectSetDef::Union(&[
                 ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                 ObjectSetDef::Matching {
                     objects: &ObjectSetDef::Query(ObjectQueryDef::new(
@@ -62,9 +62,9 @@ CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with
                     )),
                 },
             ])),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -295,13 +295,13 @@ CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
                     ),
                 )),
                 &EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(
                             ParentBinding,
                         )),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::BoundObjectCount(ParentBinding),

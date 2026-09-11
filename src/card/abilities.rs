@@ -38,11 +38,11 @@ pub(crate) use death_return::{PERSIST_TRIGGER, UNDYING_TRIGGER};
 pub const fn begin_game_on_battlefield() -> AbilityDef {
     AbilityDef::opening_hand(
         "If this card is in your opening hand, you may begin the game with it on the battlefield.",
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Source,
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        ),
     )
 }
 

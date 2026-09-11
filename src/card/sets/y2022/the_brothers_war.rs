@@ -271,11 +271,11 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -405,11 +405,11 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
             )],
             EffectDef::WithZoneMoveResult {
                 effect: &EffectDef::WithBattlefieldArrival {
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
                     arrival: crate::card::BattlefieldArrivalDef {
                         controller: Some(PlayerRelation::You),
                         ..crate::card::BattlefieldArrivalDef::DEFAULT

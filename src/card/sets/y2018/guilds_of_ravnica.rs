@@ -92,11 +92,11 @@ CardRules::new_creature(mana_cost!("{3}{R}"), &["Phoenix"], 3, 2).with_abilities
                 player: PlayerRelation::You,
             },
             &ARCLIGHT_PHOENIX_RETURN_CONDITION,
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),

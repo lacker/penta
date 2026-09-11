@@ -11,11 +11,11 @@ static DASH_RETURNS_IT: AbilityDef = AbilityDef::triggered(
         step: TurnStepDef::End,
         player: PlayerRelation::Any,
     },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
+    EffectDef::move_to_zone(
+        EffectRecipientDef::Source,
+        ZoneKind::Hand,
+        ZonePlacement::Top,
+    ),
 );
 
 static WAS_DASHED: TriggerConditionDef =

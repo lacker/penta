@@ -127,11 +127,11 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new(
                             amount: ValueDef::Constant(1),
                         },
                     },
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 ]),
             ),
             AbilityDef::static_ability(
@@ -298,11 +298,11 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
                     ]),
                 )],
                 EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(2),
@@ -793,11 +793,11 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
                         ObjectPredicateDef::HasType(CardType::Planeswalker),
                     ]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             )
             .with_source_zones(&[ZoneKind::Hand])
             .with_activation_cost_reduction(

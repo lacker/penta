@@ -292,10 +292,10 @@ mod tests {
         };
         assert!(matches!(
             *exile.then,
-            EffectDef::MoveToZone {
+            EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
                 zone: ZoneKind::Exile,
                 ..
-            }
+            })
         ));
     }
 

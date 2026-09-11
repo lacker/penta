@@ -27,21 +27,8 @@ impl Game {
                 object,
                 context,
             ),
-            GameActionDef::MoveToZone {
-                object: recipient,
-                zone,
-                placement,
-            } => {
-                self.resolve_move_to_zone_effect(
-                    EffectDef::MoveToZone {
-                        object: recipient,
-                        zone,
-                        placement,
-                    },
-                    object,
-                    &context,
-                    scoped,
-                );
+            GameActionDef::MoveToZone { .. } => {
+                self.resolve_move_to_zone_effect(action.as_effect(), object, &context, scoped);
             }
             GameActionDef::Choose(choice) => {
                 let definition = self.fixed_game_action_choice(choice, object, &context, scoped);

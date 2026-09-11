@@ -629,11 +629,11 @@ CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Wizard"], 1, 2).wit
                 zones: &[ZoneKind::Graveyard],
                 controller: None,
                 owner: Some(PlayerRelation::You),
-            })], EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-}),
+            })], EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+)),
     ),
 );
 
@@ -1780,11 +1780,11 @@ CardRules::new_creature(mana_cost!("{4}{B}"), &["Zombie"], 4, 1).with_abilities(
             ),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -1807,11 +1807,11 @@ pub(in crate::card::sets) static VILE_REBIRTH: CardRecord = CardRecord::new(
             },
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
             EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(
                 CardArt::new("1966d7e6-cd4a-47ff-bc3e-f8e0db8a3439", "Lucas Graciano"),
             ),
@@ -2038,11 +2038,11 @@ pub(in crate::card::sets) static FIREWING_PHOENIX: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{1}{R}{R}{R}: Return this card from your graveyard to your hand.",
             &[CostDef::Mana(mana_cost!("{1}{R}{R}{R}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),
@@ -2450,24 +2450,24 @@ pub(in crate::card::sets) static WORLDFIRE: CardRecord = CardRecord::new(
 CardRules::new_sorcery(mana_cost!("{6}{R}{R}{R}")).with_ability(AbilityDef::spell(
         "Exile all permanents. Exile all cards from all hands and graveyards. Each player's life total becomes 1.",
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Hand, ZoneKind::Graveyard],
                     PlayerRelation::Any,
                 ),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
             EffectDef::SetLifeTotal {
                 recipient: EffectRecipientDef::players(PlayerSetDef::All),
                 total: ValueDef::Constant(1),
@@ -2883,11 +2883,11 @@ pub(in crate::card::sets) static ROARING_PRIMADOX: CardRecord = CardRecord::new(
                 minimum: 1,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             }),
         ),
     ),
@@ -3486,11 +3486,11 @@ CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
         AbilityDef::activated(
             "{1}, {T}, Sacrifice an artifact: Draw a card.",

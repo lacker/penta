@@ -446,8 +446,7 @@ fn validate_effect_target_shapes(
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::Endure { object, .. }
         | EffectDef::ChooseCounterKind { object, .. }
-        | EffectDef::ModifyCounters { object, .. }
-        | EffectDef::MoveToZone { object, .. } => {
+        | EffectDef::ModifyCounters { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
         EffectDef::CopyStackObject(copy) => {

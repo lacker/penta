@@ -104,11 +104,11 @@ pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord = CardRecord
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )],
     ),
 );
@@ -276,14 +276,14 @@ pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects_owned_by_target(
+        EffectDef::move_to_zone(
+            EffectRecipientDef::objects_owned_by_target(
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 TargetIndex::PRIMARY,
             ),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )]),
 );
 
@@ -311,11 +311,11 @@ pub(in crate::card::sets) static RECONSTRUCTION: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )]),
 );
 
@@ -1128,15 +1128,15 @@ pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new(
         EffectDef::Sequence(
             &const {
                 [
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::matching_objects(
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::matching_objects(
                             ObjectPredicateDef::Any,
                             &const { [ZoneKind::Graveyard] },
                             PlayerRelation::You,
                         ),
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::Controller,
                     },
@@ -1335,11 +1335,11 @@ pub(in crate::card::sets) static OBELISK_OF_UNDOING: CardRecord = CardRecord::ne
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1406,11 +1406,11 @@ CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated_wi
                             step: TurnStepDef::End,
                             player: PlayerRelation::Any,
                         },
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Source,
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     )
                 })),
             ]
@@ -1629,13 +1629,13 @@ CardRules::new_artifact_creature(mana_cost!("{6}"), &["Construct"], 1, 1)
                 maximum: usize::MAX,
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(
                             ParentBinding,
                         )),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::AddCounters {
                         object: EffectRecipientDef::Source,
                         kind: CounterKind::PlusOnePlusOne,

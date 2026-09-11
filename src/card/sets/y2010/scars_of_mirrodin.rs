@@ -475,11 +475,11 @@ CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Hippogriff"], 3, 3).with_abi
                 owner: Some(PlayerRelation::You),
             })],
             EffectDef::WithZoneMoveResult {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
                 binding: RAZOR_HIPPOGRIFF_RETURNED,
                 then: &EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
@@ -507,11 +507,11 @@ pub(in crate::card::sets) static REVOKE_EXISTENCE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             ]),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -542,11 +542,11 @@ CardRules::new_creature(mana_cost!("{W}"), &["Human", "Scout"], 1, 1).with_abili
                 excludes_source: false,
                 chooser: TargetChooserDef::Controller,
             }],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -795,11 +795,11 @@ pub(in crate::card::sets) static DISSIPATION_FIELD: CardRecord = CardRecord::new
             ]),
             PlayerRelation::You,
         ),
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::TriggeringObject,
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::TriggeringObject,
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -874,11 +874,11 @@ CardRules::new_creature(mana_cost!("{3}{U}"), &["Drake"], 2, 2).with_abilities(&
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1525,11 +1525,11 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Zombie"], 5, 5)
                 })],
                 EffectDef::Sequence(&[
                     EffectDef::WithBattlefieldArrival {
-                        effect: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            zone: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                        },
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
                         arrival: crate::card::BattlefieldArrivalDef {
                             controller: Some(PlayerRelation::You),
                             modifications: &[BattlefieldEntryModificationDef::Tapped],
@@ -1692,13 +1692,13 @@ CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(
                     minimum: 0,
                     maximum: usize::MAX,
                     visibility: ChoiceVisibilityDef::Public,
-                    then: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
                             "memoricide_graveyard"
                         ))),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 }),
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_hand")),
@@ -1715,13 +1715,13 @@ CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(
                     minimum: 0,
                     maximum: usize::MAX,
                     visibility: ChoiceVisibilityDef::Private,
-                    then: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
                             "memoricide_hand"
                         ))),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 }),
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_library")),
@@ -1738,13 +1738,13 @@ CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(
                     minimum: 0,
                     maximum: usize::MAX,
                     visibility: ChoiceVisibilityDef::Private,
-                    then: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
                             "memoricide_library"
                         ))),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 }),
                 EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::player(PlayerRefDef::Target(
@@ -1884,11 +1884,11 @@ CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
                                 comparison: ComparisonDef::GreaterOrEqual,
                                 right: ValueDef::Constant(1),
                             }),
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Source,
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     },
                 }),
             },
@@ -2372,11 +2372,11 @@ CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Phoenix"], 4, 4).with_abi
             "Metalcraft — {4}: Return this card from your graveyard to the battlefield. Activate only during your upkeep and only if you control three or more artifacts.",
             &[CostDef::Mana(mana_cost!("{4}"))],
             EffectDef::WithBattlefieldArrival {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 arrival: crate::card::BattlefieldArrivalDef {
                     controller: Some(PlayerRelation::You),
                     ..crate::card::BattlefieldArrivalDef::DEFAULT
@@ -3217,11 +3217,11 @@ CardRules::new_planeswalker(mana_cost!("{3}{W}{U}"), &["Venser"], 3)
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::Any,
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 )]),
             ),
         ]),
@@ -3518,11 +3518,11 @@ CardRules::new_artifact_creature(mana_cost!("{4}"), &["Phyrexian", "Dog"], 2, 2)
                 }],
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 },
             ),
         ]),
@@ -4541,11 +4541,11 @@ pub(in crate::card::sets) static NEUROK_REPLICA: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -4562,15 +4562,15 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Any,
             ))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::cards_owned_by_target(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::cards_owned_by_target(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
                     TargetIndex::PRIMARY,
                 ),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         AbilityDef::triggered(
             "When this artifact is put into a graveyard from the battlefield, you may pay {B}. If you do, draw a card.",

@@ -560,15 +560,15 @@ pub(in crate::card::sets) static REST_IN_PEACE: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
         abilities::enters_trigger(
             "When this enchantment enters, exile all graveyards.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
                     PlayerRelation::Any,
                 ),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         AbilityDef::replacement_for(
             "If a card or token would be put into a graveyard from anywhere, exile it instead.",
@@ -775,11 +775,11 @@ pub(in crate::card::sets) static TROSTANIS_JUDGMENT: CardRecord = CardRecord::ne
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
             abilities::populate(),
         ]),
     )),
@@ -935,24 +935,24 @@ pub(in crate::card::sets) static CYCLONIC_RIFT: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::overload(
             &[CostDef::Mana(mana_cost!("{6}{U}"))],
             "Return each nonland permanent you don't control to its owner's hand.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::NotYou,
                 ),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1338,11 +1338,11 @@ pub(in crate::card::sets) static VOIDWIELDER: CardRecord = CardRecord::new(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             },
         ),
     ),
@@ -1409,11 +1409,11 @@ pub(in crate::card::sets) static DARK_REVENANT: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::dies_trigger(
             "When this creature dies, put it on top of its owner's library.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1581,13 +1581,13 @@ CardRules::new_enchantment(mana_cost!("{5}{B}{B}")).with_ability(
                         },
                         EffectDef::WithZoneMoveResult {
                             effect: &EffectDef::WithBattlefieldArrival {
-                                effect: &EffectDef::MoveToZone {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                effect: &EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
                                         Binding!("grave_betrayal_card"),
                                     )),
-                                    zone: ZoneKind::Battlefield,
-                                    placement: ZonePlacement::Top,
-                                },
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                ),
                                 arrival: crate::card::BattlefieldArrivalDef {
                                     controller: Some(PlayerRelation::You),
                                     modifications: &[
@@ -3093,11 +3093,11 @@ CardRules::new_enchantment(mana_cost!("{X}{G}")).with_abilities(&[
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -3284,11 +3284,11 @@ pub(in crate::card::sets) static WORLDSPINE_WURM: CardRecord = CardRecord::new(
                  library.",
                 TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Graveyard)),
                 EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::players(PlayerSetDef::One(PlayerRefDef::OwnerOf(
                             ObjectRefDef::Source,
@@ -3430,11 +3430,11 @@ pub(in crate::card::sets) static AZORIUS_CHARM: CardRecord = CardRecord::new(
                         ObjectPredicateDef::AttackingOrBlocking,
                     ]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Library,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
             ),
         ],
     )),
@@ -3707,11 +3707,11 @@ pub(in crate::card::sets) static DRAMATIC_RESCUE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -4590,15 +4590,15 @@ pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::cards_owned_by_target(
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::cards_owned_by_target(
                         ObjectPredicateDef::Any,
                         &[ZoneKind::Graveyard],
                         TargetIndex::PRIMARY,
                     ),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Destroy target artifact.",
@@ -4876,11 +4876,11 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new(
                         ObjectPredicateDef::PowerAtLeast(5),
                     ]),
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::spell(
                 "Create a 2/2 white Knight creature token with vigilance.",
@@ -4937,11 +4937,11 @@ CardRules::new_creature(mana_cost!("{2}{W}{U}"), &["Bird"], 3, 3).with_abilities
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             },
         ),
     ]),
@@ -5112,11 +5112,11 @@ pub(in crate::card::sets) static TREASURED_FIND: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )
         .with_resolution_destination(SpellResolutionDestinationDef::Exile),
     ),
@@ -5394,11 +5394,11 @@ CardRules::new_creature(mana_cost!("{B/G}"), &["Elf", "Shaman"], 1, 2).with_abil
             // mana ability at all: it targets, and a targeted ability uses the stack
             // however much mana it makes (CR 605.1a).
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::AddMana(AddManaEffectDef::choice(&ManaColor::COLORS)),
             ]),
         ),
@@ -5420,11 +5420,11 @@ CardRules::new_creature(mana_cost!("{B/G}"), &["Elf", "Shaman"], 1, 2).with_abil
                 },
             )],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-},
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+),
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Opponent,
                     amount: ValueDef::Constant(2),
@@ -5446,11 +5446,11 @@ CardRules::new_creature(mana_cost!("{B/G}"), &["Elf", "Shaman"], 1, 2).with_abil
                 },
             )],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-},
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(2),
@@ -5745,11 +5745,11 @@ CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-},
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+),
         ),
     ]),
 );

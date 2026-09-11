@@ -160,11 +160,11 @@ pub(in crate::card::sets) static AURA_EXTRACTION: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Enchantment),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -273,11 +273,11 @@ pub(in crate::card::sets) static CATAPULT_MASTER: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -1239,11 +1239,11 @@ pub(in crate::card::sets) static ARCANIS_THE_OMNIPOTENT: CardRecord = CardRecord
             AbilityDef::activated(
                 "{2}{U}{U}: Return Arcanis the Omnipotent to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{2}{U}{U}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -1315,11 +1315,11 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new(
             ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-},
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+),
             // A land of their choice, sacrificed by whoever just had a permanent
             // bounced. Paying buys the copy, which is what turns one Chain of Vapor into
             // a board sweep in a deck holding the lands to spend.
@@ -1490,16 +1490,16 @@ pub(in crate::card::sets) static ESSENCE_FRACTURE: CardRecord = CardRecord::new(
             EffectDef::Sequence(
                 &const {
                     [
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Target(TargetIndex(1)),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex(1)),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     ]
                 },
             ),
@@ -2224,11 +2224,11 @@ pub(in crate::card::sets) static DOOMED_NECROMANCER: CardRecord = CardRecord::ne
                 },
             )]
         },
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Battlefield,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -2279,11 +2279,11 @@ pub(in crate::card::sets) static FADE_FROM_MEMORY: CardRecord = CardRecord::new(
                     },
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::cycling!(
             "Cycling {B} ({B}, Discard this card: Draw a card.)",
@@ -2522,11 +2522,11 @@ pub(in crate::card::sets) static MISERY_CHARM: CardRecord = CardRecord::new(
                         owner: Some(PlayerRelation::You),
                     },
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Target player loses 2 life.",
@@ -5005,11 +5005,11 @@ pub(in crate::card::sets) static RIPTIDE_LABORATORY: CardRecord = CardRecord::ne
                     ]),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -5110,11 +5110,11 @@ pub(in crate::card::sets) static UNHOLY_GROTTO: CardRecord = CardRecord::new(
                     },
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Library,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );

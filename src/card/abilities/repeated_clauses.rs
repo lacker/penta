@@ -28,11 +28,11 @@ static DISCARD_CHOSEN_HAND_CARD: EffectDef = EffectDef::discard_cards(EffectReci
     ParentBinding,
 )));
 
-static EXILE_CHOSEN_HAND_CARD: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
+static EXILE_CHOSEN_HAND_CARD: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+    ZoneKind::Exile,
+    ZonePlacement::Top,
+);
 
 /// Reveal one player's hand, let the effect controller choose exactly one
 /// matching card, and continue with that card in `ParentBinding`.
@@ -316,15 +316,15 @@ pub const fn shuffle_back_and_draw_seven() -> EffectDef {
 }
 
 static WHEEL_STEPS: [EffectDef; 3] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::matching_objects(
+    EffectDef::move_to_zone(
+        EffectRecipientDef::matching_objects(
             ObjectPredicateDef::Any,
             &[ZoneKind::Hand, ZoneKind::Graveyard],
             PlayerRelation::Any,
         ),
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-},
+        ZoneKind::Library,
+        ZonePlacement::Top,
+),
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::EachPlayer,
     },

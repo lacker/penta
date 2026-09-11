@@ -99,11 +99,11 @@ pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new(
                     slot: TargetIndex::PRIMARY,
                     object: ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ColorsOfManaSpent),
                 },
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             },
         )),
 );
@@ -140,11 +140,11 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
                     // Swords to Plowshares' pair, in the same order: the power the life is
                     // read from is the one the creature had as it left the battlefield.
                     EffectDef::Sequence(&[
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
                         EffectDef::GainLife {
                             recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                             amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
@@ -1148,11 +1148,11 @@ pub(in crate::card::sets) static TERRITORIAL_KAVU: CardRecord = CardRecord::new(
                         },
                         1,
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 ),
             ],
         ),
@@ -1196,11 +1196,11 @@ pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
                                     CardType::Creature,
                                 )),
                             }),
-                            EffectDef::MoveToZone {
-                                object: EffectRecipientDef::DamagedObject,
-                                zone: ZoneKind::Exile,
-                                placement: ZonePlacement::Top,
-                            },
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::DamagedObject,
+                                ZoneKind::Exile,
+                                ZonePlacement::Top,
+                            ),
                         )),
                     ]),
                 },

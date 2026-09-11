@@ -593,13 +593,6 @@ pub enum EffectDef {
         object: EffectRecipientDef,
         ability: &'static AbilityDef,
     },
-    MoveToZone {
-        object: EffectRecipientDef,
-        zone: ZoneKind,
-        /// Which end of a library the card lands on. Meaningless for every
-        /// other destination.
-        placement: ZonePlacement,
-    },
     /// Composes a prospective permanent's entry state around a zone-moving
     /// effect. Nothing here is a later effect such as [`Self::Tap`].
     WithBattlefieldArrival {
@@ -883,7 +876,7 @@ pub enum EffectDef {
     Sequence(&'static [EffectDef]),
     /// Randomizes each recipient player's library. Effects that shuffle
     /// cards from other zones into a library first express those zone moves
-    /// with [`Self::MoveToZone`], then use this shared operation.
+    /// with [`Self::move_to_zone`], then use this shared operation.
     ShuffleLibrary {
         player: EffectRecipientDef,
     },

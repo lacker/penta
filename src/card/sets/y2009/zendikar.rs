@@ -171,11 +171,11 @@ pub(in crate::card::sets) static KOR_SKYFISHER: CardRecord = CardRecord::new(
                 minimum: 1,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             }),
         ),
     ]),
@@ -209,11 +209,11 @@ pub(in crate::card::sets) static INTO_THE_ROIL: CardRecord = CardRecord::new(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
             )],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
                 // Asked as this resolves, so a kicked spell still draws even
                 // when its target has already left the battlefield.
                 EffectDef::IfCondition {
@@ -373,11 +373,11 @@ CardRules::new_creature(mana_cost!("{B}{B}"), &["Vampire", "Spirit"], 2, 1)
                 ),
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
                 },
             )
             .with_source_zones(&[ZoneKind::Graveyard]),

@@ -131,11 +131,11 @@ pub(in crate::card::sets) static REPEAL: CardRecord = CardRecord::new(
             ]),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             // The draw is unconditional: it still happens when the target
             // has left before this resolves.
             EffectDef::DrawCards {
@@ -274,11 +274,11 @@ CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Phoenix"], 3, 3).with_abilit
         AbilityDef::activated(
             "{R}{R}{R}: Return this card from your graveyard to your hand. Activate only if an opponent was dealt damage this turn.",
             &[CostDef::Mana(mana_cost!("{R}{R}{R}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         )
         .with_activation_condition(&TriggerConditionDef::OpponentWasDealtDamageThisTurn)
         .with_source_zones(&[ZoneKind::Graveyard]),

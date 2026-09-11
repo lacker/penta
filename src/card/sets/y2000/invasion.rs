@@ -893,11 +893,11 @@ pub(in crate::card::sets) static DISTORTING_WAKE: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -1237,11 +1237,11 @@ pub(in crate::card::sets) static REPULSE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             // The draw is not conditional on the bounce: a target that has
             // already left still leaves this a cantrip.
             EffectDef::DrawCards {
@@ -1677,11 +1677,11 @@ pub(in crate::card::sets) static CREMATE: CardRecord = CardRecord::new(
             },
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -1986,11 +1986,11 @@ pub(in crate::card::sets) static MOURNING: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{B}: Return this Aura to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{B}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -2158,11 +2158,11 @@ pub(in crate::card::sets) static RECOVER: CardRecord = CardRecord::new(
         EffectDef::Sequence(
             &const {
                 [
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(1),
@@ -2324,11 +2324,11 @@ pub(in crate::card::sets) static URBORG_EMISSARY: CardRecord = CardRecord::new(
             ),
             &const { TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked) },
             &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -3817,21 +3817,21 @@ pub(in crate::card::sets) static RESTOCK: CardRecord = CardRecord::new(
         EffectDef::Sequence(
             &const {
                 [
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex(1)),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Exile,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex(1)),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
                 ]
             },
         ),
@@ -4094,11 +4094,11 @@ pub(in crate::card::sets) static WHIP_SILK: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{G}: Return this Aura to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{G}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -4173,11 +4173,11 @@ pub(in crate::card::sets) static ANGELIC_SHIELD: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -4775,11 +4775,11 @@ pub(in crate::card::sets) static RECOIL: CardRecord = CardRecord::new(
             ObjectPredicateDef::Any,
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             EffectDef::Discard {
                 recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(1),

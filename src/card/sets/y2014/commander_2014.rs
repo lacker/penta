@@ -80,11 +80,11 @@ pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
                             owner: Some(PlayerRelation::You),
                         },
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
                 ),
                 AbilityDef::triggered(
                     "Whenever a land you control is put into a graveyard from the battlefield, create a 5/3 \

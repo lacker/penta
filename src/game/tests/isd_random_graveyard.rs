@@ -292,7 +292,9 @@ fn random_returns_compose_selection_with_a_zone_move() {
         };
         assert_eq!(source, ZoneKind::Graveyard);
         assert_eq!(binding, Binding!("random_graveyard_cards"));
-        let EffectDef::MoveToZone { object, zone, .. } = *movement else {
+        let EffectDef::Perform(crate::card::GameActionDef::MoveToZone { object, zone, .. }) =
+            *movement
+        else {
             panic!("{} should use an ordinary zone move", card.name);
         };
         assert_eq!(zone, ZoneKind::Hand);

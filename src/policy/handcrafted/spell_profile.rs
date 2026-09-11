@@ -480,11 +480,6 @@ impl HandcraftedPolicy {
                 zone: ZoneKind::Hand,
                 ..
             })
-            | EffectDef::MoveToZone {
-                object,
-                zone: ZoneKind::Hand,
-                ..
-            }
             | EffectDef::PutSpellIntoOwnersLibrary { object }
             | EffectDef::Counter { object, .. } => {
                 profile.mark(DeclarativeSpellProfile::COUNTERS);
@@ -509,11 +504,11 @@ impl HandcraftedPolicy {
                     Self::collect_spell_effect_profile(*follow_up.effect, x, targets, profile);
                 }
             }
-            EffectDef::MoveToZone {
+            EffectDef::Perform(crate::card::GameActionDef::MoveToZone {
                 object,
                 zone: ZoneKind::Exile,
                 ..
-            } if object.legal_target().is_some_and(|target| {
+            }) if object.legal_target().is_some_and(|target| {
                 Self::target_slot_is_on_battlefield(targets, target.index())
             }) =>
             {
@@ -627,7 +622,6 @@ impl HandcraftedPolicy {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
-            | EffectDef::MoveToZone { .. }
             | EffectDef::Attach { .. }
             | EffectDef::AttachToSource { .. }
             | EffectDef::Reconfigure { .. }

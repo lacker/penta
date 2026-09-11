@@ -24,6 +24,17 @@ impl ConditionalEffectDef {
 }
 
 impl EffectDef {
+    /// Move already identified objects using the shared game action.
+    /// Placement selects the end of a library and is ignored for other zones.
+    #[must_use]
+    pub const fn move_to_zone(
+        object: EffectRecipientDef,
+        zone: ZoneKind,
+        placement: ZonePlacement,
+    ) -> Self {
+        super::actions::move_to_zone(object, zone, placement).as_effect()
+    }
+
     /// Discard already identified cards using the shared game action.
     /// Introduces no selection; compose `actions::choose_discard()` when needed.
     #[must_use]

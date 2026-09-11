@@ -253,11 +253,11 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
                             recipient: EffectRecipientDef::Controller,
                             amount: ValueDef::Constant(1),
                         },
-                        EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Source,
-                            zone: ZoneKind::Library,
-                            placement: ZonePlacement::Top,
-                        },
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Library,
+                            ZonePlacement::Top,
+                        ),
                     ]
                 },
             ),

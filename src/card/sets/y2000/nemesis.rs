@@ -187,11 +187,11 @@ pub(in crate::card::sets) static LIGHTBRINGER: CardRecord = CardRecord::new(
                     ]),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -701,11 +701,11 @@ pub(in crate::card::sets) static SEAL_OF_REMOVAL: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )]
         },
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -720,11 +720,11 @@ pub(in crate::card::sets) static SLIPTIDE_SERPENT: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{3}{U}: Return this creature to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{3}{U}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -2304,13 +2304,11 @@ pub(in crate::card::sets) static TERRAIN_GENERATOR: CardRecord = CardRecord::new
                 then: &const {
                     EffectDef::WithBattlefieldArrival {
                         effect: &const {
-                            EffectDef::MoveToZone {
-                                object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                                    ParentBinding,
-                                )),
-                                zone: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                            }
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            )
                         },
                         arrival: crate::card::BattlefieldArrivalDef {
                             modifications: &const { [BattlefieldEntryModificationDef::Tapped] },

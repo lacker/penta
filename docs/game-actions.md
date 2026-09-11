@@ -16,7 +16,7 @@ const SACRIFICE: EffectDef = EffectDef::sacrifice(EffectRecipientDef::Source);
 ```
 
 `EffectDef::sacrifice(x)` is exactly `actions::sacrifice(x).as_effect()`.
-`discard_cards`, `sacrifice_yours`, and `gain_control` provide the same shortcuts
+`discard_cards`, `sacrifice_yours`, `gain_control`, and `move_to_zone` provide the same shortcuts
 for the other shared primitives. These constructors operate on already
 identified objects, preserving the distinct sacrifice actors and the explicit
 controller and duration of control changes. They add no selection or separate
@@ -90,7 +90,7 @@ const CUSTOM_COST: CostDef = actions::choose(
 .as_cost();
 ```
 
-`discard_cards`, `sacrifice`, `sacrifice_yours`, and `gain_control` operate on
+`discard_cards`, `sacrifice`, `sacrifice_yours`, `gain_control`, and `move_to_zone` operate on
 already identified objects. They introduce no selection. `gain_control`
 keeps the recipient player and duration explicit. `actions::sequence(&[...])`
 composes actions before either conversion; custom trees can always be written
@@ -188,6 +188,12 @@ and their controller orders those triggers through the ordinary stack rules.
 `EffectDef::WithBattlefieldArrival` wraps that action's `as_effect()` with the
 entry counter and ordinary owner-control default. Counters are part of the
 prospective entry, so replacements and entry triggers observe them correctly.
-The original `EffectDef::MoveToZone` form and the action use one resolver.
+`EffectDef::move_to_zone(object, zone, placement)` is a thin constructor for
+`actions::move_to_zone(object, zone, placement).as_effect()`. The action is the
+only stored representation; arrival and result wrappers retain their ordinary
+validation, traversal, and continuation behavior.
 This adds effect execution, not a new payable zone-move cost; the existing
 payment planner continues to reject unsupported action obligations.
+
+See the [consolidation audit](game-action-consolidation.md) for remaining effect
+and cost candidates and the payment boundaries their migration must preserve.

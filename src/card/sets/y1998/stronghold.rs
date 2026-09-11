@@ -160,11 +160,11 @@ pub(in crate::card::sets) static CONVICTION: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{W}: Return this Aura to its owner's hand.",
                 &[CostDef::Mana(mana_cost!("{W}"))],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -447,15 +447,15 @@ pub(in crate::card::sets) static EVACUATION: CardRecord = CardRecord::new(
     "Rob Alexander",
     CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::spell(
         "Return all creatures to their owners' hands.",
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::matching_objects(
+        EffectDef::move_to_zone(
+            EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -1225,11 +1225,11 @@ CardRules::new_enchantment(mana_cost!("{B}")).with_ability(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -2167,11 +2167,11 @@ pub(in crate::card::sets) static HIBERNATION_SLIVER: CardRecord = CardRecord::ne
                         AbilityDef::activated(
                             "Pay 2 life: Return this permanent to its owner's hand.",
                             &[CostDef::PayLife(2)],
-                            EffectDef::MoveToZone {
-                                object: EffectRecipientDef::Source,
-                                zone: ZoneKind::Hand,
-                                placement: ZonePlacement::Top,
-                            },
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::Source,
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
                         )
                     },
                 ),
@@ -2428,11 +2428,11 @@ pub(in crate::card::sets) static VOLRATH_S_STRONGHOLD: CardRecord = CardRecord::
                         owner: Some(PlayerRelation::You),
                     },
                 )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Library,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );

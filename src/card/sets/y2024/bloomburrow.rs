@@ -170,11 +170,11 @@ pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::n
                             owner: Some(PlayerRelation::You),
                         },
                     )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
             AbilityDef::activated(
                 "{5}{U}: Level 3",

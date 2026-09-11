@@ -34,6 +34,9 @@ the bot-wire epoch.
   effect resolutions or card parts, with private runtime slots reconstructed
   from natural names in checkpoints. Unrelated cards may reuse names freely.
 
+- Replace the native `EffectDef::MoveToZone` variant with
+  `EffectDef::move_to_zone(object, zone, placement)`, a shorthand for the shared
+  game action's `as_effect()`. Arrival and move-result wrappers remain supported.
 - Undying and persist use respondable death triggers and a shared zone-move
   action program bound to the exact graveyard object. Both trigger when present;
   later zone changes cannot redirect a return to another card.

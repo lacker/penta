@@ -124,11 +124,11 @@ pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::ne
                 object: ObjectPredicateDef::HasType(CardType::Creature),
             },
             EffectDef::WithZoneMoveResult {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 binding: ParentBinding,
                 then: &EffectDef::Apply {
                     recipient: EffectRecipientDef::binding_zone_change_successors(ParentBinding),
@@ -345,11 +345,11 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
                             minimum: 0,
                             maximum: 1,
                             visibility: ChoiceVisibilityDef::Public,
-                            then: &EffectDef::MoveToZone {
-                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                                zone: ZoneKind::Hand,
-                                placement: ZonePlacement::Top,
-                            },
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
                         }),
                     ]),
                 ),

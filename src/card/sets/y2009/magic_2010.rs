@@ -507,11 +507,11 @@ CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Zombie"], 2, 2).with_abiliti
                 owner: None,
             })],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2),
             ]),
         ),
@@ -542,11 +542,11 @@ pub(in crate::card::sets) static DISENTOMB: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Hand,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -582,11 +582,11 @@ pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::n
         )],
         EffectDef::WithZoneMoveResult {
             effect: &EffectDef::WithBattlefieldArrival {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 arrival: crate::card::BattlefieldArrivalDef {
                     controller: Some(PlayerRelation::You),
                     ..crate::card::BattlefieldArrivalDef::DEFAULT

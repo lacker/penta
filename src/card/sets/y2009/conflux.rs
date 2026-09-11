@@ -64,11 +64,11 @@ pub(in crate::card::sets) static CELESTIAL_PURGE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::Color(ManaColor::Red),
             ]),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -83,11 +83,11 @@ CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_ta
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
             EffectDef::May {
                 player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                 effect: &EffectDef::SearchZone {

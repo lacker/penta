@@ -136,16 +136,16 @@ CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(
                 }),
             ],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-},
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex(1)),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-},
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex(1)),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+),
             ]),
         ),
     ),

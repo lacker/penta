@@ -40,11 +40,11 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
 // NCC 81 — Currency Converter
 /// The card goes back to the graveyard it came from -- its owner's, which is
 /// where a card exiled from a graveyard belongs however it got to exile.
-static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-    zone: ZoneKind::Graveyard,
-    placement: ZonePlacement::Top,
-};
+static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+    ZoneKind::Graveyard,
+    ZonePlacement::Top,
+);
 
 pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::new(
     "Currency Converter",

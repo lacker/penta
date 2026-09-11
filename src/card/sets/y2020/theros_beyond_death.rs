@@ -428,11 +428,11 @@ pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::ne
                     owner: None,
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         // Untargeted, so it does not care whether those graveyards hold
         // anything: unlike Tormod's Crypt this one can be cashed in against an
@@ -442,15 +442,15 @@ pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::ne
             // The two sacrifice abilities differ only in what they buy, so the shared
             // half of the cost is written once.
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
                     PlayerRelation::Opponent,
                 ),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         AbilityDef::activated(
             "{1}, {T}, Sacrifice this artifact: Draw a card.",

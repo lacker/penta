@@ -181,7 +181,6 @@ impl Game {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
-            | EffectDef::MoveToZone { .. }
             | EffectDef::WithBattlefieldArrival { .. }
             | EffectDef::WithZoneMoveResult { .. }
             | EffectDef::WithRule { .. }

@@ -109,11 +109,11 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
                     },
                 ],
                 EffectDef::WithBattlefieldArrival {
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
                     arrival: crate::card::BattlefieldArrivalDef {
                         modifications: &[BattlefieldEntryModificationDef::Tapped],
                         ..crate::card::BattlefieldArrivalDef::DEFAULT

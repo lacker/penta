@@ -116,11 +116,11 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new(
                         minimum: 0,
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        },
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
                     }),
                 ]),
             },
@@ -254,11 +254,11 @@ pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord:
         AbilityDef::activated(
             "{4}: Put this card from your hand onto the battlefield.",
             &[CostDef::Mana(mana_cost!("{4}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         )
         .with_source_zones(&[ZoneKind::Hand]),
     ]),

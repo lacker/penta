@@ -49,11 +49,11 @@ pub(in crate::card::sets) static ARCHON_OF_JUSTICE: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::Any,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -143,11 +143,11 @@ CardRules::new_instant(mana_cost!("{W/B}")).with_ability(
                 owner: None,
             })],
             EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-},
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+),
                 EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White, ManaColor::Black], 1, 1).with_abilities(&[abilities::flying()]).with_art(CardArt::new("91f3a4b0-0992-4245-b245-033ad1083a93", "Cliff Childs")),
             ]),
         ),

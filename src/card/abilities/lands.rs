@@ -176,11 +176,11 @@ static A_LAND_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::controlled_by(
     PlayerSetDef::Related(PlayerRelation::You),
 );
 
-static RETURN_CHOSEN_LAND_TO_HAND: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-};
+static RETURN_CHOSEN_LAND_TO_HAND: EffectDef = EffectDef::move_to_zone(
+    EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+    ZoneKind::Hand,
+    ZonePlacement::Top,
+);
 
 /// The karoo bounce: "When this land enters, return a land you control to
 /// its owner's hand."

@@ -135,11 +135,11 @@ pub(in crate::card::sets) static ERASE: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Enchantment),
         )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
     )),
 );
 
@@ -445,11 +445,11 @@ pub(in crate::card::sets) static TRAGIC_POET: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 })]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ),
 );
@@ -530,11 +530,11 @@ pub(in crate::card::sets) static FLEETING_IMAGE: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{1}{U}: Return this creature to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{1}{U}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -723,11 +723,11 @@ pub(in crate::card::sets) static SNAP: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
             EffectDef::Choose(ChooseDef {
                 binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                 unchosen: None,
@@ -1200,11 +1200,11 @@ pub(in crate::card::sets) static SLEEPER_S_GUILE: CardRecord = CardRecord::new(
             ),
             abilities::dies_trigger(
                 "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             ),
         ]),
 );
@@ -1289,11 +1289,11 @@ pub(in crate::card::sets) static UNEARTH: CardRecord = CardRecord::new(
                     owner: Some(PlayerRelation::You),
                 },
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -1605,11 +1605,11 @@ pub(in crate::card::sets) static SHIVAN_PHOENIX: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::dies_trigger(
             "When this creature dies, return it to its owner's hand.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::SourceZoneChangeSuccessor,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::SourceZoneChangeSuccessor,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1649,11 +1649,11 @@ pub(in crate::card::sets) static VIASHINO_CUTTHROAT: CardRecord = CardRecord::ne
                 step: TurnStepDef::End,
                 player: PlayerRelation::Any,
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1684,11 +1684,11 @@ pub(in crate::card::sets) static VIASHINO_SANDSCOUT: CardRecord = CardRecord::ne
                 step: TurnStepDef::End,
                 player: PlayerRelation::Any,
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -1971,11 +1971,11 @@ CardRules::new_enchantment(mana_cost!("{G}"))
             // this fires whether the creature was answered or the Aura was.
             // It is the same trigger either way, and the card that comes back
             // is the one already in the graveyard.
-            abilities::dies_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::MoveToZone {
-                    object: EffectRecipientDef::TriggeringZoneChangeResult,
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-}),
+            abilities::dies_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+)),
         ]),
 );
 
@@ -2073,11 +2073,11 @@ pub(in crate::card::sets) static WEATHERSEED_TREEFOLK: CardRecord = CardRecord::
         abilities::trample(),
         abilities::dies_trigger(
             "When this creature dies, return it to its owner's hand.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::SourceZoneChangeSuccessor,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::SourceZoneChangeSuccessor,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -2372,11 +2372,11 @@ pub(in crate::card::sets) static QUICKSILVER_AMULET: CardRecord = CardRecord::ne
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
             then: &const {
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                }
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                )
             },
         }),
     )),

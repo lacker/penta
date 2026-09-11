@@ -257,7 +257,6 @@ impl Game {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
-            | EffectDef::MoveToZone { .. }
             | EffectDef::CreateToken { .. }
             | EffectDef::CreateAttachedToken { .. }
             | EffectDef::Endure { .. }

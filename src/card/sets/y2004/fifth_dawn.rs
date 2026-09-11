@@ -216,11 +216,11 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new(
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    )
                 },
             },
         ),

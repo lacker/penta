@@ -674,7 +674,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CannotAttackUnless(_)
                     | EffectDef::CannotAttackIf(_)
                     | EffectDef::PutIntoLibraryBeneathTop { .. }
-                    | EffectDef::MoveToZone { .. }
                     | EffectDef::WithBattlefieldArrival { .. }
                     | EffectDef::WithZoneMoveResult { .. }
                     | EffectDef::ConditionalStatic(_)

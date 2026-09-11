@@ -1,6 +1,6 @@
 fn zone_move_destination(effect: EffectDef) -> Option<ZoneKind> {
     match effect {
-        EffectDef::Perform(crate::card::GameActionDef::MoveToZone { zone, .. }) | EffectDef::MoveToZone { zone, .. } | EffectDef::ReturnLinkedExiles { zone, .. } => {
+        EffectDef::Perform(crate::card::GameActionDef::MoveToZone { zone, .. }) | EffectDef::ReturnLinkedExiles { zone, .. } => {
             Some(zone)
         }
         EffectDef::ChooseCards { destination, .. } => Some(destination),
@@ -44,7 +44,7 @@ fn validate_battlefield_arrival_target_shapes(
     targets: &[AbilityTargetDef],
     triggering_object_zone: Option<ZoneKind>,
 ) -> Result<(), GrantedAbilityValidationError> {
-    if !matches!(*effect, EffectDef::MoveToZone { .. } | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })) {
+    if !matches!(*effect, EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })) {
         return Err(
             GrantedAbilityValidationError::UnsupportedEffectProgramContext {
                 context: "battlefield-arrival",

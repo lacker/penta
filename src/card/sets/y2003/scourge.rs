@@ -239,11 +239,11 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{3}{W}{W}: Return this card from your graveyard to your hand. Activate only during your upkeep.",
             &[CostDef::Mana(mana_cost!("{3}{W}{W}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-},
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+),
         )
         .with_source_zones(&[ZoneKind::Graveyard])
         .with_activation_timing(ActivationTimingDef::YourUpkeep),
@@ -463,11 +463,11 @@ pub(in crate::card::sets) static WIPE_CLEAN: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Enchantment),
                 )]
             },
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Exile,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
         ),
         abilities::cycling!(
             "Cycling {3} ({3}, Discard this card: Draw a card.)",
@@ -1318,11 +1318,11 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new(
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::WithBattlefieldArrival {
-                        effect: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::Source,
-                            zone: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                        },
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Source,
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
                         arrival: crate::card::BattlefieldArrivalDef {
                             controller: Some(PlayerRelation::You),
                             attachment: Some(ArrivalAttachmentDef::ArrivalToHost(

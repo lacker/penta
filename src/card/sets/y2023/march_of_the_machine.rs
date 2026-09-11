@@ -98,11 +98,11 @@ pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new(
             // number of creatures exiled this way" asks about a set the board no longer
             // holds by the time the token is made.
             &EffectDef::Sequence(&[
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
                 // Incubate X. One token however large X is, and X of zero still makes
                 // one: the keyword creates the token unconditionally.
                 EffectDef::create_token(tokens::incubator())

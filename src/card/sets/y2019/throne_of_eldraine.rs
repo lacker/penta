@@ -281,11 +281,11 @@ fn brazen_borrower_composition() -> CardComposition {
                             },
                         )]
                     },
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
             )
@@ -945,11 +945,11 @@ pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Top,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    )
                 },
             },
         ),
@@ -1010,11 +1010,11 @@ pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &const {
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Top,
-                    }
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    )
                 },
             },
         ),

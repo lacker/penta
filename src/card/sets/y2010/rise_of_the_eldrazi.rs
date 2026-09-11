@@ -73,15 +73,15 @@ CardRules::new_creature(mana_cost!("{15}"), &["Eldrazi"], 15, 15)
                 "When Emrakul is put into a graveyard from anywhere, its owner shuffles their graveyard into their library.",
                 TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Graveyard)),
                 EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
                             ObjectPredicateDef::Any,
                             &[ZoneKind::Graveyard],
                             PlayerSetDef::One(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
                         ))),
-                        zone: ZoneKind::Library,
-                        placement: ZonePlacement::Top,
-                    },
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
                     },

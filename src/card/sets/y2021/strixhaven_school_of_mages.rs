@@ -166,11 +166,11 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
                         amount: ValueDef::Constant(1),
                     },
                 },
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
             ]),
         ),
         AbilityDef::alternative_cast(

@@ -79,11 +79,11 @@ pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::ne
                             owner: Some(PlayerRelation::You),
                         },
                     )],
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
-                    },
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Target player discards a card.",

@@ -60,11 +60,11 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
                 1,
             )],
             EffectDef::WithBattlefieldArrival {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 arrival: crate::card::BattlefieldArrivalDef {
                     // A counter rather than a granted keyword (CR 122.1b): what comes back has
                     // lifelink for exactly as long as the counter is on it, which outlives

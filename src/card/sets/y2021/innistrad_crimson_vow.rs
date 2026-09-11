@@ -104,11 +104,11 @@ pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
                 },
                 2,
             )],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
         ),
     ]),
 );
@@ -234,11 +234,11 @@ pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
                         // the permanent is never briefly untapped.
                         EffectDef::WithBattlefieldArrival {
                             effect: &const {
-                                EffectDef::MoveToZone {
-                                    object: EffectRecipientDef::Source,
-                                    zone: ZoneKind::Battlefield,
-                                    placement: ZonePlacement::Top,
-                                }
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::Source,
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                )
                             },
                             arrival: BattlefieldArrivalDef {
                                 modifications: &[BattlefieldEntryModificationDef::Tapped],

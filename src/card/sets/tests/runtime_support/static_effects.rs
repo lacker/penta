@@ -386,7 +386,8 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
             | crate::card::GameActionDef::Sequence(_)
             | crate::card::GameActionDef::DiscardCards { .. }
             | crate::card::GameActionDef::Sacrifice { .. }
-            | crate::card::GameActionDef::SacrificeYours { .. },
+            | crate::card::GameActionDef::SacrificeYours { .. }
+            | crate::card::GameActionDef::MoveToZone { .. },
         )
         | EffectDef::ShuffleLibrary { .. }
         | EffectDef::BuryGraveyard { .. }
@@ -463,7 +464,6 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::ChooseColor { .. }
         | EffectDef::BecomeCopyOf { .. }
         | EffectDef::PutIntoLibraryBeneathTop { .. }
-        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })
         | EffectDef::MoveToZone { .. }
         | EffectDef::WithBattlefieldArrival { .. }
         | EffectDef::WithZoneMoveResult { .. }

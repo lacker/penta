@@ -413,7 +413,8 @@ fn validate_effect_target_shapes(
             GameActionDef::DiscardCards { object }
             | GameActionDef::Sacrifice { object }
             | GameActionDef::SacrificeYours { object }
-            | GameActionDef::GainControl { object, .. },
+            | GameActionDef::GainControl { object, .. }
+            | GameActionDef::MoveToZone { object, .. },
         )
         | EffectDef::Explore { object }
         | EffectDef::Regenerate { object }
@@ -446,7 +447,7 @@ fn validate_effect_target_shapes(
         | EffectDef::Endure { object, .. }
         | EffectDef::ChooseCounterKind { object, .. }
         | EffectDef::ModifyCounters { object, .. }
-        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { object, .. }) | EffectDef::MoveToZone { object, .. } => {
+        | EffectDef::MoveToZone { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
         EffectDef::CopyStackObject(copy) => {

@@ -559,7 +559,8 @@ impl HandcraftedPolicy {
                 crate::card::GameActionDef::Sacrifice { .. }
                 | crate::card::GameActionDef::SacrificeYours { .. }
                 | crate::card::GameActionDef::DiscardCards { .. }
-                | crate::card::GameActionDef::GainControl { .. },
+                | crate::card::GameActionDef::GainControl { .. }
+                | crate::card::GameActionDef::MoveToZone { .. },
             )
             | EffectDef::SacrificeOfChoice { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
@@ -626,7 +627,6 @@ impl HandcraftedPolicy {
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
             | EffectDef::PutIntoLibraryBeneathTop { .. }
-            | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })
             | EffectDef::MoveToZone { .. }
             | EffectDef::Attach { .. }
             | EffectDef::AttachToSource { .. }

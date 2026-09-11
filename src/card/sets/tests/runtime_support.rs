@@ -578,7 +578,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                         | crate::card::GameActionDef::DiscardCards { .. }
                         | crate::card::GameActionDef::Sacrifice { .. }
                         | crate::card::GameActionDef::SacrificeYours { .. }
-                        | crate::card::GameActionDef::GainControl { .. },
+                        | crate::card::GameActionDef::GainControl { .. }
+                        | crate::card::GameActionDef::MoveToZone { .. },
                     )
                     | EffectDef::ShuffleLibrary { .. }
                     | EffectDef::BuryGraveyard { .. }
@@ -673,7 +674,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CannotAttackUnless(_)
                     | EffectDef::CannotAttackIf(_)
                     | EffectDef::PutIntoLibraryBeneathTop { .. }
-                    | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { .. })
                     | EffectDef::MoveToZone { .. }
                     | EffectDef::WithBattlefieldArrival { .. }
                     | EffectDef::WithZoneMoveResult { .. }

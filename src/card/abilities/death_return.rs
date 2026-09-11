@@ -1,5 +1,8 @@
 // The executable clauses behind every effective undying and persist instance.
-use super::*;
+use super::{
+    AbilityDef, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    ObjectRefDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+};
 
 pub(crate) static UNDYING_TRIGGER: AbilityDef =
     death_return_trigger("Undying", CounterKind::PlusOnePlusOne);

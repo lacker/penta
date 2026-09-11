@@ -390,7 +390,18 @@ impl Game {
         // written against rather than a place it can be found.
         for permanent in self.battlefield.iter().chain(self.emblems.iter()) {
             self.for_each_effective_ability(permanent, |effective| {
-                let ability = effective.ability;
+                let ability = match effective.ability.definition {
+                    DeclarativeAbilityDef::Keyword(KeywordAbility::Undying) => {
+                        abilities::UNDYING_TRIGGER
+                    }
+                    DeclarativeAbilityDef::Keyword(KeywordAbility::Persist) => {
+                        abilities::PERSIST_TRIGGER
+                    }
+                    DeclarativeAbilityDef::Keyword(KeywordAbility::Flanking) => {
+                        abilities::flanking_trigger()
+                    }
+                    _ => effective.ability,
+                };
                 let (definition, effect, resolver, uses_stack) = match ability.definition {
                     DeclarativeAbilityDef::TriggeredMana(definition) => {
                         let Some(effect) = ability.declarative_effect() else {
@@ -409,37 +420,6 @@ impl Game {
                         Self::ability_resolver(effective.origin, &ability),
                         true,
                     ),
-                    DeclarativeAbilityDef::Keyword(
-                        keyword @ (KeywordAbility::Undying | KeywordAbility::Persist),
-                    ) => {
-                        let expanded = match keyword {
-                            KeywordAbility::Undying => &abilities::UNDYING_TRIGGER,
-                            _ => &abilities::PERSIST_TRIGGER,
-                        };
-                        let DeclarativeAbilityDef::Triggered(definition) = expanded.definition
-                        else {
-                            unreachable!("death-return keywords expand to triggers")
-                        };
-                        (
-                            definition,
-                            expanded.declarative_effect().unwrap_or(EffectDef::None),
-                            Self::ability_resolver(effective.origin, expanded),
-                            true,
-                        )
-                    }
-                    DeclarativeAbilityDef::Keyword(KeywordAbility::Flanking) => {
-                        let expanded = abilities::flanking_trigger();
-                        let DeclarativeAbilityDef::Triggered(definition) = expanded.definition
-                        else {
-                            unreachable!("flanking expands to a triggered ability")
-                        };
-                        (
-                            definition,
-                            expanded.declarative_effect().unwrap_or(EffectDef::None),
-                            Self::ability_resolver(effective.origin, &expanded),
-                            true,
-                        )
-                    }
                     DeclarativeAbilityDef::Spell(_)
                     | DeclarativeAbilityDef::ActivatedMana(_)
                     | DeclarativeAbilityDef::Activated(_)
@@ -477,7 +457,7 @@ impl Game {
                         ),
                         owner: permanent.card.owner,
                         controller: permanent.controller,
-                        text: ability.text,
+                        text: effective.ability.text,
                         target_defs: definition.targets.to_vec(),
                         targets: Vec::new(),
                         effect,

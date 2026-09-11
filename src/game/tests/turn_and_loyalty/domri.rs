@@ -15,19 +15,19 @@ fn activate_domri_plus_one(game: &mut Game, domri: GameObjectId) {
     pass_until_decision(game);
 }
 
-#[test]
-fn domri_plus_one_filters_reveals_and_preserves_a_declined_or_ineligible_top_card() {
-    let setup = |top| {
-        let mut game = ready_game();
-        game.players[0].library.clear();
-        stack_library(&mut game, &[(19_100, top), (19_101, cards::LIGHTNING_BOLT)]);
-        let domri = game
-            .put_onto_battlefield(PlayerId::One, cards::DOMRI_RADE)
-            .expect("cataloged");
-        (game, domri)
-    };
+fn domri_with_top(top: CardDefinitionId) -> (Game, GameObjectId) {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    stack_library(&mut game, &[(19_100, top), (19_101, cards::LIGHTNING_BOLT)]);
+    let domri = game
+        .put_onto_battlefield(PlayerId::One, cards::DOMRI_RADE)
+        .expect("cataloged");
+    (game, domri)
+}
 
-    let (mut taken, domri) = setup(cards::SAVANNAH_LIONS);
+#[test]
+fn domri_plus_one_publicly_reveals_a_taken_creature() {
+    let (mut taken, domri) = domri_with_top(cards::SAVANNAH_LIONS);
     activate_domri_plus_one(&mut taken, domri);
     let decision = taken
         .observe(PlayerId::One)
@@ -56,8 +56,11 @@ fn domri_plus_one_filters_reveals_and_preserves_a_declined_or_ineligible_top_car
     let revealed = taken.observe(PlayerId::Two).public_reveals;
     assert!(revealed.iter().any(|(owner, _, definition)|
         *owner == PlayerId::One && *definition == cards::SAVANNAH_LIONS));
+}
 
-    let (mut declined, domri) = setup(cards::SAVANNAH_LIONS);
+#[test]
+fn domri_plus_one_preserves_a_declined_top_card_privately() {
+    let (mut declined, domri) = domri_with_top(cards::SAVANNAH_LIONS);
     activate_domri_plus_one(&mut declined, domri);
     let decision = declined.observe(PlayerId::One).decision.unwrap();
     declined
@@ -85,8 +88,11 @@ fn domri_plus_one_filters_reveals_and_preserves_a_declined_or_ineligible_top_car
             .iter()
             .any(|event| matches!(event, GameEvent::CardRevealed { .. }))
     );
+}
 
-    let (mut ineligible, domri) = setup(cards::LIGHTNING_BOLT);
+#[test]
+fn domri_plus_one_preserves_an_ineligible_top_card_privately() {
+    let (mut ineligible, domri) = domri_with_top(cards::LIGHTNING_BOLT);
     activate_domri_plus_one(&mut ineligible, domri);
     let decision = ineligible
         .observe(PlayerId::One)

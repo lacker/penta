@@ -813,10 +813,10 @@ pub(super) fn child_abilities(ability: &AbilityDef) -> Vec<&AbilityDef> {
     }
     match ability.definition {
         DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Undying) => {
-            children.push(&crate::card::abilities::UNDYING_TRIGGER)
+            children.push(&crate::card::abilities::UNDYING_TRIGGER);
         }
         DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Persist) => {
-            children.push(&crate::card::abilities::PERSIST_TRIGGER)
+            children.push(&crate::card::abilities::PERSIST_TRIGGER);
         }
         _ => {}
     }

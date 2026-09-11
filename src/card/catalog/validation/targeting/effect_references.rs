@@ -624,7 +624,8 @@ fn validate_effect_references(
             GameActionDef::Sacrifice { object }
             | GameActionDef::SacrificeYours { object }
             | GameActionDef::DiscardCards { object }
-            | GameActionDef::GainControl { object, .. },
+            | GameActionDef::GainControl { object, .. }
+            | GameActionDef::MoveToZone { object, .. },
         )
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
         | EffectDef::ChangeTextBasicLandType { object }
@@ -640,7 +641,7 @@ fn validate_effect_references(
         | EffectDef::Endure { object, .. }
         | EffectDef::ChooseCounterKind { object, .. }
         | EffectDef::ModifyCounters { object, .. }
-        | EffectDef::Perform(crate::card::GameActionDef::MoveToZone { object, .. }) | EffectDef::MoveToZone { object, .. } => {
+        | EffectDef::MoveToZone { object, .. } => {
             validate_recipient_target_references(object, target_count, scope)
         }
         EffectDef::CopyStackObject(copy) => {

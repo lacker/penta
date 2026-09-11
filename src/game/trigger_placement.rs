@@ -274,7 +274,7 @@ impl Game {
                         trigger,
                         pending,
                         remaining,
-                        modes: modal,
+                        modes: Box::new(modal),
                     },
                 },
             );

@@ -51,7 +51,7 @@ fn parse_trigger_continuation(
                     .iter()
                     .map(|batch| parse_trigger_batch(batch, game))
                     .collect::<Result<Vec<_>, _>>()?,
-                modes,
+                modes: Box::new(modes),
             }
         }
         DecisionContinuationSnapshot::TriggerDivision {

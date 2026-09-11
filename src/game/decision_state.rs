@@ -763,7 +763,7 @@ pub(super) enum DecisionContinuation {
         trigger: PendingTrigger,
         pending: Vec<PendingTrigger>,
         remaining: Vec<TriggerPlacementBatch>,
-        modes: ModalSpellDef,
+        modes: Box<ModalSpellDef>,
     },
     TriggerDivision {
         trigger: PendingTrigger,

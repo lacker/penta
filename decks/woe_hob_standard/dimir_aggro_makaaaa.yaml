@@ -2,7 +2,6 @@
 # Archetype: Dimir Aggro
 # Source: https://mtgtop8.com/event?e=90673&d=888400&f=ST
 name: "Dimir Aggro — makaaaa"
-staged: true
 main:
   Island: 5
   Gloomlake Verge: 4

@@ -7,7 +7,7 @@ use crate::card::{self, CardCatalog};
 use crate::{Deck, Format};
 
 pub(crate) struct BuiltinDeck {
-    // Staged inventories resolve cards but have no playable format registration.
+    // None means the directory has no registered format; card support is validated separately.
     pub(crate) format: Option<Format>,
     pub(crate) id: &'static str,
     pub(crate) name: &'static str,

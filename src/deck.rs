@@ -1,10 +1,12 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::error::Error;
 use std::fmt;
 
 use crate::CardDefinitionId;
 use crate::Format;
-use crate::card::{CardCatalog, CardDefinition, CardType, CompanionConditionDef, ManaCost};
+use crate::card::{
+    CardCatalog, CardDefinition, CardType, CompanionConditionDef, ImplementationStatus, ManaCost,
+};
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Deck {
@@ -13,6 +15,30 @@ pub struct Deck {
 }
 
 impl Deck {
+    /// Checks implementation coverage for every main-deck and sideboard card.
+    /// This is independent of format legality and reads the supplied catalog
+    /// each time, so completing a card automatically updates the result.
+    ///
+    /// # Errors
+    /// Returns [`DeckError::UnknownCard`] for an absent definition, or
+    /// [`DeckError::UnsupportedCards`] with sorted, distinct card names.
+    pub fn validate_supported_cards(&self, catalog: &CardCatalog) -> Result<(), DeckError> {
+        let mut unsupported = BTreeSet::new();
+        for &id in self.main.iter().chain(&self.sideboard) {
+            let card = catalog.get(id).ok_or(DeckError::UnknownCard(id))?;
+            if card.implementation_status() == ImplementationStatus::Unsupported {
+                unsupported.insert(card.name.clone());
+            }
+        }
+        if unsupported.is_empty() {
+            Ok(())
+        } else {
+            Err(DeckError::UnsupportedCards(
+                unsupported.into_iter().collect(),
+            ))
+        }
+    }
+
     /// Checks this deck against the default Eternal Central construction rules.
     ///
     /// # Errors
@@ -264,6 +290,8 @@ pub enum DeckError {
         maximum: usize,
     },
     UnknownCard(CardDefinitionId),
+    /// Distinct unsupported card names across the main deck and sideboard.
+    UnsupportedCards(Vec<String>),
     CardNotAllowed {
         card: String,
         format: Format,
@@ -300,6 +328,13 @@ impl fmt::Display for DeckError {
                 "sideboard has {actual} cards; at most {maximum} are allowed"
             ),
             Self::UnknownCard(id) => write!(formatter, "unknown card definition ID {id:?}"),
+            Self::UnsupportedCards(cards) => {
+                write!(
+                    formatter,
+                    "deck contains unsupported cards: {}",
+                    cards.join(", ")
+                )
+            }
             Self::CardNotAllowed { card, format } => {
                 write!(formatter, "{card} is not legal in {format}")
             }
@@ -344,6 +379,73 @@ mod tests {
 
     fn catalog() -> CardCatalog {
         crate::card::catalog().expect("catalog builds")
+    }
+
+    fn support_catalog(main_complete: bool, sideboard_complete: bool) -> (CardCatalog, Deck) {
+        let main = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000015f92");
+        let sideboard = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000015f93");
+        let rules = |complete| {
+            if complete {
+                CardRules::new_creature(crate::mana_cost!("{1}"), &["Construct"], 1, 1)
+            } else {
+                CardRules::unsupported()
+            }
+        };
+        let catalog = CardCatalog::new([
+            CardDefinition::new(main, "Main Card", sets::alpha::SET, rules(main_complete)),
+            CardDefinition::new(
+                sideboard,
+                "Sideboard Card",
+                sets::alpha::SET,
+                rules(sideboard_complete),
+            ),
+        ])
+        .unwrap();
+        let deck = Deck {
+            main: vec![main, main],
+            sideboard: vec![sideboard, main],
+        };
+        (catalog, deck)
+    }
+
+    #[test]
+    fn supported_card_validation_reports_both_zones_and_tracks_catalog_changes() {
+        let (catalog, deck) = support_catalog(false, false);
+        let error = deck.validate_supported_cards(&catalog).unwrap_err();
+        assert_eq!(
+            error,
+            DeckError::UnsupportedCards(vec!["Main Card".into(), "Sideboard Card".into()])
+        );
+        assert_eq!(
+            error.to_string(),
+            "deck contains unsupported cards: Main Card, Sideboard Card"
+        );
+
+        let (main_implemented, _) = support_catalog(true, false);
+        assert_eq!(
+            deck.validate_supported_cards(&main_implemented),
+            Err(DeckError::UnsupportedCards(vec!["Sideboard Card".into()]))
+        );
+        let (both_implemented, _) = support_catalog(true, true);
+        assert_eq!(deck.validate_supported_cards(&both_implemented), Ok(()));
+    }
+
+    #[test]
+    fn supported_card_validation_rejects_unknown_cards_in_either_zone() {
+        let (catalog, deck) = support_catalog(true, true);
+        let unknown = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000015f94");
+        for in_sideboard in [false, true] {
+            let mut deck = deck.clone();
+            if in_sideboard {
+                deck.sideboard.push(unknown);
+            } else {
+                deck.main.push(unknown);
+            }
+            assert_eq!(
+                deck.validate_supported_cards(&catalog),
+                Err(DeckError::UnknownCard(unknown))
+            );
+        }
     }
 
     /// The catalog plus one Background, which the real one has none of: the

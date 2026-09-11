@@ -2,7 +2,6 @@
 # Archetype: Izzet Spellementals
 # Source: https://mtgtop8.com/event?e=90673&d=888391&f=ST
 name: "Izzet Spellementals — Ale_Mtg"
-staged: true
 main:
   Spirebluff Canal: 4
   Eddymurk Crab: 4

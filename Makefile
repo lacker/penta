@@ -72,7 +72,7 @@ endef
 	test-engine test-engine-unit test-engine-integration test-policy test-wasm-rust \
 	test-agent-guidance test-profile-attribution test-magic-references \
 	test-rust-budget test-source-file-sizes \
-	catalog-report \
+	catalog-report deck-report \
 	build-profile-engine benchmark-engine benchmark-engine-baseline benchmark-engine-compare \
 	profile-engine profile-engine-all profile-engine-open \
 	build-wasm build-web \
@@ -188,6 +188,10 @@ catalog-report: ## Print catalog and inline-audit coverage for every format cate
 	PENTA_CATALOG_REPORT_VERBOSE=$(if $(filter --verbose,$(CATALOG_REPORT_ARGS)),1,0) \
 	cargo test --locked --profile quick-test -p penta --lib \
 		card::sets::tests::catalog_report::print_catalog_report -- --exact --nocapture
+
+deck-report: ## Validate built-in deck inventories and list unsupported cards from the catalog.
+	cargo test --locked --profile quick-test -p penta --lib \
+		decks::tests::print_deck_report -- --exact --nocapture
 
 # Seconds the *normal* Rust tier may spend running. Compilation is excluded:
 # it is bounded by the job timeout and says nothing about whether a test got

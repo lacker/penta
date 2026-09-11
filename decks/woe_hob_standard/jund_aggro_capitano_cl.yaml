@@ -2,7 +2,6 @@
 # Archetype: Jund Aggro
 # Source: https://mtgtop8.com/event?e=90673&d=888387&f=ST
 name: "Jund Aggro — Capitano_CL"
-staged: true
 main:
   Witherbloom Charm: 2
   Requiting Hex: 3

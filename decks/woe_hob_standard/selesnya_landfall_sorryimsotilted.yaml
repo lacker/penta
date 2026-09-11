@@ -2,7 +2,6 @@
 # Archetype: Selesnya Landfall
 # Source: https://mtgtop8.com/event?e=90673&d=888398&f=ST
 name: "Selesnya Landfall — SorryImSoTilted"
-staged: true
 main:
   Dyadrine, Synthesis Amalgam: 2
   Erode: 4

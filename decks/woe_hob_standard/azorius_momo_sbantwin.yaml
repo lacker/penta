@@ -2,7 +2,6 @@
 # Archetype: Azorius Momo
 # Source: https://mtgtop8.com/event?e=90673&d=888397&f=ST
 name: "Azorius Momo — SbanTwin"
-staged: true
 main:
   Momo, Friendly Flier: 4
   Abandoned Air Temple: 2

@@ -2,7 +2,6 @@
 # Archetype: Izzet Spellementals
 # Source: https://mtgtop8.com/event?e=90673&d=888399&f=ST
 name: "Izzet Spellementals — fazparte"
-staged: true
 main:
   Riverpyre Verge: 4
   Eddymurk Crab: 4

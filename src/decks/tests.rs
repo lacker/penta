@@ -92,3 +92,19 @@ fn woe_hob_event_lists_preserve_published_sizes_and_stay_out_of_playable_menus()
         }
     }
 }
+
+#[test]
+fn print_deck_report() {
+    let catalog = card::catalog().unwrap();
+    for source in BUILTIN_DECKS {
+        println!("{} — {}", source.source, source.name);
+        if source.format.is_none() {
+            println!("  Format profile not registered.");
+        }
+        match source.resolve(&catalog).validate_supported_cards(&catalog) {
+            Ok(()) => println!("  All cards supported."),
+            Err(error @ crate::DeckError::UnsupportedCards(_)) => println!("  {error}"),
+            Err(error) => panic!("{}: {error}", source.source),
+        }
+    }
+}

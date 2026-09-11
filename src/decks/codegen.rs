@@ -14,8 +14,6 @@ use serde_yaml_ng::Mapping;
 struct DeckFile {
     name: String,
     #[serde(default)]
-    staged: bool,
-    #[serde(default)]
     id: Option<String>,
     #[serde(default)]
     aliases: Vec<String>,
@@ -27,16 +25,16 @@ struct DeckFile {
     sideboard: Mapping,
 }
 
-fn format_variant(directory: &str) -> &'static str {
-    match directory {
+fn format_variant(directory: &str) -> Option<&'static str> {
+    Some(match directory {
         "old_school_93_94" => "OldSchool9394",
         "premodern" => "Premodern",
         "isd_m14_standard" => "IsdM14Standard",
         "som_m13_standard" => "SomM13Standard",
         "vintage_cube" => "VintageCube",
         "pauper_cube" => "PauperCube",
-        _ => panic!("unknown deck format directory: {directory}"),
-    }
+        _ => return None,
+    })
 }
 
 fn identifier(value: &str) -> bool {
@@ -87,9 +85,6 @@ impl Source {
         );
         let deck: DeckFile =
             serde_yaml_ng::from_str(yaml).unwrap_or_else(|error| panic!("{path}: {error}"));
-        if !deck.staged {
-            format_variant(&module);
-        }
         let id = Path::new(path)
             .file_stem()
             .unwrap()
@@ -193,11 +188,10 @@ fn registry(mut sources: Vec<Source>) -> String {
                 "{path}: duplicate Rust deck identifier {symbol:?} in {module}"
             );
         }
-        let format = if deck.staged {
-            "None".to_owned()
-        } else {
-            format!("Some(crate::Format::{})", format_variant(module))
-        };
+        let format = format_variant(module).map_or_else(
+            || "None".to_owned(),
+            |variant| format!("Some(crate::Format::{variant})"),
+        );
         writeln!(output,
             "BuiltinDeck {{ format: {format}, id: {id:?}, name: {:?}, aliases: &{:?}, source: {:?}, main: &{:?}, sideboard: &{:?} }},",
             deck.name, deck.aliases, path,
@@ -272,21 +266,21 @@ mod tests {
     }
 
     #[test]
-    fn staged_yaml_validates_without_a_supported_format() {
+    fn inventories_can_precede_format_registration_without_bypassing_yaml_checks() {
         let path = "decks/future_pool/example.yaml";
-        assert!(std::panic::catch_unwind(|| Source::parse(path, YAML)).is_err());
-        let staged = format!("{YAML}staged: true\n");
-        let output = registry(vec![Source::parse(path, &staged)]);
+        let output = registry(vec![Source::parse(path, YAML)]);
         assert!(output.contains("format: None"));
         assert!(output.contains("pub mod future_pool"));
         assert!(
             std::panic::catch_unwind(|| {
-                Source::parse(path, &staged.replace("Mountain: 2", "Mountain: 0"))
+                Source::parse(path, &YAML.replace("Mountain: 2", "Mountain: 0"))
             })
             .is_err()
         );
-        let output = registry(vec![Source::parse("decks/premodern/example.yaml", &staged)]);
-        assert!(output.contains("format: None"));
+        assert!(
+            std::panic::catch_unwind(|| { Source::parse(path, &format!("{YAML}staged: true\n")) })
+                .is_err()
+        );
     }
 
     #[test]

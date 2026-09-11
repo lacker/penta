@@ -2,7 +2,6 @@
 # Archetype: Boros Tokens
 # Source: https://mtgtop8.com/event?e=90673&d=888394&f=ST
 name: "Boros Tokens — WhensMarvel"
-staged: true
 main:
   Mountain: 4
   Belladonna Took: 4

@@ -2,7 +2,6 @@
 # Archetype: Izzet Spellementals
 # Source: https://mtgtop8.com/event?e=90673&d=888388&f=ST
 name: "Izzet Spellementals — peter780108"
-staged: true
 main:
   Thundering Falls: 1
   Eddymurk Crab: 4

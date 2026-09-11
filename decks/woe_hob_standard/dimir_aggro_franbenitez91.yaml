@@ -2,7 +2,6 @@
 # Archetype: Dimir Aggro
 # Source: https://mtgtop8.com/event?e=90673&d=888385&f=ST
 name: "Dimir Aggro — FranBenitez91"
-staged: true
 main:
   Swamp: 4
   Bitter Triumph: 2

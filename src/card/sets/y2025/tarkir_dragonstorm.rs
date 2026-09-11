@@ -127,7 +127,6 @@ pub(in crate::card::sets) const fn mobilize(count: u16, text: &'static str) -> A
     )
 }
 
-
 // TDM 1 — Ugin, Eye of the Storms
 /// "Up to one target permanent that's one or more colors": colorless is what
 /// Ugin does not touch, which is the whole bargain of the deck built around

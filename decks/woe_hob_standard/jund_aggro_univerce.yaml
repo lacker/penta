@@ -2,7 +2,6 @@
 # Archetype: Jund Aggro
 # Source: https://mtgtop8.com/event?e=90673&d=888396&f=ST
 name: "Jund Aggro — Univerce"
-staged: true
 main:
   Witherbloom Charm: 2
   Requiting Hex: 3

@@ -185,17 +185,18 @@ Chaos Orb interaction: Guardian Beast can prevent the Orb's final destruction,
 but destroying the Beast with a successful flip removes that protection before
 the Orb's next instruction.
 
-### Current Standard deck inventory
+### WOE–HOB Standard deck inventory
 
-`decks/current_standard/` contains all sixteen published lists, including
+WOE–HOB names the fixed Standard card pool from Wilds of Eldraine through
+The Hobbit. `decks/woe_hob_standard/` contains all sixteen published lists, including
 sideboards, from the [September 8, 2026 MTGO Challenge 32][standard-challenge-90673].
-Their constructors are in `decks::current_standard`. The first two Izzet
+Their constructors are in `decks::woe_hob_standard`. The first two Izzet
 Spellementals lists retain their published 61-card main decks; the remaining
 lists have 60 cards, and all sideboards have 15. Multifaced card names are
 expanded where needed to resolve the catalog's whole-card unsupported entries.
 
-These lists are implementation inputs. The current Standard set inventory is
-cataloged, with missing rules explicitly unsupported; a current Standard
+These lists are implementation inputs. The WOE–HOB Standard set inventory is
+cataloged, with missing rules explicitly unsupported; a WOE–HOB Standard
 format profile and playable-deck registration remain follow-up work.
 
 ### Standard: ISD–M14 decks

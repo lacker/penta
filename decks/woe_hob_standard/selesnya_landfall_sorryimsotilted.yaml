@@ -1,13 +1,15 @@
 # MTGO Challenge 32 — 9 place, SorryImSoTilted (2026-09-08).
 # Archetype: Selesnya Landfall
 # Source: https://mtgtop8.com/event?e=90673&d=888398&f=ST
+name: "Selesnya Landfall — SorryImSoTilted"
+staged: true
 main:
   Dyadrine, Synthesis Amalgam: 2
   Erode: 4
   Escape Tunnel: 3
   Fabled Passage: 4
   Plains: 2
-  Esper Origins // Summon: Esper Maduin: 4
+  "Esper Origins // Summon: Esper Maduin": 4
   Mightform Harmonizer: 4
   Llanowar Elves: 4
   Mossborn Hydra: 4

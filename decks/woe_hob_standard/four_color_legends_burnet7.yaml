@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 5-8 place, burnet7 (2026-09-08).
 # Archetype: 4c Legends
 # Source: https://mtgtop8.com/event?e=90673&d=888389&f=ST
+name: "4c Legends — burnet7"
+staged: true
 main:
   Celestial Reunion: 2
   Practiced Offense: 2

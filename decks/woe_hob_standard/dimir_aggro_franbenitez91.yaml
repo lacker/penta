@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 5-8 place, FranBenitez91 (2026-09-08).
 # Archetype: Dimir Aggro
 # Source: https://mtgtop8.com/event?e=90673&d=888385&f=ST
+name: "Dimir Aggro — FranBenitez91"
+staged: true
 main:
   Swamp: 4
   Bitter Triumph: 2

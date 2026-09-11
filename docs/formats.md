@@ -190,7 +190,8 @@ the Orb's next instruction.
 WOE–HOB names the fixed Standard card pool from Wilds of Eldraine through
 The Hobbit. `decks/woe_hob_standard/` contains all sixteen published lists, including
 sideboards, from the [September 8, 2026 MTGO Challenge 32][standard-challenge-90673].
-Their constructors are in `decks::woe_hob_standard`. The first two Izzet
+The YAML files are marked `staged: true` and validated by the shared deck
+generator, without appearing in playable deck menus. The first two Izzet
 Spellementals lists retain their published 61-card main decks; the remaining
 lists have 60 cards, and all sideboards have 15. Multifaced card names are
 expanded where needed to resolve the catalog's whole-card unsupported entries.

@@ -14,6 +14,8 @@ use serde_yaml_ng::Mapping;
 struct DeckFile {
     name: String,
     #[serde(default)]
+    staged: bool,
+    #[serde(default)]
     id: Option<String>,
     #[serde(default)]
     aliases: Vec<String>,
@@ -79,9 +81,15 @@ impl Source {
             "expected decks/<format>/<deck>.yaml: {path}"
         );
         let module = path_parts[1].to_owned();
-        format_variant(&module);
+        assert!(
+            identifier(&module),
+            "{path}: invalid deck directory {module:?}"
+        );
         let deck: DeckFile =
             serde_yaml_ng::from_str(yaml).unwrap_or_else(|error| panic!("{path}: {error}"));
+        if !deck.staged {
+            format_variant(&module);
+        }
         let id = Path::new(path)
             .file_stem()
             .unwrap()
@@ -185,9 +193,14 @@ fn registry(mut sources: Vec<Source>) -> String {
                 "{path}: duplicate Rust deck identifier {symbol:?} in {module}"
             );
         }
+        let format = if deck.staged {
+            "None".to_owned()
+        } else {
+            format!("Some(crate::Format::{})", format_variant(module))
+        };
         writeln!(output,
-            "BuiltinDeck {{ format: crate::Format::{}, id: {id:?}, name: {:?}, aliases: &{:?}, source: {:?}, main: &{:?}, sideboard: &{:?} }},",
-            format_variant(module), deck.name, deck.aliases, path,
+            "BuiltinDeck {{ format: {format}, id: {id:?}, name: {:?}, aliases: &{:?}, source: {:?}, main: &{:?}, sideboard: &{:?} }},",
+            deck.name, deck.aliases, path,
             entries(&deck.main, path), entries(&deck.sideboard, path)).unwrap();
         modules.entry(module).or_default().push((index, source));
     }
@@ -256,6 +269,24 @@ mod tests {
         );
         assert!(entries(&source.deck.sideboard, &source.path).is_empty());
         assert_eq!(source.id, "example");
+    }
+
+    #[test]
+    fn staged_yaml_validates_without_a_supported_format() {
+        let path = "decks/future_pool/example.yaml";
+        assert!(std::panic::catch_unwind(|| Source::parse(path, YAML)).is_err());
+        let staged = format!("{YAML}staged: true\n");
+        let output = registry(vec![Source::parse(path, &staged)]);
+        assert!(output.contains("format: None"));
+        assert!(output.contains("pub mod future_pool"));
+        assert!(
+            std::panic::catch_unwind(|| {
+                Source::parse(path, &staged.replace("Mountain: 2", "Mountain: 0"))
+            })
+            .is_err()
+        );
+        let output = registry(vec![Source::parse("decks/premodern/example.yaml", &staged)]);
+        assert!(output.contains("format: None"));
     }
 
     #[test]

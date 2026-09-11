@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 2 place, Darth_Vaner (2026-09-08).
 # Archetype: Izzet Spellementals
 # Source: https://mtgtop8.com/event?e=90673&d=888393&f=ST
+name: "Izzet Spellementals — Darth_Vaner"
+staged: true
 main:
   Impractical Joke: 2
   Prismari Charm: 4

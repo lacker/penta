@@ -5,7 +5,7 @@ Adding, editing, or removing a file updates the registry on the next build;
 no Rust registration or runtime filesystem access is needed. Native callers,
 bindings, and the browser use the same registry.
 
-The directory names match the format slugs with underscores, for example
+For playable decks, directory names match the format slugs with underscores, for example
 `old_school_93_94`, `premodern`, and `isd_m14_standard`.
 
 ```yaml
@@ -30,6 +30,10 @@ sideboard: {}
   name. Lookup ignores case. Names, IDs, and aliases must not collide with
   another deck in the same format.
 - `rust_aliases` optionally preserves additional Rust constructor names.
+- `staged: true` retains an implementation inventory without registering it for
+  gameplay. Staged files use the same schema, name checks, and card resolution,
+  and may belong to a pool directory without a supported format, such as
+  `woe_hob_standard`. Remove this flag once the format and deck are ready.
 - `description` describes the deck in ordinary prose. It also appears in the
   generated constructor's documentation.
 

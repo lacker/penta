@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 3-4 place, L1X0 (2026-09-08).
 # Archetype: Boros Dwarves
 # Source: https://mtgtop8.com/event?e=90673&d=888386&f=ST
+name: "Boros Dwarves — L1X0"
+staged: true
 main:
   Cavern of Souls: 2
   Dáin's Company: 4

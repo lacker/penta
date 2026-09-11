@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 10 place, ProtoPulse (2026-09-08).
 # Archetype: Bant Airbending
 # Source: https://mtgtop8.com/event?e=90673&d=888395&f=ST
+name: "Bant Airbending — ProtoPulse"
+staged: true
 main:
   Airbender Ascension: 1
   The Mind Stone: 1

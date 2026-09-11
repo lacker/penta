@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 14 place, __Noob__ (2026-09-08).
 # Archetype: 4/5C Control
 # Source: https://mtgtop8.com/event?e=90673&d=888390&f=ST
+name: "4/5C Control — __Noob__"
+staged: true
 main:
   Bleachbone Verge: 3
   Blood Crypt: 4

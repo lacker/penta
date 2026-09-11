@@ -22,7 +22,7 @@ pub fn parse_format_slug(slug: &str) -> Result<Format, String> {
 pub fn deck_names_for_format(format: Format) -> Vec<&'static str> {
     decks::BUILTIN_DECKS
         .iter()
-        .filter(|deck| deck.format == format)
+        .filter(|deck| deck.format == Some(format))
         .map(|deck| deck.name)
         .collect()
 }
@@ -34,7 +34,7 @@ pub fn deck_by_name_for_format(format: Format, name: &str) -> Option<Deck> {
     decks::BUILTIN_DECKS
         .iter()
         .find(|deck| {
-            deck.format == format
+            deck.format == Some(format)
                 && [&deck.name, &deck.id]
                     .into_iter()
                     .chain(deck.aliases.iter())

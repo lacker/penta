@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 3-4 place, Univerce (2026-09-08).
 # Archetype: Jund Aggro
 # Source: https://mtgtop8.com/event?e=90673&d=888396&f=ST
+name: "Jund Aggro — Univerce"
+staged: true
 main:
   Witherbloom Charm: 2
   Requiting Hex: 3

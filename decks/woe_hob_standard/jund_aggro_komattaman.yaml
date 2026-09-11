@@ -1,6 +1,8 @@
 # MTGO Challenge 32 — 13 place, komattaman (2026-09-08).
 # Archetype: Jund Aggro
 # Source: https://mtgtop8.com/event?e=90673&d=888392&f=ST
+name: "Jund Aggro — komattaman"
+staged: true
 main:
   Stomping Ground: 4
   Starting Town: 4

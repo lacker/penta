@@ -86,6 +86,15 @@ the bot-wire epoch.
   The core uses costed modes, quantified additional costs, and a generic
   once-per-object activation restriction. Exhaust mana abilities now correctly
   remain spent after untapping, turn changes, and checkpoint reconstruction.
+
+- Implement Sarpadian Empires, Vol. VII through labeled token declarations.
+  Its entry choice binds the selected declaration; the activated ability reads
+  `TokenDef::Binding` through ordinary `CreateToken`. Public `chosenLabels` maps
+  expose the selected display labels. Checkpoints retain bound declarations
+  through catalog locators, including retired sources and tokens with abilities.
+  Existing decision vocabulary, protocol epoch, and checkpoint format are
+  unchanged; reconstruction still requires the simulation fingerprint.
+
 - Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.
   Opponents see that a choice is pending, then its public result; candidate
   options, ordering, policy hints, and checkpoint continuations stay with the

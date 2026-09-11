@@ -7544,12 +7544,51 @@ pub(in crate::card::sets) static PRISMATIC_LENS: CardRecord = CardRecord::new(
 );
 
 // TSP 263 — Sarpadian Empires, Vol. VII
-// Audit: unsupported — Needs one entry choice binding a paired color and creature type for later token creation.
 pub(in crate::card::sets) static SARPADIAN_EMPIRES_VOL_VII: CardRecord = CardRecord::new(
     "Sarpadian Empires, Vol. VII",
     "b37a6cf7-f239-4bca-b4c3-a48932ef56b5",
     "Doug Chaffee",
-    CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this artifact enters, choose white Citizen, blue Camarid, black Thrull, red Goblin, or green Saproling.",
+            crate::card::ReplacementEffectDef::BindOutput {
+                binding: crate::Binding!("sarpadian_empires_choice"),
+                effect: &crate::card::ReplacementEffectDef::Choose(
+                    crate::card::ReplacementChoiceDef::Scalar(
+                        crate::card::BattlefieldEntryScalarChoiceDef::tokens(&[
+                            crate::card::TokenChoiceDef {
+                                label: "white Citizen",
+                                token: crate::card::TokenCharacteristics::creature(&["Citizen"], &[ManaColor::White], 1, 1),
+                            },
+                            crate::card::TokenChoiceDef {
+                                label: "blue Camarid",
+                                token: crate::card::TokenCharacteristics::creature(&["Camarid"], &[ManaColor::Blue], 1, 1),
+                            },
+                            crate::card::TokenChoiceDef {
+                                label: "black Thrull",
+                                token: crate::card::TokenCharacteristics::creature(&["Thrull"], &[ManaColor::Black], 1, 1),
+                            },
+                            crate::card::TokenChoiceDef {
+                                label: "red Goblin",
+                                token: GOBLIN_TOKEN,
+                            },
+                            crate::card::TokenChoiceDef {
+                                label: "green Saproling",
+                                token: SAPROLING_TOKEN,
+                            },
+                        ]),
+                    ),
+                ),
+            },
+        ),
+        AbilityDef::activated(
+            "{3}, {T}: Create a 1/1 creature token of the chosen color and type.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Binding(
+                crate::Binding!("sarpadian_empires_choice"),
+            ))),
+        ),
+    ]),
 );
 
 // TSP 264 — Stuffy Doll

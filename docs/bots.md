@@ -574,7 +574,8 @@ its current zone. Its `characteristics` object says how to present that object:
 
 Native declarative definitions mirror those wire identities. Token creation is
 `EffectDef::CreateToken(CreateTokenDef::new(source))`. Its `TokenDef` source is
-either `Literal(TokenCharacteristics)` or `Copy(&TokenCopyDef)`. Characteristics
+`Literal(TokenCharacteristics)`, `Copy(&TokenCopyDef)`, or a previously chosen
+`Binding(binding)`. Characteristics
 own the token's name, art, types, stats, and abilities; `CreateTokenDef` owns
 quantity, controller, entry options, counters, and the created-object
 continuation. The default name joins the supplied subtypes in order.
@@ -605,6 +606,14 @@ Public choices remembered by a permanent use optional fields such as
 `chosenColor`. `chosenColor` is a lower-case mana-color name and is absent or
 null when that permanent made no color choice. These fields belong to the
 permanent incarnation and therefore disappear when it changes zones.
+
+Permanent observations may include a `chosenLabels` object mapping authored
+binding names to opaque selected labels. For example, Sarpadian Empires records
+`"sarpadian_empires_choice": "white Citizen"`. Labels do not encode card
+characteristics; the engine binds the associated token declaration. Missing maps
+mean no remembered labeled choices. These choices use the existing scalar
+`PublicNotice` decision and `ChooseDecision` action, and checkpoints retain
+the pending choice, selected labels, and bound token declaration locators.
 
 A true zone change
 creates a new object ID, so a Goblin Balloon Brigade card in hand, its spell on

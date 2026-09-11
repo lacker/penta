@@ -758,6 +758,11 @@ impl Game {
             chosen_basic_land_type: permanent.chosen_basic_land_type,
             chosen_color: permanent.chosen_color,
             chosen_card_name: permanent.chosen_card_name.clone(),
+            chosen_labels: permanent
+                .chosen_tokens
+                .iter()
+                .map(|(binding, declaration)| (binding.clone(), declaration.label.clone()))
+                .collect(),
             tapped: permanent.tapped,
             power,
             toughness,
@@ -829,7 +834,8 @@ impl Game {
             || !permanent.damage_sources.is_empty()
             || permanent.paired_with.is_some()
             || permanent.created_by.is_some()
-            || permanent.chosen_player.is_some();
+            || permanent.chosen_player.is_some()
+            || !permanent.chosen_tokens.is_empty();
         if stateful {
             return true;
         }

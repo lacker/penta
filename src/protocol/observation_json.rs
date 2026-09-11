@@ -181,6 +181,7 @@ fn permanent_observation_json(
         "faceDown": permanent.face_down,
         "phasedOut": permanent.phased_out,
         "chosenCardName": permanent.chosen_card_name.as_deref(),
+        "chosenLabels": permanent.chosen_labels,
         "chosenCreatureType": permanent.chosen_creature_type.as_deref(),
         "chosenBasicLandType": permanent.chosen_basic_land_type.map(crate::card::BasicLandType::subtype),
         "chosenColor": permanent.chosen_color.map(super::json_common::mana_color_name),

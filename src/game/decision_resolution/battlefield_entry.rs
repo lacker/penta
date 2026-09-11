@@ -172,6 +172,28 @@ impl Game {
                 if let Some(mut pending) = self.pending_events.pop_front() {
                     let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
                     match choice.destination {
+                        BattlefieldEntryChoiceDestinationDef::Token => {
+                            let ReplacementEffectDef::BindOutput { binding, .. } = authored_effect
+                            else {
+                                unreachable!("catalog validation requires a label binding");
+                            };
+                            let crate::card::ScalarChoiceListDef::Tokens(declarations) =
+                                choice.list
+                            else {
+                                unreachable!("token destinations require token declarations");
+                            };
+                            let declaration = declarations
+                                .iter()
+                                .find(|option| option.label == selected)
+                                .expect("the selected label belongs to the authored list");
+                            entry.permanent.chosen_tokens.insert(
+                                binding.label().expect("a durable token binding").to_owned(),
+                                crate::game::BoundTokenDeclaration {
+                                    label: selected,
+                                    token: declaration.token,
+                                },
+                            );
+                        }
                         BattlefieldEntryChoiceDestinationDef::Player => {
                             entry.permanent.chosen_player = match selected.as_str() {
                                 "You" => Some(entry.permanent.controller),

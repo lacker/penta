@@ -46,6 +46,22 @@ pub(super) fn permanent_snapshot(
         .and_then(|token| token_characteristics_locator(catalog, token));
     let has_unlocated_token_characteristics =
         permanent.token_characteristics.is_some() && token_characteristics.is_none();
+    let chosen_tokens = permanent
+        .chosen_tokens
+        .iter()
+        .filter_map(|(binding, token)| {
+            token_characteristics_locator(catalog, token.token).map(|locator| {
+                (
+                    binding.clone(),
+                    super::model::BoundTokenSnapshot {
+                        label: token.label.clone(),
+                        token: locator,
+                    },
+                )
+            })
+        })
+        .collect::<std::collections::BTreeMap<_, _>>();
+    let has_unlocated_chosen_tokens = chosen_tokens.len() != permanent.chosen_tokens.len();
     let copied_from = permanent
         .copied_from
         .and_then(|characteristics| object_characteristics_snapshot(catalog, characteristics));
@@ -67,6 +83,7 @@ pub(super) fn permanent_snapshot(
         owner: permanent.card.owner.index(),
         object_kind: object_kind_snapshot(permanent.card.definition),
         token_characteristics,
+        chosen_tokens,
         token_stats,
         double_faced_token_copy: double_faced_token_copy.map(|(snapshot, _)| snapshot),
         face_down,
@@ -240,6 +257,7 @@ pub(super) fn permanent_snapshot(
             || has_unlocated_copy_ability
             || has_unlocated_double_faced_copy
             || has_unlocated_token_characteristics
+            || has_unlocated_chosen_tokens
             || has_unlocated_copied_from
             || has_unlocated_face_down,
     }

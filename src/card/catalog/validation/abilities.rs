@@ -667,6 +667,15 @@ fn validate_entry_replacement_program(effect: ReplacementEffectDef) -> Result<()
                 )),
             binding,
         } if binding != crate::ParentBinding => Ok(()),
+        ReplacementEffectDef::BindOutput {
+            effect: &ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef {
+                    list: ScalarChoiceListDef::Tokens(_),
+                    destination: BattlefieldEntryChoiceDestinationDef::Token,
+                },
+            )),
+            binding,
+        } if binding != crate::ParentBinding => Ok(()),
         ReplacementEffectDef::BindOutput { .. } => Err("invalid BindOutput"),
         ReplacementEffectDef::ModifyBattlefieldEntry(
             BattlefieldEntryModificationDef::AddCountersValue { amount, .. },

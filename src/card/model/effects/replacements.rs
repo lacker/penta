@@ -146,7 +146,7 @@ pub enum BattlefieldEntryModificationDef {
     },
 }
 
-/// The catalog-derived vocabulary presented by a scalar entry choice.
+/// The authored or catalog-derived vocabulary presented by a scalar entry choice.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ScalarChoiceListDef {
     /// The two players, presented relative to the entering permanent's
@@ -154,6 +154,8 @@ pub enum ScalarChoiceListDef {
     /// entry and its checkpoint continuation use the same public decision
     /// machinery as card-name and creature-type choices.
     Players,
+    /// Authored labels paired with token declarations to bind.
+    Tokens(&'static [super::TokenChoiceDef]),
     /// Names drawn from an explicit declarative set. Only catalog-defined
     /// sets are valid here: object-derived sets would disclose hidden zones.
     CardNames(CardNameSetDef),
@@ -170,6 +172,8 @@ pub enum ScalarChoiceListDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum BattlefieldEntryChoiceDestinationDef {
     Player,
+    /// A token declaration stored under an explicit replacement output binding.
+    Token,
     CardName,
     CreatureType,
     /// A basic land type, which the permanent then *is* rather than merely
@@ -179,7 +183,7 @@ pub enum BattlefieldEntryChoiceDestinationDef {
     Color,
 }
 
-/// A catalog-derived scalar choice made while applying an entry replacement.
+/// A scalar choice made while applying an entry replacement.
 ///
 /// Keeping the choice list and destination as separate typed axes lets one
 /// decision procedure serve every string-valued entry choice without
@@ -191,6 +195,14 @@ pub struct BattlefieldEntryScalarChoiceDef {
 }
 
 impl BattlefieldEntryScalarChoiceDef {
+    #[must_use]
+    pub const fn tokens(choices: &'static [super::TokenChoiceDef]) -> Self {
+        Self {
+            list: ScalarChoiceListDef::Tokens(choices),
+            destination: BattlefieldEntryChoiceDestinationDef::Token,
+        }
+    }
+
     pub const PLAYER: Self = Self {
         list: ScalarChoiceListDef::Players,
         destination: BattlefieldEntryChoiceDestinationDef::Player,
@@ -308,4 +320,40 @@ pub enum ReplacementEffectDef {
         if_paid: &'static [ReplacementEffectDef],
         if_declined: &'static [ReplacementEffectDef],
     },
+}
+
+/// Token declarations authored in an entry replacement, in source order.
+pub(crate) fn replacement_tokens(
+    effect: ReplacementEffectDef,
+) -> Vec<crate::card::TokenCharacteristics> {
+    match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => replacement_tokens(*effect),
+        ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+            BattlefieldEntryScalarChoiceDef {
+                list: ScalarChoiceListDef::Tokens(choices),
+                ..
+            },
+        )) => choices.iter().map(|choice| choice.token).collect(),
+        ReplacementEffectDef::Sequence(effects) => effects
+            .iter()
+            .flat_map(|effect| replacement_tokens(*effect))
+            .collect(),
+        ReplacementEffectDef::Conditional {
+            if_true, if_false, ..
+        } => if_true
+            .iter()
+            .chain(if_false.iter())
+            .flat_map(|effect| replacement_tokens(*effect))
+            .collect(),
+        ReplacementEffectDef::PayOr {
+            if_paid,
+            if_declined,
+            ..
+        } => if_paid
+            .iter()
+            .chain(if_declined.iter())
+            .flat_map(|effect| replacement_tokens(*effect))
+            .collect(),
+        _ => Vec::new(),
+    }
 }

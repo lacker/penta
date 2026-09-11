@@ -1,3 +1,20 @@
+fn validate_choice_labels(
+    choices: &[crate::card::TokenChoiceDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    let mut labels = std::collections::BTreeSet::new();
+    if choices.is_empty()
+        || choices.iter().any(|choice| {
+            choice.label.trim().is_empty() || !labels.insert(choice.label)
+        })
+    {
+        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "labeled choice",
+            operation: "choices require nonempty unique labels",
+        });
+    }
+    Ok(())
+}
+
 fn validate_replacement_binding_target_shape(
     binding: crate::Binding,
     effect: &'static ReplacementEffectDef,
@@ -20,6 +37,9 @@ fn validate_replacement_binding_target_shape(
             BattlefieldEntryChoiceDestinationDef::CardName,
         ) if names.is_catalog_defined() => Ok(()),
         (ScalarChoiceListDef::CreatureTypes, BattlefieldEntryChoiceDestinationDef::CreatureType) => Ok(()),
+        (ScalarChoiceListDef::Tokens(choices), BattlefieldEntryChoiceDestinationDef::Token) => {
+            validate_choice_labels(choices)
+        }
         _ => Err(GrantedAbilityValidationError::InvalidScalarChoice {
             list: choice.list,
             destination: choice.destination,

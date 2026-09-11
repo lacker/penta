@@ -508,6 +508,11 @@ fn validate_effect_target_shapes(
             counters,
             ..
         }) => {
+            if let crate::card::TokenDef::Binding(crate::ParentBinding) = token {
+                return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "token binding", operation: "requires a durable labeled binding",
+                });
+            }
             validate_value_shape(count, targets)?;
             if let crate::card::TokenDef::Copy(copy) = token {
                 if tapped || attacking || counters.is_some() {

@@ -53,6 +53,26 @@ fn catalog_validation_follows_nested_token_and_grant_continuations() {
     static CREATE: EffectDef = EffectDef::CreateToken(crate::card::CreateTokenDef::new(
         crate::card::TokenDef::Literal(INCOHERENT_TOKEN),
     ));
+    static CHOOSE: AbilityDef = AbilityDef::replacement(
+        "As this enters, choose a token declaration.",
+        crate::card::ReplacementEffectDef::BindOutput {
+            binding: crate::Binding!("branch_output"),
+            effect: &crate::card::ReplacementEffectDef::Choose(crate::card::ReplacementChoiceDef::Scalar(
+                crate::card::BattlefieldEntryScalarChoiceDef::tokens(&[crate::card::TokenChoiceDef {
+                    label: "Broken", token: INCOHERENT_TOKEN,
+                }]),
+            )),
+        },
+    );
+    let mut chooser = definition(1, "Token Chooser", sets::alpha::SET);
+    let rules = chooser.rules.with_ability(CHOOSE);
+    set_primary_rules(&mut chooser, &rules);
+    assert_eq!(error(chooser), CatalogError::IncoherentCardRules {
+        definition: CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000000001"),
+        part: CardPartId::PRIMARY,
+        explanation: "a noncreature cannot have creature power and toughness",
+    });
+
     for effect in continuation_effects(&GRANT) {
         let child = Box::leak(Box::new(AbilityDef::activated(
             "Resolve a continuation that grants an ability.",

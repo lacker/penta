@@ -217,6 +217,8 @@ pub struct PermanentObservation {
     pub chosen_color: Option<crate::card::ManaColor>,
     /// Public card name associated with permanents such as Pithing Needle.
     pub chosen_card_name: Option<String>,
+    /// Public opaque entry choices keyed by their authored bindings.
+    pub chosen_labels: std::collections::BTreeMap<String, String>,
     pub tapped: bool,
     pub power: Option<i16>,
     pub toughness: Option<i16>,

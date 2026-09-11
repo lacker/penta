@@ -93,6 +93,18 @@ fn collect_from_ability(
             collect_effects(effect, &mut Vec::new(), creator, found);
         }
         AbilityProgramDef::Replacement(replacement) => {
+            for (choice_index, token) in crate::card::replacement_tokens(replacement)
+                .into_iter()
+                .enumerate()
+            {
+                found.tokens.push((
+                    token,
+                    TokenCharacteristicsLocator::EntryChoice {
+                        creator: Box::new(creator.clone()),
+                        choice_index,
+                    },
+                ));
+            }
             for (index, effect) in replacement_child_effects(replacement)
                 .into_iter()
                 .enumerate()

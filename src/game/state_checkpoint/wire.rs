@@ -540,24 +540,7 @@ pub(super) fn parse_battlefield(
         })
 }
 
-#[allow(clippy::struct_excessive_bools)]
-struct PermanentPresentation {
-    controller: PlayerId,
-    tapped: bool,
-    damage: u16,
-    attacking: bool,
-    attack_defender: Option<AttackDefender>,
-    blocked: bool,
-    blocking: Vec<GameObjectId>,
-    blocking_this_combat: bool,
-    attacking_band: Option<u8>,
-    activated_loyalty_this_turn: bool,
-    chosen_creature_type: Option<String>,
-    chosen_basic_land_type: Option<BasicLandType>,
-    chosen_color: Option<ManaColor>,
-    chosen_card_name: Option<String>,
-    chosen_card_name_binding: Option<String>,
-}
+include!("wire/permanent_presentation.rs");
 
 #[allow(clippy::too_many_lines)]
 fn parse_permanent(
@@ -801,6 +784,23 @@ fn parse_permanent(
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;
+    permanent.chosen_tokens = state
+        .chosen_tokens
+        .iter()
+        .map(|(binding, locator)| {
+            catalog_token_characteristics(catalog, &locator.token)
+                .map(|token| {
+                    (
+                        binding.clone(),
+                        crate::game::BoundTokenDeclaration {
+                            label: locator.label.clone(),
+                            token,
+                        },
+                    )
+                })
+                .ok_or_else(|| format!("unresolved bound token declaration {binding:?}"))
+        })
+        .collect::<Result<_, _>>()?;
     permanent.chosen_card_name_binding = shown.chosen_card_name_binding;
     permanent.face_down = state.face_down.map(face_down_characteristics_from_snapshot);
     permanent.turn_up_for_mana_cost = state.turn_up_for_mana_cost;

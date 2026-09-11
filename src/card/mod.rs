@@ -23,6 +23,7 @@ pub use catalog::{CardCatalog, CatalogError, EffectSubjectKind, GrantedAbilityVa
 pub(crate) use characteristics::applicable_part_ids_ref;
 pub use characteristics::{CharacteristicContext, CharacteristicError, applicable_part_ids};
 pub use creature_types::{CREATURE_TYPES, creature_type_name};
+pub(crate) use model::replacement_tokens;
 pub use model::{
     AbilityCostReductionDef, AbilityDef, AbilityEffectDef, AbilityKindDef, AbilityLabel,
     AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef, AbilityProgramDef,
@@ -83,9 +84,9 @@ pub use model::{
     StackTargetAggregationDef, StackTargetChangeDef, StackTargetFilterDef, StaticAbilityDef,
     StaticApplyDef, SubtypeDef, SumValueDef, SuspendAbilityDef, SuspendTimeDef, TapEventMatcherDef,
     TapPurposeDef, TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef,
-    TokenCharacteristics, TokenCopyDef, TokenCountersDef, TokenDef, TokenPart, TokenStatsDef,
-    TokenStructure, TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef,
-    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
+    TokenCharacteristics, TokenChoiceDef, TokenCopyDef, TokenCountersDef, TokenDef, TokenPart,
+    TokenStatsDef, TokenStructure, TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef,
+    TriggeredAbilityDef, TurnKindDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
     ZoneChangeEventMatcherDef, ZoneChangeObservationDef, ZoneKind, ZoneMoveCauseDef, ZonePickDef,
     ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef, actions,
 };

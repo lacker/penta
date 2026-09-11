@@ -117,3 +117,66 @@ fn creature_type_entry_bindings_validate_the_producer_and_mana_consumer() {
         "mana restrictions must validate their subtype binding references"
     );
 }
+
+#[test]
+fn labeled_choices_require_unique_nonempty_options_and_a_durable_binding() {
+    use crate::card::TokenChoiceDef;
+    const GOOD: &[TokenChoiceDef] = &[
+        TokenChoiceDef {
+            label: "Sunrise",
+            token: crate::card::TokenCharacteristics::creature(&["Citizen"], &[], 1, 1),
+        },
+        TokenChoiceDef {
+            label: "Twilight",
+            token: crate::card::TokenCharacteristics::creature(&["Citizen"], &[], 1, 1),
+        },
+    ];
+    const DUPLICATE: &[TokenChoiceDef] = &[
+        TokenChoiceDef {
+            label: "same",
+            token: crate::card::TokenCharacteristics::creature(&["Citizen"], &[], 1, 1),
+        },
+        TokenChoiceDef {
+            label: "same",
+            token: crate::card::TokenCharacteristics::creature(&["Citizen"], &[], 1, 1),
+        },
+    ];
+    const BLANK: &[TokenChoiceDef] = &[TokenChoiceDef {
+        label: " ",
+        token: crate::card::TokenCharacteristics::creature(&["Citizen"], &[], 1, 1),
+    }];
+    for choices in [GOOD, DUPLICATE, BLANK, &[]] {
+        let producer = Box::leak(Box::new(ReplacementEffectDef::Choose(
+            ReplacementChoiceDef::Scalar(BattlefieldEntryScalarChoiceDef::tokens(choices)),
+        )));
+        let bound = ReplacementEffectDef::BindOutput {
+            binding: Binding!("branch_output"),
+            effect: producer,
+        };
+        assert_eq!(
+            validate_replacement_ability_targets(&[], bound).is_ok(),
+            choices == GOOD
+        );
+        assert!(
+            validate_replacement_ability_targets(&[], *producer).is_err(),
+            "label choices cannot discard their binding"
+        );
+        assert!(
+            validate_replacement_ability_targets(
+                &[],
+                ReplacementEffectDef::BindOutput {
+                    binding: crate::ParentBinding,
+                    effect: producer,
+                }
+            )
+            .is_err()
+        );
+    }
+}
+
+#[test]
+fn labeled_choices_reject_nondurable_token_bindings() {
+    assert!(validate_effect_target_shapes(
+        EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Binding(crate::ParentBinding))), &[], None,
+    ).is_err());
+}

@@ -53,6 +53,15 @@ pub(in crate::game::state_checkpoint) fn catalog_token_characteristics(
 ) -> Option<TokenCharacteristics> {
     let creator = catalog_ability(catalog, locator.creator())?;
     match locator {
+        TokenCharacteristicsLocator::EntryChoice { choice_index, .. } => {
+            let crate::card::AbilityProgramDef::Replacement(effect) = creator.effect.definition
+            else {
+                return None;
+            };
+            crate::card::replacement_tokens(effect)
+                .get(*choice_index)
+                .copied()
+        }
         TokenCharacteristicsLocator::EffectPath { effect_path, .. } => {
             let effect = effect_at_path(&creator, effect_path)?;
             match effect {

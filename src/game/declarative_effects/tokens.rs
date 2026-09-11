@@ -184,6 +184,37 @@ impl Game {
         self.capture_tokens_created(object.controller, &minted);
     }
 
+    fn resolve_token_definition(
+        &self,
+        token: crate::card::TokenDef,
+        source: Option<crate::GameObjectId>,
+    ) -> Option<TokenCharacteristics> {
+        match token {
+            crate::card::TokenDef::Literal(token) => Some(token),
+            crate::card::TokenDef::Copy(_) => {
+                unreachable!("copy creation uses the copy-resolution path")
+            }
+            crate::card::TokenDef::Binding(binding) => source.and_then(|source| {
+                self.battlefield
+                    .iter()
+                    .chain(self.phased_out.iter())
+                    .find(|permanent| permanent.card.id == source)
+                    .or_else(|| match self.retired_objects.get(&source) {
+                        Some(crate::game::RetiredObject::Permanent { permanent, .. }) => {
+                            Some(permanent.as_ref())
+                        }
+                        _ => None,
+                    })
+                    .and_then(|permanent| {
+                        binding
+                            .label()
+                            .and_then(|label| permanent.chosen_tokens.get(label))
+                    })
+                    .map(|declaration| declaration.token)
+            }),
+        }
+    }
+
     pub(super) fn resolve_token_effect(
         &mut self,
         scoped: ScopedEffect,
@@ -218,9 +249,7 @@ impl Game {
                     );
                     return;
                 }
-                let crate::card::TokenDef::Literal(token) = token else {
-                    unreachable!("copy creation returned above")
-                };
+                let token = self.resolve_token_definition(token, object.source);
                 // "Its controller creates two Map tokens": the tokens are
                 // that player's, and everything else about them -- including
                 // who an arriving attacker attacks -- follows from that.
@@ -248,7 +277,8 @@ impl Game {
                 });
                 // "An X/X blue Illusion": the size is worked out once, here,
                 // and the tokens arrive that size rather than growing into it.
-                let token = self.resolve_token_creation_stats(token, object, context, scoped);
+                let token = token
+                    .map(|token| self.resolve_token_creation_stats(token, object, context, scoped));
                 let mut minted = Vec::new();
                 let count =
                     usize::try_from(self.effect_value(count, object, context, scoped).max(0))
@@ -257,15 +287,17 @@ impl Game {
                 // clause watching arrivals sees all four rather than each
                 // against a board the others have not joined yet.
                 self.entering_together(|game| {
-                    for _ in 0..game.tokens_created(controller, count) {
-                        minted.push(Target::Permanent(game.create_token_arriving(
-                            controller,
-                            token,
-                            Some(creator),
-                            tapped,
-                            defender,
-                            counters,
-                        )));
+                    if let Some(token) = token {
+                        for _ in 0..game.tokens_created(controller, count) {
+                            minted.push(Target::Permanent(game.create_token_arriving(
+                                controller,
+                                token,
+                                Some(creator),
+                                tapped,
+                                defender,
+                                counters,
+                            )));
+                        }
                     }
                 });
                 self.capture_created_token_batch(controller, &minted);

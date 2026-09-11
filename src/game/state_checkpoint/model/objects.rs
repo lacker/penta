@@ -42,6 +42,10 @@ pub(in crate::game::state_checkpoint) enum AbilityLocator {
     rename_all_fields = "camelCase"
 )]
 pub(in crate::game::state_checkpoint) enum TokenCharacteristicsLocator {
+    EntryChoice {
+        creator: Box<AbilityLocator>,
+        choice_index: usize,
+    },
     EffectPath {
         creator: Box<AbilityLocator>,
         effect_path: Vec<usize>,
@@ -51,7 +55,7 @@ pub(in crate::game::state_checkpoint) enum TokenCharacteristicsLocator {
 impl TokenCharacteristicsLocator {
     pub(in crate::game::state_checkpoint) fn creator(&self) -> &AbilityLocator {
         match self {
-            Self::EffectPath { creator, .. } => creator,
+            Self::EffectPath { creator, .. } | Self::EntryChoice { creator, .. } => creator,
         }
     }
 }

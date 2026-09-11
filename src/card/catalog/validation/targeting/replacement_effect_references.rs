@@ -35,6 +35,14 @@ fn validate_replacement_effect_target_references(
             }
             Ok(())
         }
+        ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(crate::card::BattlefieldEntryScalarChoiceDef {
+            list: ScalarChoiceListDef::Tokens(choices), ..
+        })) => {
+            for choice in choices {
+                validate_effect_references(EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(choice.token))), target_count, scope)?;
+            }
+            Ok(())
+        }
         ReplacementEffectDef::Perform(effect) => {
             validate_effect_references(*effect, target_count, scope)
         }

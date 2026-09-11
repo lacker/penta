@@ -31,8 +31,8 @@ use super::{
     AbilityDef, AddManaEffectDef, AlternativeCastKindDef, BasicLandType, CardNameSetDef,
     CardSupertype, CardSupertypeSet, CardTypeSet, ColorSet, ComparisonDef, CostDef, CounterKind,
     DeclarativeAbilityDef, KeywordAbility, ManaColor, ManaCost, ManaTypeDef, ObjectPredicateDef,
-    PlayActionKind, PlayerRelation, TokenCharacteristics, TriggerConditionDef, ZoneKind,
-    ZonePlacement,
+    PlayActionKind, PlayerRelation, TokenCharacteristics, TokenChoiceDef, TriggerConditionDef,
+    ZoneKind, ZonePlacement,
 };
 
 // Effect subjects, lifetimes, and event matchers form the shared vocabulary

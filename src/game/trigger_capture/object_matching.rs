@@ -444,7 +444,8 @@ impl Game {
         match destination {
             // Player relations and land types have dedicated predicates;
             // neither is matched as a scalar against an object here.
-            BattlefieldEntryChoiceDestinationDef::Player
+            BattlefieldEntryChoiceDestinationDef::Token
+            | BattlefieldEntryChoiceDestinationDef::Player
             | BattlefieldEntryChoiceDestinationDef::BasicLandType
             | BattlefieldEntryChoiceDestinationDef::Color
             | BattlefieldEntryChoiceDestinationDef::CardName => false,

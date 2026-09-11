@@ -8,6 +8,9 @@ pub(super) struct PermanentSnapshot {
     pub(super) object_id: u32,
     pub(super) owner: usize,
     pub(super) object_kind: ObjectKindSnapshot,
+    /// Token declarations selected on entry, with their public display labels.
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub(super) chosen_tokens: std::collections::BTreeMap<String, BoundTokenSnapshot>,
     /// The authored token characteristics originally minted for this permanent.
     /// A token copy legitimately has none because its single-faced copy effect
     /// or frozen double-faced values supply its copiable characteristics;
@@ -178,4 +181,11 @@ pub(super) struct PermanentSnapshot {
     pub(super) copied_from: Option<CopiedFromSnapshot>,
     pub(super) text_changes: Vec<BasicLandTypeChangeSnapshot>,
     pub(super) has_dynamic_characteristics: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct BoundTokenSnapshot {
+    pub(super) label: String,
+    pub(super) token: TokenCharacteristicsLocator,
 }

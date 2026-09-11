@@ -7,6 +7,11 @@ impl Game {
         choice: BattlefieldEntryScalarChoiceDef,
     ) -> (&'static str, Vec<String>) {
         let (prompt, mut choices, fallback) = match choice.list {
+            ScalarChoiceListDef::Tokens(choices) => (
+                "Choose one",
+                choices.iter().map(|choice| choice.label.to_owned()).collect(),
+                "",
+            ),
             ScalarChoiceListDef::Players => (
                 "Choose a player",
                 vec!["You".to_owned(), "Opponent".to_owned()],

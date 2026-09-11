@@ -262,6 +262,31 @@ batches. Use an ordinary `Sequence` for an unconditional instruction following
 damage. Keep `EffectDef::Fight` for fighting: it requires both participants to
 be creatures and snapshots their powers before either deals damage.
 
+### Bound token declarations
+
+For a token declaration selected on entry, author `TokenChoiceDef { label, token }`
+options. Each label is opaque display text; `token` supplies the complete
+`TokenCharacteristics`. Wrap `BattlefieldEntryScalarChoiceDef::tokens(options)`
+in `ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(...))` and
+`ReplacementEffectDef::BindOutput { binding, effect }`. The entry decision binds
+the selected declaration without creating a token.
+
+Later clauses use the bound source in the ordinary creation operation:
+
+```rust
+EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Binding(binding)))
+```
+
+Token counts, controllers,
+entry modifiers, and created-token continuations compose normally. The consumer
+needs no labels or option table. Ordinary inline token creation uses
+`TokenDef::Literal(...)`.
+
+Labels must be nonempty and unique. A missing binding creates no token, as with
+an acquired linked ability. Bound declarations are not copiable values; a new
+object chooses anew. `ChooseEffect { player, choices }` remains the separate
+instruction for an immediate player choice between effects.
+
 ### Temporary self effects
 
 Use `abilities::apply_to_self_until_end_of_turn` for activated stat changes,

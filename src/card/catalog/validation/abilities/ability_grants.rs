@@ -11,6 +11,7 @@ fn collect_program_ability_grants(
             collect_ability_grants(effect, grants, tokens, emblems);
         }
         AbilityProgramDef::Replacement(effect) => {
+            tokens.extend(crate::card::replacement_tokens(effect));
             collect_replacement_ability_grants(effect, grants, tokens, emblems);
         }
     }
@@ -61,6 +62,7 @@ fn collect_ability_grants(
                     }),
             ),
             crate::card::TokenDef::Literal(token) => tokens.push(token),
+            crate::card::TokenDef::Binding(_) => {},
         },
         EffectDef::CreateAttachedToken { token, .. } => {
             tokens.push(token);

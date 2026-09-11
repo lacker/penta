@@ -2,6 +2,14 @@
 // answer about itself, kept apart from the game that holds the battlefield.
 // Included textually into `mod.rs`, so the imports here are that module's.
 
+/// A public display label and the declaration selected under that label.
+/// Only the declaration supplies token-creation characteristics.
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct BoundTokenDeclaration {
+    label: String,
+    token: TokenCharacteristics,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
 struct Permanent {
@@ -98,6 +106,8 @@ struct Permanent {
     pub(super) chosen_color: Option<crate::card::ManaColor>,
     /// The card name a permanent named as it entered, for Pithing Needle.
     chosen_card_name: Option<String>,
+    /// Token declarations selected on entry, keyed by their durable bindings.
+    chosen_tokens: std::collections::BTreeMap<String, BoundTokenDeclaration>,
     /// The authored identity of that name choice. Older checkpoints may omit
     /// it; `None` retains their former single-choice interpretation.
     chosen_card_name_binding: Option<String>,
@@ -323,6 +333,7 @@ impl Permanent {
             chosen_basic_land_type: None,
             chosen_color: None,
             chosen_card_name: None,
+            chosen_tokens: std::collections::BTreeMap::new(),
             chosen_card_name_binding: None,
             face_down: None,
             turn_up_for_mana_cost: false,

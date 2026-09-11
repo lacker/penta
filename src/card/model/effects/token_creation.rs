@@ -8,8 +8,8 @@ pub struct CreateTokenDef {
     /// `None` means the resolving object's controller.
     pub controller: Option<PlayerRefDef>,
     pub count: ValueDef,
-    /// Entry modifiers currently require a literal source; the catalog rejects
-    /// them for copy sources until the copy-entry path supports them.
+    /// Entry modifiers currently require a literal or bound source. The catalog
+    /// rejects them for copy sources until the copy-entry path supports them.
     pub tapped: bool,
     pub attacking: bool,
     /// Counters received on entry are distinct from the token's characteristics.

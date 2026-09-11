@@ -109,6 +109,14 @@ impl Hash for TokenStructure {
 pub enum TokenDef {
     Literal(TokenCharacteristics),
     Copy(&'static crate::card::TokenCopyDef),
+    Binding(crate::Binding),
+}
+
+/// A displayed label paired with the token declaration that selecting it binds.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct TokenChoiceDef {
+    pub label: &'static str,
+    pub token: TokenCharacteristics,
 }
 
 /// Complete characteristics needed to create a token without a card catalog

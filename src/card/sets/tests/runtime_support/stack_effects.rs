@@ -719,7 +719,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // tokens bound, so it is checked here rather than trusted.
         EffectDef::CreateToken(crate::card::CreateTokenDef { token, created, .. }) => {
             (match token {
-                crate::card::TokenDef::Literal(_) => true,
+                crate::card::TokenDef::Literal(_) | crate::card::TokenDef::Binding(_) => true,
                 crate::card::TokenDef::Copy(copy) => shared_effect_recipient(*copy.object),
             })
                 && created.is_none_or(|created| {

@@ -168,9 +168,10 @@ test("session API keeps every live replay private and exposes completed replay p
   for (let i = 0; i < 6; i++) {
     const token = i % 2 ? botToken : humanToken;
     const before = await view(room, token);
-    const record = await (await room.fetch(request("record", { token: humanToken }))).json();
-    assert.equal(record.config.seed, null);
-    assert.deepEqual(record.commands, []);
+    for (const credential of [humanToken, botToken]) {
+      assert.equal((await room.fetch(request("record", { token: credential }))).status, 403,
+        "live records must not disclose either registered deck to a playing seat");
+    }
     await room.fetch(request("play", { token, body: {
       revision: before.revision, requestId: `move-${i}`, choices: [{ index: 0 }],
     } }));
@@ -178,6 +179,7 @@ test("session API keeps every live replay private and exposes completed replay p
   const done = await view(room, botToken);
   assert.equal(done.status, "complete");
   const record = await (await room.fetch(request("record", { token: humanToken }))).json();
+  assert.deepEqual(await (await room.fetch(request("record", { token: botToken }))).json(), record);
   assert.equal(record.commands.length, 6);
   assert.equal("humanToken" in record, false);
   assert.equal("receipts" in record, false);

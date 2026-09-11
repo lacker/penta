@@ -388,6 +388,9 @@ export class GameRoom {
           : this.#snapshot();
       }
       if (route === "record") {
+        // A bot may own the historical human role without knowing either
+        // registered deck. Exact sessions expose records only after completion.
+        if (this.#stored?.config.sessionApi && !game.isFinished()) return forbidden();
         if (seat !== "human" && !(seat && game.isFinished())) return forbidden();
         const stored = this.#stored;
         if (!stored) return Response.json({ error: "no game" }, { status: 404 });

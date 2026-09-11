@@ -43,6 +43,31 @@ test("presentation changes roundtrip exact fields and ordered choices, including
   assert.deepEqual(present(ready, next.previous, true).result.observation, playingObservation(observation));
 });
 
+test("array entries change compactly while preserving every value and position", () => {
+  const before = Array.from({ length: 8 }, (_, i) => ({
+    objectId: i + 20, definition: i + 200, name: `Permanent ${i}`,
+    controller: i % 2 ? "p1" : "p2", tapped: false,
+    power: 3, toughness: 3, counters: { charge: 1 },
+  }));
+  const tapped = structuredClone(before);
+  tapped[3].tapped = true;
+  const edits = changes({ battlefield: before }, { battlefield: tapped });
+  assert.deepEqual(edits, [{ path: ["battlefield", "3", "tapped"], value: true }]);
+  assert.deepEqual(patch({ battlefield: before }, edits), { battlefield: tapped });
+  assert.ok(JSON.stringify(edits).length < JSON.stringify(tapped).length / 4);
+
+  const removedField = structuredClone(tapped);
+  delete removedField[5].counters;
+  const states = [before, tapped, removedField, [...before].reverse(),
+    [...before, { objectId: 99 }], before.slice(1), [], null,
+    { selected: before[0] }, before.map(card => card.objectId)];
+  for (const previous of states) for (const next of states) {
+    assert.deepEqual(patch(previous, changes(previous, next)), next);
+  }
+  // Resizing must replace the array, never delete an index and leave a hole.
+  assert.deepEqual(changes(before, before.slice(1)), [{ path: [], value: before.slice(1) }]);
+});
+
 test("large menus are explicit references and every option remains inspectable without renumbering", async () => {
   const legalActions = Array.from({ length: 250 }, (_, index) => ({ index, type: index % 2 ? "ActivateManaAbility" : "PlayLand", card: index }));
   const decision = { id: 3, minimum: 1, options: Array.from({ length: 250 }, (_, id) => ({ id, label: `Card ${id}` })) };

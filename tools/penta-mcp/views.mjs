@@ -28,11 +28,14 @@ export function page(items, offset, limit) {
 }
 
 // Paths are arrays of literal property names, not executable expressions. A
-// changed array is replaced as a whole, preserving order and every choice.
+// same-length array can use numeric-string index paths. Length changes replace
+// the whole array, so applying edits never requires splicing or leaves holes.
 export function changes(before, after, path = []) {
   if (JSON.stringify(before) === JSON.stringify(after)) return [];
+  const sameLengthArrays = Array.isArray(before) && Array.isArray(after)
+    && before.length === after.length;
   if (before && after && typeof before === "object" && typeof after === "object"
-      && !Array.isArray(before) && !Array.isArray(after)) {
+      && (sameLengthArrays || (!Array.isArray(before) && !Array.isArray(after)))) {
     const edits = [];
     for (const key of Object.keys(before)) {
       if (!Object.hasOwn(after, key)) edits.push({ path: [...path, key], remove: true });

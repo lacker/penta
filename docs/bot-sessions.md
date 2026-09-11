@@ -102,8 +102,11 @@ checkpoint and match state. The MCP playing view separates the checkpoint into
 For subsequent observations it chooses whichever is shorter: a full playing
 view or exact JSON changes against `baseRevision`. Property paths are literal
 arrays of keys; `remove: true` deletes a property, otherwise `value` replaces it.
-A changed array is replaced in full, retaining order. Request `next(full: true)`
-or `inspect(section: "observation")` to reset the presentation baseline.
+For arrays of the same length, paths can include numeric-string indices, such
+as `["battlefield", "2", "tapped"]`. Length changes replace the entire array,
+retaining order without splicing or holes. A whole replacement is also used
+when it is smaller than individual edits. Request `next(full: true)` or
+`inspect(section: "observation")` to reset the presentation baseline.
 
 Menus with more than 100 entries or 12,000 JSON characters become explicit
 counts and inspect references.
@@ -121,6 +124,14 @@ available. The adapter caches the public catalog outside model context, and
 sends only the requested page. `inspect(section: "match")` gives exact match
 details. A waiting response exposes neither another seat's intermediate
 observation nor a revision that could reveal private choice counts.
+
+The current bot observation does not include transient reveal events. For
+example, when Domri Rade reveals a creature and puts it into its controller's
+hand during one resolution, the next opponent observation lacks that card's
+identity even though the browser event log records the reveal. This affects
+both HTTP and MCP views; full inspection cannot recover the missing event.
+Complete player information requires a shared, seat-safe event or observation
+contract, rather than an adapter inference from hand-size changes.
 
 Transport savings do not imply a particular reduction in model reasoning cost.
 Compare total tool input/output, follow-up inspections, reasoning usage, and
@@ -161,9 +172,11 @@ response is lost, its credentials cannot be recovered through the adapter.
 
 Browser commands and exact session requests share the same revision check and
 journal. The room retains its last safe human projection during private bot
-choices. Live external-game records withhold the seed and journal; after match
-completion either seat may fetch the credential-free replay. Exact sessions
-use browser/host replay version 3, which refuses older version-2 journals.
+choices. Exact-session records are unavailable to either seat until match
+completion, including the registered deck names. Legacy external-game records
+withhold the seed and journal while playing. After completion either seat may
+fetch the credential-free replay. Exact sessions use browser/host replay
+version 3, which refuses older version-2 journals.
 Bot protocol and checkpoint versions do not change for this adapter.
 
 The bot role can also attach to an existing external hosted game without

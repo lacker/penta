@@ -884,8 +884,8 @@ fn parse_permanent(
     permanent.attacked_this_turn = state.attacked_this_turn;
     permanent.exerted = state.exerted;
     permanent.saddled = state.saddled;
-    permanent.exhausted = state
-        .exhausted
+    permanent.activated_abilities = state
+        .activated_abilities
         .iter()
         .copied()
         .map(super::ability_origin_from_snapshot)

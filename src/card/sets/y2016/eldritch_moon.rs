@@ -37,6 +37,39 @@ use crate::ids::ParentBinding;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
+pub const ESCALATE: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:escalate");
+
+/// Choose one or more modes, paying the listed cost for each beyond the first.
+///
+/// # Panics
+///
+/// Panics if the mode list is empty or contains more than 255 modes.
+#[must_use]
+#[allow(clippy::cast_possible_truncation)]
+pub const fn escalate(
+    text: &'static str,
+    cost: CostDef,
+    modes: &'static [AbilityDef],
+) -> AbilityDef {
+    assert!(!modes.is_empty() && modes.len() <= u8::MAX as usize);
+    AbilityDef::defined(
+        text,
+        crate::card::DeclarativeAbilityDef::Spell(crate::card::SpellAbilityDef::Modal(
+            crate::card::ModalSpellDef::new(modes, 1, modes.len() as u8, false)
+                .with_additional_cost(
+                    cost,
+                    CostQuantityDef::Subtract(
+                        &CostQuantityDef::ModeCount,
+                        &CostQuantityDef::Fixed(1),
+                    ),
+                )
+                .with_selection_text("Choose one or more —"),
+        )),
+        EffectDef::None,
+    )
+    .labeled(ESCALATE)
+}
+
 /// Printed set identity and stable catalog slug.
 pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
     code: "EMN",
@@ -51,7 +84,7 @@ pub(in crate::card::sets) static BLESSED_ALLIANCE: CardRecord = CardRecord::new(
     "Blessed Alliance",
     "b5805eab-9a32-4c0c-9015-7bdb74ad7634",
     "Johann Bodin",
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::modal_escalate_spell(
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(escalate(
         "Escalate {2} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{2}")),
         &[
@@ -107,7 +140,7 @@ pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
     "Borrowed Grace",
     "f0067567-3434-4c12-9d4d-04ffc98d012c",
     "Volkan Baǵa",
-    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::modal_escalate_spell(
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(escalate(
         "Escalate {1}{W} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{1}{W}")),
         &[
@@ -151,7 +184,7 @@ pub(in crate::card::sets) static COLLECTIVE_EFFORT: CardRecord = CardRecord::new
     "d85a6369-c07f-47d5-8448-72d8ec7e7898",
     "Eric Deschamps",
 CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(
-        AbilityDef::modal_escalate_spell(
+        escalate(
             "Escalate—Tap an untapped creature you control. (Pay this cost for each mode chosen beyond the first.)",
             CostDef::tap(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -264,7 +297,7 @@ pub(in crate::card::sets) static BORROWED_MALEVOLENCE: CardRecord = CardRecord::
     "Borrowed Malevolence",
     "a71f123e-aad9-4f3e-9f43-1d1be359affb",
     "Volkan Baǵa",
-    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::modal_escalate_spell(
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(escalate(
         "Escalate {2} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{2}")),
         &[
@@ -312,7 +345,7 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
 // Two mana that answers three different decks, and the escalate cost is
     // paid in the cards those decks least want you to have anyway.
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
-        AbilityDef::modal_escalate_spell(
+        escalate(
             "Escalate—Discard a card. (Pay this cost for each mode chosen beyond the \
              first.)",
             // One mode is free; taking all three costs two discarded cards.
@@ -370,7 +403,7 @@ pub(in crate::card::sets) static BORROWED_HOSTILITY: CardRecord = CardRecord::ne
     "Borrowed Hostility",
     "dd91a194-6043-4c2d-afc8-427c38996ef4",
     "Volkan Baǵa",
-    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::modal_escalate_spell(
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(escalate(
         "Escalate {3} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{3}")),
         &[
@@ -408,7 +441,7 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
     "Collective Defiance",
     "8960883f-3813-412b-9a5b-f8cf8d566fac",
     "Kieran Yanner",
-    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::modal_escalate_spell(
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(escalate(
         "Escalate {1} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{1}")),
         &[
@@ -460,7 +493,7 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
     "Savage Alliance",
     "b5255da8-8511-48a7-98e5-ba43ca6e8681",
     "Johann Bodin",
-    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::modal_escalate_spell(
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(escalate(
         "Escalate {1} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{1}")),
         &[

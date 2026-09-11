@@ -15,6 +15,7 @@ impl Game {
             || !definition.source_zones.contains(&zone)
             || !self.activation_timing_allows(controller, definition.timing)
             || definition.activation_limit.is_some()
+            || definition.once_per_object
             || definition.condition.is_some()
             || self
                 .card_in_nonbattlefield_zone(source)

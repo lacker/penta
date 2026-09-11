@@ -1204,6 +1204,9 @@ Format 16 replaces `forage` decisions with generic `actionChoice` selections
 reconstructed from their authored game-action or PayOr program. Mechanic and
 payment identities now use fixed-width hexadecimal numeric IDs instead of
 human-readable names.
+Permanent `activatedAbilities` replaces `exhausted`: it records every ability
+activated from that object, independent of its current label or restriction.
+This history survives turn cleanup and applies to mana abilities as well.
 Consumers must require `reconstruction.checkpoint.v16` and regenerate older
 checkpoints. The ordinary bot protocol and replay format are unchanged;
 exact reconstruction still requires the simulation fingerprint.

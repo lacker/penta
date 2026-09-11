@@ -342,7 +342,7 @@ fn shared_object_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
     }
 }
 
-fn shared_scalar_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
+pub(super) fn shared_scalar_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
     match quantity {
         crate::card::CostQuantityDef::Fixed(_)
         | crate::card::CostQuantityDef::ChosenX

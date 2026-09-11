@@ -350,9 +350,10 @@ fn spree_mode_costs_can_be_nonmana() {
         &[CostDef::PayLife(2)],
         AbilityDef::spell("Do nothing.", EffectDef::None),
     )];
-    let (mut game, id) = game_with_cost_rules(
-        &CardRules::new_sorcery(mana_cost!("{0}")).with_ability(AbilityDef::spree(&MODES)),
-    );
+    let (mut game, id) =
+        game_with_cost_rules(&CardRules::new_sorcery(mana_cost!("{0}")).with_ability(
+            crate::card::sets::outlaws_of_thunder_junction::spree(&MODES),
+        ));
     let action = game
         .legal_actions(PlayerId::One)
         .into_iter()
@@ -360,6 +361,78 @@ fn spree_mode_costs_can_be_nonmana() {
         .unwrap();
     game.apply(PlayerId::One, action).unwrap();
     assert_eq!(game.players[0].life, 18);
+}
+
+#[test]
+fn modal_additional_cost_repetitions_are_authored_without_a_mechanic_label() {
+    use crate::card::{CostQuantityDef, ModalSpellDef, SpellAbilityDef};
+    static MODES: [AbilityDef; 2] = [
+        AbilityDef::spell("First mode.", EffectDef::None),
+        AbilityDef::spell("Second mode.", EffectDef::None),
+    ];
+    for (repetitions, expected_life) in [
+        (CostQuantityDef::Fixed(0), 20),
+        (CostQuantityDef::Fixed(3), 14),
+        (CostQuantityDef::ModeCount, 16),
+        (
+            CostQuantityDef::Subtract(&CostQuantityDef::ModeCount, &CostQuantityDef::Fixed(1)),
+            18,
+        ),
+    ] {
+        let ability = AbilityDef::defined(
+            "Choose both —",
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(
+                ModalSpellDef::new(&MODES, 2, 2, false)
+                    .with_additional_cost(CostDef::PayLife(2), repetitions),
+            )),
+            EffectDef::None,
+        );
+        assert_eq!(ability.label, None);
+        let (mut game, id) =
+            game_with_cost_rules(&CardRules::new_sorcery(mana_cost!("{0}")).with_ability(ability));
+        let cast = game
+            .legal_actions(PlayerId::One)
+            .into_iter()
+            .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == id))
+            .expect("the authored payment is affordable");
+        game.apply(PlayerId::One, cast).unwrap();
+        assert_eq!(game.players[0].life, expected_life);
+    }
+}
+
+#[test]
+fn once_per_object_restriction_does_not_require_an_exhaust_label() {
+    const ABILITY: AbilityDef = AbilityDef::activated(
+        "Pay 1 life: Gain 2 life. Activate only once.",
+        &[CostDef::PayLife(1)],
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(2),
+        },
+    )
+    .once_per_object();
+    assert_eq!(ABILITY.label, None);
+    let (mut game, _) = game_with_cost_rules(
+        &CardRules::new_creature(mana_cost!("{0}"), &["Test"], 1, 1).with_ability(ABILITY),
+    );
+    game.players[0].hand.clear();
+    let source = game
+        .put_onto_battlefield(PlayerId::One, CardDefinitionId::new(100_001))
+        .unwrap();
+    drain_pending(&mut game);
+    let action = game.legal_actions(PlayerId::One).into_iter().find(|action| {
+        matches!(action, Action::ActivateAbility { source: actual, .. } if *actual == source)
+    }).expect("an unlabeled once-only ability is initially available");
+    game.apply(PlayerId::One, action).unwrap();
+    drain_pending(&mut game);
+    assert_eq!(game.players[0].life, 21);
+    game.cleanup();
+    game.active_player = PlayerId::One;
+    game.step = Step::PrecombatMain;
+    game.priority = PlayerId::One;
+    assert!(game.legal_actions(PlayerId::One).iter().all(|action| {
+        !matches!(action, Action::ActivateAbility { source: actual, .. } if *actual == source)
+    }));
 }
 
 #[test]

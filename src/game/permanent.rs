@@ -122,10 +122,10 @@ struct Permanent {
     /// activated this turn, for the cards that count their own activations.
     /// Cleared when the next turn begins, after any inserted phases.
     activations_this_turn: Vec<(AbilityOrigin, u8)>,
-    /// The exhaust abilities this permanent has already spent. Unlike the
-    /// counts above this list never clears: an exhausted ability is
-    /// exhausted for as long as the permanent is there.
-    pub(super) exhausted: Vec<AbilityOrigin>,
+    /// Abilities activated from this object at least once, across all turns.
+    /// Keeping history independent of the current restriction also preserves
+    /// it while an ability is temporarily removed or its limit changes.
+    pub(super) activated_abilities: Vec<AbilityOrigin>,
     /// How many times each of this permanent's triggered abilities has
     /// triggered this turn, for the ones that print "this ability triggers
     /// only once each turn". Cleared alongside the activations above.
@@ -228,6 +228,34 @@ struct Permanent {
 }
 
 impl Permanent {
+    fn record_activation(&mut self, origin: AbilityOrigin) {
+        match self
+            .activations_this_turn
+            .iter_mut()
+            .find(|(ability, _)| *ability == origin)
+        {
+            Some((_, count)) => *count = count.saturating_add(1),
+            None => self.activations_this_turn.push((origin, 1)),
+        }
+        if !self.activated_abilities.contains(&origin) {
+            self.activated_abilities.push(origin);
+        }
+    }
+
+    fn activation_limit_reached(
+        &self,
+        origin: AbilityOrigin,
+        definition: &ActivatedAbilityDef,
+    ) -> bool {
+        definition.activation_limit.is_some_and(|limit| {
+            self.activations_this_turn
+                .iter()
+                .find(|(ability, _)| *ability == origin)
+                .map_or(0, |(_, count)| *count)
+                >= limit
+        }) || (definition.once_per_object && self.activated_abilities.contains(&origin))
+    }
+
     /// Whether this creature is blocking that attacker.
     fn is_blocking(&self, attacker: GameObjectId) -> bool {
         self.blocking.contains(&attacker)
@@ -303,7 +331,7 @@ impl Permanent {
             suspend_haste: false,
             resolved_continuous_effects: Vec::new(),
             activations_this_turn: Vec::new(),
-            exhausted: Vec::new(),
+            activated_abilities: Vec::new(),
             triggers_this_turn: Vec::new(),
             resolutions_this_turn: Vec::new(),
             counters: crate::game::counters::Counters::new(),

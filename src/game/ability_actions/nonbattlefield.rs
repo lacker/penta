@@ -20,6 +20,7 @@ impl Game {
                 };
                 if definition.procedure != AbilityProcedureDef::Shared
                     || !definition.source_zones.contains(&ZoneKind::Exile)
+                    || definition.once_per_object
                     || !self.activation_timing_allows(player, definition.timing)
                     || definition.condition.is_some_and(|condition| {
                         !self.trigger_condition_holds(
@@ -127,6 +128,7 @@ impl Game {
                 };
                 if definition.procedure != AbilityProcedureDef::Shared
                     || !definition.source_zones.contains(&ZoneKind::Hand)
+                    || definition.once_per_object
                     || !self.activation_timing_allows(player, definition.timing)
                 {
                     return;
@@ -230,6 +232,7 @@ impl Game {
                     };
                     if definition.procedure != AbilityProcedureDef::Shared
                         || !definition.source_zones.contains(&ZoneKind::Graveyard)
+                        || definition.once_per_object
                         || !self.activation_timing_allows(player, definition.timing)
                         || definition.condition.is_some_and(|condition| {
                             !self.trigger_condition_holds(

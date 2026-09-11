@@ -28,6 +28,7 @@ use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::abilities;
+use crate::card::sets::aetherdrift::exhaust;
 use crate::mana_cost;
 
 static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -147,7 +148,7 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
             abilities::double_strike(),
             abilities::vigilance(),
             abilities::haste(),
-            AbilityDef::activated_mana(
+            exhaust(AbilityDef::activated_mana(
                 "Exhaust — {G}, {T}: Add three mana of any one color. (Activate each exhaust ability \
                  only once.)",
                 &[
@@ -155,9 +156,8 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
                     CostDef::TapSource,
                 ],
                 EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
-            )
-            .exhausting(),
-            AbilityDef::activated(
+            )),
+            exhaust(AbilityDef::activated(
                 "Exhaust — {U}, {T}: Draw three cards.",
                 &[
                     CostDef::Mana(mana_cost!("{U}")),
@@ -167,9 +167,8 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(3),
                 },
-            )
-            .exhausting(),
-            AbilityDef::activated_with_targets(
+            )),
+            exhaust(AbilityDef::activated_with_targets(
                 "Exhaust — {R}, {T}: This creature deals 3 damage to any target.",
                 &[
                     CostDef::Mana(mana_cost!("{R}")),
@@ -180,8 +179,7 @@ pub(in crate::card::sets) static LOOT_THE_PATHFINDER: CardRecord = CardRecord::n
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(3),
                 ),
-            )
-            .exhausting(),
+            )),
         ]),
 );
 

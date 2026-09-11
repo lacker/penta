@@ -130,7 +130,7 @@ impl Game {
     fn selected_spell_additional_costs(
         &self,
         request: SpellAdditionalCostRequest<'_>,
-    ) -> Vec<SelectedSpellAdditionalCost> {
+    ) -> Option<Vec<SelectedSpellAdditionalCost>> {
         let SpellAdditionalCostRequest {
             definition,
             option,
@@ -170,29 +170,24 @@ impl Game {
         }
         // An alternative replaces only the spell's mana cost. Every mandatory
         // additional cost printed by the spell still applies (CR 118.9d).
-        if let Some(cost) = Self::spell_ability(definition, option).and_then(|(_, ability)| {
-            match ability.definition {
-                DeclarativeAbilityDef::Spell(spell) => match spell {
-                    crate::card::SpellAbilityDef::Nonmodal {
-                        additional_cost: Some(cost),
-                        ..
-                    } => Some(SelectedSpellAdditionalCost::once(cost)),
-                    crate::card::SpellAbilityDef::Modal(modal) => {
-                        modal.escalate_cost.map(|cost| SelectedSpellAdditionalCost {
-                            cost,
-                            repetitions: u16::try_from(selected_modes.len().saturating_sub(1))
-                                .unwrap_or(u16::MAX),
-                        })
-                    }
-                    crate::card::SpellAbilityDef::Nonmodal {
-                        additional_cost: None,
-                        ..
-                    } => None,
+        if let Some((_, ability)) = Self::spell_ability(definition, option)
+            && let DeclarativeAbilityDef::Spell(spell) = ability.definition
+        {
+            let cost = match spell {
+                crate::card::SpellAbilityDef::Nonmodal {
+                    additional_cost, ..
+                } => additional_cost.map(SelectedSpellAdditionalCost::once),
+                crate::card::SpellAbilityDef::Modal(modal) => match modal.additional_cost {
+                    Some((cost, repetitions)) => Some(SelectedSpellAdditionalCost {
+                        cost,
+                        repetitions: scale.quantity(repetitions)?,
+                    }),
+                    None => None,
                 },
-                _ => None,
+            };
+            if let Some(cost) = cost {
+                required.push(cost);
             }
-        }) {
-            required.push(cost);
         }
         if let Some((_, ability)) = Self::spell_ability(definition, option)
             && let DeclarativeAbilityDef::Spell(spell) = ability.definition
@@ -226,7 +221,7 @@ impl Game {
                 );
             }
         }
-        required
+        Some(required)
     }
 
     /// The largest X that the selected semantic additional costs can pay.
@@ -234,7 +229,7 @@ impl Game {
         &self,
         request: SpellAdditionalCostRequest<'_>,
     ) -> Option<u16> {
-        self.selected_spell_additional_costs(request)
+        self.selected_spell_additional_costs(request)?
             .into_iter()
             .filter_map(|selected| {
                 self.maximum_x_for_spell_additional_cost(
@@ -298,7 +293,9 @@ impl Game {
         &self,
         request: SpellAdditionalCostRequest<'_>,
     ) -> Vec<SpellAdditionalCostPayment> {
-        let required = self.selected_spell_additional_costs(request);
+        let Some(required) = self.selected_spell_additional_costs(request) else {
+            return Vec::new();
+        };
         if required.is_empty() {
             return vec![SpellAdditionalCostPayment::free()];
         }

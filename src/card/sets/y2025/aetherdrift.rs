@@ -31,6 +31,18 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+pub const EXHAUST: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:exhaust");
+
+/// Exhaust labels an ordinary ability restricted to one activation per object.
+///
+/// # Panics
+///
+/// Panics if the clause is not an activated ability or activated mana ability.
+#[must_use]
+pub const fn exhaust(ability: AbilityDef) -> AbilityDef {
+    ability.once_per_object().labeled(EXHAUST)
+}
+
 /// Printed set identity and stable catalog slug.
 pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
     code: "DFT",

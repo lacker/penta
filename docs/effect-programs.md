@@ -22,6 +22,16 @@ need contained implementation boundaries, not card-identity dispatch in Game.
   its own clause. There is no Endurance-shaped graveyard operation in the core.
 - Bloomburrow owns forage's identity and choice of ordinary exile/sacrifice
   game actions. Corpseberry Cultivator and Feed the Cycle share that composition.
+- Outlaws of Thunder Junction owns spree, built from individually costed modes.
+  Eldritch Moon owns escalate, imported by Modern Horizons 3: the constructor
+  supplies an additional cost repeated `ModeCount - 1` times. The cast planner
+  evaluates that ordinary quantity expression, not the mechanic's identity.
+  Modal headers and selection instructions are explicit presentation data.
+- Aetherdrift owns exhaust's label and wraps an ordinary activated ability with
+  `once_per_object()`. Mana and stack-using abilities share activation history
+  and restriction checks. Untapping and turn cleanup do not erase that history;
+  a zone change creates a new object. Other once-per-object abilities need not
+  carry the exhaust label.
 
 ## Identities and named actions
 

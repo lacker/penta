@@ -70,10 +70,12 @@ pub struct ModalSpellDef {
     pub maximum: u8,
     /// Some spells explicitly allow the same mode to be chosen more than once.
     pub may_repeat: bool,
-    /// The single additional cost Escalate charges for each mode chosen
-    /// beyond the first. The cast planner derives the number of payments from
-    /// the selected modes, just as Spree derives costs from its modal shape.
-    pub escalate_cost: Option<CostDef>,
+    /// A whole-spell additional cost and how often to pay it, evaluated from
+    /// the completed casting choices. Individual modes may also own costs.
+    pub additional_cost: Option<(CostDef, super::CostQuantityDef)>,
+    /// Optional selection instructions printed between the clause header and
+    /// its modes. Presentation is authored, not inferred from payment rules.
+    pub selection_text: Option<&'static str>,
     /// A printed "if <condition> as you cast this spell, you may choose two
     /// instead". The larger maximum applies when the condition holds where
     /// the spell is offered; it never lowers the printed one, and the
@@ -194,7 +196,8 @@ impl ModalSpellDef {
             minimum,
             maximum,
             may_repeat,
-            escalate_cost: None,
+            additional_cost: None,
+            selection_text: None,
             conditional_maximum: None,
         }
     }
@@ -211,41 +214,34 @@ impl ModalSpellDef {
         Self::new(modes, 1, 1, false)
     }
 
+    /// Modes with individual costs; selection bounds remain ordinary modal data.
     #[must_use]
-    #[allow(clippy::cast_possible_truncation)]
-    /// # Panics
-    ///
-    /// Panics when more modes are supplied than the runtime mode-count field
-    /// can represent.
-    pub const fn spree(modes: &'static [(&'static [CostDef], AbilityDef)]) -> Self {
-        assert!(modes.len() <= u8::MAX as usize);
+    pub const fn with_costed_modes(
+        modes: &'static [(&'static [CostDef], AbilityDef)],
+        minimum: u8,
+        maximum: u8,
+        may_repeat: bool,
+    ) -> Self {
         Self {
             modes: ModalModeListDef::WithAdditionalCosts(modes),
-            minimum: 1,
-            maximum: modes.len() as u8,
-            may_repeat: false,
-            escalate_cost: None,
-            conditional_maximum: None,
+            ..Self::new(&[], minimum, maximum, may_repeat)
         }
     }
 
     #[must_use]
-    #[allow(clippy::cast_possible_truncation)]
-    /// # Panics
-    ///
-    /// Panics when no modes are supplied or the mode count does not fit the
-    /// runtime mode-count field.
-    pub const fn escalate(cost: CostDef, modes: &'static [AbilityDef]) -> Self {
-        assert!(!modes.is_empty());
-        assert!(modes.len() <= u8::MAX as usize);
-        Self {
-            modes: ModalModeListDef::Ordinary(modes),
-            minimum: 1,
-            maximum: modes.len() as u8,
-            may_repeat: false,
-            escalate_cost: Some(cost),
-            conditional_maximum: None,
-        }
+    pub const fn with_additional_cost(
+        mut self,
+        cost: CostDef,
+        repetitions: super::CostQuantityDef,
+    ) -> Self {
+        self.additional_cost = Some((cost, repetitions));
+        self
+    }
+
+    #[must_use]
+    pub const fn with_selection_text(mut self, text: &'static str) -> Self {
+        self.selection_text = Some(text);
+        self
     }
 
     #[must_use]
@@ -481,11 +477,9 @@ pub struct ActivatedAbilityDef {
     /// cannot be cracked to pay for the spell being cast, because the hand
     /// it discards would be the hand that spell came out of.
     pub only_as_instant: bool,
-    /// Exhaust (CR 702.184a): "Activate each exhaust ability only once."
-    /// A cap on the permanent's whole lifetime rather than on its turn,
-    /// which is why it is counted apart from the limit above -- that one
-    /// clears when the turn does, and this one never clears.
-    pub exhaust: bool,
+    /// This ability may be activated only once from this object. Unlike a
+    /// per-turn limit, the spent state survives turn changes and untapping.
+    pub once_per_object: bool,
     /// Who may activate it. The permanent stays the ability's source whoever
     /// pays, so the damage it deals is still the permanent's damage.
     pub activation_permission: ActivationPermissionDef,
@@ -534,7 +528,7 @@ impl ActivatedAbilityDef {
             timing: ActivationTimingDef::Any,
             activation_limit: None,
             only_as_instant: false,
-            exhaust: false,
+            once_per_object: false,
             activation_permission: ActivationPermissionDef::Controller,
             condition: None,
             modes: None,
@@ -603,10 +597,10 @@ impl ActivatedAbilityDef {
         self
     }
 
-    /// Exhaust: once per object, for as long as that object is there.
+    /// Restricts this ability to one activation from the same object.
     #[must_use]
-    pub const fn exhausting(mut self) -> Self {
-        self.exhaust = true;
+    pub const fn once_per_object(mut self) -> Self {
+        self.once_per_object = true;
         self
     }
 

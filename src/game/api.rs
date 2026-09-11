@@ -813,7 +813,7 @@ impl Game {
             || !permanent.temporary_keywords.is_empty()
             || !permanent.keywords_until_upkeep_of.is_empty()
             || !permanent.activations_this_turn.is_empty()
-            || !permanent.exhausted.is_empty()
+            || !permanent.activated_abilities.is_empty()
             || !permanent.triggers_this_turn.is_empty()
             || !permanent.resolutions_this_turn.is_empty()
             || !permanent.counters.is_empty()

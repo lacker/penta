@@ -828,6 +828,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && definition.targets.is_empty()
                 && definition.modes.is_none()
                 && definition.activation_limit.is_none()
+                && !definition.once_per_object
                 && definition.activation_permission
                     == crate::card::ActivationPermissionDef::Controller
                 && definition.condition.is_none()

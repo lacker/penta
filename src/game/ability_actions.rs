@@ -109,27 +109,7 @@ impl Game {
             .iter_mut()
             .find(|permanent| permanent.card.id == source)
         {
-            match permanent
-                .activations_this_turn
-                .iter_mut()
-                .find(|(origin, _)| *origin == frozen.origin)
-            {
-                Some((_, count)) => *count = count.saturating_add(1),
-                None => permanent.activations_this_turn.push((frozen.origin, 1)),
-            }
-            // Exhaust is spent rather than counted: what matters afterwards
-            // is only that it happened.
-            let exhausts = frozen.definition.as_ref().is_some_and(|definition| {
-                matches!(
-                    definition.definition,
-                    DeclarativeAbilityDef::Activated(activated)
-                        | DeclarativeAbilityDef::ActivatedMana(activated)
-                        if activated.exhaust
-                )
-            });
-            if exhausts && !permanent.exhausted.contains(&frozen.origin) {
-                permanent.exhausted.push(frozen.origin);
-            }
+            permanent.record_activation(frozen.origin);
         }
         let event_chosen_permanents = chosen_permanents.clone();
         let card = self.unbacked_ability_object(frozen.presentation, source_owner);
@@ -245,17 +225,7 @@ impl Game {
                     // prohibition without the deadline.
                     || permanent.detained_until_turn_of.is_some()
                     || !self.activation_timing_allows(player, definition.timing)
-                    // The engine already counts every activation per ability
-                    // and clears the counts each turn, so the printed cap is
-                    // a read rather than new state.
-                    || definition.activation_limit.is_some_and(|limit| {
-                        permanent.activations_this_turn.iter().any(|(origin, count)| {
-                            *origin == effective.origin && *count >= limit
-                        })
-                    })
-                    // Exhaust, which the permanent remembers for as long as
-                    // it is there rather than for the turn.
-                    || (definition.exhaust && permanent.exhausted.contains(&effective.origin))
+                    || permanent.activation_limit_reached(effective.origin, &definition)
                     // "Activate only if ...". A false condition means there is
                     // no legal activation at all, rather than one that
                     // resolves and does nothing.

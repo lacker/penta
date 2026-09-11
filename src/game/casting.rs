@@ -228,22 +228,13 @@ impl Game {
             })
             .expect("legal mana action references a mana source");
         let produced_mana = Self::mana_for_activation(&activation);
-        // Counted for the same reason an ordinary activation is: a printed
-        // "only once each turn" is read off this tally when the ability is
-        // next offered.
+        // Mana and stack-using abilities share per-turn and per-object history.
         if let Some(permanent) = self
             .battlefield
             .iter_mut()
             .find(|permanent| permanent.card.id == source)
         {
-            match permanent
-                .activations_this_turn
-                .iter_mut()
-                .find(|(origin, _)| *origin == ability)
-            {
-                Some((_, count)) => *count = count.saturating_add(1),
-                None => permanent.activations_this_turn.push((ability, 1)),
-            }
+            permanent.record_activation(ability);
         }
         self.pay_immediate_mana_activation_costs(player, source, &activation);
         if self.pay_moving_mana_activation_costs(player, source, &activation, &produced_mana) {

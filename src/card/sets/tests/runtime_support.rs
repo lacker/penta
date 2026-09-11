@@ -391,10 +391,12 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                                 .iter()
                                 .all(|cost| shared_spell_additional_cost(Some(*cost)))
                         })
-                }) && shared_spell_additional_cost(modal.escalate_cost)
-                    && modal.modes.iter().all(|mode| {
-                        mode.declarative_effect().is_none() || shared_definition_ability(mode)
-                    })
+                }) && modal.additional_cost.is_none_or(|(cost, repetitions)| {
+                    shared_spell_additional_cost(Some(cost))
+                        && costs::shared_scalar_cost_quantity(repetitions)
+                }) && modal.modes.iter().all(|mode| {
+                    mode.declarative_effect().is_none() || shared_definition_ability(mode)
+                })
             } else {
                 // A clause that exists only to carry an additional cost has
                 // nothing to do on resolution, which is why None is allowed
@@ -414,6 +416,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 // surely as a cost that spends the board does, which is what
                 // lets Vivi Ornitier's {0} be a cost at all.
                 definition.activation_limit.is_some()
+                    || definition.once_per_object
                     || definition.costs.iter().any(|cost| {
                         matches!(
                             cost,
@@ -435,6 +438,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             let hand = definition.source_zones == [ZoneKind::Hand]
                 && definition.costs == [CostDef::ExileSource]
                 && definition.activation_limit.is_none()
+                && !definition.once_per_object
                 && definition.condition.is_none();
             let command = definition.source_zones == [ZoneKind::Command]
                 && !definition.costs.is_empty()
@@ -443,6 +447,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     .iter()
                     .all(|cost| matches!(cost, CostDef::PayLife(_)))
                 && definition.activation_limit.is_none()
+                && !definition.once_per_object
                 && definition.condition.is_none();
 
             (battlefield || hand || command)
@@ -699,6 +704,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     definition.source_zones,
                     [ZoneKind::Battlefield | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile]
                 ) && definition.procedure == AbilityProcedureDef::Shared
+                    && (!definition.once_per_object || battlefield_only(definition.source_zones))
                     && shared_activated_costs(definition.source_zones, definition.costs)
                     // Only the mana path enumerates one activation per
                     // removable count, so an open-ended removal outside it
@@ -722,7 +728,9 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                         .condition
                         .is_none_or(|condition| shared_trigger_condition(*condition))
                     && definition.modes.is_none_or(|modal| {
-                        modal.modes.iter().all(|mode| {
+                        modal.additional_cost.is_none()
+                        && !modal.modes.has_additional_costs()
+                        && modal.modes.iter().all(|mode| {
                             mode.declarative_effect().is_none() || shared_definition_ability(mode)
                         })
                     })
@@ -770,7 +778,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     modal.minimum <= 1
                         && modal.maximum == 1
                         && !modal.may_repeat
-                        && modal.escalate_cost.is_none()
+                        && modal.additional_cost.is_none()
                         && modal.conditional_maximum.is_none()
                         && modal.modes.iter().all(|mode| {
                             mode.declarative_effect().is_none() || shared_definition_ability(mode)

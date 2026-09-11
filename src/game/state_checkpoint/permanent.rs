@@ -163,8 +163,8 @@ pub(super) fn permanent_snapshot(
         attacked_this_turn: permanent.attacked_this_turn,
         exerted: permanent.exerted,
         saddled: permanent.saddled,
-        exhausted: permanent
-            .exhausted
+        activated_abilities: permanent
+            .activated_abilities
             .iter()
             .copied()
             .map(super::ability_origin_snapshot)

@@ -176,6 +176,7 @@ impl Game {
                         effective.ability.definition,
                         DeclarativeAbilityDef::ActivatedMana(definition)
                             if definition.activation_limit.is_none()
+                                && !definition.once_per_object
                                 && definition.condition.is_none()
                     )
                 })

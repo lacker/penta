@@ -171,6 +171,41 @@ fn the_green_exhaust_makes_three_mana() {
         3,
         "three mana of one colour, and the green that paid is spent",
     );
+
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == loot)
+        .unwrap()
+        .tapped = false;
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 1);
+    assert!(
+        offered(&game, loot)
+            .iter()
+            .all(|action| !matches!(action, Action::ActivateManaAbility { .. })),
+        "untapping cannot repay a once-per-object mana activation"
+    );
+
+    game.cleanup();
+    game.turns_started = [6, 6];
+    game.active_player = PlayerId::One;
+    game.step = Step::PrecombatMain;
+    game.priority = PlayerId::One;
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 1);
+    let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
+    let rebuilt = Game::from_observation_checkpoint(
+        game.catalog.clone(),
+        game.format,
+        &wire,
+        &hidden,
+        100_600,
+    )
+    .expect("per-object activation history reconstructs");
+    assert!(
+        offered(&rebuilt, loot)
+            .iter()
+            .all(|action| !matches!(action, Action::ActivateManaAbility { .. })),
+        "turn changes and reconstruction preserve the spent mana ability"
+    );
 }
 
 /// The red exhaust: three damage to any target, and spent afterwards like

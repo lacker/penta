@@ -734,7 +734,7 @@ pub const CYCLING: crate::card::MechanicId = crate::card::MechanicId::from_name(
 #[doc(hidden)]
 #[must_use]
 pub const fn cycling_with_costs(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
-    AbilityDef::cycling_ability(
+    AbilityDef::activated(
         text,
         costs,
         EffectDef::DrawCards {
@@ -742,6 +742,7 @@ pub const fn cycling_with_costs(text: &'static str, costs: &'static [CostDef]) -
             amount: ValueDef::Constant(1),
         },
     )
+    .labeled(CYCLING)
     .with_source_zones(&[ZoneKind::Hand])
 }
 
@@ -753,7 +754,7 @@ pub const fn typecycling_with_costs(
     costs: &'static [CostDef],
     object: ObjectPredicateDef,
 ) -> AbilityDef {
-    AbilityDef::cycling_ability(
+    AbilityDef::activated(
         text,
         costs,
         EffectDef::SearchZone {
@@ -772,6 +773,7 @@ pub const fn typecycling_with_costs(
             then: None,
         },
     )
+    .labeled(CYCLING)
     .with_source_zones(&[ZoneKind::Hand])
 }
 

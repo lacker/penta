@@ -7,8 +7,8 @@ use crate::card::{DeclarativeAbilityDef, ModalModeListDef, SpellAbilityDef};
 impl AbilityDef {
     /// Renders the complete printed clause. Most abilities borrow their
     /// canonical static text; structured alternative-casting keywords insert
-    /// their owned mana cost into canonical reminder text, and Escalate
-    /// appends its ordered modes to the keyword clause.
+    /// their owned mana cost into canonical reminder text. Modal clauses
+    /// append their selection instructions, costs, and ordered modes.
     #[must_use]
     pub fn rules_text(&self) -> Cow<'static, str> {
         match self.definition {
@@ -20,32 +20,30 @@ impl AbilityDef {
             {
                 Cow::Owned(definition.rules_text())
             }
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal))
-                if self.text == "Spree" && modal.modes.has_additional_costs() =>
-            {
-                let mut text = String::from("Spree (Choose one or more additional costs.)");
-                if let ModalModeListDef::WithAdditionalCosts(modes) = modal.modes {
-                    for (cost, mode) in modes {
-                        write!(
-                            text,
-                            "\n+ {} — {}",
-                            crate::card::costs::rules_text(cost)
-                                .unwrap_or_else(|| "Pay the additional cost".into()),
-                            mode.text
-                        )
-                        .expect("writing to a string cannot fail");
-                    }
-                }
-                Cow::Owned(text)
-            }
             DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal)) => {
                 let mut text = self.text.to_owned();
-                if modal.escalate_cost.is_some() {
-                    text.push_str("\nChoose one or more —");
+                if let Some(selection) = modal.selection_text {
+                    write!(text, "\n{selection}").expect("writing to a string cannot fail");
                 }
-                for mode in modal.modes {
-                    write!(text, "\n• {}", mode.rules_text())
-                        .expect("writing to a string cannot fail");
+                match modal.modes {
+                    ModalModeListDef::Ordinary(modes) => {
+                        for mode in modes {
+                            write!(text, "\n• {}", mode.rules_text())
+                                .expect("writing to a string cannot fail");
+                        }
+                    }
+                    ModalModeListDef::WithAdditionalCosts(modes) => {
+                        for (cost, mode) in modes {
+                            write!(
+                                text,
+                                "\n+ {} — {}",
+                                crate::card::costs::rules_text(cost)
+                                    .unwrap_or_else(|| "Pay the additional cost".into()),
+                                mode.rules_text()
+                            )
+                            .expect("writing to a string cannot fail");
+                        }
+                    }
                 }
                 Cow::Owned(text)
             }

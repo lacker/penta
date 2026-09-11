@@ -43,6 +43,27 @@ use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
+pub const SPREE: crate::card::MechanicId = crate::card::MechanicId::from_name("mtg:spree");
+
+/// Choose one or more modes and pay the additional costs of the chosen modes.
+///
+/// # Panics
+///
+/// Panics if the mode list is empty or contains more than 255 modes.
+#[must_use]
+#[allow(clippy::cast_possible_truncation)]
+pub const fn spree(modes: &'static [(&'static [CostDef], AbilityDef)]) -> AbilityDef {
+    assert!(!modes.is_empty() && modes.len() <= u8::MAX as usize);
+    AbilityDef::defined(
+        "Spree (Choose one or more additional costs.)",
+        crate::card::DeclarativeAbilityDef::Spell(crate::card::SpellAbilityDef::Modal(
+            crate::card::ModalSpellDef::with_costed_modes(modes, 1, modes.len() as u8, false),
+        )),
+        EffectDef::None,
+    )
+    .labeled(SPREE)
+}
+
 /// Printed set identity and stable catalog slug.
 pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
     code: "OTJ",
@@ -57,7 +78,7 @@ pub(in crate::card::sets) static RUSTLER_RAMPAGE: CardRecord = CardRecord::new(
     "Rustler Rampage",
     "33ed7ca3-894b-45f4-a15f-51b6bcd3f474",
     "Josu Hernaiz",
-    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spree(&[
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(spree(&[
         (
             &[CostDef::Mana(mana_cost!("{1}"))],
             AbilityDef::spell_with_targets(
@@ -145,7 +166,7 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
     "Ruxing Gao",
     // Two mana to counter, four to do both, and never dead: spree is what
     // lets one card be a Spirit on the turn nothing needs answering.
-    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spree(&[
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(spree(&[
         (
             &[CostDef::Mana(mana_cost!("{3}"))],
             AbilityDef::spell(
@@ -248,7 +269,7 @@ pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::
     "Explosive Derailment",
     "f0e3df9c-0a86-4e6f-a3c7-84a883328a3d",
     "Leon Tukker",
-    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spree(&[
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(spree(&[
         (
             &[CostDef::Mana(mana_cost!("{2}"))],
             AbilityDef::spell_with_targets(
@@ -279,7 +300,7 @@ pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
     "Return the Favor",
     "a9cc02d1-799d-42aa-9bc2-4c05452b63b4",
     "Eli Minaya",
-CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
+CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell_with_targets(
                 "Copy target instant spell, sorcery spell, activated ability, or triggered ability. You may choose new targets for the copy.",
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::AnyOf(&[
@@ -383,7 +404,7 @@ pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardReco
     "Dance of the Tumbleweeds",
     "caf0e715-befb-4904-82e6-d3f8c7fbd454",
     "Dan Murayama Scott",
-CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell(
+CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(spree(&[(&[CostDef::Mana(mana_cost!("{1}"))], AbilityDef::spell(
                 "Search your library for a basic land card or a Desert card, put it onto the battlefield, then shuffle.",
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,

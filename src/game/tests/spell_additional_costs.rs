@@ -27,7 +27,9 @@ fn escalate_cost(definition: CardDefinitionId) -> CostDef {
         .ability_clauses()
         .iter()
         .find_map(|ability| match ability.definition {
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal)) => modal.escalate_cost,
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal)) => {
+                modal.additional_cost.map(|(cost, _)| cost)
+            }
             _ => None,
         })
         .expect("the modal spell declares its Escalate cost")

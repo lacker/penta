@@ -74,6 +74,12 @@ programs. See the [ownership hierarchy](design-doctrine.md#ownership-of-behavior
 Do not leave card-local helpers in the shared preamble or between other cards'
 blocks.
 
+For example, use `sets::outlaws_of_thunder_junction::spree(modes)` and
+`sets::eldritch_moon::escalate(text, cost, modes)` for those complete modal
+mechanics. Use `sets::aetherdrift::exhaust(ability)` to label and restrict an
+ordinary activation. Generic `ModalSpellDef` cost/selection data and
+`AbilityDef::once_per_object()` remain available for unrelated compositions.
+
 Every `CardRecord` constructor takes the card name, exact debut printing's
 Scryfall UUID, artist, and rules in that order. The surrounding set module
 supplies the debut `CardSet` when the record becomes a catalog definition, so a

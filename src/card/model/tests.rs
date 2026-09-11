@@ -190,8 +190,8 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
 
 #[test]
 fn spree_modes_derive_costs_and_complete_rules_text() {
-    const RULES: CardRules =
-        CardRules::new_instant(crate::mana_cost!("{R}")).with_ability(AbilityDef::spree(&[
+    const RULES: CardRules = CardRules::new_instant(crate::mana_cost!("{R}")).with_ability(
+        crate::card::sets::outlaws_of_thunder_junction::spree(&[
             (
                 &[crate::CostDef::Mana(crate::mana_cost!("{1}"))],
                 AbilityDef::spell("First instruction.", EffectDef::None),
@@ -200,7 +200,8 @@ fn spree_modes_derive_costs_and_complete_rules_text() {
                 &[crate::CostDef::Mana(crate::mana_cost!("{2}{G}"))],
                 AbilityDef::spell("Second instruction.", EffectDef::None),
             ),
-        ]));
+        ]),
+    );
     let composition = CardComposition::single("Test Spree Spell", RULES);
     let modes = composition.play_options[0]
         .modes
@@ -232,7 +233,7 @@ fn modal_escalate_spell_derives_its_mode_range_and_attaches_its_cost() {
         AbilityDef::spell("Third mode.", EffectDef::None),
     ];
     const ABILITY: AbilityDef =
-        AbilityDef::modal_escalate_spell("Escalate—Pay the cost.", COST, &MODES);
+        crate::card::sets::eldritch_moon::escalate("Escalate—Pay the cost.", COST, &MODES);
 
     let DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal)) = ABILITY.definition else {
         panic!("escalate should define a modal spell");
@@ -241,10 +242,42 @@ fn modal_escalate_spell_derives_its_mode_range_and_attaches_its_cost() {
     assert_eq!(modal.maximum, 3);
     assert!(!modal.may_repeat);
     assert_eq!(modal.modes, ModalModeListDef::Ordinary(&MODES));
-    assert_eq!(modal.escalate_cost, Some(COST));
+    assert_eq!(
+        modal.additional_cost,
+        Some((
+            COST,
+            CostQuantityDef::Subtract(&CostQuantityDef::ModeCount, &CostQuantityDef::Fixed(1))
+        ))
+    );
     assert_eq!(
         ABILITY.rules_text(),
         "Escalate—Pay the cost.\nChoose one or more —\n• First mode.\n• Second mode.\n• Third mode."
+    );
+}
+
+#[test]
+fn costed_modes_render_without_a_mechanic_name_or_label() {
+    const MODES: &[(&[CostDef], AbilityDef)] = &[
+        (
+            &[CostDef::PayLife(2)],
+            AbilityDef::spell("First mode.", EffectDef::None),
+        ),
+        (
+            &[CostDef::Mana(crate::mana_cost!("{1}"))],
+            AbilityDef::spell("Second mode.", EffectDef::None),
+        ),
+    ];
+    const ABILITY: AbilityDef = AbilityDef::defined(
+        "Choose exactly two —",
+        DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(
+            super::ModalSpellDef::with_costed_modes(MODES, 2, 2, false),
+        )),
+        EffectDef::None,
+    );
+    assert_eq!(ABILITY.label, None);
+    assert_eq!(
+        ABILITY.rules_text(),
+        "Choose exactly two —\n+ Pay 2 life — First mode.\n+ {1} — Second mode."
     );
 }
 

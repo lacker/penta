@@ -62,12 +62,7 @@ impl Game {
             if !self.activation_timing_allows(permanent.controller, definition.timing) {
                 return;
             }
-            if definition.activation_limit.is_some_and(|limit| {
-                permanent
-                    .activations_this_turn
-                    .iter()
-                    .any(|(origin, count)| *origin == effective.origin && *count >= limit)
-            }) {
+            if permanent.activation_limit_reached(effective.origin, &definition) {
                 return;
             }
             // And so does "activate only if you control a Swamp or a

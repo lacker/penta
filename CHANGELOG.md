@@ -74,8 +74,14 @@ the bot-wire epoch.
   forage operation. Endurance composes collection ordering and movement.
 - Checkpoint format 16 replaces forage-specific decisions with authored game-action
   selections and encodes numeric mechanic identities as hexadecimal text.
+  Permanent `activatedAbilities` replaces exhaust-specific history with generic
+  per-object activation history, including mana abilities.
   Require `reconstruction.checkpoint.v16` and a matching simulation fingerprint;
   ordinary bot protocol and replay versions are unchanged.
+- Spree, escalate, and exhaust construction moves to their originating sets.
+  The core uses costed modes, quantified additional costs, and a generic
+  once-per-object activation restriction. Exhaust mana abilities now correctly
+  remain spent after untapping, turn changes, and checkpoint reconstruction.
 - Protocol 31 adds `PublicNotice` decisions for card naming and scalar choices.
   Opponents see that a choice is pending, then its public result; candidate
   options, ordering, policy hints, and checkpoint continuations stay with the

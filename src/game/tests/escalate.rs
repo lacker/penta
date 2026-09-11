@@ -13,7 +13,7 @@ fn modal(definition: CardDefinitionId) -> crate::card::ModalSpellDef {
         .iter()
         .find_map(|ability| match ability.definition {
             DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal))
-                if modal.escalate_cost.is_some() =>
+                if ability.label == Some(crate::card::sets::eldritch_moon::ESCALATE) =>
             {
                 Some(modal)
             }
@@ -43,7 +43,15 @@ fn every_printed_escalate_card_uses_the_first_class_modal_shape() {
         assert_eq!(modal.minimum, 1);
         assert_eq!(usize::from(modal.maximum), modal.modes.len());
         assert!(!modal.may_repeat);
-        match modal.escalate_cost.expect("checked above") {
+        let (cost, repetitions) = modal.additional_cost.expect("Escalate supplies its cost");
+        assert_eq!(
+            repetitions,
+            crate::card::CostQuantityDef::Subtract(
+                &crate::card::CostQuantityDef::ModeCount,
+                &crate::card::CostQuantityDef::Fixed(1)
+            )
+        );
+        match cost {
             CostDef::Mana(_) => mana += 1,
             CostDef::Discard { .. } => discard += 1,
             CostDef::Tap { .. } => tap += 1,

@@ -1,5 +1,6 @@
 //! Modern Horizons 3 cards cataloged as attachment edge cases.
 
+use super::super::y2016::eldritch_moon::escalate;
 use super::super::y2020::theros_beyond_death::escape;
 use super::CardRecord;
 use super::PrintingRecord;
@@ -1123,7 +1124,7 @@ pub(in crate::card::sets) static COLLECTIVE_RESISTANCE: CardRecord = CardRecord:
     "Collective Resistance",
     "f260bd08-68b6-44f4-ace9-e298cb13d82e",
     "Raoul Vitale",
-    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::modal_escalate_spell(
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(escalate(
         "Escalate {G} (Pay this cost for each mode chosen beyond the first.)",
         CostDef::pay_mana(mana_cost!("{G}")),
         &[

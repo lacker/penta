@@ -127,8 +127,9 @@ impl Game {
                 // A mana cost alone does not bound how often the ability can
                 // be activated, and an unbounded mana ability is a loop. What
                 // bounds it is either a cost that spends the board or a
-                // printed "only once each turn".
+                // per-turn or per-object activation limit.
                 let bounded = definition.activation_limit.is_some()
+                    || definition.once_per_object
                     || definition.costs.iter().any(|cost| {
                         matches!(
                             cost,

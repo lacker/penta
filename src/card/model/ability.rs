@@ -156,29 +156,6 @@ impl AbilityDef {
         self
     }
 
-    /// Escalate: choose one or more modes, paying `escalate_cost` for the
-    /// modes chosen beyond the first. The complete printed clause is rendered
-    /// from the keyword text followed by the ordered modes.
-    ///
-    /// # Panics
-    ///
-    /// Panics when `modes` is empty or has more than 255 entries.
-    #[must_use]
-    pub const fn modal_escalate_spell(
-        escalate_text: &'static str,
-        escalate_cost: CostDef,
-        modes: &'static [AbilityDef],
-    ) -> Self {
-        Self::defined(
-            escalate_text,
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(ModalSpellDef::escalate(
-                escalate_cost,
-                modes,
-            ))),
-            EffectDef::None,
-        )
-    }
-
     /// "This ability costs {N} less to activate for each ...", printed on
     /// the ability itself. The discount travels with the ability rather than
     /// being read off the battlefield, which is what a channel cost needs:
@@ -198,8 +175,7 @@ impl AbilityDef {
         self
     }
 
-    /// A cost paid as the whole spell is cast, on top of its mana. Escalate
-    /// is the only one a modal spell prints.
+    /// A cost paid as the whole spell is cast, on top of its mana.
     ///
     /// # Panics
     ///
@@ -235,17 +211,6 @@ impl AbilityDef {
             modal.with_conditional_maximum(condition, maximum),
         ));
         self
-    }
-
-    /// Spree (CR 702.172): choose one or more modes and pay the additional
-    /// mana cost attached to each mode chosen.
-    #[must_use]
-    pub const fn spree(modes: &'static [(&'static [CostDef], AbilityDef)]) -> Self {
-        Self::defined(
-            "Spree",
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(ModalSpellDef::spree(modes))),
-            EffectDef::None,
-        )
     }
 
     #[must_use]
@@ -314,23 +279,6 @@ impl AbilityDef {
             DeclarativeAbilityDef::Activated(ActivatedAbilityDef::new(costs).with_targets(targets)),
             effect,
         )
-    }
-
-    /// The same as above, marked as cycling: the discard it pays with is
-    /// what raises the cycling event, and every other ability paying the
-    /// same way is not cycling.
-    #[must_use]
-    pub(crate) const fn cycling_ability(
-        text: &'static str,
-        costs: &'static [CostDef],
-        effect: EffectDef,
-    ) -> Self {
-        Self::defined(
-            text,
-            DeclarativeAbilityDef::Activated(ActivatedAbilityDef::new(costs)),
-            effect,
-        )
-        .labeled(crate::card::abilities::CYCLING)
     }
 
     /// "Choose one --" on an activated ability, which chooses its modes as
@@ -704,22 +652,21 @@ impl AbilityDef {
         self.activations_each_turn(1)
     }
 
-    /// Exhaust (CR 702.184a): this ability may be activated once from this
-    /// object and never again, however many turns it survives.
+    /// This ability may be activated once from this object, across all turns.
     ///
     /// # Panics
     ///
     /// Panics if the clause is not an activated ability.
     #[must_use]
-    pub const fn exhausting(mut self) -> Self {
+    pub const fn once_per_object(mut self) -> Self {
         self.definition = match self.definition {
             DeclarativeAbilityDef::Activated(definition) => {
-                DeclarativeAbilityDef::Activated(definition.exhausting())
+                DeclarativeAbilityDef::Activated(definition.once_per_object())
             }
             DeclarativeAbilityDef::ActivatedMana(definition) => {
-                DeclarativeAbilityDef::ActivatedMana(definition.exhausting())
+                DeclarativeAbilityDef::ActivatedMana(definition.once_per_object())
             }
-            _ => panic!("only an activated ability can be exhausted"),
+            _ => panic!("only an activated ability can be limited to once per object"),
         };
         self
     }
@@ -774,11 +721,6 @@ impl AbilityDef {
         self
     }
 
-    /// The printed "choose one --" of this clause, wherever it prints it.
-    /// A spell carries its modes in its casting shape; an activated ability
-    /// carries its own, chosen as it is activated (CR 601.2b). Everything
-    /// downstream -- validation, grant numbering, mode selection -- treats
-    /// the two identically, so it asks here rather than matching the kind.
     /// Which chapter of a Saga this ability is, if it is one. Read off the
     /// shape `abilities::saga_chapter` builds rather than stored beside it:
     /// the number the chapter waits for is the number it is.
@@ -808,6 +750,11 @@ impl AbilityDef {
         }
     }
 
+    /// The printed "choose one --" of this clause, wherever it prints it.
+    /// A spell carries its modes in its casting shape; an activated ability
+    /// carries its own, chosen as it is activated (CR 601.2b). Everything
+    /// downstream -- validation, grant numbering, mode selection -- treats
+    /// the two identically, so it asks here rather than matching the kind.
     #[must_use]
     pub const fn modal(self) -> Option<ModalSpellDef> {
         match self.definition {

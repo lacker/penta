@@ -1,0 +1,32 @@
+# MTGO Challenge 32 — 13 place, komattaman (2026-09-08).
+# Archetype: Jund Aggro
+# Source: https://mtgtop8.com/event?e=90673&d=888392&f=ST
+main:
+  Stomping Ground: 4
+  Starting Town: 4
+  Overgrown Tomb: 4
+  Blooming Marsh: 4
+  Wastewood Verge: 2
+  Blood Crypt: 1
+  Swamp: 1
+  Witherbloom Charm: 2
+  Deadly Precision: 3
+  Requiting Hex: 3
+  Lively Dirge: 3
+  Obsessive Pursuit: 4
+  Ouroboroid: 2
+  Tersa Lightshatter: 2
+  The Sackville-Bagginses: 4
+  Gene Pollinator: 4
+  Greedy Freebooter: 4
+  Umbral Collar Zealot: 4
+  Biotech Specialist: 4
+  Forest: 1
+sideboard:
+  Vicious Rivalry: 2
+  Chandra, Spark Hunter: 1
+  Duress: 3
+  Professor Dellian Fel: 2
+  Shoot the Sheriff: 2
+  Strategic Betrayal: 4
+  Lively Dirge: 1

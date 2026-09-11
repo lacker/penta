@@ -1,0 +1,33 @@
+# MTGO Challenge 32 — 10 place, ProtoPulse (2026-09-08).
+# Archetype: Bant Airbending
+# Source: https://mtgtop8.com/event?e=90673&d=888395&f=ST
+main:
+  Airbender Ascension: 1
+  The Mind Stone: 1
+  Michelangelo's Technique: 3
+  Interdimensional Web Watch: 4
+  Aang, at the Crossroads // Aang, Destined Savior: 2
+  Jennifer Walters // The Sensational She-Hulk: 2
+  Spider Manifestation: 3
+  Bramble Familiar // Fetch Quest: 4
+  Doc Aurlock, Grizzled Genius: 4
+  Llanowar Elves: 4
+  Appa, Steadfast Guardian: 4
+  Aang, Swift Savior // Aang and La, Ocean's Fury: 4
+  Cavern of Souls: 1
+  Plains: 1
+  Floodfarm Verge: 3
+  Hallowed Fountain: 3
+  Temple Garden: 4
+  Hushwood Verge: 4
+  Starting Town: 4
+  Breeding Pool: 4
+sideboard:
+  Aven Interrupter: 1
+  Settle the Wreckage: 2
+  Seam Rip: 2
+  Oko, Lorwyn Liege // Oko, Shadowmoor Scion: 1
+  Surrak, Elusive Hunter: 2
+  Negate: 2
+  Rest in Peace: 3
+  Bovine Intervention: 2

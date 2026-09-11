@@ -1,0 +1,31 @@
+# MTGO Challenge 32 — 3-4 place, Univerce (2026-09-08).
+# Archetype: Jund Aggro
+# Source: https://mtgtop8.com/event?e=90673&d=888396&f=ST
+main:
+  Witherbloom Charm: 2
+  Requiting Hex: 3
+  Deadly Precision: 3
+  Lively Dirge: 3
+  Obsessive Pursuit: 4
+  Tersa Lightshatter: 2
+  Ouroboroid: 2
+  Gene Pollinator: 4
+  Greedy Freebooter: 4
+  Biotech Specialist: 4
+  Umbral Collar Zealot: 4
+  The Sackville-Bagginses: 4
+  Swamp: 1
+  Forest: 1
+  Wastewood Verge: 2
+  Stomping Ground: 2
+  Blood Crypt: 3
+  Overgrown Tomb: 4
+  Starting Town: 4
+  Blooming Marsh: 4
+sideboard:
+  Professor Dellian Fel: 2
+  Shoot the Sheriff: 2
+  Vicious Rivalry: 3
+  Duress: 3
+  Strategic Betrayal: 4
+  Lively Dirge: 1

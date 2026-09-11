@@ -1,0 +1,31 @@
+# MTGO Challenge 32 — 11 place, SbanTwin (2026-09-08).
+# Archetype: Azorius Momo
+# Source: https://mtgtop8.com/event?e=90673&d=888397&f=ST
+main:
+  Momo, Friendly Flier: 4
+  Abandoned Air Temple: 2
+  Gleaming Bastion: 4
+  Daydream: 4
+  Erode: 2
+  Practiced Offense: 4
+  Springleaf Drum: 4
+  Seam Rip: 2
+  Starfield Shepherd: 4
+  Emeritus of Ideation // Ancestral Recall: 1
+  Sage of the Skies: 4
+  Floodfarm Verge: 4
+  Nurturing Pixie: 2
+  Steamcore Scholar: 4
+  Quantum Riddler: 4
+  Hallowed Fountain: 4
+  Plains: 7
+sideboard:
+  Seam Rip: 2
+  Avatar's Wrath: 1
+  Disdainful Stroke: 1
+  Dawn's Truce: 2
+  Get Lost: 1
+  Settle the Wreckage: 1
+  Spider-Sense: 2
+  Rest in Peace: 3
+  Wan Shi Tong, Librarian: 2

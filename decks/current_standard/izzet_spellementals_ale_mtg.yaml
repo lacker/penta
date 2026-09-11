@@ -1,0 +1,36 @@
+# MTGO Challenge 32 — 16 place, Ale_Mtg (2026-09-08).
+# Archetype: Izzet Spellementals
+# Source: https://mtgtop8.com/event?e=90673&d=888391&f=ST
+main:
+  Spirebluff Canal: 4
+  Eddymurk Crab: 4
+  Get Out: 3
+  Hearth Elemental // Stoke Genius: 4
+  Impractical Joke: 2
+  Spell Pierce: 1
+  Steam Vents: 4
+  Prismari Charm: 4
+  Sear: 1
+  Opt: 4
+  Island: 6
+  Sunderflock: 4
+  Traumatic Critique: 4
+  Stormcarved Coast: 1
+  Spell Snare: 2
+  Thundering Falls: 1
+  Burst Lightning: 3
+  Riverpyre Verge: 4
+  Sleight of Hand: 4
+sideboard:
+  Spell Pierce: 1
+  Spell Snare: 1
+  Ral, Crackling Wit: 1
+  Colorstorm Stallion: 4
+  Consult the Star Charts: 1
+  Hydro-Man, Fluid Felon: 1
+  Flashfreeze: 1
+  Disdainful Stroke: 1
+  Annul: 1
+  Abrade: 1
+  Stock Up: 1
+  Wan Shi Tong, Librarian: 1

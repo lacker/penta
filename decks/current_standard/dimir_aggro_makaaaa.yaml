@@ -1,0 +1,36 @@
+# MTGO Challenge 32 — 5-8 place, makaaaa (2026-09-08).
+# Archetype: Dimir Aggro
+# Source: https://mtgtop8.com/event?e=90673&d=888400&f=ST
+main:
+  Island: 5
+  Gloomlake Verge: 4
+  Watery Grave: 4
+  Swamp: 4
+  Hidden Lair: 3
+  Restless Reef: 2
+  Soulstone Sanctuary: 2
+  Spyglass Siren: 4
+  Enduring Curiosity: 4
+  Floodpits Drowner: 4
+  Dream Beavers: 4
+  Cecil, Dark Knight // Cecil, Redeemed Paladin: 1
+  The Wondrous Wasp: 1
+  Malcolm, Alluring Scoundrel: 1
+  Wan Shi Tong, Librarian: 1
+  Requiting Hex: 4
+  Kaito, Bane of Nightmares: 4
+  Bitter Triumph: 2
+  We Say Thee Nay!: 2
+  Shoot the Sheriff: 2
+  Spell Pierce: 1
+  Spell Snare: 1
+sideboard:
+  Spell Snare: 1
+  Strategic Betrayal: 3
+  Nowhere to Run: 1
+  Day of Black Sun: 2
+  Disdainful Stroke: 1
+  Duress: 3
+  Flashfreeze: 2
+  Annul: 1
+  Preacher of the Schism: 1

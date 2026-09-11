@@ -1,0 +1,32 @@
+# MTGO Challenge 32 — 5-8 place, FranBenitez91 (2026-09-08).
+# Archetype: Dimir Aggro
+# Source: https://mtgtop8.com/event?e=90673&d=888385&f=ST
+main:
+  Swamp: 4
+  Bitter Triumph: 2
+  Requiting Hex: 4
+  Spyglass Siren: 4
+  Spell Snare: 2
+  Floodpits Drowner: 4
+  Gloomlake Verge: 4
+  Shoot the Sheriff: 2
+  Dream Beavers: 4
+  Enduring Curiosity: 3
+  Wan Shi Tong, Librarian: 2
+  Soulstone Sanctuary: 2
+  The Wondrous Wasp: 2
+  Island: 4
+  Hidden Lair: 3
+  Watery Grave: 4
+  Restless Reef: 1
+  We Say Thee Nay!: 2
+  Cecil, Dark Knight // Cecil, Redeemed Paladin: 2
+  Multiversal Passage: 1
+  Kaito, Bane of Nightmares: 4
+sideboard:
+  Strategic Betrayal: 3
+  Duress: 4
+  Faebloom Trick: 2
+  Day of Black Sun: 2
+  Disdainful Stroke: 3
+  Raven Eagle: 1

@@ -1,0 +1,33 @@
+# MTGO Challenge 32 — 1 place, fazparte (2026-09-08).
+# Archetype: Izzet Spellementals
+# Source: https://mtgtop8.com/event?e=90673&d=888399&f=ST
+main:
+  Riverpyre Verge: 4
+  Eddymurk Crab: 4
+  Hearth Elemental // Stoke Genius: 4
+  Impractical Joke: 1
+  Sear: 1
+  Opt: 4
+  Prismari Charm: 4
+  Island: 6
+  Spirebluff Canal: 4
+  Burst Lightning: 3
+  Sunderflock: 4
+  Traumatic Critique: 4
+  Winternight Stories: 2
+  Get Out: 2
+  Sleight of Hand: 4
+  Spell Pierce: 2
+  Stormcarved Coast: 1
+  Spell Snare: 1
+  Steam Vents: 4
+  Multiversal Passage: 2
+sideboard:
+  Sear: 1
+  Spell Snare: 2
+  Annul: 2
+  Hydro-Man, Fluid Felon: 1
+  Colorstorm Stallion: 4
+  Shore Up: 2
+  Flashfreeze: 1
+  Disdainful Stroke: 2

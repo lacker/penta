@@ -1,0 +1,31 @@
+# MTGO Challenge 32 — 3-4 place, L1X0 (2026-09-08).
+# Archetype: Boros Dwarves
+# Source: https://mtgtop8.com/event?e=90673&d=888386&f=ST
+main:
+  Cavern of Souls: 2
+  Dáin's Company: 4
+  Inspiring Vantage: 4
+  Dragonfire Blade: 4
+  Dwarven Mauler: 4
+  Leyline Axe: 4
+  Kíli the Resourceful: 4
+  Lavaspur Boots: 4
+  Sacred Foundry: 4
+  Plains: 4
+  Raubahn, Bull of Ala Mhigo: 2
+  Sunbillow Verge: 4
+  Thorin, Mountain-king: 4
+  The Lonely Mountain: 4
+  Multiversal Passage: 1
+  Doc Ock's Tentacles: 3
+  Dwalin, Weaponmaster: 2
+  Giott, King of the Dwarves: 2
+sideboard:
+  Erode: 2
+  Bofur, Reliable Guardian // Concerted Care: 2
+  Shattered Acolyte: 2
+  Fíli the Pathfinder: 1
+  The Queen of Dale: 2
+  Rest in Peace: 2
+  Basilisk Collar: 1
+  Chainsaw: 3

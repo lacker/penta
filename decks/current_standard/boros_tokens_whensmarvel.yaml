@@ -1,0 +1,31 @@
+# MTGO Challenge 32 — 12 place, WhensMarvel (2026-09-08).
+# Archetype: Boros Tokens
+# Source: https://mtgtop8.com/event?e=90673&d=888394&f=ST
+main:
+  Mountain: 4
+  Belladonna Took: 4
+  Political Triumph: 4
+  Warleader's Call: 4
+  Hop to It: 2
+  Erode: 2
+  The Last Ronin's Technique: 3
+  Inspiring Vantage: 4
+  Dalkovan Encampment: 2
+  Frontline Rush: 4
+  Stadium Headliner: 4
+  Voice of Victory: 4
+  Sacred Foundry: 4
+  Fountainport: 2
+  Torch the Tower: 3
+  Song of Totentanz: 4
+  Sunbillow Verge: 4
+  Multiversal Passage: 1
+  Plains: 1
+sideboard:
+  Erode: 2
+  Torch the Tower: 1
+  Magebane Lizard: 2
+  Rest in Peace: 4
+  Caretaker's Talent: 2
+  Dawn's Truce: 2
+  Pyrrhic Strike: 2

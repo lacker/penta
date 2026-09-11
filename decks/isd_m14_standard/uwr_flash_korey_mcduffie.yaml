@@ -3,9 +3,8 @@
 # Source: https://www.mtgtop8.com/event?e=5640&d=232701&f=ST
 # Contemporary source: https://articles.starcitygames.com/articles/putting-the-cap-on-standard/
 name: "McDuffie U/W/R Flash"
-order: 5
-aliases: ["korey mcduffie u/w/r flash", "u/w/r flash korey mcduffie", "uwr_flash_korey_mcduffie"]
-description: "Returns the fifth-place U/W/R Flash deck piloted by Korey `McDuffie` at SCG Open Atlanta."
+aliases: ["korey mcduffie u/w/r flash", "u/w/r flash korey mcduffie"]
+description: "The fifth-place U/W/R Flash deck piloted by Korey McDuffie at SCG Open Atlanta."
 main:
   Clifftop Retreat: 3
   Glacial Fortress: 4

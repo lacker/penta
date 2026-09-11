@@ -40,7 +40,7 @@ fn all_yaml_decks_resolve_and_are_legal_in_their_formats() {
             crate::protocol::deck_by_name_for_format(source.format, source.name),
             Some(deck.clone())
         );
-        for alias in source.aliases {
+        for alias in std::iter::once(&source.id).chain(source.aliases) {
             assert_eq!(
                 crate::protocol::deck_by_name_for_format(
                     source.format,

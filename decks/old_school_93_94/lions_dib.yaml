@@ -1,7 +1,6 @@
 name: "Lions DIB"
-order: 10
 aliases: ["lions/dib"]
-description: "Returns a representative powered EC Lions/Dib deck."
+description: "A representative powered EC Lions/Dib deck."
 main:
   Island: 5
   Plains: 5

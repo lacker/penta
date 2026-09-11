@@ -1,6 +1,5 @@
 name: "White Weenie"
-order: 7
-description: "Returns a representative powered EC White Weenie deck."
+description: "A representative powered EC White Weenie deck."
 main:
   Plains: 16
   Mishra's Factory: 4

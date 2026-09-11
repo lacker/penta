@@ -1,6 +1,5 @@
 name: "Jeskai Aggro"
-order: 15
-description: "Returns a representative powered Jeskai tempo deck."
+description: "A representative powered Jeskai tempo deck."
 main:
   Island: 4
   Plains: 4

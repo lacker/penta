@@ -1,9 +1,8 @@
 # Sacred Torch Showdown 2026 — 4th place, Drew Glauberg (2026-07-25).
 # Source: https://melee.gg/Decklist/View/e8c632c6-ab5c-4452-8524-b48d00078ae4
 name: "Stasis"
-id: stasis
-order: 5
-description: "Returns Drew Glauberg's Stasis list from the Sacred Torch Showdown."
+id: stasis_drew_glauberg
+description: "Drew Glauberg's Stasis list from the Sacred Torch Showdown."
 main:
   Chain of Vapor: 4
   Counterspell: 4

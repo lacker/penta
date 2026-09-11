@@ -1,10 +1,9 @@
 # Sacred Torch Showdown 2026 — 7th place, Andy Dominguez (2026-07-25).
 # Source: https://melee.gg/Decklist/View/57082e6b-3565-4f00-bcb1-b49001184304
 name: "RG Goblins"
-id: rg_goblins
-order: 1
+id: rg_goblins_andy_dominguez
 aliases: ["rg-goblins"]
-description: "Returns Andy Dominguez's RG Goblins list from the Sacred Torch Showdown."
+description: "Andy Dominguez's RG Goblins list from the Sacred Torch Showdown."
 main:
   Goblin Lackey: 4
   Goblin Matron: 4

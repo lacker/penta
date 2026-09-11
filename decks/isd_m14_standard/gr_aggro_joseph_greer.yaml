@@ -3,9 +3,8 @@
 # Source: https://www.mtgtop8.com/event?e=5640&d=232698&f=ST
 # Contemporary source: https://articles.starcitygames.com/articles/putting-the-cap-on-standard/
 name: "Greer G/R Aggro"
-order: 2
-aliases: ["joseph greer g/r aggro", "g/r aggro joseph greer", "gr_aggro_joseph_greer"]
-description: "Returns Joseph Greer's second-place G/R Aggro deck from SCG Open Atlanta."
+aliases: ["joseph greer g/r aggro", "g/r aggro joseph greer"]
+description: "Joseph Greer's second-place G/R Aggro deck from SCG Open Atlanta."
 main:
   Forest: 8
   Mountain: 6

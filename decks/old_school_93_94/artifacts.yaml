@@ -1,8 +1,7 @@
 name: "Artifacts"
-order: 3
 aliases: ["mono red atog", "mono-red atog"]
 rust_aliases: [mono_red_atog]
-description: "Returns a representative powered EC Atog artifact deck."
+description: "A representative powered EC Atog artifact deck."
 main:
   Mountain: 13
   Mishra's Factory: 4

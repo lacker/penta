@@ -17,7 +17,7 @@ pub fn parse_format_slug(slug: &str) -> Result<Format, String> {
     }
 }
 
-/// The deck names accepted for `format`, in YAML menu order.
+/// The deck names accepted for `format`, in alphanumeric display-name order.
 #[must_use]
 pub fn deck_names_for_format(format: Format) -> Vec<&'static str> {
     decks::BUILTIN_DECKS
@@ -35,7 +35,8 @@ pub fn deck_by_name_for_format(format: Format, name: &str) -> Option<Deck> {
         .iter()
         .find(|deck| {
             deck.format == format
-                && std::iter::once(&deck.name)
+                && [&deck.name, &deck.id]
+                    .into_iter()
                     .chain(deck.aliases.iter())
                     .any(|candidate| candidate.eq_ignore_ascii_case(name))
         })

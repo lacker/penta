@@ -1,6 +1,5 @@
 name: "Mono Black"
-order: 6
-description: "Returns a representative powered EC Mono Black deck."
+description: "A representative powered EC Mono Black deck."
 main:
   Swamp: 17
   Mishra's Factory: 4

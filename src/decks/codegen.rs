@@ -1,5 +1,6 @@
 //! Build-time YAML schema and deck registry generation.
 
+use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 use std::fs;
@@ -14,8 +15,6 @@ struct DeckFile {
     name: String,
     #[serde(default)]
     id: Option<String>,
-    #[serde(default = "default_order")]
-    order: u32,
     #[serde(default)]
     aliases: Vec<String>,
     #[serde(default)]
@@ -24,10 +23,6 @@ struct DeckFile {
     description: String,
     main: Mapping,
     sideboard: Mapping,
-}
-
-fn default_order() -> u32 {
-    u32::MAX
 }
 
 fn format_variant(directory: &str) -> &'static str {
@@ -87,14 +82,15 @@ impl Source {
         format_variant(&module);
         let deck: DeckFile =
             serde_yaml_ng::from_str(yaml).unwrap_or_else(|error| panic!("{path}: {error}"));
-        let id = deck.id.clone().unwrap_or_else(|| {
-            Path::new(path)
-                .file_stem()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_owned()
-        });
+        let id = Path::new(path)
+            .file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_owned();
+        if let Some(explicit_id) = &deck.id {
+            assert_eq!(explicit_id, &id, "{path}: id must match the filename stem");
+        }
         for name in std::iter::once(&deck.name).chain(&deck.aliases) {
             assert!(
                 !name.trim().is_empty() && name.trim() == name,
@@ -119,9 +115,43 @@ impl Source {
     }
 }
 
+// Compare digit runs numerically without parsing into a bounded integer.
+fn alphanumeric_cmp(left: &str, right: &str) -> Ordering {
+    let left = left.to_lowercase();
+    let right = right.to_lowercase();
+    let (mut left, mut right) = (left.as_str(), right.as_str());
+    while let (Some(a), Some(b)) = (left.chars().next(), right.chars().next()) {
+        let ordering = if a.is_ascii_digit() && b.is_ascii_digit() {
+            let a_end = left
+                .find(|c: char| !c.is_ascii_digit())
+                .unwrap_or(left.len());
+            let b_end = right
+                .find(|c: char| !c.is_ascii_digit())
+                .unwrap_or(right.len());
+            let a = left[..a_end].trim_start_matches('0');
+            let b = right[..b_end].trim_start_matches('0');
+            let ordering = a.len().cmp(&b.len()).then_with(|| a.cmp(b));
+            left = &left[a_end..];
+            right = &right[b_end..];
+            ordering
+        } else {
+            left = &left[a.len_utf8()..];
+            right = &right[b.len_utf8()..];
+            a.cmp(&b)
+        };
+        if ordering != Ordering::Equal {
+            return ordering;
+        }
+    }
+    left.len().cmp(&right.len())
+}
+
 fn registry(mut sources: Vec<Source>) -> String {
     sources.sort_by(|a, b| {
-        (&a.module, a.deck.order, &a.path).cmp(&(&b.module, b.deck.order, &b.path))
+        a.module
+            .cmp(&b.module)
+            .then_with(|| alphanumeric_cmp(&a.deck.name, &b.deck.name))
+            .then_with(|| a.path.cmp(&b.path))
     });
     let mut names = BTreeSet::new();
     let mut symbols = BTreeSet::new();
@@ -135,10 +165,18 @@ fn registry(mut sources: Vec<Source>) -> String {
             id,
             deck,
         } = source;
-        for name in std::iter::once(&deck.name).chain(&deck.aliases) {
+        let mut lookup_names =
+            BTreeSet::from([id.to_ascii_lowercase(), deck.name.to_ascii_lowercase()]);
+        for alias in &deck.aliases {
             assert!(
-                names.insert((module, name.to_ascii_lowercase())),
-                "{path}: duplicate deck name or alias {name:?} in {module}"
+                lookup_names.insert(alias.to_ascii_lowercase()),
+                "{path}: redundant lookup alias {alias:?}"
+            );
+        }
+        for name in lookup_names {
+            assert!(
+                names.insert((module, name.clone())),
+                "{path}: duplicate deck name, id, or alias {name:?} in {module}"
             );
         }
         for symbol in std::iter::once(id).chain(&deck.rust_aliases) {
@@ -148,7 +186,7 @@ fn registry(mut sources: Vec<Source>) -> String {
             );
         }
         writeln!(output,
-            "BuiltinDeck {{ format: crate::Format::{}, name: {:?}, aliases: &{:?}, source: {:?}, main: &{:?}, sideboard: &{:?} }},",
+            "BuiltinDeck {{ format: crate::Format::{}, id: {id:?}, name: {:?}, aliases: &{:?}, source: {:?}, main: &{:?}, sideboard: &{:?} }},",
             format_variant(module), deck.name, deck.aliases, path,
             entries(&deck.main, path), entries(&deck.sideboard, path)).unwrap();
         modules.entry(module).or_default().push((index, source));
@@ -162,12 +200,12 @@ fn registry(mut sources: Vec<Source>) -> String {
         .unwrap();
         for (index, source) in decks {
             let doc = if source.deck.description.is_empty() {
-                format!("Returns the {} deck.", source.deck.name)
+                format!("{} deck.", source.deck.name)
             } else {
                 source.deck.description.clone()
             };
             writeln!(output,
-                "#[doc = {doc:?}]\n#[must_use]\npub fn r#{}() -> crate::Deck {{ super::BUILTIN_DECKS[{index}].build() }}",
+                "#[doc = {doc:?}]\n#[allow(clippy::doc_markdown)]\n#[must_use]\npub fn r#{}() -> crate::Deck {{ super::BUILTIN_DECKS[{index}].build() }}",
                 source.id).unwrap();
             for alias in &source.deck.rust_aliases {
                 writeln!(output, "pub use r#{} as r#{alias};", source.id).unwrap();
@@ -231,7 +269,8 @@ mod tests {
             YAML.replace("Mountain: 2", "Mountain: 1.5"),
             YAML.replace("Mountain: 2", "Mountain: 1\n  Mountain: 2"),
             YAML.replace("sideboard: {}\n", ""),
-            format!("{YAML}id: invalid-id\n"),
+            format!("{YAML}id: other\n"),
+            format!("{YAML}order: 1\n"),
         ] {
             assert!(
                 std::panic::catch_unwind(|| Source::parse("decks/premodern/example.yaml", &yaml))
@@ -246,7 +285,8 @@ mod tests {
         for metadata in [
             "name: EXAMPLE\n",
             "name: Other\naliases: [example]\n",
-            "name: Other\nid: example\n",
+            "name: Other\nrust_aliases: [example]\n",
+            "name: Other\naliases: [other]\n",
         ] {
             let first = Source::parse("decks/premodern/example.yaml", YAML);
             let second = Source::parse(
@@ -258,14 +298,17 @@ mod tests {
     }
 
     #[test]
-    fn registry_orders_by_metadata_then_path_independent_of_discovery_order() {
+    fn registry_orders_alphanumerically_by_name_independent_of_discovery_order() {
         let sources = || {
             vec![
-                Source::parse("decks/premodern/b.yaml", &YAML.replace("Example", "B")),
-                Source::parse("decks/premodern/a.yaml", &YAML.replace("Example", "A")),
+                Source::parse(
+                    "decks/premodern/b.yaml",
+                    &YAML.replace("Example", "Deck 10"),
+                ),
+                Source::parse("decks/premodern/a.yaml", &YAML.replace("Example", "deck 2")),
                 Source::parse(
                     "decks/premodern/z.yaml",
-                    &format!("{}order: 1\n", YAML.replace("Example", "Z")),
+                    &YAML.replace("Example", "Another deck"),
                 ),
             ]
         };
@@ -273,8 +316,13 @@ mod tests {
         let mut reversed = sources();
         reversed.reverse();
         assert_eq!(output, registry(reversed));
-        assert!(output.find("name: \"Z\"").unwrap() < output.find("name: \"A\"").unwrap());
-        assert!(output.find("name: \"A\"").unwrap() < output.find("name: \"B\"").unwrap());
+        assert!(
+            output.find("name: \"Another deck\"").unwrap()
+                < output.find("name: \"deck 2\"").unwrap()
+        );
+        assert!(
+            output.find("name: \"deck 2\"").unwrap() < output.find("name: \"Deck 10\"").unwrap()
+        );
     }
 
     #[test]

@@ -1,6 +1,5 @@
 name: "BWR Aggro"
-order: 12
-description: "Returns a representative powered BWR aggro deck."
+description: "A representative powered BWR aggro deck."
 main:
   Badlands: 3
   Scrubland: 3

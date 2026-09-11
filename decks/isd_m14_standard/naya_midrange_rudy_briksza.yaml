@@ -3,9 +3,8 @@
 # Source: https://www.mtgtop8.com/event?e=5640&d=232697&f=ST
 # Contemporary source: https://articles.starcitygames.com/articles/putting-the-cap-on-standard/
 name: "Briksza Naya Midrange"
-order: 1
-aliases: ["rudy briksza naya midrange", "naya midrange rudy briksza", "naya_midrange_rudy_briksza"]
-description: "Returns Rudy Briksza's first-place Naya Midrange deck from SCG Open Atlanta."
+aliases: ["rudy briksza naya midrange", "naya midrange rudy briksza"]
+description: "Rudy Briksza's first-place Naya Midrange deck from SCG Open Atlanta."
 main:
   Clifftop Retreat: 3
   Forest: 1

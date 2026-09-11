@@ -1,6 +1,5 @@
 name: "The Deck"
-order: 5
-description: "Returns the classic powered EC control deck known as The Deck."
+description: "The classic powered EC control deck known as The Deck."
 main:
   City of Brass: 4
   Underground Sea: 4

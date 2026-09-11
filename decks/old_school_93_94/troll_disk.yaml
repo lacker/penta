@@ -1,6 +1,5 @@
 name: "Troll Disk"
-order: 14
-description: "Returns a representative powered Sedge Troll / Disk deck."
+description: "A representative powered Sedge Troll / Disk deck."
 main:
   Swamp: 7
   Badlands: 4

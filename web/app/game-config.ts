@@ -91,7 +91,9 @@ export const randomDeck = "Random";
 export const randomDeckNote = "Rolled fresh every time you deal";
 
 export const deckNamesForFormat = (format: FormatId) =>
-  Object.keys(formatConfigs[format].deckNotes);
+  Object.keys(formatConfigs[format].deckNotes).sort((left, right) =>
+    left.localeCompare(right, "en", { numeric: true, sensitivity: "base" }),
+  );
 
 export const deckChoicesForFormat = (format: FormatId) => [
   randomDeck,

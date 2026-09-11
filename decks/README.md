@@ -10,7 +10,7 @@ The directory names match the format slugs with underscores, for example
 
 ```yaml
 name: Example Deck
-order: 10
+id: example_deck
 aliases: [Example]
 main:
   Mountain: 60
@@ -21,15 +21,21 @@ sideboard: {}
 - `main` and `sideboard` are required card-name mappings with positive integer
   counts. Use `{}` for an empty section. Quote names containing a colon,
   such as `"Circle of Protection: Red"`.
-- `aliases` optionally adds case-insensitive lookup names. Names and aliases
-  must be unique within their format, including across decks.
-- `order` optionally sets menu position, lowest first. Decks without it sort
-  last; equal positions sort by file path for deterministic ordering.
-- `id` optionally overrides the filename stem used for the generated Rust
-  constructor, `decks::<format>::<id>()`. Use lowercase letters, digits, and
-  underscores, with no leading digit.
+- `id` defaults to the filename stem. If supplied, it must match that stem
+  exactly (for example, `example_deck.yaml` has ID `example_deck`). IDs are
+  accepted as lookup names and name the generated Rust constructor,
+  `decks::<format>::<id>()`. Use lowercase letters, digits, and underscores,
+  with no leading digit.
+- `aliases` optionally adds lookup names that differ from the ID and display
+  name. Lookup ignores case. Names, IDs, and aliases must not collide with
+  another deck in the same format.
 - `rust_aliases` optionally preserves additional Rust constructor names.
-- `description` optionally supplies the constructor's documentation.
+- `description` describes the deck in ordinary prose. It also appears in the
+  generated constructor's documentation.
+
+Menus sort alphanumerically by display name, ignoring case and comparing digit
+runs numerically (`Deck 2` before `Deck 10`). Equivalent names sort by file path
+for deterministic ordering. There is no authored `order` field.
 
 Old School constructors also remain available directly under `decks::` for
 compatibility. Preserve source citations and transcription notes as YAML

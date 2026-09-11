@@ -1,6 +1,6 @@
 //! Built-in decks generated from every YAML file under `decks/` at build time.
 //!
-//! Names, aliases, menu order, and card lists are authored only in YAML. The
+//! Names, aliases, descriptions, and card lists are authored only in YAML. The
 //! generated constructors retain the native API without a second registry.
 
 use crate::card::{self, CardCatalog};
@@ -8,6 +8,7 @@ use crate::{Deck, Format};
 
 pub(crate) struct BuiltinDeck {
     pub(crate) format: Format,
+    pub(crate) id: &'static str,
     pub(crate) name: &'static str,
     pub(crate) aliases: &'static [&'static str],
     source: &'static str,

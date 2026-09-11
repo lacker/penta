@@ -43,11 +43,11 @@ WAIT_SECONDS = 8
 # How long to wait before asking again after a refusal, which is the only
 # thing left that asking again can fix.
 RETRY_SECONDS = 0.25
-# This bot consumes the protocol-31 indexed-action vocabulary, requires no
+# This bot consumes the protocol-32 indexed-action vocabulary, requires no
 # optional server facilities, and implements no optional server-required
 # vocabulary. Never copy the server's claims without implementing them.
 COMPATIBILITY = {
-    "protocolVersion": 31,
+    "protocolVersion": 32,
     "capabilities": [],
     "requiredCapabilities": [],
     # A trained bot can set this to the simulationFingerprint it requires:

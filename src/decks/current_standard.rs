@@ -119,9 +119,11 @@ deck!(
 mod tests {
     use crate::Deck;
 
+    type DeckBuilder = fn() -> Deck;
+
     #[test]
     fn event_90673_decks_resolve_every_card_and_preserve_published_sizes() {
-        let decks: &[(fn() -> Deck, usize)] = &[
+        let decks: &[(DeckBuilder, usize)] = &[
             (super::izzet_spellementals_fazparte, 61),
             (super::izzet_spellementals_darth_vaner, 61),
             (super::boros_dwarves_l1x0, 60),

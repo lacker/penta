@@ -139,7 +139,8 @@ fn the_plus_one_sorts_the_top_four_by_the_chosen_name() {
     let bolt = naming
         .options
         .iter()
-        .find(|option| option.label.contains("Lightning Bolt"))
+        // Adventure cards can also contain this name in a combined catalog label.
+        .find(|option| option.label == "Lightning Bolt")
         .expect("Lightning Bolt is a nonland name that can be chosen");
     game.apply(
         PlayerId::One,

@@ -116,6 +116,8 @@ impl Game {
         affected: &Permanent,
         prospective: Option<&Permanent>,
     ) -> Option<bool> {
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::predicate_evaluated(predicate, "static_lazy");
         if let Some(answer) = Self::static_leaf_predicate_matches_lazily(predicate, source, affected)
         {
             return Some(answer);

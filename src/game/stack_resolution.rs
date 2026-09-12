@@ -600,6 +600,17 @@ impl Game {
                 );
             }
             StackAbilityResolver::Prepared { reference, .. } => {
+                #[cfg(feature = "engine-profiling")]
+                crate::engine_profiling::record(
+                    "effect_fallback",
+                    crate::engine_profiling::effect_kind(reference.effect),
+                    "reference",
+                    if self.prepared_engine.enabled() {
+                        "mode_effects"
+                    } else {
+                        "engine_disabled"
+                    },
+                );
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);
                 effects.push(reference);
                 effects.extend_from_slice(mode_effects);

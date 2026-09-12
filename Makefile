@@ -12,6 +12,7 @@ PATTERN ?=
 WEB_TEST_CONCURRENCY ?=
 PROFILE_GAMES ?= 4000
 PROFILE_SEED ?= 1
+ENGINE_PROFILE_OUTPUT ?= target/profiles/engine-coverage.json
 PROFILE_OUTPUT ?=
 BENCHMARK_RUNS ?= 10
 BENCHMARK_WARMUP ?= 1
@@ -74,7 +75,7 @@ endef
 	test-rust-budget test-source-file-sizes \
 	catalog-report \
 	build-profile-engine benchmark-engine benchmark-engine-baseline benchmark-engine-compare \
-	profile-engine profile-engine-all profile-engine-open \
+	profile-engine profile-engine-all profile-engine-open engine-profile test-engine-profile \
 	build-wasm build-web \
 	test-web test-web-fast test-web-unit test-web-full \
 	test-web-wasm test-web-wasm-full test-web-wasm-slow \
@@ -235,6 +236,14 @@ test-agent-guidance: ## Test cross-harness agent guidance and skill discovery.
 test-magic-references: ## Test the repository-local Magic reference tooling.
 	python3 -m unittest discover \
 		-s .agents/skills/refresh-magic-references/tests -p 'test_*.py'
+
+test-engine-profile: ## Test opt-in engine instrumentation, optionally filtered.
+	$(call run_rust_tests,-p penta --lib --features engine-profiling)
+
+engine-profile: ## Write semantic execution counters; not a timing benchmark.
+	cargo run --locked --profile profiling --features engine-profiling --bin penta-match -- \
+		--p1 random --p2 random --deck1 Random --deck2 Random \
+		--games "$(PROFILE_GAMES)" --seed "$(PROFILE_SEED)" --engine-profile "$(ENGINE_PROFILE_OUTPUT)"
 
 build-profile-engine: ## Build the optimized engine workloads with profiling symbols.
 	cargo build --locked --profile profiling --bin penta-match --bin policy_sanity

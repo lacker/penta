@@ -185,6 +185,13 @@ impl Game {
                 continue;
             }
             let Some(applications) = &ability.applications else {
+                #[cfg(feature = "engine-profiling")]
+                crate::engine_profiling::record(
+                    "static_root",
+                    crate::engine_profiling::effect_kind(ability.reference_effect),
+                    "reference",
+                    "unsupported_shape",
+                );
                 let mut traversal = StaticEffectTraversal {
                     source,
                     source_timestamp: input.timestamp,
@@ -208,6 +215,13 @@ impl Game {
                 continue;
             };
             for application in applications {
+                #[cfg(feature = "engine-profiling")]
+                crate::engine_profiling::record(
+                    "static_application",
+                    crate::engine_profiling::effect_kind(ability.reference_effect),
+                    "prepared",
+                    "considered",
+                );
                 if !application.supplies(lane) {
                     continue;
                 }

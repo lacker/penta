@@ -54,6 +54,10 @@ repository = "https://github.com/lacker/penta"
 [lib]
 path = "src/lib.rs"
 
+[features]
+# Diagnostic counters are absent from ordinary builds.
+engine-profiling = []
+
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

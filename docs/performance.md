@@ -90,8 +90,9 @@ make profile-engine-open \
 ```
 
 The profiler UI visualizes a native process capture; it does not profile
-Penta's browser interface. For a broader sample covering every built-in deck
-in both formats, use `make profile-engine-all`.
+Penta's browser interface. For a broader sample using the hardcoded Old School and ISD–M14 Standard
+mirror-match gauntlet, use `make profile-engine-all`. It does not include the
+Premodern registry or every supported format.
 
 Branch captures, ad hoc Hyperfine exports, and allocation traces belong under
 the ignored `target/profiles/` directory. The maintained main baseline is the
@@ -102,6 +103,71 @@ the capture.
 Use sampled profiles to choose one optimization target. Profiler span and
 sample weights support attribution; benchmark distributions establish speed.
 Do not treat sample percentages as benchmark deltas.
+
+## Semantic execution coverage
+
+Build-time feature `engine-profiling` adds opt-in counters at shared execution
+and preparation boundaries. Ordinary builds omit the module, thread-local
+storage, hooks, and hook argument evaluation through conditional compilation.
+A feature-enabled build records only while a capture is active.
+
+```sh
+make engine-profile PROFILE_GAMES=100 PROFILE_SEED=1 \
+  ENGINE_PROFILE_OUTPUT=target/profiles/engine-coverage.json
+
+# Explicit CLI form; --reference-engine is also supported.
+cargo run --locked --profile profiling --features engine-profiling --bin penta-match -- \
+  --p1 random --p2 random --deck1 Random --deck2 Random --games 100 --seed 1 \
+  --engine-profile target/profiles/engine-coverage.json
+
+make test-engine-profile FILTER=engine_profile
+```
+
+The JSON includes workload settings, outcomes, schema version, and sorted
+`category`, `operation`, `path`, `reason`, `count` rows. Counts saturate at
+`u64::MAX`. Labels derive from exhaustive matches over typed definitions and
+prepared instructions; they contain no card identities, bound values, hidden
+zones, or declaration payloads. The runner reports an error if writing fails
+and includes unfinished games in the outcome summary. A build without the
+feature rejects the CLI switch with a rebuild instruction.
+
+| Category | What one count means |
+|---|---|
+| `effect_dispatch` | Entered a resolving effect node, on the reference or prepared path. |
+| `game_action_dispatch` | Entered a shared action through ordinary effect resolution; payment execution is not included. |
+| `effect_lowering` | Attempted to lower a resolving root while constructing a resolver; this is preparation, not execution. |
+| `effect_fallback` | A prepared resolver used reference execution because preparation was disabled or mode effects were present. |
+| `predicate_plan` | Selected a battlefield query plan, or rejected it with a context/unsupported-root reason; an empty query can still select a plan. |
+| `predicate_evaluation` | Entered a reference snapshot or static lazy predicate node; a lazy fallback may also enter the snapshot evaluator. |
+| `prepared_predicate_evaluation` | Entered a lowered predicate node; short-circuited children are not counted. Labels describe the lowered instruction vocabulary. |
+| `static_root` | A catalog static root fell back because its complete shape could not be lowered. |
+| `static_application` | Considered a prepared static application, before lane/recipient/condition filtering. |
+
+These categories describe different boundaries: do not add them to calculate
+an overall hit rate. Dispatch counts are attempts, not successful resolutions,
+matching objects, or gameplay events. Recursive/composite nodes each count their
+own entry. Rejected roots do not imply that their children executed. Resumed
+effects count when they reenter an instrumented dispatcher.
+
+Native callers can use `penta::engine_profiling::Capture::start()` and
+`capture.finish()` around any synchronous workload, then serialize the returned
+report. A capture owns only its current thread; worker threads need their own
+captures. Nested starts return an error without resetting the outer capture.
+Dropping an unfinished capture discards it, including during panic unwinding.
+Captures are separate from game state and never survive checkpoint restoration.
+
+This is a coverage report alongside CPU samples, not markers embedded in a
+Samply profile, a timed trace, or complete coverage of every mechanic. It does
+not yet count all payment/replacement dispatchers, targeting-specific matcher
+paths, or every prepared shortcut. `penta-match` still uses the Old School
+registry. More seeds cannot exercise mechanics absent from those decks; use
+additional native workloads and explicit scenarios to broaden coverage.
+
+Counter collection changes instrumented performance. Use ordinary feature-off
+release builds for Hyperfine timing, and never compare instrumented timings
+against an ordinary baseline to claim an engine speedup. Enabling this feature
+in a dependency also enables it for other consumers sharing that Cargo build;
+use a separate target directory if both binaries need to coexist.
 
 ## Measure allocations
 

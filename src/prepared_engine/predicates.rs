@@ -67,6 +67,13 @@ impl PreparedPredicate {
     }
 
     pub(crate) fn matches(&self, read: &mut impl FnMut(PreparedPredicateLeaf) -> bool) -> bool {
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::record(
+            "prepared_predicate_evaluation",
+            crate::engine_profiling::prepared_predicate_kind(self),
+            "prepared",
+            "entered",
+        );
         match self {
             Self::Leaf(leaf) => read(*leaf),
             Self::All(predicates) => predicates.iter().all(|predicate| predicate.matches(read)),

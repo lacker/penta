@@ -356,6 +356,21 @@ impl Game {
         {
             self.prepared_engine.predicate(query.object)
         } else {
+            #[cfg(feature = "engine-profiling")]
+            crate::engine_profiling::record(
+                "predicate_plan",
+                crate::engine_profiling::predicate_kind(query.object),
+                "reference",
+                if prospective.is_some() {
+                    "prospective_context"
+                } else if effect_context.is_some() {
+                    "resolving_effect_context"
+                } else if query.relative_position.is_some() {
+                    "relative_position"
+                } else {
+                    "no_battlefield_zone"
+                },
+            );
             None
         }
     }

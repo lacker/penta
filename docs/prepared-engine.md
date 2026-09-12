@@ -48,7 +48,7 @@ the immutable catalog identity and compiles it on a miss. Games backed by the
 same catalog share the resulting `Arc<PreparedCatalog>`. Entries whose source
 catalog has gone away are removed when another catalog is inserted.
 
-There are currently two execution shapes.
+Preparation covers resolving effects, static programs, and immutable board queries.
 
 ### Resolving effects
 
@@ -65,8 +65,9 @@ DrawCards(recipient = Controller, amount = Constant(n))
     -> PreparedEffect::DrawCards { count: n }
 ```
 
-A dynamic amount, another recipient, an out-of-range count, or any other
-effect returns no lowering. Card declarations use the ordinary `draw_cards`
+A second lowering handles a single ability granted to the source until end of
+turn. A dynamic draw amount, another draw recipient, an out-of-range count,
+or another unsupported root returns no lowering. Card declarations use the ordinary `draw_cards`
 constructor in both cases; they neither request nor observe the intrinsic.
 
 ### Static programs and summaries
@@ -96,6 +97,40 @@ Catalog programs apply only when the runtime has the matching catalog-backed
 card characteristics. Tokens, emblems, face-down characteristics, copy-added
 abilities, and other runtime-derived structures continue through the general
 path wherever a catalog program cannot describe them.
+
+## Prepared board queries
+
+Catalog programs also retain ordered base ability tables and printed keyword
+masks. Base ability collection reuses those tables before applying the ordinary
+intrinsic, copied, temporary, and layered ability operations. A direct keyword
+mask is used only when conservative runtime guards exclude every ability
+overlay; unknown sources, copies, counters, grants, and prospective objects
+retain the reference evaluator.
+
+Static components carry overlapping lane masks. The base power/toughness lane
+lets defining-stat readers exclude modifier-only applications before evaluating
+their conditions. Play-restriction and play-permission summaries similarly skip
+catalog sources that cannot supply the requested player rule. Relevant player
+rule roots still use the reference walker, preserving its existing support and
+ordering boundaries.
+
+During an immutable board read, land-type source positions are compiled into
+an ordered, shared source index. It is owned by the read scope, never by the
+catalog or serialized game state. Prospective arrivals are considered separately
+on every call and keep their original timestamp and duplicate-ID behavior.
+Outside that scope the existing source traversal runs, with direct catalog
+summary lookups for eligible objects before the reference memo is consulted.
+
+Battlefield object predicates are compiled lazily once per catalog and cached
+by their declarative value, including rejected roots. Plans support boolean
+composition over identity, token/tapped state, type, literal subtype, basic-land type,
+color, supertype, and constant mana-value limits. They read only the live
+characteristics needed by each leaf. The entire predicate must compile; one
+unsupported leaf, including a bound subtype, keeps the complete predicate on
+the reference path. Player
+relations and traversal order remain in the shared query driver. Nonbattlefield,
+prospective, and resolving-effect contexts retain their reference matchers.
+The cache lock is released before any live characteristic evaluation.
 
 ## Fallback rules
 
@@ -190,6 +225,10 @@ needs an explicit architecture and compatibility review.
   catalog caching, enablement, and host boundaries.
 - [`src/prepared_engine/compiler.rs`](../src/prepared_engine/compiler.rs)
   recognizes declarative shapes and builds prepared programs and summaries.
+- [`src/prepared_engine/predicates.rs`](../src/prepared_engine/predicates.rs)
+  compiles complete battlefield predicate plans.
+- [`src/prepared_engine/sources.rs`](../src/prepared_engine/sources.rs) owns
+  immutable-read source indexes.
 - [`src/prepared_engine/executor.rs`](../src/prepared_engine/executor.rs)
   dispatches prepared resolving effects through the host interface.
 - [`src/game/prepared_host.rs`](../src/game/prepared_host.rs) integrates the

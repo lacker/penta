@@ -101,27 +101,6 @@ impl Game {
         })
     }
 
-    pub(super) fn land_type_effect_sources<'a>(
-        &'a self,
-        prospective: Option<&'a Permanent>,
-    ) -> Vec<(&'a Permanent, ContinuousEffectTimestamp)> {
-        let mut sources = self
-            .battlefield
-            .iter()
-            .filter(|source| self.supplies_land_type_effect(source))
-            .map(|source| (source, source.timestamp))
-            .collect::<Vec<_>>();
-        if let Some(prospective) = prospective
-            && self.supplies_land_type_effect_uncached(prospective)
-            && !sources
-                .iter()
-                .any(|(source, _)| source.card.id == prospective.card.id)
-        {
-            sources.push((prospective, self.prospective_continuous_effect_timestamp()));
-        }
-        sources
-    }
-
     fn supplies_land_type_effect_uncached(&self, source: &Permanent) -> bool {
         if let Some(supplies) = self.prepared_supplies_land_type_effect(source) {
             return supplies;

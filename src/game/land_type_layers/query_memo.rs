@@ -24,6 +24,7 @@ struct LandTypeQueryMemo {
     /// for the memo's whole life, so a different address is a different board
     /// rather than a reused one.
     game: usize,
+    prepared_sources: Option<crate::prepared_engine::PreparedSourceList>,
     /// Whether a permanent supplies a land-type effect at all.
     supplies: std::collections::HashMap<crate::GameObjectId, bool>,
     /// Whether some source sets this permanent's land types, and so silences
@@ -76,6 +77,34 @@ impl Game {
         LandTypeQueryMemoGuard { installed }
     }
 
+    pub(super) fn prepared_land_type_sources(
+        &self,
+    ) -> Option<crate::prepared_engine::PreparedSourceList> {
+        if !self.prepared_engine.enabled() || !self.land_type_memo_installed() {
+            return None;
+        }
+        let cached = LAND_TYPE_QUERY_MEMO.with(|memo| {
+            memo.borrow()
+                .as_ref()
+                .and_then(|memo| memo.prepared_sources.clone())
+        });
+        if cached.is_some() {
+            return cached;
+        }
+        let sources = crate::prepared_engine::PreparedSourceList::compile(
+            self.battlefield
+                .iter()
+                .map(|source| self.supplies_land_type_effect_uncached(source)),
+        );
+        LAND_TYPE_QUERY_MEMO.with(|memo| {
+            memo.borrow_mut()
+                .as_mut()
+                .expect("installed immutable read")
+                .prepared_sources = Some(sources.clone());
+        });
+        Some(sources)
+    }
+
     /// Whether a memo for this board is installed. Checked before a key is
     /// built, because building one walks the source list and every question
     /// asked outside `legal_actions` and `observe` would pay for it unused.
@@ -118,6 +147,9 @@ impl Game {
     }
 
     pub(in crate::game) fn supplies_land_type_effect(&self, source: &Permanent) -> bool {
+        if let Some(supplies) = self.prepared_supplies_land_type_effect(source) {
+            return supplies;
+        }
         if !self.land_type_memo_installed() {
             return self.supplies_land_type_effect_uncached(source);
         }

@@ -7,6 +7,11 @@
 
 mod compiler;
 mod executor;
+mod predicates;
+mod sources;
+
+pub(crate) use predicates::{PreparedPredicate, PreparedPredicateLeaf};
+pub(crate) use sources::PreparedSourceList;
 
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex, Weak};
@@ -29,11 +34,21 @@ pub(crate) enum PreparedEffect {
 pub(crate) struct PreparedStaticProgram {
     supplies_land_type_effect: bool,
     has_static_effects: bool,
-    lanes: u8,
+    lanes: u16,
     abilities: Box<[PreparedStaticAbility]>,
+    base_abilities: Box<[(AbilityId, AbilityDef)]>,
+    base_keywords: u64,
 }
 
 impl PreparedStaticProgram {
+    pub(crate) fn base_abilities(&self) -> &[(AbilityId, AbilityDef)] {
+        &self.base_abilities
+    }
+
+    pub(crate) const fn base_keywords(&self) -> u64 {
+        self.base_keywords
+    }
+
     pub(crate) fn abilities(&self) -> &[PreparedStaticAbility] {
         &self.abilities
     }
@@ -65,7 +80,7 @@ pub(crate) struct PreparedStaticApplication {
     pub(crate) starts_in_type_layer: bool,
     pub(crate) trigger_conditions: Box<[(TriggerConditionDef, bool)]>,
     pub(crate) components: Box<[PreparedStaticComponent]>,
-    lanes: u8,
+    lanes: u16,
 }
 
 impl PreparedStaticApplication {
@@ -79,12 +94,12 @@ pub(crate) struct PreparedStaticComponent {
     pub(crate) effect: AppliedEffectDef,
     pub(crate) grant: Option<GrantId>,
     pub(crate) component_order: u16,
-    lane: PreparedStaticLane,
+    lanes: u16,
 }
 
 impl PreparedStaticComponent {
     pub(crate) fn supplies(self, lane: PreparedStaticLane) -> bool {
-        lane == PreparedStaticLane::Any || self.lane == lane
+        lane == PreparedStaticLane::Any || self.lanes & lane.mask() != 0
     }
 }
 
@@ -99,12 +114,15 @@ pub(crate) enum PreparedStaticLane {
     Abilities,
     Subtypes,
     PowerToughness,
+    BasePowerToughness,
+    PlayRestrictions,
+    PlayPermissions,
 }
 
 impl PreparedStaticLane {
-    const fn mask(self) -> u8 {
+    const fn mask(self) -> u16 {
         match self {
-            Self::Any => u8::MAX,
+            Self::Any => u16::MAX,
             Self::Other => 0,
             Self::Rules => 1 << 0,
             Self::CardTypes => 1 << 1,
@@ -113,12 +131,18 @@ impl PreparedStaticLane {
             Self::Abilities => 1 << 4,
             Self::Subtypes => 1 << 5,
             Self::PowerToughness => 1 << 6,
+            Self::BasePowerToughness => 1 << 7,
+            Self::PlayRestrictions => 1 << 8,
+            Self::PlayPermissions => 1 << 9,
         }
     }
 }
 
+type PredicateCache = HashMap<crate::ObjectPredicateDef, Option<Arc<PreparedPredicate>>>;
+
 #[derive(Clone, Debug, Default)]
 pub(crate) struct PreparedCatalog {
+    predicates: Arc<Mutex<PredicateCache>>,
     dense_primary_static_programs: Vec<Option<PreparedStaticProgram>>,
     sparse_primary_static_programs: HashMap<CardDefinitionId, PreparedStaticProgram>,
     other_static_programs: HashMap<(CardDefinitionId, CardPartId), PreparedStaticProgram>,
@@ -246,6 +270,24 @@ impl PreparedEngine {
             enabled: true,
             catalog: cached_catalog(catalog),
         }
+    }
+
+    pub(crate) fn predicate(
+        &self,
+        predicate: crate::ObjectPredicateDef,
+    ) -> Option<Arc<PreparedPredicate>> {
+        if !self.enabled {
+            return None;
+        }
+        let mut cache = self
+            .catalog
+            .predicates
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        cache
+            .entry(predicate)
+            .or_insert_with(|| PreparedPredicate::compile(predicate).map(Arc::new))
+            .clone()
     }
 
     pub(crate) const fn enabled(&self) -> bool {

@@ -340,6 +340,41 @@ impl Game {
         ControlFlow::Continue(())
     }
 
+    fn prepared_query_predicate(
+        &self,
+        query: ObjectQueryDef,
+        prospective: Option<&Permanent>,
+        effect_context: Option<(&StackObject, &ScopedEffect, &EffectResolutionContext)>,
+    ) -> Option<std::sync::Arc<crate::prepared_engine::PreparedPredicate>> {
+        // A plan is selected for the complete predicate before visiting any
+        // candidate. Prospective and resolving-effect contexts retain their
+        // distinct reference characteristic semantics.
+        if prospective.is_none()
+            && effect_context.is_none()
+            && query.relative_position.is_none()
+            && query.zones.contains(&ZoneKind::Battlefield)
+        {
+            self.prepared_engine.predicate(query.object)
+        } else {
+            #[cfg(feature = "engine-profiling")]
+            crate::engine_profiling::record(
+                "predicate_plan",
+                crate::engine_profiling::predicate_kind(query.object),
+                "reference",
+                if prospective.is_some() {
+                    "prospective_context"
+                } else if effect_context.is_some() {
+                    "resolving_effect_context"
+                } else if query.relative_position.is_some() {
+                    "relative_position"
+                } else {
+                    "no_battlefield_zone"
+                },
+            );
+            None
+        }
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn visit_objects_matching_query_with_context(
         &self,
@@ -366,6 +401,7 @@ impl Game {
             }
             visitor(candidate)
         };
+        let prepared = self.prepared_query_predicate(query, prospective, effect_context);
         if query.relative_position.is_none() && query.zones.contains(&ZoneKind::Battlefield) {
             for permanent in &self.battlefield {
                 if !self.query_player_constraints_match(
@@ -376,6 +412,14 @@ impl Game {
                     context,
                     effect_context,
                 ) {
+                    continue;
+                }
+                if let Some(plan) = &prepared {
+                    if self.prepared_battlefield_predicate_matches(plan, permanent, source)
+                        && visitor(Target::Permanent(permanent.card.id)).is_break()
+                    {
+                        return ControlFlow::Break(());
+                    }
                     continue;
                 }
                 let characteristics = prospective.map_or_else(

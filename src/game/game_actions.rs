@@ -20,6 +20,13 @@ impl Game {
         context: EffectResolutionContext,
         scoped: ScopedEffect,
     ) {
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::record(
+            "game_action_dispatch",
+            crate::engine_profiling::action_kind(action),
+            "resolution",
+            "entered",
+        );
         match action.unnamed() {
             GameActionDef::Choice(_) => {
                 let choices = action

@@ -8,6 +8,16 @@ pub(super) fn execute(
     source: Option<GameObjectId>,
     origin: AbilityOrigin,
 ) {
+    #[cfg(feature = "engine-profiling")]
+    crate::engine_profiling::record(
+        "effect_dispatch",
+        match effect {
+            PreparedEffect::DrawCards { .. } => "DrawCards",
+            PreparedEffect::GrantSourceAbilityUntilEndOfTurn { .. } => "Apply",
+        },
+        "prepared",
+        "entered",
+    );
     match effect {
         PreparedEffect::DrawCards { count } => host.draw_cards(controller, count),
         PreparedEffect::GrantSourceAbilityUntilEndOfTurn { ability } => {

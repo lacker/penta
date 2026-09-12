@@ -143,7 +143,7 @@ impl Game {
         };
         let result = self.visit_static_applied_effects(
             permanent,
-            StaticEffectKind::PowerToughness,
+            StaticEffectKind::BasePowerToughness,
             |applied| {
                 let AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
                     operation,

@@ -32,6 +32,13 @@ impl Game {
         context: impl Into<EffectResolutionContext>,
     ) {
         let context = context.into();
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::record(
+            "effect_dispatch",
+            crate::engine_profiling::effect_kind(scoped.effect),
+            "reference",
+            "entered",
+        );
         match scoped.effect {
             EffectDef::Perform(action) => self.resolve_game_action(action, object, context, scoped),
             EffectDef::WithRule { rule, effect } => {

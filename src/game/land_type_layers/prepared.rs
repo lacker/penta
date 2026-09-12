@@ -24,3 +24,36 @@ impl Game {
         )
     }
 }
+
+impl Game {
+    pub(super) fn land_type_effect_sources<'a>(
+        &'a self,
+        prospective: Option<&'a Permanent>,
+    ) -> Vec<(&'a Permanent, ContinuousEffectTimestamp)> {
+        let mut sources = if let Some(sources) = self.prepared_land_type_sources() {
+            sources
+                .indices()
+                .iter()
+                .map(|index| {
+                    let source = &self.battlefield[*index];
+                    (source, source.timestamp)
+                })
+                .collect()
+        } else {
+            self.battlefield
+                .iter()
+                .filter(|source| self.supplies_land_type_effect(source))
+                .map(|source| (source, source.timestamp))
+                .collect::<Vec<_>>()
+        };
+        if let Some(prospective) = prospective
+            && self.supplies_land_type_effect_uncached(prospective)
+            && !sources
+                .iter()
+                .any(|(source, _)| source.card.id == prospective.card.id)
+        {
+            sources.push((prospective, self.prospective_continuous_effect_timestamp()));
+        }
+        sources
+    }
+}

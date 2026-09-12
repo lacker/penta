@@ -121,13 +121,20 @@ impl Game {
             },
         );
         let mut abilities = Vec::new();
-        if !rules_text_removed && let Some(rules) = self.effective_rules(characteristics) {
+        if !rules_text_removed {
             let source = Self::effective_rules_source(characteristics);
-            for attached in rules.indexed_abilities() {
-                abilities.push(EffectiveAbility {
+            if let Some(program) = self.prepared_static_program(source) {
+                abilities.extend(program.base_abilities().iter().map(|(id, ability)| {
+                    EffectiveAbility {
+                        origin: Self::authored_ability_origin(source, *id),
+                        ability: *ability,
+                    }
+                }));
+            } else if let Some(rules) = self.effective_rules(characteristics) {
+                abilities.extend(rules.indexed_abilities().map(|attached| EffectiveAbility {
                     origin: Self::authored_ability_origin(source, attached.id),
                     ability: attached.definition,
-                });
+                }));
             }
             if let Some(copy) = characteristics.active_copy_values() {
                 for added in &copy.added_abilities {
@@ -477,6 +484,11 @@ impl Game {
         permanent: &Permanent,
         prospective: Option<&Permanent>,
     ) -> u64 {
+        if prospective.is_none()
+            && let Some(mask) = self.prepared_keyword_mask(permanent)
+        {
+            return mask;
+        }
         let abilities = self.collect_effective_abilities(permanent, prospective);
         let mut mask = 0;
         let mut set = |keyword: KeywordAbility| {

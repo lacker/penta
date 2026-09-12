@@ -73,6 +73,8 @@ fn evoke_does_not_sacrifice_for_another_printed_alternative_cost() {
             }
         }))
         .expect("the two independent alternatives are valid");
+        // Replacing the immutable catalog also replaces its derived programs.
+        game.prepared_engine = crate::prepared_engine::PreparedEngine::compile(&game.catalog);
         let spell = card(231_000, cards::MULLDRIFTER, PlayerId::One);
         let spell_id = spell.id;
         game.players[0].hand.push(spell);

@@ -472,6 +472,8 @@ impl Game {
         is_spell: bool,
         controller: Option<PlayerId>,
     ) -> bool {
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::predicate_evaluated(predicate, "reference_snapshot");
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => object.id == source,

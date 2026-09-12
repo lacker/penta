@@ -707,7 +707,6 @@ mod vintage_cube_mastery;
 mod vintage_cube_memory_jar;
 mod vintage_cube_memory_lapse;
 mod vintage_cube_metamorphosis_fanatic;
-mod vintage_cube_mightform_harmonizer;
 mod vintage_cube_mind_twist;
 mod vintage_cube_mine_collapse;
 mod vintage_cube_minsc_and_boo;
@@ -773,7 +772,6 @@ mod vintage_cube_prismatic_vista;
 mod vintage_cube_profts_eidetic_memory;
 mod vintage_cube_psychic_frog;
 mod vintage_cube_pyrogoyf;
-mod vintage_cube_quantum_riddler;
 mod vintage_cube_questing_beast;
 mod vintage_cube_ragavan;
 mod vintage_cube_rancor;
@@ -955,3 +953,5 @@ mod thunder_junction;
 mod aetherdrift;
 
 mod avatar;
+
+mod edge_of_eternities;

@@ -125,12 +125,20 @@ pub(in crate::card::sets) static MOMENT_OF_CRAVING: CardRecord = CardRecord::new
 );
 
 // RIX 93 — Bombard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOMBARD: CardRecord = CardRecord::new(
     "Bombard",
     "0a605abc-78e8-47ba-9022-0fad9006fd05",
     "Alex Konstad",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Bombard deals 4 damage to target creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(4),
+        ),
+    )]),
 );
 
 // RIX 94 — Brass's Bounty

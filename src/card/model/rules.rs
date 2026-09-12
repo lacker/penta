@@ -267,18 +267,27 @@ impl CardRules {
         rules
     }
 
-    /// Whether this is a Vehicle, which is the one noncreature card type
-    /// that prints power and toughness.
+    /// A Spacecraft with printed power and toughness before it is a creature.
+    #[must_use]
+    pub const fn new_spacecraft(mana_cost: ManaCost, power: i16, toughness: i16) -> Self {
+        Self::new_vehicle(mana_cost, power, toughness).with_subtypes(&["Spacecraft"])
+    }
+
+    /// Whether this card has the printed Vehicle subtype.
     #[must_use]
     pub const fn is_vehicle(&self) -> bool {
+        self.has_printed_subtype(VEHICLE)
+    }
+
+    const fn has_printed_subtype(&self, expected: &[u8]) -> bool {
         let mut index = 0;
         while index < self.subtypes.len() {
             // Compared byte by byte because the coherence check that reads
             // this runs in a const context, where `==` on strings does not.
             let candidate = self.subtypes[index].as_bytes();
-            if candidate.len() == VEHICLE.len() {
+            if candidate.len() == expected.len() {
                 let mut byte = 0;
-                while byte < candidate.len() && candidate[byte] == VEHICLE[byte] {
+                while byte < candidate.len() && candidate[byte] == expected[byte] {
                     byte += 1;
                 }
                 if byte == candidate.len() {
@@ -552,10 +561,12 @@ impl CardRules {
         if self.has_type(CardType::Creature) && self.creature_stats.is_none() {
             return Some("a creature must have power and toughness");
         }
-        // CR 208.1 was written before Vehicles: they are the one printed
-        // exception, carrying power and toughness that mean nothing until
-        // something crews them into being a creature.
-        if !self.has_type(CardType::Creature) && self.creature_stats.is_some() && !self.is_vehicle()
+        // Vehicles and Spacecraft carry printed power and toughness while
+        // noncreatures; those values apply when an effect animates them.
+        if !self.has_type(CardType::Creature)
+            && self.creature_stats.is_some()
+            && !self.is_vehicle()
+            && !self.has_printed_subtype(b"Spacecraft")
         {
             return Some("a noncreature cannot have creature power and toughness");
         }

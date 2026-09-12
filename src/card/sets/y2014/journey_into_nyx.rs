@@ -30,7 +30,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // JOU 5 — Banishing Light
-// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the stack.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); an ordinary leaves trigger returns through the stack too late.
 pub(in crate::card::sets) static BANISHING_LIGHT: CardRecord = CardRecord::new(
     "Banishing Light",
     "fbaa4800-30cc-4a80-a6cc-9a24ada9eb40",

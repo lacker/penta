@@ -481,12 +481,21 @@ pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::n
 );
 
 // NEO 128 — Virus Beetle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIRUS_BEETLE: CardRecord = CardRecord::new(
     "Virus Beetle",
     "488ee202-0d28-4cc0-8a7d-644d9878e952",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{B}"), &["Insect"], 1, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, each opponent discards a card.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // NEO 136 — Crackling Emergence

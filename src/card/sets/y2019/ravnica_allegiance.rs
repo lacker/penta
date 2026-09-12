@@ -7,6 +7,8 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AlternativeCastKindDef;
+use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
 use crate::card::CardChoiceSourceDef;
 use crate::card::CardRules;
 use crate::card::CardType;
@@ -16,8 +18,12 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
+use crate::card::ScaledValueDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -46,21 +52,60 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // RNA 3 — Archway Angel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCHWAY_ANGEL: CardRecord = CardRecord::new(
     "Archway Angel",
     "b209d219-b946-4226-a8b4-65a5f3837fac",
     "Milivoj Ćeran",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{W}"), &["Angel"], 3, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, you gain 2 life for each Gate you \
+             control.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Scaled(&ScaledValueDef {
+                    value: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    factor: 2,
+                }),
+            },
+        ),
+    ]),
 );
 
 // RNA 40 — Gateway Sneak
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GATEWAY_SNEAK: CardRecord = CardRecord::new(
     "Gateway Sneak",
     "edc0229d-05e6-41b7-b7a9-2a8b2b258add",
     "Matt Stewart",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Vedalken", "Rogue"], 1, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever a Gate you control enters, this creature can't be \
+             blocked this turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, draw \
+             a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // RNA 55 — Sphinx of Foresight
@@ -122,12 +167,12 @@ pub(in crate::card::sets) static SKEWER_THE_CRITICS: CardRecord = CardRecord::ne
 );
 
 // RNA 123 — Biogenic Upgrade
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs counter-placement resolution to read each target's assigned share from a divided target slot; DividedAmongTargets is implemented by damage resolution but not AddCounters.
 pub(in crate::card::sets) static BIOGENIC_UPGRADE: CardRecord = CardRecord::new(
     "Biogenic Upgrade",
     "0dd73fb2-453f-40b9-8beb-dfa99e6a706e",
     "Tomasz Jedruszek",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // RNA 171 — Final Payment
@@ -227,12 +272,54 @@ pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
 );
 
 // RNA 232 — Gate Colossus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GATE_COLOSSUS: CardRecord = CardRecord::new(
     "Gate Colossus",
     "99767e2f-a558-4d63-b9b6-923d15b433e1",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{8}"), &["Construct"], 8, 8).with_abilities(&[
+        AbilityDef::static_ability(
+            "Affinity for Gates (This spell costs {1} less to cast for \
+             each Gate you control.)",
+            EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(
+                &ObjectQueryDef::matching(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+            )),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::static_ability(
+            "This creature can't be blocked by creatures with power 2 or less.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                    ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                )),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a Gate you control enters, you may put this card \
+             from your graveyard on top of your library.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Gate")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

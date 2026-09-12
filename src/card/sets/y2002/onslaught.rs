@@ -3323,12 +3323,12 @@ pub(in crate::card::sets) static GRAND_MELEE: CardRecord = CardRecord::new(
 );
 
 // ONS 212 — Gratuitous Violence
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a prospective damage amount multiplier filtered by source controller and damage recipient; current damage rules support prevention and limits, but no multiplication replacement.
 pub(in crate::card::sets) static GRATUITOUS_VIOLENCE: CardRecord = CardRecord::new(
     "Gratuitous Violence",
     "4b0c5d14-4fab-4034-a2d3-0d851ef67cbd",
     "Christopher Moeller",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ONS 213 — Insurrection

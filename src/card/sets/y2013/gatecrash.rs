@@ -4713,12 +4713,12 @@ pub(in crate::card::sets) static PRIMAL_VISITATION: CardRecord = CardRecord::new
 );
 
 // GTC 188 — Prime Speaker Zegana
-// Audit: unsupported — Entry replacement effects cannot read the greatest power among other creatures, and the entry trigger needs the source's post-entry power as a draw count.
+// Audit: unsupported — Needs prospective entry values to aggregate the greatest power among other controlled creatures; the entry-value evaluator supports counts but not AggregateObjectValues.
 pub(in crate::card::sets) static PRIME_SPEAKER_ZEGANA: CardRecord = CardRecord::new(
     "Prime Speaker Zegana",
     "f30dfb8e-f540-45ab-a4e8-63425099646a",
     "Willian Murai",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // GTC 189 — Psychic Strike

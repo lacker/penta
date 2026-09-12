@@ -172,12 +172,12 @@ pub(in crate::card::sets) static ANGEL_S_FEATHER: CardRecord = CardRecord::new(
 );
 
 // DST 109 — Darksteel Colossus
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the hidden-zone graveyard replacement to reveal the redirected card to every player before shuffling it into its owner's library; the movement replacement currently redirects and shuffles without publishing that reveal.
 pub(in crate::card::sets) static DARKSTEEL_COLOSSUS: CardRecord = CardRecord::new(
     "Darksteel Colossus",
     "cbc27b24-f085-48b0-8757-cd11fbf25b91",
     "Carl Critchlow",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DST 110 — Darksteel Forge

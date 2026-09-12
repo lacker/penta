@@ -2,7 +2,9 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
 use crate::card::AppliedEffectDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
@@ -169,12 +171,29 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
 );
 
 // M15 194 — Reclamation Sage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECLAMATION_SAGE: CardRecord = CardRecord::new(
     "Reclamation Sage",
     "47227cfa-4cef-4874-b331-d2f628f29dae",
     "Christopher Moeller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Shaman"], 2, 1).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may destroy target artifact or \
+             enchantment.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -17,6 +17,8 @@ use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CardTypeSet;
 use crate::card::CastTimingPermissionDef;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
 use crate::card::ComparisonDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
@@ -27,12 +29,15 @@ use crate::card::CreatureTypeSetDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerRuleDef;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::TokenCharacteristics;
@@ -40,6 +45,7 @@ use crate::card::TokenDef;
 use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -56,12 +62,76 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // WAR 51 — Finale of Revelation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FINALE_OF_REVELATION: CardRecord = CardRecord::new(
     "Finale of Revelation",
     "6630c34a-1a97-4e31-9d2c-1150b0aa903e",
     "Johann Bodin",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{U}{U}")).with_abilities(&[AbilityDef::spell(
+        "Draw X cards. If X is 10 or more, instead shuffle your \
+         graveyard into your library, draw X cards, untap up to five \
+         lands, and you have no maximum hand size for the rest of the \
+         game.\nExile Finale of Revelation.",
+        EffectDef::Sequence(&[
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::ChosenX,
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(10),
+                }),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Query(
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::Any,
+                                    &[ZoneKind::Graveyard],
+                                    PlayerRelation::You,
+                                ),
+                            )),
+                            ZoneKind::Library,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::ShuffleLibrary {
+                            player: EffectRecipientDef::Controller,
+                        },
+                    ]),
+                    abilities::draw_cards(ValueDef::ChosenX),
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )),
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 5,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::Untap {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("chosen"),
+                            )),
+                        },
+                    }),
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Controller,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                            PlayerRuleDef::NoMaximumHandSize,
+                        )),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                ]),
+                otherwise: &abilities::draw_cards(ValueDef::ChosenX),
+            },
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Source,
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+        ]),
+    )]),
 );
 
 // WAR 54 — Jace, Wielder of Mysteries
@@ -206,12 +276,12 @@ pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new(
 );
 
 // WAR 97 — Liliana, Dreadhorde General
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a choice retaining one controlled permanent per permanent type, allowing one multitype permanent to fill several types, followed by sacrifice of the complement.
 pub(in crate::card::sets) static LILIANA_DREADHORDE_GENERAL: CardRecord = CardRecord::new(
     "Liliana, Dreadhorde General",
     "d75ebba8-34ca-47a0-bf13-8318ad73b343",
     "Chris Rallis",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // WAR 115 — Bolt Bend

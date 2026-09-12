@@ -22,6 +22,7 @@ use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::ids::TargetIndex;
@@ -46,21 +47,32 @@ const ELDRAZI_SCION_TOKEN: TokenCharacteristics =
         .with_art(CardArt::new("b999a0fe-d2d0-4367-9abb-6ce5f3764f19", "Izzy"));
 
 // BFZ 25 — Felidar Cub
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FELIDAR_CUB: CardRecord = CardRecord::new(
     "Felidar Cub",
     "ea76a183-e15c-4968-b29d-91c074aa8681",
     "Steve Prescott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Beast"], 2, 2).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Destroy target enchantment.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // BFZ 50 — Stasis Snare
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the stack.
 pub(in crate::card::sets) static STASIS_SNARE: CardRecord = CardRecord::new(
     "Stasis Snare",
     "ff820544-f4a3-40c4-a48e-84b5e2d06caa",
     "Jason Felix",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BFZ 58 — Eldrazi Skyspawner
@@ -97,21 +109,50 @@ pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
 );
 
 // BFZ 124 — Vampiric Rites
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VAMPIRIC_RITES: CardRecord = CardRecord::new(
     "Vampiric Rites",
     "3416309a-5824-48f5-876e-00e0f180acf9",
     "Anastasia Ovchinnikova",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{B}")).with_abilities(&[AbilityDef::activated(
+        "{1}{B}, Sacrifice a creature: You gain 1 life and draw a card.",
+        &[
+            CostDef::Mana(mana_cost!("{1}{B}")),
+            CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Creature)),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // BFZ 157 — Sure Strike
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SURE_STRIKE: CardRecord = CardRecord::new(
     "Sure Strike",
     "074dd176-4608-42ca-8fc3-c7040cd7b32e",
     "Jakub Kasper",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets +3/+0 and gains first strike until end \
+         of turn. (It deals combat damage before creatures without \
+         first strike.)",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(0),
+                ),
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // BFZ 168 — Unnatural Aggression
@@ -159,12 +200,26 @@ CardRules::new_instant(mana_cost!("{2}{G}"))
 );
 
 // BFZ 223 — Hedron Archive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEDRON_ARCHIVE: CardRecord = CardRecord::new(
     "Hedron Archive",
     "2519149c-f8a3-413f-b7b2-cd596970be4c",
     "Craig J Spearing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{C}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
+        ),
+        AbilityDef::activated(
+            "{2}, {T}, Sacrifice this artifact: Draw two cards.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            abilities::draw_cards(ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

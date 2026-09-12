@@ -12,8 +12,10 @@ use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CostDef;
+use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
@@ -23,7 +25,10 @@ use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::SubtypeDef;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -183,12 +188,29 @@ pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
 );
 
 // MID 90 — Bloodtithe Collector
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODTITHE_COLLECTOR: CardRecord = CardRecord::new(
     "Bloodtithe Collector",
     "57d5e536-7774-4949-8127-727ae4d8fc80",
     "Maria Zolotukhina",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Vampire", "Noble"], 3, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_if(
+            "When this creature enters, if an opponent lost life this \
+             turn, each opponent discards a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::OpponentLostLifeThisTurn,
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MID 96 — Diregraf Horde
@@ -201,12 +223,33 @@ pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
 );
 
 // MID 99 — Eaten Alive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EATEN_ALIVE: CardRecord = CardRecord::new(
     "Eaten Alive",
     "e7975a3c-570a-4bff-a60d-d274f758b93f",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "As an additional cost to cast this spell, sacrifice a \
+         creature or pay {3}{B}.\nExile target creature or \
+         planeswalker.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ]),
+        )],
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
+    )
+    .with_spell_additional_cost(&CostDef::Choice(&[
+        CostDef::Sacrifice {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            quantity: CostQuantityDef::Fixed(1),
+        },
+        CostDef::Mana(mana_cost!("{3}{B}")),
+    ]))]),
 );
 
 // MID 100 — Ecstatic Awakener // Awoken Demon
@@ -285,12 +328,34 @@ pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
 );
 
 // MID 123 — Stromkirk Bloodthief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STROMKIRK_BLOODTHIEF: CardRecord = CardRecord::new(
     "Stromkirk Bloodthief",
     "fa819123-bf13-44ea-9a6e-06c8ab023e44",
     "Caroline Gariba",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Rogue"], 2, 2).with_abilities(&[
+        AbilityDef::triggered_if_with_targets(
+            "At the beginning of your end step, if an opponent lost life \
+             this turn, put a +1/+1 counter on target Vampire you control.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::OpponentLostLifeThisTurn,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MID 128 — Ardent Elementalist

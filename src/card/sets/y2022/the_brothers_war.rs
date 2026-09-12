@@ -24,6 +24,7 @@ use crate::card::ManaRestrictionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
 use crate::card::PayOrDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SetOperationDef;
@@ -47,12 +48,30 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // BRO 5 — Deadly Riposte
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEADLY_RIPOSTE: CardRecord = CardRecord::new(
     "Deadly Riposte",
     "38eca0ae-d400-4afb-9a45-7100f4cd7149",
     "Olena Richards",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Deadly Riposte deals 3 damage to target tapped creature and \
+         you gain 2 life.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Tapped,
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )]),
 );
 
 // BRO 12 — Loran of the Third Path
@@ -174,21 +193,49 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
 );
 
 // BRO 136 — Giant Cindermaw
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIANT_CINDERMAW: CardRecord = CardRecord::new(
     "Giant Cindermaw",
     "1349465f-d29f-4d4b-a653-f4388574c336",
     "Edgar Sánchez Hidalgo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dinosaur", "Beast"], 4, 3).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::static_ability(
+            "Players can't gain life.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
+            },
+        ),
+    ]),
 );
 
 // BRO 145 — Obliterating Bolt
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OBLITERATING_BOLT: CardRecord = CardRecord::new(
     "Obliterating Bolt",
     "7f886411-8216-4fb7-9172-a408c39043ee",
     "Campbell White",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Obliterating Bolt deals 4 damage to target creature or \
+         planeswalker. If that creature or planeswalker would die this \
+         turn, exile it instead.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(4),
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )]),
 );
 
 // BRO 164 — Scrapwork Mutt
@@ -334,12 +381,28 @@ pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord:
 );
 
 // BRO 235 — Goblin Firebomb
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_FIREBOMB: CardRecord = CardRecord::new(
     "Goblin Firebomb",
     "0ba00d0f-0ea5-417c-a792-06b3b9d1c8f1",
     "Noah Thatcher",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        abilities::flash(),
+        AbilityDef::activated_with_targets(
+            "{7}, {T}, Sacrifice this artifact: Destroy target permanent.",
+            &[
+                CostDef::Mana(mana_cost!("{7}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // BRO 238 — The Mightstone and Weakstone
@@ -475,12 +538,90 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
 );
 
 // BRO 260 — Demolition Field
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEMOLITION_FIELD: CardRecord = CardRecord::new(
     "Demolition Field",
     "d9c88546-13c9-4d7e-a618-cb2ccd1dbc0f",
     "Kamila Szutenberg",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}, Sacrifice this land: Destroy target nonbasic land \
+             an opponent controls. That land's controller may search their \
+             library for a basic land card, put it onto the battlefield, \
+             then shuffle. You may search your library for a basic land \
+             card, put it onto the battlefield, then shuffle.",
+            &[
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    effect: &EffectDef::SearchZone {
+                        player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        )),
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: true,
+                        destination: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: true,
+                        destination: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BRO 266 — Tocasia's Dig Site

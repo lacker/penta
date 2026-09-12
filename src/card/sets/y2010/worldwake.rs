@@ -28,6 +28,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
@@ -40,6 +41,7 @@ use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -243,30 +245,86 @@ pub(in crate::card::sets) static BRINK_OF_DISASTER: CardRecord = CardRecord::new
 );
 
 // WWK 59 — Kalastria Highborn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KALASTRIA_HIGHBORN: CardRecord = CardRecord::new(
     "Kalastria Highborn",
     "f1efd1dd-903c-47a0-b746-5571a3ea1755",
     "D. Alexander Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Vampire", "Shaman"], 2, 2).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature or another Vampire you control dies, \
+             you may pay {B}. If you do, target player loses 2 life and \
+             you gain 2 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::Mana(mana_cost!("{B}"))],
+                &EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ]),
+            )),
+        ),
+    ]),
 );
 
 // WWK 62 — Pulse Tracker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PULSE_TRACKER: CardRecord = CardRecord::new(
     "Pulse Tracker",
     "4604a63c-ebe0-420f-968e-3ffc7641ce22",
     "Andrew Robinson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}"), &["Vampire", "Rogue"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature attacks, each opponent loses 1 life.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // WWK 81 — Dragonmaster Outcast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAGONMASTER_OUTCAST: CardRecord = CardRecord::new(
     "Dragonmaster Outcast",
     "c2297a4e-3c19-4748-9150-efbd2513066a",
     "Raymond Swanland",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Human", "Shaman"], 1, 1).with_abilities(&[
+        AbilityDef::triggered_if(
+            "At the beginning of your upkeep, if you control six or more \
+             lands, create a 5/5 red Dragon creature token with flying.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 6,
+            },
+            EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 5, 5)
+                .with_abilities(&[abilities::flying()]),
+        ),
+    ]),
 );
 
 // WWK 87 — Ricochet Trap
@@ -370,12 +428,28 @@ CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 4, 4).with_abil
 );
 
 // WWK 122 — Basilisk Collar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASILISK_COLLAR: CardRecord = CardRecord::new(
     "Basilisk Collar",
     "55cdba1b-7a80-435f-9cff-b9365f62e311",
     "Howard Lyon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature has deathtouch and lifelink. (Any amount of \
+                 damage it deals to a creature is enough to destroy it. Damage \
+                 dealt by this creature also causes you to gain that much \
+                 life.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                        AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    ]),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // WWK 123 — Everflowing Chalice

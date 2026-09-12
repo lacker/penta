@@ -10,12 +10,16 @@ use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
 use crate::card::AlternateSpellKind;
 use crate::card::AlternativeCastKindDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
+use crate::card::BattlefieldArrivalDef;
+use crate::card::BattlefieldEntryChoiceDestinationDef;
 use crate::card::BattlefieldEntryModificationDef;
+use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BlockRestrictionDef;
 use crate::card::BlockRestrictionMatchDef;
 use crate::card::BlockRestrictionSubjectDef;
@@ -40,8 +44,10 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayConditionDef;
 use crate::card::ExilePlayDurationDef;
+use crate::card::InstalledTriggerDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ManaTypeDef;
 use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -49,6 +55,7 @@ use crate::card::ObjectSetDef;
 use crate::card::PlayOptionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SpellForm;
@@ -57,6 +64,7 @@ use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -159,12 +167,79 @@ pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::n
 .with_composition(ardenvale_tactician_composition);
 
 // ELD 8 — Charming Prince
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHARMING_PRINCE: CardRecord = CardRecord::new(
     "Charming Prince",
     "dcb94950-3f3e-4876-84f8-d5e4d9cfecee",
     "Randy Vargas",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Noble"], 2, 2).with_abilities(&[
+        AbilityDef::modal_triggered(
+            "When this creature enters, choose one —",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[
+                AbilityDef::spell("Scry 2.", abilities::scry(ValueDef::Constant(2))),
+                AbilityDef::spell(
+                    "You gain 3 life.",
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Exile another target creature you own. Return it to the \
+                     battlefield under your control at the beginning of the next \
+                     end step.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::WithZoneMoveResult {
+                        effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                        binding: crate::Binding!("blinked"),
+                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of the next end step, return that card to \
+                                 the battlefield.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::WithBattlefieldArrival {
+                                    effect: &EffectDef::move_to_zone(
+                                        EffectRecipientDef::objects(
+                                            ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                                                crate::Binding!("blinked"),
+                                            ),
+                                        ),
+                                        ZoneKind::Battlefield,
+                                        ZonePlacement::Top,
+                                    ),
+                                    arrival: BattlefieldArrivalDef {
+                                        controller: Some(PlayerRelation::You),
+                                        ..BattlefieldArrivalDef::DEFAULT
+                                    },
+                                },
+                            ),
+                        )),
+                    },
+                ),
+            ],
+        ),
+    ]),
 );
 
 // ELD 11 — Faerie Guidemother
@@ -259,21 +334,63 @@ pub(in crate::card::sets) static GLASS_CASKET: CardRecord = CardRecord::new(
 );
 
 // ELD 20 — Linden, the Steadfast Queen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LINDEN_THE_STEADFAST_QUEEN: CardRecord = CardRecord::new(
     "Linden, the Steadfast Queen",
     "fa3ab467-be97-4b84-a73d-b03484d06b97",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}{W}{W}"), &["Human", "Noble"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::triggered(
+                "Whenever a white creature you control attacks, you gain 1 life.",
+                TriggerEventDef::attacks(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::White),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // ELD 32 — Syr Alin, the Lion's Claw
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SYR_ALIN_THE_LION_S_CLAW: CardRecord = CardRecord::new(
     "Syr Alin, the Lion's Claw",
     "4cddb2d2-d813-4b83-a592-380ba4edf54f",
     "Paul Scott Canavan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Human", "Knight"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::triggered(
+                "Whenever Syr Alin attacks, other creatures you control get \
+                 +1/+1 until end of turn.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // ELD 39 — Brazen Borrower
@@ -437,12 +554,27 @@ pub(in crate::card::sets) static RUN_AWAY_TOGETHER: CardRecord = CardRecord::new
 );
 
 // ELD 76 — Bake into a Pie
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BAKE_INTO_A_PIE: CardRecord = CardRecord::new(
     "Bake into a Pie",
     "42a4d090-1bb7-4334-ab22-e2527391e79b",
     "Zoltan Boros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{B}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target creature. Create a Food token. (It's an \
+             artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
+             life.\")",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            ]),
+        ),
+    ]),
 );
 
 // ELD 85 — Epic Downfall
@@ -671,12 +803,12 @@ pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord = CardRecord
 .with_composition(embereth_shieldbreaker_composition);
 
 // ELD 134 — Raging Redcap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAGING_REDCAP: CardRecord = CardRecord::new(
     "Raging Redcap",
     "d9325398-41c3-4177-a64d-ea38cb7a8737",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Knight"], 1, 2)
+        .with_abilities(&[abilities::double_strike()]),
 );
 
 // ELD 137 — Rimrock Knight
@@ -838,12 +970,16 @@ pub(in crate::card::sets) static SCORCHING_DRAGONFIRE: CardRecord = CardRecord::
 );
 
 // ELD 146 — Thrill of Possibility
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRILL_OF_POSSIBILITY: CardRecord = CardRecord::new(
     "Thrill of Possibility",
     "c9021f85-7ab4-4a78-a398-1611fe09cd14",
     "Steve Argyle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell(
+        "As an additional cost to cast this spell, discard a \
+         card.\nDraw two cards.",
+        abilities::draw_cards(ValueDef::Constant(2)),
+    )
+    .with_spell_additional_cost(&CostDef::discard(ObjectPredicateDef::Any))]),
 );
 
 // ELD 169 — Once Upon a Time
@@ -892,12 +1028,12 @@ pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
 );
 
 // ELD 182 — Wildborn Preserver
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger tied to successful variable mana payment, retaining the paid X for the counter placement; the generic payment result does not expose that X to a later trigger.
 pub(in crate::card::sets) static WILDBORN_PRESERVER: CardRecord = CardRecord::new(
     "Wildborn Preserver",
     "55f76830-369e-4224-9ded-7d1ce04c87e4",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ELD 197 — Oko, Thief of Crowns
@@ -1038,12 +1174,44 @@ pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
 );
 
 // ELD 222 — Heraldic Banner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HERALDIC_BANNER: CardRecord = CardRecord::new(
     "Heraldic Banner",
     "2e349af5-3f25-46d3-908e-83b2f6028b95",
     "Ravenna Tran",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this permanent enters, choose a color.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::COLOR,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Creatures you control of the chosen color get +1/+0.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasSourcesChosenScalar(
+                                BattlefieldEntryChoiceDestinationDef::Color,
+                            ),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of the chosen color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)),
+        ),
+    ]),
 );
 
 // ELD 235 — Stonecoil Serpent

@@ -6,13 +6,17 @@ use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -83,12 +87,29 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
 );
 
 // HOU 88 — Crash Through
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRASH_THROUGH: CardRecord = CardRecord::new(
     "Crash Through",
     "4bdaba76-b98d-4699-9a5f-e59285b09552",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell(
+        "Creatures you control gain trample until end of turn. (Each \
+         of those creatures can deal excess combat damage to the \
+         player or planeswalker it's attacking.)\nDraw a card.",
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // HOU 92 — Firebrand Archer

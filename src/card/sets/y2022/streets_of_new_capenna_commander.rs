@@ -3,12 +3,16 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::CardArt;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
 use crate::card::DiscardSelectionDef;
@@ -23,8 +27,10 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TokenCopyDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -47,12 +53,35 @@ const TREASURE_TOKEN: TokenCharacteristics = tokens::treasure().with_art(CardArt
 ));
 
 // NCC 25 — Extravagant Replication
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXTRAVAGANT_REPLICATION: CardRecord = CardRecord::new(
     "Extravagant Replication",
     "6a6f55d7-d689-43eb-a59a-b8be88269ee6",
     "Pauline Voss",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{U}{U}")).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, create a token that's a copy \
+             of another target nonland permanent you control.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::create_token_from_copy(&TokenCopyDef {
+                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                exceptions: CopyExceptionsDef::NONE,
+            }),
+        ),
+    ]),
 );
 
 // NCC 81 — Currency Converter

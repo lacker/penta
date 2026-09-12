@@ -19,8 +19,10 @@ use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ChooseForEachPlayerDef;
 use crate::card::ColorChoiceOperationDef;
 use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -29,11 +31,13 @@ use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
+use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCopyDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -266,12 +270,34 @@ pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new(
 );
 
 // ZEN 61 — Rite of Replication
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RITE_OF_REPLICATION: CardRecord = CardRecord::new(
     "Rite of Replication",
     "4530fe45-8a3d-48e9-a7a5-abf8fb1485e3",
     "Matt Cavotta",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{U}{U}")).with_abilities(&[
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{5}"))]),
+        AbilityDef::spell_with_targets(
+            "Create a token that's a copy of target creature. If this \
+             spell was kicked, create five of those tokens instead.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                    crate::AdditionalCostIndex::PRIMARY,
+                ),
+                then: &EffectDef::create_token_from_copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    exceptions: CopyExceptionsDef::NONE,
+                })
+                .with_count(ValueDef::Constant(5)),
+                otherwise: &EffectDef::create_token_from_copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    exceptions: CopyExceptionsDef::NONE,
+                }),
+            },
+        ),
+    ]),
 );
 
 // ZEN 67 — Spell Pierce
@@ -417,12 +443,38 @@ pub(in crate::card::sets) static DISFIGURE: CardRecord = CardRecord::new(
 );
 
 // ZEN 89 — Gatekeeper of Malakir
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GATEKEEPER_OF_MALAKIR: CardRecord = CardRecord::new(
     "Gatekeeper of Malakir",
     "71db3698-a45c-4eaf-87e6-30502c0c10f4",
     "Karl Kopinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Vampire", "Warrior"], 2, 2).with_abilities(&[
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{B}"))]),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, target player \
+             sacrifices a creature of their choice.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Battlefield,
+                candidates: ObjectPredicateDef::HasType(CardType::Creature),
+                selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                chosen: crate::Binding!("sacrifices"),
+                unchosen: crate::Binding!("unchosen_sacrifices"),
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                    crate::Binding!("sacrifices"),
+                ))),
+            }),
+        ),
+    ]),
 );
 
 // ZEN 90 — Giant Scorpion
@@ -746,12 +798,26 @@ pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
 );
 
 // ZEN 178 — Rampaging Baloths
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAMPAGING_BALOTHS: CardRecord = CardRecord::new(
     "Rampaging Baloths",
     "66ae703d-b133-4749-9d38-216abe6c6647",
     "Steve Prescott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Beast"], 6, 6).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered(
+            "Landfall — Whenever a land you control enters, create a 4/4 \
+             green Beast creature token.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 4, 4),
+        ),
+    ]),
 );
 
 // ZEN 192 — Vastwood Gorger
@@ -808,12 +874,35 @@ pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new
 );
 
 // ZEN 195 — Adventuring Gear
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ADVENTURING_GEAR: CardRecord = CardRecord::new(
     "Adventuring Gear",
     "3aa395f2-656e-4bf3-bd9b-6240bd3e2774",
     "Howard Lyon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Landfall — Whenever a land you control enters, equipped \
+                 creature gets +2/+2 until end of turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+        ]),
 );
 
 // ZEN 197 — Blazing Torch

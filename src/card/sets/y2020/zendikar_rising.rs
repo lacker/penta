@@ -14,13 +14,16 @@ use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
 use crate::card::ComparisonDef;
 use crate::card::ControlDurationDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::CreatureTypeSetDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -40,6 +43,7 @@ use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -102,12 +106,57 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
 );
 
 // ZNR 16 — Felidar Retreat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FELIDAR_RETREAT: CardRecord = CardRecord::new(
     "Felidar Retreat",
     "45340647-4d3e-4be1-b0e6-e40cc56a438b",
     "Ralph Horsley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{W}")).with_abilities(&[
+        AbilityDef::modal_triggered(
+            "Landfall — Whenever a land you control enters, choose one —",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[
+                AbilityDef::spell(
+                    "Create a 2/2 white Cat Beast creature token.",
+                    EffectDef::create_creature_token(&["Cat", "Beast"], &[ManaColor::White], 2, 2),
+                ),
+                AbilityDef::spell(
+                    "Put a +1/+1 counter on each creature you control. Those \
+                     creatures gain vigilance until end of turn.",
+                    EffectDef::Sequence(&[
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                ),
+                            )),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                ),
+                            )),
+                            effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ]),
+                ),
+            ],
+        ),
+    ]),
 );
 
 // ZNR 39 — Skyclave Apparition
@@ -300,57 +349,141 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
 );
 
 // ZNR 102 — Feed the Swarm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FEED_THE_SWARM: CardRecord = CardRecord::new(
     "Feed the Swarm",
     "f6b2eba7-862a-4efd-9f65-065fb2070855",
     "Andrey Kuzinskiy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target creature or enchantment an opponent controls. \
+         You lose life equal to that permanent's mana value.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::ObjectManaValue(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+            },
+        ]),
+    )]),
 );
 
 // ZNR 107 — Highborn Vampire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIGHBORN_VAMPIRE: CardRecord = CardRecord::new(
     "Highborn Vampire",
     "24c40082-516e-4381-a4cc-e61c5a9a6cac",
     "Denman Rooke",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Vampire", "Warrior"], 4, 3),
 );
 
 // ZNR 112 — Marauding Blight-Priest
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARAUDING_BLIGHT_PRIEST: CardRecord = CardRecord::new(
     "Marauding Blight-Priest",
     "730ddbcd-0814-4e22-85e9-78b0878324b6",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Cleric"], 3, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you gain life, each opponent loses 1 life.",
+            TriggerEventDef::LifeGained(PlayerRelation::You),
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ZNR 118 — Nullpriest of Oblivion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NULLPRIEST_OF_OBLIVION: CardRecord = CardRecord::new(
     "Nullpriest of Oblivion",
     "086fc7fb-efcf-4676-8455-39b63edaec6a",
     "Yongjae Choi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire", "Cleric"], 2, 1).with_abilities(&[
+        abilities::kicker(&[CostDef::Mana(mana_cost!("{3}{B}"))]),
+        abilities::lifelink(),
+        abilities::menace(),
+        AbilityDef::triggered_if_with_targets(
+            "When this creature enters, if it was kicked, return target \
+             creature card from your graveyard to the battlefield.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // ZNR 167 — Spitfire Lagac
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPITFIRE_LAGAC: CardRecord = CardRecord::new(
     "Spitfire Lagac",
     "47f26493-812f-4c14-91c4-d2ab549a7b8a",
     "Antonio José Manzanedo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Lizard"], 3, 4).with_abilities(&[
+        AbilityDef::triggered(
+            "Landfall — Whenever a land you control enters, this creature \
+             deals 1 damage to each opponent.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // ZNR 181 — Broken Wings
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BROKEN_WINGS: CardRecord = CardRecord::new(
     "Broken Wings",
     "c0fc2dfd-85b0-4add-be18-b39549235921",
     "Ekaterina Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target artifact, enchantment, or creature with flying.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                ]),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )]),
 );
 
 // ZNR 185 — Gnarlid Colony
@@ -566,12 +699,45 @@ CardRules::new_artifact(mana_cost!("{4}"))
 );
 
 // ZNR 262 — Crawling Barrens
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRAWLING_BARRENS: CardRecord = CardRecord::new(
     "Crawling Barrens",
     "7bd0e025-7a75-4641-a51a-27df9dcde05f",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{4}: Put two +1/+1 counters on this land. Then you may have \
+             it become a 0/0 Elemental creature until end of turn. It's \
+             still a land.",
+            &[CostDef::Mana(mana_cost!("{4}"))],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::add_card_types(CardTypeSet::single(
+                                CardType::Creature,
+                            )),
+                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                                "Elemental",
+                            ])),
+                            AppliedEffectDef::set_base_power_toughness(
+                                ValueDef::Constant(0),
+                                ValueDef::Constant(0),
+                            ),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // ZNR 319 — Luminarch Aspirant

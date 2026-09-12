@@ -67,12 +67,37 @@ pub(in crate::card::sets) static SPELL_SNARE: CardRecord = CardRecord::new(
 );
 
 // DIS 47 — Macabre Waltz
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MACABRE_WALTZ: CardRecord = CardRecord::new(
     "Macabre Waltz",
     "d9cd7bc3-73ba-4364-84b2-9954648cd8a9",
     "Jim Murray",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Return up to two target creature cards from your graveyard to \
+         your hand, then discard a card.",
+        &[AbilityTargetDef {
+            minimum: 0,
+            maximum: 2,
+            ..AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            })
+        }],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )]),
 );
 
 // DIS 58 — Wit's End
@@ -202,12 +227,37 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
 );
 
 // DIS 133 — Trygon Predator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRYGON_PREDATOR: CardRecord = CardRecord::new(
     "Trygon Predator",
     "f31f54bf-7bf0-48f0-853d-1468713784eb",
     "Carl Critchlow",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{U}"), &["Beast"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature deals combat damage to a player, you \
+             may destroy target artifact or enchantment that player \
+             controls.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    zones: &const { [ZoneKind::Battlefield] },
+                    controller: Some(PlayerRelation::EventPlayer),
+                    owner: None,
+                },
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // DIS 170 — Azorius Chancery

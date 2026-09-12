@@ -6,20 +6,28 @@ use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
+use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
@@ -34,12 +42,12 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // XLN 6 — Bishop's Soldier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BISHOP_S_SOLDIER: CardRecord = CardRecord::new(
     "Bishop's Soldier",
     "d954677c-2de6-440a-90d0-bab2e0c8b4af",
     "Scott Murphy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Vampire", "Soldier"], 2, 2)
+        .with_abilities(&[abilities::lifelink()]),
 );
 
 // XLN 34 — Settle the Wreckage
@@ -78,39 +86,77 @@ pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecor
 );
 
 // XLN 48 — Chart a Course
-// Audit: unsupported — Needs player-relative attack history retained after every attacker leaves the battlefield or changes controller. AttackedThisTurn is a predicate on existing objects, not a player raid-history condition.
+// Audit: unsupported — Needs per-player attack history retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
 pub(in crate::card::sets) static CHART_A_COURSE: CardRecord = CardRecord::new(
     "Chart a Course",
     "98291778-2ec2-47e2-ac99-5f8cfbb3cf24",
     "James Ryman",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // XLN 53 — Dive Down
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIVE_DOWN: CardRecord = CardRecord::new(
     "Dive Down",
     "b33e493e-1aef-43b3-9716-52158b002430",
     "Magali Villeneuve",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature you control gets +0/+3 and gains hexproof \
+         until end of turn. (It can't be the target of spells or \
+         abilities your opponents control.)",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(3),
+                ),
+                AppliedEffectDef::add_ability(&abilities::hexproof()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // XLN 71 — River's Rebuke
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIVER_S_REBUKE: CardRecord = CardRecord::new(
     "River's Rebuke",
     "fda8ef30-bbfa-4857-9750-0dd0def8b13f",
     "Raymond Swanland",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return all nonland permanents target player controls to their \
+             owner's hand.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Battlefield],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ))),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // XLN 84 — Storm Fleet Spy
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-player attack history retained after attacking creatures leave or change controllers; current object predicates only identify individual permanents that attacked.
 pub(in crate::card::sets) static STORM_FLEET_SPY: CardRecord = CardRecord::new(
     "Storm Fleet Spy",
     "f7c33ef4-60bb-4f95-92a5-7abedaac6767",
     "Scott Murphy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // XLN 110 — Kitesail Freebooter
@@ -273,12 +319,43 @@ pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
 );
 
 // XLN 198 — New Horizons
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEW_HORIZONS: CardRecord = CardRecord::new(
     "New Horizons",
     "15b12c75-1248-4c81-90cf-28e341a885cf",
     "Noah Bradley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            abilities::enters_trigger_with_targets(
+                "When this Aura enters, put a +1/+1 counter on target creature \
+                 you control.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted land has \"{T}: Add two mana of any one color.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                        "{T}: Add two mana of any one color.",
+                        &[CostDef::TapSource],
+                        EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(2)),
+                    )),
+                },
+            ),
+        ]),
 );
 
 // XLN 222 — Gishath, Sun's Avatar
@@ -342,12 +419,40 @@ pub(in crate::card::sets) static GISHATH_SUN_S_AVATAR: CardRecord = CardRecord::
 );
 
 // XLN 242 — Pirate's Cutlass
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PIRATE_S_CUTLASS: CardRecord = CardRecord::new(
     "Pirate's Cutlass",
     "b3e7e871-19cf-486d-bacb-1499fe066974",
     "John Stanko",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When this Equipment enters, attach it to target Pirate you \
+                 control.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Pirate")),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // XLN 248 — Sorcerous Spyglass

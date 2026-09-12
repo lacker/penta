@@ -61,12 +61,12 @@ pub(in crate::card::sets) static KONDA_LORD_OF_EIGANJO: CardRecord = CardRecord:
 );
 
 // CHK 97 — Time Stop
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an end-the-turn rules procedure that exiles the stack, ends resolving procedures, skips directly to cleanup, and performs the special cleanup rules.
 pub(in crate::card::sets) static TIME_STOP: CardRecord = CardRecord::new(
     "Time Stop",
     "f968c5e9-12a8-4542-90b4-84e0238fa375",
     "Scott M. Fischer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // CHK 107 — Cursed Ronin
@@ -111,12 +111,12 @@ CardRules::new_sorcery(mana_cost!("{B}{B}")).with_ability(
 );
 
 // CHK 126 — Myojin of Night's Reach
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a positive cast-from-hand entry condition; SourceNotCastFrom cannot distinguish an actual hand cast from a non-cast battlefield arrival when inverted by the current entry condition vocabulary.
 pub(in crate::card::sets) static MYOJIN_OF_NIGHT_S_REACH: CardRecord = CardRecord::new(
     "Myojin of Night's Reach",
     "13a295b0-535e-4c2d-879d-62603d1f2f1b",
     "Kev Walker",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // CHK 156 — Battle-Mad Ronin

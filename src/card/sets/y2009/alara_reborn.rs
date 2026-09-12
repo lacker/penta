@@ -7,6 +7,7 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AppliedEffectDef;
+use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::CostDef;
@@ -15,6 +16,9 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
@@ -84,12 +88,29 @@ pub(in crate::card::sets) static SOUL_MANIPULATION: CardRecord = CardRecord::new
 );
 
 // ARB 92 — Maelstrom Pulse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAELSTROM_PULSE: CardRecord = CardRecord::new(
     "Maelstrom Pulse",
     "eb651c3a-cb27-4b73-8eb6-b87d65211097",
     "Anthony Francisco",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}{G}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target nonland permanent and all other permanents \
+             with the same name as that permanent.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ))),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // ARB 95 — Putrid Leech

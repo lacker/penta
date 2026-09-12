@@ -112,12 +112,12 @@ pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::ne
 );
 
 // C17 55 — Ramos, Dragon Engine
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a value expression for the number of colors in the triggering cast spell's captured characteristics; AffectedColorCount reads a static effect recipient rather than the cast event.
 pub(in crate::card::sets) static RAMOS_DRAGON_ENGINE: CardRecord = CardRecord::new(
     "Ramos, Dragon Engine",
     "2e747ef1-a1ad-4859-a70c-3f935f017310",
     "Joseph Meehan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

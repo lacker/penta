@@ -19,6 +19,7 @@ use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
@@ -80,12 +81,25 @@ const VILLAGE_RITES_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // KHM 121 — Axgard Cavalry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AXGARD_CAVALRY: CardRecord = CardRecord::new(
     "Axgard Cavalry",
     "2411c341-a470-4484-9248-7c1d3ca12978",
     "Evyn Fong",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf", "Berserker"], 2, 2).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gains haste until end of turn. (It can \
+             attack and {T} this turn.)",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // KHM 139 — Goldspan Dragon
@@ -207,12 +221,21 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
 );
 
 // KHM 149 — Seize the Spoils
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEIZE_THE_SPOILS: CardRecord = CardRecord::new(
     "Seize the Spoils",
     "b3b7a69c-75d2-49a6-ab56-ef608d0b0208",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell(
+        "As an additional cost to cast this spell, discard a \
+         card.\nDraw two cards and create a Treasure token. (It's an \
+         artifact with \"{T}, Sacrifice this token: Add one mana of \
+         any color.\")",
+        EffectDef::Sequence(&[
+            abilities::draw_cards(ValueDef::Constant(2)),
+            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+        ]),
+    )
+    .with_spell_additional_cost(&CostDef::discard(ObjectPredicateDef::Any))]),
 );
 
 // KHM 157 — Tuskeri Firewalker
@@ -246,12 +269,32 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
 );
 
 // KHM 170 — Fynn, the Fangbearer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FYNN_THE_FANGBEARER: CardRecord = CardRecord::new(
     "Fynn, the Fangbearer",
     "7d7a8a90-13c1-4b0c-ab2e-fc8d91ccefd9",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Warrior"], 1, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::deathtouch(),
+            AbilityDef::triggered(
+                "Whenever a creature you control with deathtouch deals combat \
+                 damage to a player, that player gets two poison counters. (A \
+                 player with ten or more poison counters loses the game.)",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Deathtouch),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::AddPlayerCounters {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    kind: CounterKind::Poison,
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // KHM 192 — Sarulf's Packmate
@@ -310,21 +353,89 @@ pub(in crate::card::sets) static SNAKESKIN_VEIL: CardRecord = CardRecord::new(
 );
 
 // KHM 214 — Immersturm Predator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMMERSTURM_PREDATOR: CardRecord = CardRecord::new(
     "Immersturm Predator",
     "0d83d2d9-b9d0-47f5-989b-f2c726401ade",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{R}"), &["Vampire", "Dragon"], 3, 3).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature becomes tapped, exile up to one target \
+                 card from a graveyard and put a +1/+1 counter on this \
+                 creature.",
+                TriggerEventDef::tapped(ObjectPredicateDef::Source),
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "Sacrifice another creature: This creature gains \
+                 indestructible until end of turn. Tap it.",
+                &[CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]))],
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Source,
+                    },
+                ]),
+            ),
+        ],
+    ),
 );
 
 // KHM 239 — Goldvein Pick
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOLDVEIN_PICK: CardRecord = CardRecord::new(
     "Goldvein Pick",
     "9bf5e4ad-a6e9-4b7c-a1ec-8246d3a3b6ca",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever equipped creature deals combat damage to a player, \
+                 create a Treasure token. (It's an artifact with \"{T}, \
+                 Sacrifice this token: Add one mana of any color.\")",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
+                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+        ]),
 );
 
 // KHM 315 — Esika's Chariot
@@ -378,12 +489,33 @@ pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
 );
 
 // KHM 382 — Youthful Valkyrie
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YOUTHFUL_VALKYRIE: CardRecord = CardRecord::new(
     "Youthful Valkyrie",
     "ffe93b27-f8ae-4abf-8ade-90f503f132c2",
     "Anna Steinbauer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Angel"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever another Angel you control enters, put a +1/+1 \
+             counter on this creature.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Angel")),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -342,12 +342,12 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
 );
 
 // FUT 154 — Thornweald Archer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THORNWEALD_ARCHER: CardRecord = CardRecord::new(
     "Thornweald Archer",
     "783a50a0-9394-4d97-856f-21eb126a0018",
     "Dave Kendall",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Archer"], 2, 1)
+        .with_abilities(&[abilities::reach(), abilities::deathtouch()]),
 );
 
 // FUT 157 — Jhoira of the Ghitu

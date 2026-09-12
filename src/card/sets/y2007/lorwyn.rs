@@ -8,6 +8,7 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
@@ -19,9 +20,11 @@ use crate::card::FreePlayDef;
 use crate::card::FreePlayDurationDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
@@ -379,12 +382,36 @@ CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(
 );
 
 // LRW 220 — Imperious Perfect
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPERIOUS_PERFECT: CardRecord = CardRecord::new(
     "Imperious Perfect",
     "706fce74-fed9-4bf7-949d-7df6bef29238",
     "Scott M. Fischer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Warrior"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "Other Elves you control get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+        AbilityDef::activated(
+            "{G}, {T}: Create a 1/1 green Elf Warrior creature token.",
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
+            EffectDef::create_creature_token(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+        ),
+    ]),
 );
 
 // LRW 261 — Springleaf Drum

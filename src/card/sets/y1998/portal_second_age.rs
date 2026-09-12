@@ -318,12 +318,11 @@ CardRules::new_sorcery(mana_cost!("{4}{R}{R}")).with_ability(AbilityDef::spell(
 );
 
 // P02 123 — Bear Cub
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEAR_CUB: CardRecord = CardRecord::new(
     "Bear Cub",
     "d71abb70-bee5-4823-83dc-db0707023b37",
     "Ron Spencer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Bear"], 2, 2),
 );
 
 // P02 131 — Lone Wolf

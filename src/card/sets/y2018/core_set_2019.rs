@@ -9,20 +9,42 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryChoiceDestinationDef;
+use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CharacteristicOperationDef;
+use crate::card::ChooseCardsFromCollectionDef;
+use crate::card::CollectionInspectionDef;
+use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::EmblemCharacteristics;
 use crate::card::ExilePlayDurationDef;
+use crate::card::KeywordAbility;
 use crate::card::LAND_SUBTYPES;
+use crate::card::ManaColor;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::RandomizeObjectOrderDef;
+use crate::card::ReplacementChoiceDef;
+use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
 use crate::card::SetOperationDef;
+use crate::card::SubtypeDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -36,21 +58,62 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // M19 13 — Herald of Faith
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HERALD_OF_FAITH: CardRecord = CardRecord::new(
     "Herald of Faith",
     "452591ca-7273-4e47-820b-3ff89697a036",
     "Tommy Arnold",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel"], 4, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, you gain 2 life.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // M19 22 — Leonin Vanguard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEONIN_VANGUARD: CardRecord = CardRecord::new(
     "Leonin Vanguard",
     "724738ad-6a9b-4ef6-b637-558645cd8151",
     "Aaron Miller",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Cat", "Soldier"], 1, 1).with_abilities(&[
+        AbilityDef::triggered_if(
+            "At the beginning of combat on your turn, if you control three \
+             or more creatures, this creature gets +1/+1 until end of turn \
+             and you gain 1 life.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 3,
+            },
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // M19 29 — Militia Bugler
@@ -124,39 +187,85 @@ pub(in crate::card::sets) static RESPLENDENT_ANGEL: CardRecord = CardRecord::new
 );
 
 // M19 55 — Exclusion Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXCLUSION_MAGE: CardRecord = CardRecord::new(
     "Exclusion Mage",
     "ccad82f5-5c5c-42ad-b66e-942f0d9631ca",
     "Chris Seaman",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, return target creature an opponent \
+             controls to its owner's hand.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+        ),
+    ]),
 );
 
 // M19 63 — Mystic Archaeologist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_ARCHAEOLOGIST: CardRecord = CardRecord::new(
     "Mystic Archaeologist",
     "1b19cad0-5754-4625-8303-c8310bc7cbd5",
     "Eric Deschamps",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Wizard"], 2, 1).with_abilities(&[
+        AbilityDef::activated(
+            "{3}{U}{U}: Draw two cards.",
+            &[CostDef::Mana(mana_cost!("{3}{U}{U}"))],
+            abilities::draw_cards(ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 // M19 118 — Skeleton Archer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKELETON_ARCHER: CardRecord = CardRecord::new(
     "Skeleton Archer",
     "8fee5cc4-a686-4ce6-aa6b-1b8a88e6dea3",
     "Randy Vargas",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Skeleton", "Archer"], 3, 3).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, it deals 1 damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+        ),
+    ]),
 );
 
 // M19 124 — Vampire Neonate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VAMPIRE_NEONATE: CardRecord = CardRecord::new(
     "Vampire Neonate",
     "167822a5-2ab5-42f5-afa4-562fe2d7501b",
     "Daarken",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}"), &["Vampire"], 0, 3).with_abilities(&[
+        AbilityDef::activated(
+            "{2}, {T}: Each opponent loses 1 life and you gain 1 life.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // M19 125 — Vampire Sovereign
@@ -290,93 +399,357 @@ pub(in crate::card::sets) static GOBLIN_MOTIVATOR: CardRecord = CardRecord::new(
 );
 
 // M19 149 — Lathliss, Dragon Queen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LATHLISS_DRAGON_QUEEN: CardRecord = CardRecord::new(
     "Lathliss, Dragon Queen",
     "54a4c37d-5eeb-42c9-9688-c2ed0d5044cd",
     "Alex Konstad",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Dragon"], 6, 6)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever another nontoken Dragon you control enters, create a \
+                 5/5 red Dragon creature token with flying.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 5, 5)
+                    .with_abilities(&[abilities::flying()]),
+            ),
+            AbilityDef::activated(
+                "{1}{R}: Dragons you control get +1/+0 until end of turn.",
+                &[CostDef::Mana(mana_cost!("{1}{R}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // M19 166 — Viashino Pyromancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_PYROMANCER: CardRecord = CardRecord::new(
     "Viashino Pyromancer",
     "a82fdb2f-b199-44ff-9615-90fc074cb8b0",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Lizard", "Wizard"], 2, 1).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, it deals 2 damage to target player \
+             or planeswalker.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(2),
+            ),
+        ),
+    ]),
 );
 
 // M19 168 — Volley Veteran
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOLLEY_VETERAN: CardRecord = CardRecord::new(
     "Volley Veteran",
     "164960fc-6e80-4a53-90d7-5a18c0a28083",
     "Craig J Spearing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Warrior"], 4, 2).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, it deals damage to target creature \
+             an opponent controls equal to the number of Goblins you \
+             control.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+            ),
+        ),
+    ]),
 );
 
 // M19 185 — Gigantosaurus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIGANTOSAURUS: CardRecord = CardRecord::new(
     "Gigantosaurus",
     "c1db84d8-d426-4c0d-b44e-5be7b0f5f5bf",
     "Jonathan Kuo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{G}{G}{G}{G}"), &["Dinosaur"], 10, 10),
 );
 
 // M19 208 — Vivien Reid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIVIEN_REID: CardRecord = CardRecord::new(
     "Vivien Reid",
     "681fbd66-b622-4f20-a860-f101aff21109",
     "Anna Steinbauer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{3}{G}{G}"), &["Vivien"], 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+1: Look at the top four cards of your library. You may \
+                 reveal a creature or land card from among them and put it \
+                 into your hand. Put the rest on the bottom of your library in \
+                 a random order.",
+                &[CostDef::Loyalty(1)],
+                EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::EffectController,
+                        count: ValueDef::Constant(4),
+                    },
+                    actor: PlayerRefDef::EffectController,
+                    inspection: CollectionInspectionDef::Look,
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ]),
+                    minimum: 0,
+                    maximum: 1,
+                    chosen: crate::Binding!("chosen"),
+                    remainder: crate::Binding!("rest"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "chosen"
+                            ))),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                            input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                            randomized: crate::Binding!("random_bottom"),
+                            then: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("random_bottom"),
+                                )),
+                                ZoneKind::Library,
+                                ZonePlacement::Bottom,
+                            ),
+                        }),
+                    ]),
+                }),
+            ),
+            AbilityDef::activated_with_targets(
+                "−3: Destroy target artifact, enchantment, or creature with \
+                 flying.",
+                &[CostDef::Loyalty(-3)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                    ]),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+            AbilityDef::activated(
+                "−8: You get an emblem with \"Creatures you control get +2/+2 \
+                 and have vigilance, trample, and indestructible.\"",
+                &[CostDef::Loyalty(-8)],
+                EffectDef::CreateEmblem {
+                    emblem: EmblemCharacteristics::new(
+                        "Vivien Emblem",
+                        &[AbilityDef::static_ability(
+                            "Creatures you control get +2/+2 and have vigilance, trample, \
+                             and indestructible.",
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                    ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    ),
+                                )),
+                                effect: AppliedEffectDef::Composite(&[
+                                    AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::Constant(2),
+                                        ValueDef::Constant(2),
+                                    ),
+                                    AppliedEffectDef::add_ability(&abilities::vigilance()),
+                                    AppliedEffectDef::add_ability(&abilities::trample()),
+                                    AppliedEffectDef::add_ability(&abilities::indestructible()),
+                                ]),
+                            },
+                        )],
+                    ),
+                },
+            ),
+        ]),
 );
 
 // M19 217 — Heroic Reinforcements
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEROIC_REINFORCEMENTS: CardRecord = CardRecord::new(
     "Heroic Reinforcements",
     "33c35bf8-ae43-41aa-aae9-4d7513f9058c",
     "Scott Murphy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}{W}")).with_abilities(&[AbilityDef::spell(
+        "Create two 1/1 white Soldier creature tokens. Until end of \
+         turn, creatures you control get +1/+1 and gain haste. (They \
+         can attack and {T} this turn.)",
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+                .with_count(ValueDef::Constant(2)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )]),
 );
 
 // M19 231 — Diamond Mare
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIAMOND_MARE: CardRecord = CardRecord::new(
     "Diamond Mare",
     "ca600b3f-2c70-489b-b218-6e3245b90114",
     "Alayna Danner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Horse"], 1, 3).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this permanent enters, choose a color.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::COLOR,
+            )),
+        ),
+        AbilityDef::triggered(
+            "Whenever you cast a spell of the chosen color, you gain 1 life.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasSourcesChosenScalar(
+                    BattlefieldEntryChoiceDestinationDef::Color,
+                ),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // M19 241 — Meteor Golem
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static METEOR_GOLEM: CardRecord = CardRecord::new(
     "Meteor Golem",
     "1bdb0b15-d651-4730-8be9-d0e01145311b",
     "Lake Hurwitz",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{7}"), &["Golem"], 3, 3).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target nonland permanent \
+             an opponent controls.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // M19 297 — Kargan Dragonrider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KARGAN_DRAGONRIDER: CardRecord = CardRecord::new(
     "Kargan Dragonrider",
     "34750304-c536-47d4-922d-a3654c37ffbc",
     "Greg Opalinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Warrior"], 2, 2).with_abilities(&[
+        AbilityDef::static_ability(
+            "As long as you control a Dragon, this creature has flying.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                },
+            },
+        ),
+    ]),
 );
 
 // M19 302 — Aggressive Mammoth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AGGRESSIVE_MAMMOTH: CardRecord = CardRecord::new(
     "Aggressive Mammoth",
     "323f3c76-5e79-43e6-ae78-f555810edbc3",
     "Filip Burburan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}{G}"), &["Elephant"], 8, 8).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::static_ability(
+            "Other creatures you control have trample.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

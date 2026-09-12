@@ -33,6 +33,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRelation;
@@ -1337,12 +1338,36 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new(
 );
 
 // SCG 87 — Dragon Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAGON_MAGE: CardRecord = CardRecord::new(
     "Dragon Mage",
     "7687a201-0ecc-4739-86e3-3b4090d345a8",
     "Matthew D. Wilson",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Dragon", "Wizard"], 5, 5).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, each \
+                 player discards their hand, then draws seven cards.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::Sequence(&[
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerRelation::Any,
+                        )),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(7),
+                    },
+                ]),
+            ),
+        ],
+    ),
 );
 
 // SCG 88 — Dragon Tyrant
@@ -1823,12 +1848,38 @@ pub(in crate::card::sets) static ELVISH_ABERRATION: CardRecord = CardRecord::new
 );
 
 // SCG 119 — Fierce Empath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIERCE_EMPATH: CardRecord = CardRecord::new(
     "Fierce Empath",
     "d237e169-f152-4ddf-a5a1-32ca46cfa16d",
     "Alan Pollack",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf"], 1, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for a \
+             creature card with mana value 6 or greater, reveal it, put it \
+             into your hand, then shuffle.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(5)),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // SCG 120 — Forgotten Ancient

@@ -32,6 +32,7 @@ use crate::ZoneKind;
 use crate::ZonePlacement;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
+use crate::card::CounterKind;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
@@ -916,12 +917,31 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new(
 );
 
 // M10 194 — Mold Adder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOLD_ADDER: CardRecord = CardRecord::new(
     "Mold Adder",
     "a216a729-6283-4c2b-90fe-ec8f3b9c570f",
     "Matt Cavotta",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Fungus", "Snake"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever an opponent casts a blue or black spell, you may put \
+             a +1/+1 counter on this creature.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ObjectPredicateDef::Color(ManaColor::Black),
+                ]),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+            ])),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
 );
 
 // M10 203 — Runeclaw Bear

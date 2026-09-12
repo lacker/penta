@@ -15,10 +15,13 @@ use crate::card::CostDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -45,12 +48,12 @@ pub(in crate::card::sets) static ARCHANGEL_OF_TITHES: CardRecord = CardRecord::n
 );
 
 // ORI 58 — Harbinger of the Tides
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a casting route that grants instant timing only when an optional additional mana payment is made; existing flash permissions do not carry a timing-specific surcharge.
 pub(in crate::card::sets) static HARBINGER_OF_THE_TIDES: CardRecord = CardRecord::new(
     "Harbinger of the Tides",
     "94ca53de-cffb-4740-b318-a4ebfb3a31af",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ORI 60 — Jace, Vryn's Prodigy // Jace, Telepath Unbound
@@ -217,21 +220,21 @@ pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
 );
 
 // ORI 92 — Demonic Pact
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-incarnation history of previously selected upkeep modes, excluding them from later choices; ordinary modal triggers have no persistent used-mode set.
 pub(in crate::card::sets) static DEMONIC_PACT: CardRecord = CardRecord::new(
     "Demonic Pact",
     "82c04014-91f9-4197-b4b4-f62c4739a5c2",
     "Aleksi Briclot",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ORI 162 — Skyraker Giant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYRAKER_GIANT: CardRecord = CardRecord::new(
     "Skyraker Giant",
     "c5f0d87a-8f37-4598-9106-c3545dadf6fd",
     "Anastasia Ovchinnikova",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Giant"], 4, 3)
+        .with_abilities(&[abilities::reach()]),
 );
 
 // ORI 171 — Conclave Naturalists
@@ -267,39 +270,100 @@ pub(in crate::card::sets) static CONCLAVE_NATURALISTS: CardRecord = CardRecord::
 );
 
 // ORI 172 — Dwynen, Gilt-Leaf Daen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWYNEN_GILT_LEAF_DAEN: CardRecord = CardRecord::new(
     "Dwynen, Gilt-Leaf Daen",
     "91c143a9-c642-425a-a469-a9d158e43c21",
     "Johannes Voss",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elf", "Warrior"], 3, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::reach(),
+            AbilityDef::static_ability(
+                "Other Elf creatures you control get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever Dwynen attacks, you gain 1 life for each attacking \
+                 Elf you control.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                            ObjectPredicateDef::Attacking,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                },
+            ),
+        ]),
 );
 
 // ORI 173 — Dwynen's Elite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWYNEN_S_ELITE: CardRecord = CardRecord::new(
     "Dwynen's Elite",
     "c203722b-3f16-4b6c-9b2e-18169d3f80c9",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Warrior"], 2, 2).with_abilities(&[
+        AbilityDef::triggered_if(
+            "When this creature enters, if you control another Elf, create \
+             a 1/1 green Elf Warrior creature token.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            EffectDef::create_creature_token(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+        ),
+    ]),
 );
 
 // ORI 183 — Joraga Invocation
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs each affected creature to be blocked by at least one creature if able; MustBeBlockedBy requires every matching creature to block, which is a different requirement.
 pub(in crate::card::sets) static JORAGA_INVOCATION: CardRecord = CardRecord::new(
     "Joraga Invocation",
     "65c89431-0881-4aa6-ac15-d4c13b075273",
     "Kieran Yanner",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ORI 236 — Pyromancer's Goggles
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a delayed trigger tied to a particular produced mana unit being spent to cast a red instant or sorcery, retaining the cast spell for a copy with optional new targets.
 pub(in crate::card::sets) static PYROMANCER_S_GOGGLES: CardRecord = CardRecord::new(
     "Pyromancer's Goggles",
     "1163ce9f-cf22-422e-a4b5-0240b88e2816",
     "James Paick",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

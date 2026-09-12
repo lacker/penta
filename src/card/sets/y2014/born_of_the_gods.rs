@@ -3,6 +3,7 @@
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
+use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::CardRules;
@@ -11,6 +12,7 @@ use crate::card::CardType;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::PlayActionMatcherDef;
@@ -147,30 +149,72 @@ CardRules::new_artifact(mana_cost!("{5}"))
 );
 
 // BNG 163 — Temple of Enlightenment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_ENLIGHTENMENT: CardRecord = CardRecord::new(
     "Temple of Enlightenment",
     "c657a645-f454-4eaf-be0d-15c9989fa4ef",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // BNG 164 — Temple of Malice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_MALICE: CardRecord = CardRecord::new(
     "Temple of Malice",
     "52f50818-aede-4667-883a-e0339d86d870",
     "Sam Burley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // BNG 165 — Temple of Plenty
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_PLENTY: CardRecord = CardRecord::new(
     "Temple of Plenty",
     "b0830054-b140-49c3-90cb-24e2502757be",
     "Noah Bradley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

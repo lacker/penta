@@ -339,12 +339,25 @@ pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new(
 );
 
 // GPT 122 — Mortify
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORTIFY: CardRecord = CardRecord::new(
     "Mortify",
     "3b2c5187-71c7-4801-8a76-339c67322d35",
     "Glen Angus",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target creature or enchantment.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // GPT 125 — Pillory of the Sleepless

@@ -209,7 +209,7 @@ impl CounterKind {
     /// The counter names currently authored in the catalog or interpreted by
     /// the engine. This is a serialization registry, not a storage layout:
     /// its order has no rules or checkpoint meaning.
-    pub const KNOWN: [Self; 58] = [
+    pub const KNOWN: [Self; 60] = [
         Self::PlusOnePlusOne,
         Self::Lore,
         Self::named("javelin"),
@@ -268,9 +268,11 @@ impl CounterKind {
         Self::named("point"),
         Self::named("landmark"),
         Self::named("skewer"),
+        Self::named("soul"),
+        Self::named("incubation"),
     ];
 
-    const KNOWN_NAMES: [&'static str; 58] = [
+    const KNOWN_NAMES: [&'static str; 60] = [
         "+1/+1",
         "lore",
         "javelin",
@@ -329,6 +331,8 @@ impl CounterKind {
         "point",
         "landmark",
         "skewer",
+        "soul",
+        "incubation",
     ];
 
     #[must_use]

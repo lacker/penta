@@ -9,6 +9,7 @@ use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AttackEventMatcherDef;
+use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -22,6 +23,8 @@ use crate::card::ObjectPredicateDef;
 use crate::card::ObjectSetDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::TargetChooserDef;
 use crate::card::TriggerEventDef;
@@ -42,21 +45,45 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // KLD 5 — Authority of the Consuls
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AUTHORITY_OF_THE_CONSULS: CardRecord = CardRecord::new(
     "Authority of the Consuls",
     "324b2f55-1e09-490e-8f7e-bfde85a91ac4",
     "Lake Hurwitz",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{W}")).with_abilities(&[
+        AbilityDef::replacement_for(
+            "Creatures your opponents control enter tapped.",
+            ReplacementEventDef::ObjectEntersBattlefield {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::Opponent,
+                cast: None,
+            },
+            ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
+        ),
+        AbilityDef::triggered(
+            "Whenever a creature an opponent controls enters, you gain 1 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // KLD 15 — Fumigate
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs destruction-result tracking that includes a successful destruction redirected to exile; the existing destruction continuation only records permanents moved to the graveyard.
 pub(in crate::card::sets) static FUMIGATE: CardRecord = CardRecord::new(
     "Fumigate",
     "f00f27a7-9e92-4fbf-baa8-f47a5eee48a6",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // KLD 48 — Gearseeker Serpent
@@ -134,12 +161,12 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
 );
 
 // KLD 107 — Brazen Scourge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAZEN_SCOURGE: CardRecord = CardRecord::new(
     "Brazen Scourge",
     "68c6fbdb-7b5c-4ad0-88f5-4779deae16ce",
     "Kev Walker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Gremlin"], 3, 3)
+        .with_abilities(&[abilities::haste()]),
 );
 
 // KLD 110 — Chandra, Torch of Defiance
@@ -246,21 +273,38 @@ pub(in crate::card::sets) static BLOSSOMING_DEFENSE: CardRecord = CardRecord::ne
 );
 
 // KLD 176 — Cloudblazer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUDBLAZER: CardRecord = CardRecord::new(
     "Cloudblazer",
     "3cb12355-abd8-4bf3-aac1-f710ac162585",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{U}"), &["Human", "Scout"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, you gain 2 life and draw two cards.",
+            EffectDef::Sequence(&[
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+                abilities::draw_cards(ValueDef::Constant(2)),
+            ]),
+        ),
+    ]),
 );
 
 // KLD 203 — Cultivator's Caravan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CULTIVATOR_S_CARAVAN: CardRecord = CardRecord::new(
     "Cultivator's Caravan",
     "b46b3726-4bc8-4e3a-bc6d-402c81663712",
     "Mark Zug",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_vehicle(mana_cost!("{3}"), 5, 5).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        abilities::crew("Crew 3", 3),
+    ]),
 );
 
 // KLD 212 — Filigree Familiar

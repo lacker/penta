@@ -5479,12 +5479,12 @@ CardRules::new_creature(mana_cost!("{B/G}"), &["Elf", "Shaman"], 1, 2).with_abil
 );
 
 // RTR 214 — Dryad Militant
-// Audit: unsupported — The graveyard replacement event cannot filter the moving object to instant or sorcery cards.
+// Audit: unsupported — Needs external graveyard-move replacements to inspect the moving card's types from every source zone; the current external replacement matcher only receives owner and token status.
 pub(in crate::card::sets) static DRYAD_MILITANT: CardRecord = CardRecord::new(
     "Dryad Militant",
     "2bb8cb8c-0d03-4cbf-b7f2-a97324817698",
     "Terese Nielsen",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // RTR 215 — Frostburn Weird

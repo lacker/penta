@@ -9,7 +9,10 @@ use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
 use crate::card::PlayerRelation;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -81,12 +84,33 @@ pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new
 );
 
 // C15 20 — Dread Summons
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DREAD_SUMMONS: CardRecord = CardRecord::new(
     "Dread Summons",
     "b2c20cb1-3e3d-4fea-b617-bd6d796c8d10",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{B}{B}")).with_abilities(&[AbilityDef::spell(
+        "Each player mills X cards. For each creature card put into a \
+         graveyard this way, you create a tapped 2/2 black Zombie \
+         creature token. (To mill a card, a player puts the top card \
+         of their library into their graveyard.)",
+        EffectDef::Sequence(&[
+            EffectDef::BindOutput {
+                binding: crate::Binding!("milled"),
+                effect: &EffectDef::Mill {
+                    player: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::ChosenX,
+                },
+            },
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+                .with_count(ValueDef::CountObjects(&ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Binding(crate::Binding!("milled")),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                }))
+                .entering_tapped(),
+        ]),
+    )]),
 );
 
 // C15 26 — Fiery Confluence

@@ -9,9 +9,12 @@ use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::BindObjectsDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::DrawEventMatcherDef;
@@ -20,12 +23,21 @@ use crate::card::EffectRecipientDef;
 use crate::card::GraveyardPlayPermissionDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetCountConditionDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetPredicateDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -134,21 +146,27 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
 );
 
 // DMU 28 — Prayer of Binding
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an exile-until-source-leaves duration with immediate return when that duration ends (CR 610.3); an ordinary leaves trigger returns the card later through the stack.
 pub(in crate::card::sets) static PRAYER_OF_BINDING: CardRecord = CardRecord::new(
     "Prayer of Binding",
     "322f90b6-6b49-458d-9d5b-b601bfdd0af8",
     "Wylie Beckert",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // DMU 29 — Resolute Reinforcements
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESOLUTE_REINFORCEMENTS: CardRecord = CardRecord::new(
     "Resolute Reinforcements",
     "3e11ad33-b9d7-43ef-840a-61955683b599",
     "Billy Christian",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 1).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger(
+            "When this creature enters, create a 1/1 white Soldier \
+             creature token.",
+            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
+        ),
+    ]),
 );
 
 // DMU 35 — Take Up the Shield
@@ -161,12 +179,41 @@ pub(in crate::card::sets) static TAKE_UP_THE_SHIELD: CardRecord = CardRecord::ne
 );
 
 // DMU 57 — Micromancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MICROMANCER: CardRecord = CardRecord::new(
     "Micromancer",
     "b21203c8-a935-4ce0-a742-148587e32145",
     "Ernanda Souza",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Wizard"], 3, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for an \
+             instant or sorcery card with mana value 1, reveal it, put it \
+             into your hand, then shuffle.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(1)),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // DMU 64 — Shore Up
@@ -261,12 +308,39 @@ pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new(
 );
 
 // DMU 102 — Pilfer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PILFER: CardRecord = CardRecord::new(
     "Pilfer",
     "6d872c10-4126-4130-a74a-1331ed418ca8",
     "Pauline Voss",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target opponent reveals their hand. You choose a nonland card \
+         from it. That player discards that card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::RevealHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(crate::Binding!("discard")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::discard_cards(EffectRecipientDef::objects(
+                    ObjectSetDef::Binding(crate::Binding!("discard")),
+                )),
+            }),
+        ]),
+    )]),
 );
 
 // DMU 107 — Sheoldred, the Apocalypse
@@ -311,21 +385,45 @@ const LIGHTNING_STRIKE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // DMU 155 — Bite Down
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BITE_DOWN: CardRecord = CardRecord::new(
     "Bite Down",
     "0eacd3de-b803-4322-8d88-d533761aa748",
     "Kitt Lapeña",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature you control deals damage equal to its power \
+         to target creature or planeswalker you don't control.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            }),
+        ],
+        EffectDef::damage_from(
+            ObjectRefDef::Target(TargetIndex::PRIMARY),
+            EffectRecipientDef::Target(TargetIndex(1)),
+            ValueDef::TargetPower(TargetIndex::PRIMARY),
+        ),
+    )]),
 );
 
 // DMU 172 — Magnigoth Sentry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGNIGOTH_SENTRY: CardRecord = CardRecord::new(
     "Magnigoth Sentry",
     "d939d4bc-b7e8-4ee8-b904-68f0bff0fde1",
     "Dave Kendall",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Treefolk"], 4, 4)
+        .with_abilities(&[abilities::reach()]),
 );
 
 // DMU 183 — Tear Asunder
@@ -376,21 +474,85 @@ pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
 );
 
 // DMU 196 — Balmor, Battlemage Captain
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALMOR_BATTLEMAGE_CAPTAIN: CardRecord = CardRecord::new(
     "Balmor, Battlemage Captain",
     "959ba62e-bb3a-49ad-8b1b-e787e413e5d4",
     "Bram Sels",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}{R}"), &["Bird", "Wizard"], 1, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever you cast an instant or sorcery spell, creatures you \
+                 control get +1/+0 and gain trample until end of turn.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // DMU 200 — Garna, Bloodfist of Keld
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GARNA_BLOODFIST_OF_KELD: CardRecord = CardRecord::new(
     "Garna, Bloodfist of Keld",
     "294c5f08-08e7-458f-8838-ff321dc5d9f2",
     "Andrey Kuzinskiy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{R}{R}"), &["Human", "Berserker"], 4, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever another creature you control dies, draw a card if it \
+             was attacking. Otherwise, Garna deals 1 damage to each \
+             opponent.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::BindObjects(BindObjectsDef {
+                binding: crate::Binding!("dead"),
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
+                    ObjectRefDef::TriggeringObject,
+                )),
+                then: &EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                        objects: &ObjectSetDef::Binding(crate::Binding!("dead")),
+                        predicate: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Attacking),
+                    }),
+                    then: &abilities::draw_cards(ValueDef::Constant(1)),
+                    otherwise: &EffectDef::damage(
+                        EffectRecipientDef::Opponent,
+                        ValueDef::Constant(1),
+                    ),
+                },
+            }),
+        )]),
 );
 
 // DMU 246 — Crystal Grotto

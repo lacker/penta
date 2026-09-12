@@ -36,6 +36,7 @@ use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
+use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
@@ -45,6 +46,7 @@ use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -579,21 +581,45 @@ pub(in crate::card::sets) static GOATNAP: CardRecord = CardRecord::new(
 );
 
 // MH1 130 — Goblin Oriflamme
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_ORIFLAMME: CardRecord = CardRecord::new(
     "Goblin Oriflamme",
     "33ec7cbe-16a0-4dbb-91fe-7e445a5268c8",
     "David Palumbo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::static_ability(
+        "Attacking creatures you control get +1/+0.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ))),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(0),
+            ),
+        },
+    )]),
 );
 
 // MH1 143 — Ravenous Giant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAVENOUS_GIANT: CardRecord = CardRecord::new(
     "Ravenous Giant",
     "52337d8d-e0ee-4229-848d-9bbd989e15b7",
     "Milivoj Ćeran",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Giant"], 5, 5).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, this creature deals 1 damage \
+             to you.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // MH1 144 — Reckless Charge (reprint)
@@ -854,12 +880,40 @@ pub(in crate::card::sets) static MOTHER_BEAR: CardRecord = CardRecord::new(
 );
 
 // MH1 181 — Springbloom Druid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPRINGBLOOM_DRUID: CardRecord = CardRecord::new(
     "Springbloom Druid",
     "6161d2ed-7cff-4c90-9e74-1d179a6c1498",
     "Randy Gallegos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Druid"], 1, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you may sacrifice a land. If you \
+             do, search your library for up to two basic land cards, put \
+             them onto the battlefield tapped, then shuffle.",
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                    CardType::Land,
+                ))],
+                &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(2),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            )),
+        ),
+    ]),
 );
 
 // MH1 187 — Trumpeting Herd
@@ -974,12 +1028,32 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new(
 );
 
 // MH1 201 — Good-Fortune Unicorn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOOD_FORTUNE_UNICORN: CardRecord = CardRecord::new(
     "Good-Fortune Unicorn",
     "49d68905-e13e-4751-b028-90c795c11cd5",
     "Kee Lo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Unicorn"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever another creature you control enters, put a +1/+1 \
+             counter on that creature.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::TriggeringObject,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MH1 217 — Wrenn and Six

@@ -9,6 +9,7 @@ use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
+use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
@@ -1312,12 +1313,29 @@ const QUAG_SICKNESS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // M14 111 — Rise of the Dark Realms
-// Audit: unsupported — MoveToZone cannot sweep matching cards from every graveyard into one player's control.
 pub(in crate::card::sets) static RISE_OF_THE_DARK_REALMS: CardRecord = CardRecord::new(
     "Rise of the Dark Realms",
     "073f81e8-8c0c-4430-bd3e-95ed3625340f",
     "Michael Komarck",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{7}{B}{B}")).with_abilities(&[AbilityDef::spell(
+        "Put all creature cards from all graveyards onto the \
+         battlefield under your control.",
+        EffectDef::WithBattlefieldArrival {
+            effect: &EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::Any,
+                ))),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
+            arrival: BattlefieldArrivalDef {
+                controller: Some(PlayerRelation::You),
+                ..BattlefieldArrivalDef::DEFAULT
+            },
+        },
+    )]),
 );
 
 // M14 112 — Sanguine Bond (reprint)

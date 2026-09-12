@@ -8,6 +8,7 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
 use crate::card::AlternateSpellKind;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
@@ -29,6 +30,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ManaSpendEffectDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -107,8 +109,8 @@ const fn blessed_hippogriff_rules() -> CardRules {
             [
                 abilities::flying(),
                 AbilityDef::triggered_with_targets(
-                    "Whenever this creature attacks, target attacking creature without flying \
-                     gains flying until end of turn.",
+                    "Whenever this creature attacks, target attacking creature \
+                     without flying gains flying until end of turn.",
                     TriggerEventDef::attacks(ObjectPredicateDef::Source),
                     // "Without flying" excludes the Hippogriff itself, which
                     // already has it, so the trigger only ever helps another
@@ -481,12 +483,24 @@ pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::ne
 );
 
 // CLB 166 — Carnelian Orb of Dragonkind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARNELIAN_ORB_OF_DRAGONKIND: CardRecord = CardRecord::new(
     "Carnelian Orb of Dragonkind",
     "e7e41166-bdaa-4aed-986a-7be1d043240c",
     "Olena Richards",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::activated_mana(
+        "{T}: Add {R}. If that mana is spent on a Dragon creature \
+         spell, it gains haste until end of turn.",
+        &[CostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_spend_effects(&[
+            ManaSpendEffectDef::ApplyToPaidSpellMatching {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dragon")),
+                ]),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+            },
+        ])),
+    )]),
 );
 
 // CLB 180 — Gut, True Soul Zealot

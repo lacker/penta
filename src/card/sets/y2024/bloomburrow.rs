@@ -6510,7 +6510,7 @@ pub(in crate::card::sets) static TANGLE_TUMBLER: CardRecord = CardRecord::new(
 );
 
 // BLB 251 — Three Tree Mascot
-// Audit: unsupported — Needs a creature-type characteristic-defining ability that functions in every zone and supplies all creature types as copiable values; existing all-types continuous grants do not give a card changeling outside the battlefield.
+// Audit: unsupported — Needs a creature-type characteristic-defining ability applying in every zone and supplying every creature type as copiable values; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static THREE_TREE_MASCOT: CardRecord = CardRecord::new(
     "Three Tree Mascot",
     "aaced75b-6e07-457c-8ea2-f74d99710d15",

@@ -11,6 +11,7 @@ use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
@@ -36,6 +37,7 @@ use crate::card::TokenCharacteristics;
 use crate::card::TokenCountersDef;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -414,12 +416,48 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_
 );
 
 // VOW 239 — Halana and Alena, Partners
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HALANA_AND_ALENA_PARTNERS: CardRecord = CardRecord::new(
     "Halana and Alena, Partners",
     "608fa232-f5fe-4c58-9efe-fb780f454b19",
     "Jason Rainville",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{G}"), &["Human", "Ranger"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::reach(),
+            abilities::first_strike(),
+            AbilityDef::triggered_with_targets(
+                "At the beginning of combat on your turn, put X +1/+1 counters \
+                 on another target creature you control, where X is Halana and \
+                 Alena's power. That creature gains haste until end of turn.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::BeginningOfCombat,
+                    player: PlayerRelation::You,
+                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::SourcePower,
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // VOW 261 — Deathcap Glade

@@ -1477,12 +1477,12 @@ pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
 );
 
 // SOM 61 — Exsanguinate
-// Audit: unsupported — Needs multiplayer life-drain accounting that gains exactly the total life actually lost by all opponents, including replacements and opponents unable to lose the full X.
+// Audit: unsupported — Needs life-loss result output so the life gained equals the amount opponents actually lost, including replacement effects; the current LoseLife instruction has no result binding.
 pub(in crate::card::sets) static EXSANGUINATE: CardRecord = CardRecord::new(
     "Exsanguinate",
     "0878b541-a730-49db-b062-5a01656e269d",
     "Carl Critchlow",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // SOM 62 — Flesh Allergy

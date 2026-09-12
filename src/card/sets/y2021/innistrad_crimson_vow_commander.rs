@@ -4,9 +4,11 @@ use super::CardRecord;
 use super::PrintingRecord;
 use crate::ParentBinding;
 use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CreateTokenDef;
+use crate::card::CostDef;
 use crate::card::DiscardFollowUpDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
@@ -15,7 +17,14 @@ use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
+use crate::card::PayOrDef;
+use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
+use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
+use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -73,12 +82,50 @@ pub(in crate::card::sets) static OCCULT_EPIPHANY: CardRecord = CardRecord::new(
 );
 
 // VOC 17 — Crossway Troublemakers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CROSSWAY_TROUBLEMAKERS: CardRecord = CardRecord::new(
     "Crossway Troublemakers",
     "431711c5-c04f-4d34-97c9-5199cfbf9da9",
     "Aaron J. Riley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{B}"), &["Vampire"], 5, 5).with_abilities(&[
+        AbilityDef::static_ability(
+            "Attacking Vampires you control have deathtouch and lifelink. \
+             (Any amount of damage they deal to a creature is enough to \
+             destroy it. Damage dealt by those creatures also causes their \
+             controller to gain that much life.)",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")),
+                            ObjectPredicateDef::Attacking,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                ]),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a Vampire you control dies, you may pay 2 life. If \
+             you do, draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Vampire")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::PayLife(2)],
+                &abilities::draw_cards(ValueDef::Constant(1)),
+            )),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =

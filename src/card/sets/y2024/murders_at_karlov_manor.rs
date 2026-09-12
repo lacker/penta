@@ -44,8 +44,8 @@ use crate::mana_cost;
 static SURVEIL_LAND_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_tapped(CardType::Land),
     abilities::enters_trigger(
-        "When this land enters, surveil 1. (Look at the top card of your library. You may put it \
-         into your graveyard.)",
+        "When this land enters, surveil 1. (Look at the top card of \
+         your library. You may put it into your graveyard.)",
         abilities::surveil(ValueDef::Constant(1)),
     ),
 ];
@@ -276,12 +276,28 @@ pub(in crate::card::sets) static KROVOD_HAUNCH: CardRecord = CardRecord::new(
 );
 
 // MKM 22 — Make Your Move
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAKE_YOUR_MOVE: CardRecord = CardRecord::new(
     "Make Your Move",
     "73475d29-2673-4614-86d3-404232426aa8",
     "Xabi Gaztelua",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target artifact, enchantment, or creature with power \
+         4 or greater.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::PowerAtLeast(4),
+                ]),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            then: None,
+        },
+    )]),
 );
 
 // MKM 23 — Makeshift Binding

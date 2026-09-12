@@ -52,7 +52,8 @@ const fn conspire(spell: &'static AbilityDef, costs: &'static [CostDef]) -> [Abi
     [
         *spell,
         AbilityDef::optional_additional_cost(
-            "Conspire (As you cast this spell, you may tap two untapped creatures you control that share a color with it.)",
+            "Conspire (As you cast this spell, you may tap two untapped \
+             creatures you control that share a color with it.)",
             OptionalAdditionalCostAbilityDef {
                 kind: OptionalAdditionalCostKindDef::Conspire,
                 label: "Conspire",
@@ -61,7 +62,8 @@ const fn conspire(spell: &'static AbilityDef, costs: &'static [CostDef]) -> [Abi
             },
         ),
         AbilityDef::triggered_if(
-            "When you conspire, copy this spell. You may choose new targets for the copy.",
+            "When you conspire, copy this spell. You may choose new \
+             targets for the copy.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
             &TriggerConditionDef::SourcePaidAdditionalCost(AdditionalCostIndex::PRIMARY),
             EffectDef::CopyStackObject(&CopyStackObjectDef {
@@ -351,12 +353,12 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
 );
 
 // SHM 245 — Wilt-Leaf Liege
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a prospective discard event carrying the causing spell or ability's controller, then replacing the discard destination with battlefield entry; a generic graveyard move cannot distinguish discard from other moves.
 pub(in crate::card::sets) static WILT_LEAF_LIEGE: CardRecord = CardRecord::new(
     "Wilt-Leaf Liege",
     "e6a2881f-e771-47d7-a39e-692054ee727f",
     "Jason Chan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

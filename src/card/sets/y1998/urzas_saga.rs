@@ -22,6 +22,7 @@ use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ControlDurationDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
@@ -944,12 +945,33 @@ pub(in crate::card::sets) static CLOAK_OF_MISTS: CardRecord = CardRecord::new(
 );
 
 // USG 66 — Confiscate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONFISCATE: CardRecord = CardRecord::new(
     "Confiscate",
     "7cba6d4a-58d0-42d6-b49b-65c72b86007f",
     "Adam Rex",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Enchant permanent",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::static_ability(
+                "You control enchanted permanent.",
+                EffectDef::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                ),
+            ),
+        ]),
 );
 
 // USG 67 — Coral Merfolk

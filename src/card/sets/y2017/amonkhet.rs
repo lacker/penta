@@ -7,6 +7,7 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
+use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ConditionalValueDef;
@@ -16,6 +17,8 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
@@ -36,12 +39,43 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // AKH 24 — Regal Caracal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REGAL_CARACAL: CardRecord = CardRecord::new(
     "Regal Caracal",
     "cd349f95-3eae-4ef2-abf8-e911bb8e93e5",
     "Filip Burburan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Cat"], 3, 3).with_abilities(&[
+        AbilityDef::static_ability(
+            "Other Cats you control get +1/+1 and have lifelink. (Damage \
+             dealt by those creatures also causes you to gain that much \
+             life.)",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                ]),
+            },
+        ),
+        abilities::enters_trigger(
+            "When this creature enters, create two 1/1 white Cat creature \
+             tokens with lifelink.",
+            EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1)
+                .with_count(ValueDef::Constant(2))
+                .with_abilities(&[abilities::lifelink()]),
+        ),
+    ]),
 );
 
 // AKH 75 — Vizier of Tumbling Sands
@@ -146,21 +180,39 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
 );
 
 // AKH 192 — Vizier of the Menagerie
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a permanent player permission to spend mana of any type on creature spells, including colorless requirements; current any-color permissions do not express that spell scope and any-type conversion.
 pub(in crate::card::sets) static VIZIER_OF_THE_MENAGERIE: CardRecord = CardRecord::new(
     "Vizier of the Menagerie",
     "ca204351-7a7e-4e4b-8c2b-f90fa0f9d724",
     "Victor Adame Minguez",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // AKH 198 — Enigma Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENIGMA_DRAKE: CardRecord = CardRecord::new(
     "Enigma Drake",
     "66286631-c16e-410c-b963-25cfe8005d8f",
     "Steve Argyle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Drake"], 0, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Enigma Drake's power is equal to the number of instant and \
+             sorcery cards in your graveyard.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power(ValueDef::CountMatchingObjects(
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                )),
+            },
+        ),
+    ]),
 );
 
 // AKH 241 — Cradle of the Accursed

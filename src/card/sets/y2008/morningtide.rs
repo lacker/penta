@@ -20,6 +20,8 @@ use crate::ValueDef;
 use crate::ZoneKind;
 use crate::ZonePlacement;
 use crate::card::CostDef;
+use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -33,12 +35,21 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // MOR 1 — Ballyrush Banneret
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALLYRUSH_BANNERET: CardRecord = CardRecord::new(
     "Ballyrush Banneret",
     "a029814e-d84d-43e5-b483-e918871b3333",
     "Ralph Horsley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Kithkin", "Soldier"], 2, 1).with_abilities(&[
+        abilities::spell_cost_reduction(
+            "Kithkin spells and Soldier spells you cast cost {1} less to cast.",
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kithkin")),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
+            ]),
+            PlayerRelation::You,
+            ValueDef::Constant(1),
+        ),
+    ]),
 );
 
 // MOR 31 — Disperse
@@ -114,12 +125,12 @@ pub(in crate::card::sets) static KINDLED_FURY: CardRecord = CardRecord::new(
 );
 
 // MOR 109 — Taurean Mauler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a creature-type characteristic-defining ability applying in every zone and supplying every creature type as copiable values; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static TAUREAN_MAULER: CardRecord = CardRecord::new(
     "Taurean Mauler",
     "d50b5df1-b658-4df0-900e-79c44599b93e",
     "Dominick Domingo",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MOR 143 — Door of Destinies

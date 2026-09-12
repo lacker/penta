@@ -250,12 +250,28 @@ CardRules::new_artifact(mana_cost!("{5}"))
 );
 
 // KTK 229 — Bloodfell Caves
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODFELL_CAVES: CardRecord = CardRecord::new(
     "Bloodfell Caves",
     "15a7b30a-c59f-4a87-9e8a-b29daea27422",
     "Adam Paquette",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 231 — Blossoming Sands
@@ -284,12 +300,28 @@ pub(in crate::card::sets) static BLOSSOMING_SANDS: CardRecord = CardRecord::new(
 );
 
 // KTK 232 — Dismal Backwater
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISMAL_BACKWATER: CardRecord = CardRecord::new(
     "Dismal Backwater",
     "63742780-47ee-4a66-993a-69e06c14967d",
     "Sam Burley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 234 — Frontier Bivouac
@@ -302,12 +334,28 @@ pub(in crate::card::sets) static FRONTIER_BIVOUAC: CardRecord = CardRecord::new(
 );
 
 // KTK 235 — Jungle Hollow
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JUNGLE_HOLLOW: CardRecord = CardRecord::new(
     "Jungle Hollow",
     "fea27aa7-7fcf-4198-b03a-5034a03ba81f",
     "Eytan Zana",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 236 — Mystic Monastery
@@ -338,12 +386,28 @@ pub(in crate::card::sets) static OPULENT_PALACE: CardRecord = CardRecord::new(
 );
 
 // KTK 240 — Rugged Highlands
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUGGED_HIGHLANDS: CardRecord = CardRecord::new(
     "Rugged Highlands",
     "501ce6cb-0324-4cca-bc79-903cefe1ac1f",
     "Eytan Zana",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 241 — Sandsteppe Citadel
@@ -405,12 +469,28 @@ pub(in crate::card::sets) static SWIFTWATER_CLIFFS: CardRecord = CardRecord::new
 );
 
 // KTK 244 — Thornwood Falls
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THORNWOOD_FALLS: CardRecord = CardRecord::new(
     "Thornwood Falls",
     "9e57abd9-e864-4047-a3c8-618952071858",
     "Eytan Zana",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 246 — Tranquil Cove
@@ -441,12 +521,28 @@ pub(in crate::card::sets) static TRANQUIL_COVE: CardRecord = CardRecord::new(
 );
 
 // KTK 247 — Wind-Scarred Crag
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WIND_SCARRED_CRAG: CardRecord = CardRecord::new(
     "Wind-Scarred Crag",
     "3b296781-78ac-411f-88fc-2d924ad22986",
     "Eytan Zana",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

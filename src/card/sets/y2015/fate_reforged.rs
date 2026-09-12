@@ -2,21 +2,34 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
 use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
 use crate::card::ConditionalStaticEffectDef;
+use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetCountConditionDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectSetPredicateDef;
+use crate::card::PayOrDef;
+use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::StaticApplyDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -30,12 +43,40 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // FRF 28 — Valorous Stance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VALOROUS_STANCE: CardRecord = CardRecord::new(
     "Valorous Stance",
     "65998e94-15a0-41f1-8288-730b957f81df",
     "Willian Murai",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Target creature gains indestructible until end of turn. \
+                 (Damage and effects that say \"destroy\" don't destroy it.)",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target creature with toughness 4 or greater.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ToughnessGreaterThan(ValueDef::Constant(3)),
+                    ]),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+            ),
+        ],
+    )]),
 );
 
 // FRF 72 — Gurmag Angler
@@ -98,12 +139,46 @@ CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilitie
 );
 
 // FRF 100 — Flamewake Phoenix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAMEWAKE_PHOENIX: CardRecord = CardRecord::new(
     "Flamewake Phoenix",
     "fefd5848-9fe1-4129-a5d7-e51606bf76ef",
     "Min Yum",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Phoenix"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        abilities::attacks_each_combat_if_able(),
+        AbilityDef::triggered_if(
+            "Ferocious — At the beginning of combat on your turn, if you \
+             control a creature with power 4 or greater, you may pay {R}. \
+             If you do, return this card from your graveyard to the \
+             battlefield.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerAtLeast(4),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::Mana(mana_cost!("{R}"))],
+                &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+            )),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

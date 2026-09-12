@@ -11,7 +11,9 @@ use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BasicLandType;
+use crate::card::BattlefieldEntryChoiceDestinationDef;
 use crate::card::BattlefieldEntryModificationDef;
+use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::CardArt;
 use crate::card::CardNameDef;
 use crate::card::CardRules;
@@ -46,6 +48,7 @@ use crate::card::ObjectSetPredicateDef;
 use crate::card::PartitionGroupDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
@@ -111,12 +114,45 @@ pub(in crate::card::sets) static ALABASTER_MAGE: CardRecord = CardRecord::new(
 );
 
 // M12 3 — Angelic Destiny
-// Audit: unsupported — Needs to return this Aura card after the enchanted creature dies, across both objects' zone changes.
 pub(in crate::card::sets) static ANGELIC_DESTINY: CardRecord = CardRecord::new(
     "Angelic Destiny",
     "a0cd7438-fde2-4e26-9c34-52c476a971e9",
     "Jana Schirmer & Johannes Voss",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +4/+4, has flying and first strike, \
+                 and is an Angel in addition to its other types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                        AppliedEffectDef::add_ability(&abilities::first_strike()),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Angel"])),
+                    ]),
+                },
+            ),
+            AbilityDef::triggered(
+                "When enchanted creature dies, return this card to its owner's \
+                 hand.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::AttachedToSource,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ]),
 );
 
 // M12 4 — Angel's Mercy (reprint)
@@ -990,7 +1026,8 @@ pub(in crate::card::sets) static PHANTASMAL_DRAGON: CardRecord = CardRecord::new
 
 // M12 72 — Phantasmal Image
 static PHANTASMAL_IMAGE_SACRIFICE: AbilityDef = AbilityDef::triggered(
-    "When this creature becomes the target of a spell or ability, sacrifice it.",
+    "When this creature becomes the target of a spell or ability, \
+     sacrifice it.",
     TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
     EffectDef::sacrifice(EffectRecipientDef::Source),
 );
@@ -2604,12 +2641,47 @@ const VASTWOOD_GORGER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // M12 201 — Adaptive Automaton
-// Audit: unsupported — Needs a chosen creature type to become this permanent's own subtype and to parameterize its other-creature anthem.
 pub(in crate::card::sets) static ADAPTIVE_AUTOMATON: CardRecord = CardRecord::new(
     "Adaptive Automaton",
     "79e42ead-df6e-4181-ae2b-a2abfc3f1d7c",
     "Igor Kieryluk",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 2, 2).with_abilities(&[
+        AbilityDef::as_enters(
+            "As this permanent enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "This creature is the chosen type in addition to its other types.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_chosen_creature_type(),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Other creatures you control of the chosen type get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::HasSourcesChosenScalar(
+                                BattlefieldEntryChoiceDestinationDef::CreatureType,
+                            ),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // M12 202 — Angel's Feather (reprint)

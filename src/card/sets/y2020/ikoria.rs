@@ -62,12 +62,11 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // IKO 39 — Aegis Turtle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AEGIS_TURTLE: CardRecord = CardRecord::new(
     "Aegis Turtle",
     "e433e7f0-7417-4dfe-a7a4-3f222b0a835f",
     "Milivoj Ćeran",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Turtle"], 0, 5),
 );
 
 // IKO 69 — Thieving Otter
@@ -89,12 +88,29 @@ pub(in crate::card::sets) static THIEVING_OTTER: CardRecord = CardRecord::new(
 );
 
 // IKO 70 — Voracious Greatshark
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VORACIOUS_GREATSHARK: CardRecord = CardRecord::new(
     "Voracious Greatshark",
     "1400155f-8911-45fd-aab2-998c8a28292c",
     "Mathias Kollros",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Shark"], 5, 4).with_abilities(&[
+        abilities::flash(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, counter target artifact or \
+             creature spell.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::counter_target(TargetIndex::PRIMARY),
+        ),
+    ]),
 );
 
 // IKO 91 — Heartless Act

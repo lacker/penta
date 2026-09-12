@@ -1169,7 +1169,7 @@ pub(in crate::card::sets) static DIDACT_ECHO: CardRecord = CardRecord::new(
 );
 
 // LCI 54 — Eaten by Piranhas
-// Audit: unsupported — Needs continuous replacement of card types (not just adding types) on the enchanted permanent; static CardTypes::Set remains outside the shared characteristic boundary.
+// Audit: unsupported — Needs a static effect that replaces the attached permanent's complete card-type set, rather than adding types; full card-type replacement is outside the shared static runtime boundary.
 pub(in crate::card::sets) static EATEN_BY_PIRANHAS: CardRecord = CardRecord::new(
     "Eaten by Piranhas",
     "b0c504ef-2382-4174-9b1d-5f38e12a28fc",

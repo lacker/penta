@@ -266,12 +266,12 @@ CardRules::new_planeswalker(mana_cost!("{4}{U}{B}{B}{R}"), &["Bolas"], 5)
 );
 
 // CON 121 — Progenitus
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the hidden-zone graveyard replacement to reveal the redirected card to every player before shuffling it into its owner's library; the movement replacement currently redirects and shuffles without publishing that reveal.
 pub(in crate::card::sets) static PROGENITUS: CardRecord = CardRecord::new(
     "Progenitus",
     "bcc764b0-3046-4bde-b424-c0f4e1a6169b",
     "Jaime Jones",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // CON 142 — Exotic Orchard

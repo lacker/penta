@@ -339,12 +339,12 @@ CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
 );
 
 // RAV 158 — Doubling Season
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs prospective token-creation and counter-placement replacement events, including whether counters are placed by an effect rather than a cost or turn-based action.
 pub(in crate::card::sets) static DOUBLING_SEASON: CardRecord = CardRecord::new(
     "Doubling Season",
     "c7e71299-98f6-494e-b187-8d22ce5f50af",
     "Wayne Reynolds",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // RAV 163 — Farseek

@@ -9,18 +9,27 @@ use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::BasicLandType;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ColorChoiceOperationDef;
+use crate::card::ComparisonDef;
 use crate::card::CostDef;
+use crate::card::CounterKind;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ObjectCounterValueDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -96,12 +105,25 @@ pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRec
 );
 
 // THS 90 — Hero's Downfall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HERO_S_DOWNFALL: CardRecord = CardRecord::new(
     "Hero's Downfall",
     "596822f6-dbd4-4cc8-aa50-9331ff42544e",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Destroy target creature or planeswalker.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // THS 127 — Lightning Strike
@@ -163,12 +185,66 @@ pub(in crate::card::sets) static NYLEAS_PRESENCE: CardRecord = CardRecord::new(
 );
 
 // THS 170 — Ordeal of Nylea
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORDEAL_OF_NYLEA: CardRecord = CardRecord::new(
     "Ordeal of Nylea",
     "e5c48950-c246-47ad-94e1-bf42a62c2fe7",
     "David Palumbo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered(
+                "Whenever enchanted creature attacks, put a +1/+1 counter on \
+                 it. Then if it has three or more +1/+1 counters on it, \
+                 sacrifice this Aura.",
+                TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::AttachedPermanent,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::CountersOnObject(&ObjectCounterValueDef {
+                                object: ObjectRefDef::AttachedToSource,
+                                kind: CounterKind::PlusOnePlusOne,
+                            }),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            right: ValueDef::Constant(3),
+                        }),
+                        then: &EffectDef::sacrifice(EffectRecipientDef::Source),
+                    },
+                ]),
+            ),
+            AbilityDef::triggered(
+                "When you sacrifice this Aura, search your library for up to \
+                 two basic land cards, put them onto the battlefield tapped, \
+                 then shuffle.",
+                TriggerEventDef::Sacrificed {
+                    object: ObjectPredicateDef::Source,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(2),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // THS 180 — Sylvan Caryatid
@@ -191,57 +267,151 @@ pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new(
 );
 
 // THS 213 — Burnished Hart
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BURNISHED_HART: CardRecord = CardRecord::new(
     "Burnished Hart",
     "772cbcba-9efa-4894-9b57-e73fd296333d",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Elk"], 2, 2).with_abilities(&[
+        AbilityDef::activated(
+            "{3}, Sacrifice this creature: Search your library for up to \
+             two basic land cards, put them onto the battlefield tapped, \
+             then shuffle.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::SacrificeSource],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(2),
+                reveal: true,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // THS 224 — Temple of Abandon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_ABANDON: CardRecord = CardRecord::new(
     "Temple of Abandon",
     "46febc5d-1625-4e48-bb3f-31ee06fc13dd",
     "Mike Bierek",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // THS 225 — Temple of Deceit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_DECEIT: CardRecord = CardRecord::new(
     "Temple of Deceit",
     "686559d7-8ac1-496b-a5a6-1467bf8fc7c5",
     "Raymond Swanland",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // THS 226 — Temple of Mystery
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_MYSTERY: CardRecord = CardRecord::new(
     "Temple of Mystery",
     "2f66945b-3e64-498a-9478-5f96a61d4ec7",
     "Noah Bradley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // THS 227 — Temple of Silence
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_SILENCE: CardRecord = CardRecord::new(
     "Temple of Silence",
     "0f14b6b3-5f40-4328-a3be-28fe32dd7cb1",
     "Karl Kopinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // THS 228 — Temple of Triumph
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPLE_OF_TRIUMPH: CardRecord = CardRecord::new(
     "Temple of Triumph",
     "4f53049c-2491-4d20-aa19-00eb5c55b438",
     "Jason Felix",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, scry 1. (Look at the top card of your \
+             library. You may put that card on the bottom.)",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

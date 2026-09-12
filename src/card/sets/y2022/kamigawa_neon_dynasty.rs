@@ -827,12 +827,12 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
 );
 
 // NEO 275 — Secluded Courtyard
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mana restriction selecting both creature spells and creature-source activated abilities by the chosen creature type, with the choice retained in each produced mana unit.
 pub(in crate::card::sets) static SECLUDED_COURTYARD: CardRecord = CardRecord::new(
     "Secluded Courtyard",
     "0539b1a5-8704-476f-ba1f-2fe01190e157",
     "Sam Burley",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // NEO 281 — Uncharted Haven

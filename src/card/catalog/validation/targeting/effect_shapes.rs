@@ -138,7 +138,16 @@ fn validate_effect_target_shapes(
         }
         EffectDef::BindObjects(definition) => {
             validate_object_collection_shape(definition.source, targets)?;
-            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+            if matches!(definition.source,
+                crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(query))
+                    if query.zones == [ZoneKind::Battlefield])
+            {
+                validate_battlefield_binding_continuation(
+                    *definition.then, definition.binding, targets, triggering_object_zone,
+                )
+            } else {
+                validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+            }
         }
         EffectDef::IfNoObjects(definition) => {
             validate_object_set_shape(definition.input, targets)?;
@@ -526,7 +535,7 @@ fn validate_effect_target_shapes(
                 validate_recipient_shape(*copy.object, targets, RecipientExpectation::Object)?;
             }
             match created {
-                Some(created) => validate_created_token_continuation(
+                Some(created) => validate_battlefield_binding_continuation(
                     *created.then,
                     created.binding,
                     targets,

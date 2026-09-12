@@ -78,7 +78,7 @@ pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecor
 );
 
 // XLN 48 — Chart a Course
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs player-relative attack history retained after every attacker leaves the battlefield or changes controller. AttackedThisTurn is a predicate on existing objects, not a player raid-history condition.
 pub(in crate::card::sets) static CHART_A_COURSE: CardRecord = CardRecord::new(
     "Chart a Course",
     "98291778-2ec2-47e2-ac99-5f8cfbb3cf24",
@@ -176,12 +176,70 @@ pub(in crate::card::sets) static SKULDUGGERY: CardRecord = CardRecord::new(
 );
 
 // XLN 191 — Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static GROWING_RITES_OF_ITLIMOC: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static GROWING_RITES_OF_ITLIMOC: CardRecord = CardRecord::new_dfc(
     "Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun",
     "b3b87bfc-f97f-4734-94f6-e3e2f335fc4d",
     "Grzegorz Rutkowski",
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Growing Rites of Itlimoc",
+            CardRules::new_enchantment(mana_cost!("{2}{G}"))
+                .with_supertype(crate::card::CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::enters_trigger(
+                        "When Growing Rites of Itlimoc enters, look at the top four \
+                         cards of your library. You may reveal a creature card from \
+                         among them and put it into your hand. Put the rest on the \
+                         bottom of your library in any order.",
+                        abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(
+                            ValueDef::Constant(4),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            0,
+                            1,
+                        ),
+                    ),
+                    AbilityDef::triggered_if(
+                        "At the beginning of your end step, if you control four or \
+                         more creatures, transform Growing Rites of Itlimoc.",
+                        TriggerEventDef::StepBegins {
+                            step: crate::card::TurnStepDef::End,
+                            player: PlayerRelation::You,
+                        },
+                        &crate::card::TriggerConditionDef::ObjectCount {
+                            query: crate::card::ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            comparison: crate::card::ComparisonDef::GreaterOrEqual,
+                            amount: 4,
+                        },
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ),
+                ]),
+        ),
+        (
+            "Itlimoc, Cradle of the Sun",
+            CardRules::new_land(&[])
+                .with_supertype(crate::card::CardSupertype::Legendary)
+                .with_abilities(&[
+                    abilities::tap_for(crate::card::ManaColor::Green),
+                    abilities::tap_for_mana(
+                        "{T}: crate::card::Add {G} for each creature you control.",
+                        crate::card::AddManaEffectDef::one(crate::card::ManaColor::Green)
+                            .with_variable_amount(ValueDef::CountMatchingObjects(
+                                &crate::card::ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                ),
+                            )),
+                    ),
+                ]),
+        ),
+    ],
 );
 
 // XLN 194 — Jade Guardian
@@ -224,12 +282,63 @@ pub(in crate::card::sets) static NEW_HORIZONS: CardRecord = CardRecord::new(
 );
 
 // XLN 222 — Gishath, Sun's Avatar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GISHATH_SUN_S_AVATAR: CardRecord = CardRecord::new(
     "Gishath, Sun's Avatar",
     "7335e500-342d-476d-975c-817512e6e3d6",
     "Zack Stella",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}{G}{W}"), &["Dinosaur", "Avatar"], 7, 6)
+        .with_supertype(crate::card::CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::trample(),
+            abilities::haste(),
+            AbilityDef::triggered(
+                "Whenever Gishath deals combat damage to a player, reveal that \
+                 many cards from the top of your library. Put any number of \
+                 Dinosaur creature cards from among them onto the battlefield \
+                 and the rest on the bottom of your library in a random order.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::ChooseCardsFromCollection(crate::card::ChooseCardsFromCollectionDef {
+                    source: crate::card::ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::EffectController,
+                        count: ValueDef::TriggerEventAmount,
+                    },
+                    actor: PlayerRefDef::EffectController,
+                    inspection: crate::card::CollectionInspectionDef::Reveal,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Dinosaur")),
+                    ]),
+                    minimum: 0,
+                    maximum: 65535,
+                    chosen: crate::Binding!("chosen"),
+                    remainder: crate::Binding!("rest"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(crate::card::ObjectSetDef::Binding(
+                                crate::Binding!("chosen"),
+                            )),
+                            ZoneKind::Battlefield,
+                            crate::card::ZonePlacement::Top,
+                        ),
+                        EffectDef::RandomizeObjectOrder(crate::card::RandomizeObjectOrderDef {
+                            input: crate::card::ObjectSetDef::Binding(crate::Binding!("rest")),
+                            randomized: crate::Binding!("randomized"),
+                            then: &EffectDef::MoveObjects(crate::card::MoveObjectsDef {
+                                input: crate::card::ObjectSetDef::Binding(crate::Binding!(
+                                    "randomized"
+                                )),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Library,
+                                placement: crate::card::ZonePlacement::Bottom,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                        }),
+                    ]),
+                }),
+            ),
+        ]),
 );
 
 // XLN 242 — Pirate's Cutlass
@@ -267,12 +376,69 @@ CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
 );
 
 // XLN 250 — Treasure Map // Treasure Cove
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static TREASURE_MAP: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static TREASURE_MAP: CardRecord = CardRecord::new_dfc(
     "Treasure Map // Treasure Cove",
     "c0f9c733-0818-4a03-8f0c-a163d09e0fff",
     "Cliff Childs",
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Treasure Map",
+            CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::activated(
+                "{1}, {T}: Scry 1. Put a landmark counter on this artifact. \
+                 Then if there are three or more landmark counters on it, \
+                 remove those counters, transform this artifact, and create \
+                 three Treasure tokens. (They're artifacts with \"{T}, \
+                 Sacrifice this token: Add one mana of any color.\")",
+                &[
+                    crate::card::CostDef::Mana(mana_cost!("{1}")),
+                    crate::card::CostDef::TapSource,
+                ],
+                EffectDef::Sequence(&[
+                    abilities::scry(ValueDef::Constant(1)),
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::named("landmark"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::IfCondition {
+                        condition: &crate::card::TriggerConditionDef::SourceCounters {
+                            kind: CounterKind::named("landmark"),
+                            comparison: crate::card::ComparisonDef::GreaterOrEqual,
+                            amount: 3,
+                        },
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::RemoveCounters {
+                                object: EffectRecipientDef::Source,
+                                kind: CounterKind::named("landmark"),
+                                amount: ValueDef::CountersOnSource(CounterKind::named("landmark")),
+                            },
+                            EffectDef::Transform {
+                                object: EffectRecipientDef::Source,
+                            },
+                            EffectDef::create_token(crate::card::tokens::treasure())
+                                .with_count(ValueDef::Constant(3)),
+                        ]),
+                    },
+                ]),
+            )]),
+        ),
+        (
+            "Treasure Cove",
+            CardRules::new_land(&[]).with_abilities(&[
+                abilities::tap_for(crate::card::ManaColor::Colorless),
+                AbilityDef::activated(
+                    "{T}, Sacrifice a Treasure: Draw a card.",
+                    &[
+                        crate::card::CostDef::TapSource,
+                        crate::card::CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
+                            SubtypeDef::Literal("Treasure"),
+                        )),
+                    ],
+                    abilities::draw_cards(ValueDef::Constant(1)),
+                ),
+            ]),
+        ),
+    ],
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

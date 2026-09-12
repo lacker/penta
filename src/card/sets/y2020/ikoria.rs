@@ -94,12 +94,25 @@ pub(in crate::card::sets) static HEARTLESS_ACT: CardRecord = CardRecord::new(
 );
 
 // IKO 134 — Rumbling Rockslide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUMBLING_ROCKSLIDE: CardRecord = CardRecord::new(
     "Rumbling Rockslide",
     "96f9aaa7-11c7-4cd0-9803-9471c14ab846",
     "Adam Paquette",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Rumbling Rockslide deals damage to target creature equal to \
+         the number of lands you control.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        ),
+    )]),
 );
 
 // IKO 137 — Spelleater Wolverine

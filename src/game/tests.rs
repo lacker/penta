@@ -655,7 +655,6 @@ mod vintage_cube_infect;
 mod vintage_cube_infernal_grasp;
 mod vintage_cube_inquisition_of_kozilek;
 mod vintage_cube_inspiring_vantage;
-mod vintage_cube_inti;
 mod vintage_cube_invigorate;
 mod vintage_cube_ivora;
 mod vintage_cube_jace_the_mind_sculptor;
@@ -947,3 +946,5 @@ use search_and_reveal::stack_library;
 pub(in crate::game) mod composed_mechanic_programs;
 
 mod playtest_regressions;
+
+mod lost_caverns_of_ixalan;

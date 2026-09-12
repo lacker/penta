@@ -82,12 +82,45 @@ pub(in crate::card::sets) static MILITIA_BUGLER: CardRecord = CardRecord::new(
 );
 
 // M19 34 — Resplendent Angel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESPLENDENT_ANGEL: CardRecord = CardRecord::new(
     "Resplendent Angel",
     "586854d1-edfd-4c66-873d-df459324dbfd",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Angel"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered_if(
+            "At the beginning of each end step, if you gained 5 or more \
+             life this turn, create a 4/4 white Angel creature token with \
+             flying and vigilance.",
+            crate::card::TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::End,
+                player: PlayerRelation::Any,
+            },
+            &crate::card::TriggerConditionDef::ValueComparison(&crate::card::ValueComparisonDef {
+                left: ValueDef::LifeGainedThisTurn(PlayerRelation::You),
+                comparison: crate::card::ComparisonDef::GreaterOrEqual,
+                right: ValueDef::Constant(5),
+            }),
+            EffectDef::create_creature_token(&["Angel"], &[crate::card::ManaColor::White], 4, 4)
+                .with_abilities(&[abilities::flying(), abilities::vigilance()]),
+        ),
+        AbilityDef::activated(
+            "{3}{W}{W}{W}: Until end of turn, this creature gets +2/+2 and \
+             gains lifelink.",
+            &[CostDef::Mana(mana_cost!("{3}{W}{W}{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // M19 55 — Exclusion Mage

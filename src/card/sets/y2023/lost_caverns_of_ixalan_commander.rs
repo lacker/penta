@@ -69,7 +69,7 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
 );
 
 // LCC 106 — Chimil, the Inner Sun
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a discover cast offer that bounds the mana value of the spell actually cast, returns an uncast discovered card to hand, and randomly bottoms the other exiled cards. Cascade is source-mana-value based and generic free-cast permissions cannot enforce the discovered spell limit.
 pub(in crate::card::sets) static CHIMIL_THE_INNER_SUN: CardRecord = CardRecord::new(
     "Chimil, the Inner Sun",
     "cfb49910-30fe-483e-b3b8-6268417f013c",

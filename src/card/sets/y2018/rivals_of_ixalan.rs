@@ -119,12 +119,24 @@ pub(in crate::card::sets) static GHALTA_PRIMAL_HUNGER: CardRecord = CardRecord::
 );
 
 // RIX 148 — Thrashing Brontodon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRASHING_BRONTODON: CardRecord = CardRecord::new(
     "Thrashing Brontodon",
     "0d9264ff-9f7c-46f3-862a-fee7ad213250",
     "Jakub Kasper",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Dinosaur"], 3, 4).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{1}, Sacrifice this creature: Destroy target artifact or \
+             enchantment.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                crate::card::ObjectPredicateDef::AnyOf(&[
+                    crate::card::ObjectPredicateDef::HasType(crate::card::CardType::Artifact),
+                    crate::card::ObjectPredicateDef::HasType(crate::card::CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
+        ),
+    ]),
 );
 
 // RIX 178 — Gleaming Barrier

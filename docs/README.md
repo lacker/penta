@@ -19,5 +19,6 @@ Future or exploratory architecture belongs under
 engine. Release history and compatibility changes remain in the repository
 [changelog](../CHANGELOG.md).
 
-Current proposals include the [model-facing bot interface](design-notes/model-facing-bot-interface.md)
-for compact decision views, exact action tickets, and direct MCP play.
+The [model-facing bot interface note](design-notes/model-facing-bot-interface.md)
+records the implemented opt-in decision view, exact action tickets, and the
+remaining evaluation plan. Setup and operation are in [bot sessions](bot-sessions.md).

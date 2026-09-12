@@ -151,12 +151,18 @@ test("human invitation maps either engine seat and contains only the human crede
 test("stdio MCP handshake exposes usable schemas and a single compact tool result", async () => {
   // Engine custom keys need not carry RFC UUID version or variant bits.
   const definition = "00000000-0000-0000-0000-000000000001";
-  const host = httpServer((request, response) => {
+  const posts = [];
+  const host = httpServer(async (request, response) => {
     const routes = {
       "/_engine/options": { apiVersion: 1, formats: [{ id: "old-school-93-94", decks: ["Sligh"] }] },
       "/_game/room/session": ready,
       "/_game/room/catalog": { cards: [{ definition, name: "Mountain" }] },
     };
+    if (request.url.startsWith("/_game/room/play?")) {
+      let body = ""; for await (const chunk of request) body += chunk;
+      posts.push(JSON.parse(body));
+      routes[request.url] = { ...ready, revision: "b", receipt: { accepted: 1, requestId: posts.at(-1).requestId } };
+    }
     assert.ok(routes[request.url]);
     response.setHeader("content-type", "application/json");
     response.end(JSON.stringify(routes[request.url]));
@@ -164,13 +170,13 @@ test("stdio MCP handshake exposes usable schemas and a single compact tool resul
   await new Promise(resolve => host.listen(0, "127.0.0.1", resolve));
   const transport = new StdioClientTransport({
     command: process.execPath, args: [fileURLToPath(new URL("server.mjs", import.meta.url))],
-    env: { PENTA_SERVER_URL: `http://127.0.0.1:${host.address().port}` }, stderr: "pipe",
+    env: { PENTA_DEV_PORT: String(host.address().port) }, cwd: "/tmp", stderr: "pipe",
   });
   const client = new Client({ name: "penta-test", version: "1" });
   try {
     await client.connect(transport);
     const listed = await client.listTools();
-    assert.deepEqual(listed.tools.map(tool => tool.name).sort(), ["attach", "inspect", "next", "options", "play", "retry", "start_match"]);
+    assert.deepEqual(listed.tools.map(tool => tool.name).sort(), ["attach", "choose", "inspect", "inspect_ref", "next", "options", "play", "retry", "start_match"]);
     const result = await client.callTool({ name: "options", arguments: {} });
     assert.equal(result.isError, undefined);
     assert.equal(result.content.length, 1);
@@ -186,6 +192,18 @@ test("stdio MCP handshake exposes usable schemas and a single compact tool resul
     assert.equal(JSON.parse(inspected.content[0].text).cards[0].definition, definition);
     const numeric = await client.callTool({ name: "inspect", arguments: { connection, section: "catalog", definitions: [1] } });
     assert.equal(numeric.isError, true, "protocol 32 definitions are UUIDs, not numeric IDs");
+    const decision = await client.callTool({ name: "attach", arguments: { room: "room", token: "own-seat", presentation: "decision-v1" } });
+    const packet = JSON.parse(decision.content[0].text);
+    assert.equal(packet.presentation, "decision-v1");
+    const details = await client.callTool({ name: "inspect_ref", arguments: { reference: packet.provenance.reference } });
+    assert.deepEqual(JSON.parse(details.content[0].text).items[0].checkpoint, observation.checkpoint);
+    const ticket = packet.choices[0].ticket;
+    const played = await client.callTool({ name: "choose", arguments: { ticket, waitMs: 0 } });
+    assert.equal(played.isError, undefined);
+    assert.equal(JSON.parse(played.content[0].text).receipt.accepted, 1);
+    assert.deepEqual(posts[0].choices, [{ index: 0 }]);
+    await client.callTool({ name: "choose", arguments: { ticket, waitMs: 0 } });
+    assert.deepEqual(posts[0], posts[1]);
   } finally {
     await client.close();
     await new Promise(resolve => host.close(resolve));

@@ -40,17 +40,30 @@ pnpm --dir tools/penta-mcp install --frozen-lockfile
 Register the stdio server with Codex from the repository root:
 
 ```sh
-codex mcp add penta \
-  --env "PENTA_SERVER_URL=$(node web/worktree-port.js --url)" \
-  -- node "$(pwd)/tools/penta-mcp/server.mjs"
+codex mcp add penta -- node "$(pwd)/tools/penta-mcp/server.mjs"
 ```
 
-Use an absolute script path and the URL of the running server. For another
-deployment, set `PENTA_SERVER_URL` to its origin. The adapter requires Node
-22.13 or newer and defaults to `http://localhost:3000` when the variable is
-absent. It speaks MCP on stdout; it does not launch the web server or install
+Use an absolute script path. The adapter finds that worktree's assigned server
+port, including `PENTA_DEV_PORT` overrides, independently of the caller's working
+directory. For another deployment, add `--env PENTA_SERVER_URL=https://your-host`
+before `--` when registering. The adapter requires Node 22.13 or newer.
+It speaks MCP on stdout; it does not launch the web server or install
 itself into Codex. See [Codex MCP configuration](https://developers.openai.com/codex/mcp/)
 for client setup. `make penta-mcp` is an equivalent local stdio entry point.
+
+With the web server running, verify stdio discovery and backend reachability:
+
+```sh
+node tools/penta-mcp/probe.mjs
+```
+
+Restart/reconnect the MCP integration if the client has not discovered it.
+Verify the actual pilot has callable `attach`, `choose`, `next`, `inspect_ref`,
+and `retry` tools before starting a timed game. The probe verifies transport;
+it does not expose tools inside an already-running pilot task. Invoke tools
+directly during play. The repository's
+[play-penta skill](../.agents/skills/play-penta/SKILL.md) covers the protocol
+without gameplay advice or mandatory per-move narration.
 
 ## Start and play
 
@@ -159,9 +172,69 @@ wall time on the same match workload before claiming overall token savings.
 `tools/penta-mcp/measure-trace.mjs` measures presentation characters on supplied
 observation traces without invoking a model or changing any game decisions.
 
-The [model-facing interface proposal](design-notes/model-facing-bot-interface.md)
-describes a future compact current-position view, descriptive action tickets,
-and direct MCP pilot workflow. Those proposed interfaces are not implemented.
+## Current decision views and tickets
+
+For model play, opt into `decision-v1` when attaching:
+
+```json
+{"room":"...","token":"...","presentation":"decision-v1"}
+```
+
+Each ready response contains the current situation, player state, position,
+ordered updates, and every legal choice. No earlier patch baseline is needed.
+Objects and choices carry descriptive labels alongside exact engine fields.
+Repeated equal fields may be factored into `{shared, rows}` tables: apply
+`shared` to every row. Array order and missing/null/false/zero distinctions are
+preserved. Unknown observation fields remain in `facts`. Canonical provenance
+and checkpoint data are available through the view's explicit reference.
+
+Each choice carries a revision-bound opaque `ticket`. Submit one concrete move
+with `choose`; connection, revision, and request ID stay in the adapter:
+
+```json
+{"ticket":"example:a8"}
+```
+
+A decision ticket requires an explicit array of the selected **option IDs**,
+in the intended order; omission is an error even when `[]` is allowed:
+
+```json
+{"ticket":"example:a0","options":[4,2]}
+```
+
+The engine validates the stored revision and exact choice again. No action is
+ranked or inferred from a label. Optional mana actions and all genuine choices
+remain present. `choose` uses the same play-and-wait behavior as `play`.
+
+Oversized sections and printed card bodies carry opaque references. Read them
+with `inspect_ref({reference, offset, limit})`; follow `nextOffset` for more.
+These references read the frozen issuing view without requesting a newer
+position. A new position or `next(full: true)` expires the prior view's tickets
+and references. Waiting retains the last seat-safe inspection view without
+revealing opponent revisions or enabling its old actions.
+
+First-seen visible definitions include printed rules text within an inline
+budget. All visible definitions have a lookup entry; unavailable catalog text
+is explicit. Full refresh can resend text after context loss. Printed text is
+reference material: observed copy, face, token, chosen-value, and ability data
+remain separate and authoritative for current state. The adapter does not
+calculate effective rules or identify hidden cards using the catalog.
+
+Repeat an identical retained ticket and option array to recover its receipt,
+including after a lost response. Different commands are blocked while an
+outcome is uncertain; `retry({connection})` also resolves it. The adapter retains
+only the latest submitted ticket per connection, plus the current view. Changed
+selections and stale tickets fail explicitly. Reattach after process loss;
+cross-process uncertain-request recovery still requires the saved exact body
+and request ID described below.
+
+The default `exact` presentation, explicit `play` batches, and raw `inspect`
+remain available. `inspect(section: "observation")` always supplies the exact
+playing observation. `decision-v1` checks session API 1 and bot protocol 32;
+it does not change HTTP, checkpoint, or replay schemas. See the
+[implementation note](design-notes/model-facing-bot-interface.md) for the field
+mapping and remaining controlled-evaluation work. No Astra token or wall-clock
+improvement has yet been measured for this presentation.
 
 ## HTTP contract and recovery
 

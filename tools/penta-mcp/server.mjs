@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import * as z from "zod/v4";
 import { SessionClient } from "./client.mjs";
+import { getWorktreeDevPort } from "../../web/worktree-port.js";
 
 const uint = z.number().int().min(0).max(0xffffffff);
 const connection = z.string();
@@ -13,9 +14,9 @@ const choice = z.union([
   z.object({ action: z.record(z.string(), z.unknown()) }).strict(),
 ]);
 
-export function createServer(base = process.env.PENTA_SERVER_URL ?? "http://localhost:3000", client = new SessionClient(base)) {
+export function createServer(base = process.env.PENTA_SERVER_URL ?? `http://localhost:${getWorktreeDevPort()}`, client = new SessionClient(base)) {
   const server = new McpServer({ name: "penta", version: "0.1.0" }, {
-    instructions: "Play through exact engine choices. Attach only to your assigned seat. play submits and waits; next waits without moving. The engine advances unique continuations automatically, including forced passes; all real choices, including optional mana abilities, remain yours. Read updates for public events and skipped decision information since your previous move. Responses contain a full observation or exact changes from baseRevision; request next(full=true) to resynchronize. The reconstruction checkpoint is separate. Large menus and updates carry counts and inspect references; inspect pages or searches in engine order. Batch exact action values, never old indices; each is followed by forced advancement. On an uncertain play failure, retry before submitting a different play.",
+    instructions: "Attach only to your assigned seat with presentation=decision-v1. Read the current position, updates, and choices; choose(ticket) submits one exact choice and waits. Decision tickets require explicit option IDs in options, preserving order. Read oversized sections with inspect_ref(reference). Use next when waiting or next(full=true) to refresh. Resolve uncertain submissions with retry before another move. All real decisions remain yours; only engine-forced continuations advance automatically. Each shared/rows table is self-contained: shared fields apply to every row. Printed card text is reference material; observed characteristics may differ. No explanation is required with a move. Exact play/inspect remain available; default attach presentation=exact returns full JSON or changes from baseRevision. Never reuse old indices or parse descriptive labels into commands.",
   });
   const tool = (name, description, schema, method, readOnly = false) => server.registerTool(name, {
     description, inputSchema: schema,
@@ -35,13 +36,18 @@ export function createServer(base = process.env.PENTA_SERVER_URL ?? "http://loca
     humanSeat: z.enum(["p1", "p2"]).optional(),
   }), "create");
   tool("attach", "Connect to an existing match using only the assigned seat's credential.",
-    z.object({ room: z.string(), token: z.string() }), "attach", true);
+    z.object({ room: z.string(), token: z.string(), presentation: z.enum(["exact", "decision-v1"]).default("exact") }), "attach", true);
   tool("next", "Wait for your next decision; full=true returns a complete playing observation.",
     z.object({ connection, waitMs, full: z.boolean().default(false) }), "next", true);
   tool("play", "Submit exact choices and wait. Batch actions stop at the first unfulfilled choice; inspect the accepted count.",
     z.object({ connection, revision: z.string(), choices: z.array(choice).min(1).max(64), requestId: z.string().optional(), waitMs }), "play");
   tool("retry", "Retry the last uncertain play with its original request ID, without playing twice.",
     z.object({ connection, waitMs }), "retry");
+  tool("choose", "Submit a decision-v1 ticket and wait. Decision selections require explicit option IDs; repeat an identical ticket to recover its retained receipt.",
+    z.object({ ticket: z.string(), options: z.array(uint).max(4096).optional(), waitMs }).strict(), "choose");
+  tool("inspect_ref", "Read a frozen decision-v1 reference in engine order. Expired references require next(full=true).",
+    z.object({ reference: z.string(), offset: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(100),
+      query: z.string().optional(), actionType: z.string().optional() }), "inspectReference", true);
   tool("inspect", "Read exact details. Catalog lookup accepts definition IDs or a name query; no card ranking is applied.",
     z.object({ connection, section: z.enum(["observation", "checkpoint", "catalog", "legalActions", "decision", "updates", "match", "record"]),
       definitions: z.array(z.string()).optional(), query: z.string().optional(), actionType: z.string().optional(),

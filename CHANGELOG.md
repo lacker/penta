@@ -98,6 +98,11 @@ the bot-wire epoch.
   matches, with exact decisions, revision checks, durable play receipts, explicit
   batches, and browser reattachment. A stdio MCP adapter provides compact exact
   observation changes, paged menus, and on-demand catalog/checkpoint lookup.
+  Its opt-in `decision-v1` presentation supplies self-contained current
+  positions, descriptive exact choices, visible printed card references, and
+  frozen inspection pages. `choose` resolves short revision-bound tickets and
+  retains idempotent retries; `inspect_ref` reads their issuing view. A small
+  `play-penta` skill and stdio probe support direct model tool invocation.
   Shared `forcedAction` classification (`actions.forced.v1`) lets sessions
   advance unique continuations while preserving optional mana actions and all
   genuine selections. Seat-safe session updates retain public reveals and

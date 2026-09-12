@@ -1,0 +1,1 @@
+../../../.agents/skills/play-penta/SKILL.md

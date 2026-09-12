@@ -1,6 +1,7 @@
 //! Warhammer 40,000 Commander card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -24,10 +25,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-
-
-
-
 // 40K 8 — Marneus Calgar
 // Audit: unsupported — The battlefield event stream is per object and cannot raise one entry trigger per simultaneous batch of tokens.
 pub(in crate::card::sets) static MARNEUS_CALGAR_8: CardRecord = CardRecord::new(
@@ -48,9 +45,6 @@ AbilityDef::triggered_with_targets("Harbinger of Despair — Whenever this creat
 ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &MARNEUS_CALGAR_8,
-    &PSYCHOMANCER_51_,
-];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&MARNEUS_CALGAR_8, &PSYCHOMANCER_51_];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

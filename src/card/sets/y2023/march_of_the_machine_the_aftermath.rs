@@ -1,6 +1,7 @@
 //! March of the Machine: The Aftermath card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::card::{
     AbilityDef, CardRules, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
     PlayerRelation, TriggerEventDef, ValueDef, abilities,
@@ -13,14 +14,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
-
-
-
-
-
-
 
 // MAT 19 — Reckless Handling
 // Audit: unsupported — Random discard cannot run a follow-up counting the cards actually discarded; selecting a random card and moving it would lose discard replacement and prevention semantics.

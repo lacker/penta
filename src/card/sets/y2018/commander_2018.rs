@@ -1,29 +1,26 @@
 //! Commander 2018 cards cataloged for the Vintage Cube pool.
 
-use crate::ParentBinding;
-use crate::card::AppliedEffectDef;
-use crate::card::BattlefieldEntryModificationDef;
-use crate::card::CardSupertype;
-use crate::card::CardTypeSet;
-use crate::card::CounterKind;
-use crate::card::CreatedTokensDef;
-use crate::card::ManaColor;
-use crate::card::ReplacementEffectDef;
-use crate::card::ResolvedEffectDurationDef;
-use crate::card::TurnStepDef;
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::ParentBinding;
 use crate::card::AbilityDef;
 use crate::card::AddManaEffectDef;
+use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardNameSetDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
 use crate::card::ComparisonDef;
 use crate::card::ControlDurationDef;
 use crate::card::CostDef;
+use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::CreatedTokensDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetCountConditionDef;
@@ -32,11 +29,14 @@ use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectSetPredicateDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::abilities;
@@ -234,8 +234,7 @@ pub(in crate::card::sets) static RETROFITTER_FOUNDRY: CardRecord = CardRecord::n
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LOYAL_APPRENTICE_23,
     &ARIXMETHES_SLUMBERING_ISLE_38,
     &COVETED_JEWEL,

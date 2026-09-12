@@ -1,14 +1,5 @@
 //! Commander 2011 card records required by supported formats.
 
-use crate::card::BindObjectsDef;
-use crate::card::ControlDurationDef;
-use crate::card::ManaColor;
-use crate::card::ObjectCollectionSourceDef;
-use crate::card::ObjectRefDef;
-use crate::card::ObjectSetDef;
-use crate::card::PlayerRefDef;
-use crate::card::PlayerRelation;
-use crate::card::RevealObjectsDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityTargetDef;
@@ -21,12 +12,21 @@ use crate::ZoneKind;
 use crate::ZonePlacement;
 use crate::card::AbilityDef;
 use crate::card::AppliedEffectDef;
+use crate::card::BindObjectsDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
+use crate::card::ControlDurationDef;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
+use crate::card::PlayerRelation;
+use crate::card::RevealObjectsDef;
 use crate::card::TriggerConditionDef;
 use crate::card::ValueDef;
 use crate::card::abilities;

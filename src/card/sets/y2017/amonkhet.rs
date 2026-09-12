@@ -1,11 +1,5 @@
 //! Amonkhet cards cataloged for the Vintage Cube pool.
 
-use crate::card::BattlefieldEntryModificationDef;
-use crate::card::CardSupertype;
-use crate::card::CostModificationDef;
-use crate::card::PayOrDef;
-use crate::card::ReplacementEffectDef;
-use crate::card::ReplacementEventDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -14,10 +8,13 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
 use crate::card::AppliedEffectDef;
+use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ConditionalValueDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -25,7 +22,10 @@ use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
+use crate::card::PayOrDef;
 use crate::card::PlayerRelation;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;

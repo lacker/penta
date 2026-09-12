@@ -1,12 +1,8 @@
 //! Core Set 2020 cards cataloged for the Vintage Cube.
 
-use crate::ParentBinding;
-use crate::card::PlayActionMatcherDef;
-use crate::card::PlayRestrictionDef;
-use crate::card::PlayerRefDef;
-use crate::card::TopOfLibraryCostDef;
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::ParentBinding;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -32,6 +28,9 @@ use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ReplacementEffectDef;
@@ -41,6 +40,7 @@ use crate::card::StackTargetAggregationDef;
 use crate::card::StackTargetFilterDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueComparisonDef;

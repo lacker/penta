@@ -1,8 +1,5 @@
 //! Rise of the Eldrazi cards cataloged for the Vintage Cube pool.
 
-use crate::card::AbilityKindDef;
-use crate::card::AbilityPredicateDef;
-use crate::card::CostModificationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AppliedEffectDef;
@@ -11,6 +8,8 @@ use crate::ControlDurationDef;
 use crate::ResolvedEffectDurationDef;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityKindDef;
+use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
@@ -20,6 +19,7 @@ use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;

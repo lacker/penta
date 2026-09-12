@@ -1,11 +1,14 @@
 //! Doctor Who cards cataloged for legend-rule coverage.
 
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CardTypeSet;
@@ -25,9 +28,6 @@ use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
-use super::CardRecord;
-use super::PrintingRecord;
-use crate::card::CardRules;
 
 /// Printed set identity and stable catalog slug.
 pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {

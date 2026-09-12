@@ -1,6 +1,7 @@
 //! Secret Lair Drop card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
@@ -30,16 +31,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
-
-
-
-
-
-
-
-
 
 // SLD 1240 — Jurin, Leading the Charge
 // Audit: unsupported — Battlefield recipient queries cannot filter attacking creatures by whether they are attacking a player rather than a planeswalker. Applying its attack bonus to all attacking creatures would grant it to the wrong attackers.

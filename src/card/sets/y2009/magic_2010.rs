@@ -1,11 +1,5 @@
 //! Magic 2010 card records.
 
-use crate::card::BindObjectsDef;
-use crate::card::ObjectCollectionSourceDef;
-use crate::card::ObjectRefDef;
-use crate::card::ObjectSetDef;
-use crate::card::RevealObjectsDef;
-use crate::card::TriggerConditionDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityDef;
@@ -36,12 +30,18 @@ use crate::TriggerEventDef;
 use crate::ValueDef;
 use crate::ZoneKind;
 use crate::ZonePlacement;
+use crate::card::BindObjectsDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::ObjectCollectionSourceDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::RevealObjectsDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TriggerConditionDef;
 use crate::card::abilities;
 use crate::mana_cost;
 

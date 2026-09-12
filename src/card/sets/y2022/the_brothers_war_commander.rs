@@ -1,6 +1,7 @@
 //! The Brothers' War Commander card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::AddManaEffectDef;
 use crate::card::CardRules;
@@ -25,10 +26,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-
-
-
-
 // BRC 16 — Machine God's Effigy
 // Audit: unsupported — The copy model can add Artifact and an ability, but CopyExceptionsDef can
 // only add card types. This copy must remove Creature after copying its target; adding Artifact
@@ -52,9 +49,6 @@ AbilityDef::activated_mana_if("Metalcraft — {T}: Add {C} for each Urza's land 
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
-    &MACHINE_GOD_S_EFFIGY_16,
-    &URZA_S_WORKSHOP_51,
-];
+    &[&MACHINE_GOD_S_EFFIGY_16, &URZA_S_WORKSHOP_51];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

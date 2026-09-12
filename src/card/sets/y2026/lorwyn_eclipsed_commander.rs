@@ -1,6 +1,7 @@
 //! Lorwyn Eclipsed Commander card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
@@ -21,8 +22,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
 
 // ECC 44 — Sodden Verdure
 pub(in crate::card::sets) static SODDEN_VERDURE_44: CardRecord = CardRecord::new(
@@ -53,8 +52,6 @@ pub(in crate::card::sets) static SODDEN_VERDURE_44: CardRecord = CardRecord::new
     )]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &SODDEN_VERDURE_44,
-];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&SODDEN_VERDURE_44];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

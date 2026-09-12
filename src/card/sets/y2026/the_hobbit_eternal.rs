@@ -1,6 +1,7 @@
 //! The Hobbit Eternal card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -27,10 +28,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
-
-
 
 // HOC 1 — Fíli and Kíli, Joyous
 pub(in crate::card::sets) static FILI_AND_KILI_JOYOUS_1: CardRecord = CardRecord::new(
@@ -71,9 +68,6 @@ AbilityDef::activated_with_targets("{1}, {T}: Until end of turn, target creature
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
-    &FILI_AND_KILI_JOYOUS_1,
-    &DRAGON_CURSED_HALLS_8,
-];
+    &[&FILI_AND_KILI_JOYOUS_1, &DRAGON_CURSED_HALLS_8];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

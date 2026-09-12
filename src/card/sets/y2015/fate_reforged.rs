@@ -1,16 +1,12 @@
 //! FRF card records required by supported formats.
 
-use crate::card::BindObjectsDef;
-use crate::card::ObjectCollectionSourceDef;
-use crate::card::ObjectRefDef;
-use crate::card::PlayerRefDef;
-use crate::card::PutObjectsOntoBattlefieldFaceDownDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AppliedEffectDef;
+use crate::card::BindObjectsDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
@@ -19,14 +15,18 @@ use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::ObjectSetCountConditionDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
 use crate::card::ObjectSetPredicateDef;
 use crate::card::PayOrDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PutObjectsOntoBattlefieldFaceDownDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::StaticApplyDef;
 use crate::card::TriggerConditionDef;

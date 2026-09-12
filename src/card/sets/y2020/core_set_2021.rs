@@ -1,9 +1,5 @@
 //! Core Set 2021 card records.
 
-use crate::card::AppliedRuleDef;
-use crate::card::CardSupertype;
-use crate::card::InstalledTriggerDef;
-use crate::card::InstalledTriggerLifetimeDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -12,8 +8,10 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
@@ -21,6 +19,8 @@ use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::InstalledTriggerLifetimeDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;

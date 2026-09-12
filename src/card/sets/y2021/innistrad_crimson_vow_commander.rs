@@ -137,8 +137,7 @@ pub(in crate::card::sets) static SHADOWGRANGE_ARCHFIEND_60: CardRecord = CardRec
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &OCCULT_EPIPHANY,
     &CROSSWAY_TROUBLEMAKERS,
     &SHADOWGRANGE_ARCHFIEND_60,

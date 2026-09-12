@@ -1,11 +1,5 @@
 //! Portal Three Kingdoms card records required by supported formats.
 
-use crate::card::CardType;
-use crate::card::ObjectPredicateDef;
-use crate::card::SubtypeDef;
-use crate::card::TriggerEventDef;
-use crate::card::ZoneKind;
-use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -13,11 +7,17 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::CardRules;
+use crate::card::CardType;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
+use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
+use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::card::sets::y1997::visions as catalog_vis;
 use crate::mana_cost;

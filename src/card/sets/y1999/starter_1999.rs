@@ -1,6 +1,5 @@
 //! Starter 1999 card records.
 
-use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -18,6 +17,7 @@ use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 

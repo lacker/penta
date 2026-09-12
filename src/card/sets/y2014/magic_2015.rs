@@ -1,11 +1,11 @@
 //! Magic 2015 cards cataloged for the Vintage Cube pool.
 
-use crate::card::AbilityTargetPredicate;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
 use crate::card::AppliedEffectDef;
 use crate::card::CardArt;
 use crate::card::CardRules;

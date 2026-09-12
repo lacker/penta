@@ -1,6 +1,7 @@
 //! Outlaws of Thunder Junction Commander card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -33,10 +34,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-
-
-
-
 // OTC 3 — Stella Lee, Wild Card
 pub(in crate::card::sets) static STELLA_LEE_WILD_CARD_3: CardRecord = CardRecord::new(
     "Stella Lee, Wild Card",
@@ -60,9 +57,6 @@ abilities::plot(&[CostDef::Mana(mana_cost!("{3}{U}"))])
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
-    &STELLA_LEE_WILD_CARD_3,
-    &LOCK_AND_LOAD_51,
-];
+    &[&STELLA_LEE_WILD_CARD_3, &LOCK_AND_LOAD_51];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -1,8 +1,5 @@
 //! Secrets of Strixhaven card inventory.
 
-use crate::card::MoveObjectsDef;
-use crate::card::RevealAndClassifyCardsDef;
-use crate::card::CostModificationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;

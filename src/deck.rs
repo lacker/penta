@@ -19,7 +19,7 @@ pub struct Deck {
 }
 
 impl Deck {
-    /// Checks implementation coverage for every main-deck and sideboard card.
+    /// Checks implementation coverage for commanders, main-deck cards, and sideboard cards.
     /// This is independent of format legality and reads the supplied catalog
     /// each time, so completing a card automatically updates the result.
     ///
@@ -28,7 +28,12 @@ impl Deck {
     /// [`DeckError::UnsupportedCards`] with sorted, distinct card names.
     pub fn validate_supported_cards(&self, catalog: &CardCatalog) -> Result<(), DeckError> {
         let mut unsupported = BTreeSet::new();
-        for &id in self.main.iter().chain(&self.sideboard) {
+        for &id in self
+            .main
+            .iter()
+            .chain(&self.sideboard)
+            .chain(&self.commanders)
+        {
             let card = catalog.get(id).ok_or(DeckError::UnknownCard(id))?;
             if card.implementation_status() == ImplementationStatus::Unsupported {
                 unsupported.insert(card.name.clone());
@@ -447,6 +452,7 @@ mod tests {
         let deck = Deck {
             main: vec![main, main],
             sideboard: vec![sideboard, main],
+            commanders: Vec::new(),
         };
         (catalog, deck)
     }
@@ -471,6 +477,29 @@ mod tests {
         );
         let (both_implemented, _) = support_catalog(true, true);
         assert_eq!(deck.validate_supported_cards(&both_implemented), Ok(()));
+    }
+
+    #[test]
+    fn supported_card_validation_includes_designated_commanders() {
+        let (catalog, source) = support_catalog(false, true);
+        let commander = source.main[0];
+        let mut deck = Deck {
+            commanders: vec![commander],
+            main: Vec::new(),
+            sideboard: Vec::new(),
+        };
+        assert_eq!(
+            deck.validate_supported_cards(&catalog),
+            Err(DeckError::UnsupportedCards(vec!["Main Card".into()]))
+        );
+        let (complete, _) = support_catalog(true, true);
+        assert_eq!(deck.validate_supported_cards(&complete), Ok(()));
+        let unknown = CardDefinitionId::from_uuid("00000000-0000-0000-0000-000000099995");
+        deck.commanders = vec![unknown];
+        assert_eq!(
+            deck.validate_supported_cards(&catalog),
+            Err(DeckError::UnknownCard(unknown))
+        );
     }
 
     #[test]

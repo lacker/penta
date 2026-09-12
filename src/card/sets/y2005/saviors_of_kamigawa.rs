@@ -1,12 +1,5 @@
 //! SOK card records required by supported formats.
 
-use crate::card::ChoiceVisibilityDef;
-use crate::card::ChooseForEachPlayerDef;
-use crate::card::CopyStackObjectDef;
-use crate::card::ManaColor;
-use crate::card::ObjectSetDef;
-use crate::card::PerPlayerSelectionDef;
-use crate::card::PlayerRefDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -18,13 +11,20 @@ use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseForEachPlayerDef;
 use crate::card::CopyAbilityDef;
 use crate::card::CopyExceptionsDef;
+use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectSetDef;
+use crate::card::PerPlayerSelectionDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;

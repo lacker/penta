@@ -1,8 +1,11 @@
 //! Commander Masters cards cataloged for legend-rule coverage.
 
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::CardRules;
 use crate::card::CastTimingPermissionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -14,9 +17,6 @@ use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::abilities;
 use crate::mana_cost;
-use super::CardRecord;
-use super::PrintingRecord;
-use crate::card::CardRules;
 
 /// Printed set identity and stable catalog slug.
 pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
@@ -48,8 +48,6 @@ AbilityDef::triggered("Whenever you cast a colorless spell, until end of turn, t
 ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &SLIVER_GRAVEMOTHER,
-    &SKITTERING_CICADA_750,
-];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&SLIVER_GRAVEMOTHER, &SKITTERING_CICADA_750];
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

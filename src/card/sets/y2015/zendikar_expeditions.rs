@@ -1,6 +1,7 @@
 //! Zendikar Expeditions card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
@@ -21,12 +22,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
-
-
-
-
 
 // EXP 3 — Smoldering Marsh
 pub(in crate::card::sets) static SMOLDERING_MARSH_3: CardRecord = CardRecord::new(
@@ -116,10 +111,6 @@ pub(in crate::card::sets) static CANOPY_VISTA_5: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
-    &SMOLDERING_MARSH_3,
-    &CINDER_GLADE_4,
-    &CANOPY_VISTA_5,
-];
+    &[&SMOLDERING_MARSH_3, &CINDER_GLADE_4, &CANOPY_VISTA_5];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

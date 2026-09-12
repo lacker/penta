@@ -1,30 +1,30 @@
 //! Edge of Eternities Commander cards cataloged for the Vintage Cube pool.
 
-use crate::card::CardSupertype;
-use crate::card::ComparisonDef;
-use crate::card::ConditionDef;
-use crate::card::ObjectCountConditionDef;
-use crate::card::ObjectQueryDef;
-use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
+use crate::card::ZoneKind;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
@@ -140,10 +140,7 @@ pub(in crate::card::sets) static RADIANT_SUMMIT_23: CardRecord = CardRecord::new
     )]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &BALOTH_PRIME,
-    &SURGE_CONDUCTOR_19,
-    &RADIANT_SUMMIT_23,
-];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&BALOTH_PRIME, &SURGE_CONDUCTOR_19, &RADIANT_SUMMIT_23];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

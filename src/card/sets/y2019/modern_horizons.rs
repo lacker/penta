@@ -1,12 +1,5 @@
 //! Modern Horizons cards cataloged for the Vintage Cube pool.
 
-use crate::card::CharacteristicOperationDef;
-use crate::card::KeywordAbility;
-use crate::card::PlayActionMatcherDef;
-use crate::card::PlayRestrictionDef;
-use crate::card::SetOperationDef;
-use crate::card::StackTargetAggregationDef;
-use crate::card::StackTargetFilterDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -37,6 +30,7 @@ use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::EmblemCharacteristics;
 use crate::card::ExilePlayDurationDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
 use crate::card::MoveObjectsDef;
 use crate::card::ObjectCollectionSourceDef;
@@ -45,6 +39,8 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PayOrDef;
+use crate::card::PlayActionMatcherDef;
+use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
@@ -1337,14 +1333,12 @@ pub(in crate::card::sets) static GOOD_FORTUNE_UNICORN: CardRecord = CardRecord::
 );
 
 // MH1 216 — Unsettled Mariner
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
 pub(in crate::card::sets) static UNSETTLED_MARINER_216: CardRecord = CardRecord::new(
     "Unsettled Mariner",
     "eaea2e54-ee50-47b9-a2a5-e3353831248c",
     "John Stanko",
-    CardRules::new_creature(mana_cost!("{W}{U}"), &["Shapeshifter"], 2, 2).with_abilities(&[
-AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
-AbilityDef::triggered("Whenever you or a permanent you control becomes the target of a spell or ability an opponent controls, counter that spell or ability unless its controller pays {1}.", TriggerEventDef::targets_selected(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent), StackTargetFilterDef::AnyOf(&[StackTargetFilterDef::Player(PlayerRelation::You), StackTargetFilterDef::Permanent(ObjectPredicateDef::ControlledBy(PlayerRelation::You))]), StackTargetAggregationDef::EachMatchingTarget), abilities::counter_triggering_spell_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(1))]))
-]),
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 217 — Wrenn and Six
@@ -1576,32 +1570,12 @@ pub(in crate::card::sets) static TALISMAN_OF_HIERARCHY_233: CardRecord = CardRec
 );
 
 // MH1 235 — Universal Automaton
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
 pub(in crate::card::sets) static UNIVERSAL_AUTOMATON_235: CardRecord = CardRecord::new(
     "Universal Automaton",
     "53c682e2-c90f-4f4b-9010-00b099e85518",
     "Ben Maier",
-    CardRules::new_artifact_creature(mana_cost!("{1}"), &["Shapeshifter"], 1, 1).with_abilities(&[
-        AbilityDef::static_ability(
-            "Changeling (This card is every creature type.)",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Characteristic(
-                    crate::card::CharacteristicOperationDef::Subtypes(
-                        crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
-                    ),
-                ),
-            },
-        )
-        .with_source_zones(&[
-            ZoneKind::Battlefield,
-            ZoneKind::Library,
-            ZoneKind::Hand,
-            ZoneKind::Graveyard,
-            ZoneKind::Stack,
-            ZoneKind::Exile,
-            ZoneKind::Command,
-        ]),
-    ]),
+    crate::card::CardRules::unsupported(),
 );
 
 // MH1 238 — Fiery Islet

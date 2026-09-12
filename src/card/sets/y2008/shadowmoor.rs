@@ -1,7 +1,5 @@
 //! Shadowmoor cards cataloged for the Vintage Cube pool.
 
-use crate::card::ColorSet;
-use crate::card::ExilePlayDurationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -19,12 +17,14 @@ use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ColorSet;
 use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ExilePlayDurationDef;
 use crate::card::ManaColor;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;

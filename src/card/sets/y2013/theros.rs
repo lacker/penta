@@ -1,9 +1,5 @@
 //! Theros cards cataloged as cross-format rules-engine test cases.
 
-use crate::card::CardTypeSet;
-use crate::card::CharacteristicOperationDef;
-use crate::card::PlayerRefDef;
-use crate::card::SetOperationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -15,6 +11,8 @@ use crate::card::BasicLandType;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
+use crate::card::CharacteristicOperationDef;
 use crate::card::ColorChoiceOperationDef;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
@@ -25,9 +23,11 @@ use crate::card::ManaColor;
 use crate::card::ObjectCounterValueDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SetOperationDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueComparisonDef;

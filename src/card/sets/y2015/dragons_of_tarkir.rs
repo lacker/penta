@@ -1,6 +1,5 @@
 //! Dragons of Tarkir cards cataloged as cross-format rules-engine test cases.
 
-use crate::card::ManaColor;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -14,6 +13,7 @@ use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::KeywordAbility;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;

@@ -1,6 +1,7 @@
 //! Tarkir: Dragonstorm Commander card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::card::AbilityDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AttackDeclarationRangeDef;
@@ -30,12 +31,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
-
-
-
-
 
 // TDC 3 — Eshki, Temur's Roar
 pub(in crate::card::sets) static ESHKI_TEMUR_S_ROAR_3: CardRecord = CardRecord::new(

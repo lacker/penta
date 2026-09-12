@@ -1,19 +1,19 @@
 //! Fallout cards cataloged for the Vintage Cube pool.
 
-use crate::card::AddManaEffectDef;
-use crate::card::CostDef;
-use crate::card::ManaColor;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
 use crate::card::AbilityDef;
+use crate::card::AddManaEffectDef;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::CopyExceptionsDef;
+use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
 use crate::card::TokenDef;

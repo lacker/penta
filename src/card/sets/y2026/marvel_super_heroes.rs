@@ -1,8 +1,5 @@
 //! Marvel Super Heroes card inventory.
 
-use crate::card::DamageEventMatcherDef;
-use crate::card::DamageRecipientMatcherDef;
-use crate::card::TapEventMatcherDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -5199,67 +5196,12 @@ pub(in crate::card::sets) static KILLMONGER_SCOURGE_OF_WAKANDA: CardRecord = Car
 );
 
 // MSH 219 — King T'Challa // Black Panther, Hope Enduring
-pub(in crate::card::sets) static KING_T_CHALLA: CardRecord = CardRecord::new_dfc(
-"King T'Challa // Black Panther, Hope Enduring",
-"add7d3ce-aa58-4da0-8c2a-cfd01c3a8975",
-"Aaron J. Riley & Eric Wilkerson",
-&[
-            (
-                "King T'Challa",
-                CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Human", "Noble", "Hero"], 3, 2)
-                    .with_supertype(CardSupertype::Legendary)
-                    .with_abilities(&[
-                        abilities::flash(),
-                        AbilityDef::triggered(
-                            "Whenever a player draws their second card each turn, you draw a card.",
-                            TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
-                                PlayerRelation::Any,
-                                2,
-                            )),
-                            abilities::draw_cards(ValueDef::Constant(1)),
-                        ),
-                        AbilityDef::activated(
-                            "{4}{W}{U}: Transform King T'Challa. Activate only as a sorcery.",
-                            &[CostDef::Mana(mana_cost!("{4}{W}{U}"))],
-                            EffectDef::Transform {
-                                object: EffectRecipientDef::Source,
-                            },
-                        )
-                        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                    ]),
-            ),
-            (
-                "Black Panther, Hope Enduring",
-                CardRules::new_creature(
-                    mana_cost!("{4}{W}{U}"),
-                    &["Human", "Warrior", "Hero"],
-                    3,
-                    3,
-                )
-                .with_supertype(CardSupertype::Legendary)
-                .with_abilities(&[
-                    abilities::flash(),
-                    abilities::double_strike(),
-                    AbilityDef::static_ability(
-                        "Prevent all damage that would be dealt to Black Panther.",
-                        EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(
-                                DamageEventMatcherDef {
-                                    recipient: DamageRecipientMatcherDef::AffectedObject,
-                                    ..DamageEventMatcherDef::ANY
-                                },
-                            )),
-                        },
-                    ),
-                    AbilityDef::triggered(
-                        "Whenever Black Panther deals combat damage to a player, draw a card.",
-                        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-                        abilities::draw_cards(ValueDef::Constant(1)),
-                    ),
-                ]),
-            ),
-        ],
+// Audit: unsupported — Needs modal double-faced permanents to transform while retaining the ability to cast either face; physical_other_face currently rejects modal cards, so an ordinary transforming-card declaration would incorrectly remove the back-face casting option.
+pub(in crate::card::sets) static KING_T_CHALLA: CardRecord = CardRecord::new(
+    "King T'Challa // Black Panther, Hope Enduring",
+    "add7d3ce-aa58-4da0-8c2a-cfd01c3a8975",
+    "Aaron J. Riley & Eric Wilkerson",
+    CardRules::unsupported(),
 );
 
 // MSH 220 — The Kingpin of Crime

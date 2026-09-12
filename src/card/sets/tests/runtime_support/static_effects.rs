@@ -318,13 +318,12 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
             // creature": what a card says about itself, read by the card
             // view in whichever of its zones the clause names. The stack is
             // one of them -- the spell on its way in wears the clause too --
-            // the same intrinsic clause may also apply on the battlefield.
+            // and only the battlefield, with its own layer walk, is not.
             let card_source_effect = !source_zones.is_empty()
                 && source_zones.iter().all(|zone| {
                     matches!(
                         zone,
-                        ZoneKind::Battlefield
-                            | ZoneKind::Library
+                        ZoneKind::Library
                             | ZoneKind::Hand
                             | ZoneKind::Graveyard
                             | ZoneKind::Stack

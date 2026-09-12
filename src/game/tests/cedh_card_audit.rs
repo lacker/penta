@@ -1,6 +1,7 @@
 //! Regression coverage for declarations promoted by the Commander corpus audit.
 use super::*;
 mod collections;
+mod reconciliation;
 
 fn permanent(game: &Game, id: GameObjectId) -> &Permanent {
     game.battlefield.iter().find(|p| p.card.id == id).unwrap()
@@ -24,7 +25,7 @@ fn gran_gran_discount_tracks_lessons_and_only_noncreature_spells() {
         let mut game = ready_game();
         game.set_prepared_engine_enabled(prepared);
         game.battlefield
-            .push(creature(120_000, cards::GRAN_GRAN_54, PlayerId::One));
+            .push(creature(120_000, cards::GRAN_GRAN, PlayerId::One));
         let draw = card(120_001, cards::DIVINATION, PlayerId::One);
         let drake = card(120_002, cards::WIND_DRAKE, PlayerId::One);
         game.players[0].hand.extend([draw.clone(), drake.clone()]);
@@ -33,18 +34,18 @@ fn gran_gran_discount_tracks_lessons_and_only_noncreature_spells() {
         for id in 120_010..120_012 {
             game.players[0]
                 .graveyard
-                .push(card(id, cards::OCTOPUS_FORM_66, PlayerId::One));
+                .push(card(id, cards::OCTOPUS_FORM, PlayerId::One));
         }
         game.players[1]
             .graveyard
-            .push(card(120_013, cards::OCTOPUS_FORM_66, PlayerId::Two));
+            .push(card(120_013, cards::OCTOPUS_FORM, PlayerId::Two));
         assert!(
             !can_cast(&game, draw.id),
             "an opponent's Lesson does not count"
         );
         game.players[0]
             .graveyard
-            .push(card(120_014, cards::OCTOPUS_FORM_66, PlayerId::One));
+            .push(card(120_014, cards::OCTOPUS_FORM, PlayerId::One));
         assert!(can_cast(&game, draw.id));
         assert!(!can_cast(&game, drake.id), "creatures receive no reduction");
         game.players[0].graveyard.pop();

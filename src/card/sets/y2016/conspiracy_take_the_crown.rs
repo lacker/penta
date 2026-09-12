@@ -1,6 +1,5 @@
 //! Conspiracy: Take the Crown cards cataloged for the Vintage Cube pool.
 
-use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -22,6 +21,7 @@ use crate::card::StackTargetFilterDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 

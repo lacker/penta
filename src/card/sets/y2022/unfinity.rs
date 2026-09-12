@@ -1,6 +1,7 @@
 //! Unfinity card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 
 pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {
     code: "UNF",
@@ -8,12 +9,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
-
-
-
-
 
 // UNF 88 — Saw in Half
 // Audit: unsupported — CopyExceptionsDef stores fixed power/toughness only. It cannot install copiable base values computed by halving the destroyed creature's last-known power and toughness; a later Apply would not be a copy exception.
@@ -43,10 +38,6 @@ pub(in crate::card::sets) static CLOWN_CAR_472: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
-    &SAW_IN_HALF_88,
-    &GOBLIN_393,
-    &CLOWN_CAR_472,
-];
+    &[&SAW_IN_HALF_88, &GOBLIN_393, &CLOWN_CAR_472];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

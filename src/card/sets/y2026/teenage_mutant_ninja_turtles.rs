@@ -2,7 +2,6 @@
 
 use super::CardRecord;
 use super::PrintingRecord;
-use super::{CardRecord, PrintingRecord};
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityPredicateDef;
@@ -1896,15 +1895,6 @@ pub(in crate::card::sets) static INSECTOID_EXTERMINATOR: CardRecord = CardRecord
     CardRules::unsupported(),
 );
 
-// TLE 64 — Fire Nation Turret
-// Audit: unsupported — Firebending requires attack-generated mana retained through the combat phase. Mana expiry cannot currently be authored for the end of combat.
-pub(in crate::card::sets) static FIRE_NATION_TURRET_64: CardRecord = CardRecord::new(
-    "Fire Nation Turret",
-    "f25cc190-05e2-4aba-b214-46f687c07a10",
-    "Fahmi Fauzi",
-    crate::card::CardRules::unsupported(),
-);
-
 // TMT 65 — Lord Dregg, Insect Invader
 // Audit: unsupported — Needs per-controller history of a permanent leaving the battlefield this turn, including noncreatures and moves other than death; current death and entry history cannot answer disappear.
 pub(in crate::card::sets) static LORD_DREGG_INSECT_INVADER: CardRecord = CardRecord::new(
@@ -3348,34 +3338,6 @@ pub(in crate::card::sets) static MICHELANGELO_MUTANT_BFF: CardRecord = CardRecor
     ]),
 );
 
-// TLE 120 — Longshot, Rebel Bowman
-pub(in crate::card::sets) static LONGSHOT_REBEL_BOWMAN_120: CardRecord = CardRecord::new(
-    "Longshot, Rebel Bowman",
-    "b36efbe2-3798-43e5-8640-f003c77440a1",
-    "Morry Hollowell",
-    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Rebel", "Ally"], 3, 3)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&[
-            abilities::reach(),
-            AbilityDef::static_ability(
-                "Noncreature spells you cast cost {1} less to cast.",
-                EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                    PlayerRelation::You,
-                    ValueDef::Constant(1),
-                )),
-            ),
-            AbilityDef::triggered(
-                "Whenever you cast a noncreature spell, Longshot deals 2 damage to each opponent.",
-                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::NoncreatureSpell,
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ])),
-                EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(2)),
-            ),
-        ]),
-);
-
 // TMT 121 — Michelangelo, Weirdness to 11
 // Audit: unsupported — Needs a replacement for a +1/+1-counter placement event adding one counter per affected controlled creature, including counters placed during battlefield entry.
 pub(in crate::card::sets) static MICHELANGELO_WEIRDNESS_TO_11: CardRecord = CardRecord::new(
@@ -3702,15 +3664,6 @@ pub(in crate::card::sets) static TRANSDIMENSIONAL_BOVINE: CardRecord = CardRecor
             EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(2)),
         ),
     ]),
-);
-
-// TLE 134 — The Cabbage Merchant
-// Audit: unsupported — Activated mana payment cannot tap two chosen Food permanents; the supported tap-source mana cost cannot represent this selection.
-pub(in crate::card::sets) static THE_CABBAGE_MERCHANT_134: CardRecord = CardRecord::new(
-    "The Cabbage Merchant",
-    "2fea0356-6684-4730-9eb4-0262856bc1f9",
-    "Patrick Gañas",
-    crate::card::CardRules::unsupported(),
 );
 
 // TMT 135 — Turtle Power!
@@ -5321,18 +5274,6 @@ const MICHELANGELO_MUTANT_BFF_ALTERNATE_1: PrintingRecord = PrintingRecord::alte
     "Daniel Elson",
 );
 
-// TLE 198 — Smellerbee, Rebel Fighter
-pub(in crate::card::sets) static SMELLERBEE_REBEL_FIGHTER_198: CardRecord = CardRecord::new(
-    "Smellerbee, Rebel Fighter",
-    "2f1cae39-6120-4630-83c6-9ededc96308c",
-    "Enishi",
-    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Rebel", "Ally"], 3, 3).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::first_strike(),
-AbilityDef::static_ability("Other creatures you control have haste.", EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_ability(&abilities::haste()) }),
-AbilityDef::triggered("Whenever Smellerbee attacks, you may discard your hand. If you do, draw cards equal to the number of attacking creatures.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Sequence(&[EffectDef::discard_cards(EffectRecipientDef::matching_objects(ObjectPredicateDef::Any, &[ZoneKind::Hand], PlayerRelation::You)), abilities::draw_cards(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Attacking]), &[ZoneKind::Battlefield], PlayerRelation::Any)))]) })
-]),
-);
-
 // TMT 199 — Raphael, Most Attitude (alternate printing)
 const RAPHAEL_MOST_ATTITUDE_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
     &RAPHAEL_MOST_ATTITUDE,
@@ -6372,7 +6313,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DREAM_BEAVERS,
     &FOOT_MYSTIC,
     &INSECTOID_EXTERMINATOR,
-    &FIRE_NATION_TURRET_64,
     &LORD_DREGG_INSECT_INVADER,
     &MADAME_NULL_POWER_BROKER,
     &NINJA_TEEN,
@@ -6429,7 +6369,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MICHELANGELO_GAME_MASTER,
     &MICHELANGELO_IMPROVISER,
     &MICHELANGELO_MUTANT_BFF,
-    &LONGSHOT_REBEL_BOWMAN_120,
     &MICHELANGELO_WEIRDNESS_TO_11,
     &MICHELANGELO_S_TECHNIQUE,
     &MONA_LISA_SCIENCE_GEEK,
@@ -6444,7 +6383,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SAVED_BY_THE_SHELL,
     &TENDERIZE,
     &TRANSDIMENSIONAL_BOVINE,
-    &THE_CABBAGE_MERCHANT_134,
     &TURTLE_POWER,
     &VENUS_TORN_BETWEEN_WORLDS,
     &WEST_WIND_AVATAR,
@@ -6500,7 +6438,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &NORTHAMPTON_FARM,
     &TCRI_BUILDING,
     &TURTLE_LAIR,
-    &SMELLERBEE_REBEL_FIGHTER_198,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[

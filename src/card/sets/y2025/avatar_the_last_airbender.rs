@@ -1,6 +1,5 @@
 //! Avatar: The Last Airbender card inventory.
 
-use crate::card::TapEventMatcherDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -4246,14 +4245,12 @@ pub(in crate::card::sets) static BADGERMOLE: CardRecord = CardRecord::new(
 );
 
 // TLA 167 — Badgermole Cub
+// Audit: unsupported — Needs earthbend land animation and its independent delayed death-or-exile return trigger, preserving the affected object identity through ability removal and its subsequent zone change.
 pub(in crate::card::sets) static BADGERMOLE_CUB: CardRecord = CardRecord::new(
-"Badgermole Cub",
-"340c5799-4964-44dd-8c48-8f3f3aba5211",
-"Nathaniel Himawan",
-CardRules::new_creature(mana_cost!("{1}{G}"), &["Badger", "Mole"], 2, 2).with_abilities(&[
-abilities::enters_trigger_with_targets("When this creature enters, earthbend 1. (Target land you control becomes a 0/0 creature with haste that's still a land. Put a +1/+1 counter on it. When it dies or is exiled, return it to the battlefield tapped.)", &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Land), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::Sequence(&[EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(CardTypeSet::single(CardType::Creature)))), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(0), ValueDef::Constant(0)), AppliedEffectDef::add_ability(&abilities::haste()), AppliedEffectDef::add_ability(&AbilityDef::triggered("When this permanent dies or is exiled, return it to the battlefield tapped.", TriggerEventDef::AnyOf(&[TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), TriggerEventDef::zone_changed(ObjectPredicateDef::Source, Some(ZoneKind::Battlefield), Some(ZoneKind::Exile))]), EffectDef::WithBattlefieldArrival { effect: &EffectDef::move_to_zone(EffectRecipientDef::object(ObjectRefDef::ZoneChangeResultOfTriggeringObject), ZoneKind::Battlefield, ZonePlacement::Top), arrival: BattlefieldArrivalDef { controller: None, modifications: &[BattlefieldEntryModificationDef::Tapped], attachment: None, counters: None } }))]), duration: ResolvedEffectDurationDef::Permanent }, EffectDef::AddCounters { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }])),
-AbilityDef::triggered_mana("Whenever you tap a creature for mana, add an additional {G}.", TriggerEventDef::tapped_for_mana(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)))
-]),
+    "Badgermole Cub",
+    "340c5799-4964-44dd-8c48-8f3f3aba5211",
+    "Nathaniel Himawan",
+    CardRules::unsupported(),
 );
 
 // TLA 168 — The Boulder, Ready to Rumble

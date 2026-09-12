@@ -1,28 +1,28 @@
 //! Conspiracy cards cataloged for the Vintage Cube pool.
 
-use crate::card::AddManaEffectDef;
-use crate::card::CounterKind;
-use crate::card::ManaColor;
-use crate::card::TriggerConditionDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ControlDurationDef;
 use crate::card::CostDef;
+use crate::card::CounterKind;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::mana_cost;
@@ -152,8 +152,7 @@ pub(in crate::card::sets) static SELVALA_EXPLORER_RETURNED_51: CardRecord = Card
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &COUNCILS_JUDGMENT,
     &CUSTODI_SQUIRE,
     &TREASONOUS_OGRE_36,

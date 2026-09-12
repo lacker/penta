@@ -1,19 +1,5 @@
 //! The Lost Caverns of Ixalan Commander card records required by supported formats.
 
-use crate::card::ComparisonDef;
-use crate::card::DamageDef;
-use crate::card::DamageEventMatcherDef;
-use crate::card::DamageRecipientMatcherDef;
-use crate::card::EffectChoiceDef;
-use crate::card::ManaColor;
-use crate::card::ObjectQueryDef;
-use crate::card::ObjectRefDef;
-use crate::card::ObjectSetDef;
-use crate::card::SubtypeDef;
-use crate::card::TriggerConditionDef;
-use crate::card::TriggerEventDef;
-use crate::card::ValueComparisonDef;
-use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -22,13 +8,27 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::CardRules;
 use crate::card::CardType;
+use crate::card::ComparisonDef;
 use crate::card::CostDef;
+use crate::card::DamageDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamageRecipientMatcherDef;
+use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
+use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -132,8 +132,7 @@ pub(in crate::card::sets) static PANTLAZA_SUN_FAVORED_124: CardRecord = CardReco
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ALTAR_OF_THE_WRETCHED_WRETCHED_BONEMASS_22,
     &CHARISMATIC_CONQUEROR_70,
     &BROADSIDE_BOMBARDIERS,

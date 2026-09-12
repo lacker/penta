@@ -1,16 +1,5 @@
 //! Lorwyn cards cataloged for the Vintage Cube pool.
 
-use crate::card::AggregateOperationDef;
-use crate::card::CardSupertype;
-use crate::card::CopyAbilityDef;
-use crate::card::CopyExceptionsDef;
-use crate::card::CreatureTypeSetDef;
-use crate::card::ObjectRefDef;
-use crate::card::ObjectValueAggregateDef;
-use crate::card::ObjectValueDef;
-use crate::card::ResolvedEffectDurationDef;
-use crate::card::TokenCopyDef;
-use crate::card::TurnStepDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::CounterKind;
@@ -19,12 +8,17 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
+use crate::card::CopyAbilityDef;
+use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
+use crate::card::CreatureTypeSetDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -33,13 +27,19 @@ use crate::card::FreePlayDurationDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
+use crate::card::TokenCopyDef;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -262,7 +262,7 @@ pub(in crate::card::sets) static WINGS_OF_VELIS_VEL_97: CardRecord = CardRecord:
     "Wings of Velis Vel",
     "fb3c1f39-b6ac-4663-9623-bd573a1117b0",
     "Jim Pavelec",
-    CardRules::new_instant(mana_cost!("{1}{U}")).with_subtypes(&["Shapeshifter"]).with_type(CardType::Kindred).with_abilities(&[AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(crate::card::CharacteristicOperationDef::Subtypes(crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_subtypes(&["Shapeshifter"]).with_type(CardType::Kindred).with_abilities(&[AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(crate::card::CharacteristicOperationDef::Subtypes(crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
 
 AbilityDef::spell_with_targets("Until end of turn, target creature has base power and toughness 4/4, gains all creature types, and gains flying.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::ALL), AppliedEffectDef::add_ability(&abilities::flying())]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
 
@@ -313,7 +313,7 @@ pub(in crate::card::sets) static BLADES_OF_VELIS_VEL_152: CardRecord = CardRecor
     "5a3ac629-a8c9-4b84-a8ea-b775d7913238",
     "Ron Spencer",
     CardRules::new_instant(mana_cost!("{1}{R}")).with_subtypes(&["Shapeshifter"]).with_abilities(&[
-AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(crate::card::CharacteristicOperationDef::Subtypes(crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
+AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(crate::card::CharacteristicOperationDef::Subtypes(crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
 AbilityDef::spell_with_targets("Up to two target creatures each get +2/+0 and gain all creature types until end of turn.", &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: None, owner: None }, 2)], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::Composite(&[AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::ALL)]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
 ]).with_type(CardType::Kindred),
 );

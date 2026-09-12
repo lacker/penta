@@ -1,10 +1,5 @@
 //! Conflux cards cataloged for the Vintage Cube.
 
-use crate::card::ComparisonDef;
-use crate::card::DrawEventMatcherDef;
-use crate::card::ObjectRefDef;
-use crate::card::TriggerConditionDef;
-use crate::card::TriggerEventDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityTargetPredicate;
@@ -22,16 +17,21 @@ use crate::card::BasicLandType;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ComparisonDef;
 use crate::card::CostDef;
+use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ManaTypeSetDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::SacrificedAmountDef;
+use crate::card::TriggerConditionDef;
+use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;

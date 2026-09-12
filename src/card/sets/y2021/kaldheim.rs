@@ -1,11 +1,5 @@
 //! Kaldheim cards cataloged for the Vintage Cube pool.
 
-use crate::card::ComparisonDef;
-use crate::card::CreatureTypeSetDef;
-use crate::card::EffectChoiceDef;
-use crate::card::ManaRestrictionDef;
-use crate::card::TriggerConditionDef;
-use crate::card::ValueComparisonDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -18,15 +12,19 @@ use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ComparisonDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::ManaRestrictionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
@@ -35,7 +33,9 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
+use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -473,42 +473,12 @@ pub(in crate::card::sets) static IMMERSTURM_PREDATOR: CardRecord = CardRecord::n
 );
 
 // KHM 235 — Bloodline Pretender
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
 pub(in crate::card::sets) static BLOODLINE_PRETENDER_235: CardRecord = CardRecord::new(
     "Bloodline Pretender",
     "eb8a16f6-55c1-40eb-998f-592bf31916b1",
     "Slawomir Maniak",
-    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Shapeshifter"], 2, 2).with_abilities(&[
-        AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Characteristic(crate::card::CharacteristicOperationDef::Subtypes(crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES))) }).with_source_zones(&[ZoneKind::Battlefield, ZoneKind::Library, ZoneKind::Hand, ZoneKind::Graveyard, ZoneKind::Stack, ZoneKind::Exile, ZoneKind::Command]),
-
-        AbilityDef::as_enters(
-            "As this creature enters, choose a creature type.",
-            crate::card::ReplacementEffectDef::Choose(
-                crate::card::ReplacementChoiceDef::Scalar(
-                    crate::card::BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
-                ),
-            ),
-        ),
-        AbilityDef::triggered(
-            "Whenever another creature you control of the chosen type enters, put a +1/+1 counter on this creature.",
-            TriggerEventDef::zone_changed(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                    ObjectPredicateDef::HasSourcesChosenScalar(
-                        crate::card::BattlefieldEntryChoiceDestinationDef::CreatureType,
-                    ),
-                ]),
-                None,
-                Some(ZoneKind::Battlefield),
-            ),
-            EffectDef::AddCounters {
-                object: EffectRecipientDef::Source,
-                kind: CounterKind::PlusOnePlusOne,
-                amount: ValueDef::Constant(1),
-            },
-        ),
-    ]),
+    crate::card::CardRules::unsupported(),
 );
 
 // KHM 239 — Goldvein Pick

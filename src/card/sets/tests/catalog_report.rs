@@ -111,7 +111,7 @@ fn coverage_for(root: &Path, catalog: &crate::card::CardCatalog, format: Format)
         FormatDefinition::Commander(_) => {
             let ids = crate::decks::BUILTIN_DECKS
                 .iter()
-                .filter(|deck| deck.format == format)
+                .filter(|deck| deck.format == Some(format))
                 .flat_map(|deck| {
                     let deck = deck.build();
                     deck.main

@@ -1,7 +1,5 @@
 //! Streets of New Capenna cards cataloged for the Vintage Cube pool.
 
-use crate::card::AppliedRuleDef;
-use crate::card::ExilePlayDurationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -10,6 +8,7 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardArt;
@@ -23,6 +22,7 @@ use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ExilePlayDurationDef;
 use crate::card::ManaColor;
 use crate::card::ManaRestrictionDef;
 use crate::card::ObjectPredicateDef;

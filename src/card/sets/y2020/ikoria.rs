@@ -1,9 +1,5 @@
 //! Ikoria: Lair of Behemoths cards cataloged for the Vintage Cube pool.
 
-use crate::card::CounterKind;
-use crate::card::ObjectRefDef;
-use crate::card::SubtypeDef;
-use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -18,6 +14,7 @@ use crate::card::CompanionConditionDef;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
+use crate::card::CounterKind;
 use crate::card::DamageEventMatcherDef;
 use crate::card::DamageKindDef;
 use crate::card::DamageRecipientMatcherDef;
@@ -28,15 +25,18 @@ use crate::card::EffectRecipientDef;
 use crate::card::GraveyardPlayPermissionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;

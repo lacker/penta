@@ -1,6 +1,5 @@
 //! Dominaria United Commander card records required by supported formats.
 
-use crate::card::CostDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
@@ -11,6 +10,7 @@ use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CopyExceptionsDef;
+use crate::card::CostDef;
 use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::EffectDef;
@@ -178,8 +178,7 @@ pub(in crate::card::sets) static GERRARD_S_HOURGLASS_PENDANT_93: CardRecord = Ca
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &THE_REAVER_CLEAVER_8,
     &CADRIC_SOUL_KINDLER,
     &TORSTEN_FOUNDER_OF_BENALIA,

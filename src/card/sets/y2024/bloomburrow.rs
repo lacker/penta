@@ -6365,52 +6365,12 @@ pub(in crate::card::sets) static ZORALINE_COSMOS_CALLER: CardRecord = CardRecord
 );
 
 // BLB 243 — Barkform Harvester
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
 pub(in crate::card::sets) static BARKFORM_HARVESTER: CardRecord = CardRecord::new(
-"Barkform Harvester",
-"f77049a6-0f22-415b-bc89-20bcb32accf6",
-"Zezhou Chen",
-CardRules::new_creature(mana_cost!("{3}"), &["Shapeshifter"], 2, 3)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "Changeling (This card is every creature type.)",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::Characteristic(
-                        crate::card::CharacteristicOperationDef::Subtypes(
-                            crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
-                        ),
-                    ),
-                },
-            )
-            .with_source_zones(&[
-                ZoneKind::Battlefield,
-                ZoneKind::Library,
-                ZoneKind::Hand,
-                ZoneKind::Graveyard,
-                ZoneKind::Stack,
-                ZoneKind::Exile,
-                ZoneKind::Command,
-            ]),
-            abilities::reach(),
-            AbilityDef::activated_with_targets(
-                "{2}: Put target card from your graveyard on the bottom of your library.",
-                &[CostDef::Mana(mana_cost!("{2}"))],
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Any,
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: Some(PlayerRelation::You),
-                    },
-                )],
-                EffectDef::move_to_zone(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ZoneKind::Library,
-                    ZonePlacement::Bottom,
-                ),
-            ),
-        ])
-        .with_type(crate::card::CardType::Artifact),
+    "Barkform Harvester",
+    "f77049a6-0f22-415b-bc89-20bcb32accf6",
+    "Zezhou Chen",
+    crate::card::CardRules::unsupported(),
 );
 
 // BLB 244 — Bumbleflower's Sharepot
@@ -6610,38 +6570,12 @@ pub(in crate::card::sets) static TANGLE_TUMBLER: CardRecord = CardRecord::new(
 );
 
 // BLB 251 — Three Tree Mascot
+// Audit: unsupported — The all-zone subtype declaration is read for cards and spells but not applied by the battlefield/copy characteristic walk. Changeling needs the same intrinsic all-types value across those paths.
 pub(in crate::card::sets) static THREE_TREE_MASCOT: CardRecord = CardRecord::new(
-"Three Tree Mascot",
-"aaced75b-6e07-457c-8ea2-f74d99710d15",
-"Gina Matarazzo",
-CardRules::new_artifact_creature(mana_cost!("{2}"), &["Shapeshifter"], 2, 1).with_abilities(&[
-        AbilityDef::static_ability(
-            "Changeling (This card is every creature type.)",
-            EffectDef::StaticApply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Characteristic(
-                    crate::card::CharacteristicOperationDef::Subtypes(
-                        crate::card::SetOperationDef::Add(crate::card::CREATURE_TYPES),
-                    ),
-                ),
-            },
-        )
-        .with_source_zones(&[
-            ZoneKind::Battlefield,
-            ZoneKind::Library,
-            ZoneKind::Hand,
-            ZoneKind::Graveyard,
-            ZoneKind::Stack,
-            ZoneKind::Exile,
-            ZoneKind::Command,
-        ]),
-        AbilityDef::activated_mana(
-            "{1}: Add one mana of any color. Activate only once each turn.",
-            &[CostDef::Mana(mana_cost!("{1}"))],
-            EffectDef::AddMana(crate::card::AddManaEffectDef::any_color()),
-        )
-        .once_each_turn(),
-    ]),
+    "Three Tree Mascot",
+    "aaced75b-6e07-457c-8ea2-f74d99710d15",
+    "Gina Matarazzo",
+    crate::card::CardRules::unsupported(),
 );
 
 // BLB 252 — Fabled Passage (reprint)

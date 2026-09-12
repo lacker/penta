@@ -1,9 +1,5 @@
 //! M19 card records required by supported formats.
 
-use crate::card::CopyExceptionsDef;
-use crate::card::CostModificationDef;
-use crate::card::ReplacementEventDef;
-use crate::card::ZoneMoveCauseDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -22,7 +18,9 @@ use crate::card::CharacteristicOperationDef;
 use crate::card::ChooseCardsFromCollectionDef;
 use crate::card::CollectionInspectionDef;
 use crate::card::ComparisonDef;
+use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -40,6 +38,7 @@ use crate::card::PlayerRelation;
 use crate::card::RandomizeObjectOrderDef;
 use crate::card::ReplacementChoiceDef;
 use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::SetOperationDef;
@@ -51,6 +50,7 @@ use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZoneMoveCauseDef;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;

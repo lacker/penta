@@ -1,6 +1,5 @@
 //! Tarkir: Dragonstorm card inventory.
 
-use crate::card::ExilePlayDurationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;

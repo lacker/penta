@@ -64,11 +64,8 @@ fn bonehoard_dracosaur_produces_once_per_card_type_and_grants_play_permissions()
         for mixed in [false, true] {
             let mut game = ready_game();
             game.set_prepared_engine_enabled(prepared);
-            game.battlefield.push(creature(
-                125_010,
-                cards::BONEHOARD_DRACOSAUR_134,
-                PlayerId::One,
-            ));
+            game.battlefield
+                .push(creature(125_010, cards::BONEHOARD_DRACOSAUR, PlayerId::One));
             game.players[0].library = vec![
                 card(125_011, cards::FOREST, PlayerId::One),
                 card(

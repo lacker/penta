@@ -1,6 +1,7 @@
 //! Aetherdrift Commander card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -20,12 +21,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 });
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
-
-
-
-
-
-
 
 // DRC 1 — Hashaton, Scarab's Fist
 // Audit: unsupported — Discard triggers have no creature-card predicate using the discard event's last-known characteristics. Testing the live graveyard card misses replacement destinations and discarded activation-cost objects.

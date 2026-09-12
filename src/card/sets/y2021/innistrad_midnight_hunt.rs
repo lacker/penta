@@ -1,31 +1,23 @@
 //! Innistrad: Midnight Hunt cards cataloged for the Vintage Cube pool.
 
-use crate::ParentBinding;
-use crate::card::AbilityKindDef;
-use crate::card::AbilityPredicateDef;
-use crate::card::AggregateOperationDef;
-use crate::card::BindObjectsDef;
-use crate::card::ChoiceVisibilityDef;
-use crate::card::ChooseDef;
-use crate::card::ObjectChoiceBindingDef;
-use crate::card::ObjectCollectionSourceDef;
-use crate::card::ObjectRefDef;
-use crate::card::ObjectSetDef;
-use crate::card::ObjectValueAggregateDef;
-use crate::card::ObjectValueDef;
-use crate::card::PlayerRefDef;
-use crate::card::PlayerSetDef;
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::ParentBinding;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityKindDef;
+use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
+use crate::card::BindObjectsDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
@@ -34,9 +26,17 @@ use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
@@ -49,6 +49,25 @@ use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
+
+static TWO_OR_MORE_OTHER_LANDS: crate::card::ObjectCountConditionDef =
+    crate::card::ObjectCountConditionDef {
+        query: ObjectQueryDef::matching(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+            ]),
+            &[ZoneKind::Battlefield],
+            PlayerRelation::You,
+        ),
+        comparison: crate::card::ComparisonDef::GreaterOrEqual,
+        amount: 2,
+    };
+
+const ENTER_TAPPED: [crate::card::ReplacementEffectDef; 1] =
+    [crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+        crate::card::BattlefieldEntryModificationDef::Tapped,
+    )];
 
 /// Printed set identity and stable catalog slug.
 pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::CardSetMetadata {

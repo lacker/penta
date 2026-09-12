@@ -1,15 +1,5 @@
 //! Final Fantasy card inventory.
 
-use crate::CardPartId;
-use crate::PlayOptionId;
-use crate::card::AlternateSpellKind;
-use crate::card::CardComposition;
-use crate::card::CardEffectStatus;
-use crate::card::CardPart;
-use crate::card::CardStructure;
-use crate::card::ExilePlayDurationDef;
-use crate::card::PlayOptionDef;
-use crate::card::SpellForm;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -4246,11 +4236,12 @@ pub(in crate::card::sets) static CHOCO_COMET: CardRecord = CardRecord::new(
 );
 
 // FIN 133 — Clive, Ifrit's Dominant // Ifrit, Warden of Inferno
-pub(in crate::card::sets) static CLIVE_IFRIT_S_DOMINANT: CardRecord = CardRecord::new_dfc(
-"Clive, Ifrit's Dominant // Ifrit, Warden of Inferno",
-"9a069e96-2786-493d-aca8-f70611435dbe",
-"Nino Is",
-&[("Clive, Ifrit's Dominant", CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Human", "Noble", "Warrior"], 5, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[abilities::enters_trigger("When Clive enters, you may discard your hand, then draw cards equal to your devotion to red. (Each {R} in the mana costs of permanents you control counts toward your devotion to red.)", EffectDef::May { player: EffectRecipientDef::Controller, effect: &EffectDef::Sequence(&[EffectDef::Discard { recipient: EffectRecipientDef::Controller, amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::Any, &[ZoneKind::Hand], PlayerRelation::You)), selection: DiscardSelectionDef::RecipientChooses, then: None }, abilities::draw_cards(ValueDef::DevotionTo(ManaColor::Red))]) }), AbilityDef::activated("{4}{R}{R}, {T}: Exile Clive, then return it to the battlefield transformed under its owner's control. Activate only as a sorcery.", &[CostDef::Mana(mana_cost!("{4}{R}{R}")), CostDef::TapSource], EffectDef::ExileLinkedToSource { until_source_leaves: false, object: EffectRecipientDef::Source, face_down: false, then: Some(&EffectDef::ReturnLinkedExiles { object: ObjectPredicateDef::Any, counters: None, zone: ZoneKind::Battlefield, grant: None, controller: None, transformed: true }) }).with_activation_timing(ActivationTimingDef::SorcerySpeed)])), ("Ifrit, Warden of Inferno", CardRules::new_creature_without_mana_cost(&["Saga", "Demon"], 9, 9).with_type(CardType::Enchantment).with_supertype(CardSupertype::Legendary).printed_colors(&[ManaColor::Red]).with_abilities(&[abilities::saga_chapter_with_targets(1, "I — Lunge — Ifrit fights up to one other target creature.", &[AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), zones: &[ZoneKind::Battlefield], controller: None, owner: None }, 1)], EffectDef::Fight { first: ObjectRefDef::Source, second: ObjectRefDef::Target(TargetIndex::PRIMARY), excess: None }), abilities::saga_chapter(2, "II, III — Brimstone — Add {R}{R}{R}{R}. If Ifrit has three or more lore counters on it, exile it, then return it to the battlefield (front face up).", EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_variable_amount(ValueDef::Constant(4))), EffectDef::IfCondition { condition: &TriggerConditionDef::SourceCounters { kind: CounterKind::Lore, comparison: ComparisonDef::GreaterOrEqual, amount: 3 }, then: &EffectDef::ExileLinkedToSource { until_source_leaves: false, object: EffectRecipientDef::Source, face_down: false, then: Some(&EffectDef::ReturnLinkedExiles { object: ObjectPredicateDef::Any, counters: None, zone: ZoneKind::Battlefield, grant: None, controller: None, transformed: false }) } }])), abilities::saga_chapter(3, "II, III — Brimstone — Add {R}{R}{R}{R}. If Ifrit has three or more lore counters on it, exile it, then return it to the battlefield (front face up).", EffectDef::Sequence(&[EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_variable_amount(ValueDef::Constant(4))), EffectDef::IfCondition { condition: &TriggerConditionDef::SourceCounters { kind: CounterKind::Lore, comparison: ComparisonDef::GreaterOrEqual, amount: 3 }, then: &EffectDef::ExileLinkedToSource { until_source_leaves: false, object: EffectRecipientDef::Source, face_down: false, then: Some(&EffectDef::ReturnLinkedExiles { object: ObjectPredicateDef::Any, counters: None, zone: ZoneKind::Battlefield, grant: None, controller: None, transformed: false }) } }]))]))],
+// Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
+pub(in crate::card::sets) static CLIVE_IFRIT_S_DOMINANT: CardRecord = CardRecord::new(
+    "Clive, Ifrit's Dominant // Ifrit, Warden of Inferno",
+    "9a069e96-2786-493d-aca8-f70611435dbe",
+    "Nino Is",
+    CardRules::unsupported(),
 );
 
 // FIN 134 — Coral Sword
@@ -4573,13 +4564,12 @@ pub(in crate::card::sets) static NIBELHEIM_AFLAME: CardRecord = CardRecord::new(
 );
 
 // FIN 147 — Opera Love Song
+// Audit: unsupported — Needs exile-play permission that ends as the holder's next end step begins; the current next-end-step permission survives beyond that step.
 pub(in crate::card::sets) static OPERA_LOVE_SONG: CardRecord = CardRecord::new(
-"Opera Love Song",
-"0343916d-1b65-4e95-aef1-e72dbcebf0c4",
-"Grace Zhu",
-CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[
-AbilityDef::modal_spell("Choose one —", &[AbilityDef::spell("Exile the top two cards of your library. You may play those cards until your next end step.", EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(2), free: false, face_down: false, duration: ExilePlayDurationDef::UntilYourNextEndStep, spend_any_color: false, play_condition: None, cast_only: false }), AbilityDef::spell_with_targets("One or two target creatures each get +2/+0 until end of turn.", &[AbilityTargetDef { minimum: 1, ..AbilityTargetDef::up_to(AbilityTargetPredicate::Object { object: ObjectPredicateDef::HasType(CardType::Creature), zones: &[ZoneKind::Battlefield], controller: None, owner: None }, 2) }], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)), duration: ResolvedEffectDurationDef::UntilEndOfTurn })]).with_mode_selection(1, 1, false)
-]),
+    "Opera Love Song",
+    "0343916d-1b65-4e95-aef1-e72dbcebf0c4",
+    "Grace Zhu",
+    CardRules::unsupported(),
 );
 
 // FIN 148 — Prompto Argentum

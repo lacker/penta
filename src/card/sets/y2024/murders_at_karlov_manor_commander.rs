@@ -1,6 +1,7 @@
 //! Murders at Karlov Manor Commander card records required by the cEDH corpus.
 
-use super::{CardRecord, PrintingRecord};
+use super::CardRecord;
+use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
@@ -28,10 +29,6 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-
-
-
-
 // MKC 326 — Trouble in Pairs
 // Audit: unsupported — There is no replacement for an opponent beginning an extra turn; an ordinary extra-turn scheduling effect cannot skip that turn instead.
 pub(in crate::card::sets) static TROUBLE_IN_PAIRS_326: CardRecord = CardRecord::new(
@@ -53,9 +50,6 @@ AbilityDef::modal_activated("{2}, Sacrifice this artifact: Choose one —\n• C
 ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &TROUBLE_IN_PAIRS_326,
-    &RANSOM_NOTE_358,
-];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&TROUBLE_IN_PAIRS_326, &RANSOM_NOTE_358];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

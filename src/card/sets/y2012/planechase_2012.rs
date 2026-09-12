@@ -1,22 +1,22 @@
 //! Planechase 2012 cards cataloged for the Vintage Cube pool.
 
-use crate::card::AbilityDef;
-use crate::card::AppliedEffectDef;
-use crate::card::CardSupertype;
-use crate::card::CardType;
-use crate::card::ObjectPredicateDef;
-use crate::card::PlayerRelation;
-use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
+use crate::card::AbilityDef;
+use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
+use crate::card::CardType;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::ValueDef;
+use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -96,10 +96,7 @@ pub(in crate::card::sets) static MAELSTROM_WANDERER_101: CardRecord = CardRecord
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &BEETLEBACK_CHIEF,
-    &BALEFUL_STRIX,
-    &MAELSTROM_WANDERER_101,
-];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&BEETLEBACK_CHIEF, &BALEFUL_STRIX, &MAELSTROM_WANDERER_101];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

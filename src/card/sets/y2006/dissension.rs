@@ -1,6 +1,5 @@
 //! DIS card records required by supported formats.
 
-use crate::card::CostModificationDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AbilityTargetPredicate;
@@ -18,6 +17,7 @@ use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ClassifyObjectsDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
 use crate::card::EffectDef;
 use crate::card::KeywordAbility;
 use crate::card::ManaColor;

@@ -1,6 +1,5 @@
 //! GPT card records required by supported formats.
 
-use crate::card::EffectChoiceDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::CastTimingPermissionDef;
@@ -15,6 +14,7 @@ use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CostDef;
+use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;

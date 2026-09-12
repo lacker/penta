@@ -1,9 +1,6 @@
 //! The Lord of the Rings: Tales of Middle-earth Commander cards cataloged for
 //! the Vintage Cube pool.
 
-use crate::card::CardSupertype;
-use crate::card::ObjectQueryDef;
-use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
@@ -12,6 +9,7 @@ use crate::card::AbilityTargetDef;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
@@ -21,6 +19,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
@@ -28,6 +27,7 @@ use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
+use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -221,8 +221,7 @@ pub(in crate::card::sets) static LEGOLASS_QUICK_REFLEXES: CardRecord = CardRecor
     ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GIMLI_OF_THE_GLITTERING_CAVES_32,
     &FORTH_EORLINGAS,
     &CAVERN_HOARD_DRAGON_114,

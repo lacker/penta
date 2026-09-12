@@ -1,30 +1,30 @@
 //! Kamigawa: Neon Dynasty Commander cards cataloged for the Vintage Cube
 //! pool.
 
-use crate::card::AbilityTargetDef;
-use crate::card::CardTypeSet;
-use crate::card::CharacteristicOperationDef;
-use crate::card::DeckConstructionDef;
-use crate::card::SetOperationDef;
-use crate::card::SubtypeDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
+use crate::card::CharacteristicOperationDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::DeckConstructionDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SetOperationDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
@@ -187,8 +187,7 @@ pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecor
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &IMPOSTER_MECH_13,
     &KAPPA_CANNONEER,
     &SWIFT_RECONFIGURATION_45,

@@ -1,24 +1,24 @@
 //! March of the Machine Commander card records required by supported formats.
 
-use crate::card::AbilityTargetDef;
-use crate::card::AbilityTargetPredicate;
-use crate::card::CardType;
-use crate::card::CostDef;
-use crate::card::ExilePlayDurationDef;
-use crate::card::ObjectPredicateDef;
-use crate::card::PlayerRelation;
-use crate::card::TriggerEventDef;
-use crate::card::ValueDef;
-use crate::card::ZoneKind;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityTargetDef;
+use crate::card::AbilityTargetPredicate;
 use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
+use crate::card::CardType;
+use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ExilePlayDurationDef;
+use crate::card::ObjectPredicateDef;
+use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::TriggerEventDef;
+use crate::card::ValueDef;
+use crate::card::ZoneKind;
 use crate::card::abilities;
 use crate::mana_cost;
 

@@ -1,10 +1,5 @@
 //! Oath of the Gatewatch card records.
 
-use crate::card::AddManaEffectDef;
-use crate::card::BindObjectsDef;
-use crate::card::MoveObjectsDef;
-use crate::card::ObjectCollectionSourceDef;
-use crate::card::PlayerRefDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostObjectIndex;
@@ -12,9 +7,11 @@ use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::BindObjectsDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -23,12 +20,15 @@ use crate::card::CostDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectValueAggregateDef;
 use crate::card::ObjectValueDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SumValueDef;

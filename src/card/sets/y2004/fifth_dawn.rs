@@ -1,6 +1,5 @@
 //! Fifth Dawn cards cataloged for the Vintage Cube.
 
-use crate::card::ObjectQueryDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::ResolvedEffectDurationDef;
@@ -23,6 +22,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::GraveyardPlayPermissionDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRelation;

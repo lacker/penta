@@ -1,7 +1,5 @@
 //! The Big Score card inventory.
 
-use crate::card::MoveObjectsDef;
-use crate::card::sets::aetherdrift::exhaust;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;

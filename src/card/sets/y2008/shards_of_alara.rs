@@ -1,20 +1,19 @@
 //! Shards of Alara cards cataloged for the Vintage Cube pool.
 
-use crate::card::AddManaEffectDef;
-use crate::card::ChoiceVisibilityDef;
-use crate::card::CostModificationDef;
-use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
 use crate::card::CostQuantityDef;
 use crate::card::CreateTokenDef;
 use crate::card::DiscardSelectionDef;
@@ -35,6 +34,7 @@ use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::ids::ParentBinding;
 use crate::mana_cost;

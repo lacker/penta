@@ -1,48 +1,48 @@
 //! Commander 2021 cards cataloged for the Vintage Cube pool.
 
-use crate::card::AppliedEffectDef;
-use crate::card::BasicLandType;
-use crate::card::ChoiceVisibilityDef;
-use crate::card::ChooseDef;
-use crate::card::CopyExceptionsDef;
-use crate::card::CostDef;
-use crate::card::CreatedTokensDef;
-use crate::card::InstalledTriggerDef;
-use crate::card::ObjectChoiceBindingDef;
-use crate::card::ObjectQueryDef;
-use crate::card::ObjectRefDef;
-use crate::card::ObjectSetDef;
-use crate::card::PlayerRefDef;
-use crate::card::ResolvedEffectDurationDef;
-use crate::card::SpellCastQueryDef;
-use crate::card::SumValueDef;
-use crate::card::TokenCopyDef;
-use crate::card::TurnStepDef;
-use crate::card::ZonePlacement;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
+use crate::card::BasicLandType;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseDef;
+use crate::card::CopyExceptionsDef;
+use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::CreatedTokensDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
+use crate::card::InstalledTriggerDef;
 use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
+use crate::card::SpellCastQueryDef;
+use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
+use crate::card::TokenCopyDef;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
+use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::mana_cost;
 
@@ -217,8 +217,7 @@ AbilityDef::triggered_with_targets("At the beginning of combat on your turn, cre
 ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STINGING_STUDY_44,
     &LAELIA_THE_BLADE_REFORGED,
     &PEST_INFESTATION,

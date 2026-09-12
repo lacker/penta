@@ -156,8 +156,7 @@ const GOLGARI_ROT_FARM_REPRINT: PrintingRecord = PrintingRecord::reprint(
     "John Avon",
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &METAMORPHOSIS_FANATIC,
     &URSINE_MONSTROSITY,
     &GIGGLING_SKITTERSPIKE_66,

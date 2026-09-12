@@ -1,18 +1,13 @@
 //! Streets of New Capenna Commander cards cataloged for the Vintage Cube
 //! pool.
 
-use crate::card::AppliedEffectDef;
-use crate::card::EffectChoiceDef;
-use crate::card::GameActionDef;
-use crate::card::ObjectQueryDef;
-use crate::card::ResolvedEffectDurationDef;
-use crate::card::abilities;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AppliedEffectDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardType;
@@ -22,15 +17,19 @@ use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
 use crate::card::DiscardSelectionDef;
+use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::GameActionDef;
 use crate::card::ManaColor;
 use crate::card::ObjectChoiceBindingDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ResolvedEffectDurationDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
 use crate::card::TokenDef;
@@ -40,6 +39,7 @@ use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
+use crate::card::abilities;
 use crate::card::tokens;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
@@ -206,8 +206,7 @@ pub(in crate::card::sets) static TIVIT_SELLER_OF_SECRETS_109: CardRecord = CardR
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &EXTRAVAGANT_REPLICATION,
     &LETHAL_SCHEME_36,
     &SEIZE_THE_SPOTLIGHT_52,

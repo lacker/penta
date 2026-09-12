@@ -1,8 +1,5 @@
 //! Worldwake cards cataloged for the Vintage Cube.
 
-use crate::card::CostModificationDef;
-use crate::card::DestroyFollowUpDef;
-use crate::card::ObjectRefDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostIndex;
@@ -23,14 +20,17 @@ use crate::card::CardTypeSet;
 use crate::card::ColorSet;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
+use crate::card::CostModificationDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::CreatureTypeSetDef;
+use crate::card::DestroyFollowUpDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;

@@ -1,8 +1,5 @@
 //! Edge of Eternities card inventory.
 
-use crate::card::ReplacementAbilityDef;
-use crate::card::ReplacementConditionDef;
-use crate::card::ReplacementEventDef;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostObjectIndex;
@@ -1322,16 +1319,12 @@ pub(in crate::card::sets) static SQUIRE_S_LIGHTBLADE: CardRecord = CardRecord::n
 );
 
 // EOE 37 — Starfield Shepherd
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
 pub(in crate::card::sets) static STARFIELD_SHEPHERD: CardRecord = CardRecord::new(
-"Starfield Shepherd",
-"1226e575-aa78-4c68-be1d-6e5c2dc6315b",
-"Marta Nael",
-CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel"], 3, 2).with_abilities(&[
-abilities::flying(),
-abilities::enters_trigger("When this creature enters, search your library for a basic Plains card or a creature card with mana value 1 or less, reveal it, put it into your hand, then shuffle.", EffectDef::SearchZone { player: EffectRecipientDef::Controller, source: ZoneKind::Library, object: ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Supertype(CardSupertype::Basic), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Plains"))]),ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::ManaValueAtMost(1)])]), minimum: 0, maximum: ValueDef::Constant(1), reveal: true, destination: ZoneKind::Hand, placement: ZonePlacement::Top, shuffle: true, enters_tapped: false, attachment: None, binding: None, then: None }),
-abilities::warp(&[CostDef::Mana(mana_cost!("{1}{W}"))], "Warp {1}{W} (You may cast this card from your hand for its warp cost. Exile this creature at the beginning of the next end step, then you may cast it from exile on a later turn.)"),
-abilities::warped_exile()
-]),
+    "Starfield Shepherd",
+    "1226e575-aa78-4c68-be1d-6e5c2dc6315b",
+    "Marta Nael",
+    CardRules::unsupported(),
 );
 
 // EOE 38 — Starfighter Pilot
@@ -5032,15 +5025,12 @@ pub(in crate::card::sets) static WEAPONS_MANUFACTURING: CardRecord = CardRecord:
 );
 
 // EOE 169 — Weftstalker Ardent
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
 pub(in crate::card::sets) static WEFTSTALKER_ARDENT: CardRecord = CardRecord::new(
-"Weftstalker Ardent",
-"cddb48cc-8eb1-47ce-90f0-7aad1e93e2c4",
-"Valera Lutfullina",
-CardRules::new_creature(mana_cost!("{2}{R}"), &["Drix", "Artificer"], 2, 3).with_abilities(&[
-AbilityDef::triggered("Whenever another creature or artifact you control enters, this creature deals 1 damage to each opponent.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact),ObjectPredicateDef::HasType(CardType::Creature)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), None, Some(ZoneKind::Battlefield)), EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1))),
-abilities::warp(&[CostDef::Mana(mana_cost!("{R}"))], "Warp {R} (You may cast this card from your hand for its warp cost. Exile this creature at the beginning of the next end step, then you may cast it from exile on a later turn.)"),
-abilities::warped_exile()
-]),
+    "Weftstalker Ardent",
+    "cddb48cc-8eb1-47ce-90f0-7aad1e93e2c4",
+    "Valera Lutfullina",
+    CardRules::unsupported(),
 );
 
 // EOE 170 — Zookeeper Mechan
@@ -7030,14 +7020,12 @@ pub(in crate::card::sets) static ALL_FATES_SCROLL: CardRecord = CardRecord::new(
 );
 
 // EOE 235 — Bygone Colossus
+// Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
 pub(in crate::card::sets) static BYGONE_COLOSSUS: CardRecord = CardRecord::new(
-"Bygone Colossus",
-"4bb8f2ef-4398-4a07-9130-5005356a3b4a",
-"Maxime Minard",
-CardRules::new_artifact_creature(mana_cost!("{9}"), &["Robot", "Giant"], 9, 9).with_abilities(&[
-abilities::warp(&[CostDef::Mana(mana_cost!("{3}"))], "Warp {3} (You may cast this card from your hand for its warp cost. Exile this creature at the beginning of the next end step, then you may cast it from exile on a later turn.)"),
-abilities::warped_exile()
-]),
+    "Bygone Colossus",
+    "4bb8f2ef-4398-4a07-9130-5005356a3b4a",
+    "Maxime Minard",
+    CardRules::unsupported(),
 );
 
 // EOE 236 — Chrome Companion

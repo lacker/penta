@@ -1122,7 +1122,7 @@ pub(in crate::card::sets) static FUGITIVE_DROID: CardRecord = CardRecord::new(
 );
 
 // TMT 41 — Kitsune, Dragon's Daughter
-// Audit: unsupported — Needs two triggered target slots constrained to different live controllers, with an atomic control exchange that rechecks both recipients before changing either.
+// Audit: unsupported — Needs two target slots constrained to different controllers during target selection and resolution; the existing atomic ExchangeControl effect does not supply that cross-target legality predicate.
 pub(in crate::card::sets) static KITSUNE_DRAGON_S_DAUGHTER: CardRecord = CardRecord::new(
     "Kitsune, Dragon's Daughter",
     "a87a9257-4535-4286-8b59-a842ac45d05e",

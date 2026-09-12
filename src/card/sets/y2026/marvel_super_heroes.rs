@@ -5394,7 +5394,7 @@ pub(in crate::card::sets) static SPIDER_WOMAN_SECRET_AGENT: CardRecord = CardRec
 );
 
 // MSH 230 — Storm, Windrider
-// Audit: unsupported — Needs the matching creature targets bound from a spell-cast event for a later flying grant; TargetsObjectMatching can detect such a cast, but does not expose the matched targets as effect recipients.
+// Audit: unsupported — Needs creature targets frozen from the spell-cast event, surviving the spell being countered or retargeted before the trigger resolves; PermanentsTargetedBy reads only the current targets of a live stack object.
 pub(in crate::card::sets) static STORM_WINDRIDER: CardRecord = CardRecord::new(
     "Storm, Windrider",
     "e90196a9-5a76-42f8-9b40-097d02b47f33",
@@ -5445,7 +5445,7 @@ pub(in crate::card::sets) static THOR_ODINSON: CardRecord = CardRecord::new(
 );
 
 // MSH 235 — Titania, Rugged Rumbler
-// Audit: unsupported — Needs a single mandatory cost with a choice between discarding a card and paying generic mana, usable both as a casting additional cost and a ward payment.
+// Audit: unsupported — Needs a resolving ward payment offering discard-or-mana alternatives. CostDef::Choice supports the casting additional cost, but resolving payment choices currently accept only scalar mana and life costs.
 pub(in crate::card::sets) static TITANIA_RUGGED_RUMBLER: CardRecord = CardRecord::new(
     "Titania, Rugged Rumbler",
     "c281e0ee-155b-4022-b921-ebc391535aad",

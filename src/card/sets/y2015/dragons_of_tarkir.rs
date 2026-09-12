@@ -118,12 +118,24 @@ pub(in crate::card::sets) static SEISMIC_RUPTURE: CardRecord = CardRecord::new(
 );
 
 // DTK 164 — Twin Bolt
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TWIN_BOLT: CardRecord = CardRecord::new(
     "Twin Bolt",
     "5bd58ec4-34a9-4fc2-b057-438492e2e06e",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Twin Bolt deals 2 damage divided as you choose among one or \
+         two targets.",
+        &[AbilityTargetDef {
+            minimum: 1,
+            maximum: 2,
+            divided_total: Some(crate::card::DividedTotal::Fixed(2)),
+            ..AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)
+        }],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::DividedAmongTargets,
+        ),
+    )]),
 );
 
 // DTK 191 — Inspiring Call

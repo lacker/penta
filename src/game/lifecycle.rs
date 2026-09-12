@@ -810,6 +810,8 @@ impl Game {
     ) -> Option<PlayerId> {
         self.battlefield
             .iter()
+            // Phasing preserves this incarnation and its last controller.
+            .chain(self.phased_out.iter())
             .chain(self.emblems.iter())
             .find(|permanent| permanent.card.id == object)
             .map(|permanent| permanent.controller)

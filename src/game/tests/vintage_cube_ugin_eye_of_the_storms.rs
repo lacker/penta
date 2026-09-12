@@ -171,32 +171,21 @@ fn the_plus_gains_three_and_draws() {
     assert_eq!(ugin(&game).counters(CounterKind::Loyalty), 9);
 }
 
-/// The zero is a mana ability: it never uses the stack, and it is still the
+/// The zero uses the stack despite adding mana, and it is still the
 /// one loyalty ability he may use this turn.
 #[test]
-fn the_zero_makes_three_colorless_without_the_stack() {
+fn the_zero_uses_the_stack_even_though_it_adds_mana() {
     let mut game = staged();
     let source = game
         .put_onto_battlefield(PlayerId::One, cards::UGIN_EYE_OF_THE_STORMS)
         .expect("cataloged");
     drain_pending(&mut game);
 
-    let mana = game
-        .legal_actions(PlayerId::One)
-        .into_iter()
-        .find(|action| {
-            matches!(
-                action,
-                Action::ActivateManaAbility { source: activated, .. } if *activated == source
-            )
-        })
-        .expect("the mana ability is activatable");
-    game.apply(PlayerId::One, mana).expect("it activates");
-
-    assert!(
-        game.stack.is_empty(),
-        "a mana ability does not use the stack"
-    );
+    let ability = loyalty_action(&game, source, 3).expect("the loyalty ability is available");
+    game.apply(PlayerId::One, ability).expect("it activates");
+    assert_eq!(game.stack.len(), 1, "loyalty abilities use the stack");
+    assert_eq!(game.players[0].mana.len(), 0);
+    settle_naming(&mut game, None);
     assert_eq!(game.players[0].mana.len(), 3);
     assert_eq!(
         ugin(&game).counters(CounterKind::Loyalty),

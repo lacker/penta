@@ -325,12 +325,22 @@ pub(in crate::card::sets) static DISMAL_BACKWATER: CardRecord = CardRecord::new(
 );
 
 // KTK 234 — Frontier Bivouac
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRONTIER_BIVOUAC: CardRecord = CardRecord::new(
     "Frontier Bivouac",
     "e4335951-e73e-45cb-b2a5-6e9d14ba87ee",
     "Titus Lunter",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {G}, {U}, or {R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::Blue,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 235 — Jungle Hollow
@@ -359,30 +369,60 @@ pub(in crate::card::sets) static JUNGLE_HOLLOW: CardRecord = CardRecord::new(
 );
 
 // KTK 236 — Mystic Monastery
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_MONASTERY: CardRecord = CardRecord::new(
     "Mystic Monastery",
     "bae51d77-e06b-4e5a-9543-a17dd0b2a333",
     "Florian de Gesincourt",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {U}, {R}, or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Red,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 237 — Nomad Outpost
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOMAD_OUTPOST: CardRecord = CardRecord::new(
     "Nomad Outpost",
     "fb6ae4a5-227d-465b-9e99-bae158b7d410",
     "Noah Bradley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {R}, {W}, or {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::White,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 238 — Opulent Palace
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OPULENT_PALACE: CardRecord = CardRecord::new(
     "Opulent Palace",
     "21326575-80b9-4a4e-a93c-6880ec6575d5",
     "Adam Paquette",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {B}, {G}, or {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Green,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 240 — Rugged Highlands
@@ -411,12 +451,22 @@ pub(in crate::card::sets) static RUGGED_HIGHLANDS: CardRecord = CardRecord::new(
 );
 
 // KTK 241 — Sandsteppe Citadel
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDSTEPPE_CITADEL: CardRecord = CardRecord::new(
     "Sandsteppe Citadel",
     "2dd40d90-c939-458a-9a98-27d10da6ff2f",
     "Sam Burley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {W}, {B}, or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Black,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 242 — Scoured Barrens

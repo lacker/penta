@@ -750,12 +750,14 @@ fn validate_effect_references(
         EffectDef::SearchZone {
             player,
             object,
+            maximum,
             attachment,
             binding,
             then,
             ..
         } => {
             validate_recipient_target_references(player, target_count, scope)?;
+            validate_value_target_references(maximum, target_count, scope)?;
             validate_object_predicate_references(object, target_count, scope)?;
             if let Some(attachment) = attachment {
                 match attachment {

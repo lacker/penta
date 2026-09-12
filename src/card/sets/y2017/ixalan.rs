@@ -51,12 +51,12 @@ pub(in crate::card::sets) static BISHOP_S_SOLDIER: CardRecord = CardRecord::new(
 );
 
 // XLN 34 — Settle the Wreckage
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a completed exile result that counts only attackers actually moved to exile, including replacement effects. WithZoneMoveResult binds attempted recipients and cannot filter their successors by destination for the search maximum.
 pub(in crate::card::sets) static SETTLE_THE_WRECKAGE: CardRecord = CardRecord::new(
     "Settle the Wreckage",
     "9cbd346e-098a-4cf6-a72f-468376fd2e8f",
     "Dimitar Marinski",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // XLN 41 — Territorial Hammerskull

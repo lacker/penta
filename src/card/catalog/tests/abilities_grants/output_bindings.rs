@@ -279,3 +279,33 @@ fn binding_labels_are_unique_across_sibling_branches() {
         }),
     );
 }
+
+#[test]
+fn search_maximum_consumes_an_existing_output_binding() {
+    const CARDS: crate::Binding = Binding!("exiled");
+    let search = EffectDef::SearchZone {
+        player: EffectRecipientDef::Controller,
+        source: ZoneKind::Library,
+        object: ObjectPredicateDef::HasType(CardType::Land),
+        minimum: 0,
+        maximum: ValueDef::BoundObjectCount(CARDS),
+        reveal: false,
+        destination: ZoneKind::Battlefield,
+        placement: ZonePlacement::Top,
+        shuffle: true,
+        enters_tapped: true,
+        attachment: None,
+        binding: None,
+        then: None,
+    };
+    assert!(super::validate_ability_targets(&[], search).is_err());
+    let bound = EffectDef::WithZoneMoveResult {
+        effect: Box::leak(Box::new(EffectDef::move_to_zone(
+            EffectRecipientDef::Source, ZoneKind::Exile, ZonePlacement::Top,
+        ))),
+        binding: CARDS,
+        then: Box::leak(Box::new(search)),
+    };
+    super::validate_ability_targets(&[], bound)
+        .expect("a search maximum may consume the outer move receipt");
+}

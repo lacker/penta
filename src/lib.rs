@@ -14,6 +14,8 @@ pub mod card;
 pub mod casting;
 pub mod deck;
 pub mod decks;
+#[cfg(feature = "engine-profiling")]
+pub mod engine_profiling;
 pub mod formats;
 /// Backwards-compatible module path for callers compiled against `penta::format`.
 #[deprecated(note = "use penta::formats")]

@@ -277,6 +277,13 @@ impl PreparedEngine {
         predicate: crate::ObjectPredicateDef,
     ) -> Option<Arc<PreparedPredicate>> {
         if !self.enabled {
+            #[cfg(feature = "engine-profiling")]
+            crate::engine_profiling::record(
+                "predicate_plan",
+                crate::engine_profiling::predicate_kind(predicate),
+                "reference",
+                "engine_disabled",
+            );
             return None;
         }
         let mut cache = self
@@ -284,10 +291,26 @@ impl PreparedEngine {
             .predicates
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        cache
+        let plan = cache
             .entry(predicate)
             .or_insert_with(|| PreparedPredicate::compile(predicate).map(Arc::new))
-            .clone()
+            .clone();
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::record(
+            "predicate_plan",
+            crate::engine_profiling::predicate_kind(predicate),
+            if plan.is_some() {
+                "prepared"
+            } else {
+                "reference"
+            },
+            if plan.is_some() {
+                "supported"
+            } else {
+                "unsupported_predicate"
+            },
+        );
+        plan
     }
 
     pub(crate) const fn enabled(&self) -> bool {

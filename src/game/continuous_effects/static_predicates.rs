@@ -122,6 +122,7 @@ impl Game {
         prospective: Option<&Permanent>,
         text_words: TextWordMap,
     ) -> Option<bool> {
+
         match predicate {
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => self
                 .static_basic_land_type_matches(land_types, affected, prospective, text_words),
@@ -165,6 +166,8 @@ impl Game {
         prospective: Option<&Permanent>,
         text_words: TextWordMap,
     ) -> Option<bool> {
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::predicate_evaluated(predicate, "static_lazy");
         if let Some(answer) = Self::static_leaf_predicate_matches_lazily(predicate, source, affected)
         {
             return Some(answer);

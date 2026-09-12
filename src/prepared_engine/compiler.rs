@@ -38,7 +38,7 @@ pub(crate) fn compile_catalog(catalog: &CardCatalog) -> PreparedCatalog {
 }
 
 pub(crate) fn compile_effect(effect: EffectDef) -> Option<PreparedEffect> {
-    match effect {
+    let prepared = match effect {
         EffectDef::DrawCards {
             recipient: crate::EffectRecipientDef::Controller,
             amount: ValueDef::Constant(count),
@@ -54,7 +54,19 @@ pub(crate) fn compile_effect(effect: EffectDef) -> Option<PreparedEffect> {
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         } => Some(PreparedEffect::GrantSourceAbilityUntilEndOfTurn { ability }),
         _ => None,
-    }
+    };
+    #[cfg(feature = "engine-profiling")]
+    crate::engine_profiling::record(
+        "effect_lowering",
+        crate::engine_profiling::effect_kind(effect),
+        "compiler",
+        if prepared.is_some() {
+            "supported"
+        } else {
+            "unsupported_shape"
+        },
+    );
+    prepared
 }
 
 fn compile_static_program(abilities: &[AbilityDef]) -> PreparedStaticProgram {

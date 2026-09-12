@@ -50,7 +50,13 @@ impl PolicyKind {
     }
 }
 
+#[cfg(feature = "engine-profiling")]
+#[path = "penta_match/engine_profile.rs"]
+mod engine_profile;
+
 struct Config {
+    #[cfg(feature = "engine-profiling")]
+    engine_profile: Option<String>,
     p1: PolicyKind,
     p2: PolicyKind,
     deck1: String,
@@ -63,6 +69,8 @@ struct Config {
 
 fn parse_args() -> Result<Config, String> {
     let mut config = Config {
+        #[cfg(feature = "engine-profiling")]
+        engine_profile: None,
         p1: PolicyKind::Random,
         p2: PolicyKind::Handcrafted,
         deck1: "Random".to_string(),
@@ -76,6 +84,16 @@ fn parse_args() -> Result<Config, String> {
     while let Some(flag) = args.next() {
         let mut value = |flag: &str| args.next().ok_or_else(|| format!("{flag} needs a value"));
         match flag.as_str() {
+            "--engine-profile" => {
+                #[cfg(feature = "engine-profiling")]
+                {
+                    config.engine_profile = Some(value("--engine-profile")?);
+                }
+                #[cfg(not(feature = "engine-profiling"))]
+                return Err(
+                    "--engine-profile requires a build with --features engine-profiling".into(),
+                );
+            }
             "--p1" => {
                 let name = value("--p1")?;
                 config.p1 =
@@ -110,7 +128,7 @@ fn parse_args() -> Result<Config, String> {
             "--help" | "-h" => {
                 return Err(
                     "usage: penta-match [--p1 random|handcrafted] [--p2 random|handcrafted] \
-                     [--deck1 NAME|Random] [--deck2 NAME|Random] [--matches N] [--match-mode one-conclusion|first-to-two-wins] [--seed N]"
+                     [--deck1 NAME|Random] [--deck2 NAME|Random] [--matches N] [--match-mode one-conclusion|first-to-two-wins] [--seed N] [--engine-profile PATH (requires engine-profiling feature)]"
                         .to_string(),
                 );
             }
@@ -139,6 +157,11 @@ fn main() -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
+
+    #[cfg(feature = "engine-profiling")]
+    let capture = config.engine_profile.as_ref().map(|_| {
+        penta::engine_profiling::Capture::start().expect("the match runner owns its thread capture")
+    });
 
     let catalog = match poc::catalog() {
         Ok(catalog) => catalog,
@@ -233,6 +256,13 @@ fn main() -> ExitCode {
     );
     for (reason, count) in by_reason {
         println!("  {reason:?}: {count}");
+    }
+    #[cfg(feature = "engine-profiling")]
+    if let Some(capture) = capture
+        && let Err(error) = engine_profile::write(&config, &capture.finish(), wins, draws, failures)
+    {
+        eprintln!("could not write engine profile: {error}");
+        return ExitCode::FAILURE;
     }
     if failures > 0 {
         ExitCode::FAILURE

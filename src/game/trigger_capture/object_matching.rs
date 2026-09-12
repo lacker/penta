@@ -541,6 +541,9 @@ impl Game {
         controller: Option<PlayerId>,
         text_words: TextWordView,
     ) -> bool {
+        #[cfg(feature = "engine-profiling")]
+        crate::engine_profiling::predicate_evaluated(predicate, "reference_snapshot");
+
         match predicate {
             ObjectPredicateDef::Any => true,
             ObjectPredicateDef::Source => object.id == source,

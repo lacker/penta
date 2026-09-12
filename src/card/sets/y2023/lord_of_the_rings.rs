@@ -804,8 +804,12 @@ pub(in crate::card::sets) static MINES_OF_MORIA_257: CardRecord = CardRecord::ne
                         3,
                     )),
                 ],
-                EffectDef::create_token(crate::card::tokens::treasure())
+                EffectDef::CreateToken(
+                    crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(
+                        crate::card::tokens::treasure(),
+                    ))
                     .with_count(ValueDef::Constant(2)),
+                ),
             ),
         ]),
 );
@@ -894,7 +898,7 @@ pub(in crate::card::sets) static GLOIN_DWARF_EMISSARY_360: CardRecord = CardReco
     "6d74d1af-5cc6-422e-949c-de9e39b76154",
     "Tomas Duchek",
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Dwarf", "Advisor"], 3, 3).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered("Whenever you cast a historic spell, create a Treasure token. This ability triggers only once each turn. (Artifacts, legendaries, and Sagas are historic.)", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::Supertype(CardSupertype::Legendary), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga"))]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), EffectDef::create_token(crate::card::tokens::treasure())).triggering_at_most(1),
+AbilityDef::triggered("Whenever you cast a historic spell, create a Treasure token. This ability triggers only once each turn. (Artifacts, legendaries, and Sagas are historic.)", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::Supertype(CardSupertype::Legendary), ObjectPredicateDef::Subtype(SubtypeDef::Literal("Saga"))]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())))).triggering_at_most(1),
 AbilityDef::activated_with_targets("{T}, Sacrifice a Treasure: Goad target creature. (Until your next turn, that creature attacks each combat if able and attacks a player other than you if able.)", &[CostDef::TapSource, CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")))], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()), duration: ResolvedEffectDurationDef::UntilYourNextTurn })
 ]),
 );
@@ -916,7 +920,7 @@ pub(in crate::card::sets) static LOTHO_CORRUPT_SHIRRIFF_370: CardRecord = CardRe
     "69d97af0-8af0-4124-b56f-2633d34e5574",
     "Ilker Yildiz",
     CardRules::new_creature(mana_cost!("{W}{B}"), &["Halfling", "Rogue"], 2, 1).with_supertype(CardSupertype::Legendary).with_abilities(&[
-AbilityDef::triggered("Whenever a player casts their second spell each turn, you lose 1 life and create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::While { event: &TriggerEventDef::spell_cast(ObjectPredicateDef::Any), condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { spell: ObjectPredicateDef::Any, player: PlayerRelation::EventPlayer }), comparison: ComparisonDef::Equal, right: ValueDef::Constant(2) }) }, EffectDef::Sequence(&[EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }, EffectDef::create_token(crate::card::tokens::treasure())]))
+AbilityDef::triggered("Whenever a player casts their second spell each turn, you lose 1 life and create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::While { event: &TriggerEventDef::spell_cast(ObjectPredicateDef::Any), condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef { left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef { spell: ObjectPredicateDef::Any, player: PlayerRelation::EventPlayer }), comparison: ComparisonDef::Equal, right: ValueDef::Constant(2) }) }, EffectDef::Sequence(&[EffectDef::LoseLife { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(1) }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())))]))
 ]),
 );
 

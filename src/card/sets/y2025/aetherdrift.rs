@@ -1,6 +1,5 @@
 //! Aetherdrift card inventory.
 
-use crate::card::AbilityLabel;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::AdditionalCostObjectIndex;

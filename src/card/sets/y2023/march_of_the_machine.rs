@@ -458,7 +458,7 @@ pub(in crate::card::sets) static GHALTA_AND_MAVREN_225: CardRecord = CardRecord:
                 &[
                     AbilityDef::spell(
                         "Create a tapped and attacking X/X green Dinosaur creature token with trample, where X is the greatest power among other attacking creatures.",
-                        EffectDef::create_creature_token_with_stats(
+                        EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature_with_stats(
                             &["Dinosaur"],
                             &[ManaColor::Green],
                             &TokenStatsDef {
@@ -489,21 +489,16 @@ pub(in crate::card::sets) static GHALTA_AND_MAVREN_225: CardRecord = CardRecord:
                                     operation: AggregateOperationDef::Maximum,
                                 }),
                             },
-                        )
-                        .with_abilities(&[abilities::trample()])
-                        .entering_tapped()
-                        .entering_attacking(),
+                        ).with_abilities(&[abilities::trample()]))).entering_tapped().entering_attacking()),
                     ),
                     AbilityDef::spell(
                         "Create X 1/1 white Vampire creature tokens with lifelink, where X is the number of other attacking creatures.",
-                        EffectDef::create_creature_token(
+                        EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(
                             &["Vampire"],
                             &[ManaColor::White],
                             1,
                             1,
-                        )
-                        .with_abilities(&[abilities::lifelink()])
-                        .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ).with_abilities(&[abilities::lifelink()]))).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Attacking,
@@ -511,7 +506,7 @@ pub(in crate::card::sets) static GHALTA_AND_MAVREN_225: CardRecord = CardRecord:
                             ]),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::You,
-                        ))),
+                        )))),
                     ),
                 ],
             ),

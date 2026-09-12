@@ -98,7 +98,7 @@ pub(in crate::card::sets) static SMOTHERING_TITHE_22: CardRecord = CardRecord::n
     "7af082fa-86a3-4f7b-966d-2be1f1d0c0bc",
     "Mark Behm",
     CardRules::new_enchantment(mana_cost!("{3}{W}")).with_abilities(&[
-AbilityDef::triggered("Whenever an opponent draws a card, that player may pay {2}. If the player doesn't, you create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)), EffectDef::PayOr(PayOrDef::unless(&[CostDef::Mana(mana_cost!("{2}"))], &EffectDef::create_token(crate::card::tokens::treasure())).with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer))))
+AbilityDef::triggered("Whenever an opponent draws a card, that player may pay {2}. If the player doesn't, you create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)), EffectDef::PayOr(PayOrDef::unless(&[CostDef::Mana(mana_cost!("{2}"))], &EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())))).with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer))))
 ]),
 );
 

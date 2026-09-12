@@ -202,7 +202,7 @@ pub(in crate::card::sets) static KIKI_JIKI_MIRROR_BREAKER_175: CardRecord = Card
     "Pete Venters",
     CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Goblin", "Shaman"], 2, 2).with_supertype(CardSupertype::Legendary).with_abilities(&[
 abilities::haste(),
-AbilityDef::activated_with_targets("{T}: Create a token that's a copy of target nonlegendary creature you control, except it has haste. Sacrifice it at the beginning of the next end step.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary))]), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::create_token_from_copy(&TokenCopyDef { object: &EffectRecipientDef::Target(TargetIndex::PRIMARY), exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::Ability(&abilities::haste())]) }).with_created_tokens(CreatedTokensDef { binding: ParentBinding, then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered("At the beginning of the next end step, sacrifice that token.", TriggerEventDef::StepBegins { step: TurnStepDef::End, player: PlayerRelation::Any }, EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)))))) }))
+AbilityDef::activated_with_targets("{T}: Create a token that's a copy of target nonlegendary creature you control, except it has haste. Sacrifice it at the beginning of the next end step.", &[CostDef::TapSource], &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary))]), zones: &[ZoneKind::Battlefield], controller: Some(PlayerRelation::You), owner: None })], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Copy(&TokenCopyDef { object: &EffectRecipientDef::Target(TargetIndex::PRIMARY), exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::Ability(&abilities::haste())]) })).with_created_tokens(CreatedTokensDef { binding: ParentBinding, then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered("At the beginning of the next end step, sacrifice that token.", TriggerEventDef::StepBegins { step: TurnStepDef::End, player: PlayerRelation::Any }, EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)))))) })))
 ]),
 );
 
@@ -368,7 +368,7 @@ pub(in crate::card::sets) static OROCHI_HATCHERY_266: CardRecord = CardRecord::n
     "Alex Horley-Orlandelli",
     CardRules::new_artifact(mana_cost!("{X}{X}")).with_abilities(&[
 AbilityDef::replacement("This artifact enters with X charge counters on it.", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCastXCounters { kind: CounterKind::named("charge") })),
-AbilityDef::activated("{5}, {T}: Create a 1/1 green Snake creature token for each charge counter on this artifact.", &[CostDef::Mana(mana_cost!("{5}")), CostDef::TapSource], EffectDef::create_creature_token(&["Snake"], &[ManaColor::Green], 1, 1).with_count(ValueDef::CountersOnSource(CounterKind::named("charge"))))
+AbilityDef::activated("{5}, {T}: Create a 1/1 green Snake creature token for each charge counter on this artifact.", &[CostDef::Mana(mana_cost!("{5}")), CostDef::TapSource], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Snake"], &[ManaColor::Green], 1, 1))).with_count(ValueDef::CountersOnSource(CounterKind::named("charge")))))
 ]),
 );
 
@@ -428,7 +428,7 @@ pub(in crate::card::sets) static FORBIDDEN_ORCHARD_276: CardRecord = CardRecord:
     "Dany Orizio",
     CardRules::new_land(&[]).with_abilities(&[
 abilities::tap_for_mana("{T}: Add one mana of any color.", AddManaEffectDef::any_color()),
-AbilityDef::triggered_with_targets("Whenever you tap this land for mana, target opponent creates a 1/1 colorless Spirit creature token.", TriggerEventDef::tapped_for_mana(ObjectPredicateDef::Source), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::create_creature_token(&["Spirit"], &[], 1, 1).with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)))
+AbilityDef::triggered_with_targets("Whenever you tap this land for mana, target opponent creates a 1/1 colorless Spirit creature token.", TriggerEventDef::tapped_for_mana(ObjectPredicateDef::Source), &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent))], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Spirit"], &[], 1, 1))).with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY))))
 ]),
 );
 

@@ -153,7 +153,7 @@ pub(in crate::card::sets) static PONGIFY_44: CardRecord = CardRecord::new(
     "cce74a84-4441-4f2e-89d8-df0b096790ed",
     "Heather Hudson",
     CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
-AbilityDef::spell_with_targets("Destroy target creature. It can't be regenerated. Its controller creates a 3/3 green Ape creature token.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::WithRule { rule: AppliedRuleDef::CannotRegenerate, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None } }, EffectDef::create_creature_token(&["Ape"], &[ManaColor::Green], 3, 3).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)))]))
+AbilityDef::spell_with_targets("Destroy target creature. It can't be regenerated. Its controller creates a 3/3 green Ape creature token.", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Sequence(&[EffectDef::WithRule { rule: AppliedRuleDef::CannotRegenerate, effect: &EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None } }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Ape"], &[ManaColor::Green], 3, 3))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))))]))
 ]),
 );
 

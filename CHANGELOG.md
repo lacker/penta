@@ -46,8 +46,8 @@ the bot-wire epoch.
   choices, and commander combat damage. Partner and Background designations
   share the deck model; construction and legality enforcement remain deferred.
 - Import 119 available decks from the 123-entry Nacional de cEDH 100K event,
-  preserving source provenance and whole-card unsupported coverage for newly
-  catalogued cards. Add sourced WotC ban metadata without enforcing legality.
+  preserving source provenance. Audit all 1,205 newly catalogued cards: 759
+  use shared declarative behavior and 446 retain specific unsupported comments. Add sourced WotC ban metadata without enforcing legality.
 - Advertise `rules.commander.v1`, optional `commandZones` and `commanders`
   observations, and a capability-gated commander-damage result. Checkpoints
   preserve identity and history where reconstructible; pending hand/library

@@ -460,7 +460,16 @@ pub(in crate::card::sets) static ELDER_GARGAROTH_373: CardRecord = CardRecord::n
             &[
                 AbilityDef::spell(
                     "Create a Beast.",
-                    EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3),
+                    EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                        crate::card::TokenDef::Literal(
+                            crate::card::TokenCharacteristics::creature(
+                                &["Beast"],
+                                &[ManaColor::Green],
+                                3,
+                                3,
+                            ),
+                        ),
+                    )),
                 ),
                 AbilityDef::spell(
                     "Gain 3 life.",

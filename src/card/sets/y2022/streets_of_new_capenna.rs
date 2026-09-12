@@ -292,7 +292,7 @@ pub(in crate::card::sets) static BIG_SCORE_102: CardRecord = CardRecord::new(
         &[], CostDef::DiscardCards(1),
         EffectDef::Sequence(&[
             EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) },
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(tokens::treasure())).with_count(ValueDef::Constant(2))),
         ]),
     )),
 );
@@ -384,7 +384,7 @@ pub(in crate::card::sets) static STICKY_FINGERS_124: CardRecord = CardRecord::ne
     "Mark Behm",
     CardRules::new_enchantment(mana_cost!("{R}")).with_subtypes(&["Aura"]).with_abilities(&[
 abilities::aura_spell("Enchant creature", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))]),
-AbilityDef::static_ability("Enchanted creature has menace and \"Whenever this creature deals combat damage to a player, create a Treasure token.\" (It can't be blocked except by two or more creatures. The token is an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::menace()), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player, create a Treasure token.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::create_token(crate::card::tokens::treasure())))]) }),
+AbilityDef::static_ability("Enchanted creature has menace and \"Whenever this creature deals combat damage to a player, create a Treasure token.\" (It can't be blocked except by two or more creatures. The token is an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", EffectDef::StaticApply { recipient: EffectRecipientDef::AttachedPermanent, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::add_ability(&abilities::menace()), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player, create a Treasure token.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())))))]) }),
 AbilityDef::triggered("When enchanted creature dies, draw a card.", TriggerEventDef::zone_changed(ObjectPredicateDef::AttachedToSource, Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), abilities::draw_cards(ValueDef::Constant(1)))
 ]),
 );
@@ -611,7 +611,7 @@ pub(in crate::card::sets) static PROFESSIONAL_FACE_BREAKER_426: CardRecord = Car
     "Dan Murayama Scott",
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Warrior"], 2, 3).with_abilities(&[
 abilities::menace(),
-AbilityDef::triggered("Whenever one or more creatures you control deal combat damage to a player, create a Treasure token.", TriggerEventDef::CombatDamageDealtToPlayers { sources: ObjectPredicateDef::ControlledBy(PlayerRelation::You), players: PlayerRelation::Any }, EffectDef::create_token(crate::card::tokens::treasure())),
+AbilityDef::triggered("Whenever one or more creatures you control deal combat damage to a player, create a Treasure token.", TriggerEventDef::CombatDamageDealtToPlayers { sources: ObjectPredicateDef::ControlledBy(PlayerRelation::You), players: PlayerRelation::Any }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())))),
 AbilityDef::activated("Sacrifice a Treasure: Exile the top card of your library. You may play that card this turn.", &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal("Treasure")))], EffectDef::ExileTopOfLibraryToPlay { player: EffectRecipientDef::Controller, amount: ValueDef::Constant(1), free: false, face_down: false, duration: ExilePlayDurationDef::ThisTurn, spend_any_color: false, play_condition: None, cast_only: false })
 ]),
 );

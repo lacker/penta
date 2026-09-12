@@ -315,7 +315,9 @@ pub(in crate::card::sets) static VAULT_ROBBER_158: CardRecord = CardRecord::new(
                     1,
                 )),
             ],
-            EffectDef::create_token(tokens::treasure()),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Literal(tokens::treasure()),
+            )),
         ),
     ),
 );
@@ -671,7 +673,7 @@ pub(in crate::card::sets) static MASKWOOD_NEXUS_369: CardRecord = CardRecord::ne
     "Jason A. Engle",
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
 AbilityDef::static_ability("Creatures you control are every creature type. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.", EffectDef::Sequence(&[EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Stack], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Library], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Hand], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Graveyard], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Exile], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }, EffectDef::StaticApply { recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Command], PlayerRelation::You), effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) }])),
-AbilityDef::activated("{3}, {T}: Create a 2/2 blue Shapeshifter creature token with changeling. (It is every creature type.)", &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource], EffectDef::create_creature_token(&["Shapeshifter"], &[ManaColor::Blue], 2, 2).with_abilities(&[AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) })]))
+AbilityDef::activated("{3}, {T}: Create a 2/2 blue Shapeshifter creature token with changeling. (It is every creature type.)", &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Shapeshifter"], &[ManaColor::Blue], 2, 2).with_abilities(&[AbilityDef::static_ability("Changeling (This card is every creature type.)", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL) })])))))
 ]),
 );
 

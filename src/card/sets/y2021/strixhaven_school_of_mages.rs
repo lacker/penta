@@ -210,7 +210,7 @@ pub(in crate::card::sets) static RESCULPT_51: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature)]))],
         EffectDef::Sequence(&[
             EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY), ZoneKind::Exile, ZonePlacement::Top),
-            EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Blue, ManaColor::Red], 4, 4).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Elemental"], &[ManaColor::Blue, ManaColor::Red], 4, 4))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)))),
         ]),
     )),
 );
@@ -320,7 +320,7 @@ pub(in crate::card::sets) static STORM_KILN_ARTIST_115: CardRecord = CardRecord:
     "Manuel Castañón",
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Dwarf", "Shaman"], 2, 2).with_abilities(&[
 AbilityDef::static_ability("This creature gets +1/+0 for each artifact you control.", EffectDef::StaticApply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::modify_power_toughness(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::You)), ValueDef::Constant(0)) }),
-AbilityDef::triggered("Magecraft — Whenever you cast or copy an instant or sorcery spell, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::AnyOf(&[TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]))]), EffectDef::create_token(crate::card::tokens::treasure()))
+AbilityDef::triggered("Magecraft — Whenever you cast or copy an instant or sorcery spell, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::AnyOf(&[TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)])), TriggerEventDef::spell_copied(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]))]), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure()))))
 ]),
 );
 

@@ -355,7 +355,7 @@ pub(in crate::card::sets) static HEAT_SHIMMER_175: CardRecord = CardRecord::new(
     "a432470c-7f68-4429-970a-3da8eabcf0b8",
     "Franz Vohwinkel",
     CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
-AbilityDef::spell_with_targets("Create a token that's a copy of target creature, except it has haste and \"At the beginning of the end step, exile this token.\"", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::create_token_from_copy(&TokenCopyDef { object: &EffectRecipientDef::Target(TargetIndex::PRIMARY), exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::Ability(&abilities::haste()), CopyAbilityDef::Ability(&AbilityDef::triggered("At the beginning of the end step, exile this token.", TriggerEventDef::StepBegins { step: TurnStepDef::End, player: PlayerRelation::Any }, EffectDef::move_to_zone(EffectRecipientDef::Source, ZoneKind::Exile, ZonePlacement::Top)))]) }))
+AbilityDef::spell_with_targets("Create a token that's a copy of target creature, except it has haste and \"At the beginning of the end step, exile this token.\"", &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Copy(&TokenCopyDef { object: &EffectRecipientDef::Target(TargetIndex::PRIMARY), exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::Ability(&abilities::haste()), CopyAbilityDef::Ability(&AbilityDef::triggered("At the beginning of the end step, exile this token.", TriggerEventDef::StepBegins { step: TurnStepDef::End, player: PlayerRelation::Any }, EffectDef::move_to_zone(EffectRecipientDef::Source, ZoneKind::Exile, ZonePlacement::Top)))]) }))))
 ]),
 );
 

@@ -255,7 +255,7 @@ pub(in crate::card::sets) static TITANOTH_REX_174: CardRecord = CardRecord::new(
             ),
             AbilityDef::triggered_with_targets(
                 "When you cycle this card, put a trample counter on target creature you control.",
-                TriggerEventDef::DiscardedToActivate(crate::card::AbilityLabel::CYCLING),
+                TriggerEventDef::DiscardedToActivate(abilities::CYCLING),
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),

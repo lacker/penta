@@ -6,7 +6,6 @@ use crate::card::ConditionDef;
 use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ZoneKind;
-use crate::card::tokens;
 use super::CardRecord;
 use super::PrintingRecord;
 use crate::card::AbilityDef;

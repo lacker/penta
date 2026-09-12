@@ -66,7 +66,7 @@ pub(in crate::card::sets) static GIMLI_OF_THE_GLITTERING_CAVES_32: CardRecord = 
             AbilityDef::triggered(
                 "Whenever this creature deals combat damage to a player, create a Treasure token.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-                EffectDef::create_token(crate::card::tokens::treasure()),
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure()))),
             ),
         ]),
 );
@@ -123,7 +123,7 @@ abilities::spell_cost_reduction("This spell costs {X} less to cast, where X is t
 abilities::flying(),
 abilities::trample(),
 abilities::haste(),
-AbilityDef::triggered("Whenever this creature deals combat damage to a player, you create a Treasure token for each artifact that player controls.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::create_token(crate::card::tokens::treasure()).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::EventPlayer))))
+AbilityDef::triggered("Whenever this creature deals combat damage to a player, you create a Treasure token for each artifact that player controls.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::EventPlayer)))))
 ]),
 );
 

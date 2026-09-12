@@ -452,8 +452,7 @@ pub(in crate::card::sets) static KRENKO_TIN_STREET_KINGPIN_137: CardRecord = Car
                     kind: CounterKind::PlusOnePlusOne,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
-                    .with_count(ValueDef::ObjectPower(crate::card::ObjectRefDef::Source)),
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1))).with_count(ValueDef::ObjectPower(crate::card::ObjectRefDef::Source))),
             ]),
         )),
 );

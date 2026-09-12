@@ -250,9 +250,9 @@ pub(in crate::card::sets) static GLARING_FLESHRAKER_7: CardRecord = CardRecord::
         AbilityDef::triggered(
             "Whenever you cast a colorless spell, create a 0/1 colorless Eldrazi Spawn creature token with \"Sacrifice this token: Add {C}.\"",
             TriggerEventDef::spell_cast(ObjectPredicateDef::ColorCount(0)),
-            EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1).with_abilities(&[AbilityDef::activated_mana(
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Eldrazi", "Spawn"], &[], 0, 1).with_abilities(&[AbilityDef::activated_mana(
                 "Sacrifice this creature: Add {C}.", &[CostDef::SacrificeSource], EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
-            )]),
+            )])))),
         ),
         AbilityDef::triggered(
             "Whenever another colorless creature you control enters, this creature deals 1 damage to each opponent.",
@@ -770,7 +770,7 @@ pub(in crate::card::sets) static STRIX_SERENADE_71: CardRecord = CardRecord::new
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target artifact, creature, or planeswalker spell. Its controller creates a 2/2 blue Bird creature token with flying.",
         &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object { object: ObjectPredicateDef::All(&[ObjectPredicateDef::Spell, ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Artifact), ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Planeswalker)])]), zones: &[ZoneKind::Stack], controller: None, owner: None })],
-        EffectDef::Sequence(&[EffectDef::counter_target(TargetIndex::PRIMARY), EffectDef::create_creature_token(&["Bird"], &[ManaColor::Blue], 2, 2).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))).with_abilities(&[abilities::flying()])]),
+        EffectDef::Sequence(&[EffectDef::counter_target(TargetIndex::PRIMARY), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Bird"], &[ManaColor::Blue], 2, 2).with_abilities(&[abilities::flying()]))).with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY))))]),
     )),
 );
 
@@ -3304,7 +3304,7 @@ pub(in crate::card::sets) static MARIONETTE_APPRENTICE_410: CardRecord = CardRec
     "22b5a3dd-0b5a-434e-afee-a83b0279fd15",
     "Steve Ellis",
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 1, 2).with_abilities(&[
-abilities::enters_trigger("Fabricate 1 (When this creature enters, put a +1/+1 counter on it or create a 1/1 colorless Servo artifact creature token.)", EffectDef::ChooseEffect { player: EffectRecipientDef::Controller, choices: &[EffectChoiceDef { label: "Put a +1/+1 counter on this creature", effect: EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) } }, EffectChoiceDef { label: "Create a Servo", effect: EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1) }] }),
+abilities::enters_trigger("Fabricate 1 (When this creature enters, put a +1/+1 counter on it or create a 1/1 colorless Servo artifact creature token.)", EffectDef::ChooseEffect { player: EffectRecipientDef::Controller, choices: &[EffectChoiceDef { label: "Put a +1/+1 counter on this creature", effect: EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) } }, EffectChoiceDef { label: "Create a Servo", effect: EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::artifact_creature(&["Servo"], &[], 1, 1)))) }] }),
 AbilityDef::triggered("Whenever another creature or artifact you control is put into a graveyard from the battlefield, each opponent loses 1 life.", TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::HasType(CardType::Artifact)]), ObjectPredicateDef::Not(&ObjectPredicateDef::Source), ObjectPredicateDef::ControlledBy(PlayerRelation::You)]), Some(ZoneKind::Battlefield), Some(ZoneKind::Graveyard)), EffectDef::LoseLife { recipient: EffectRecipientDef::Opponent, amount: ValueDef::Constant(1) })
 ]),
 );
@@ -3324,7 +3324,7 @@ pub(in crate::card::sets) static WARREN_SOULTRADER_414: CardRecord = CardRecord:
     "17fd4d15-413f-41c5-b3e0-71bbb52851bc",
     "Pete Venters",
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Goblin", "Wizard"], 3, 3).with_abilities(&[
-AbilityDef::activated("Pay 1 life, Sacrifice another creature: Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", &[CostDef::PayLife(1), CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::create_token(crate::card::tokens::treasure()))
+AbilityDef::activated("Pay 1 life, Sacrifice another creature: Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")", &[CostDef::PayLife(1), CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Creature), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]))], EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure()))))
 ]),
 );
 

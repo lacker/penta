@@ -101,7 +101,7 @@ pub(in crate::card::sets) static NADIR_KRAKEN_55: CardRecord = CardRecord::new(
     "7817e039-e509-4b6f-b5a3-deb3769bbdc8",
     "Dan Murayama Scott",
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Kraken"], 2, 3).with_abilities(&[
-AbilityDef::triggered("Whenever you draw a card, you may pay {1}. If you do, put a +1/+1 counter on this creature and create a 1/1 blue Tentacle creature token.", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)), EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{1}"))], &EffectDef::Sequence(&[EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }, EffectDef::create_creature_token(&["Tentacle"], &[ManaColor::Blue], 1, 1)]))))
+AbilityDef::triggered("Whenever you draw a card, you may pay {1}. If you do, put a +1/+1 counter on this creature and create a 1/1 blue Tentacle creature token.", TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)), EffectDef::PayOr(PayOrDef::optional(&[CostDef::Mana(mana_cost!("{1}"))], &EffectDef::Sequence(&[EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) }, EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Tentacle"], &[ManaColor::Blue], 1, 1))))]))))
 ]),
 );
 
@@ -625,7 +625,7 @@ pub(in crate::card::sets) static ARASTA_OF_THE_ENDLESS_WEB_325: CardRecord = Car
     "Sam Rowan",
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Spider"], 3, 5).with_supertype(CardSupertype::Legendary).with_abilities(&[
 abilities::reach(),
-AbilityDef::triggered("Whenever an opponent casts an instant or sorcery spell, create a 1/2 green Spider creature token with reach.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)])), EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 1, 2).with_abilities(&[abilities::reach()]))
+AbilityDef::triggered("Whenever an opponent casts an instant or sorcery spell, create a 1/2 green Spider creature token with reach.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[ObjectPredicateDef::AnyOf(&[ObjectPredicateDef::HasType(CardType::Instant), ObjectPredicateDef::HasType(CardType::Sorcery)]), ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)])), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Spider"], &[ManaColor::Green], 1, 2).with_abilities(&[abilities::reach()])))))
 ])
 .with_type(crate::card::CardType::Enchantment),
 );

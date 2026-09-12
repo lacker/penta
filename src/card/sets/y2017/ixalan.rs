@@ -572,8 +572,17 @@ pub(in crate::card::sets) static REGISAUR_ALPHA_227: CardRecord = CardRecord::ne
         ),
         abilities::enters_trigger(
             "When this creature enters, create a 3/3 green Dinosaur creature token with trample.",
-            EffectDef::create_creature_token(&["Dinosaur"], &[ManaColor::Green], 3, 3)
-                .with_abilities(&[abilities::trample()]),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Literal(
+                    crate::card::TokenCharacteristics::creature(
+                        &["Dinosaur"],
+                        &[ManaColor::Green],
+                        3,
+                        3,
+                    )
+                    .with_abilities(&[abilities::trample()]),
+                ),
+            )),
         ),
     ]),
 );

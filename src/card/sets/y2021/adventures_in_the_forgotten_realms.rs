@@ -162,7 +162,9 @@ pub(in crate::card::sets) static SHAMBLING_GHAST_119: CardRecord = CardRecord::n
                 ),
                 AbilityDef::spell(
                     "Create a Treasure token.",
-                    EffectDef::create_token(tokens::treasure()),
+                    EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                        crate::card::TokenDef::Literal(tokens::treasure()),
+                    )),
                 ),
             ],
         ),
@@ -229,7 +231,7 @@ pub(in crate::card::sets) static PLUNDERING_BARBARIAN_158: CardRecord = CardReco
                     &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact))],
                     EffectDef::Destroy { object: EffectRecipientDef::Target(TargetIndex::PRIMARY), then: None },
                 ),
-                AbilityDef::spell("Create a Treasure token.", EffectDef::create_token(tokens::treasure())),
+                AbilityDef::spell("Create a Treasure token.", EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(tokens::treasure())))),
             ],
         ),
     ),
@@ -247,7 +249,7 @@ pub(in crate::card::sets) static UNEXPECTED_WINDFALL_164: CardRecord = CardRecor
             CostDef::DiscardCards(1),
             EffectDef::Sequence(&[
                 EffectDef::DrawCards { recipient: EffectRecipientDef::Controller, amount: ValueDef::Constant(2) },
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(tokens::treasure())).with_count(ValueDef::Constant(2))),
             ]),
         ),
     ),
@@ -360,7 +362,7 @@ pub(in crate::card::sets) static OLD_GNAWBONE_296: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::TriggerEventAmount),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(tokens::treasure())).with_count(ValueDef::TriggerEventAmount)),
         ),
     ]).with_supertype(crate::card::CardSupertype::Legendary),
 );
@@ -401,7 +403,7 @@ pub(in crate::card::sets) static DEN_OF_THE_BUGBEAR_351: CardRecord = CardRecord
     CardRules::new_land(&[]).with_abilities(&[
 AbilityDef::as_enters("If you control two or more other lands, this land enters tapped.", ReplacementEffectDef::Conditional { condition: ConditionDef::ObjectCount(&ObjectCountConditionDef { query: ObjectQueryDef::matching(ObjectPredicateDef::All(&[ObjectPredicateDef::HasType(CardType::Land), ObjectPredicateDef::Not(&ObjectPredicateDef::Source)]), &[ZoneKind::Battlefield], PlayerRelation::You), comparison: ComparisonDef::GreaterOrEqual, amount: 2 }), if_true: &[ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped)], if_false: &[] }),
 abilities::tap_for(ManaColor::Red),
-AbilityDef::activated("{3}{R}: Until end of turn, this land becomes a 3/2 red Goblin creature with \"Whenever this creature attacks, create a 1/1 red Goblin creature token that's tapped and attacking.\" It's still a land.", &[CostDef::Mana(mana_cost!("{3}{R}"))], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(CardTypeSet::single(CardType::Creature)))), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Goblin"])), AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature attacks, create a 1/1 red Goblin creature token that is tapped and attacking.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).entering_tapped().entering_attacking()))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+AbilityDef::activated("{3}{R}: Until end of turn, this land becomes a 3/2 red Goblin creature with \"Whenever this creature attacks, create a 1/1 red Goblin creature token that's tapped and attacking.\" It's still a land.", &[CostDef::Mana(mana_cost!("{3}{R}"))], EffectDef::Apply { recipient: EffectRecipientDef::Source, effect: AppliedEffectDef::Composite(&[AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(CardTypeSet::single(CardType::Creature)))), AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)), AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Goblin"])), AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])), AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature attacks, create a 1/1 red Goblin creature token that is tapped and attacking.", TriggerEventDef::attacks(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1))).entering_tapped().entering_attacking())))]), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
 ]),
 );
 

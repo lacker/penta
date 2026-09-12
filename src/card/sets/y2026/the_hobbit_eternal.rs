@@ -66,7 +66,7 @@ pub(in crate::card::sets) static DRAGON_CURSED_HALLS_8: CardRecord = CardRecord:
     "Marta Nael",
     CardRules::new_land(&[]).with_abilities(&[
 abilities::tap_for(ManaColor::Colorless),
-AbilityDef::activated_with_targets("{1}, {T}: Until end of turn, target creature gains \"Whenever this creature deals combat damage to a player, create a Treasure token.\"", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player, create a Treasure token.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::create_token(crate::card::tokens::treasure()))), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
+AbilityDef::activated_with_targets("{1}, {T}: Until end of turn, target creature gains \"Whenever this creature deals combat damage to a player, create a Treasure token.\"", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource], &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))], EffectDef::Apply { recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY), effect: AppliedEffectDef::add_ability(&AbilityDef::triggered("Whenever this creature deals combat damage to a player, create a Treasure token.", TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure()))))), duration: ResolvedEffectDurationDef::UntilEndOfTurn })
 ]),
 );
 

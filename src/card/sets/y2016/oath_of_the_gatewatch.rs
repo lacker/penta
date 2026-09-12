@@ -116,13 +116,21 @@ pub(in crate::card::sets) static WARPING_WAIL_12: CardRecord = CardRecord::new(
             ),
             AbilityDef::spell(
                 "Create an Eldrazi Scion.",
-                EffectDef::create_creature_token(&["Eldrazi", "Scion"], &[], 1, 1).with_abilities(
-                    &[AbilityDef::activated_mana(
-                        "Sacrifice this token: Add {C}.",
-                        &[CostDef::SacrificeSource],
-                        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
-                    )],
-                ),
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                    crate::card::TokenDef::Literal(
+                        crate::card::TokenCharacteristics::creature(
+                            &["Eldrazi", "Scion"],
+                            &[],
+                            1,
+                            1,
+                        )
+                        .with_abilities(&[AbilityDef::activated_mana(
+                            "Sacrifice this token: Add {C}.",
+                            &[CostDef::SacrificeSource],
+                            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+                        )]),
+                    ),
+                )),
             ),
         ],
     )

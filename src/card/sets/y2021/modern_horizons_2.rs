@@ -338,7 +338,7 @@ pub(in crate::card::sets) static SCUTTLETIDE_61: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{1}, Discard a card: Create a 0/3 blue Crab creature token.",
             &[CostDef::Mana(mana_cost!("{1}")), CostDef::discard(ObjectPredicateDef::Any)],
-            EffectDef::create_creature_token(&["Crab"], &[ManaColor::Blue], 0, 3),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Crab"], &[ManaColor::Blue], 0, 3)))),
         ),
         AbilityDef::static_ability(
             "Delirium — Crabs you control get +1/+1 as long as there are four or more card types among cards in your graveyard.",
@@ -1022,7 +1022,9 @@ pub(in crate::card::sets) static STRIKE_IT_RICH_143: CardRecord = CardRecord::ne
     CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
         AbilityDef::spell(
             "Create a Treasure token.",
-            EffectDef::create_token(tokens::treasure()),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Literal(tokens::treasure()),
+            )),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{R}"))]),
     ]),
@@ -1034,7 +1036,7 @@ pub(in crate::card::sets) static TAVERN_SCOUNDREL_144: CardRecord = CardRecord::
     "55082c8a-d792-4cd8-94b1-d80c65804463",
     "Cynthia Sheppard",
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Rogue"], 1, 3).with_abilities(&[
-AbilityDef::triggered("Whenever you win a coin flip, create two Treasure tokens. (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::CoinFlipWon(PlayerRelation::You), EffectDef::create_token(crate::card::tokens::treasure()).with_count(ValueDef::Constant(2))),
+AbilityDef::triggered("Whenever you win a coin flip, create two Treasure tokens. (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")", TriggerEventDef::CoinFlipWon(PlayerRelation::You), EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::tokens::treasure())).with_count(ValueDef::Constant(2)))),
 AbilityDef::activated("{1}, {T}, Sacrifice another permanent: Flip a coin.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource, CostDef::sacrifice_permanent(ObjectPredicateDef::Not(&ObjectPredicateDef::Source))], EffectDef::FlipCoin { on_win: &EffectDef::None, on_loss: &EffectDef::None })
 ]),
 );
@@ -1871,7 +1873,14 @@ pub(in crate::card::sets) static CHATTERSTORM_411: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
         AbilityDef::spell(
             "Create a 1/1 green Squirrel creature token.",
-            EffectDef::create_creature_token(&["Squirrel"], &[ManaColor::Green], 1, 1),
+            EffectDef::CreateToken(crate::card::CreateTokenDef::new(
+                crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(
+                    &["Squirrel"],
+                    &[ManaColor::Green],
+                    1,
+                    1,
+                )),
+            )),
         ),
         abilities::storm(),
     ]),

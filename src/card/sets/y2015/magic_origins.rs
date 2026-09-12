@@ -442,7 +442,7 @@ pub(in crate::card::sets) static HANGARBACK_WALKER_229: CardRecord = CardRecord:
     "Daarken",
     CardRules::new_artifact_creature(mana_cost!("{X}{X}"), &["Construct"], 0, 0).with_abilities(&[
 AbilityDef::as_enters("This creature enters with X +1/+1 counters on it.", ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::AddCastXCounters { kind: CounterKind::PlusOnePlusOne })),
-abilities::dies_trigger("When this creature dies, create a 1/1 colorless Thopter artifact creature token with flying for each +1/+1 counter on this creature.", EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1).with_abilities(&[abilities::flying()]).with_count(ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne))),
+abilities::dies_trigger("When this creature dies, create a 1/1 colorless Thopter artifact creature token with flying for each +1/+1 counter on this creature.", EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1).with_abilities(&[abilities::flying()]))).with_count(ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne)))),
 AbilityDef::activated("{1}, {T}: Put a +1/+1 counter on this creature.", &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource], EffectDef::AddCounters { object: EffectRecipientDef::Source, kind: CounterKind::PlusOnePlusOne, amount: ValueDef::Constant(1) })
 ]),
 );

@@ -390,9 +390,7 @@ pub(in crate::card::sets) static GENERAL_KREAT_THE_BOLTBRINGER_48: CardRecord = 
                     1,
                     None,
                 ),
-                EffectDef::create_creature_token(&["Goblin"], &[crate::card::ManaColor::Red], 1, 1)
-                    .entering_tapped()
-                    .entering_attacking(),
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Goblin"], &[crate::card::ManaColor::Red], 1, 1))).entering_tapped().entering_attacking()),
             ),
             AbilityDef::triggered(
                 "Whenever another creature you control enters, General Kreat deals 1 damage to each opponent.",

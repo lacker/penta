@@ -879,8 +879,7 @@ pub(in crate::card::sets) static PASHALIK_MONS_138: CardRecord = CardRecord::new
                         controller: PlayerRelation::You,
                     },
                 ],
-                EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
-                    .with_amount(2),
+                EffectDef::CreateToken(crate::card::CreateTokenDef::new(crate::card::TokenDef::Literal(crate::card::TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1))).with_amount(2)),
             ),
         ]),
 );

@@ -84,11 +84,11 @@ mod tests {
     fn prepared_predicate_rejects_an_unsupported_branch_as_a_unit() {
         static MIXED: [ObjectPredicateDef; 2] =
             [ObjectPredicateDef::Any, ObjectPredicateDef::PowerExactly(1)];
-        assert!(PreparedPredicate::compile(ObjectPredicateDef::AnyOf(&MIXED)).is_none());
         static BOUND: [ObjectPredicateDef; 2] = [
             ObjectPredicateDef::Any,
             ObjectPredicateDef::Subtype(crate::SubtypeDef::Binding(crate::Binding!("chosen_type"))),
         ];
+        assert!(PreparedPredicate::compile(ObjectPredicateDef::AnyOf(&MIXED)).is_none());
         assert!(PreparedPredicate::compile(ObjectPredicateDef::AnyOf(&BOUND)).is_none());
     }
 }

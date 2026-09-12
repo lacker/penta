@@ -70,7 +70,7 @@ fn prepared_predicate_queries_match_reference_across_live_characteristics() {
             2 => game.battlefield[1].face_down = Some(crate::card::face_down::ordinary()),
             3 => {
                 game.battlefield[2].copy_effect =
-                    Some(Game::copiable_characteristics(&game.battlefield[0]))
+                    Some(Game::copiable_characteristics(&game.battlefield[0]));
             }
             _ => {}
         }

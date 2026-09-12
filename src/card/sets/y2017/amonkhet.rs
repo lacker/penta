@@ -71,9 +71,13 @@ pub(in crate::card::sets) static REGAL_CARACAL: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create two 1/1 white Cat creature \
              tokens with lifelink.",
-            EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1)
-                .with_count(ValueDef::Constant(2))
-                .with_abilities(&[abilities::lifelink()]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Cat"], &[ManaColor::White], 1, 1)
+                        .with_abilities(&[abilities::lifelink()]),
+                ))
+                .with_count(ValueDef::Constant(2)),
+            ),
         ),
     ]),
 );

@@ -5,9 +5,9 @@ use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
-use crate::card::CardArt;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
@@ -26,8 +26,8 @@ use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -76,10 +76,10 @@ pub(in crate::card::sets) static EXTRAVAGANT_REPLICATION: CardRecord = CardRecor
                     owner: None,
                 },
             )],
-            EffectDef::create_token_from_copy(&TokenCopyDef {
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                 object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 exceptions: CopyExceptionsDef::NONE,
-            }),
+            }))),
         ),
     ]),
 );

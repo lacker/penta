@@ -18,6 +18,7 @@ use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -28,7 +29,6 @@ use crate::card::CollectionInspectionDef;
 use crate::card::ColorChoiceOperationDef;
 use crate::card::ColorSet;
 use crate::card::ComparisonDef;
-use crate::card::CopyAbilityDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CopyStackObjectDef;
 use crate::card::CostAdjustmentDef;
@@ -37,6 +37,7 @@ use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CountConditionDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageAssignmentDef;
 use crate::card::DamageEventMatcherDef;
@@ -81,7 +82,9 @@ use crate::card::SpellCostModificationDef;
 use crate::card::SpellResolutionDestinationDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -90,7 +93,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -149,6 +151,47 @@ const VIVID: ValueDef = ValueDef::Sum(&SumValueDef {
     )),
 });
 
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("ac4384b7-853c-417d-b3b4-f54cd0b5d361", "Jeff Miracola"),
+);
+
+const KITHKIN_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Kithkin"], &[ManaColor::Green, ManaColor::White], 1, 1)
+        .with_art(CardArt::new(
+            "2ed11e1b-2289-48d2-8d96-ee7e590ecfd4",
+            "Jeff Laubenstein",
+        ));
+const FAERIE_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Faerie"], &[ManaColor::Blue, ManaColor::Black], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "01524db2-c96f-4902-8394-bc7a7128e573",
+            "Iris Compiet",
+        ));
+const MERFOLK_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Merfolk"], &[ManaColor::White, ManaColor::Blue], 1, 1)
+        .with_art(CardArt::new(
+            "4c5ad4e1-b489-4023-88ab-1200c5f26ffc",
+            "Julia Griffin",
+        ));
+const GOBLIN_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Black, ManaColor::Red], 1, 1)
+        .with_art(CardArt::new(
+            "6139a45d-ebc7-4bca-8c13-73c85ea5fe0d",
+            "Larry MacDougall",
+        ));
+const ELF_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Elf"], &[ManaColor::Black, ManaColor::Green], 2, 2).with_art(
+        CardArt::new("39b36f22-21f9-44fe-8a49-bdc859503342", "Pete Venters"),
+    );
+const TREEFOLK_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Treefolk"], &[ManaColor::Green], 3, 4)
+        .with_abilities(&[abilities::reach()])
+        .with_art(CardArt::new(
+            "82e01706-ab45-4e52-9ee1-7070567234fd",
+            "Jeff Laubenstein",
+        ));
+
 // ECL 1 — Changeling Wayfinder
 // Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static CHANGELING_WAYFINDER: CardRecord = CardRecord::new(
@@ -204,12 +247,7 @@ pub(in crate::card::sets) static AJANI_OUTLAND_CHAPERONE: CardRecord = CardRecor
             AbilityDef::activated(
                 "+1: Create a 1/1 green and white Kithkin creature token.",
                 &[CostDef::Loyalty(1)],
-                EffectDef::create_creature_token(
-                    &["Kithkin"],
-                    &[ManaColor::Green, ManaColor::White],
-                    1,
-                    1,
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(KITHKIN_TOKEN))),
             ),
             AbilityDef::activated_with_targets(
                 "−2: Ajani deals 4 damage to target tapped creature.",
@@ -372,12 +410,9 @@ pub(in crate::card::sets) static BRIGID_CLACHAN_S_HEART: CardRecord = CardRecord
                             ),
                             TriggerEventDef::Transforms(ObjectPredicateDef::Source),
                         ]),
-                        EffectDef::create_creature_token(
-                            &["Kithkin"],
-                            &[ManaColor::Green, ManaColor::White],
-                            1,
-                            1,
-                        ),
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            KITHKIN_TOKEN,
+                        ))),
                     ),
                     AbilityDef::triggered(
                         "At the beginning of your first main phase, you may pay {G}. \
@@ -467,23 +502,15 @@ pub(in crate::card::sets) static CLACHAN_FESTIVAL: CardRecord = CardRecord::new(
             abilities::enters_trigger(
                 "When this enchantment enters, create two 1/1 green and white \
                  Kithkin creature tokens.",
-                EffectDef::create_creature_token(
-                    &["Kithkin"],
-                    &[ManaColor::Green, ManaColor::White],
-                    1,
-                    1,
-                )
-                .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(KITHKIN_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
             ),
             AbilityDef::activated(
                 "{4}{W}: Create a 1/1 green and white Kithkin creature token.",
                 &[CostDef::Mana(mana_cost!("{4}{W}"))],
-                EffectDef::create_creature_token(
-                    &["Kithkin"],
-                    &[ManaColor::Green, ManaColor::White],
-                    1,
-                    1,
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(KITHKIN_TOKEN))),
             ),
         ])
         .with_type(CardType::Kindred),
@@ -647,12 +674,7 @@ pub(in crate::card::sets) static GOLDMEADOW_NOMAD: CardRecord = CardRecord::new(
             "{W}, Exile this card from your graveyard: Create a 1/1 green \
              and white Kithkin creature token. Activate only as a sorcery.",
             &[CostDef::Mana(mana_cost!("{W}")), CostDef::ExileSource],
-            EffectDef::create_creature_token(
-                &["Kithkin"],
-                &[ManaColor::Green, ManaColor::White],
-                1,
-                1,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(KITHKIN_TOKEN))),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed)
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -731,13 +753,9 @@ pub(in crate::card::sets) static KITHKEEPER: CardRecord = CardRecord::new(
             "Vivid — When this creature enters, create X 1/1 green and \
              white Kithkin creature tokens, where X is the number of \
              colors among permanents you control.",
-            EffectDef::create_creature_token(
-                &["Kithkin"],
-                &[ManaColor::Green, ManaColor::White],
-                1,
-                1,
-            )
-            .with_count(VIVID),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(KITHKIN_TOKEN)).with_count(VIVID),
+            ),
         ),
         AbilityDef::activated(
             "Tap three untapped creatures you control: This creature gets \
@@ -1613,13 +1631,7 @@ pub(in crate::card::sets) static PESTERED_WELLGUARD: CardRecord = CardRecord::ne
             "Whenever this creature becomes tapped, create a 1/1 blue and \
              black Faerie creature token with flying.",
             TriggerEventDef::tapped(ObjectPredicateDef::Source),
-            EffectDef::create_creature_token(
-                &["Faerie"],
-                &[ManaColor::Blue, ManaColor::Black],
-                1,
-                1,
-            )
-            .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(FAERIE_TOKEN))),
         ),
     ]),
 );
@@ -2182,17 +2194,15 @@ pub(in crate::card::sets) static WANDERWINE_FAREWELL: CardRecord = CardRecord::n
                             comparison: ComparisonDef::GreaterOrEqual,
                             amount: 1,
                         },
-                        then: &EffectDef::create_creature_token(
-                            &["Merfolk"],
-                            &[ManaColor::White, ManaColor::Blue],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::CountObjects(
-                            &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
-                                "returned"
-                            )),
-                        )),
+                        then: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(MERFOLK_TOKEN)).with_count(
+                                ValueDef::CountObjects(
+                                    &ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                        "returned"
+                                    )),
+                                ),
+                            ),
+                        ),
                     },
                 },
             ),
@@ -2336,13 +2346,7 @@ pub(in crate::card::sets) static BITTERBLOOM_BEARER: CardRecord = CardRecord::ne
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::create_creature_token(
-                    &["Faerie"],
-                    &[ManaColor::Blue, ManaColor::Black],
-                    1,
-                    1,
-                )
-                .with_abilities(&[abilities::flying()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(FAERIE_TOKEN))),
             ]),
         ),
     ]),
@@ -2481,13 +2485,10 @@ pub(in crate::card::sets) static BOGGART_MISCHIEF: CardRecord = CardRecord::new(
                                 kind: CounterKind::MinusOneMinusOne,
                                 amount: ValueDef::Constant(1),
                             },
-                            EffectDef::create_creature_token(
-                                &["Goblin"],
-                                &[ManaColor::Black, ManaColor::Red],
-                                1,
-                                1,
-                            )
-                            .with_count(ValueDef::Constant(2)),
+                            EffectDef::CreateToken(
+                                CreateTokenDef::new(TokenDef::Literal(GOBLIN_TOKEN))
+                                    .with_count(ValueDef::Constant(2)),
+                            ),
                         ]),
                     },
                 }),
@@ -2855,117 +2856,12 @@ const GRAVESHIFTER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // ECL 105 — Grub, Storied Matriarch // Grub, Notorious Auntie
-pub(in crate::card::sets) static GRUB_STORIED_MATRIARCH: CardRecord = CardRecord::new_dfc(
+// Audit: unsupported — Needs token copies to enter tapped and attacking; the copy-creation runtime only supports ordinary entry, so neither face is enabled.
+pub(in crate::card::sets) static GRUB_STORIED_MATRIARCH: CardRecord = CardRecord::new(
     "Grub, Storied Matriarch // Grub, Notorious Auntie",
     "1f51adf8-8234-4dae-aedf-7633310d5111",
     "Jesper Ejsing",
-&[
-("Grub, Storied Matriarch",
-CardRules::new_creature(mana_cost!("{2}{B}"),
-&[
-"Goblin",
-"Warlock"],
-2,
-1).with_supertype(CardSupertype::Legendary).with_abilities(&[
-abilities::menace(),
-AbilityDef::triggered_with_targets("Whenever this creature enters or transforms into Grub, \
- Storied Matriarch, return up to one target Goblin card from \
- your graveyard to your hand.",
-TriggerEventDef::AnyOf(&[
-TriggerEventDef::zone_changed(ObjectPredicateDef::Source,
-None,
-Some(ZoneKind::Battlefield)),
-TriggerEventDef::Transforms(ObjectPredicateDef::Source)]),
-&[
-AbilityTargetDef::up_to(AbilityTargetPredicate::Object {
-object:ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
-zones:&[
-ZoneKind::Graveyard],
-controller:None,
-owner:Some(PlayerRelation::You)}
-,
-1)],
-EffectDef::move_to_zone(EffectRecipientDef::Target(TargetIndex::PRIMARY),
-ZoneKind::Hand,
-ZonePlacement::Top)),
-AbilityDef::triggered("At the beginning of your first main phase, you may pay {R}. \
- If you do, transform Grub.",
-TriggerEventDef::StepBegins {
-step:TurnStepDef::PrecombatMain,
-player:PlayerRelation::You}
-,
-EffectDef::PayOr(PayOrDef::optional(&[
-CostDef::Mana(mana_cost!("{R}"))],
-&EffectDef::Transform {
-object:EffectRecipientDef::Source}
-)))])),
-("Grub, Notorious Auntie",
-CardRules::new_creature_without_mana_cost(&[
-"Goblin",
-"Warrior"],
-2,
-1).with_supertype(CardSupertype::Legendary).printed_colors(&[
-ManaColor::Red]).with_abilities(&[
-abilities::menace(),
-AbilityDef::triggered("Whenever Grub attacks, you may blight 1. If you do, create a \
- tapped and attacking token that's a copy of the blighted \
- creature, except it has \"At the beginning of the end step, \
- sacrifice this token.\"",
-TriggerEventDef::attacks(ObjectPredicateDef::Source),
-EffectDef::Choose(ChooseDef {
-binding:ObjectChoiceBindingDef::Objects(crate::Binding!("blighted")),
-unchosen:None,
-chooser:PlayerRefDef::EffectController,
-candidates:ObjectSetDef::Query(ObjectQueryDef::controlled_by(ObjectPredicateDef::HasType(CardType::Creature),
-&[
-ZoneKind::Battlefield],
-PlayerSetDef::One(PlayerRefDef::EffectController))),
-exclude:None,
-minimum:0,
-maximum:1,
-visibility:ChoiceVisibilityDef::Public,
-then:&EffectDef::IfCondition {
-condition:&TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
-objects:&ObjectSetDef::Binding(crate::Binding!("blighted")),
-predicate:ObjectSetPredicateDef {
-filter:None,
-comparison:ComparisonDef::Greater,
-amount:0}
-}
-),
-then:&EffectDef::Sequence(&[
-EffectDef::AddCounters {
-object:EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!("blighted"))),
-kind:CounterKind::MinusOneMinusOne,
-amount:ValueDef::Constant(1)}
-,
-EffectDef::create_token_from_copy(&TokenCopyDef {
-object:&EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!("blighted"))),
-exceptions:CopyExceptionsDef {
-added_abilities:&[
-CopyAbilityDef::Ability(&AbilityDef::triggered("At the beginning of the end step, sacrifice this token.",
-TriggerEventDef::StepBegins {
-step:TurnStepDef::End,
-player:PlayerRelation::Any}
-,
-EffectDef::sacrifice(EffectRecipientDef::Source)))],
-..CopyExceptionsDef::NONE}
-}
-).entering_tapped().entering_attacking()])}
-}
-)),
-AbilityDef::triggered("At the beginning of your first main phase, you may pay {B}. \
- If you do, transform Grub.",
-TriggerEventDef::StepBegins {
-step:TurnStepDef::PrecombatMain,
-player:PlayerRelation::You}
-,
-EffectDef::PayOr(PayOrDef::optional(&[
-CostDef::Mana(mana_cost!("{B}"))],
-&EffectDef::Transform {
-object:EffectRecipientDef::Source}
-)))]))],
-
+    crate::card::CardRules::unsupported(),
 );
 
 // ECL 106 — Gutsplitter Gang
@@ -3619,12 +3515,7 @@ pub(in crate::card::sets) static ELDER_AUNTIE: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 black and red Goblin \
              creature token.",
-            EffectDef::create_creature_token(
-                &["Goblin"],
-                &[ManaColor::Black, ManaColor::Red],
-                1,
-                1,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(GOBLIN_TOKEN))),
         ),
     ]),
 );
@@ -3754,7 +3645,10 @@ pub(in crate::card::sets) static FLAMEKIN_GILDWEAVER: CardRecord = CardRecord::n
                 "When this creature enters, create a Treasure token. (It's an \
                  artifact with \"{T}, Sacrifice this token: Add one mana of \
                  any color.\")",
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ],
     ),
@@ -4045,7 +3939,10 @@ pub(in crate::card::sets) static RECKLESS_RANSACKING: CardRecord = CardRecord::n
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -4096,8 +3993,10 @@ pub(in crate::card::sets) static SCUZZBACK_SCROUNGER: CardRecord = CardRecord::n
                             kind: CounterKind::MinusOneMinusOne,
                             amount: ValueDef::Constant(1),
                         },
-                        EffectDef::create_token(tokens::treasure())
-                            .with_count(ValueDef::Constant(1)),
+                        EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     ]),
                 },
             }),
@@ -4192,13 +4091,10 @@ pub(in crate::card::sets) static SOURBREAD_AUNTIE: CardRecord = CardRecord::new(
                             kind: CounterKind::MinusOneMinusOne,
                             amount: ValueDef::Constant(2),
                         },
-                        EffectDef::create_creature_token(
-                            &["Goblin"],
-                            &[ManaColor::Black, ManaColor::Red],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::Constant(2)),
+                        EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(GOBLIN_TOKEN))
+                                .with_count(ValueDef::Constant(2)),
+                        ),
                     ]),
                 },
             }),
@@ -4806,19 +4702,15 @@ pub(in crate::card::sets) static MORCANT_S_EYES: CardRecord = CardRecord::new(
                     CostDef::Mana(mana_cost!("{4}{G}{G}")),
                     CostDef::SacrificeSource,
                 ],
-                EffectDef::create_creature_token(
-                    &["Elf"],
-                    &[ManaColor::Black, ManaColor::Green],
-                    2,
-                    2,
-                )
-                .with_count(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::You,
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ELF_TOKEN)).with_count(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        )),
                     ),
-                )),
+                ),
             )
             .with_activation_timing(ActivationTimingDef::SorcerySpeed),
         ])
@@ -5016,8 +4908,7 @@ pub(in crate::card::sets) static SAPLING_NURSERY: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_creature_token(&["Treefolk"], &[ManaColor::Green], 3, 4)
-                .with_abilities(&[abilities::reach()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(TREEFOLK_TOKEN))),
         ),
         AbilityDef::activated(
             "{1}{G}, Exile this enchantment: Treefolk and Forests you \
@@ -5166,8 +5057,9 @@ pub(in crate::card::sets) static TEND_THE_SPRIGS: CardRecord = CardRecord::new(
                     comparison: ComparisonDef::GreaterOrEqual,
                     right: ValueDef::Constant(7),
                 }),
-                then: &EffectDef::create_creature_token(&["Treefolk"], &[ManaColor::Green], 3, 4)
-                    .with_abilities(&[abilities::reach()]),
+                then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TREEFOLK_TOKEN,
+                ))),
             },
         ]),
     )]),
@@ -5358,12 +5250,7 @@ pub(in crate::card::sets) static UNFORGIVING_AIM: CardRecord = CardRecord::new(
             ),
             AbilityDef::spell(
                 "Create a 2/2 black and green Elf creature token.",
-                EffectDef::create_creature_token(
-                    &["Elf"],
-                    &[ManaColor::Black, ManaColor::Green],
-                    2,
-                    2,
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELF_TOKEN))),
             ),
         ],
     )]),
@@ -5558,10 +5445,10 @@ pub(in crate::card::sets) static ASHLING_S_COMMAND: CardRecord = CardRecord::new
                             owner: None,
                         },
                     )],
-                    EffectDef::create_token_from_copy(&TokenCopyDef {
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                         object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         exceptions: CopyExceptionsDef::NONE,
-                    }),
+                    }))),
                 ),
                 AbilityDef::spell_with_targets(
                     "Target player draws two cards.",
@@ -5595,9 +5482,11 @@ pub(in crate::card::sets) static ASHLING_S_COMMAND: CardRecord = CardRecord::new
                     &[AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::Player(PlayerRelation::Any),
                     )],
-                    EffectDef::create_token(tokens::treasure())
-                        .with_count(ValueDef::Constant(2))
-                        .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(2))
+                            .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    ),
                 ),
             ],
         )
@@ -5661,10 +5550,10 @@ pub(in crate::card::sets) static BRIGID_S_COMMAND: CardRecord = CardRecord::new(
                             owner: None,
                         },
                     )],
-                    EffectDef::create_token_from_copy(&TokenCopyDef {
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                         object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         exceptions: CopyExceptionsDef::NONE,
-                    }),
+                    }))),
                 ),
                 AbilityDef::spell_with_targets(
                     "Target player creates a 1/1 green and white Kithkin creature \
@@ -5672,13 +5561,10 @@ pub(in crate::card::sets) static BRIGID_S_COMMAND: CardRecord = CardRecord::new(
                     &[AbilityTargetDef::exactly_one(
                         AbilityTargetPredicate::Player(PlayerRelation::Any),
                     )],
-                    EffectDef::create_creature_token(
-                        &["Kithkin"],
-                        &[ManaColor::Green, ManaColor::White],
-                        1,
-                        1,
-                    )
-                    .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(KITHKIN_TOKEN))
+                            .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Target creature you control gets +3/+3 until end of turn.",
@@ -6339,10 +6225,10 @@ pub(in crate::card::sets) static GRUB_S_COMMAND: CardRecord = CardRecord::new(
                             owner: None,
                         },
                     )],
-                    EffectDef::create_token_from_copy(&TokenCopyDef {
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                         object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         exceptions: CopyExceptionsDef::NONE,
-                    }),
+                    }))),
                 ),
                 AbilityDef::spell_with_targets(
                     "Creatures target player controls get +1/+1 and gain haste \
@@ -6575,19 +6461,21 @@ pub(in crate::card::sets) static LLUWEN_IMPERFECT_NATURALIST: CardRecord = CardR
                     CostDef::TapSource,
                     CostDef::discard(ObjectPredicateDef::HasType(CardType::Land)),
                 ],
-                EffectDef::create_creature_token(
-                    &["Worm"],
-                    &[ManaColor::Black, ManaColor::Green],
-                    1,
-                    1,
-                )
-                .with_count(ValueDef::CountMatchingObjects(
-                    &ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::You,
-                    ),
-                )),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                        &["Worm"],
+                        &[ManaColor::Black, ManaColor::Green],
+                        1,
+                        1,
+                    )))
+                    .with_count(ValueDef::CountMatchingObjects(
+                        &ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                ),
             ),
         ]),
 );
@@ -6614,12 +6502,7 @@ pub(in crate::card::sets) static MERROW_SKYSWIMMER: CardRecord = CardRecord::new
             abilities::enters_trigger(
                 "When this creature enters, create a 1/1 white and blue \
                  Merfolk creature token.",
-                EffectDef::create_creature_token(
-                    &["Merfolk"],
-                    &[ManaColor::White, ManaColor::Blue],
-                    1,
-                    1,
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERFOLK_TOKEN))),
             ),
         ]),
 );
@@ -6664,7 +6547,10 @@ pub(in crate::card::sets) static NOGGLE_ROBBER: CardRecord = CardRecord::new(
                     Some(ZoneKind::Graveyard),
                 ),
             ]),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )]),
 );
 
@@ -6724,7 +6610,7 @@ pub(in crate::card::sets) static STOIC_GROVE_GUIDE: CardRecord = CardRecord::new
              black and green Elf creature token. Activate only as a \
              sorcery.",
             &[CostDef::Mana(mana_cost!("{1}{B/G}")), CostDef::ExileSource],
-            EffectDef::create_creature_token(&["Elf"], &[ManaColor::Black, ManaColor::Green], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELF_TOKEN))),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed)
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -6751,10 +6637,10 @@ pub(in crate::card::sets) static SYGG_S_COMMAND: CardRecord = CardRecord::new(
                             owner: None,
                         },
                     )],
-                    EffectDef::create_token_from_copy(&TokenCopyDef {
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                         object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         exceptions: CopyExceptionsDef::NONE,
-                    }),
+                    }))),
                 ),
                 AbilityDef::spell_with_targets(
                     "Creatures target player controls gain lifelink until end of turn.",
@@ -6881,10 +6767,10 @@ pub(in crate::card::sets) static TRYSTAN_S_COMMAND: CardRecord = CardRecord::new
                             owner: None,
                         },
                     )],
-                    EffectDef::create_token_from_copy(&TokenCopyDef {
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                         object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         exceptions: CopyExceptionsDef::NONE,
-                    }),
+                    }))),
                 ),
                 AbilityDef::spell_with_targets(
                     "Return one or two target permanent cards from your graveyard \

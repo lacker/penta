@@ -21,6 +21,7 @@ use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
 use crate::card::BlockRestrictionMatchDef;
 use crate::card::BlockRestrictionSubjectDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -94,10 +95,10 @@ use crate::card::SpellCostConditionDef;
 use crate::card::SpellCostModificationDef;
 use crate::card::StackTargetChangeDef;
 use crate::card::SubtypeDef;
-use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::SumValueDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TokenStatsDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -107,7 +108,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -149,6 +149,53 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const CLUE_TOKEN: TokenCharacteristics = crate::card::tokens::clue().with_art(CardArt::new(
+    "764a906c-8b27-4ffa-bdc3-7825c6919d3e",
+    "Clint Lockwood",
+));
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("7ec6f053-96f7-4e57-b2eb-4e7699a40a4f", "Monztre"),
+);
+
+const MERCENARY_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Mercenary"], &[ManaColor::Red], 1, 1)
+        .with_abilities(&[AbilityDef::activated_with_targets(
+            "{T}: Target creature you control gets +1/+0 until end of \
+                     turn. Activate only as a sorcery.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed)])
+        .with_art(CardArt::new(
+            "5f04607f-eed2-462e-897f-82e41e5f7049",
+            "Eduardo Francisco",
+        ));
+const ZOMBIE_ROGUE_TOKEN: TokenCharacteristics = TokenCharacteristics::creature(
+    &["Zombie", "Rogue"],
+    &[ManaColor::Blue, ManaColor::Black],
+    2,
+    2,
+)
+.with_art(CardArt::new(
+    "74c7a0bd-6011-495a-b56c-8fa707dd7f12",
+    "Caio E Santos",
+));
 
 // OTJ 1 — Another Round
 // Audit: unsupported — Needs a resolving loop that repeats a fresh optional creature selection and its exile-return sequence X plus one times; Sequence has a fixed authored length and no value-counted repetition.
@@ -273,8 +320,16 @@ pub(in crate::card::sets) static BOVINE_INTERVENTION: CardRecord = CardRecord::n
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::create_creature_token(&["Ox"], &[ManaColor::White], 2, 2).with_controller(
-                PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Ox"],
+                    &[ManaColor::White],
+                    2,
+                    2,
+                )))
+                .with_controller(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
             ),
         ]),
     )]),
@@ -296,7 +351,9 @@ pub(in crate::card::sets) static BRIDLED_BIGHORN: CardRecord = CardRecord::new(
                     object: ObjectPredicateDef::Saddled,
                 },
             },
-            EffectDef::create_creature_token(&["Sheep"], &[ManaColor::White], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Sheep"], &[ManaColor::White], 1, 1),
+            ))),
         ),
         abilities::saddle(
             &[CostDef::TapCreaturesWithTotalPower { minimum: 2 }],
@@ -880,29 +937,7 @@ pub(in crate::card::sets) static PROSPERITY_TYCOON: CardRecord = CardRecord::new
             "When this creature enters, create a 1/1 red Mercenary \
              creature token with \"{T}: Target creature you control gets \
              +1/+0 until end of turn. Activate only as a sorcery.\"",
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         ),
         AbilityDef::activated(
             "{2}, Sacrifice a token: This creature gains indestructible \
@@ -1287,29 +1322,7 @@ pub(in crate::card::sets) static WANTED_GRIFFIN: CardRecord = CardRecord::new(
             "When this creature dies, create a 1/1 red Mercenary creature \
              token with \"{T}: Target creature you control gets +1/+0 \
              until end of turn. Activate only as a sorcery.\"",
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         ),
     ]),
 );
@@ -1888,31 +1901,29 @@ pub(in crate::card::sets) static OUTLAW_STITCHER: CardRecord = CardRecord::new(
              Rogue creature token, then put two +1/+1 counters on that \
              token for each spell you've cast this turn other than the \
              first.",
-            EffectDef::create_creature_token(
-                &["Zombie", "Rogue"],
-                &[ManaColor::Blue, ManaColor::Black],
-                2,
-                2,
-            )
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("zombie"),
-                then: &EffectDef::AddCounters {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                        "zombie"
-                    ))),
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::Scaled(&ScaledValueDef {
-                        value: ValueDef::Sum(&SumValueDef::new(
-                            ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
-                                player: PlayerRelation::You,
-                                spell: ObjectPredicateDef::Any,
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ZOMBIE_ROGUE_TOKEN)).with_created_tokens(
+                    CreatedTokensDef {
+                        binding: crate::Binding!("zombie"),
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("zombie"),
+                            )),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Scaled(&ScaledValueDef {
+                                value: ValueDef::Sum(&SumValueDef::new(
+                                    ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                                        player: PlayerRelation::You,
+                                        spell: ObjectPredicateDef::Any,
+                                    }),
+                                    ValueDef::Constant(-1),
+                                )),
+                                factor: 2,
                             }),
-                            ValueDef::Constant(-1),
-                        )),
-                        factor: 2,
-                    }),
-                },
-            }),
+                        },
+                    },
+                ),
+            ),
         ),
         abilities::plot(&[CostDef::Mana(mana_cost!("{4}{U}"))]),
     ]),
@@ -2430,10 +2441,10 @@ pub(in crate::card::sets) static THREE_STEPS_AHEAD: CardRecord = CardRecord::new
                         owner: None,
                     },
                 )],
-                EffectDef::create_token_from_copy(&TokenCopyDef {
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                     object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     exceptions: CopyExceptionsDef::NONE,
-                }),
+                }))),
             ),
         ),
         (
@@ -2630,8 +2641,10 @@ pub(in crate::card::sets) static BONEYARD_DESECRATOR: CardRecord = CardRecord::n
                                 ),
                             },
                         ),
-                        then: &EffectDef::create_token(tokens::treasure())
-                            .with_count(ValueDef::Constant(1)),
+                        then: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     },
                 ]),
             ),
@@ -2888,14 +2901,11 @@ pub(in crate::card::sets) static GISA_THE_HELLRAISER: CardRecord = CardRecord::n
                  only once each turn. (Targeting opponents, anything they \
                  control, and/or cards in their graveyards is a crime.)",
                 TriggerEventDef::CommittedCrime(PlayerRelation::You),
-                EffectDef::create_creature_token(
-                    &["Zombie", "Rogue"],
-                    &[ManaColor::Blue, ManaColor::Black],
-                    2,
-                    2,
-                )
-                .with_count(ValueDef::Constant(2))
-                .entering_tapped(),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ZOMBIE_ROGUE_TOKEN))
+                        .with_count(ValueDef::Constant(2))
+                        .entering_tapped(),
+                ),
             )
             .triggering_at_most(1),
         ]),
@@ -3000,29 +3010,7 @@ pub(in crate::card::sets) static MOURNER_S_SURPRISE: CardRecord = CardRecord::ne
                 ZoneKind::Hand,
                 ZonePlacement::Top,
             ),
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         ]),
     )]),
 );
@@ -3070,29 +3058,7 @@ pub(in crate::card::sets) static NEZUMI_LINKBREAKER: CardRecord = CardRecord::ne
             "When this creature dies, create a 1/1 red Mercenary creature \
              token with \"{T}: Target creature you control gets +1/+0 \
              until end of turn. Activate only as a sorcery.\"",
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         ),
     ]),
 );
@@ -3174,29 +3140,7 @@ pub(in crate::card::sets) static RAKISH_CREW: CardRecord = CardRecord::new(
             "When this enchantment enters, create a 1/1 red Mercenary \
              creature token with \"{T}: Target creature you control gets \
              +1/+0 until end of turn. Activate only as a sorcery.\"",
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         ),
         AbilityDef::triggered(
             "Whenever an outlaw you control dies, each opponent loses 1 \
@@ -3319,12 +3263,7 @@ pub(in crate::card::sets) static RICTUS_ROBBER: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
             ),
             &TriggerConditionDef::CreatureDiedThisTurn,
-            EffectDef::create_creature_token(
-                &["Zombie", "Rogue"],
-                &[ManaColor::Blue, ManaColor::Black],
-                2,
-                2,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ZOMBIE_ROGUE_TOKEN))),
         ),
         abilities::plot(&[CostDef::Mana(mana_cost!("{2}{B}"))]),
     ]),
@@ -3562,7 +3501,10 @@ pub(in crate::card::sets) static TREASURE_DREDGER: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::PayLife(1),
             ],
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -3592,29 +3534,31 @@ pub(in crate::card::sets) static UNFORTUNATE_ACCIDENT: CardRecord = CardRecord::
                 "Create a 1/1 red Mercenary creature token with \"{T}: Target \
                  creature you control gets +1/+0 until end of turn. Activate \
                  only as a sorcery.\"",
-                EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                    .with_abilities(&[AbilityDef::activated_with_targets(
-                        "{T}: Target creature you control gets +1/+0 until end of \
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Mercenary"], &[ManaColor::Red], 1, 1)
+                        .with_abilities(&[AbilityDef::activated_with_targets(
+                            "{T}: Target creature you control gets +1/+0 until end of \
                          turn. Activate only as a sorcery.",
-                        &[CostDef::TapSource],
-                        &[AbilityTargetDef::exactly_one(
-                            AbilityTargetPredicate::Object {
-                                object: ObjectPredicateDef::HasType(CardType::Creature),
-                                zones: &[ZoneKind::Battlefield],
-                                controller: Some(PlayerRelation::You),
-                                owner: None,
+                            &[CostDef::TapSource],
+                            &[AbilityTargetDef::exactly_one(
+                                AbilityTargetPredicate::Object {
+                                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                                    zones: &[ZoneKind::Battlefield],
+                                    controller: Some(PlayerRelation::You),
+                                    owner: None,
+                                },
+                            )],
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(1),
+                                    ValueDef::Constant(0),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                             },
-                        )],
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            effect: AppliedEffectDef::modify_power_toughness(
-                                ValueDef::Constant(1),
-                                ValueDef::Constant(0),
-                            ),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                    )
-                    .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+                        )
+                        .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+                ))),
             ),
         ),
     ])]),
@@ -3717,29 +3661,7 @@ pub(in crate::card::sets) static BRIMSTONE_ROUNDUP: CardRecord = CardRecord::new
                     amount: 2,
                 },
             },
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         ),
         abilities::plot(&[CostDef::Mana(mana_cost!("{2}{R}"))]),
     ]),
@@ -4098,30 +4020,10 @@ pub(in crate::card::sets) static HELLSPUR_POSSE_BOSS: CardRecord = CardRecord::n
             "When this creature enters, create two 1/1 red Mercenary \
              creature tokens with \"{T}: Target creature you control gets \
              +1/+0 until end of turn. Activate only as a sorcery.\"",
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_count(ValueDef::Constant(2))
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         ),
     ]),
 );
@@ -4247,9 +4149,11 @@ pub(in crate::card::sets) static MAGDA_THE_HOARDMASTER: CardRecord = CardRecord:
                  opponents, anything they control, and/or cards in their \
                  graveyards is a crime.)",
                 TriggerEventDef::CommittedCrime(PlayerRelation::You),
-                EffectDef::create_token(tokens::treasure())
-                    .with_count(ValueDef::Constant(1))
-                    .entering_tapped(),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1))
+                        .entering_tapped(),
+                ),
             )
             .triggering_at_most(1),
             AbilityDef::activated(
@@ -4261,8 +4165,15 @@ pub(in crate::card::sets) static MAGDA_THE_HOARDMASTER: CardRecord = CardRecord:
                     PlayerRelation::You,
                     3,
                 )],
-                EffectDef::create_creature_token(&["Scorpion", "Dragon"], &[ManaColor::Red], 4, 4)
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(
+                        &["Scorpion", "Dragon"],
+                        &[ManaColor::Red],
+                        4,
+                        4,
+                    )
                     .with_abilities(&[abilities::flying(), abilities::haste()]),
+                ))),
             )
             .with_activation_timing(ActivationTimingDef::SorcerySpeed),
         ]),
@@ -4331,7 +4242,10 @@ pub(in crate::card::sets) static MINE_RAIDER: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::GreaterOrEqual,
                 amount: 1,
             },
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -4355,29 +4269,7 @@ pub(in crate::card::sets) static PRICKLY_PAIR: CardRecord = CardRecord::new(
             "When this creature enters, create a 1/1 red Mercenary \
              creature token with \"{T}: Target creature you control gets \
              +1/+0 until end of turn. Activate only as a sorcery.\"",
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         ),
     ]),
 );
@@ -4489,7 +4381,10 @@ pub(in crate::card::sets) static RECKLESS_LACKEY: CardRecord = CardRecord::new(
             ],
             EffectDef::Sequence(&[
                 abilities::draw_cards(ValueDef::Constant(1)),
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ]),
         ),
     ]),
@@ -4629,7 +4524,9 @@ pub(in crate::card::sets) static SCALESTORM_SUMMONER: CardRecord = CardRecord::n
                     comparison: ComparisonDef::GreaterOrEqual,
                     amount: 1,
                 },
-                then: &EffectDef::create_creature_token(&["Dinosaur"], &[ManaColor::Red], 3, 1),
+                then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Dinosaur"], &[ManaColor::Red], 3, 1),
+                ))),
             },
         ),
     ]),
@@ -5201,7 +5098,10 @@ pub(in crate::card::sets) static GOLD_RUSH: CardRecord = CardRecord::new(
             1,
         )],
         EffectDef::Sequence(&[
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -5248,9 +5148,11 @@ pub(in crate::card::sets) static GOLDVEIN_HYDRA: CardRecord = CardRecord::new(
         abilities::dies_trigger(
             "When this creature dies, create a number of tapped Treasure \
              tokens equal to its power.",
-            EffectDef::create_token(tokens::treasure())
-                .with_count(ValueDef::SourcePower)
-                .entering_tapped(),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::SourcePower)
+                    .entering_tapped(),
+            ),
         ),
     ]),
 );
@@ -5536,13 +5438,17 @@ pub(in crate::card::sets) static PATIENT_NATURALIST: CardRecord = CardRecord::ne
                                         right: ValueDef::Constant(0),
                                     },
                                 ),
-                                then: &EffectDef::create_token(tokens::treasure())
-                                    .with_count(ValueDef::Constant(1)),
+                                then: &EffectDef::CreateToken(
+                                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                        .with_count(ValueDef::Constant(1)),
+                                ),
                             },
                         },
                     }),
-                    otherwise: &EffectDef::create_token(tokens::treasure())
-                        .with_count(ValueDef::Constant(1)),
+                    otherwise: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 },
             ]),
         ),
@@ -5662,11 +5568,19 @@ pub(in crate::card::sets) static RISE_OF_THE_VARMINTS: CardRecord = CardRecord::
         AbilityDef::spell(
             "Create X 2/1 green Varmint creature tokens, where X is the \
              number of creature cards in your graveyard.",
-            EffectDef::create_creature_token(&["Varmint"], &[ManaColor::Green], 2, 1).with_count(
-                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Graveyard],
-                    PlayerRelation::You,
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Varmint"],
+                    &[ManaColor::Green],
+                    2,
+                    1,
+                )))
+                .with_count(ValueDef::CountMatchingObjects(
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
                 )),
             ),
         ),
@@ -5972,30 +5886,32 @@ pub(in crate::card::sets) static TUMBLEWEED_RISING: CardRecord = CardRecord::new
         AbilityDef::spell(
             "Create an X/X green Elemental creature token, where X is the \
              greatest power among creatures you control.",
-            EffectDef::create_creature_token_with_stats(
-                &["Elemental"],
-                &[ManaColor::Green],
-                &TokenStatsDef {
-                    power: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        )),
-                        select: ObjectValueDef::Power,
-                        operation: AggregateOperationDef::Maximum,
-                    }),
-                    toughness: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        )),
-                        select: ObjectValueDef::Power,
-                        operation: AggregateOperationDef::Maximum,
-                    }),
-                },
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature_with_stats(
+                    &["Elemental"],
+                    &[ManaColor::Green],
+                    &TokenStatsDef {
+                        power: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            select: ObjectValueDef::Power,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
+                        toughness: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            select: ObjectValueDef::Power,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
+                    },
+                ),
+            ))),
         ),
         abilities::plot(&[CostDef::Mana(mana_cost!("{2}{G}"))]),
     ]),
@@ -6201,29 +6117,7 @@ pub(in crate::card::sets) static AT_KNIFEPOINT: CardRecord = CardRecord::new(
              +1/+0 until end of turn. Activate only as a sorcery.\" This \
              ability triggers only once each turn.",
             TriggerEventDef::CommittedCrime(PlayerRelation::You),
-            EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-                .with_abilities(&[AbilityDef::activated_with_targets(
-                    "{T}: Target creature you control gets +1/+0 until end of \
-                     turn. Activate only as a sorcery.",
-                    &[CostDef::TapSource],
-                    &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            zones: &[ZoneKind::Battlefield],
-                            controller: Some(PlayerRelation::You),
-                            owner: None,
-                        },
-                    )],
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN))),
         )
         .triggering_at_most(1),
     ]),
@@ -6303,30 +6197,30 @@ pub(in crate::card::sets) static BONNY_PALL_CLEARCUTTER: CardRecord = CardRecord
                 "When Bonny Pall enters, create Beau, a legendary blue Ox \
                  creature token with \"Beau's power and toughness are each \
                  equal to the number of lands you control.\"",
-                EffectDef::create_token(
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(&["Ox"], &[ManaColor::Blue], 0, 0)
                         .with_name("Beau")
-                        .with_supertype(CardSupertype::Legendary),
-                )
-                .with_abilities(&[AbilityDef::static_ability(
-                    "Beau's power and toughness are each equal to the number of \
+                        .with_supertype(CardSupertype::Legendary)
+                        .with_abilities(&[AbilityDef::static_ability(
+                            "Beau's power and toughness are each equal to the number of \
                      lands you control.",
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::set_base_power_toughness(
-                            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            )),
-                            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            )),
-                        ),
-                    },
-                )]),
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::set_base_power_toughness(
+                                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Land),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    )),
+                                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Land),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    )),
+                                ),
+                            },
+                        )]),
+                ))),
             ),
             AbilityDef::triggered(
                 "Whenever you attack, draw a card, then you may put a land \
@@ -6506,30 +6400,9 @@ pub(in crate::card::sets) static FORM_A_POSSE: CardRecord = CardRecord::new(
         "Create X 1/1 red Mercenary creature tokens with \"{T}: Target \
          creature you control gets +1/+0 until end of turn. Activate \
          only as a sorcery.\"",
-        EffectDef::create_creature_token(&["Mercenary"], &[ManaColor::Red], 1, 1)
-            .with_count(ValueDef::ChosenX)
-            .with_abilities(&[AbilityDef::activated_with_targets(
-                "{T}: Target creature you control gets +1/+0 until end of \
-                 turn. Activate only as a sorcery.",
-                &[CostDef::TapSource],
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: Some(PlayerRelation::You),
-                        owner: None,
-                    },
-                )],
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::modify_power_toughness(
-                        ValueDef::Constant(1),
-                        ValueDef::Constant(0),
-                    ),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            )
-            .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(MERCENARY_TOKEN)).with_count(ValueDef::ChosenX),
+        ),
     )]),
 );
 
@@ -6572,10 +6445,12 @@ pub(in crate::card::sets) static GHIRED_MIRROR_OF_THE_WILDS: CardRecord = CardRe
                                 owner: None,
                             },
                         )],
-                        EffectDef::create_token_from_copy(&TokenCopyDef {
-                            object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            exceptions: CopyExceptionsDef::NONE,
-                        }),
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                            &TokenCopyDef {
+                                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                exceptions: CopyExceptionsDef::NONE,
+                            },
+                        ))),
                     )),
                 },
             ),
@@ -6700,7 +6575,10 @@ pub(in crate::card::sets) static JOLENE_PLUNDERING_PUGILIST: CardRecord = CardRe
                     1,
                     None,
                 ),
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "{1}{R}, Sacrifice a Treasure: Jolene deals 1 damage to any \
@@ -6968,7 +6846,10 @@ pub(in crate::card::sets) static MALCOLM_THE_EYES: CardRecord = CardRecord::new(
                         amount: 2,
                     },
                 },
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ]),
 );
@@ -7274,27 +7155,30 @@ pub(in crate::card::sets) static ROXANNE_STARFALL_SAVANT: CardRecord = CardRecor
                     ),
                     TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 ]),
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&[], &[]).with_name("Meteorite"),
-                )
-                .entering_tapped()
-                .with_abilities(&[
-                    abilities::enters_trigger_with_targets(
-                        "When this token enters, it deals 2 damage to any target.",
-                        &[AbilityTargetDef::exactly_one(
-                            AbilityTargetPredicate::AnyTarget,
-                        )],
-                        EffectDef::damage(
-                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            ValueDef::Constant(2),
-                        ),
-                    ),
-                    AbilityDef::activated_mana(
-                        "{T}: Add one mana of any color.",
-                        &[CostDef::TapSource],
-                        EffectDef::AddMana(AddManaEffectDef::any_color()),
-                    ),
-                ]),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::artifact(&[], &[])
+                            .with_name("Meteorite")
+                            .with_abilities(&[
+                                abilities::enters_trigger_with_targets(
+                                    "When this token enters, it deals 2 damage to any target.",
+                                    &[AbilityTargetDef::exactly_one(
+                                        AbilityTargetPredicate::AnyTarget,
+                                    )],
+                                    EffectDef::damage(
+                                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                        ValueDef::Constant(2),
+                                    ),
+                                ),
+                                AbilityDef::activated_mana(
+                                    "{T}: Add one mana of any color.",
+                                    &[CostDef::TapSource],
+                                    EffectDef::AddMana(AddManaEffectDef::any_color()),
+                                ),
+                            ]),
+                    ))
+                    .entering_tapped(),
+                ),
             ),
             AbilityDef::triggered_mana(
                 "Whenever you tap an artifact token for mana, add one mana of \
@@ -7357,8 +7241,10 @@ pub(in crate::card::sets) static SERAPHIC_STEED: CardRecord = CardRecord::new(
                     object: ObjectPredicateDef::Saddled,
                 },
             },
-            EffectDef::create_creature_token(&["Angel"], &[ManaColor::White], 3, 3)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Angel"], &[ManaColor::White], 3, 3)
+                    .with_abilities(&[abilities::flying()]),
+            ))),
         ),
         abilities::saddle(
             &[CostDef::TapCreaturesWithTotalPower { minimum: 4 }],
@@ -7635,7 +7521,10 @@ pub(in crate::card::sets) static GOLD_PAN: CardRecord = CardRecord::new(
                 "When this Equipment enters, create a Treasure token. (It's an \
                  artifact with \"{T}, Sacrifice this token: Add one mana of \
                  any color.\")",
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::static_ability(
                 "Equipped creature gets +1/+1.",
@@ -7796,7 +7685,10 @@ pub(in crate::card::sets) static REDROCK_SENTINEL: CardRecord = CardRecord::new(
             ],
             EffectDef::Sequence(&[
                 abilities::draw_cards(ValueDef::Constant(1)),
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ]),
         ),
     ]),

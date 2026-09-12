@@ -15,6 +15,7 @@ use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BindObjectsDef;
+use crate::card::CardArt;
 use crate::card::CardComposition;
 use crate::card::CardEffectStatus;
 use crate::card::CardNameDef;
@@ -81,13 +82,13 @@ use crate::card::ScaledValueDef;
 use crate::card::SpellCastQueryDef;
 use crate::card::SpellForm;
 use crate::card::SpellResolutionDestinationDef;
-use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::StackObjectEventDef;
 use crate::card::StackObjectEventMatcherDef;
 use crate::card::StackTargetAggregationDef;
 use crate::card::StackTargetFilterDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TokenStatsDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -97,7 +98,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::ids::CardPartId;
 use crate::ids::ParentBinding;
 use crate::ids::PlayOptionId;
@@ -151,10 +151,7 @@ pub(in crate::card::sets) const fn mobilize(count: u16, text: &'static str) -> A
         EffectDef::CreateToken(
             CreateTokenDef::new(TokenDef::Literal(
                 TokenCharacteristics::creature(&["Warrior"], &[ManaColor::Red], 1, 1).with_art(
-                    crate::card::CardArt::new(
-                        "7edc0515-a130-45a7-aa09-0e23bba41587",
-                        "Forrest Imel",
-                    ),
+                    CardArt::new("7edc0515-a130-45a7-aa09-0e23bba41587", "Forrest Imel"),
                 ),
             ))
             .with_amount(count)
@@ -189,26 +186,61 @@ macro_rules! endure {
                     },
                     EffectChoiceDef {
                         label: "Create a white Spirit creature token",
-                        effect: EffectDef::create_creature_token(
-                            &["Spirit"],
-                            &[ManaColor::White],
-                            $amount,
-                            $amount,
-                        )
-                        .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Source)),
+                        effect: EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                                &["Spirit"],
+                                &[ManaColor::White],
+                                $amount,
+                                $amount,
+                            )))
+                            .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Source)),
+                        ),
                     },
                 ],
             },
-            otherwise: &EffectDef::create_creature_token(
-                &["Spirit"],
-                &[ManaColor::White],
-                $amount,
-                $amount,
-            )
-            .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Source)),
+            otherwise: &EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Spirit"],
+                    &[ManaColor::White],
+                    $amount,
+                    $amount,
+                )))
+                .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Source)),
+            ),
         }
     };
 }
+
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("9c8f66e1-4eab-4d51-b10e-9cedd607d709", "Gaboleps"),
+);
+
+const BIRD_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Bird"], &[ManaColor::White], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "6105623a-ff2c-46bf-8881-e8b899d47d54",
+            "Camille Alquier",
+        ));
+const ZOMBIE_DRUID_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Zombie", "Druid"], &[ManaColor::Black], 2, 2).with_art(
+        CardArt::new("f10d5813-7818-43e8-b08d-4ed8c54d0366", "Andrea Piparo"),
+    );
+const WARRIOR_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Warrior"], &[ManaColor::Red], 1, 1).with_art(CardArt::new(
+        "7edc0515-a130-45a7-aa09-0e23bba41587",
+        "Forrest Imel",
+    ));
+const GOBLIN_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Goblin"], &[ManaColor::Red], 1, 1).with_art(CardArt::new(
+        "e265ca24-96c0-4654-a8f3-bbffe288970a",
+        "Paolo Parente",
+    ));
+const SPIRIT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Spirit"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "f22410b3-5c0b-4282-9b0b-5ba61229b6e7",
+        "Julie Dillon",
+    ));
 
 // TDM 1 — Ugin, Eye of the Storms
 /// "Up to one target permanent that's one or more colors": colorless is what
@@ -1145,8 +1177,15 @@ pub(in crate::card::sets) static TEEMING_DRAGONSTORM: CardRecord = CardRecord::n
         abilities::enters_trigger(
             "When this enchantment enters, create two 2/2 white Soldier \
              creature tokens.",
-            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 2, 2)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Soldier"],
+                    &[ManaColor::White],
+                    2,
+                    2,
+                )))
                 .with_count(ValueDef::Constant(2)),
+            ),
         ),
         AbilityDef::triggered(
             "When a Dragon you control enters, return this enchantment to \
@@ -2428,8 +2467,7 @@ pub(in crate::card::sets) static WINGBLADE_DISCIPLE: CardRecord = CardRecord::ne
                     amount: 2,
                 },
             },
-            EffectDef::create_creature_token(&["Bird"], &[ManaColor::White], 1, 1)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(BIRD_TOKEN))),
         ),
     ]),
 );
@@ -2515,7 +2553,7 @@ pub(in crate::card::sets) static ADORNED_CROCODILE: CardRecord = CardRecord::new
         abilities::dies_trigger(
             "When this creature dies, create a 2/2 black Zombie Druid \
              creature token.",
-            EffectDef::create_creature_token(&["Zombie", "Druid"], &[ManaColor::Black], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ZOMBIE_DRUID_TOKEN))),
         ),
         AbilityDef::activated_with_targets(
             "Renew — {B}, Exile this card from your graveyard: Put a +1/+1 \
@@ -2637,29 +2675,31 @@ pub(in crate::card::sets) static AVENGER_OF_THE_FALLEN: CardRecord = CardRecord:
              and attacking 1/1 red Warrior creature tokens. Sacrifice them \
              at the beginning of the next end step.)",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
-                .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Graveyard],
-                    PlayerRelation::You,
-                )))
-                .entering_tapped()
-                .entering_attacking()
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("warriors"),
-                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                        &AbilityDef::triggered(
-                            "At the beginning of the next end step, sacrifice those tokens.",
-                            TriggerEventDef::StepBegins {
-                                step: TurnStepDef::End,
-                                player: PlayerRelation::Any,
-                            },
-                            EffectDef::sacrifice(EffectRecipientDef::objects(
-                                ObjectSetDef::Binding(crate::Binding!("warriors")),
-                            )),
-                        ),
-                    )),
-                }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(WARRIOR_TOKEN))
+                    .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )))
+                    .entering_tapped()
+                    .entering_attacking()
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: crate::Binding!("warriors"),
+                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of the next end step, sacrifice those tokens.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::sacrifice(EffectRecipientDef::objects(
+                                    ObjectSetDef::Binding(crate::Binding!("warriors")),
+                                )),
+                            ),
+                        )),
+                    }),
+            ),
         ),
     ]),
 );
@@ -2962,7 +3002,8 @@ pub(in crate::card::sets) static SALT_ROAD_SKIRMISH: CardRecord = CardRecord::ne
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(WARRIOR_TOKEN))
                 .with_count(ValueDef::Constant(2))
                 .with_created_tokens(CreatedTokensDef {
                     binding: crate::Binding!("warriors"),
@@ -2988,6 +3029,7 @@ pub(in crate::card::sets) static SALT_ROAD_SKIRMISH: CardRecord = CardRecord::ne
                         )),
                     ]),
                 }),
+            ),
         ]),
     )]),
 );
@@ -3706,7 +3748,10 @@ pub(in crate::card::sets) static METICULOUS_ARTISAN: CardRecord = CardRecord::ne
             "When this creature enters, create a Treasure token. (It's an \
              artifact with \"{T}, Sacrifice this token: Add one mana of \
              any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -3889,8 +3934,10 @@ pub(in crate::card::sets) static SARKHAN_DRAGON_ASCENDANT: CardRecord = CardReco
                                 input: ObjectSetDef::Binding(crate::Binding!("chosen")),
                                 then: &EffectDef::None,
                             }),
-                            EffectDef::create_token(tokens::treasure())
-                                .with_count(ValueDef::Constant(1)),
+                            EffectDef::CreateToken(
+                                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                    .with_count(ValueDef::Constant(1)),
+                            ),
                         ]),
                     },
                 }),
@@ -4311,7 +4358,7 @@ pub(in crate::card::sets) static UNDERFOOT_UNDERDOGS: CardRecord = CardRecord::n
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 red Goblin creature \
              token.",
-            EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(GOBLIN_TOKEN))),
         ),
         AbilityDef::activated_with_targets(
             "{1}, {T}: Target creature you control with power 2 or less \
@@ -4400,24 +4447,26 @@ pub(in crate::card::sets) static WAR_EFFORT: CardRecord = CardRecord::new(
                 1,
                 None,
             ),
-            EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
-                .entering_tapped()
-                .entering_attacking()
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("warriors"),
-                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                        &AbilityDef::triggered(
-                            "At the beginning of the next end step, sacrifice those tokens.",
-                            TriggerEventDef::StepBegins {
-                                step: TurnStepDef::End,
-                                player: PlayerRelation::Any,
-                            },
-                            EffectDef::sacrifice(EffectRecipientDef::objects(
-                                ObjectSetDef::Binding(crate::Binding!("warriors")),
-                            )),
-                        ),
-                    )),
-                }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(WARRIOR_TOKEN))
+                    .entering_tapped()
+                    .entering_attacking()
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: crate::Binding!("warriors"),
+                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of the next end step, sacrifice those tokens.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::sacrifice(EffectRecipientDef::objects(
+                                    ObjectSetDef::Binding(crate::Binding!("warriors")),
+                                )),
+                            ),
+                        )),
+                    }),
+            ),
         ),
     ]),
 );
@@ -5963,8 +6012,10 @@ pub(in crate::card::sets) static DRAGONBACK_ASSAULT: CardRecord = CardRecord::ne
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 4, 4)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Dragon"], &[ManaColor::Red], 4, 4)
+                    .with_abilities(&[abilities::flying()]),
+            ))),
         ),
     ]),
 );
@@ -6158,8 +6209,10 @@ pub(in crate::card::sets) static FRONTLINE_RUSH: CardRecord = CardRecord::new(
         &[
             AbilityDef::spell(
                 "Create two 1/1 red Goblin creature tokens.",
-                EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
-                    .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(GOBLIN_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Target creature gets +X/+X until end of turn, where X is the \
@@ -6371,9 +6424,13 @@ pub(in crate::card::sets) static JESKAI_REVELATION: CardRecord = CardRecord::new
                     EffectRecipientDef::Target(TargetIndex(1)),
                     ValueDef::Constant(4),
                 ),
-                EffectDef::create_creature_token(&["Monk"], &[ManaColor::White], 1, 1)
-                    .with_count(ValueDef::Constant(2))
-                    .with_abilities(&[abilities::prowess()]),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Monk"], &[ManaColor::White], 1, 1)
+                            .with_abilities(&[abilities::prowess()]),
+                    ))
+                    .with_count(ValueDef::Constant(2)),
+                ),
                 abilities::draw_cards(ValueDef::Constant(2)),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
@@ -6981,8 +7038,10 @@ pub(in crate::card::sets) static REVIVAL_OF_THE_ANCESTORS: CardRecord = CardReco
             abilities::saga_chapter(
                 1,
                 "I — Create three 1/1 white Spirit creature tokens.",
-                EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
-                    .with_count(ValueDef::Constant(3)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(SPIRIT_TOKEN))
+                        .with_count(ValueDef::Constant(3)),
+                ),
             ),
             abilities::saga_chapter_with_targets(
                 2,
@@ -7582,30 +7641,32 @@ pub(in crate::card::sets) static ABZAN_MONUMENT: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::create_creature_token_with_stats(
-                &["Spirit"],
-                &[ManaColor::White],
-                &TokenStatsDef {
-                    power: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        )),
-                        select: ObjectValueDef::Toughness,
-                        operation: AggregateOperationDef::Maximum,
-                    }),
-                    toughness: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        )),
-                        select: ObjectValueDef::Toughness,
-                        operation: AggregateOperationDef::Maximum,
-                    }),
-                },
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature_with_stats(
+                    &["Spirit"],
+                    &[ManaColor::White],
+                    &TokenStatsDef {
+                        power: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            select: ObjectValueDef::Toughness,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
+                        toughness: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            select: ObjectValueDef::Toughness,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
+                    },
+                ),
+            ))),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),
@@ -7807,9 +7868,10 @@ pub(in crate::card::sets) static JESKAI_MONUMENT: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::create_creature_token(&["Bird"], &[ManaColor::White], 1, 1)
-                .with_count(ValueDef::Constant(2))
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(BIRD_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),
@@ -7858,21 +7920,23 @@ pub(in crate::card::sets) static MARDU_MONUMENT: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
-                .with_count(ValueDef::Constant(3))
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("warriors"),
-                    then: &EffectDef::Apply {
-                        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("warriors"),
-                        )),
-                        effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::add_ability(&abilities::haste()),
-                            AppliedEffectDef::add_ability(&abilities::menace()),
-                        ]),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(WARRIOR_TOKEN))
+                    .with_count(ValueDef::Constant(3))
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: crate::Binding!("warriors"),
+                        then: &EffectDef::Apply {
+                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("warriors"),
+                            )),
+                            effect: AppliedEffectDef::Composite(&[
+                                AppliedEffectDef::add_ability(&abilities::haste()),
+                                AppliedEffectDef::add_ability(&abilities::menace()),
+                            ]),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    }),
+            ),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),
@@ -7950,8 +8014,10 @@ pub(in crate::card::sets) static SULTAI_MONUMENT: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::create_creature_token(&["Zombie", "Druid"], &[ManaColor::Black], 2, 2)
-                .with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ZOMBIE_DRUID_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),
@@ -7998,7 +8064,9 @@ pub(in crate::card::sets) static TEMUR_MONUMENT: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 5, 5),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Elephant"], &[ManaColor::Green], 5, 5),
+            ))),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),
@@ -8099,7 +8167,8 @@ pub(in crate::card::sets) static DALKOVAN_ENCAMPMENT: CardRecord = CardRecord::n
                     1,
                     None,
                 ),
-                EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(WARRIOR_TOKEN))
                     .with_count(ValueDef::Constant(2))
                     .entering_tapped()
                     .entering_attacking()
@@ -8118,6 +8187,7 @@ pub(in crate::card::sets) static DALKOVAN_ENCAMPMENT: CardRecord = CardRecord::n
                             ),
                         )),
                     }),
+                ),
             ))),
         ),
     ]),
@@ -8185,7 +8255,7 @@ pub(in crate::card::sets) static GREAT_ARASHIN_CITY: CardRecord = CardRecord::ne
                     1,
                 )),
             ],
-            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SPIRIT_TOKEN))),
         ),
     ]),
 );

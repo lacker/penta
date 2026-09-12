@@ -321,8 +321,10 @@ pub(in crate::card::sets) static DRAGONMASTER_OUTCAST: CardRecord = CardRecord::
                 comparison: ComparisonDef::GreaterOrEqual,
                 amount: 6,
             },
-            EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 5, 5)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Dragon"], &[ManaColor::Red], 5, 5)
+                    .with_abilities(&[abilities::flying()]),
+            ))),
         ),
     ]),
 );

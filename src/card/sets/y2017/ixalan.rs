@@ -8,10 +8,12 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::CostDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::InstalledTriggerDef;
@@ -24,6 +26,8 @@ use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -40,6 +44,12 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const TREASURE_TOKEN: TokenCharacteristics =
+    crate::card::tokens::treasure().with_art(CardArt::new(
+        "720f3e68-84c0-462e-a0d1-90236ccc494a",
+        "Florian de Gesincourt",
+    ));
 
 // XLN 6 — Bishop's Soldier
 pub(in crate::card::sets) static BISHOP_S_SOLDIER: CardRecord = CardRecord::new(
@@ -554,8 +564,10 @@ pub(in crate::card::sets) static TREASURE_MAP: CardRecord = CardRecord::new_dfc(
                             EffectDef::Transform {
                                 object: EffectRecipientDef::Source,
                             },
-                            EffectDef::create_token(crate::card::tokens::treasure())
-                                .with_count(ValueDef::Constant(3)),
+                            EffectDef::CreateToken(
+                                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                    .with_count(ValueDef::Constant(3)),
+                            ),
                         ]),
                     },
                 ]),

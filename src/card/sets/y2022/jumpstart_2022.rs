@@ -13,6 +13,7 @@ use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::CostDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -21,6 +22,8 @@ use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -144,8 +147,15 @@ pub(in crate::card::sets) static SUSPICIOUS_SHAMBLER: CardRecord = CardRecord::n
             "{4}{B}{B}, Exile this card from your graveyard: Create two \
              2/2 black Zombie creature tokens. Activate only as a sorcery.",
             &[CostDef::Mana(mana_cost!("{4}{B}{B}")), CostDef::ExileSource],
-            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Zombie"],
+                    &[ManaColor::Black],
+                    2,
+                    2,
+                )))
                 .with_count(ValueDef::Constant(2)),
+            ),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed)
         .with_source_zones(&[ZoneKind::Graveyard]),

@@ -7,21 +7,24 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CostDef;
+use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
@@ -32,6 +35,12 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const TREASURE_TOKEN: TokenCharacteristics =
+    crate::card::tokens::treasure().with_art(CardArt::new(
+        "720f3e68-84c0-462e-a0d1-90236ccc494a",
+        "Florian de Gesincourt",
+    ));
 
 // RIX 15 — Moment of Triumph
 pub(in crate::card::sets) static MOMENT_OF_TRIUMPH: CardRecord = CardRecord::new(
@@ -150,13 +159,15 @@ pub(in crate::card::sets) static BRASS_S_BOUNTY: CardRecord = CardRecord::new(
         "For each land you control, create a Treasure token. (It's an \
          artifact with \"{T}, Sacrifice this token: Add one mana of \
          any color.\")",
-        EffectDef::create_token(tokens::treasure()).with_count(ValueDef::CountMatchingObjects(
-            &ObjectQueryDef::matching(
-                ObjectPredicateDef::HasType(CardType::Land),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN)).with_count(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
             ),
-        )),
+        ),
     )]),
 );
 
@@ -233,7 +244,10 @@ pub(in crate::card::sets) static GLEAMING_BARRIER: CardRecord = CardRecord::new(
             "When this creature dies, create a Treasure token. (It's an \
              artifact with \"{T}, Sacrifice this token: Add one mana of \
              any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );

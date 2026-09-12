@@ -16,6 +16,7 @@ use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
+use crate::card::CardArt;
 use crate::card::CardChoiceSourceDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
@@ -33,6 +34,7 @@ use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CountConditionDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DiscardSelectionDef;
@@ -67,6 +69,7 @@ use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -75,7 +78,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -90,6 +92,45 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "e2b62092-57df-4d95-b2b9-961794e7c20b",
+    "Nicholas Gregory",
+));
+
+const MUTANT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Mutant"], &[ManaColor::Red], 2, 2).with_art(CardArt::new(
+        "51e33613-7a24-461c-8d9f-12680af4b92a",
+        "Lordigan",
+    ));
+const MUTAGEN_TOKEN: TokenCharacteristics = TokenCharacteristics::artifact(&["Mutagen"], &[])
+    .with_abilities(&[AbilityDef::activated_with_targets(
+        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
+                         target creature. Activate only as a sorcery.",
+        &[
+            CostDef::Mana(mana_cost!("{1}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    )
+    .with_activation_timing(ActivationTimingDef::SorcerySpeed)])
+    .with_art(CardArt::new(
+        "6559c423-449c-4e8e-8384-3ce78183e317",
+        "Madeline Boni",
+    ));
+const ROBOT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Robot"], &[], 1, 1).with_art(CardArt::new(
+        "08497fc5-1c0e-4c3c-a356-bf4b34bd4c45",
+        "Dominik Mayer",
+    ));
 
 // TMT 1 — Action News Crew
 pub(in crate::card::sets) static ACTION_NEWS_CREW: CardRecord = CardRecord::new(
@@ -270,7 +311,10 @@ pub(in crate::card::sets) static FEATHERBRAINED_FILCHER: CardRecord = CardRecord
                 Some(ZoneKind::Battlefield),
                 None,
             ),
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -352,7 +396,7 @@ pub(in crate::card::sets) static JENNIKA_BAD_APPLE_BIG_SISTER: CardRecord = Card
         .with_abilities(&[
             abilities::enters_trigger(
                 "When Jennika enters, create a 2/2 red Mutant creature token.",
-                EffectDef::create_creature_token(&["Mutant"], &[ManaColor::Red], 2, 2),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN))),
             ),
             abilities::typecycling!(
                 "Plainscycling {2} ({2}, Discard this card: Search your \
@@ -517,7 +561,7 @@ pub(in crate::card::sets) static MIGHTY_MUTANIMALS: CardRecord = CardRecord::new
         abilities::enters_trigger(
             "When this creature enters, create a 2/2 red Mutant creature \
              token.",
-            EffectDef::create_creature_token(&["Mutant"], &[ManaColor::Red], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN))),
         ),
         AbilityDef::triggered_with_targets(
             "Alliance — Whenever another creature you control enters, put \
@@ -659,15 +703,17 @@ pub(in crate::card::sets) static SALLY_PRIDE_LIONESS_LEADER: CardRecord = CardRe
                 "When Sally Pride enters, create X 2/2 red Mutant creature \
                  tokens, where X is the number of nontoken creatures you \
                  control.",
-                EffectDef::create_creature_token(&["Mutant"], &[ManaColor::Red], 2, 2).with_count(
-                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    )),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN)).with_count(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    ),
                 ),
             ),
             AbilityDef::triggered(
@@ -726,13 +772,15 @@ pub(in crate::card::sets) static TRICERATON_COMMANDER: CardRecord = CardRecord::
             abilities::enters_trigger(
                 "When this creature enters, create X 2/2 white Dinosaur \
                  Soldier creature tokens.",
-                EffectDef::create_creature_token(
-                    &["Dinosaur", "Soldier"],
-                    &[ManaColor::White],
-                    2,
-                    2,
-                )
-                .with_count(ValueDef::SourceCastX),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                        &["Dinosaur", "Soldier"],
+                        &[ManaColor::White],
+                        2,
+                        2,
+                    )))
+                    .with_count(ValueDef::SourceCastX),
+                ),
             ),
         ]),
 );
@@ -785,7 +833,9 @@ pub(in crate::card::sets) static UNEASY_ALLIANCE: CardRecord = CardRecord::new(
                         ZoneKind::Exile,
                         ZonePlacement::Top,
                     ),
-                    EffectDef::create_creature_token(&["Ninja"], &[ManaColor::Black], 1, 1),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Ninja"], &[ManaColor::Black], 1, 1),
+                    ))),
                 ]),
             )
             .with_activation_timing(ActivationTimingDef::SorcerySpeed),
@@ -994,29 +1044,10 @@ pub(in crate::card::sets) static CRUSTACEAN_COMMANDO: CardRecord = CardRecord::n
             "When this creature enters, create a Mutagen token. (It's an \
              artifact with \"{1}, {T}, Sacrifice this token: Put a +1/+1 \
              counter on target creature. Activate only as a sorcery.\")",
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                    AbilityDef::activated_with_targets(
-                        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                         target creature. Activate only as a sorcery.",
-                        &[
-                            CostDef::Mana(mana_cost!("{1}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        &[AbilityTargetDef::exactly_one_permanent(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        )],
-                        EffectDef::AddCounters {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            kind: CounterKind::PlusOnePlusOne,
-                            amount: ValueDef::Constant(1),
-                        },
-                    )
-                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                ]),
-            )
-            .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )]),
 );
 
@@ -1336,29 +1367,10 @@ pub(in crate::card::sets) static OOZE_SPILL: CardRecord = CardRecord::new(
             )],
             EffectDef::Sequence(&[
                 EffectDef::counter_target(TargetIndex::PRIMARY),
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                        AbilityDef::activated_with_targets(
-                            "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                             target creature. Activate only as a sorcery.",
-                            &[
-                                CostDef::Mana(mana_cost!("{1}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            &[AbilityTargetDef::exactly_one_permanent(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                            )],
-                            EffectDef::AddCounters {
-                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                kind: CounterKind::PlusOnePlusOne,
-                                amount: ValueDef::Constant(1),
-                            },
-                        )
-                        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                    ]),
-                )
-                .with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ]),
         ),
     ]),
@@ -1471,29 +1483,10 @@ pub(in crate::card::sets) static RETURN_TO_THE_SEWERS: CardRecord = CardRecord::
                     },
                 ],
             },
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                    AbilityDef::activated_with_targets(
-                        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                         target creature. Activate only as a sorcery.",
-                        &[
-                            CostDef::Mana(mana_cost!("{1}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        &[AbilityTargetDef::exactly_one_permanent(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        )],
-                        EffectDef::AddCounters {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            kind: CounterKind::PlusOnePlusOne,
-                            amount: ValueDef::Constant(1),
-                        },
-                    )
-                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                ]),
-            )
-            .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -1760,18 +1753,20 @@ pub(in crate::card::sets) static THE_CLONING_OF_SHREDDER: CardRecord = CardRecor
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         face_down: false,
                         until_source_leaves: false,
-                        then: Some(&EffectDef::create_token_from_copy(&TokenCopyDef {
-                            object: &EffectRecipientDef::objects(
-                                ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
-                                    "to_copy"
-                                )),
-                            ),
-                            exceptions: CopyExceptionsDef {
-                                removed_supertypes: &[CardSupertype::Legendary],
-                                added_creature_types: CreatureTypeSetDef::named(&["Mutant"]),
-                                ..CopyExceptionsDef::NONE
-                            },
-                        })),
+                        then: Some(&EffectDef::CreateToken(CreateTokenDef::new(
+                            TokenDef::Copy(&TokenCopyDef {
+                                object: &EffectRecipientDef::objects(
+                                    ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                        "to_copy"
+                                    )),
+                                ),
+                                exceptions: CopyExceptionsDef {
+                                    removed_supertypes: &[CardSupertype::Legendary],
+                                    added_creature_types: CreatureTypeSetDef::named(&["Mutant"]),
+                                    ..CopyExceptionsDef::NONE
+                                },
+                            }),
+                        ))),
                     },
                 }),
             ),
@@ -1789,16 +1784,18 @@ pub(in crate::card::sets) static THE_CLONING_OF_SHREDDER: CardRecord = CardRecor
                     minimum: 1,
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
-                    then: &EffectDef::create_token_from_copy(&TokenCopyDef {
-                        object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("chosen"),
-                        )),
-                        exceptions: CopyExceptionsDef {
-                            removed_supertypes: &[CardSupertype::Legendary],
-                            added_creature_types: CreatureTypeSetDef::named(&["Mutant"]),
-                            ..CopyExceptionsDef::NONE
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                        &TokenCopyDef {
+                            object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("chosen"),
+                            )),
+                            exceptions: CopyExceptionsDef {
+                                removed_supertypes: &[CardSupertype::Legendary],
+                                added_creature_types: CreatureTypeSetDef::named(&["Mutant"]),
+                                ..CopyExceptionsDef::NONE
+                            },
                         },
-                    }),
+                    ))),
                 }),
             ),
             abilities::saga_chapter(
@@ -1815,16 +1812,18 @@ pub(in crate::card::sets) static THE_CLONING_OF_SHREDDER: CardRecord = CardRecor
                     minimum: 1,
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
-                    then: &EffectDef::create_token_from_copy(&TokenCopyDef {
-                        object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("chosen"),
-                        )),
-                        exceptions: CopyExceptionsDef {
-                            removed_supertypes: &[CardSupertype::Legendary],
-                            added_creature_types: CreatureTypeSetDef::named(&["Mutant"]),
-                            ..CopyExceptionsDef::NONE
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                        &TokenCopyDef {
+                            object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("chosen"),
+                            )),
+                            exceptions: CopyExceptionsDef {
+                                removed_supertypes: &[CardSupertype::Legendary],
+                                added_creature_types: CreatureTypeSetDef::named(&["Mutant"]),
+                                ..CopyExceptionsDef::NONE
+                            },
                         },
-                    }),
+                    ))),
                 }),
             ),
         ]),
@@ -2485,10 +2484,10 @@ pub(in crate::card::sets) static IMPROVISED_ARSENAL: CardRecord = CardRecord::ne
             AbilityDef::activated(
                 "{4}{R}: Create a token that's a copy of this Equipment.",
                 &[CostDef::Mana(mana_cost!("{4}{R}"))],
-                EffectDef::create_token_from_copy(&TokenCopyDef {
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                     object: &EffectRecipientDef::Source,
                     exceptions: CopyExceptionsDef::NONE,
-                }),
+                }))),
             ),
             abilities::equip(&[CostDef::Mana(mana_cost!("{R}"))], "Equip {R}"),
         ]),
@@ -2568,8 +2567,10 @@ pub(in crate::card::sets) static MOUSER_ATTACK: CardRecord = CardRecord::new(
         &[
             AbilityDef::spell(
                 "Create a 1/1 colorless Robot artifact creature token.",
-                EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
-                    .with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Target creature gets +3/+0 and gains first strike until end \
@@ -2614,8 +2615,10 @@ pub(in crate::card::sets) static MOUSER_FOUNDRY: CardRecord = CardRecord::new(
                     None,
                 ),
             ]),
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
-                .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{4}{R}, Sacrifice this artifact: It deals 3 damage to target \
@@ -2715,7 +2718,8 @@ pub(in crate::card::sets) static OLD_HOB_ALLEYCAT_BLUES: CardRecord = CardRecord
                     step: TurnStepDef::BeginningOfCombat,
                     player: PlayerRelation::You,
                 },
-                EffectDef::create_creature_token(&["Mutant"], &[ManaColor::Red], 2, 2)
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN))
                     .with_created_tokens(CreatedTokensDef {
                         binding: crate::Binding!("mutant"),
                         then: &EffectDef::Sequence(&[
@@ -2743,6 +2747,7 @@ pub(in crate::card::sets) static OLD_HOB_ALLEYCAT_BLUES: CardRecord = CardRecord
                             )),
                         ]),
                     }),
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "{1}{W}: Target attacking creature token gains indestructible \
@@ -2863,8 +2868,10 @@ pub(in crate::card::sets) static RAVENOUS_ROBOTS: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
-                .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::activated(
             "{R}, {T}: Creature tokens you control gain haste until end of \
@@ -2948,7 +2955,7 @@ pub(in crate::card::sets) static SLASH_REPTILE_RAMPAGER: CardRecord = CardRecord
         AbilityDef::triggered(
             "Whenever Slash attacks, create a 2/2 red Mutant creature token.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            EffectDef::create_creature_token(&["Mutant"], &[ManaColor::Red], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN))),
         ),
     ]),
 );
@@ -3322,29 +3329,10 @@ pub(in crate::card::sets) static MICHELANGELO_MUTANT_BFF: CardRecord = CardRecor
                 ),
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
             ]),
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                    AbilityDef::activated_with_targets(
-                        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                         target creature. Activate only as a sorcery.",
-                        &[
-                            CostDef::Mana(mana_cost!("{1}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        &[AbilityTargetDef::exactly_one_permanent(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        )],
-                        EffectDef::AddCounters {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            kind: CounterKind::PlusOnePlusOne,
-                            amount: ValueDef::Constant(1),
-                        },
-                    )
-                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                ]),
-            )
-            .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -3414,29 +3402,10 @@ pub(in crate::card::sets) static MUTAGEN_MAN_LIVING_OOZE: CardRecord = CardRecor
                 "When Mutagen Man enters, create X Mutagen tokens. (They're \
                  artifacts with \"{1}, {T}, Sacrifice this token: Put a +1/+1 \
                  counter on target creature. Activate only as a sorcery.\")",
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                        AbilityDef::activated_with_targets(
-                            "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                             target creature. Activate only as a sorcery.",
-                            &[
-                                CostDef::Mana(mana_cost!("{1}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            &[AbilityTargetDef::exactly_one_permanent(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                            )],
-                            EffectDef::AddCounters {
-                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                kind: CounterKind::PlusOnePlusOne,
-                                amount: ValueDef::Constant(1),
-                            },
-                        )
-                        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                    ]),
-                )
-                .with_count(ValueDef::SourceCastX),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                        .with_count(ValueDef::SourceCastX),
+                ),
             ),
         ]),
 );
@@ -3474,29 +3443,10 @@ pub(in crate::card::sets) static MUTANT_CHAIN_REACTION: CardRecord = CardRecord:
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                    AbilityDef::activated_with_targets(
-                        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                         target creature. Activate only as a sorcery.",
-                        &[
-                            CostDef::Mana(mana_cost!("{1}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        &[AbilityTargetDef::exactly_one_permanent(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        )],
-                        EffectDef::AddCounters {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            kind: CounterKind::PlusOnePlusOne,
-                            amount: ValueDef::Constant(1),
-                        },
-                    )
-                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                ]),
-            )
-            .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -3803,29 +3753,10 @@ pub(in crate::card::sets) static ZOO_ESCAPEES: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 None,
             ),
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                    AbilityDef::activated_with_targets(
-                        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                         target creature. Activate only as a sorcery.",
-                        &[
-                            CostDef::Mana(mana_cost!("{1}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        &[AbilityTargetDef::exactly_one_permanent(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        )],
-                        EffectDef::AddCounters {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            kind: CounterKind::PlusOnePlusOne,
-                            amount: ValueDef::Constant(1),
-                        },
-                    )
-                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                ]),
-            )
-            .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -3841,8 +3772,10 @@ pub(in crate::card::sets) static BAXTER_STOCKMAN: CardRecord = CardRecord::new(
             abilities::enters_trigger(
                 "When Baxter Stockman enters, create a 1/1 colorless Robot \
                  artifact creature token.",
-                EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
-                    .with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::triggered_with_targets(
                 "At the beginning of combat on your turn, target artifact \
@@ -4119,29 +4052,10 @@ pub(in crate::card::sets) static GENGHIS_FROG: CardRecord = CardRecord::new(
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                        AbilityDef::activated_with_targets(
-                            "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                             target creature. Activate only as a sorcery.",
-                            &[
-                                CostDef::Mana(mana_cost!("{1}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            &[AbilityTargetDef::exactly_one_permanent(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                            )],
-                            EffectDef::AddCounters {
-                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                kind: CounterKind::PlusOnePlusOne,
-                                amount: ValueDef::Constant(1),
-                            },
-                        )
-                        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                    ]),
-                )
-                .with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ]),
 );
@@ -4335,8 +4249,10 @@ pub(in crate::card::sets) static MECHANIZED_NINJA_CAVALRY: CardRecord = CardReco
         .with_abilities(&[abilities::enters_trigger(
             "When this creature enters, create a 1/1 colorless Robot \
              artifact creature token.",
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
-                .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )]),
 );
 
@@ -4530,29 +4446,10 @@ pub(in crate::card::sets) static SLITHERING_CRYPTID: CardRecord = CardRecord::ne
             "When this creature enters, create a Mutagen token. (It's an \
              artifact with \"{1}, {T}, Sacrifice this token: Put a +1/+1 \
              counter on target creature. Activate only as a sorcery.\")",
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Mutagen"], &[]).with_abilities(&[
-                    AbilityDef::activated_with_targets(
-                        "{1}, {T}, Sacrifice this artifact: Put a +1/+1 counter on \
-                         target creature. Activate only as a sorcery.",
-                        &[
-                            CostDef::Mana(mana_cost!("{1}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        &[AbilityTargetDef::exactly_one_permanent(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        )],
-                        EffectDef::AddCounters {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            kind: CounterKind::PlusOnePlusOne,
-                            amount: ValueDef::Constant(1),
-                        },
-                    )
-                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                ]),
-            )
-            .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(MUTAGEN_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -4592,8 +4489,10 @@ pub(in crate::card::sets) static TAINTED_TREATS: CardRecord = CardRecord::new(
                         slot: TargetIndex::PRIMARY,
                         object: ObjectPredicateDef::ManaValueAtMost(4),
                     },
-                    then: &EffectDef::create_token(tokens::food())
-                        .with_count(ValueDef::Constant(1)),
+                    then: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 },
             ]),
         ),
@@ -4652,34 +4551,36 @@ pub(in crate::card::sets) static CHROME_DOME: CardRecord = CardRecord::new(
                         owner: None,
                     },
                 )],
-                EffectDef::create_token_from_copy(&TokenCopyDef {
-                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    exceptions: CopyExceptionsDef::NONE,
-                })
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("copy"),
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                crate::Binding!("copy"),
-                            )),
-                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                            duration: ResolvedEffectDurationDef::Permanent,
-                        },
-                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                            &AbilityDef::triggered(
-                                "At the beginning of the next end step, sacrifice that token.",
-                                TriggerEventDef::StepBegins {
-                                    step: TurnStepDef::End,
-                                    player: PlayerRelation::Any,
-                                },
-                                EffectDef::sacrifice(EffectRecipientDef::objects(
-                                    ObjectSetDef::Binding(crate::Binding!("copy")),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    }))
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: crate::Binding!("copy"),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("copy"),
                                 )),
-                            ),
-                        )),
-                    ]),
-                }),
+                                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                                duration: ResolvedEffectDurationDef::Permanent,
+                            },
+                            EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                                &AbilityDef::triggered(
+                                    "At the beginning of the next end step, sacrifice that token.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::End,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::sacrifice(EffectRecipientDef::objects(
+                                        ObjectSetDef::Binding(crate::Binding!("copy")),
+                                    )),
+                                ),
+                            )),
+                        ]),
+                    }),
+                ),
             ),
         ],
     ),
@@ -4972,7 +4873,7 @@ pub(in crate::card::sets) static TURTLE_BLIMP: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::enters_trigger(
             "When this Vehicle enters, create a 2/2 red Mutant creature token.",
-            EffectDef::create_creature_token(&["Mutant"], &[ManaColor::Red], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(MUTANT_TOKEN))),
         ),
         abilities::crew("Crew 2", 2),
     ]),

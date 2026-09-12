@@ -17,6 +17,7 @@ use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::DrawEventMatcherDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -37,6 +38,8 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -164,7 +167,9 @@ pub(in crate::card::sets) static RESOLUTE_REINFORCEMENTS: CardRecord = CardRecor
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 white Soldier \
              creature token.",
-            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1),
+            ))),
         ),
     ]),
 );

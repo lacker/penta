@@ -5,12 +5,15 @@ use crate::card::AbilityDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CostDef;
+use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::PlayerRelation;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::abilities;
@@ -38,8 +41,15 @@ pub(in crate::card::sets) static LATHRIL_BLADE_OF_THE_ELVES: CardRecord = CardRe
                 "Whenever Lathril deals combat damage to a player, create that \
                  many 1/1 green Elf Warrior creature tokens.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-                EffectDef::create_creature_token(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1)
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                        &["Elf", "Warrior"],
+                        &[ManaColor::Green],
+                        1,
+                        1,
+                    )))
                     .with_count(ValueDef::TriggerEventAmount),
+                ),
             ),
             AbilityDef::activated(
                 "{T}, Tap ten untapped Elves you control: Each opponent loses \

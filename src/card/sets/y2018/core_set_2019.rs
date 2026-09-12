@@ -19,6 +19,7 @@ use crate::card::ChooseCardsFromCollectionDef;
 use crate::card::CollectionInspectionDef;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
+use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::EmblemCharacteristics;
@@ -39,6 +40,8 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::SetOperationDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -164,8 +167,10 @@ pub(in crate::card::sets) static RESPLENDENT_ANGEL: CardRecord = CardRecord::new
                 comparison: crate::card::ComparisonDef::GreaterOrEqual,
                 right: ValueDef::Constant(5),
             }),
-            EffectDef::create_creature_token(&["Angel"], &[crate::card::ManaColor::White], 4, 4)
-                .with_abilities(&[abilities::flying(), abilities::vigilance()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Angel"], &[crate::card::ManaColor::White], 4, 4)
+                    .with_abilities(&[abilities::flying(), abilities::vigilance()]),
+            ))),
         ),
         AbilityDef::activated(
             "{3}{W}{W}{W}: Until end of turn, this creature gets +2/+2 and \
@@ -422,8 +427,10 @@ pub(in crate::card::sets) static LATHLISS_DRAGON_QUEEN: CardRecord = CardRecord:
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 5, 5)
-                    .with_abilities(&[abilities::flying()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Dragon"], &[ManaColor::Red], 5, 5)
+                        .with_abilities(&[abilities::flying()]),
+                ))),
             ),
             AbilityDef::activated(
                 "{1}{R}: Dragons you control get +1/+0 until end of turn.",
@@ -623,8 +630,15 @@ pub(in crate::card::sets) static HEROIC_REINFORCEMENTS: CardRecord = CardRecord:
          turn, creatures you control get +1/+1 and gain haste. (They \
          can attack and {T} this turn.)",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Soldier"],
+                    &[ManaColor::White],
+                    1,
+                    1,
+                )))
                 .with_count(ValueDef::Constant(2)),
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(

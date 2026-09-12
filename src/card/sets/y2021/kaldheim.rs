@@ -232,7 +232,10 @@ pub(in crate::card::sets) static SEIZE_THE_SPOILS: CardRecord = CardRecord::new(
          any color.\")",
         EffectDef::Sequence(&[
             abilities::draw_cards(ValueDef::Constant(2)),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )
     .with_spell_additional_cost(&CostDef::discard(ObjectPredicateDef::Any))]),
@@ -432,7 +435,10 @@ pub(in crate::card::sets) static GOLDVEIN_PICK: CardRecord = CardRecord::new(
                  create a Treasure token. (It's an artifact with \"{T}, \
                  Sacrifice this token: Add one mana of any color.\")",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),

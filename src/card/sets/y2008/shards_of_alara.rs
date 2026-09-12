@@ -25,9 +25,9 @@ use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
-use crate::card::SubtypeDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
@@ -215,8 +215,15 @@ pub(in crate::card::sets) static DRAGON_FODDER: CardRecord = CardRecord::new(
     "Jaime Jones",
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell(
         "Create two 1/1 red Goblin creature tokens.",
-        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                &["Goblin"],
+                &[ManaColor::Red],
+                1,
+                1,
+            )))
             .with_count(ValueDef::Constant(2)),
+        ),
     )]),
 );
 

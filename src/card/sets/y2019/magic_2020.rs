@@ -43,7 +43,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
@@ -54,6 +53,10 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("42e54aad-ec80-4914-9ba8-91bd53924778", "Alayna Danner"),
+);
 
 // M20 3 — Ancestral Blade
 pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
@@ -327,7 +330,10 @@ pub(in crate::card::sets) static RAPACIOUS_DRAGON: CardRecord = CardRecord::new(
             "When this creature enters, create two Treasure tokens. \
              (They're artifacts with \"{T}, Sacrifice this token: Add one \
              mana of any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         ),
     ]),
 );

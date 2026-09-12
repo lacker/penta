@@ -75,8 +75,8 @@ use crate::card::RevealObjectsDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -124,6 +124,25 @@ const CLUE_TOKEN: TokenCharacteristics = tokens::clue().with_art(CardArt::new(
     "ef607895-d6d2-44ab-a6b4-84af55fce593",
     "Daneen Wilkerson",
 ));
+
+const DETECTIVE_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Detective"], &[ManaColor::White, ManaColor::Blue], 2, 2)
+        .with_art(CardArt::new(
+            "30a109aa-99d4-4cfe-a9b1-1b40db5b7885",
+            "Fay Dalton",
+        ));
+const DOG_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Dog"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "8aaf03be-294a-4539-954c-79853f4351a9",
+        "Alayna Danner",
+    ));
+const SPIRIT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Spirit"], &[ManaColor::White, ManaColor::Black], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "f4588570-bde4-4c2f-8469-81a3e15fb57b",
+            "Christina Kraus",
+        ));
 
 // MKM 1 — Case of the Shattered Pact
 // Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
@@ -182,7 +201,10 @@ pub(in crate::card::sets) static AUSPICIOUS_ARRIVAL: CardRecord = CardRecord::ne
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -405,12 +427,7 @@ pub(in crate::card::sets) static INSIDE_SOURCE: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 2/2 white and blue \
              Detective creature token.",
-            EffectDef::create_creature_token(
-                &["Detective"],
-                &[ManaColor::White, ManaColor::Blue],
-                2,
-                2,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DETECTIVE_TOKEN))),
         ),
         AbilityDef::activated_with_targets(
             "{3}, {T}: Target Detective you control gets +2/+0 and gains \
@@ -485,8 +502,10 @@ pub(in crate::card::sets) static KROVOD_HAUNCH: CardRecord = CardRecord::new(
                  white Dog creature tokens.",
                 EffectDef::PayOr(PayOrDef::optional(
                     &[CostDef::Mana(mana_cost!("{1}{W}"))],
-                    &EffectDef::create_creature_token(&["Dog"], &[ManaColor::White], 1, 1)
-                        .with_count(ValueDef::Constant(2)),
+                    &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(DOG_TOKEN))
+                            .with_count(ValueDef::Constant(2)),
+                    ),
                 )),
             ),
             abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
@@ -567,12 +586,7 @@ pub(in crate::card::sets) static MUSEUM_NIGHTWATCH: CardRecord = CardRecord::new
             abilities::dies_trigger(
                 "When this creature dies, create a 2/2 white and blue \
                  Detective creature token.",
-                EffectDef::create_creature_token(
-                    &["Detective"],
-                    &[ManaColor::White, ManaColor::Blue],
-                    2,
-                    2,
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DETECTIVE_TOKEN))),
             ),
             AbilityDef::alternative_cast(
                 &[CostDef::Mana(mana_cost!("{3}"))],
@@ -656,10 +670,15 @@ pub(in crate::card::sets) static NO_WITNESSES: CardRecord = CardRecord::new(
                     )),
                 }),
                 then: &EffectDef::Sequence(&[
-                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
-                    EffectDef::create_token(tokens::clue())
-                        .with_count(ValueDef::Constant(1))
-                        .with_controller(PlayerRefDef::Opponent),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1))
+                            .with_controller(PlayerRefDef::Opponent),
+                    ),
                 ]),
                 otherwise: &EffectDef::IfElseCondition {
                     condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
@@ -675,11 +694,15 @@ pub(in crate::card::sets) static NO_WITNESSES: CardRecord = CardRecord::new(
                             PlayerRelation::Opponent,
                         )),
                     }),
-                    then: &EffectDef::create_token(tokens::clue())
-                        .with_count(ValueDef::Constant(1)),
-                    otherwise: &EffectDef::create_token(tokens::clue())
-                        .with_count(ValueDef::Constant(1))
-                        .with_controller(PlayerRefDef::Opponent),
+                    then: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
+                    otherwise: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1))
+                            .with_controller(PlayerRefDef::Opponent),
+                    ),
                 },
             },
             EffectDef::Destroy {
@@ -756,7 +779,10 @@ pub(in crate::card::sets) static ON_THE_JOB: CardRecord = CardRecord::new(
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -888,7 +914,10 @@ pub(in crate::card::sets) static WOJEK_INVESTIGATOR: CardRecord = CardRecord::ne
                         PlayerRelation::You,
                     )),
                 }),
-                then: &EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                then: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             },
         ),
     ]),
@@ -1116,7 +1145,10 @@ pub(in crate::card::sets) static COLD_CASE_CRACKER: CardRecord = CardRecord::new
                 "When this creature dies, investigate. (Create a Clue token. \
                  It's an artifact with \"{2}, Sacrifice this token: Draw a \
                  card.\")",
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ],
     ),
@@ -1235,8 +1267,10 @@ pub(in crate::card::sets) static CURIOUS_INQUIRY: CardRecord = CardRecord::new(
                             "Whenever this creature deals combat damage to a player, \
                              investigate.",
                             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-                            EffectDef::create_token(tokens::clue())
-                                .with_count(ValueDef::Constant(1)),
+                            EffectDef::CreateToken(
+                                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                                    .with_count(ValueDef::Constant(1)),
+                            ),
                         )),
                     ]),
                 },
@@ -1254,7 +1288,10 @@ pub(in crate::card::sets) static DEDUCE: CardRecord = CardRecord::new(
          artifact with \"{2}, Sacrifice this token: Draw a card.\")",
         EffectDef::Sequence(&[
             abilities::draw_cards(ValueDef::Constant(1)),
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -1441,7 +1478,10 @@ pub(in crate::card::sets) static HOTSHOT_INVESTIGATORS: CardRecord = CardRecord:
                         ZoneKind::Hand,
                         ZonePlacement::Top,
                     ),
-                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 ]),
                 otherwise: &EffectDef::move_to_zone(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1593,7 +1633,10 @@ pub(in crate::card::sets) static OUT_COLD: CardRecord = CardRecord::new(
                     kind: CounterKind::Stun,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ]),
         ),
     ]),
@@ -1994,7 +2037,10 @@ pub(in crate::card::sets) static HOMICIDE_INVESTIGATOR: CardRecord = CardRecord:
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ]),
             },
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )
         .triggering_at_most(1),
     ]),
@@ -2014,9 +2060,11 @@ pub(in crate::card::sets) static HUNTED_BONEBRUTE: CardRecord = CardRecord::new(
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
                 )],
-                EffectDef::create_creature_token(&["Dog"], &[ManaColor::White], 1, 1)
-                    .with_count(ValueDef::Constant(2))
-                    .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(DOG_TOKEN))
+                        .with_count(ValueDef::Constant(2))
+                        .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ),
             ),
             abilities::dies_trigger(
                 "When this creature dies, each opponent loses 3 life.",
@@ -2103,10 +2151,14 @@ pub(in crate::card::sets) static LEERING_ONLOOKER: CardRecord = CardRecord::new(
             "{2}{B}{B}, Exile this card from your graveyard: Create two \
              tapped 1/1 black Bat creature tokens with flying.",
             &[CostDef::Mana(mana_cost!("{2}{B}{B}")), CostDef::ExileSource],
-            EffectDef::create_creature_token(&["Bat"], &[ManaColor::Black], 1, 1)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Bat"], &[ManaColor::Black], 1, 1)
+                        .with_abilities(&[abilities::flying()]),
+                ))
                 .with_count(ValueDef::Constant(2))
-                .with_abilities(&[abilities::flying()])
                 .entering_tapped(),
+            ),
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),
@@ -2220,7 +2272,10 @@ pub(in crate::card::sets) static PERSUASIVE_INTERROGATORS: CardRecord = CardReco
                 "When this creature enters, investigate. (Create a Clue token. \
                  It's an artifact with \"{2}, Sacrifice this token: Draw a \
                  card.\")",
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::triggered_with_targets(
                 "Whenever you sacrifice a Clue, target opponent gets two \
@@ -2408,7 +2463,10 @@ pub(in crate::card::sets) static TOXIN_ANALYSIS: CardRecord = CardRecord::new(
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -2579,7 +2637,10 @@ pub(in crate::card::sets) static THE_CHASE_IS_ON: CardRecord = CardRecord::new(
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -2829,8 +2890,11 @@ pub(in crate::card::sets) static HARRIED_DRONESMITH: CardRecord = CardRecord::ne
                 step: TurnStepDef::BeginningOfCombat,
                 player: PlayerRelation::You,
             },
-            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
-                .with_abilities(&[abilities::flying()])
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1)
+                        .with_abilities(&[abilities::flying()]),
+                ))
                 .with_created_tokens(CreatedTokensDef {
                     binding: crate::Binding!("thopter"),
                     then: &EffectDef::Sequence(&[
@@ -2855,6 +2919,7 @@ pub(in crate::card::sets) static HARRIED_DRONESMITH: CardRecord = CardRecord::ne
                         )),
                     ]),
                 }),
+            ),
         ),
     ]),
 );
@@ -2950,7 +3015,13 @@ pub(in crate::card::sets) static KRENKO_BARON_OF_TIN_STREET: CardRecord = CardRe
                 ),
                 EffectDef::PayOr(PayOrDef::optional(
                     &[CostDef::Mana(mana_cost!("{R}"))],
-                    &EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+                    &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                            &["Goblin"],
+                            &[ManaColor::Red],
+                            1,
+                            1,
+                        )))
                         .with_created_tokens(CreatedTokensDef {
                             binding: crate::Binding!("goblin"),
                             then: &EffectDef::Apply {
@@ -2961,6 +3032,7 @@ pub(in crate::card::sets) static KRENKO_BARON_OF_TIN_STREET: CardRecord = CardRe
                                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                             },
                         }),
+                    ),
                 )),
             ),
         ]),
@@ -3327,7 +3399,9 @@ pub(in crate::card::sets) static AUDIENCE_WITH_TROSTANI: CardRecord = CardRecord
          equal to the number of differently named creature tokens you \
          control.",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(&["Plant"], &[ManaColor::Green], 0, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Plant"], &[ManaColor::Green], 0, 1),
+            ))),
             abilities::draw_cards(ValueDef::DistinctNamesAmong(&ObjectQueryDef::matching(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -3590,7 +3664,10 @@ pub(in crate::card::sets) static LOXODON_EAVESDROPPER: CardRecord = CardRecord::
                 "When this creature enters, investigate. (Create a Clue token. \
                  It's an artifact with \"{2}, Sacrifice this token: Draw a \
                  card.\")",
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::triggered(
                 "Whenever you draw your second card each turn, this creature \
@@ -3826,7 +3903,10 @@ pub(in crate::card::sets) static THEY_WENT_THIS_WAY: CardRecord = CardRecord::ne
                 binding: None,
                 then: None,
             },
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -3934,7 +4014,10 @@ pub(in crate::card::sets) static ALQUIST_PROFT_MASTER_SLEUTH: CardRecord = CardR
                 "When Alquist Proft enters, investigate. (Create a Clue token. \
                  It's an artifact with \"{2}, Sacrifice this token: Draw a \
                  card.\")",
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::activated(
                 "{X}{W}{U}{U}, {T}, Sacrifice a Clue: You draw X cards and \
@@ -4256,13 +4339,15 @@ pub(in crate::card::sets) static DOPPELGANG: CardRecord = CardRecord::new(
                 then: &EffectDef::ForEachInBinding {
                     objects: crate::Binding!("targets"),
                     binding: crate::Binding!("copied"),
-                    effect: &EffectDef::create_token_from_copy(&TokenCopyDef {
-                        object: &EffectRecipientDef::object(ObjectRefDef::Binding(
-                            crate::Binding!("copied"),
-                        )),
-                        exceptions: CopyExceptionsDef::NONE,
-                    })
-                    .with_count(ValueDef::ChosenX),
+                    effect: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                            object: &EffectRecipientDef::object(ObjectRefDef::Binding(
+                                crate::Binding!("copied"),
+                            )),
+                            exceptions: CopyExceptionsDef::NONE,
+                        }))
+                        .with_count(ValueDef::ChosenX),
+                    ),
                 },
             }),
         ),
@@ -4280,12 +4365,7 @@ pub(in crate::card::sets) static DRAG_THE_CANAL: CardRecord = CardRecord::new(
          investigate. (Create a Clue token. It's an artifact with \
          \"{2}, Sacrifice this token: Draw a card.\")",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(
-                &["Detective"],
-                &[ManaColor::White, ManaColor::Blue],
-                2,
-                2,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DETECTIVE_TOKEN))),
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::CreatureDiedThisTurn,
                 then: &EffectDef::Sequence(&[
@@ -4294,7 +4374,10 @@ pub(in crate::card::sets) static DRAG_THE_CANAL: CardRecord = CardRecord::new(
                         amount: ValueDef::Constant(2),
                     },
                     abilities::surveil(ValueDef::Constant(2)),
-                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 ]),
             },
         ]),
@@ -4337,7 +4420,10 @@ pub(in crate::card::sets) static EZRIM_AGENCY_CHIEF: CardRecord = CardRecord::ne
             "When Ezrim enters, investigate twice. (To investigate, create \
              a Clue token. It's an artifact with \"{2}, Sacrifice this \
              token: Draw a card.\")",
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         ),
         AbilityDef::activated(
             "{1}, Sacrifice an artifact: Ezrim gains your choice of \
@@ -4408,7 +4494,10 @@ pub(in crate::card::sets) static GLEAMING_GEARDRAKE: CardRecord = CardRecord::ne
             "When this creature enters, investigate. (Create a Clue token. \
              It's an artifact with \"{2}, Sacrifice this token: Draw a \
              card.\")",
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::triggered(
             "Whenever you sacrifice an artifact, put a +1/+1 counter on \
@@ -4493,11 +4582,16 @@ pub(in crate::card::sets) static JUDITH_CARNAGE_CONNOISSEUR: CardRecord = CardRe
                 AbilityDef::spell(
                     "Create a 2/2 red Imp creature token with \"When this token \
                      dies, it deals 2 damage to each opponent.\"",
-                    EffectDef::create_creature_token(&["Imp"], &[ManaColor::Red], 2, 2)
-                        .with_abilities(&[abilities::dies_trigger(
-                            "When this token dies, it deals 2 damage to each opponent.",
-                            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(2)),
-                        )]),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Imp"], &[ManaColor::Red], 2, 2)
+                            .with_abilities(&[abilities::dies_trigger(
+                                "When this token dies, it deals 2 damage to each opponent.",
+                                EffectDef::damage(
+                                    EffectRecipientDef::Opponent,
+                                    ValueDef::Constant(2),
+                                ),
+                            )]),
+                    ))),
                 ),
             ],
         )]),
@@ -4601,7 +4695,10 @@ pub(in crate::card::sets) static LAZAV_WEARER_OF_FACES: CardRecord = CardRecord:
                         until_source_leaves: false,
                         then: None,
                     },
-                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 ]),
             ),
             AbilityDef::triggered(
@@ -4709,7 +4806,10 @@ pub(in crate::card::sets) static MEDDLING_YOUTHS: CardRecord = CardRecord::new(
                     3,
                     None,
                 ),
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ],
     ),
@@ -5039,13 +5139,9 @@ pub(in crate::card::sets) static SOUL_SEARCH: CardRecord = CardRecord::new(
                             ZoneKind::Exile,
                             ZonePlacement::Top,
                         ),
-                        EffectDef::create_creature_token(
-                            &["Spirit"],
-                            &[ManaColor::White, ManaColor::Black],
-                            1,
-                            1,
-                        )
-                        .with_abilities(&[abilities::flying()]),
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            SPIRIT_TOKEN,
+                        ))),
                     ]),
                     otherwise: &EffectDef::move_to_zone(
                         EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
@@ -5087,8 +5183,10 @@ pub(in crate::card::sets) static TEYSA_OPULENT_OLIGARCH: CardRecord = CardRecord
                 },
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::OpponentLostLifeThisTurn,
-                    then: &EffectDef::create_token(tokens::clue())
-                        .with_count(ValueDef::Constant(1)),
+                    then: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 },
             ),
             AbilityDef::triggered(
@@ -5103,13 +5201,7 @@ pub(in crate::card::sets) static TEYSA_OPULENT_OLIGARCH: CardRecord = CardRecord
                     Some(ZoneKind::Battlefield),
                     Some(ZoneKind::Graveyard),
                 ),
-                EffectDef::create_creature_token(
-                    &["Spirit"],
-                    &[ManaColor::White, ManaColor::Black],
-                    1,
-                    1,
-                )
-                .with_abilities(&[abilities::flying()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SPIRIT_TOKEN))),
             )
             .triggering_at_most(1),
         ]),
@@ -5222,7 +5314,10 @@ pub(in crate::card::sets) static UNDERCOVER_CROCODELF: CardRecord = CardRecord::
              investigate. (Create a Clue token. It's an artifact with \
              \"{2}, Sacrifice this token: Draw a card.\")",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::alternative_cast(
             &[CostDef::Mana(mana_cost!("{3}"))],
@@ -5485,9 +5580,13 @@ pub(in crate::card::sets) static FUSS: CardRecord = CardRecord::new_split(
                 "Create three 1/1 colorless Thopter artifact creature tokens \
                  with flying. Surveil 2.",
                 EffectDef::Sequence(&[
-                    EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
-                        .with_abilities(&[abilities::flying()])
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1)
+                                .with_abilities(&[abilities::flying()]),
+                        ))
                         .with_count(ValueDef::Constant(3)),
+                    ),
                     abilities::surveil(ValueDef::Constant(2)),
                 ]),
             )),

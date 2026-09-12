@@ -19,6 +19,7 @@ use crate::card::BattlefieldEntryChoiceDestinationDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BindObjectsDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -33,6 +34,7 @@ use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatureStats;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DiscardSelectionDef;
@@ -69,6 +71,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -77,7 +80,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -107,6 +109,29 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("ba7638ef-114b-4055-9855-390f82b7d5c5", "Racrufi"),
+);
+
+const THOPTER_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "d38fc294-ad86-441e-96fe-4ca286a11218",
+            "Kev Fang",
+        ));
+const ELEPHANT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Elephant"], &[ManaColor::Green], 3, 3).with_art(
+        CardArt::new("6ecb6655-2aa0-4622-ae9a-21dfffa7625e", "Milivoj Ćeran"),
+    );
+const THOPTER_TOKEN_2: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Thopter"], &[], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "d38fc294-ad86-441e-96fe-4ca286a11218",
+            "Kev Fang",
+        ));
 
 // DFT 1 — Air Response Unit
 pub(in crate::card::sets) static AIR_RESPONSE_UNIT: CardRecord = CardRecord::new(
@@ -217,8 +242,10 @@ pub(in crate::card::sets) static BASRI_TOMORROW_S_CHAMPION: CardRecord = CardRec
                     CostDef::TapSource,
                     CostDef::ExertSource,
                 ],
-                EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1)
-                    .with_abilities(&[abilities::lifelink()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Cat"], &[ManaColor::White], 1, 1)
+                        .with_abilities(&[abilities::lifelink()]),
+                ))),
             ),
             abilities::cycling!(
                 "Cycling {2}{W} ({2}{W}, Discard this card: Draw a card.)",
@@ -327,9 +354,10 @@ pub(in crate::card::sets) static BROADCAST_RAMBLER: CardRecord = CardRecord::new
         abilities::enters_trigger(
             "When this Vehicle enters, create a 1/1 colorless Thopter \
              artifact creature token with flying.",
-            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
-                .with_abilities(&[abilities::flying()])
-                .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(THOPTER_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         abilities::crew(
             "Crew 1 (Tap any number of creatures you control with total \
@@ -1379,9 +1407,10 @@ pub(in crate::card::sets) static NIMBLE_THOPTERIST: CardRecord = CardRecord::new
         &[abilities::enters_trigger(
             "When this creature enters, create a 1/1 colorless Thopter \
              artifact creature token with flying.",
-            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
-                .with_abilities(&[abilities::flying()])
-                .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(THOPTER_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )],
     ),
 );
@@ -1689,9 +1718,10 @@ pub(in crate::card::sets) static THOPTER_FABRICATOR: CardRecord = CardRecord::ne
             "Whenever you draw your second card each turn, create a 1/1 \
              colorless Thopter artifact creature token with flying.",
             TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(PlayerRelation::You, 2)),
-            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
-                .with_abilities(&[abilities::flying()])
-                .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(THOPTER_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         abilities::crew("Crew 2", 2),
     ]),
@@ -1996,9 +2026,16 @@ pub(in crate::card::sets) static CRYPTCALLER_CHARIOT: CardRecord = CardRecord::n
             "Whenever you discard one or more cards, create that many \
              tapped 2/2 black Zombie creature tokens.",
             TriggerEventDef::DiscardedCards(PlayerRelation::You),
-            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Zombie"],
+                    &[ManaColor::Black],
+                    2,
+                    2,
+                )))
                 .with_count(ValueDef::TriggerEventAmount)
                 .entering_tapped(),
+            ),
         ),
         abilities::crew("Crew 2", 2),
     ]),
@@ -2736,7 +2773,7 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
             AbilityDef::activated(
                 "0: Create a 3/2 colorless Vehicle artifact token with crew 1.",
                 &[CostDef::Loyalty(0)],
-                EffectDef::create_token(
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::new(
                         CardTypeSet::single(CardType::Artifact),
                         &["Vehicle"],
@@ -2747,7 +2784,7 @@ pub(in crate::card::sets) static CHANDRA_SPARK_HUNTER: CardRecord = CardRecord::
                         }),
                     )
                     .with_abilities(&[abilities::crew("Crew 1", 1)]),
-                ),
+                ))),
             ),
             AbilityDef::activated(
                 "−7: You get an emblem with \"Whenever an artifact you control \
@@ -2959,8 +2996,15 @@ pub(in crate::card::sets) static DRACONAUTICS_ENGINEER: CardRecord = CardRecord:
                 "Exhaust — {3}{R}: Create a 4/4 red Dinosaur Dragon creature \
                  token with flying.",
                 &[CostDef::Mana(mana_cost!("{3}{R}"))],
-                EffectDef::create_creature_token(&["Dinosaur", "Dragon"], &[ManaColor::Red], 4, 4)
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(
+                        &["Dinosaur", "Dragon"],
+                        &[ManaColor::Red],
+                        4,
+                        4,
+                    )
                     .with_abilities(&[abilities::flying()]),
+                ))),
             )),
         ],
     ),
@@ -3100,7 +3144,10 @@ pub(in crate::card::sets) static GILDED_GHODA: CardRecord = CardRecord::new(
                     object: ObjectPredicateDef::Saddled,
                 },
             },
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         abilities::saddle(
             &[CostDef::TapCreaturesWithTotalPower { minimum: 1 }],
@@ -3639,7 +3686,7 @@ pub(in crate::card::sets) static AUTARCH_MAMMOTH: CardRecord = CardRecord::new(
             abilities::enters_trigger(
                 "When this creature enters and whenever it attacks while \
                  saddled, create a 3/3 green Elephant creature token.",
-                EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELEPHANT_TOKEN))),
             ),
             AbilityDef::triggered(
                 "When this creature enters and whenever it attacks while \
@@ -3650,7 +3697,7 @@ pub(in crate::card::sets) static AUTARCH_MAMMOTH: CardRecord = CardRecord::new(
                         object: ObjectPredicateDef::Saddled,
                     },
                 },
-                EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELEPHANT_TOKEN))),
             ),
             abilities::saddle(
                 &[CostDef::TapCreaturesWithTotalPower { minimum: 5 }],
@@ -4048,7 +4095,7 @@ pub(in crate::card::sets) static MARCH_OF_THE_WORLD_OOZE: CardRecord = CardRecor
             &TriggerConditionDef::Not(&TriggerConditionDef::ActivePlayer(
                 PlayerRelation::EventPlayer,
             )),
-            EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELEPHANT_TOKEN))),
         ),
     ]),
 );
@@ -4446,7 +4493,7 @@ pub(in crate::card::sets) static STAMPEDING_SCURRYFOOT: CardRecord = CardRecord:
                     kind: CounterKind::PlusOnePlusOne,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::create_creature_token(&["Elephant"], &[ManaColor::Green], 3, 3),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELEPHANT_TOKEN))),
             ]),
         ),
     )]),
@@ -4600,15 +4647,24 @@ pub(in crate::card::sets) static AATCHIK_EMERALD_RADIAN: CardRecord = CardRecord
             abilities::enters_trigger(
                 "When Aatchik enters, create a 1/1 green Insect creature token \
                  for each artifact and/or creature card in your graveyard.",
-                EffectDef::create_creature_token(&["Insect"], &[ManaColor::Green], 1, 1)
-                    .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        ]),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::You,
-                    ))),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                        &["Insect"],
+                        &[ManaColor::Green],
+                        1,
+                        1,
+                    )))
+                    .with_count(ValueDef::CountMatchingObjects(
+                        &ObjectQueryDef::matching(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ]),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                ),
             ),
             AbilityDef::triggered(
                 "Whenever another Insect you control dies, put a +1/+1 counter \
@@ -5215,9 +5271,10 @@ pub(in crate::card::sets) static HAUNT_THE_NETWORK: CardRecord = CardRecord::new
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
             EffectDef::Sequence(&[
-                EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
-                    .with_abilities(&[abilities::flying()])
-                    .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(THOPTER_TOKEN_2))
+                        .with_count(ValueDef::Constant(2)),
+                ),
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -5654,7 +5711,10 @@ pub(in crate::card::sets) static ROCKETEER_BOOSTBUGGY: CardRecord = CardRecord::
              an artifact with \"{T}, Sacrifice this token: Add one mana of \
              any color.\")",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         exhaust(AbilityDef::activated(
             "Exhaust — {3}: This Vehicle becomes an artifact creature. Put \
@@ -5934,9 +5994,10 @@ pub(in crate::card::sets) static CAMERA_LAUNCHER: CardRecord = CardRecord::new(
                     kind: CounterKind::PlusOnePlusOne,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
-                    .with_abilities(&[abilities::flying()])
-                    .with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(THOPTER_TOKEN_2))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ]),
         )),
     ]),
@@ -6296,7 +6357,10 @@ pub(in crate::card::sets) static TICKET_TORTOISE: CardRecord = CardRecord::new(
                     PlayerRelation::You,
                 )),
             }),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );

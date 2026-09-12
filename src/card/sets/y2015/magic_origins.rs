@@ -12,6 +12,7 @@ use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
+use crate::card::CreateTokenDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -22,6 +23,8 @@ use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -343,7 +346,9 @@ pub(in crate::card::sets) static DWYNEN_S_ELITE: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::GreaterOrEqual,
                 amount: 1,
             },
-            EffectDef::create_creature_token(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+            ))),
         ),
     ]),
 );

@@ -7,6 +7,7 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::CardRules;
 use crate::card::CardType;
+use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
@@ -14,6 +15,8 @@ use crate::card::ObjectPredicateDef;
 use crate::card::ObjectSetDef;
 use crate::card::ObjectSetFilterDef;
 use crate::card::PlayerRelation;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
@@ -101,7 +104,13 @@ pub(in crate::card::sets) static DREAD_SUMMONS: CardRecord = CardRecord::new(
                     amount: ValueDef::ChosenX,
                 },
             },
-            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Zombie"],
+                    &[ManaColor::Black],
+                    2,
+                    2,
+                )))
                 .with_count(ValueDef::CountObjects(&ObjectSetDef::Matching {
                     objects: &ObjectSetDef::Binding(crate::Binding!("milled")),
                     object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
@@ -109,6 +118,7 @@ pub(in crate::card::sets) static DREAD_SUMMONS: CardRecord = CardRecord::new(
                     )),
                 }))
                 .entering_tapped(),
+            ),
         ]),
     )]),
 );

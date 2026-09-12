@@ -21,6 +21,7 @@ use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
+use crate::card::CardArt;
 use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
@@ -40,6 +41,7 @@ use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageAssignmentDef;
@@ -94,6 +96,7 @@ use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -103,7 +106,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -179,6 +181,71 @@ fn adventure_land(
     }
     .with_derived_spell_targets()
 }
+
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "4853f6f5-476d-4109-a1c6-f98f4d332db3",
+    "David Astruga",
+));
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("ab0cda01-10b5-4a1b-b2bb-ad8bb296590f", "Leonardo Santanna"),
+);
+
+const HERO_TOKEN: TokenCharacteristics = TokenCharacteristics::creature(&["Hero"], &[], 1, 1)
+    .with_art(CardArt::new(
+        "d0657ce1-bf75-4007-ac1b-0623eb263357",
+        "Josephine Chang",
+    ));
+const HERO_TOKEN_2: TokenCharacteristics = TokenCharacteristics::creature(&["Hero"], &[], 1, 1)
+    .with_art(CardArt::new(
+        "d0657ce1-bf75-4007-ac1b-0623eb263357",
+        "Josephine Chang",
+    ));
+const WIZARD_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Wizard"], &[ManaColor::Black], 0, 1)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever you cast a noncreature spell, this token deals 1 \
+                     damage to each opponent.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        )])
+        .with_art(CardArt::new(
+            "187fe54c-7d0c-4225-9d46-3affbead897d",
+            "Ignatius Budi",
+        ));
+const HORROR_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Horror"], &[ManaColor::Black], 2, 2).with_art(CardArt::new(
+        "ddcf50c2-24f5-46b4-bfe9-c636bb51bae5",
+        "Lordigan",
+    ));
+const BIRD_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Bird"], &[ManaColor::Green], 2, 2)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever a land you control enters, this token gets +1/+0 \
+                         until end of turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )])
+        .with_art(CardArt::new(
+            "1fbc471d-5948-47fc-b7cc-81cc13a4cd15",
+            "David Frasheski",
+        ));
 
 // FIN 1 — Summon: Bahamut
 // Audit: unsupported — Needs one printed Saga ability to represent several chapter numbers and to remain identifiable to the Saga final-chapter rules; the current Saga authoring and recognition path represents exactly one chapter per ability.
@@ -280,8 +347,10 @@ pub(in crate::card::sets) static AERITH_RESCUE_MISSION: CardRecord = CardRecord:
             AbilityDef::spell(
                 "Take the Elevator — Create three 1/1 colorless Hero creature \
                  tokens.",
-                EffectDef::create_creature_token(&["Hero"], &[], 1, 1)
-                    .with_count(ValueDef::Constant(3)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(HERO_TOKEN))
+                        .with_count(ValueDef::Constant(3)),
+                ),
             ),
             AbilityDef::spell_with_targets(
                 "Take 59 Flights of Stairs — Tap up to three target creatures. \
@@ -491,7 +560,9 @@ pub(in crate::card::sets) static BATTLE_MENU: CardRecord = CardRecord::new(
         &[
             AbilityDef::spell(
                 "Attack — Create a 2/2 white Knight creature token.",
-                EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Knight"], &[ManaColor::White], 2, 2),
+                ))),
             ),
             AbilityDef::spell_with_targets(
                 "Ability — Target creature gets +0/+4 until end of turn.",
@@ -607,8 +678,10 @@ pub(in crate::card::sets) static THE_CRYSTAL_S_CHOSEN: CardRecord = CardRecord::
         "Create four 1/1 colorless Hero creature tokens. Then put a \
          +1/+1 counter on each creature you control.",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(&["Hero"], &[], 1, 1)
-                .with_count(ValueDef::Constant(4)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(HERO_TOKEN))
+                    .with_count(ValueDef::Constant(4)),
+            ),
             EffectDef::AddCounters {
                 object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -688,7 +761,7 @@ pub(in crate::card::sets) static DWARVEN_CASTLE_GUARD: CardRecord = CardRecord::
         abilities::dies_trigger(
             "When this creature dies, create a 1/1 colorless Hero creature \
              token.",
-            EffectDef::create_creature_token(&["Hero"], &[], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HERO_TOKEN_2))),
         ),
     ]),
 );
@@ -872,7 +945,7 @@ pub(in crate::card::sets) static MAGITEK_ARMOR: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this Vehicle enters, create a 1/1 colorless Hero \
              creature token.",
-            EffectDef::create_creature_token(&["Hero"], &[], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HERO_TOKEN_2))),
         ),
         abilities::crew(
             "Crew 1 (Tap any number of creatures you control with total \
@@ -981,13 +1054,19 @@ pub(in crate::card::sets) static MOOGLES_VALOR: CardRecord = CardRecord::new(
          creature token with lifelink. Then creatures you control gain \
          indestructible until end of turn.",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(&["Moogle"], &[ManaColor::White], 1, 2)
-                .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                )))
-                .with_abilities(&[abilities::lifelink()]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Moogle"], &[ManaColor::White], 1, 2)
+                        .with_abilities(&[abilities::lifelink()]),
+                ))
+                .with_count(ValueDef::CountMatchingObjects(
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -1261,8 +1340,10 @@ pub(in crate::card::sets) static SIDEQUEST_CATCH_A_FISH: CardRecord = CardRecord
                                         },
                                     ),
                                     then: &EffectDef::Sequence(&[
-                                        EffectDef::create_token(tokens::food())
-                                            .with_count(ValueDef::Constant(1)),
+                                        EffectDef::CreateToken(
+                                            CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                                                .with_count(ValueDef::Constant(1)),
+                                        ),
                                         EffectDef::Transform {
                                             object: EffectRecipientDef::Source,
                                         },
@@ -1715,7 +1796,7 @@ pub(in crate::card::sets) static DRAGOON_S_WYVERN: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 colorless Hero \
              creature token.",
-            EffectDef::create_creature_token(&["Hero"], &[], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HERO_TOKEN_2))),
         ),
     ]),
 );
@@ -2248,10 +2329,10 @@ pub(in crate::card::sets) static RELM_S_SKETCHING: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Land),
                 ]),
             )],
-            EffectDef::create_token_from_copy(&TokenCopyDef {
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                 object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 exceptions: CopyExceptionsDef::NONE,
-            }),
+            }))),
         ),
     ]),
 );
@@ -2266,25 +2347,27 @@ pub(in crate::card::sets) static RETRIEVE_THE_ESPER: CardRecord = CardRecord::ne
             "Create a 3/3 blue Robot Warrior artifact creature token. Then \
              if this spell was cast from a graveyard, put two +1/+1 \
              counters on that token.",
-            EffectDef::create_artifact_creature_token(
-                &["Robot", "Warrior"],
-                &[ManaColor::Blue],
-                3,
-                3,
-            )
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("esper"),
-                then: &EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
-                    then: &EffectDef::AddCounters {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("esper"),
-                        )),
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::Constant(2),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::artifact_creature(
+                    &["Robot", "Warrior"],
+                    &[ManaColor::Blue],
+                    3,
+                    3,
+                )))
+                .with_created_tokens(CreatedTokensDef {
+                    binding: crate::Binding!("esper"),
+                    then: &EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("esper"),
+                            )),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(2),
+                        },
                     },
-                },
-            }),
+                }),
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{U}"))]),
     ]),
@@ -2952,16 +3035,7 @@ pub(in crate::card::sets) static CIRCLE_OF_POWER: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
             },
-            EffectDef::create_creature_token(&["Wizard"], &[ManaColor::Black], 0, 1)
-                .with_abilities(&[AbilityDef::triggered(
-                    "Whenever you cast a noncreature spell, this token deals 1 \
-                     damage to each opponent.",
-                    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ])),
-                    EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
-                )]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(WIZARD_TOKEN))),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -3010,18 +3084,7 @@ pub(in crate::card::sets) static CORNERED_BY_BLACK_MAGES: CardRecord = CardRecor
                         ObjectSetDef::Binding(crate::Binding!("sacrifices")),
                     )),
                 }),
-                EffectDef::create_creature_token(&["Wizard"], &[ManaColor::Black], 0, 1)
-                    .with_abilities(&[AbilityDef::triggered(
-                        "Whenever you cast a noncreature spell, this token deals 1 \
-                         damage to each opponent.",
-                        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
-                                CardType::Creature,
-                            )),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ])),
-                        EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
-                    )]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(WIZARD_TOKEN))),
             ]),
         ),
     ]),
@@ -3199,21 +3262,20 @@ pub(in crate::card::sets) static THE_FINAL_DAYS: CardRecord = CardRecord::new(
              graveyard.",
             EffectDef::IfElseCondition {
                 condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
-                then: &EffectDef::create_creature_token(&["Horror"], &[ManaColor::Black], 2, 2)
-                    .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Graveyard],
-                        PlayerRelation::You,
-                    )))
-                    .entering_tapped(),
-                otherwise: &EffectDef::create_creature_token(
-                    &["Horror"],
-                    &[ManaColor::Black],
-                    2,
-                    2,
-                )
-                .with_count(ValueDef::Constant(2))
-                .entering_tapped(),
+                then: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(HORROR_TOKEN))
+                        .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        )))
+                        .entering_tapped(),
+                ),
+                otherwise: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(HORROR_TOKEN))
+                        .with_count(ValueDef::Constant(2))
+                        .entering_tapped(),
+                ),
             },
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{4}{B}{B}"))]),
@@ -3385,7 +3447,10 @@ pub(in crate::card::sets) static NAMAZU_TRADER: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
                 },
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ]),
         ),
         AbilityDef::triggered(
@@ -3823,7 +3888,10 @@ pub(in crate::card::sets) static UNDERCITY_DIRE_RAT: CardRecord = CardRecord::ne
             "Rat Tail — When this creature dies, create a Treasure token. \
              (It's an artifact with \"{T}, Sacrifice this token: Add one \
              mana of any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -4134,27 +4202,7 @@ pub(in crate::card::sets) static CALL_THE_MOUNTAIN_CHOCOBO: CardRecord = CardRec
                     binding: None,
                     then: None,
                 },
-                EffectDef::create_creature_token(&["Bird"], &[ManaColor::Green], 2, 2)
-                    .with_abilities(&[AbilityDef::triggered(
-                        "Whenever a land you control enters, this token gets +1/+0 \
-                         until end of turn.",
-                        TriggerEventDef::zone_changed(
-                            ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                            ]),
-                            None,
-                            Some(ZoneKind::Battlefield),
-                        ),
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::modify_power_toughness(
-                                ValueDef::Constant(1),
-                                ValueDef::Constant(0),
-                            ),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                    )]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(BIRD_TOKEN))),
             ]),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{5}{R}"))]),
@@ -4179,27 +4227,7 @@ pub(in crate::card::sets) static CHOCO_COMET: CardRecord = CardRecord::new(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::ChosenX,
                 ),
-                EffectDef::create_creature_token(&["Bird"], &[ManaColor::Green], 2, 2)
-                    .with_abilities(&[AbilityDef::triggered(
-                        "Whenever a land you control enters, this token gets +1/+0 \
-                         until end of turn.",
-                        TriggerEventDef::zone_changed(
-                            ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                            ]),
-                            None,
-                            Some(ZoneKind::Battlefield),
-                        ),
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::modify_power_toughness(
-                                ValueDef::Constant(1),
-                                ValueDef::Constant(0),
-                            ),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                    )]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(BIRD_TOKEN))),
             ]),
         ),
     ]),
@@ -4301,25 +4329,27 @@ pub(in crate::card::sets) static THE_FIRE_CRYSTAL: CardRecord = CardRecord::new(
                         owner: None,
                     },
                 )],
-                EffectDef::create_token_from_copy(&TokenCopyDef {
-                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    exceptions: CopyExceptionsDef::NONE,
-                })
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("copy"),
-                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                        &AbilityDef::triggered(
-                            "At the beginning of the next end step, sacrifice that token.",
-                            TriggerEventDef::StepBegins {
-                                step: TurnStepDef::End,
-                                player: PlayerRelation::Any,
-                            },
-                            EffectDef::sacrifice(EffectRecipientDef::objects(
-                                ObjectSetDef::Binding(crate::Binding!("copy")),
-                            )),
-                        ),
-                    )),
-                }),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    }))
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: crate::Binding!("copy"),
+                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of the next end step, sacrifice that token.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::sacrifice(EffectRecipientDef::objects(
+                                    ObjectSetDef::Binding(crate::Binding!("copy")),
+                                )),
+                            ),
+                        )),
+                    }),
+                ),
             ),
         ]),
 );
@@ -4473,16 +4503,7 @@ pub(in crate::card::sets) static MYSIDIAN_ELDER: CardRecord = CardRecord::new(
             "When this creature enters, create a 0/1 black Wizard creature \
              token with \"Whenever you cast a noncreature spell, this \
              token deals 1 damage to each opponent.\"",
-            EffectDef::create_creature_token(&["Wizard"], &[ManaColor::Black], 0, 1)
-                .with_abilities(&[AbilityDef::triggered(
-                    "Whenever you cast a noncreature spell, this token deals 1 \
-                     damage to each opponent.",
-                    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ])),
-                    EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
-                )]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(WIZARD_TOKEN))),
         ),
     ]),
 );
@@ -4572,18 +4593,7 @@ pub(in crate::card::sets) static QUEEN_BRAHNE: CardRecord = CardRecord::new(
                  creature token with \"Whenever you cast a noncreature spell, \
                  this token deals 1 damage to each opponent.\"",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                EffectDef::create_creature_token(&["Wizard"], &[ManaColor::Black], 0, 1)
-                    .with_abilities(&[AbilityDef::triggered(
-                        "Whenever you cast a noncreature spell, this token deals 1 \
-                         damage to each opponent.",
-                        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
-                                CardType::Creature,
-                            )),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ])),
-                        EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
-                    )]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(WIZARD_TOKEN))),
             ),
         ]),
 );
@@ -5384,28 +5394,30 @@ pub(in crate::card::sets) static CHOCOBO_RACETRACK: CardRecord = CardRecord::new
             None,
             Some(ZoneKind::Battlefield),
         ),
-        EffectDef::create_creature_token(&["Bird"], &[ManaColor::Green], 2, 2).with_abilities(&[
-            AbilityDef::triggered(
-                "Whenever a land you control enters, this token gets +1/+0 \
+        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+            TokenCharacteristics::creature(&["Bird"], &[ManaColor::Green], 2, 2).with_abilities(&[
+                AbilityDef::triggered(
+                    "Whenever a land you control enters, this token gets +1/+0 \
                  until end of turn.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::modify_power_toughness(
-                        ValueDef::Constant(1),
-                        ValueDef::Constant(0),
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        None,
+                        Some(ZoneKind::Battlefield),
                     ),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-            ),
-        ]),
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ]),
+        ))),
     )]),
 );
 
@@ -5772,28 +5784,7 @@ pub(in crate::card::sets) static GYSAHL_GREENS: CardRecord = CardRecord::new(
             "Create a 2/2 green Bird creature token with \"Whenever a land \
              you control enters, this token gets +1/+0 until end of \
              turn.\"",
-            EffectDef::create_creature_token(&["Bird"], &[ManaColor::Green], 2, 2).with_abilities(
-                &[AbilityDef::triggered(
-                    "Whenever a land you control enters, this token gets +1/+0 \
-                     until end of turn.",
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]),
-                        None,
-                        Some(ZoneKind::Battlefield),
-                    ),
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                )],
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(BIRD_TOKEN))),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{6}{G}"))]),
     ]),
@@ -6119,27 +6110,7 @@ pub(in crate::card::sets) static SIDEQUEST_RAISE_A_CHOCOBO: CardRecord = CardRec
                     "When this enchantment enters, create a 2/2 green Bird \
                      creature token with \"Whenever a land you control enters, \
                      this token gets +1/+0 until end of turn.\"",
-                    EffectDef::create_creature_token(&["Bird"], &[ManaColor::Green], 2, 2)
-                        .with_abilities(&[AbilityDef::triggered(
-                            "Whenever a land you control enters, this token gets +1/+0 \
-                             until end of turn.",
-                            TriggerEventDef::zone_changed(
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                                ]),
-                                None,
-                                Some(ZoneKind::Battlefield),
-                            ),
-                            EffectDef::Apply {
-                                recipient: EffectRecipientDef::Source,
-                                effect: AppliedEffectDef::modify_power_toughness(
-                                    ValueDef::Constant(1),
-                                    ValueDef::Constant(0),
-                                ),
-                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                            },
-                        )]),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(BIRD_TOKEN))),
                 ),
                 AbilityDef::triggered_if(
                     "At the beginning of your first main phase, if you control \
@@ -7119,8 +7090,10 @@ pub(in crate::card::sets) static IGNIS_SCIENTIA: CardRecord = CardRecord::new(
                                 ),
                             },
                         ),
-                        then: &EffectDef::create_token(tokens::food())
-                            .with_count(ValueDef::Constant(1)),
+                        then: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     },
                 },
             ),
@@ -7377,7 +7350,7 @@ pub(in crate::card::sets) static RINOA_HEARTILLY: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When Rinoa Heartilly enters, create Angelo, a legendary 1/1 \
              green and white Dog creature token.",
-            EffectDef::create_token(
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                 TokenCharacteristics::creature(
                     &["Dog"],
                     &[ManaColor::Green, ManaColor::White],
@@ -7386,7 +7359,7 @@ pub(in crate::card::sets) static RINOA_HEARTILLY: CardRecord = CardRecord::new(
                 )
                 .with_name("Angelo")
                 .with_supertype(CardSupertype::Legendary),
-            ),
+            ))),
         ),
         AbilityDef::triggered_with_targets(
             "Angelo Cannon — Whenever Rinoa Heartilly attacks, another \
@@ -7448,7 +7421,7 @@ pub(in crate::card::sets) static RUFUS_SHINRA: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::Equal,
                 right: ValueDef::Constant(0),
             }),
-            EffectDef::create_token(
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                 TokenCharacteristics::creature(
                     &["Dog"],
                     &[ManaColor::White, ManaColor::Black],
@@ -7457,7 +7430,7 @@ pub(in crate::card::sets) static RUFUS_SHINRA: CardRecord = CardRecord::new(
                 )
                 .with_name("Darkstar")
                 .with_supertype(CardSupertype::Legendary),
-            ),
+            ))),
         )]),
 );
 
@@ -8079,7 +8052,10 @@ pub(in crate::card::sets) static MAGIC_POT: CardRecord = CardRecord::new(
                 "When this creature dies, create a Treasure token. (It's an \
                  artifact with \"{T}, Sacrifice this token: Add one mana of \
                  any color.\")",
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "{2}, {T}: Exile target card from a graveyard.",
@@ -8599,8 +8575,10 @@ pub(in crate::card::sets) static THE_GOLD_SAUCER: CardRecord = CardRecord::new(
              token.",
             &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             EffectDef::FlipCoin {
-                on_win: &EffectDef::create_token(tokens::treasure())
-                    .with_count(ValueDef::Constant(1)),
+                on_win: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
                 on_loss: &EffectDef::None,
             },
         ),
@@ -8792,40 +8770,42 @@ pub(in crate::card::sets) static LINDBLUM_INDUSTRIAL_REGENCY: CardRecord = CardR
                         "Create a 0/1 black Wizard creature token with \"Whenever you \
                          cast a noncreature spell, this token deals 1 damage to each \
                          opponent.\"",
-                        EffectDef::create_creature_token(
-                            &const { ["Wizard"] },
-                            &const { [ManaColor::Black] },
-                            0,
-                            1,
-                        )
-                        .with_abilities(
-                            &const {
-                                [AbilityDef::triggered(
-                                    "Whenever you cast a noncreature spell, this token deals 1 \
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::creature(
+                                &const { ["Wizard"] },
+                                &const { [ManaColor::Black] },
+                                0,
+                                1,
+                            )
+                            .with_abilities(
+                                &const {
+                                    [AbilityDef::triggered(
+                                        "Whenever you cast a noncreature spell, this token deals 1 \
                                      damage to each opponent.",
-                                    TriggerEventDef::spell_cast(ObjectPredicateDef::All(
-                                        &const {
-                                            [
-                                                ObjectPredicateDef::Not(
-                                                    &const {
-                                                        ObjectPredicateDef::HasType(
-                                                            CardType::Creature,
-                                                        )
-                                                    },
-                                                ),
-                                                ObjectPredicateDef::ControlledBy(
-                                                    PlayerRelation::You,
-                                                ),
-                                            ]
-                                        },
-                                    )),
-                                    EffectDef::damage(
-                                        EffectRecipientDef::Opponent,
-                                        ValueDef::Constant(1),
-                                    ),
-                                )]
-                            },
-                        ),
+                                        TriggerEventDef::spell_cast(ObjectPredicateDef::All(
+                                            &const {
+                                                [
+                                                    ObjectPredicateDef::Not(
+                                                        &const {
+                                                            ObjectPredicateDef::HasType(
+                                                                CardType::Creature,
+                                                            )
+                                                        },
+                                                    ),
+                                                    ObjectPredicateDef::ControlledBy(
+                                                        PlayerRelation::You,
+                                                    ),
+                                                ]
+                                            },
+                                        )),
+                                        EffectDef::damage(
+                                            EffectRecipientDef::Opponent,
+                                            ValueDef::Constant(1),
+                                        ),
+                                    )]
+                                },
+                            ),
+                        ))),
                     )
                     .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
                 )
@@ -9017,7 +8997,13 @@ pub(in crate::card::sets) static ZANARKAND_ANCIENT_METROPOLIS: CardRecord = Card
                         "Create a 1/1 colorless Hero creature token. Put a +1/+1 \
                          counter on it for each land you control. (Then exile this \
                          card. You may play the land later from exile.)",
-                        EffectDef::create_creature_token(&const { ["Hero"] }, &const { [] }, 1, 1)
+                        EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                                &const { ["Hero"] },
+                                &const { [] },
+                                1,
+                                1,
+                            )))
                             .with_created_tokens(CreatedTokensDef {
                                 binding: crate::Binding!("hero"),
                                 then: &const {
@@ -9038,6 +9024,7 @@ pub(in crate::card::sets) static ZANARKAND_ANCIENT_METROPOLIS: CardRecord = Card
                                     }
                                 },
                             }),
+                        ),
                     )
                     .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
                 )

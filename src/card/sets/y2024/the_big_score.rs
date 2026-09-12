@@ -24,8 +24,8 @@ use crate::card::ChooseForEachPlayerDef;
 use crate::card::CollectionInspectionDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
-use crate::card::CreateTokenDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageEventMatcherDef;
@@ -49,10 +49,10 @@ use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::RandomizeObjectOrderDef;
 use crate::card::ResolvedEffectDurationDef;
-use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -60,7 +60,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -80,9 +79,14 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
-const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
-    CardArt::new("7ec6f053-96f7-4e57-b2eb-4e7699a40a4f", "Monztre"),
-);
+const CLUE_TOKEN: TokenCharacteristics = crate::card::tokens::clue().with_art(CardArt::new(
+    "764a906c-8b27-4ffa-bdc3-7825c6919d3e",
+    "Clint Lockwood",
+));
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "280e3af6-7904-4214-8141-e145c48e2687",
+    "Patrik Hell",
+));
 
 // BIG 1 — Collector's Cage
 // Audit: unsupported — Needs counting distinct current powers among controlled creatures to gate the hideaway cast; sum/minimum/maximum scalar aggregates do not implement distinct-value cardinality.
@@ -115,7 +119,9 @@ pub(in crate::card::sets) static OLTEC_MATTERWEAVER: CardRecord = CardRecord::ne
             &[
                 AbilityDef::spell(
                     "Create a 1/1 colorless Gnome artifact creature token.",
-                    EffectDef::create_artifact_creature_token(&["Gnome"], &[], 1, 1),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::artifact_creature(&["Gnome"], &[], 1, 1),
+                    ))),
                 ),
                 AbilityDef::spell_with_targets(
                     "Create a token that's a copy of target artifact token you \
@@ -131,10 +137,10 @@ pub(in crate::card::sets) static OLTEC_MATTERWEAVER: CardRecord = CardRecord::ne
                             owner: None,
                         },
                     )],
-                    EffectDef::create_token_from_copy(&TokenCopyDef {
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                         object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         exceptions: CopyExceptionsDef::NONE,
-                    }),
+                    }))),
                 ),
             ],
         ),
@@ -179,12 +185,14 @@ pub(in crate::card::sets) static ESOTERIC_DUPLICATOR: CardRecord = CardRecord::n
                                     step: TurnStepDef::End,
                                     player: PlayerRelation::Any,
                                 },
-                                EffectDef::create_token_from_copy(&TokenCopyDef {
-                                    object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        crate::Binding!("artifact"),
-                                    )),
-                                    exceptions: CopyExceptionsDef::NONE,
-                                }),
+                                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                                    &TokenCopyDef {
+                                        object: &EffectRecipientDef::objects(
+                                            ObjectSetDef::Binding(crate::Binding!("artifact")),
+                                        ),
+                                        exceptions: CopyExceptionsDef::NONE,
+                                    },
+                                ))),
                             ),
                         )),
                     )),
@@ -225,26 +233,28 @@ pub(in crate::card::sets) static SIMULACRUM_SYNTHESIZER: CardRecord = CardRecord
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_artifact_creature_token(&["Construct"], &[], 0, 0).with_abilities(&[
-                AbilityDef::static_ability(
-                    "This token gets +1/+1 for each artifact you control.",
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                                ObjectPredicateDef::HasType(CardType::Artifact),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            )),
-                            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                                ObjectPredicateDef::HasType(CardType::Artifact),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            )),
-                        ),
-                    },
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::artifact_creature(&["Construct"], &[], 0, 0).with_abilities(
+                    &[AbilityDef::static_ability(
+                        "This token gets +1/+1 for each artifact you control.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Artifact),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                )),
+                                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Artifact),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                )),
+                            ),
+                        },
+                    )],
                 ),
-            ]),
+            ))),
         ),
     ]),
 );
@@ -274,9 +284,13 @@ pub(in crate::card::sets) static GREED_S_GAMBIT: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(6),
                 },
-                EffectDef::create_creature_token(&["Bat"], &[ManaColor::Black], 2, 1)
-                    .with_count(ValueDef::Constant(3))
-                    .with_abilities(&[abilities::flying()]),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Bat"], &[ManaColor::Black], 2, 1)
+                            .with_abilities(&[abilities::flying()]),
+                    ))
+                    .with_count(ValueDef::Constant(3)),
+                ),
             ]),
         ),
         AbilityDef::triggered(
@@ -422,7 +436,10 @@ pub(in crate::card::sets) static HOSTILE_INVESTIGATOR: CardRecord = CardRecord::
                  (Create a Clue token. It's an artifact with \"{2}, Sacrifice \
                  this token: Draw a card.\")",
                 TriggerEventDef::DiscardedCards(PlayerRelation::Any),
-                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             )
             .triggering_at_most(1),
         ]),
@@ -508,33 +525,35 @@ pub(in crate::card::sets) static MOLTEN_DUPLICATION: CardRecord = CardRecord::ne
                 owner: None,
             },
         )],
-        EffectDef::create_token_from_copy(&TokenCopyDef {
-            object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            exceptions: CopyExceptionsDef::NONE
-                .with_added_types(CardTypeSet::single(CardType::Artifact)),
-        })
-        .with_created_tokens(CreatedTokensDef {
-            binding: crate::Binding!("copy"),
-            then: &EffectDef::Sequence(&[
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                        "copy"
-                    ))),
-                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                    "At the beginning of the next end step, sacrifice this permanent.",
-                    TriggerEventDef::StepBegins {
-                        step: TurnStepDef::End,
-                        player: PlayerRelation::Any,
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                exceptions: CopyExceptionsDef::NONE
+                    .with_added_types(CardTypeSet::single(CardType::Artifact)),
+            }))
+            .with_created_tokens(CreatedTokensDef {
+                binding: crate::Binding!("copy"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("copy"),
+                        )),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                     },
-                    EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        crate::Binding!("copy"),
+                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                        "At the beginning of the next end step, sacrifice this permanent.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("copy"),
+                        ))),
                     ))),
-                ))),
-            ]),
-        }),
+                ]),
+            }),
+        ),
     )]),
 );
 
@@ -600,7 +619,10 @@ pub(in crate::card::sets) static BRISTLEBUD_FARMER: CardRecord = CardRecord::new
             "When this creature enters, create two Food tokens. (They're \
              artifacts with \"{2}, {T}, Sacrifice this token: You gain 3 \
              life.\")",
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         ),
         AbilityDef::triggered(
             "Whenever this creature attacks, you may sacrifice a Food. If \
@@ -669,7 +691,9 @@ pub(in crate::card::sets) static SANDSTORM_SALVAGER: CardRecord = CardRecord::ne
         abilities::enters_trigger(
             "When this creature enters, create a 3/3 colorless Golem \
              artifact creature token.",
-            EffectDef::create_artifact_creature_token(&["Golem"], &[], 3, 3),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::artifact_creature(&["Golem"], &[], 3, 3),
+            ))),
         ),
         AbilityDef::activated(
             "{2}, {T}: Put a +1/+1 counter on each creature token you \
@@ -930,18 +954,22 @@ pub(in crate::card::sets) static NEXUS_OF_BECOMING: CardRecord = CardRecord::new
                         ZonePlacement::Top,
                     ),
                     binding: crate::Binding!("exiled"),
-                    then: &EffectDef::create_token_from_copy(&TokenCopyDef {
-                        object: &EffectRecipientDef::objects(
-                            ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
-                        ),
-                        exceptions: CopyExceptionsDef {
-                            base_power_toughness: Some((3, 3)),
-                            added_types: CardTypeSet::single(CardType::Artifact)
-                                .union(CardTypeSet::single(CardType::Creature)),
-                            added_creature_types: CreatureTypeSetDef::named(&["Golem"]),
-                            ..CopyExceptionsDef::NONE
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                        &TokenCopyDef {
+                            object: &EffectRecipientDef::objects(
+                                ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!(
+                                    "exiled"
+                                )),
+                            ),
+                            exceptions: CopyExceptionsDef {
+                                base_power_toughness: Some((3, 3)),
+                                added_types: CardTypeSet::single(CardType::Artifact)
+                                    .union(CardTypeSet::single(CardType::Creature)),
+                                added_creature_types: CreatureTypeSetDef::named(&["Golem"]),
+                                ..CopyExceptionsDef::NONE
+                            },
                         },
-                    }),
+                    ))),
                 },
             }),
         ]),
@@ -1520,11 +1548,13 @@ pub(in crate::card::sets) static VAULTBORN_TYRANT: CardRecord = CardRecord::new(
             &TriggerConditionDef::SourceMatches {
                 object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
             },
-            EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
-                object: &EffectRecipientDef::Source,
-                exceptions: CopyExceptionsDef::NONE
-                    .with_added_types(CardTypeSet::single(CardType::Artifact)),
-            }),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                &crate::card::TokenCopyDef {
+                    object: &EffectRecipientDef::Source,
+                    exceptions: CopyExceptionsDef::NONE
+                        .with_added_types(CardTypeSet::single(CardType::Artifact)),
+                },
+            ))),
         ),
     ]),
 );

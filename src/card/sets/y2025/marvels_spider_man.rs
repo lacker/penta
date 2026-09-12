@@ -19,6 +19,7 @@ use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -38,6 +39,7 @@ use crate::card::CostModificationDef;
 use crate::card::CostQuantityDef;
 use crate::card::CountConditionDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageAssignmentDef;
@@ -80,7 +82,9 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::SpellCastQueryDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -90,7 +94,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -117,6 +120,39 @@ pub const fn web_slinging(text: &'static str, costs: &'static [CostDef]) -> Abil
     .with_alternative_cost_binding(crate::Binding!("web-slinging"))
     .labeled(WEB_SLINGING)
 }
+
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "0fb2c5a4-859e-40ac-8091-7ba44f57b878",
+    "David Szabo",
+));
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("d52efeb3-661d-45e9-97c3-af167f889684", "Pablo Mendoza"),
+);
+
+const HUMAN_CITIZEN_TOKEN: TokenCharacteristics = TokenCharacteristics::creature(
+    &["Human", "Citizen"],
+    &[ManaColor::Green, ManaColor::White],
+    1,
+    1,
+)
+.with_art(CardArt::new(
+    "398fbcd8-fac7-4396-9c69-5c72695121a9",
+    "Bartek Fedyczak",
+));
+const SPIDER_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Spider"], &[ManaColor::Green], 2, 1)
+        .with_abilities(&[abilities::reach()])
+        .with_art(CardArt::new(
+            "4a40f6e1-3545-4503-af3e-f0acfb735e3a",
+            "Domenico Cava",
+        ));
+const ROBOT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Robot"], &[], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "15796c4b-6041-4e0a-bc4f-0518d165549e",
+            "Kevin Glint",
+        ));
 
 // SPM 1 — Anti-Venom, Horrifying Healer
 // Audit: unsupported — Needs a static damage-prevention replacement with an immediate counter-placement consequence using the amount actually prevented; prevention follow-ups currently support life gain, not counters.
@@ -195,7 +231,10 @@ pub(in crate::card::sets) static CITY_PIGEON: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 None,
             ),
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -287,13 +326,10 @@ pub(in crate::card::sets) static FRIENDLY_NEIGHBORHOOD: CardRecord = CardRecord:
             abilities::enters_trigger(
                 "When this Aura enters, create three 1/1 green and white Human \
                  Citizen creature tokens.",
-                EffectDef::create_creature_token(
-                    &["Human", "Citizen"],
-                    &[ManaColor::Green, ManaColor::White],
-                    1,
-                    1,
-                )
-                .with_count(ValueDef::Constant(3)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(HUMAN_CITIZEN_TOKEN))
+                        .with_count(ValueDef::Constant(3)),
+                ),
             ),
             AbilityDef::static_ability(
                 "Enchanted land has \"{1}, {T}: Target creature gets +1/+1 \
@@ -344,8 +380,7 @@ pub(in crate::card::sets) static ORIGIN_OF_SPIDER_MAN: CardRecord = CardRecord::
             abilities::saga_chapter(
                 1,
                 "I — Create a 2/1 green Spider creature token with reach.",
-                EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 2, 1)
-                    .with_abilities(&[abilities::reach()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SPIDER_TOKEN))),
             ),
             abilities::saga_chapter_with_targets(
                 2,
@@ -1186,13 +1221,13 @@ pub(in crate::card::sets) static IMPOSTOR_SYNDROME: CardRecord = CardRecord::new
             ]),
             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
         ])),
-        EffectDef::create_token_from_copy(&TokenCopyDef {
+        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
             object: &EffectRecipientDef::TriggeringObject,
             exceptions: CopyExceptionsDef {
                 removed_supertypes: &[CardSupertype::Legendary],
                 ..CopyExceptionsDef::NONE
             },
-        }),
+        }))),
     )]),
 );
 
@@ -1272,7 +1307,13 @@ pub(in crate::card::sets) static MYSTERIO_MASTER_OF_ILLUSION: CardRecord = CardR
             "When Mysterio enters, create a 3/3 blue Illusion Villain \
              creature token for each nontoken Villain you control. Exile \
              those tokens when Mysterio leaves the battlefield.",
-            EffectDef::create_creature_token(&["Illusion", "Villain"], &[ManaColor::Blue], 3, 3)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Illusion", "Villain"],
+                    &[ManaColor::Blue],
+                    3,
+                    3,
+                )))
                 .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
@@ -1301,6 +1342,7 @@ pub(in crate::card::sets) static MYSTERIO_MASTER_OF_ILLUSION: CardRecord = CardR
                         ),
                     )),
                 }),
+            ),
         )]),
 );
 
@@ -1362,9 +1404,10 @@ pub(in crate::card::sets) static ROBOTICS_MASTERY: CardRecord = CardRecord::new(
             abilities::enters_trigger(
                 "When this Aura enters, create two 1/1 colorless Robot \
                  artifact creature tokens with flying.",
-                EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
-                    .with_count(ValueDef::Constant(2))
-                    .with_abilities(&[abilities::flying()]),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
             ),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2.",
@@ -1740,7 +1783,10 @@ pub(in crate::card::sets) static COMMON_CROOK: CardRecord = CardRecord::new(
             "When this creature dies, create a Treasure token. (It's an \
              artifact with \"{T}, Sacrifice this token: Add one mana of \
              any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )]),
 );
 
@@ -3190,7 +3236,10 @@ pub(in crate::card::sets) static PICTURES_OF_SPIDER_MAN: CardRecord = CardRecord
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -3211,7 +3260,10 @@ pub(in crate::card::sets) static PROFESSIONAL_WRESTLER: CardRecord = CardRecord:
             "When this creature enters, create a Treasure token. (It's an \
              artifact with \"{T}, Sacrifice this token: Add one mana of \
              any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::static_ability(
             "This creature can't be blocked by more than one creature.",
@@ -3419,7 +3471,10 @@ pub(in crate::card::sets) static SPIDER_HAM_PETER_PORKER: CardRecord = CardRecor
                 "When Spider-Ham enters, create a Food token. (It's an \
                  artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
                  life.\")",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::static_ability(
                 "Animal May-Ham — Other Spiders, Boars, Bats, Bears, Birds, \
@@ -3570,9 +3625,10 @@ pub(in crate::card::sets) static SPIDERS_MAN_HEROIC_HORDE: CardRecord = CardReco
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(3),
                     },
-                    EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 2, 1)
-                        .with_count(ValueDef::Constant(2))
-                        .with_abilities(&[abilities::reach()]),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(SPIDER_TOKEN))
+                            .with_count(ValueDef::Constant(2)),
+                    ),
                 ]),
             ),
         ]),
@@ -3723,8 +3779,7 @@ pub(in crate::card::sets) static WALL_CRAWL: CardRecord = CardRecord::new(
              creature token with reach, then you gain 1 life for each \
              Spider you control.",
             EffectDef::Sequence(&[
-                EffectDef::create_creature_token(&["Spider"], &[ManaColor::Green], 2, 1)
-                    .with_abilities(&[abilities::reach()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SPIDER_TOKEN))),
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -4294,12 +4349,7 @@ pub(in crate::card::sets) static SILK_WEB_WEAVER: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
-                EffectDef::create_creature_token(
-                    &["Human", "Citizen"],
-                    &[ManaColor::Green, ManaColor::White],
-                    1,
-                    1,
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HUMAN_CITIZEN_TOKEN))),
             ),
             AbilityDef::activated(
                 "{3}{G}{W}: Creatures you control get +2/+2 and gain vigilance \
@@ -4399,12 +4449,7 @@ pub(in crate::card::sets) static SPIDER_GIRL_LEGACY_HERO: CardRecord = CardRecor
                     Some(ZoneKind::Battlefield),
                     None,
                 ),
-                EffectDef::create_creature_token(
-                    &["Human", "Citizen"],
-                    &[ManaColor::Green, ManaColor::White],
-                    1,
-                    1,
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HUMAN_CITIZEN_TOKEN))),
             ),
         ]),
 );
@@ -4911,7 +4956,10 @@ pub(in crate::card::sets) static HOT_DOG_CART: CardRecord = CardRecord::new(
             "When this artifact enters, create a Food token. (It's an \
              artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
              life.\")",
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
@@ -5057,12 +5105,7 @@ pub(in crate::card::sets) static NEWS_HELICOPTER: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 green and white Human \
              Citizen creature token.",
-            EffectDef::create_creature_token(
-                &["Human", "Citizen"],
-                &[ManaColor::Green, ManaColor::White],
-                1,
-                1,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HUMAN_CITIZEN_TOKEN))),
         ),
     ]),
 );
@@ -5207,10 +5250,11 @@ pub(in crate::card::sets) static SPIDER_SLAYER_HATRED_HONED: CardRecord = CardRe
                 "{6}, Exile this card from your graveyard: Create two tapped \
                  1/1 colorless Robot artifact creature tokens with flying.",
                 &[CostDef::Mana(mana_cost!("{6}")), CostDef::ExileSource],
-                EffectDef::create_artifact_creature_token(&["Robot"], &[], 1, 1)
-                    .with_count(ValueDef::Constant(2))
-                    .with_abilities(&[abilities::flying()])
-                    .entering_tapped(),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                        .with_count(ValueDef::Constant(2))
+                        .entering_tapped(),
+                ),
             )
             .with_source_zones(&[ZoneKind::Graveyard]),
         ]),

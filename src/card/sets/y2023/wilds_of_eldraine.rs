@@ -95,8 +95,8 @@ use crate::card::SpellResolutionDestinationDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -105,7 +105,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
@@ -385,6 +384,20 @@ fn adventure(record: &CardRecord, name: &'static str, alternate: CardRules) -> C
     .with_derived_spell_targets()
 }
 
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "ab4f83dd-94c0-4594-8e72-611eb76fa4e2",
+    "Ovidio Cartagena",
+));
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("73cbf189-a79b-4dca-8b29-33aef6306b5a", "Zezhou Chen"),
+);
+
+const HUMAN_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Human"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "50240867-3a3e-4a8d-9569-816ab4a3671a",
+        "Julia Griffin",
+    ));
+
 // WOE 1 — Archon of the Wild Rose
 // Audit: unsupported — Needs a host-side predicate for being enchanted by an Aura controlled by a particular player; Enchanted ignores the Aura controller and AttachedTo selects the Aura rather than its host.
 pub(in crate::card::sets) static ARCHON_OF_THE_WILD_ROSE: CardRecord = CardRecord::new(
@@ -649,7 +662,10 @@ color.\")",
                     PlayerRelation::You,
                 )),
             }),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{2}{W}: Choose another player. That player gains control of \
@@ -943,8 +959,10 @@ pub(in crate::card::sets) static HOPEFUL_VIGIL: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this enchantment enters, create a 2/2 white Knight \
 creature token with vigilance.",
-            EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2)
-                .with_abilities(&[abilities::vigilance()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Knight"], &[ManaColor::White], 2, 2)
+                    .with_abilities(&[abilities::vigilance()]),
+            ))),
         ),
         abilities::dies_trigger(
             "When this enchantment is put into a graveyard from the \
@@ -1014,8 +1032,10 @@ with flying.",
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            EffectDef::create_creature_token(&["Bird"], &[ManaColor::White], 1, 1)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Bird"], &[ManaColor::White], 1, 1)
+                    .with_abilities(&[abilities::flying()]),
+            ))),
         ),
     ]),
 );
@@ -1494,10 +1514,11 @@ pub(in crate::card::sets) static STROKE_OF_MIDNIGHT: CardRecord = CardRecord::ne
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1)
-                .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                    TargetIndex::PRIMARY,
-                ))),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(HUMAN_TOKEN)).with_controller(
+                    PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ),
+            ),
         ]),
     )]),
 );
@@ -1537,7 +1558,9 @@ pub(in crate::card::sets) static THREE_BLIND_MICE: CardRecord = CardRecord::new(
             abilities::saga_chapter(
                 1,
                 "I — Create a 1/1 white Mouse creature token.",
-                EffectDef::create_creature_token(&["Mouse"], &[ManaColor::White], 1, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Mouse"], &[ManaColor::White], 1, 1),
+                ))),
             ),
             AbilityDef::triggered_with_targets(
                 "II, III — Create a token that's a copy of target token you \
@@ -1574,10 +1597,10 @@ control.",
                         owner: None,
                     },
                 )],
-                EffectDef::create_token_from_copy(&TokenCopyDef {
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                     object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     exceptions: CopyExceptionsDef::NONE,
-                }),
+                }))),
             ),
             abilities::saga_chapter(
                 4,
@@ -2194,20 +2217,21 @@ with flying and \"This token can block only creatures with \
 flying.\"",
         EffectDef::Sequence(&[
             abilities::draw_cards(ValueDef::Constant(3)),
-            EffectDef::create_creature_token(&["Faerie"], &[ManaColor::Blue], 1, 1).with_abilities(
-                &[
-                    abilities::flying(),
-                    AbilityDef::static_ability(
-                        "This token can block only creatures with flying.",
-                        EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
-                                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-                            )),
-                        },
-                    ),
-                ],
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Faerie"], &[ManaColor::Blue], 1, 1)
+                    .with_abilities(&[
+                        abilities::flying(),
+                        AbilityDef::static_ability(
+                            "This token can block only creatures with flying.",
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                )),
+                            },
+                        ),
+                    ]),
+            ))),
         ]),
     )]),
 );
@@ -3306,7 +3330,10 @@ your turn, create a Food token. (It's an artifact with \"{2}, \
             },
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
-                then: &EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                then: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             },
         ]),
     )]),
@@ -3426,7 +3453,10 @@ gained this turn.",
                 AbilityDef::spell(
                     "Create a Food token. (Then exile this card. You may cast the \
 creature later from exile.)",
-                    EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
             ),
@@ -3599,7 +3629,9 @@ Rat creature token with \"This token can't block.\"",
                     step: TurnStepDef::BeginningOfCombat,
                     player: PlayerRelation::You,
                 },
-                DEFENSELESS_RAT_TOKEN,
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    DEFENSELESS_RAT_TOKEN,
+                ))),
             ),
         ]),
 );
@@ -3676,7 +3708,9 @@ pub(in crate::card::sets) static LORD_SKITTER_S_BUTCHER: CardRecord = CardRecord
                 AbilityDef::spell(
                     "Create a 1/1 black Rat creature token with \"This token can't \
 block.\"",
-                    DEFENSELESS_RAT_TOKEN,
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        DEFENSELESS_RAT_TOKEN,
+                    ))),
                 ),
                 AbilityDef::spell(
                     "You may sacrifice another creature. If you do, scry 2, then \
@@ -3721,7 +3755,10 @@ pub(in crate::card::sets) static MINTSTROSITY: CardRecord = CardRecord::new(
             "When this creature dies, create a Food token. (It's an \
 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
 life.\")",
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -3862,7 +3899,9 @@ block.\"",
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            DEFENSELESS_RAT_TOKEN,
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                DEFENSELESS_RAT_TOKEN,
+            ))),
         ]),
     )]),
 );
@@ -3937,7 +3976,10 @@ pub(in crate::card::sets) static SCREAM_PUFF: CardRecord = CardRecord::new(
 create a Food token. (It's an artifact with \"{2}, {T}, \
 Sacrifice this token: You gain 3 life.\")",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -4083,7 +4125,10 @@ pub(in crate::card::sets) static SWEETTOOTH_WITCH: CardRecord = CardRecord::new(
             "When this creature enters, create a Food token. (It's an \
 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
 life.\")",
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{2}, Sacrifice a Food: Target player loses 2 life.",
@@ -4161,7 +4206,9 @@ you control, create a Wicked Role token attached to that Rat. \
 graveyard. Enchanted creature gets +1/+1. When this token is \
 put into a graveyard, each opponent loses 1 life.)",
             EffectDef::Sequence(&[
-                DEFENSELESS_RAT_TOKEN,
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    DEFENSELESS_RAT_TOKEN,
+                ))),
                 EffectDef::CreateAttachedToken {
                     token: WICKED_ROLE,
                     host: Some(EffectRecipientDef::objects(ObjectSetDef::Query(
@@ -4307,7 +4354,9 @@ with \"This token can't block.\"",
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            DEFENSELESS_RAT_TOKEN,
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                DEFENSELESS_RAT_TOKEN,
+            ))),
         ),
         AbilityDef::activated(
             "{1}{B}: This creature gains deathtouch until end of turn.",
@@ -4377,7 +4426,10 @@ value 2 or less.",
             abilities::saga_chapter(
                 2,
                 "II — Create a Food token.",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             abilities::saga_chapter_with_targets(
                 3,
@@ -4520,7 +4572,10 @@ pub(in crate::card::sets) static CHARMING_SCOUNDREL: CardRecord = CardRecord::ne
                 ),
                 AbilityDef::spell(
                     "Create a Treasure token.",
-                    EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 ),
                 AbilityDef::spell_with_targets(
                     "Create a Wicked Role token attached to target creature you \
@@ -4592,7 +4647,9 @@ pub(in crate::card::sets) static EDGEWALL_PACK: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 black Rat creature \
 token with \"This token can't block.\"",
-            DEFENSELESS_RAT_TOKEN,
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                DEFENSELESS_RAT_TOKEN,
+            ))),
         ),
     ]),
 );
@@ -4641,7 +4698,10 @@ token: Add one mana of any color.\")\nDraw a card.",
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(1),
             ),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
             abilities::draw_cards(ValueDef::Constant(1)),
         ]),
     )]),
@@ -4792,7 +4852,10 @@ pub(in crate::card::sets) static GRABBY_GIANT: CardRecord = CardRecord::new(
                 AbilityDef::spell(
                     "Create a Treasure token. (Then exile this card. You may cast \
 the creature later from exile.)",
-                    EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
             ),
@@ -4818,7 +4881,9 @@ pub(in crate::card::sets) static HARRIED_SPEARGUARD: CardRecord = CardRecord::ne
         abilities::dies_trigger(
             "When this creature dies, create a 1/1 black Rat creature \
 token with \"This token can't block.\"",
-            DEFENSELESS_RAT_TOKEN,
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                DEFENSELESS_RAT_TOKEN,
+            ))),
         ),
     ]),
 );
@@ -4903,7 +4968,10 @@ pub(in crate::card::sets) static KORVOLD_AND_THE_NOBLE_THIEF: CardRecord = CardR
                         },
                     },
                 ]),
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             abilities::saga_chapter_with_targets(
                 3,
@@ -5050,7 +5118,7 @@ CardRules::new_instant(mana_cost!("{2}{R}")).with_subtypes(&const {
 ).with_ability(AbilityDef::spell("Create two 1/1 black Rat creature tokens with \"This token \
 can't block.\" (Then exile this card. You may cast the \
 creature later from exile.)",
-DEFENSELESS_RAT_TOKEN.with_count(ValueDef::Constant(2))).with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure))));
+EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DEFENSELESS_RAT_TOKEN)).with_count(ValueDef::Constant(2)))).with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure))));
 
 // WOE 145 — Realm-Scorcher Hellkite
 pub(in crate::card::sets) static REALM_SCORCHER_HELLKITE: CardRecord = CardRecord::new(
@@ -5106,7 +5174,10 @@ pub(in crate::card::sets) static REDCAP_GUTTER_DWELLER: CardRecord = CardRecord:
             abilities::enters_trigger(
                 "When this creature enters, create two 1/1 black Rat creature \
 tokens with \"This token can't block.\"",
-                DEFENSELESS_RAT_TOKEN.with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(DEFENSELESS_RAT_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
             ),
             AbilityDef::triggered(
                 "At the beginning of your upkeep, you may sacrifice another \
@@ -5157,7 +5228,10 @@ pub(in crate::card::sets) static REDCAP_THIEF: CardRecord = CardRecord::new(
             "When this creature enters, create a Treasure token. (It's an \
 artifact with \"{T}, Sacrifice this token: Add one mana of \
 any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -5231,7 +5305,10 @@ pub(in crate::card::sets) static SONG_OF_TOTENTANZ: CardRecord = CardRecord::new
 can't block.\" Creatures you control gain haste until end of \
 turn.",
         EffectDef::Sequence(&[
-            DEFENSELESS_RAT_TOKEN.with_count(ValueDef::ChosenX),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(DEFENSELESS_RAT_TOKEN))
+                    .with_count(ValueDef::ChosenX),
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -5994,11 +6071,13 @@ tokens that are copies of it.",
                 &TriggerConditionDef::SourceMatches {
                     object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                 },
-                EffectDef::create_token_from_copy(&TokenCopyDef {
-                    object: &EffectRecipientDef::Source,
-                    exceptions: CopyExceptionsDef::NONE,
-                })
-                .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Source,
+                        exceptions: CopyExceptionsDef::NONE,
+                    }))
+                    .with_count(ValueDef::Constant(2)),
+                ),
             ),
             abilities::dies_trigger(
                 "When this creature dies, put a number of +1/+1 counters equal \
@@ -6074,7 +6153,10 @@ turn. Activate only once each turn.",
                 AbilityDef::spell(
                     "Create a Food token. (Then exile this card. You may cast the \
 creature later from exile.)",
-                    EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
             ),
@@ -6101,7 +6183,9 @@ pub(in crate::card::sets) static THE_HUNTSMAN_S_REDEMPTION: CardRecord = CardRec
             abilities::saga_chapter(
                 1,
                 "I — Create a 3/3 green Beast creature token.",
-                EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Beast"], &[ManaColor::Green], 3, 3),
+                ))),
             ),
             abilities::saga_chapter(
                 2,
@@ -6203,7 +6287,10 @@ pub(in crate::card::sets) static NIGHT_OF_THE_SWEETS_REVENGE: CardRecord = CardR
             "When this enchantment enters, create a Food token. (It's an \
 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
 life.\")",
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::static_ability(
             "Foods you control have \"{T}: Add {G}.\"",
@@ -6346,11 +6433,14 @@ battlefield tapped, then shuffle.",
             ),
             AbilityDef::spell(
                 "Create a 1/1 white Human creature token.",
-                EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HUMAN_TOKEN))),
             ),
             AbilityDef::spell(
                 "Create a Food token.",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ],
     )
@@ -6428,7 +6518,10 @@ Sacrifice this token: You gain 3 life.\")",
                 ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(4)),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -6465,7 +6558,10 @@ with flying. Create a Food token. (It's an artifact with \
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -6691,7 +6787,10 @@ pub(in crate::card::sets) static TOUGH_COOKIE: CardRecord = CardRecord::new(
                 "When this creature enters, create a Food token. (It's an \
 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
 life.\")",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "{2}{G}: Until end of turn, target noncreature artifact you \
@@ -6837,12 +6936,15 @@ pub(in crate::card::sets) static WELCOME_TO_SWEETTOOTH: CardRecord = CardRecord:
             abilities::saga_chapter(
                 1,
                 "I — Create a 1/1 white Human creature token.",
-                EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(HUMAN_TOKEN))),
             ),
             abilities::saga_chapter(
                 2,
                 "II — Create a Food token.",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             abilities::saga_chapter_with_targets(
                 3,
@@ -6938,7 +7040,7 @@ Reflection in addition to its other types, and has haste.",
                         owner: None,
                     },
                 )],
-                EffectDef::create_token_from_copy(&TokenCopyDef {
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                     object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     exceptions: CopyExceptionsDef {
                         removed_supertypes: &[CardSupertype::Legendary],
@@ -6946,7 +7048,7 @@ Reflection in addition to its other types, and has haste.",
                         added_abilities: &[CopyAbilityDef::Ability(&abilities::haste())],
                         ..CopyExceptionsDef::NONE
                     },
-                }),
+                }))),
             ),
             abilities::saga_chapter(
                 3,
@@ -7052,7 +7154,10 @@ pub(in crate::card::sets) static GRETA_SWEETTOOTH_SCOURGE: CardRecord = CardReco
             abilities::enters_trigger(
                 "When Greta enters, create a Food token. (It's an artifact \
 with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "{G}, Sacrifice a Food: Put a +1/+1 counter on target \
@@ -7392,7 +7497,9 @@ can't block.\"",
                     Some(ZoneKind::Battlefield),
                     Some(ZoneKind::Graveyard),
                 ),
-                DEFENSELESS_RAT_TOKEN,
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    DEFENSELESS_RAT_TOKEN,
+                ))),
             ),
             AbilityDef::activated_with_targets(
                 "{1}{B}: Target attacking Rat you control gains deathtouch \
@@ -7471,35 +7578,41 @@ a sorcery.",
                     owner: None,
                 },
             )],
-            EffectDef::create_token_from_copy(&TokenCopyDef {
-                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                exceptions: CopyExceptionsDef {
-                    removed_supertypes: &[CardSupertype::Legendary],
-                    ..CopyExceptionsDef::NONE
-                },
-            })
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("copy"),
-                then: &EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
-                        objects: &ObjectSetDef::MatchingBinding {
-                            binding: crate::Binding!("copy"),
-                            object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Aura")),
-                        },
-                        predicate: ObjectSetPredicateDef {
-                            filter: None,
-                            comparison: ComparisonDef::GreaterOrEqual,
-                            amount: 1,
-                        },
-                    }),
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::Untap {
-                            object: EffectRecipientDef::Source,
-                        },
-                        abilities::scry(ValueDef::Constant(2)),
-                    ]),
-                },
-            }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    exceptions: CopyExceptionsDef {
+                        removed_supertypes: &[CardSupertype::Legendary],
+                        ..CopyExceptionsDef::NONE
+                    },
+                }))
+                .with_created_tokens(CreatedTokensDef {
+                    binding: crate::Binding!("copy"),
+                    then: &EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ObjectSetCount(
+                            &ObjectSetCountConditionDef {
+                                objects: &ObjectSetDef::MatchingBinding {
+                                    binding: crate::Binding!("copy"),
+                                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                                        "Aura",
+                                    )),
+                                },
+                                predicate: ObjectSetPredicateDef {
+                                    filter: None,
+                                    comparison: ComparisonDef::GreaterOrEqual,
+                                    amount: 1,
+                                },
+                            },
+                        ),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::Untap {
+                                object: EffectRecipientDef::Source,
+                            },
+                            abilities::scry(ValueDef::Constant(2)),
+                        ]),
+                    },
+                }),
+            ),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed)]),
 );
@@ -7647,14 +7760,18 @@ exile.)",
                     EffectDef::Sequence(
                         &const {
                             [
-                                EffectDef::create_creature_token(
-                                    &const { ["Human"] },
-                                    &const { [ManaColor::White] },
-                                    1,
-                                    1,
+                                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                                    TokenCharacteristics::creature(
+                                        &const { ["Human"] },
+                                        &const { [ManaColor::White] },
+                                        1,
+                                        1,
+                                    ),
+                                ))),
+                                EffectDef::CreateToken(
+                                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                                        .with_count(ValueDef::Constant(1)),
                                 ),
-                                EffectDef::create_token(tokens::food())
-                                    .with_count(ValueDef::Constant(1)),
                             ]
                         },
                     ),
@@ -7799,7 +7916,10 @@ pub(in crate::card::sets) static GINGERBREAD_HUNTER: CardRecord = CardRecord::ne
                 "When this creature enters, create a Food token. (It's an \
 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
 life.\")",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             )]
         },
     ),
@@ -7889,14 +8009,18 @@ and gain haste until end of turn.",
                     "Create two 2/2 white Knight creature tokens with vigilance. \
 (Then exile this card. You may cast the creature later from \
 exile.)",
-                    EffectDef::create_creature_token(
-                        &const { ["Knight"] },
-                        &const { [ManaColor::White] },
-                        2,
-                        2,
-                    )
-                    .with_abilities(&const { [abilities::vigilance()] })
-                    .with_count(ValueDef::Constant(2)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::creature(
+                                &const { ["Knight"] },
+                                &const { [ManaColor::White] },
+                                2,
+                                2,
+                            )
+                            .with_abilities(&const { [abilities::vigilance()] }),
+                        ))
+                        .with_count(ValueDef::Constant(2)),
+                    ),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
             ),
@@ -8658,7 +8782,10 @@ Add one mana of any color.\")",
                 selection: DiscardSelectionDef::RecipientChooses,
                 then: None,
             },
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -9016,7 +9143,10 @@ to one target card from a graveyard.",
                 })
             }],
             EffectDef::Sequence(&[
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
                 EffectDef::move_to_zone(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ZoneKind::Exile,
@@ -9668,7 +9798,10 @@ pub(in crate::card::sets) static EXPERIMENTAL_CONFECTIONER: CardRecord = CardRec
             "When this creature enters, create a Food token. (It's an \
 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
 life.\")",
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )])
         .with_ability(AbilityDef::triggered(
             "Whenever you sacrifice a Food, create a 1/1 black Rat \
@@ -9677,7 +9810,9 @@ creature token with \"This token can't block.\"",
                 object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Food")),
                 player: PlayerRelation::You,
             },
-            DEFENSELESS_RAT_TOKEN,
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                DEFENSELESS_RAT_TOKEN,
+            ))),
         )),
 );
 
@@ -9741,7 +9876,10 @@ Sacrifice this token: You gain 3 life.\")",
                     player: PlayerRelation::Any,
                 },
                 &TriggerConditionDef::CreatureDiedThisTurn,
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::activated(
                 "{2}{B}, Sacrifice another creature or artifact: Old \
@@ -9872,7 +10010,10 @@ gets +2/+0 until end of turn.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
             ]),
             EffectDef::Sequence(&[
-                DEFENSELESS_RAT_TOKEN.with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(DEFENSELESS_RAT_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::ObjectCount {
                         query: ObjectQueryDef::matching(
@@ -9915,7 +10056,10 @@ pub(in crate::card::sets) static INTREPID_TRUFFLESNOUT: CardRecord = CardRecord:
 (It's an artifact with \"{2}, {T}, Sacrifice this token: You \
 gain 3 life.\")",
                 TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 1, Some(1)),
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             )]
         },
     ),
@@ -9960,7 +10104,10 @@ pub(in crate::card::sets) static PROVISIONS_MERCHANT: CardRecord = CardRecord::n
                 "When this creature enters, create a Food token. (It's an \
 artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
 life.\")",
-                EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
             AbilityDef::triggered(
                 "Whenever this creature attacks, you may sacrifice a Food. If \

@@ -15,6 +15,7 @@ use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BindObjectsDef;
+use crate::card::CardArt;
 use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
@@ -32,8 +33,8 @@ use crate::card::CopyExceptionsDef;
 use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
-use crate::card::CreateTokenDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DiscardFollowUpDef;
@@ -59,8 +60,6 @@ use crate::card::PayOrDef;
 use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
-use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::PlayerRuleDef;
 use crate::card::PlayerSetDef;
 use crate::card::RandomizeObjectOrderDef;
@@ -74,7 +73,9 @@ use crate::card::StackTargetAggregationDef;
 use crate::card::StackTargetFilterDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -101,6 +102,47 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const SPIRIT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Spirit"], &[ManaColor::Red, ManaColor::White], 2, 2)
+        .with_art(CardArt::new(
+            "877f7ddb-ed70-41a0-b845-d9bf8ac65f9b",
+            "Marco Gorlei",
+        ));
+const INKLING_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Inkling"], &[ManaColor::White, ManaColor::Black], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "bab52920-9d67-4cd4-9015-6e645ff9764f",
+            "Billy Christian",
+        ));
+const FRACTAL_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Fractal"], &[ManaColor::Green, ManaColor::Blue], 0, 0)
+        .with_art(CardArt::new(
+            "de564776-9d88-4533-8717-842eecdd0594",
+            "Abz J Harding",
+        ));
+const ELEMENTAL_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Elemental"], &[ManaColor::Blue, ManaColor::Red], 3, 3)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "57b98846-85e3-47c7-a903-29953d0b0e8a",
+            "Andrew Mar",
+        ));
+const PEST_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Pest"], &[ManaColor::Black, ManaColor::Green], 1, 1)
+        .with_abilities(&[AbilityDef::triggered(
+            "Whenever this token attacks, you gain 1 life.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        )])
+        .with_art(CardArt::new(
+            "ba854032-6ad2-4654-990a-64006e7f92fd",
+            "Oriana Menendez",
+        ));
 
 // SOS 1 — The Dawning Archaic
 pub(in crate::card::sets) static THE_DAWNING_ARCHAIC: CardRecord = CardRecord::new(
@@ -246,13 +288,10 @@ pub(in crate::card::sets) static ANTIQUITIES_ON_THE_LOOSE: CardRecord = CardReco
              this spell was cast from anywhere other than your hand, put a \
              +1/+1 counter on each Spirit you control.",
             EffectDef::Sequence(&[
-                EffectDef::create_creature_token(
-                    &["Spirit"],
-                    &[ManaColor::Red, ManaColor::White],
-                    2,
-                    2,
-                )
-                .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(SPIRIT_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::All(&[
                         TriggerConditionDef::SourceWasCast,
@@ -420,13 +459,7 @@ pub(in crate::card::sets) static EAGER_GLYPHMAGE: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 white and black \
              Inkling creature token with flying.",
-            EffectDef::create_creature_token(
-                &["Inkling"],
-                &[ManaColor::White, ManaColor::Black],
-                1,
-                1,
-            )
-            .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(INKLING_TOKEN))),
         ),
     ]),
 );
@@ -549,12 +582,7 @@ pub(in crate::card::sets) static GROUP_PROJECT: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::spell(
             "Create a 2/2 red and white Spirit creature token.",
-            EffectDef::create_creature_token(
-                &["Spirit"],
-                &[ManaColor::Red, ManaColor::White],
-                2,
-                2,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SPIRIT_TOKEN))),
         ),
         abilities::flashback(&[CostDef::TapPermanents {
             object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -580,16 +608,11 @@ pub(in crate::card::sets) static HARSH_ANNOTATION: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::create_creature_token(
-                &["Inkling"],
-                &[ManaColor::White, ManaColor::Black],
-                1,
-                1,
-            )
-            .with_abilities(&[abilities::flying()])
-            .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                TargetIndex::PRIMARY,
-            ))),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(INKLING_TOKEN)).with_controller(
+                    PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ),
+            ),
         ]),
     )]),
 );
@@ -626,13 +649,7 @@ pub(in crate::card::sets) static INFORMED_INKWRIGHT: CardRecord = CardRecord::ne
                 ]),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::create_creature_token(
-                &["Inkling"],
-                &[ManaColor::White, ManaColor::Black],
-                1,
-                1,
-            )
-            .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(INKLING_TOKEN))),
         ),
     ]),
 );
@@ -1335,17 +1352,20 @@ pub(in crate::card::sets) static FRACTAL_ANOMALY: CardRecord = CardRecord::new(
         "Create a 0/0 green and blue Fractal creature token and put X \
          +1/+1 counters on it, where X is the number of cards you've \
          drawn this turn.",
-        EffectDef::create_creature_token(&["Fractal"], &[ManaColor::Green, ManaColor::Blue], 0, 0)
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("fractals"),
-                then: &EffectDef::AddCounters {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                        "fractals"
-                    ))),
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::CardsDrawnThisTurn(PlayerRelation::You),
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(FRACTAL_TOKEN)).with_created_tokens(
+                CreatedTokensDef {
+                    binding: crate::Binding!("fractals"),
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("fractals"),
+                        )),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::CardsDrawnThisTurn(PlayerRelation::You),
+                    },
                 },
-            }),
+            ),
+        ),
     )]),
 );
 
@@ -1531,13 +1551,7 @@ pub(in crate::card::sets) static MUSE_S_ENCOURAGEMENT: CardRecord = CardRecord::
          library, then put any number of them into your graveyard and \
          the rest on top of your library in any order.)",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(
-                &["Elemental"],
-                &[ManaColor::Blue, ManaColor::Red],
-                3,
-                3,
-            )
-            .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELEMENTAL_TOKEN))),
             abilities::surveil(ValueDef::Constant(2)),
         ]),
     )]),
@@ -1912,14 +1926,10 @@ pub(in crate::card::sets) static ETERNAL_STUDENT: CardRecord = CardRecord::new(
             "{1}{B}, Exile this card from your graveyard: Create two 1/1 \
              white and black Inkling creature tokens with flying.",
             &[CostDef::Mana(mana_cost!("{1}{B}")), CostDef::ExileSource],
-            EffectDef::create_creature_token(
-                &["Inkling"],
-                &[ManaColor::White, ManaColor::Black],
-                1,
-                1,
-            )
-            .with_count(ValueDef::Constant(2))
-            .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(INKLING_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
     ]),
@@ -2291,20 +2301,7 @@ pub(in crate::card::sets) static SEND_IN_THE_PEST: CardRecord = CardRecord::new(
                 selection: DiscardSelectionDef::RecipientChooses,
                 then: None,
             },
-            EffectDef::create_creature_token(
-                &["Pest"],
-                &[ManaColor::Black, ManaColor::Green],
-                1,
-                1,
-            )
-            .with_abilities(&[AbilityDef::triggered(
-                "Whenever this token attacks, you gain 1 life.",
-                TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                EffectDef::GainLife {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
-            )]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(PEST_TOKEN))),
         ]),
     )]),
 );
@@ -2514,23 +2511,20 @@ pub(in crate::card::sets) static ARTISTIC_PROCESS: CardRecord = CardRecord::new(
             AbilityDef::spell(
                 "Create a 3/3 blue and red Elemental creature token with \
                  flying. It gains haste until end of turn.",
-                EffectDef::create_creature_token(
-                    &["Elemental"],
-                    &[ManaColor::Blue, ManaColor::Red],
-                    3,
-                    3,
-                )
-                .with_abilities(&[abilities::flying()])
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("elementals"),
-                    then: &EffectDef::Apply {
-                        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("elementals"),
-                        )),
-                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                }),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ELEMENTAL_TOKEN)).with_created_tokens(
+                        CreatedTokensDef {
+                            binding: crate::Binding!("elementals"),
+                            then: &EffectDef::Apply {
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("elementals"),
+                                )),
+                                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        },
+                    ),
+                ),
             ),
         ],
     )]),
@@ -2741,12 +2735,7 @@ pub(in crate::card::sets) static LIVING_HISTORY: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this enchantment enters, create a 2/2 red and white \
              Spirit creature token.",
-            EffectDef::create_creature_token(
-                &["Spirit"],
-                &[ManaColor::Red, ManaColor::White],
-                2,
-                2,
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SPIRIT_TOKEN))),
         ),
         AbilityDef::triggered_if_with_targets(
             "Whenever you attack, if a card left your graveyard this turn, \
@@ -3009,22 +2998,20 @@ pub(in crate::card::sets) static ADDITIVE_EVOLUTION: CardRecord = CardRecord::ne
         abilities::enters_trigger(
             "When this enchantment enters, create a 0/0 green and blue \
              Fractal creature token. Put three +1/+1 counters on it.",
-            EffectDef::create_creature_token(
-                &["Fractal"],
-                &[ManaColor::Green, ManaColor::Blue],
-                0,
-                0,
-            )
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("fractals"),
-                then: &EffectDef::AddCounters {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                        "fractals"
-                    ))),
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::Constant(3),
-                },
-            }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FRACTAL_TOKEN)).with_created_tokens(
+                    CreatedTokensDef {
+                        binding: crate::Binding!("fractals"),
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("fractals"),
+                            )),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(3),
+                        },
+                    },
+                ),
+            ),
         ),
         AbilityDef::triggered_with_targets(
             "At the beginning of combat on your turn, put a +1/+1 counter \
@@ -3287,26 +3274,24 @@ pub(in crate::card::sets) static EMIL_VASTLANDS_ROAMER: CardRecord = CardRecord:
                  token. Put X +1/+1 counters on it, where X is the number of \
                  differently named lands you control.",
                 &[CostDef::Mana(mana_cost!("{4}{G}")), CostDef::TapSource],
-                EffectDef::create_creature_token(
-                    &["Fractal"],
-                    &[ManaColor::Green, ManaColor::Blue],
-                    0,
-                    0,
-                )
-                .with_created_tokens(CreatedTokensDef {
-                    binding: crate::Binding!("fractals"),
-                    then: &EffectDef::AddCounters {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("fractals"),
-                        )),
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::DistinctNamesAmong(&ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        )),
-                    },
-                }),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(FRACTAL_TOKEN)).with_created_tokens(
+                        CreatedTokensDef {
+                            binding: crate::Binding!("fractals"),
+                            then: &EffectDef::AddCounters {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("fractals"),
+                                )),
+                                kind: CounterKind::PlusOnePlusOne,
+                                amount: ValueDef::DistinctNamesAmong(&ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Land),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                )),
+                            },
+                        },
+                    ),
+                ),
             ),
         ]),
 );
@@ -3666,21 +3651,10 @@ pub(in crate::card::sets) static PESTBROOD_SLOTH: CardRecord = CardRecord::new(
             "When this creature dies, create two 1/1 black and green Pest \
              creature tokens with \"Whenever this token attacks, you gain \
              1 life.\"",
-            EffectDef::create_creature_token(
-                &["Pest"],
-                &[ManaColor::Black, ManaColor::Green],
-                1,
-                1,
-            )
-            .with_count(ValueDef::Constant(2))
-            .with_abilities(&[AbilityDef::triggered(
-                "Whenever this token attacks, you gain 1 life.",
-                TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                EffectDef::GainLife {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
-            )]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(PEST_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         ),
     ]),
 );
@@ -3766,23 +3740,20 @@ pub(in crate::card::sets) static SNARL_SONG: CardRecord = CardRecord::new(
          life, where X is the number of colors of mana spent to cast \
          this spell.",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(
-                &["Fractal"],
-                &[ManaColor::Green, ManaColor::Blue],
-                0,
-                0,
-            )
-            .with_count(ValueDef::Constant(2))
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("fractals"),
-                then: &EffectDef::AddCounters {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                        "fractals"
-                    ))),
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::ColorsOfManaSpent,
-                },
-            }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FRACTAL_TOKEN))
+                    .with_count(ValueDef::Constant(2))
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: crate::Binding!("fractals"),
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("fractals"),
+                            )),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::ColorsOfManaSpent,
+                        },
+                    }),
+            ),
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::ColorsOfManaSpent,
@@ -3910,22 +3881,20 @@ pub(in crate::card::sets) static WILD_HYPOTHESIS: CardRecord = CardRecord::new(
          of your library, then put any number of them into your \
          graveyard and the rest on top of your library in any order.)",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(
-                &["Fractal"],
-                &[ManaColor::Green, ManaColor::Blue],
-                0,
-                0,
-            )
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("fractals"),
-                then: &EffectDef::AddCounters {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                        "fractals"
-                    ))),
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::ChosenX,
-                },
-            }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FRACTAL_TOKEN)).with_created_tokens(
+                    CreatedTokensDef {
+                        binding: crate::Binding!("fractals"),
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("fractals"),
+                            )),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::ChosenX,
+                        },
+                    },
+                ),
+            ),
             abilities::surveil(ValueDef::Constant(2)),
         ]),
     )]),
@@ -4011,25 +3980,27 @@ pub(in crate::card::sets) static APPLIED_GEOMETRY: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::create_token_from_copy(&TokenCopyDef {
-                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                exceptions: CopyExceptionsDef {
-                    added_types: CardTypeSet::single(CardType::Creature),
-                    added_creature_types: CreatureTypeSetDef::named(&["Fractal"]),
-                    base_power_toughness: Some((0, 0)),
-                    ..CopyExceptionsDef::NONE
-                },
-            })
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("copy"),
-                then: &EffectDef::AddCounters {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                        "copy"
-                    ))),
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::Constant(6),
-                },
-            }),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    exceptions: CopyExceptionsDef {
+                        added_types: CardTypeSet::single(CardType::Creature),
+                        added_creature_types: CreatureTypeSetDef::named(&["Fractal"]),
+                        base_power_toughness: Some((0, 0)),
+                        ..CopyExceptionsDef::NONE
+                    },
+                }))
+                .with_created_tokens(CreatedTokensDef {
+                    binding: crate::Binding!("copy"),
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("copy"),
+                        )),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(6),
+                    },
+                }),
+            ),
         ),
     ]),
 );

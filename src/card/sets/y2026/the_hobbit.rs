@@ -55,6 +55,7 @@ use crate::card::BattlefieldEntryChoiceDestinationDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BindObjectsDef;
+use crate::card::CardArt;
 use crate::card::CardComposition;
 use crate::card::CardEffectStatus;
 use crate::card::CardPart;
@@ -75,6 +76,7 @@ use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageEventMatcherDef;
@@ -123,6 +125,7 @@ use crate::card::StackTargetFilterDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -131,7 +134,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -147,6 +149,36 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("c6e096bb-ad9e-4a8b-8b42-26852fa32c1d", "Leonardo Santanna"),
+);
+
+const HUMAN_SOLDIER_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Human", "Soldier"], &[ManaColor::White], 1, 1).with_art(
+        CardArt::new("6007af81-4541-4b55-90ea-03d365362ae5", "Jarel Threat"),
+    );
+const DWARF_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Dwarf"], &[ManaColor::Red], 2, 2);
+const GOBLIN_ARMY_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Goblin", "Army"], &[ManaColor::Black], 0, 0).with_art(
+        CardArt::new(
+            "2e2028b1-34c0-40b6-8f65-79f79a279996",
+            "Stanislav Sherbakov",
+        ),
+    );
+const DRAGON_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Dragon"], &[ManaColor::Red], 6, 6)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "1e4408fa-8037-42f1-989e-2da84867f76c",
+            "Nino Is",
+        ));
+const ELF_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Elf"], &[ManaColor::Green], 1, 1).with_art(CardArt::new(
+        "761c7c31-c6c5-44e2-a845-f590542b6eda",
+        "Hristo D. Chukov",
+    ));
+
 // HOB 1 — Long-Bodied Grey Dog
 pub(in crate::card::sets) static LONG_BODIED_GREY_DOG: CardRecord = CardRecord::new(
     "Long-Bodied Grey Dog",
@@ -159,9 +191,11 @@ pub(in crate::card::sets) static LONG_BODIED_GREY_DOG: CardRecord = CardRecord::
             "When this creature enters, create a tapped Treasure token. \
              (It's an artifact with \"{T}, Sacrifice this token: Add one \
              mana of any color.\")",
-            EffectDef::create_token(tokens::treasure())
-                .with_count(ValueDef::Constant(1))
-                .entering_tapped(),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1))
+                    .entering_tapped(),
+            ),
         ),
     ]),
 );
@@ -406,13 +440,11 @@ pub(in crate::card::sets) static CELEBRATE_THE_MOUNTAIN_KING: CardRecord = CardR
                             CardType::Land,
                         )),
                         bound: Some(crate::Binding!("recruits")),
-                        effect: &EffectDef::create_creature_token(
-                            &["Human", "Soldier"],
-                            &[ManaColor::White],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                        effect: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN)).with_count(
+                                ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                            ),
+                        ),
                     }),
                 },
             ]),
@@ -467,15 +499,18 @@ pub(in crate::card::sets) static DWARVEN_SHORTSWORD: CardRecord = CardRecord::ne
             abilities::enters_trigger(
                 "When this Equipment enters, create a 2/2 red Dwarf creature \
                  token, then attach this Equipment to it.",
-                EffectDef::create_creature_token(&["Dwarf"], &[ManaColor::Red], 2, 2)
-                    .with_created_tokens(CreatedTokensDef {
-                        binding: crate::Binding!("dwarf"),
-                        then: &EffectDef::Attach {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                crate::Binding!("dwarf"),
-                            )),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(DWARF_TOKEN)).with_created_tokens(
+                        CreatedTokensDef {
+                            binding: crate::Binding!("dwarf"),
+                            then: &EffectDef::Attach {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("dwarf"),
+                                )),
+                            },
                         },
-                    }),
+                    ),
+                ),
             ),
             AbilityDef::static_ability(
                 "Equipped creature gets +1/+2.",
@@ -572,13 +607,11 @@ pub(in crate::card::sets) static ESGAROTH_GARRISON: CardRecord = CardRecord::new
                             CardType::Land,
                         )),
                         bound: Some(crate::Binding!("recruits")),
-                        effect: &EffectDef::create_creature_token(
-                            &["Human", "Soldier"],
-                            &[ManaColor::White],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                        effect: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN)).with_count(
+                                ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                            ),
+                        ),
                     }),
                 },
             ]),
@@ -608,7 +641,10 @@ pub(in crate::card::sets) static GLEAMING_SPLENDOR: CardRecord = CardRecord::new
                 PlayerRelation::Opponent,
                 2,
             )),
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{2}{W}: Two target players each draw a card.",
@@ -637,7 +673,7 @@ pub(in crate::card::sets) static IRON_HILLS_BLACKSMITH: CardRecord = CardRecord:
             "When this creature enters, create a colorless Equipment \
              artifact token named Axe with \"Equipped creature gets \
              +1/+0\" and equip {2}.",
-            EffectDef::create_token(
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                 TokenCharacteristics::artifact(&["Equipment"], &[])
                     .with_name("Axe")
                     .with_abilities(&[
@@ -653,7 +689,7 @@ pub(in crate::card::sets) static IRON_HILLS_BLACKSMITH: CardRecord = CardRecord:
                         ),
                         abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
                     ]),
-            ),
+            ))),
         ),
     ]),
 );
@@ -688,13 +724,11 @@ pub(in crate::card::sets) static LAKE_TOWN_LOOKOUT: CardRecord = CardRecord::new
                             CardType::Land,
                         )),
                         bound: Some(crate::Binding!("recruits")),
-                        effect: &EffectDef::create_creature_token(
-                            &["Human", "Soldier"],
-                            &[ManaColor::White],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                        effect: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN)).with_count(
+                                ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                            ),
+                        ),
                     }),
                 },
             ]),
@@ -825,13 +859,12 @@ pub(in crate::card::sets) static THE_MOUNTAIN_KING_S_RETURN: CardRecord = CardRe
                                 CardType::Land,
                             )),
                             bound: Some(crate::Binding!("recruits")),
-                            effect: &EffectDef::create_creature_token(
-                                &["Human", "Soldier"],
-                                &[ManaColor::White],
-                                1,
-                                1,
-                            )
-                            .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                            effect: &EffectDef::CreateToken(
+                                CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN))
+                                    .with_count(ValueDef::BoundObjectCount(crate::Binding!(
+                                        "recruits"
+                                    ))),
+                            ),
                         }),
                     },
                 ]),
@@ -926,13 +959,11 @@ pub(in crate::card::sets) static THE_QUEEN_OF_DALE: CardRecord = CardRecord::new
                             CardType::Land,
                         )),
                         bound: Some(crate::Binding!("recruits")),
-                        effect: &EffectDef::create_creature_token(
-                            &["Human", "Soldier"],
-                            &[ManaColor::White],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                        effect: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN)).with_count(
+                                ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                            ),
+                        ),
                     }),
                 },
             ]),
@@ -1086,8 +1117,10 @@ pub(in crate::card::sets) static AN_UNEXPECTED_PARTY: CardRecord = CardRecord::n
             AbilityDef::spell(
                 "Create X 2/2 red Dwarf creature tokens. (Then exile this \
                  card. You may cast the enchantment later from exile.)",
-                EffectDef::create_creature_token(&["Dwarf"], &[ManaColor::Red], 2, 2)
-                    .with_count(ValueDef::ChosenX),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(DWARF_TOKEN))
+                        .with_count(ValueDef::ChosenX),
+                ),
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
@@ -1426,13 +1459,11 @@ pub(in crate::card::sets) static GREAT_GILDED_BOAT: CardRecord = CardRecord::new
                             CardType::Land,
                         )),
                         bound: Some(crate::Binding!("recruits")),
-                        effect: &EffectDef::create_creature_token(
-                            &["Human", "Soldier"],
-                            &[ManaColor::White],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                        effect: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN)).with_count(
+                                ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                            ),
+                        ),
                     }),
                 },
             ]),
@@ -1534,13 +1565,11 @@ pub(in crate::card::sets) static LONG_LAKE_NUISANCE: CardRecord = CardRecord::ne
                             CardType::Land,
                         )),
                         bound: Some(crate::Binding!("recruits")),
-                        effect: &EffectDef::create_creature_token(
-                            &["Human", "Soldier"],
-                            &[ManaColor::White],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                        effect: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN)).with_count(
+                                ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                            ),
+                        ),
                     }),
                 },
             ]),
@@ -1974,14 +2003,11 @@ pub(in crate::card::sets) static SOUND_THE_TRUMPETS: CardRecord = CardRecord::ne
                                     CardType::Land,
                                 )),
                                 bound: Some(crate::Binding!("recruits")),
-                                effect: &EffectDef::create_creature_token(
-                                    &["Human", "Soldier"],
-                                    &[ManaColor::White],
-                                    1,
-                                    1,
-                                )
-                                .with_count(
-                                    ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                                effect: &EffectDef::CreateToken(
+                                    CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN))
+                                        .with_count(ValueDef::BoundObjectCount(crate::Binding!(
+                                            "recruits"
+                                        ))),
                                 ),
                             }),
                         },
@@ -2165,12 +2191,9 @@ pub(in crate::card::sets) static DOWN_DOWN_TO_GOBLIN_TOWN: CardRecord = CardReco
                             comparison: ComparisonDef::Equal,
                             right: ValueDef::Constant(0),
                         }),
-                        then: &EffectDef::create_creature_token(
-                            &["Goblin", "Army"],
-                            &[ManaColor::Black],
-                            0,
-                            0,
-                        ),
+                        then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            GOBLIN_ARMY_TOKEN,
+                        ))),
                     },
                     EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -2334,12 +2357,9 @@ pub(in crate::card::sets) static GATHERING_OF_DARKNESS: CardRecord = CardRecord:
                         comparison: ComparisonDef::Equal,
                         right: ValueDef::Constant(0),
                     }),
-                    then: &EffectDef::create_creature_token(
-                        &["Goblin", "Army"],
-                        &[ManaColor::Black],
-                        0,
-                        0,
-                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        GOBLIN_ARMY_TOKEN,
+                    ))),
                 },
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -2560,12 +2580,9 @@ pub(in crate::card::sets) static GREAT_UGLY_LOOKING_GOBLIN: CardRecord = CardRec
                             comparison: ComparisonDef::Equal,
                             right: ValueDef::Constant(0),
                         }),
-                        then: &EffectDef::create_creature_token(
-                            &["Goblin", "Army"],
-                            &[ManaColor::Black],
-                            0,
-                            0,
-                        ),
+                        then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            GOBLIN_ARMY_TOKEN,
+                        ))),
                     },
                     EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -2698,12 +2715,9 @@ pub(in crate::card::sets) static RAGE_INTO_THE_VALLEY: CardRecord = CardRecord::
                         comparison: ComparisonDef::Equal,
                         right: ValueDef::Constant(0),
                     }),
-                    then: &EffectDef::create_creature_token(
-                        &["Goblin", "Army"],
-                        &[ManaColor::Black],
-                        0,
-                        0,
-                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        GOBLIN_ARMY_TOKEN,
+                    ))),
                 },
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -2895,12 +2909,9 @@ pub(in crate::card::sets) static RHOVANION_RAMPAGER: CardRecord = CardRecord::ne
                         comparison: ComparisonDef::Equal,
                         right: ValueDef::Constant(0),
                     }),
-                    then: &EffectDef::create_creature_token(
-                        &["Goblin", "Army"],
-                        &[ManaColor::Black],
-                        0,
-                        0,
-                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        GOBLIN_ARMY_TOKEN,
+                    ))),
                 },
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -2963,8 +2974,10 @@ pub(in crate::card::sets) static THE_SACKVILLE_BAGGINSES: CardRecord = CardRecor
                         .as_cost()],
                     &EffectDef::Sequence(&[
                         abilities::draw_cards(ValueDef::Constant(1)),
-                        EffectDef::create_token(tokens::treasure())
-                            .with_count(ValueDef::Constant(1)),
+                        EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     ]),
                 )),
             ),
@@ -3083,12 +3096,9 @@ pub(in crate::card::sets) static BOTHERSOME_NOISEMAKER: CardRecord = CardRecord:
                         comparison: ComparisonDef::Equal,
                         right: ValueDef::Constant(0),
                     }),
-                    then: &EffectDef::create_creature_token(
-                        &["Goblin", "Army"],
-                        &[ManaColor::Black],
-                        0,
-                        0,
-                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        GOBLIN_ARMY_TOKEN,
+                    ))),
                 },
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -3246,7 +3256,10 @@ pub(in crate::card::sets) static DORI_BEARER_OF_FRIENDS: CardRecord = CardRecord
                 "When Dori enters, create a Treasure token. (It's an artifact \
                  with \"{T}, Sacrifice this token: Add one mana of any \
                  color.\")",
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ]),
 );
@@ -3365,12 +3378,9 @@ pub(in crate::card::sets) static GOBLIN_TOWN_FLUNKIES: CardRecord = CardRecord::
                         comparison: ComparisonDef::Equal,
                         right: ValueDef::Constant(0),
                     }),
-                    then: &EffectDef::create_creature_token(
-                        &["Goblin", "Army"],
-                        &[ManaColor::Black],
-                        0,
-                        0,
-                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        GOBLIN_ARMY_TOKEN,
+                    ))),
                 },
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -3452,7 +3462,10 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                  Treasure token is an artifact with \"{T}, Sacrifice this \
                  token: Add one mana of any color.\")",
                 EffectDef::Sequence(&[
-                    EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                     EffectDef::IfCondition {
                         condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                             left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -3485,13 +3498,9 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                                             right: ValueDef::Constant(0),
                                         },
                                     ),
-                                    then: &EffectDef::create_creature_token(
-                                        &["Dragon"],
-                                        &[ManaColor::Red],
-                                        6,
-                                        6,
-                                    )
-                                    .with_abilities(&[abilities::flying()]),
+                                    then: &EffectDef::CreateToken(CreateTokenDef::new(
+                                        TokenDef::Literal(DRAGON_TOKEN),
+                                    )),
                                 },
                             ]),
                         }),
@@ -3506,7 +3515,10 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                  Treasure token is an artifact with \"{T}, Sacrifice this \
                  token: Add one mana of any color.\")",
                 EffectDef::Sequence(&[
-                    EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                     EffectDef::IfCondition {
                         condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                             left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -3539,13 +3551,9 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                                             right: ValueDef::Constant(0),
                                         },
                                     ),
-                                    then: &EffectDef::create_creature_token(
-                                        &["Dragon"],
-                                        &[ManaColor::Red],
-                                        6,
-                                        6,
-                                    )
-                                    .with_abilities(&[abilities::flying()]),
+                                    then: &EffectDef::CreateToken(CreateTokenDef::new(
+                                        TokenDef::Literal(DRAGON_TOKEN),
+                                    )),
                                 },
                             ]),
                         }),
@@ -3560,7 +3568,10 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                  Treasure token is an artifact with \"{T}, Sacrifice this \
                  token: Add one mana of any color.\")",
                 EffectDef::Sequence(&[
-                    EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                     EffectDef::IfCondition {
                         condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                             left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -3593,13 +3604,9 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                                             right: ValueDef::Constant(0),
                                         },
                                     ),
-                                    then: &EffectDef::create_creature_token(
-                                        &["Dragon"],
-                                        &[ManaColor::Red],
-                                        6,
-                                        6,
-                                    )
-                                    .with_abilities(&[abilities::flying()]),
+                                    then: &EffectDef::CreateToken(CreateTokenDef::new(
+                                        TokenDef::Literal(DRAGON_TOKEN),
+                                    )),
                                 },
                             ]),
                         }),
@@ -3614,7 +3621,10 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                  Treasure token is an artifact with \"{T}, Sacrifice this \
                  token: Add one mana of any color.\")",
                 EffectDef::Sequence(&[
-                    EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                     EffectDef::IfCondition {
                         condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
                             left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -3647,13 +3657,9 @@ pub(in crate::card::sets) static THE_MISTY_MOUNTAINS_COLD: CardRecord = CardReco
                                             right: ValueDef::Constant(0),
                                         },
                                     ),
-                                    then: &EffectDef::create_creature_token(
-                                        &["Dragon"],
-                                        &[ManaColor::Red],
-                                        6,
-                                        6,
-                                    )
-                                    .with_abilities(&[abilities::flying()]),
+                                    then: &EffectDef::CreateToken(CreateTokenDef::new(
+                                        TokenDef::Literal(DRAGON_TOKEN),
+                                    )),
                                 },
                             ]),
                         }),
@@ -3693,12 +3699,9 @@ pub(in crate::card::sets) static MISTY_MOUNTAINS_RAIDER: CardRecord = CardRecord
                         comparison: ComparisonDef::Equal,
                         right: ValueDef::Constant(0),
                     }),
-                    then: &EffectDef::create_creature_token(
-                        &["Goblin", "Army"],
-                        &[ManaColor::Black],
-                        0,
-                        0,
-                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        GOBLIN_ARMY_TOKEN,
+                    ))),
                 },
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -3881,7 +3884,10 @@ pub(in crate::card::sets) static SMAUG_THE_MAGNIFICENT: CardRecord = CardRecord:
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                        .with_count(ValueDef::Constant(1)),
+                ),
             ),
         ]),
 );
@@ -3939,9 +3945,11 @@ pub(in crate::card::sets) static STONE_GIANT_OF_HIGH_PASS: CardRecord = CardReco
                 ),
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
             ]),
-            EffectDef::create_artifact_creature_token(&["Wall"], &[], 3, 1)
-                .with_name("Stone Boulder")
-                .with_abilities(&[abilities::defender()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::artifact_creature(&["Wall"], &[], 3, 1)
+                    .with_name("Stone Boulder")
+                    .with_abilities(&[abilities::defender()]),
+            ))),
         ),
         AbilityDef::activated_with_targets(
             "{2}{R}, Sacrifice an artifact: This creature deals 4 damage \
@@ -3995,12 +4003,9 @@ pub(in crate::card::sets) static TIDINGS_OF_WAR: CardRecord = CardRecord::new(
                             comparison: ComparisonDef::Equal,
                             right: ValueDef::Constant(0),
                         }),
-                        then: &EffectDef::create_creature_token(
-                            &["Goblin", "Army"],
-                            &[ManaColor::Black],
-                            0,
-                            0,
-                        ),
+                        then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            GOBLIN_ARMY_TOKEN,
+                        ))),
                     },
                     EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Objects(crate::Binding!("graveyard_army")),
@@ -4046,12 +4051,9 @@ pub(in crate::card::sets) static TIDINGS_OF_WAR: CardRecord = CardRecord::new(
                             comparison: ComparisonDef::Equal,
                             right: ValueDef::Constant(0),
                         }),
-                        then: &EffectDef::create_creature_token(
-                            &["Goblin", "Army"],
-                            &[ManaColor::Black],
-                            0,
-                            0,
-                        ),
+                        then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            GOBLIN_ARMY_TOKEN,
+                        ))),
                     },
                     EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -4154,7 +4156,10 @@ pub(in crate::card::sets) static BEJEWELED_WARG: CardRecord = CardRecord::new(
                 AbilityDef::spell(
                     "Create a Treasure token. (It's an artifact with \"{T}, \
                      Sacrifice this token: Add one mana of any color.\")",
-                    EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 ),
             ],
         ),
@@ -4421,7 +4426,9 @@ pub(in crate::card::sets) static DANCING_FROM_DARK_TO_DAWN: CardRecord = CardRec
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_creature_token(&["Bear"], &[ManaColor::Green], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Bear"], &[ManaColor::Green], 2, 2),
+            ))),
         ),
     ]),
 );
@@ -4474,7 +4481,7 @@ pub(in crate::card::sets) static DOWN_IN_THE_VALLEY: CardRecord = CardRecord::ne
                             None,
                             Some(ZoneKind::Battlefield),
                         ),
-                        EffectDef::create_creature_token(&["Elf"], &[ManaColor::Green], 1, 1),
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELF_TOKEN))),
                     )),
                     duration: ResolvedEffectDurationDef::Permanent,
                 },
@@ -4717,14 +4724,16 @@ pub(in crate::card::sets) static THE_NOTARY_HOBBITS: CardRecord = CardRecord::ne
                 &TriggerConditionDef::SourceMatches {
                     object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                 },
-                EffectDef::create_token_from_copy(&TokenCopyDef {
-                    object: &EffectRecipientDef::Source,
-                    exceptions: CopyExceptionsDef {
-                        removed_supertypes: &[CardSupertype::Legendary],
-                        ..CopyExceptionsDef::NONE
-                    },
-                })
-                .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Source,
+                        exceptions: CopyExceptionsDef {
+                            removed_supertypes: &[CardSupertype::Legendary],
+                            ..CopyExceptionsDef::NONE
+                        },
+                    }))
+                    .with_count(ValueDef::Constant(2)),
+                ),
             ),
             AbilityDef::activated_mana(
                 "{T}: Add {C} for each Halfling you control.",
@@ -5309,13 +5318,12 @@ pub(in crate::card::sets) static BARD_S_COMPANY: CardRecord = CardRecord::new(
                                 CardType::Land,
                             )),
                             bound: Some(crate::Binding!("recruits")),
-                            effect: &EffectDef::create_creature_token(
-                                &["Human", "Soldier"],
-                                &[ManaColor::White],
-                                1,
-                                1,
-                            )
-                            .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                            effect: &EffectDef::CreateToken(
+                                CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN))
+                                    .with_count(ValueDef::BoundObjectCount(crate::Binding!(
+                                        "recruits"
+                                    ))),
+                            ),
                         }),
                     },
                 ]),
@@ -5467,7 +5475,9 @@ pub(in crate::card::sets) static CHIEF_WARG_S_COMPANY: CardRecord = CardRecord::
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Wolf"], &[ManaColor::Green], 2, 2),
+            ))),
         ),
     ]),
 );
@@ -5671,12 +5681,9 @@ pub(in crate::card::sets) static FEARSOME_GOBLIN_PAIR: CardRecord = CardRecord::
                         comparison: ComparisonDef::Equal,
                         right: ValueDef::Constant(0),
                     }),
-                    then: &EffectDef::create_creature_token(
-                        &["Goblin", "Army"],
-                        &[ManaColor::Black],
-                        0,
-                        0,
-                    ),
+                    then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        GOBLIN_ARMY_TOKEN,
+                    ))),
                 },
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -5740,12 +5747,9 @@ pub(in crate::card::sets) static GOBLIN_PLATE_MAIL: CardRecord = CardRecord::new
                             comparison: ComparisonDef::Equal,
                             right: ValueDef::Constant(0),
                         }),
-                        then: &EffectDef::create_creature_token(
-                            &["Goblin", "Army"],
-                            &[ManaColor::Black],
-                            0,
-                            0,
-                        ),
+                        then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            GOBLIN_ARMY_TOKEN,
+                        ))),
                     },
                     EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
@@ -5925,13 +5929,11 @@ pub(in crate::card::sets) static PATIENT_INSTRUCTOR: CardRecord = CardRecord::ne
                             CardType::Land,
                         )),
                         bound: Some(crate::Binding!("recruits")),
-                        effect: &EffectDef::create_creature_token(
-                            &["Human", "Soldier"],
-                            &[ManaColor::White],
-                            1,
-                            1,
-                        )
-                        .with_count(ValueDef::BoundObjectCount(crate::Binding!("recruits"))),
+                        effect: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(HUMAN_SOLDIER_TOKEN)).with_count(
+                                ValueDef::BoundObjectCount(crate::Binding!("recruits")),
+                            ),
+                        ),
                     }),
                 },
             ]),
@@ -6056,7 +6058,7 @@ pub(in crate::card::sets) static THRANDUIL_SINDARIN_LIEGE: CardRecord = CardReco
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                EffectDef::create_creature_token(&["Elf"], &[ManaColor::Green], 1, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ELF_TOKEN))),
             ),
         ]),
 )
@@ -6745,7 +6747,7 @@ pub(in crate::card::sets) static THE_LONELY_MOUNTAIN: CardRecord = CardRecord::n
              ability costs {1} less to activate for each Equipment you \
              control. Activate only as a sorcery.",
             &[CostDef::Mana(mana_cost!("{4}{R}")), CostDef::TapSource],
-            EffectDef::create_creature_token(&["Dwarf"], &[ManaColor::Red], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DWARF_TOKEN))),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
         AbilityDef::static_ability(

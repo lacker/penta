@@ -14,6 +14,7 @@ use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BindObjectsDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -29,6 +30,7 @@ use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
 use crate::card::CountConditionDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::CreatureTypeSetDef;
 use crate::card::DamageAssignmentDef;
@@ -67,6 +69,7 @@ use crate::card::StackTargetFilterDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -76,7 +79,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -94,6 +96,42 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
+
+const CLUE_TOKEN: TokenCharacteristics = crate::card::tokens::clue().with_art(CardArt::new(
+    "5e644586-888f-4e2e-8d66-8aa02bd79ec1",
+    "Rafater",
+));
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "39389acc-cfa7-4a44-9d46-45be7dd72564",
+    "Javier Charro",
+));
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("f909bd95-58a1-4299-9570-87724145fc85", "Rafater"),
+);
+
+const SOLDIER_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "ecd686bf-d14b-491c-b0c5-88fc8f0472f9",
+        "Nathaniel Himawan",
+    ));
+const VILLAIN_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Villain"], &[ManaColor::Black], 2, 1)
+        .with_abilities(&[abilities::menace()])
+        .with_art(CardArt::new(
+            "4a51b6a0-9a54-4f01-b959-0a28c15d103f",
+            "Thanh Tuấn",
+        ));
+const DOOMBOT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Robot", "Villain"], &[], 3, 3)
+        .with_name("Doombot")
+        .with_art(CardArt::new(
+            "452680b5-5032-413a-bb5a-3fc8cfe88be9",
+            "L J Koh",
+        ));
+const SQUIRREL_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Squirrel"], &[ManaColor::Green], 1, 1).with_art(
+        CardArt::new("fd0474f3-682d-4c6d-b902-84f3250aa269", "Brooklyn Smith"),
+    );
 
 // MSH 1 — Agent 13, Sharon Carter
 pub(in crate::card::sets) static AGENT_13_SHARON_CARTER: CardRecord = CardRecord::new(
@@ -114,7 +152,10 @@ pub(in crate::card::sets) static AGENT_13_SHARON_CARTER: CardRecord = CardRecord
                 1,
                 Some(1),
             ),
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )]),
 );
 
@@ -212,9 +253,13 @@ pub(in crate::card::sets) static BOROUGH_BACKUP: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{4}{W}")).with_abilities(&[
         AbilityDef::spell(
             "Create two 3/2 white Hero creature tokens with vigilance.",
-            EffectDef::create_creature_token(&["Hero"], &[ManaColor::White], 3, 2)
-                .with_count(ValueDef::Constant(2))
-                .with_abilities(&[abilities::vigilance()]),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Hero"], &[ManaColor::White], 3, 2)
+                        .with_abilities(&[abilities::vigilance()]),
+                ))
+                .with_count(ValueDef::Constant(2)),
+            ),
         ),
         abilities::typecycling!(
             "Basic landcycling {2} ({2}, Discard this card: Search your \
@@ -546,8 +591,10 @@ pub(in crate::card::sets) static OKOYE_DORA_MILAJE_LEADER: CardRecord = CardReco
         .with_abilities(&[
             abilities::enters_trigger(
                 "When Okoye enters, create two 1/1 white Soldier creature tokens.",
-                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
-                    .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(SOLDIER_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
             ),
             AbilityDef::static_ability(
                 "Attacking creature tokens you control have first strike.",
@@ -657,9 +704,11 @@ pub(in crate::card::sets) static PANTHER_POUNCE: CardRecord = CardRecord::new(
             )),
         ],
         EffectDef::Sequence(&[
-            EffectDef::create_token(tokens::clue())
-                .with_count(ValueDef::Constant(1))
-                .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1))
+                    .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex(1)),
                 effect: AppliedEffectDef::Composite(&[
@@ -809,22 +858,24 @@ pub(in crate::card::sets) static THE_SENTRY_GOLDEN_GUARDIAN: CardRecord = CardRe
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
                 )],
-                EffectDef::create_token(
-                    TokenCharacteristics::creature(
-                        &["Horror", "Villain"],
-                        &[ManaColor::Black],
-                        5,
-                        5,
-                    )
-                    .with_name("The Void")
-                    .with_supertype(CardSupertype::Legendary)
-                    .with_abilities(&[
-                        abilities::flying(),
-                        abilities::indestructible(),
-                        abilities::attacks_each_combat_if_able(),
-                    ]),
-                )
-                .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(
+                            &["Horror", "Villain"],
+                            &[ManaColor::Black],
+                            5,
+                            5,
+                        )
+                        .with_name("The Void")
+                        .with_supertype(CardSupertype::Legendary)
+                        .with_abilities(&[
+                            abilities::flying(),
+                            abilities::indestructible(),
+                            abilities::attacks_each_combat_if_able(),
+                        ]),
+                    ))
+                    .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ),
             ),
         ]),
 );
@@ -1122,7 +1173,7 @@ pub(in crate::card::sets) static FALCON_WINGED_WONDER: CardRecord = CardRecord::
                  legendary 1/1 blue Bird Scout creature token with flying and \
                  \"Whenever Redwing attacks, surveil 1.\" (Look at the top \
                  card of your library. You may put it into your graveyard.)",
-                EffectDef::create_token(
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(&["Bird", "Scout"], &[ManaColor::Blue], 1, 1)
                         .with_name("Redwing")
                         .with_supertype(CardSupertype::Legendary)
@@ -1134,7 +1185,7 @@ pub(in crate::card::sets) static FALCON_WINGED_WONDER: CardRecord = CardRecord::
                                 abilities::surveil(ValueDef::Constant(1)),
                             ),
                         ]),
-                ),
+                ))),
             ),
         ]),
 );
@@ -1501,7 +1552,7 @@ pub(in crate::card::sets) static MULTIVERSAL_INCURSION: CardRecord = CardRecord:
     CardRules::new_sorcery(mana_cost!("{5}{U}{U}")).with_abilities(&[AbilityDef::spell(
         "For each nontoken creature you control, create a token that's \
          a copy of that creature, except it isn't legendary.",
-        EffectDef::create_token_from_copy(&TokenCopyDef {
+        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
             object: &EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -1511,7 +1562,7 @@ pub(in crate::card::sets) static MULTIVERSAL_INCURSION: CardRecord = CardRecord:
                 PlayerRelation::You,
             ))),
             exceptions: CopyExceptionsDef::NONE.without_supertypes(&[CardSupertype::Legendary]),
-        }),
+        }))),
     )]),
 );
 
@@ -1579,7 +1630,7 @@ pub(in crate::card::sets) static S_H_I_E_L_D_DEPLOYMENT_DRONE: CardRecord = Card
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 white Soldier \
              creature token.",
-            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SOLDIER_TOKEN))),
         ),
     ]),
 );
@@ -1904,8 +1955,7 @@ pub(in crate::card::sets) static AGENTS_OF_HYDRA: CardRecord = CardRecord::new(
             "When this creature dies, create a 2/1 black Villain creature \
              token with menace. (It can't be blocked except by two or more \
              creatures.)",
-            EffectDef::create_creature_token(&["Villain"], &[ManaColor::Black], 2, 1)
-                .with_abilities(&[abilities::menace()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(VILLAIN_TOKEN))),
         )]),
 );
 
@@ -1922,9 +1972,9 @@ pub(in crate::card::sets) static ARNIM_ZOLA_BIO_FANATIC: CardRecord = CardRecord
              cards in your graveyard. (It can't be blocked except by two \
              or more creatures.)",
             &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
-            EffectDef::create_creature_token(&["Villain"], &[ManaColor::Black], 2, 1)
-                .with_abilities(&[abilities::menace()])
-                .entering_tapped(),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(VILLAIN_TOKEN)).entering_tapped(),
+            ),
         )
         .with_activation_condition(&TriggerConditionDef::ValueComparison(&ValueComparisonDef {
             left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
@@ -2106,9 +2156,10 @@ pub(in crate::card::sets) static DOCTOR_DOOM: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When Doctor Doom enters, create two 3/3 colorless Robot \
              Villain artifact creature tokens named Doombot.",
-            EffectDef::create_artifact_creature_token(&["Robot", "Villain"], &[], 3, 3)
-                .with_name("Doombot")
-                .with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(DOOMBOT_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         ),
         AbilityDef::static_ability(
             "As long as you control an artifact creature or a Plan, Doctor \
@@ -2268,9 +2319,9 @@ pub(in crate::card::sets) static HYDRA_TROOPERS: CardRecord = CardRecord::new(
                     comparison: ComparisonDef::GreaterOrEqual,
                     right: ValueDef::Constant(2),
                 }),
-                then: &EffectDef::create_creature_token(&["Villain"], &[ManaColor::Black], 2, 1)
-                    .with_abilities(&[abilities::menace()])
-                    .entering_tapped(),
+                then: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(VILLAIN_TOKEN)).entering_tapped(),
+                ),
                 otherwise: &EffectDef::Mill {
                     player: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(2),
@@ -2354,8 +2405,7 @@ pub(in crate::card::sets) static MADAME_MASQUE: CardRecord = CardRecord::new(
                     PlayerRelation::You,
                     2,
                 )),
-                EffectDef::create_creature_token(&["Villain"], &[ManaColor::Black], 2, 1)
-                    .with_abilities(&[abilities::menace()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(VILLAIN_TOKEN))),
             ),
         ]),
 );
@@ -2652,8 +2702,10 @@ pub(in crate::card::sets) static SUPER_SKRULL: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{2}{W}: Create a 0/4 colorless Wall creature token with defender.",
             &[CostDef::Mana(mana_cost!("{2}{W}"))],
-            EffectDef::create_creature_token(&["Wall"], &[], 0, 4)
-                .with_abilities(&[abilities::defender()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Wall"], &[], 0, 4)
+                    .with_abilities(&[abilities::defender()]),
+            ))),
         ),
         AbilityDef::activated(
             "{3}{G}: Super-Skrull gets +4/+4 until end of turn.",
@@ -3077,8 +3129,7 @@ pub(in crate::card::sets) static HIRE_A_CREW: CardRecord = CardRecord::new(
          creature with menace can't be blocked except by two or more \
          creatures.)",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(&["Villain"], &[ManaColor::Black], 2, 1)
-                .with_abilities(&[abilities::menace()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(VILLAIN_TOKEN))),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -3378,7 +3429,10 @@ pub(in crate::card::sets) static STARK_INDUSTRIES_EXECUTIVE: CardRecord = CardRe
             "{2}, {T}: Create a Treasure token. (It's an artifact with \
              \"{T}, Sacrifice this token: Add one mana of any color.\")",
             &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -3537,13 +3591,17 @@ pub(in crate::card::sets) static ANT_MAN_S_ARMY: CardRecord = CardRecord::new(
                 choices: &[
                     EffectChoiceDef {
                         label: "Food",
-                        effect: EffectDef::create_token(tokens::food())
-                            .with_count(ValueDef::Constant(1)),
+                        effect: EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     },
                     EffectChoiceDef {
                         label: "Treasure",
-                        effect: EffectDef::create_token(tokens::treasure())
-                            .with_count(ValueDef::Constant(1)),
+                        effect: EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     },
                 ],
             },
@@ -3861,7 +3919,7 @@ pub(in crate::card::sets) static KA_ZAR_OF_THE_SAVAGE_LAND: CardRecord = CardRec
                 "When Ka-Zar enters, create Zabu, a legendary 2/2 green Cat \
                  creature token with \"Landfall — Whenever a land you control \
                  enters, put a +1/+1 counter on Zabu.\"",
-                EffectDef::create_token(
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(&["Cat"], &[ManaColor::Green], 2, 2)
                         .with_name("Zabu")
                         .with_supertype(CardSupertype::Legendary)
@@ -3882,7 +3940,7 @@ pub(in crate::card::sets) static KA_ZAR_OF_THE_SAVAGE_LAND: CardRecord = CardRec
                                 amount: ValueDef::Constant(1),
                             },
                         )]),
-                ),
+                ))),
             ),
         ]),
 );
@@ -3937,19 +3995,21 @@ pub(in crate::card::sets) static MOLE_MAN_MOLOID_MASTER: CardRecord = CardRecord
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                EffectDef::create_creature_token(&["Minion"], &[ManaColor::Green], 1, 1)
-                    .with_name("Moloid")
-                    .with_abilities(&[AbilityDef::triggered(
-                        "Whenever this token attacks, you may mill a card.",
-                        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                        EffectDef::May {
-                            player: EffectRecipientDef::Controller,
-                            effect: &EffectDef::Mill {
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Minion"], &[ManaColor::Green], 1, 1)
+                        .with_name("Moloid")
+                        .with_abilities(&[AbilityDef::triggered(
+                            "Whenever this token attacks, you may mill a card.",
+                            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                            EffectDef::May {
                                 player: EffectRecipientDef::Controller,
-                                amount: ValueDef::Constant(1),
+                                effect: &EffectDef::Mill {
+                                    player: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(1),
+                                },
                             },
-                        },
-                    )]),
+                        )]),
+                ))),
             ),
         ]),
 );
@@ -4411,19 +4471,21 @@ pub(in crate::card::sets) static THE_UNBEATABLE_SQUIRREL_GIRL: CardRecord = Card
                 ),
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
             ]),
-            EffectDef::create_creature_token(&["Squirrel"], &[ManaColor::Green], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SQUIRREL_TOKEN))),
         ),
         AbilityDef::activated(
             "I LOVE Squirrels! — {1}{G}{G}{G}: Create X 1/1 green Squirrel \
              creature tokens, where X is the number of Squirrels you \
              control.",
             &[CostDef::Mana(mana_cost!("{1}{G}{G}{G}"))],
-            EffectDef::create_creature_token(&["Squirrel"], &[ManaColor::Green], 1, 1).with_count(
-                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::You,
-                )),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(SQUIRREL_TOKEN)).with_count(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Squirrel")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                ),
             ),
         ),
     ]),
@@ -4612,9 +4674,15 @@ pub(in crate::card::sets) static ALIEN_INVASION: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::Sequence(&[
-                EffectDef::create_creature_token(&["Alien"], &[ManaColor::Red], 1, 1)
-                    .with_abilities(&[abilities::haste()])
-                    .with_abilities(&[abilities::haste(), abilities::attacks_each_combat_if_able()])
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Alien"], &[ManaColor::Red], 1, 1)
+                            .with_abilities(&[abilities::haste()])
+                            .with_abilities(&[
+                                abilities::haste(),
+                                abilities::attacks_each_combat_if_able(),
+                            ]),
+                    ))
                     .with_created_tokens(CreatedTokensDef {
                         binding: crate::Binding!("aliens"),
                         then: &EffectDef::AddCounters {
@@ -4625,6 +4693,7 @@ pub(in crate::card::sets) static ALIEN_INVASION: CardRecord = CardRecord::new(
                             amount: ValueDef::CountersOnSource(CounterKind::named("invasion")),
                         },
                     }),
+                ),
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::Source,
                     kind: CounterKind::named("invasion"),
@@ -4710,9 +4779,10 @@ pub(in crate::card::sets) static AVENGERS_UNDER_SIEGE: CardRecord = CardRecord::
             abilities::saga_chapter(
                 1,
                 "I — Create two 2/1 black Villain creature tokens with menace.",
-                EffectDef::create_creature_token(&["Villain"], &[ManaColor::Black], 2, 1)
-                    .with_count(ValueDef::Constant(2))
-                    .with_abilities(&[abilities::menace()]),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(VILLAIN_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
             ),
             abilities::saga_chapter(
                 2,
@@ -4741,12 +4811,14 @@ pub(in crate::card::sets) static AVENGERS_UNDER_SIEGE: CardRecord = CardRecord::
             abilities::saga_chapter(
                 3,
                 "III — Create a Treasure token for each Villain you control.",
-                EffectDef::create_token(tokens::treasure()).with_count(
-                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    )),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN)).with_count(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    ),
                 ),
             ),
         ]),
@@ -4785,7 +4857,7 @@ pub(in crate::card::sets) static BLACK_PANTHER_VANGUARD: CardRecord = CardRecord
             &[
                 AbilityDef::spell(
                     "Create a 1/1 white Soldier creature token.",
-                    EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(SOLDIER_TOKEN))),
                 ),
                 AbilityDef::spell(
                     "Creatures you control get +1/+1 until end of turn.",
@@ -4916,7 +4988,7 @@ pub(in crate::card::sets) static THE_COMING_OF_GALACTUS: CardRecord = CardRecord
                 "IV — Create Galactus, a legendary 16/16 black Elder Alien \
                  creature token with flying, trample, and \"Whenever Galactus \
                  attacks, destroy target land.\"",
-                EffectDef::create_token(
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(
                         &["Elder", "Alien"],
                         &[ManaColor::Black],
@@ -4940,7 +5012,7 @@ pub(in crate::card::sets) static THE_COMING_OF_GALACTUS: CardRecord = CardRecord
                             },
                         ),
                     ]),
-                ),
+                ))),
             ),
         ]),
 );
@@ -5192,8 +5264,7 @@ pub(in crate::card::sets) static MADAME_HYDRA: CardRecord = CardRecord::new(
                 ObjectPredicateDef::Subtype(SubtypeDef::Literal("Villain")),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::create_creature_token(&["Villain"], &[ManaColor::Black], 2, 1)
-                .with_abilities(&[abilities::menace()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(VILLAIN_TOKEN))),
         )]),
 );
 
@@ -5693,8 +5764,10 @@ pub(in crate::card::sets) static S_H_I_E_L_D_HELICARRIER: CardRecord = CardRecor
         abilities::enters_trigger(
             "When this Vehicle enters, create two 1/1 white Soldier \
              creature tokens.",
-            EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
-                .with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(SOLDIER_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         ),
         abilities::crew("Crew 6", 6),
     ]),
@@ -6223,9 +6296,10 @@ pub(in crate::card::sets) static CASTLE_DOOM: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Artifact)),
             ],
-            EffectDef::create_artifact_creature_token(&["Robot", "Villain"], &[], 3, 3)
-                .with_name("Doombot")
-                .with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(DOOMBOT_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ]),

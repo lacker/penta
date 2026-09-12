@@ -11,6 +11,7 @@ use crate::card::AlternativeCastKindDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
 use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -60,8 +61,8 @@ use crate::card::RevealObjectsDef;
 use crate::card::SetOperationDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -69,7 +70,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 use crate::card::sets::y1993::alpha as catalog_lea;
@@ -186,6 +186,22 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "6f1077f8-9e2a-4155-a7f0-4604bc0f94e8",
+    "Alexander Mokhov",
+));
+
+const CAT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Cat"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "2885d54c-9fb2-4f01-8937-54f8ac1ce5bc",
+        "Leonardo Santanna",
+    ));
+const NINJA_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Ninja"], &[ManaColor::Blue], 2, 1).with_art(CardArt::new(
+        "aeec04b1-475c-4e55-b72f-327ea5258146",
+        "Diana Cearley",
+    ));
+
 // FDN 1 — Sire of Seven Deaths
 pub(in crate::card::sets) static SIRE_OF_SEVEN_DEATHS: CardRecord = CardRecord::new(
     "Sire of Seven Deaths",
@@ -245,7 +261,7 @@ pub(in crate::card::sets) static ARAHBO_THE_FIRST_FANG: CardRecord = CardRecord:
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(CAT_TOKEN))),
             ),
         ]),
 );
@@ -541,8 +557,15 @@ pub(in crate::card::sets) static GUARDED_HEIR: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create two 3/3 white Knight \
              creature tokens.",
-            EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 3, 3)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Knight"],
+                    &[ManaColor::White],
+                    3,
+                    3,
+                )))
                 .with_count(ValueDef::Constant(2)),
+            ),
         ),
     ]),
 );
@@ -669,7 +692,7 @@ pub(in crate::card::sets) static PRIDEFUL_PARENT: CardRecord = CardRecord::new(
         abilities::vigilance(),
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 white Cat creature token.",
-            EffectDef::create_creature_token(&["Cat"], &[ManaColor::White], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(CAT_TOKEN))),
         ),
     ]),
 );
@@ -1071,8 +1094,10 @@ pub(in crate::card::sets) static DRAKE_HATCHER: CardRecord = CardRecord::new(
                 kind: CounterKind::named("incubation"),
                 amount: 3,
             }],
-            EffectDef::create_creature_token(&["Drake"], &[ManaColor::Blue], 2, 2)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Drake"], &[ManaColor::Blue], 2, 2)
+                    .with_abilities(&[abilities::flying()]),
+            ))),
         ),
     ]),
 );
@@ -1201,10 +1226,10 @@ pub(in crate::card::sets) static HOMUNCULUS_HORDE: CardRecord = CardRecord::new(
             "Whenever you draw your second card each turn, create a token \
              that's a copy of this creature.",
             TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(PlayerRelation::You, 2)),
-            EffectDef::create_token_from_copy(&TokenCopyDef {
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                 object: &EffectRecipientDef::Source,
                 exceptions: CopyExceptionsDef::NONE,
-            }),
+            }))),
         ),
     ]),
 );
@@ -1327,7 +1352,7 @@ pub(in crate::card::sets) static KAITO_CUNNING_INFILTRATOR: CardRecord = CardRec
             AbilityDef::activated(
                 "−2: Create a 2/1 blue Ninja creature token.",
                 &[CostDef::Loyalty(-2)],
-                EffectDef::create_creature_token(&["Ninja"], &[ManaColor::Blue], 2, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(NINJA_TOKEN))),
             ),
             AbilityDef::activated(
                 "−9: You get an emblem with \"Whenever a player casts a spell, \
@@ -1343,7 +1368,9 @@ pub(in crate::card::sets) static KAITO_CUNNING_INFILTRATOR: CardRecord = CardRec
                                 ObjectPredicateDef::Any,
                                 ObjectPredicateDef::ControlledBy(PlayerRelation::Any),
                             ])),
-                            EffectDef::create_creature_token(&["Ninja"], &[ManaColor::Blue], 2, 1),
+                            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                                NINJA_TOKEN,
+                            ))),
                         )],
                     ),
                 },
@@ -1387,11 +1414,11 @@ pub(in crate::card::sets) static KIORA_THE_RISING_TIDE: CardRecord = CardRecord:
                 },
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::create_token(
+                    effect: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                         TokenCharacteristics::creature(&["Octopus"], &[ManaColor::Blue], 8, 8)
                             .with_name("Scion of the Deep")
                             .with_supertype(CardSupertype::Legendary),
-                    ),
+                    ))),
                 },
             ),
         ]),
@@ -1417,8 +1444,10 @@ pub(in crate::card::sets) static MISCHIEVOUS_MYSTIC: CardRecord = CardRecord::ne
             "Whenever you draw your second card each turn, create a 1/1 \
              blue Faerie creature token with flying.",
             TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(PlayerRelation::You, 2)),
-            EffectDef::create_creature_token(&["Faerie"], &[ManaColor::Blue], 1, 1)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Faerie"], &[ManaColor::Blue], 1, 1)
+                    .with_abilities(&[abilities::flying()]),
+            ))),
         ),
     ]),
 );
@@ -1843,13 +1872,15 @@ pub(in crate::card::sets) static INFESTATION_SAGE: CardRecord = CardRecord::new(
         abilities::dies_trigger(
             "When this creature dies, create a 1/1 black and green Insect \
              creature token with flying.",
-            EffectDef::create_creature_token(
-                &["Insect"],
-                &[ManaColor::Black, ManaColor::Green],
-                1,
-                1,
-            )
-            .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(
+                    &["Insect"],
+                    &[ManaColor::Black, ManaColor::Green],
+                    1,
+                    1,
+                )
+                .with_abilities(&[abilities::flying()]),
+            ))),
         ),
     ]),
 );
@@ -1881,13 +1912,20 @@ pub(in crate::card::sets) static REVENGE_OF_THE_RATS: CardRecord = CardRecord::n
         AbilityDef::spell(
             "Create a tapped 1/1 black Rat creature token for each \
              creature card in your graveyard.",
-            EffectDef::create_creature_token(&["Rat"], &[ManaColor::Black], 1, 1)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Rat"],
+                    &[ManaColor::Black],
+                    1,
+                    1,
+                )))
                 .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 )))
                 .entering_tapped(),
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{B}{B}"))]),
     ]),
@@ -2327,8 +2365,10 @@ pub(in crate::card::sets) static DRAGON_TRAINER: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 4/4 red Dragon creature \
              token with flying.",
-            EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 4, 4)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Dragon"], &[ManaColor::Red], 4, 4)
+                    .with_abilities(&[abilities::flying()]),
+            ))),
         ),
     ]),
 );
@@ -2351,7 +2391,7 @@ pub(in crate::card::sets) static ELECTRODUPLICATE: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::create_token_from_copy(&TokenCopyDef {
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
                 object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 exceptions: CopyExceptionsDef {
                     added_abilities: &[
@@ -2367,7 +2407,7 @@ pub(in crate::card::sets) static ELECTRODUPLICATE: CardRecord = CardRecord::new(
                     ],
                     ..CopyExceptionsDef::NONE
                 },
-            }),
+            }))),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{2}{R}{R}"))]),
     ]),
@@ -2456,8 +2496,10 @@ pub(in crate::card::sets) static RITE_OF_THE_DRAGONCALLER: CardRecord = CardReco
             ]),
             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
         ])),
-        EffectDef::create_creature_token(&["Dragon"], &[ManaColor::Red], 5, 5)
-            .with_abilities(&[abilities::flying()]),
+        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+            TokenCharacteristics::creature(&["Dragon"], &[ManaColor::Red], 5, 5)
+                .with_abilities(&[abilities::flying()]),
+        ))),
     )]),
 );
 
@@ -2677,7 +2719,10 @@ pub(in crate::card::sets) static EAGER_TRUFFLESNOUT: CardRecord = CardRecord::ne
              create a Food token. (It's an artifact with \"{2}, {T}, \
              Sacrifice this token: You gain 3 life.\")",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -2700,7 +2745,9 @@ pub(in crate::card::sets) static ELFSWORN_GIANT: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_creature_token(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+            ))),
         ),
     ]),
 );
@@ -3012,12 +3059,9 @@ pub(in crate::card::sets) static SYLVAN_SCAVENGING: CardRecord = CardRecord::new
                             comparison: ComparisonDef::GreaterOrEqual,
                             amount: 1,
                         },
-                        then: &EffectDef::create_creature_token(
-                            &["Raccoon"],
-                            &[ManaColor::Green],
-                            3,
-                            3,
-                        ),
+                        then: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::creature(&["Raccoon"], &[ManaColor::Green], 3, 3),
+                        ))),
                     },
                 ),
             ],
@@ -3262,9 +3306,13 @@ pub(in crate::card::sets) static KOMA_WORLD_EATER: CardRecord = CardRecord::new(
                 "Whenever Koma deals combat damage to a player, create four \
                  3/3 blue Serpent creature tokens named Koma's Coil.",
                 TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-                EffectDef::create_creature_token(&["Serpent"], &[ManaColor::Blue], 3, 3)
-                    .with_count(ValueDef::Constant(4))
-                    .with_name("Koma's Coil"),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Serpent"], &[ManaColor::Blue], 3, 3)
+                            .with_name("Koma's Coil"),
+                    ))
+                    .with_count(ValueDef::Constant(4)),
+                ),
             ),
         ]),
 );
@@ -3330,8 +3378,10 @@ pub(in crate::card::sets) static KYKAR_ZEPHYR_AWAKENER: CardRecord = CardRecord:
                     ),
                     AbilityDef::spell(
                         "Create a 1/1 white Spirit creature token with flying.",
-                        EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
-                            .with_abilities(&[abilities::flying()]),
+                        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                            TokenCharacteristics::creature(&["Spirit"], &[ManaColor::White], 1, 1)
+                                .with_abilities(&[abilities::flying()]),
+                        ))),
                     ),
                 ],
             ),

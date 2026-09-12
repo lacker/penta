@@ -17,6 +17,7 @@ use crate::card::BattlefieldEntryChoiceDestinationDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BindObjectsDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -65,8 +66,6 @@ use crate::card::PlayActionMatcherDef;
 use crate::card::PlayRestrictionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
-use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::PlayerRuleDef;
 use crate::card::QuantifierDef;
 use crate::card::RandomizeObjectOrderDef;
@@ -78,8 +77,10 @@ use crate::card::RevealObjectsDef;
 use crate::card::ScaledValueDef;
 use crate::card::SpellResolutionDestinationDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
 use crate::card::TokenCountersDef;
+use crate::card::TokenDef;
 use crate::card::TopOfLibraryCostDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -89,7 +90,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
@@ -148,16 +148,35 @@ const fn offspring_arrival() -> AbilityDef {
             Some(ZoneKind::Battlefield),
         ),
         &TriggerConditionDef::SourcePaidAdditionalCost(crate::AdditionalCostIndex::PRIMARY),
-        EffectDef::create_token_from_copy(
+        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
             &const {
                 TokenCopyDef {
                     object: &EffectRecipientDef::Source,
                     exceptions: CopyExceptionsDef::power_toughness(1, 1),
                 }
             },
-        ),
+        ))),
     )
 }
+
+const FOOD_TOKEN: TokenCharacteristics = crate::card::tokens::food().with_art(CardArt::new(
+    "0dce2241-e58b-41d4-b57c-9794fc8ee004",
+    "David Frasheski",
+));
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("ff0357fb-d90c-49c7-b16a-8b52ac686c3b", "Aaron Miller"),
+);
+
+const FISH_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Fish"], &[ManaColor::Blue], 1, 1).with_art(CardArt::new(
+        "de0d6700-49f0-4233-97ba-cef7821c30ed",
+        "Rhonda Libbey",
+    ));
+const RABBIT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Rabbit"], &[ManaColor::White], 1, 1).with_art(CardArt::new(
+        "81de52ef-7515-4958-abea-fb8ebdcef93c",
+        "Gina Matarazzo",
+    ));
 
 // BLB 1 — Banishing Light (reprint)
 const BANISHING_LIGHT_REPRINT: PrintingRecord = PrintingRecord::reprint(
@@ -194,8 +213,10 @@ pub(in crate::card::sets) static BEZA_THE_BOUNDING_SPRING: CardRecord = CardReco
                             PlayerRelation::You,
                         )),
                     }),
-                    then: &EffectDef::create_token(tokens::treasure())
-                        .with_count(ValueDef::Constant(1)),
+                    then: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 },
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
@@ -222,8 +243,10 @@ pub(in crate::card::sets) static BEZA_THE_BOUNDING_SPRING: CardRecord = CardReco
                             PlayerRelation::You,
                         )),
                     }),
-                    then: &EffectDef::create_creature_token(&["Fish"], &[ManaColor::Blue], 1, 1)
-                        .with_count(ValueDef::Constant(2)),
+                    then: &EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(FISH_TOKEN))
+                            .with_count(ValueDef::Constant(2)),
+                    ),
                 },
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
@@ -322,8 +345,10 @@ pub(in crate::card::sets) static CARROT_CAKE: CardRecord = CardRecord::new(
                     },
                 ]),
                 EffectDef::Sequence(&[
-                    EffectDef::create_creature_token(&["Rabbit"], &[ManaColor::White], 1, 1)
-                        .with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(RABBIT_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                     abilities::scry(ValueDef::Constant(1)),
                 ]),
             ),
@@ -442,8 +467,15 @@ pub(in crate::card::sets) static HOP_TO_IT: CardRecord = CardRecord::new(
     "Eelis Kyttanen",
     CardRules::new_sorcery(mana_cost!("{2}{W}")).with_abilities(&[AbilityDef::spell(
         "Create three 1/1 white Rabbit creature tokens.",
-        EffectDef::create_creature_token(&["Rabbit"], &[ManaColor::White], 1, 1)
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                &["Rabbit"],
+                &[ManaColor::White],
+                1,
+                1,
+            )))
             .with_count(ValueDef::Constant(3)),
+        ),
     )]),
 );
 
@@ -966,10 +998,12 @@ pub(in crate::card::sets) static WARREN_WARLEADER: CardRecord = CardRecord::new(
                     AbilityDef::spell(
                         "Create a 1/1 white Rabbit creature token that's tapped and \
                          attacking.",
-                        EffectDef::create_creature_token(&["Rabbit"], &[ManaColor::White], 1, 1)
-                            .with_count(ValueDef::Constant(1))
-                            .entering_tapped()
-                            .entering_attacking(),
+                        EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(RABBIT_TOKEN))
+                                .with_count(ValueDef::Constant(1))
+                                .entering_tapped()
+                                .entering_attacking(),
+                        ),
                     ),
                     AbilityDef::spell(
                         "Attacking creatures you control get +1/+1 until end of turn.",
@@ -1395,7 +1429,7 @@ pub(in crate::card::sets) static KNIGHTFISHER: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_creature_token(&["Fish"], &[ManaColor::Blue], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(FISH_TOKEN))),
         ),
     ]),
 );
@@ -1545,8 +1579,16 @@ pub(in crate::card::sets) static OTTERBALL_ANTICS: CardRecord = CardRecord::new(
              put a +1/+1 counter on that creature. (Whenever you cast a \
              noncreature spell, a creature with prowess gets +1/+1 until \
              end of turn.)",
-            EffectDef::create_creature_token(&["Otter"], &[ManaColor::Blue, ManaColor::Red], 1, 1)
-                .with_abilities(&[abilities::prowess()])
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(
+                        &["Otter"],
+                        &[ManaColor::Blue, ManaColor::Red],
+                        1,
+                        1,
+                    )
+                    .with_abilities(&[abilities::prowess()]),
+                ))
                 .with_created_tokens(CreatedTokensDef {
                     binding: crate::Binding!("otter"),
                     then: &EffectDef::IfCondition {
@@ -1562,6 +1604,7 @@ pub(in crate::card::sets) static OTTERBALL_ANTICS: CardRecord = CardRecord::new(
                         },
                     },
                 }),
+            ),
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{3}{U}"))]),
     ]),
@@ -2778,7 +2821,10 @@ pub(in crate::card::sets) static SAVOR: CardRecord = CardRecord::new(
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );
@@ -3127,12 +3173,9 @@ pub(in crate::card::sets) static WICK_THE_WHORLED_MIND: CardRecord = CardRecord:
                             amount: ValueDef::Constant(1),
                         },
                     }),
-                    otherwise: &EffectDef::create_creature_token(
-                        &["Snail"],
-                        &[ManaColor::Black],
-                        1,
-                        1,
-                    ),
+                    otherwise: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(&["Snail"], &[ManaColor::Black], 1, 1),
+                    ))),
                 },
             ),
             AbilityDef::activated(
@@ -3911,29 +3954,31 @@ pub(in crate::card::sets) static STORMSPLITTER: CardRecord = CardRecord::new(
                 ]),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
-            EffectDef::create_token_from_copy(&TokenCopyDef {
-                object: &EffectRecipientDef::Source,
-                exceptions: CopyExceptionsDef::NONE,
-            })
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("copies"),
-                then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                    &AbilityDef::triggered(
-                        "At the beginning of the next end step, exile that token.",
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::End,
-                            player: PlayerRelation::Any,
-                        },
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
-                                "copies"
-                            ))),
-                            ZoneKind::Exile,
-                            ZonePlacement::Top,
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Source,
+                    exceptions: CopyExceptionsDef::NONE,
+                }))
+                .with_created_tokens(CreatedTokensDef {
+                    binding: crate::Binding!("copies"),
+                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                        &AbilityDef::triggered(
+                            "At the beginning of the next end step, exile that token.",
+                            TriggerEventDef::StepBegins {
+                                step: TurnStepDef::End,
+                                player: PlayerRelation::Any,
+                            },
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("copies"),
+                                )),
+                                ZoneKind::Exile,
+                                ZonePlacement::Top,
+                            ),
                         ),
-                    ),
-                )),
-            }),
+                    )),
+                }),
+            ),
         ),
     ]),
 );
@@ -4249,8 +4294,10 @@ pub(in crate::card::sets) static CACHE_GRAB: CardRecord = CardRecord::new(
                                 ),
                             }),
                         ]),
-                        then: &EffectDef::create_token(tokens::food())
-                            .with_count(ValueDef::Constant(1)),
+                        then: &EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     },
                 },
             }),
@@ -4478,11 +4525,13 @@ pub(in crate::card::sets) static FOR_THE_COMMON_GOOD: CardRecord = CardRecord::n
                 },
             )],
             EffectDef::Sequence(&[
-                EffectDef::create_token_from_copy(&TokenCopyDef {
-                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    exceptions: CopyExceptionsDef::NONE,
-                })
-                .with_count(ValueDef::ChosenX),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    }))
+                    .with_count(ValueDef::ChosenX),
+                ),
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                         ObjectQueryDef::matching(
@@ -5013,7 +5062,10 @@ pub(in crate::card::sets) static PAWPATCH_FORMATION: CardRecord = CardRecord::ne
                  \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(1)),
-                    EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                            .with_count(ValueDef::Constant(1)),
+                    ),
                 ]),
             ),
         ],
@@ -5675,8 +5727,10 @@ pub(in crate::card::sets) static HEAD_OF_THE_HOMESTEAD: CardRecord = CardRecord:
         .with_abilities(&[abilities::enters_trigger(
             "When this creature enters, create two 1/1 white Rabbit \
              creature tokens.",
-            EffectDef::create_creature_token(&["Rabbit"], &[ManaColor::White], 1, 1)
-                .with_count(ValueDef::Constant(2)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(RABBIT_TOKEN))
+                    .with_count(ValueDef::Constant(2)),
+            ),
         )]),
 );
 
@@ -5927,7 +5981,7 @@ pub(in crate::card::sets) static MABEL_HEIR_TO_CRAGFLAME: CardRecord = CardRecor
                 "When Mabel enters, create Cragflame, a legendary colorless \
                  Equipment artifact token with \"Equipped creature gets +1/+1 \
                  and has vigilance, trample, and haste\" and equip {2}.",
-                EffectDef::create_token(
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::artifact(&["Equipment"], &[])
                         .with_name("Cragflame")
                         .with_supertype(CardSupertype::Legendary)
@@ -5950,7 +6004,7 @@ pub(in crate::card::sets) static MABEL_HEIR_TO_CRAGFLAME: CardRecord = CardRecor
                             ),
                             abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
                         ]),
-                ),
+                ))),
             ),
         ]),
 );
@@ -6266,7 +6320,10 @@ pub(in crate::card::sets) static VINEREAP_MENTOR: CardRecord = CardRecord::new(
                     Some(ZoneKind::Graveyard),
                 ),
             ]),
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );
@@ -6326,7 +6383,10 @@ pub(in crate::card::sets) static BUMBLEFLOWER_S_SHAREPOT: CardRecord = CardRecor
             "When this artifact enters, create a Food token. (It's an \
              artifact with \"{2}, {T}, Sacrifice this token: You gain 3 \
              life.\")",
-            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::activated_with_targets(
             "{5}, {T}, Sacrifice this artifact: Destroy target nonland \
@@ -6548,12 +6608,15 @@ pub(in crate::card::sets) static FOUNTAINPORT: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::PayLife(1),
             ],
-            EffectDef::create_creature_token(&["Fish"], &[ManaColor::Blue], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(FISH_TOKEN))),
         ),
         AbilityDef::activated(
             "{4}, {T}: Create a Treasure token.",
             &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );

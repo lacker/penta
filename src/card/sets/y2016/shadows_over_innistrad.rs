@@ -167,7 +167,10 @@ pub(in crate::card::sets) static MAGNIFYING_GLASS: CardRecord = CardRecord::new(
             "{4}, {T}: Investigate. (Create a Clue token. It's an artifact \
              with \"{2}, Sacrifice this token: Draw a card.\")",
             &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
-            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(CLUE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
     ]),
 );

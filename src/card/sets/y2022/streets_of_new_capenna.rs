@@ -8,9 +8,9 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
-use crate::card::CardArt;
 use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -34,9 +34,9 @@ use crate::card::QuantifierDef;
 use crate::card::ReplacementEffectDef;
 use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
-use crate::card::SubtypeDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
@@ -211,12 +211,14 @@ pub(in crate::card::sets) static AN_OFFER_YOU_CAN_T_REFUSE: CardRecord = CardRec
         )],
         EffectDef::Sequence(&[
             EffectDef::counter_target(TargetIndex::PRIMARY),
-            EffectDef::create_token(tokens::treasure())
-                .with_count(ValueDef::Constant(1))
-                .with_count(ValueDef::Constant(2))
-                .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                    TargetIndex::PRIMARY,
-                ))),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1))
+                    .with_count(ValueDef::Constant(2))
+                    .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+            ),
         ]),
     )]),
 );
@@ -266,8 +268,10 @@ pub(in crate::card::sets) static FAKE_YOUR_OWN_DEATH: CardRecord = CardRecord::n
                                 ..BattlefieldArrivalDef::DEFAULT
                             },
                         },
-                        EffectDef::create_token(tokens::treasure())
-                            .with_count(ValueDef::Constant(1)),
+                        EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                                .with_count(ValueDef::Constant(1)),
+                        ),
                     ]),
                 )),
             ]),
@@ -303,7 +307,10 @@ pub(in crate::card::sets) static INVOLUNTARY_EMPLOYMENT: CardRecord = CardRecord
                 effect: AppliedEffectDef::add_ability(&abilities::haste()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ]),
     )]),
 );

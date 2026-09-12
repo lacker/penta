@@ -19,6 +19,7 @@ use crate::card::ComparisonDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
+use crate::card::CreateTokenDef;
 use crate::card::CreatedTokensDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -34,6 +35,8 @@ use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealObjectsDef;
 use crate::card::SacrificedAmountDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueComparisonDef;
@@ -441,7 +444,13 @@ pub(in crate::card::sets) static OVIKA_ENIGMA_GOLIATH: CardRecord = CardRecord::
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
-                EffectDef::create_creature_token(&["Phyrexian", "Goblin"], &[ManaColor::Red], 1, 1)
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                        &["Phyrexian", "Goblin"],
+                        &[ManaColor::Red],
+                        1,
+                        1,
+                    )))
                     .with_count(ValueDef::ObjectManaValue(ObjectRefDef::TriggeringObject))
                     .with_created_tokens(CreatedTokensDef {
                         binding: crate::Binding!("goblins"),
@@ -453,6 +462,7 @@ pub(in crate::card::sets) static OVIKA_ENIGMA_GOLIATH: CardRecord = CardRecord::
                             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                         },
                     }),
+                ),
             ),
         ]),
 );

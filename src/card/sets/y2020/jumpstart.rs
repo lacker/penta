@@ -3,7 +3,9 @@
 use super::{CardRecord, PrintingRecord};
 use crate::card::AbilityDef;
 use crate::card::AppliedEffectDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
+use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
@@ -12,10 +14,11 @@ use crate::card::ObjectQueryDef;
 use crate::card::ObjectSetDef;
 use crate::card::PlayerRelation;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::mana_cost;
 
 /// Printed set identity and stable catalog slug.
@@ -27,6 +30,10 @@ pub const SET: crate::card::CardSet = crate::card::CardSet::new(&crate::card::Ca
 pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("4306be80-d7c9-4bcf-a3de-4bf159475546", "Alayna Danner"),
+);
+
 // JMP 4 — Release the Dogs
 pub(in crate::card::sets) static RELEASE_THE_DOGS: CardRecord = CardRecord::new(
     "Release the Dogs",
@@ -34,8 +41,15 @@ pub(in crate::card::sets) static RELEASE_THE_DOGS: CardRecord = CardRecord::new(
     "Jason Kang",
     CardRules::new_sorcery(mana_cost!("{3}{W}")).with_abilities(&[AbilityDef::spell(
         "Create four 1/1 white Dog creature tokens.",
-        EffectDef::create_creature_token(&["Dog"], &[ManaColor::White], 1, 1)
+        EffectDef::CreateToken(
+            CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                &["Dog"],
+                &[ManaColor::White],
+                1,
+                1,
+            )))
             .with_count(ValueDef::Constant(4)),
+        ),
     )]),
 );
 
@@ -49,7 +63,10 @@ pub(in crate::card::sets) static CORSAIR_CAPTAIN: CardRecord = CardRecord::new(
             "When this creature enters, create a Treasure token. (It's an \
              artifact with \"{T}, Sacrifice this token: Add one mana of \
              any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         ),
         AbilityDef::static_ability(
             "Other Pirates you control get +1/+1.",

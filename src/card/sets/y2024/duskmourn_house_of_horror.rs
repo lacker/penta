@@ -18,6 +18,7 @@ use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BattlefieldEntryScalarChoiceDef;
 use crate::card::BindObjectsDef;
+use crate::card::CardArt;
 use crate::card::CardComposition;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
@@ -97,7 +98,6 @@ use crate::card::StackTargetChangeDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
-use crate::card::TokenCountersDef;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
@@ -108,7 +108,6 @@ use crate::card::ValueDef;
 use crate::card::ZoneKind;
 use crate::card::ZonePlacement;
 use crate::card::abilities;
-use crate::card::tokens;
 use crate::ids::ParentBinding;
 use crate::mana_cost;
 
@@ -175,6 +174,30 @@ const fn impending_countdown() -> AbilityDef {
         },
     )
 }
+
+const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().with_art(
+    CardArt::new("5c0b31c3-5775-41a6-9981-44fc4a6d4aa8", "Michele Giorgi"),
+);
+
+const DEMON_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Demon"], &[ManaColor::Black], 6, 6)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "bba307eb-814c-4c87-acdf-b54c87d04f82",
+            "Josu Solano",
+        ));
+const GREMLIN_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Gremlin"], &[ManaColor::Red], 1, 1).with_art(CardArt::new(
+        "d948b503-890a-49d5-a3cf-cb6e604851b8",
+        "Joseph Weston",
+    ));
+const INSECT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Insect"], &[ManaColor::Black, ManaColor::Green], 1, 1)
+        .with_abilities(&[abilities::flying()])
+        .with_art(CardArt::new(
+            "377f1a20-b270-4b07-9892-7170cd0bee38",
+            "Helge C. Balzer",
+        ));
 
 // DSK 1 — Acrobatic Cheerleader
 // Audit: unsupported — Needs the ordinal number of the current main phase in the turn (CR 505.1b); PostcombatMain also matches third and later main phases, so it cannot restrict survival to the second main phase.
@@ -405,15 +428,17 @@ pub(in crate::card::sets) static GRAND_ENTRYWAY: CardRecord = CardRecord::new(
             "When you unlock this door, create a 1/1 white Glimmer \
              enchantment creature token.",
             TriggerEventDef::DoorUnlocked,
-            EffectDef::create_token(TokenCharacteristics::new(
-                CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
-                &["Glimmer"],
-                &[ManaColor::White],
-                Some(CreatureStats {
-                    power: 1,
-                    toughness: 1,
-                }),
-            )),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::new(
+                    CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
+                    &["Glimmer"],
+                    &[ManaColor::White],
+                    Some(CreatureStats {
+                        power: 1,
+                        toughness: 1,
+                    }),
+                ),
+            ))),
         )]),
 )
 .with_composition(|| {
@@ -423,15 +448,17 @@ pub(in crate::card::sets) static GRAND_ENTRYWAY: CardRecord = CardRecord::new(
             "When you unlock this door, create a 1/1 white Glimmer \
              enchantment creature token.",
             TriggerEventDef::DoorUnlocked,
-            EffectDef::create_token(TokenCharacteristics::new(
-                CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
-                &["Glimmer"],
-                &[ManaColor::White],
-                Some(CreatureStats {
-                    power: 1,
-                    toughness: 1,
-                }),
-            )),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::new(
+                    CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
+                    &["Glimmer"],
+                    &[ManaColor::White],
+                    Some(CreatureStats {
+                        power: 1,
+                        toughness: 1,
+                    }),
+                ),
+            ))),
         )]);
     const BACK: CardRules = CardRules::new_enchantment(mana_cost!("{2}{W}"))
         .with_subtypes(&["Room"])
@@ -461,15 +488,17 @@ pub(in crate::card::sets) static GRAND_ENTRYWAY: CardRecord = CardRecord::new(
                 "When you unlock this door, create a 1/1 white Glimmer \
                  enchantment creature token.",
                 TriggerEventDef::DoorUnlocked,
-                EffectDef::create_token(TokenCharacteristics::new(
-                    CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
-                    &["Glimmer"],
-                    &[ManaColor::White],
-                    Some(CreatureStats {
-                        power: 1,
-                        toughness: 1,
-                    }),
-                )),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::new(
+                        CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
+                        &["Glimmer"],
+                        &[ManaColor::White],
+                        Some(CreatureStats {
+                            power: 1,
+                            toughness: 1,
+                        }),
+                    ),
+                ))),
             ),
             AbilityDef::triggered_with_targets(
                 "When you unlock this door, put a +1/+1 counter on each of up \
@@ -1094,17 +1123,19 @@ pub(in crate::card::sets) static TOBY_BEASTIE_BEFRIENDER: CardRecord = CardRecor
             abilities::enters_trigger(
                 "When Toby enters, create a 4/4 white Beast creature token \
                  with \"This token can't attack or block alone.\"",
-                EffectDef::create_creature_token(&["Beast"], &[ManaColor::White], 4, 4)
-                    .with_abilities(&[AbilityDef::static_ability(
-                        "This token can't attack or block alone.",
-                        EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::Composite(&[
-                                AppliedEffectDef::Rule(AppliedRuleDef::CannotAttackAlone),
-                                AppliedEffectDef::Rule(AppliedRuleDef::CannotBlockAlone),
-                            ]),
-                        },
-                    )]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(&["Beast"], &[ManaColor::White], 4, 4)
+                        .with_abilities(&[AbilityDef::static_ability(
+                            "This token can't attack or block alone.",
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::Composite(&[
+                                    AppliedEffectDef::Rule(AppliedRuleDef::CannotAttackAlone),
+                                    AppliedEffectDef::Rule(AppliedRuleDef::CannotBlockAlone),
+                                ]),
+                            },
+                        )]),
+                ))),
             ),
             AbilityDef::static_ability(
                 "As long as you control four or more creature tokens, creature \
@@ -2060,15 +2091,17 @@ pub(in crate::card::sets) static GLIMMERBURST: CardRecord = CardRecord::new(
          creature token.",
         EffectDef::Sequence(&[
             abilities::draw_cards(ValueDef::Constant(2)),
-            EffectDef::create_token(TokenCharacteristics::new(
-                CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
-                &["Glimmer"],
-                &[ManaColor::White],
-                Some(CreatureStats {
-                    power: 1,
-                    toughness: 1,
-                }),
-            )),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::new(
+                    CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
+                    &["Glimmer"],
+                    &[ManaColor::White],
+                    Some(CreatureStats {
+                        power: 1,
+                        toughness: 1,
+                    }),
+                ),
+            ))),
         ]),
     )]),
 );
@@ -2389,15 +2422,17 @@ pub(in crate::card::sets) static TUNNEL_SURVEYOR: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 white Glimmer \
              enchantment creature token.",
-            EffectDef::create_token(TokenCharacteristics::new(
-                CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
-                &["Glimmer"],
-                &[ManaColor::White],
-                Some(CreatureStats {
-                    power: 1,
-                    toughness: 1,
-                }),
-            )),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::new(
+                    CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
+                    &["Glimmer"],
+                    &[ManaColor::White],
+                    Some(CreatureStats {
+                        power: 1,
+                        toughness: 1,
+                    }),
+                ),
+            ))),
         ),
     ]),
 );
@@ -3855,8 +3890,7 @@ pub(in crate::card::sets) static UNHOLY_ANNEX: CardRecord = CardRecord::new(
             "When you unlock this door, create a 6/6 black Demon creature \
              token with flying.",
             TriggerEventDef::DoorUnlocked,
-            EffectDef::create_creature_token(&["Demon"], &[ManaColor::Black], 6, 6)
-                .with_abilities(&[abilities::flying()]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DEMON_TOKEN))),
         )]);
     const BOTH: CardRules = CardRules::new_enchantment(mana_cost!("{5}{B}{B}{B}"))
         .with_subtypes(&["Room"])
@@ -3902,8 +3936,7 @@ pub(in crate::card::sets) static UNHOLY_ANNEX: CardRecord = CardRecord::new(
                 "When you unlock this door, create a 6/6 black Demon creature \
                  token with flying.",
                 TriggerEventDef::DoorUnlocked,
-                EffectDef::create_creature_token(&["Demon"], &[ManaColor::Black], 6, 6)
-                    .with_abilities(&[abilities::flying()]),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DEMON_TOKEN))),
             ),
         ]);
     CardComposition::room(
@@ -4614,7 +4647,10 @@ pub(in crate::card::sets) static PIGGY_BANK: CardRecord = CardRecord::new(
             "When this creature dies, create a Treasure token. (It's an \
              artifact with \"{T}, Sacrifice this token: Add one mana of \
              any color.\")",
-            EffectDef::create_token(tokens::treasure()).with_count(ValueDef::Constant(1)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
+                    .with_count(ValueDef::Constant(1)),
+            ),
         )],
     ),
 );
@@ -4678,7 +4714,7 @@ pub(in crate::card::sets) static RAZORKIN_HORDECALLER: CardRecord = CardRecord::
                     1,
                     None,
                 ),
-                EffectDef::create_creature_token(&["Gremlin"], &[ManaColor::Red], 1, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(GREMLIN_TOKEN))),
             ),
         ]),
 );
@@ -6214,16 +6250,18 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_HAUNTWOODS: CardRecord = CardRe
                     ),
                     TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 ]),
-                EffectDef::create_token(
-                    TokenCharacteristics::new(
-                        CardTypeSet::single(CardType::Land),
-                        &["Plains", "Island", "Swamp", "Mountain", "Forest"],
-                        &[],
-                        None,
-                    )
-                    .with_name("Everywhere"),
-                )
-                .entering_tapped(),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::new(
+                            CardTypeSet::single(CardType::Land),
+                            &["Plains", "Island", "Swamp", "Mountain", "Forest"],
+                            &[],
+                            None,
+                        )
+                        .with_name("Everywhere"),
+                    ))
+                    .entering_tapped(),
+                ),
             ),
         ]),
 );
@@ -6758,14 +6796,10 @@ pub(in crate::card::sets) static BROODSPINNER: CardRecord = CardRecord::new(
                 CostDef::TapSource,
                 CostDef::SacrificeSource,
             ],
-            EffectDef::create_creature_token(
-                &["Insect"],
-                &[ManaColor::Black, ManaColor::Green],
-                1,
-                1,
-            )
-            .with_abilities(&[abilities::flying()])
-            .with_count(ValueDef::CardTypesAmongGraveyards(PlayerRelation::You)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(INSECT_TOKEN))
+                    .with_count(ValueDef::CardTypesAmongGraveyards(PlayerRelation::You)),
+            ),
         ),
     ]),
 );
@@ -7000,8 +7034,10 @@ pub(in crate::card::sets) static MIDNIGHT_MAYHEM: CardRecord = CardRecord::new(
          (A creature with menace can't be blocked except by two or \
          more creatures.)",
         EffectDef::Sequence(&[
-            EffectDef::create_creature_token(&["Gremlin"], &[ManaColor::Red], 1, 1)
-                .with_count(ValueDef::Constant(3)),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(GREMLIN_TOKEN))
+                    .with_count(ValueDef::Constant(3)),
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                     ObjectQueryDef::matching(
@@ -7495,14 +7531,10 @@ pub(in crate::card::sets) static THE_SWARMWEAVER: CardRecord = CardRecord::new(
             abilities::enters_trigger(
                 "When The Swarmweaver enters, create two 1/1 black and green \
                  Insect creature tokens with flying.",
-                EffectDef::create_creature_token(
-                    &["Insect"],
-                    &[ManaColor::Black, ManaColor::Green],
-                    1,
-                    1,
-                )
-                .with_abilities(&[abilities::flying()])
-                .with_count(ValueDef::Constant(2)),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(INSECT_TOKEN))
+                        .with_count(ValueDef::Constant(2)),
+                ),
             ),
             AbilityDef::static_ability(
                 "Delirium — As long as there are four or more card types among \

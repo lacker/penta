@@ -24,6 +24,7 @@ use crate::card::ColorChoiceOperationDef;
 use crate::card::ComparisonDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
+use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
@@ -37,7 +38,9 @@ use crate::card::PlayerRelation;
 use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -286,15 +289,19 @@ pub(in crate::card::sets) static RITE_OF_REPLICATION: CardRecord = CardRecord::n
                 condition: &TriggerConditionDef::SourcePaidAdditionalCost(
                     crate::AdditionalCostIndex::PRIMARY,
                 ),
-                then: &EffectDef::create_token_from_copy(&TokenCopyDef {
-                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    exceptions: CopyExceptionsDef::NONE,
-                })
-                .with_count(ValueDef::Constant(5)),
-                otherwise: &EffectDef::create_token_from_copy(&TokenCopyDef {
-                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    exceptions: CopyExceptionsDef::NONE,
-                }),
+                then: &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    }))
+                    .with_count(ValueDef::Constant(5)),
+                ),
+                otherwise: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                    &TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    },
+                ))),
             },
         ),
     ]),
@@ -815,7 +822,9 @@ pub(in crate::card::sets) static RAMPAGING_BALOTHS: CardRecord = CardRecord::new
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 4, 4),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Beast"], &[ManaColor::Green], 4, 4),
+            ))),
         ),
     ]),
 );

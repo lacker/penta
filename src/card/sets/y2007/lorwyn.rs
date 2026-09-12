@@ -13,6 +13,7 @@ use crate::card::CardRules;
 use crate::card::CardType;
 use crate::card::ComparisonDef;
 use crate::card::CostDef;
+use crate::card::CreateTokenDef;
 use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
@@ -25,6 +26,8 @@ use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::SubtypeDef;
+use crate::card::TokenCharacteristics;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::ValueComparisonDef;
 use crate::card::ValueDef;
@@ -409,7 +412,9 @@ pub(in crate::card::sets) static IMPERIOUS_PERFECT: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{G}, {T}: Create a 1/1 green Elf Warrior creature token.",
             &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
-            EffectDef::create_creature_token(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::creature(&["Elf", "Warrior"], &[ManaColor::Green], 1, 1),
+            ))),
         ),
     ]),
 );

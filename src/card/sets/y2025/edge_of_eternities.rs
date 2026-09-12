@@ -18,6 +18,7 @@ use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::BindObjectsDef;
 use crate::card::BlockRestrictionDef;
+use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
@@ -83,8 +84,8 @@ use crate::card::SpellCastQueryDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
-use crate::card::TokenDef;
 use crate::card::TokenCopyDef;
+use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TriggeredAbilityDef;
@@ -144,6 +145,50 @@ pub const fn station(text: &'static str) -> AbilityDef {
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
     .labeled(STATION)
 }
+
+const ROBOT_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Robot"], &[], 2, 2).with_art(CardArt::new(
+        "c46f9a07-005c-44b7-8057-b2f00b274dd6",
+        "Leonardo Santanna",
+    ));
+const LANDER_TOKEN: TokenCharacteristics = TokenCharacteristics::artifact(&["Lander"], &[])
+    .with_abilities(&[AbilityDef::activated(
+        "{2}, {T}, Sacrifice this token: Search your library for a \
+                         basic land card, put it onto the battlefield tapped, then \
+                         shuffle.",
+        &[
+            CostDef::Mana(mana_cost!("{2}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )])
+    .with_art(CardArt::new(
+        "b25a7de0-0d5d-4b7a-a1bf-7483fa51392a",
+        "Titus Lunter",
+    ));
+const ROBOT_TOKEN_2: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Robot"], &[], 2, 2).with_art(CardArt::new(
+        "c46f9a07-005c-44b7-8057-b2f00b274dd6",
+        "Leonardo Santanna",
+    ));
 
 // EOE 1 — Anticausal Vestige
 // Audit: unsupported — Needs Warp to install its delayed exile from the resolving spell, without an extra counterable enters trigger, and owner cast permission that starts only after the exile turn has ended; the existing Warp helper installs an enters trigger and grants permission immediately.
@@ -310,15 +355,18 @@ pub(in crate::card::sets) static AUXILIARY_BOOSTERS: CardRecord = CardRecord::ne
             abilities::enters_trigger(
                 "When this Equipment enters, create a 2/2 colorless Robot \
                  artifact creature token and attach this Equipment to it.",
-                EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2)
-                    .with_created_tokens(CreatedTokensDef {
-                        binding: crate::Binding!("robot"),
-                        then: &EffectDef::Attach {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                crate::Binding!("robot"),
-                            )),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN)).with_created_tokens(
+                        CreatedTokensDef {
+                            binding: crate::Binding!("robot"),
+                            then: &EffectDef::Attach {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("robot"),
+                                )),
+                            },
                         },
-                    }),
+                    ),
+                ),
             ),
             AbilityDef::static_ability(
                 "Equipped creature gets +1/+2 and has flying.",
@@ -589,41 +637,11 @@ pub(in crate::card::sets) static EMERGENCY_EJECT: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
             },
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                    AbilityDef::activated(
-                        "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
-                        &[
-                            CostDef::Mana(mana_cost!("{2}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]),
-                            minimum: 0,
-                            maximum: ValueDef::Constant(1),
-                            reveal: true,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: true,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
-                    ),
-                ]),
-            )
-            .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                TargetIndex::PRIMARY,
-            ))),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN)).with_controller(
+                    PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ),
+            ),
         ]),
     )]),
 );
@@ -792,7 +810,14 @@ pub(in crate::card::sets) static HONORED_KNIGHT_CAPTAIN: CardRecord = CardRecord
             abilities::enters_trigger(
                 "When this creature enters, create a 1/1 white Human Soldier \
                  creature token.",
-                EffectDef::create_creature_token(&["Human", "Soldier"], &[ManaColor::White], 1, 1),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::creature(
+                        &["Human", "Soldier"],
+                        &[ManaColor::White],
+                        1,
+                        1,
+                    ),
+                ))),
             ),
             AbilityDef::activated(
                 "{4}{W}{W}, Sacrifice this creature: Search your library for \
@@ -1397,38 +1422,7 @@ pub(in crate::card::sets) static SUNSTAR_EXPANSIONIST: CardRecord = CardRecord::
                     PlayerRelation::You,
                 )),
             }),
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                    AbilityDef::activated(
-                        "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
-                        &[
-                            CostDef::Mana(mana_cost!("{2}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]),
-                            minimum: 0,
-                            maximum: ValueDef::Constant(1),
-                            reveal: true,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: true,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
-                    ),
-                ]),
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
         ),
         AbilityDef::triggered(
             "Landfall — Whenever a land you control enters, this creature \
@@ -1493,7 +1487,7 @@ pub(in crate::card::sets) static WEDGELIGHT_RAMMER: CardRecord = CardRecord::new
         abilities::enters_trigger(
             "When this Spacecraft enters, create a 2/2 colorless Robot \
              artifact creature token.",
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))),
         ),
         station(
             "Station (Tap another creature you control: Put charge \
@@ -1906,18 +1900,22 @@ pub(in crate::card::sets) static DESCULPTING_BLAST: CardRecord = CardRecord::new
                     ZoneKind::Hand,
                     ZonePlacement::Top,
                 ),
-                EffectDef::create_artifact_creature_token(&["Drone"], &[], 1, 1).with_abilities(&[
-                    abilities::flying(),
-                    AbilityDef::static_ability(
-                        "This token can block only creatures with flying.",
-                        EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
-                                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-                            )),
-                        },
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    TokenCharacteristics::artifact_creature(&["Drone"], &[], 1, 1).with_abilities(
+                        &[
+                            abilities::flying(),
+                            AbilityDef::static_ability(
+                                "This token can block only creatures with flying.",
+                                EffectDef::StaticApply {
+                                    recipient: EffectRecipientDef::Source,
+                                    effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                                    )),
+                                },
+                            ),
+                        ],
                     ),
-                ]),
+                ))),
             ]),
             otherwise: &EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1950,38 +1948,7 @@ pub(in crate::card::sets) static DIVERT_DISASTER: CardRecord = CardRecord::new(
         EffectDef::PayOr(
             PayOrDef::optional_or(
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                &EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                        AbilityDef::activated(
-                            "{2}, {T}, Sacrifice this token: Search your library for a \
-                             basic land card, put it onto the battlefield tapped, then \
-                             shuffle.",
-                            &[
-                                CostDef::Mana(mana_cost!("{2}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            EffectDef::SearchZone {
-                                player: EffectRecipientDef::Controller,
-                                source: ZoneKind::Library,
-                                object: ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                ]),
-                                minimum: 0,
-                                maximum: ValueDef::Constant(1),
-                                reveal: true,
-                                destination: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                                shuffle: true,
-                                enters_tapped: true,
-                                attachment: None,
-                                binding: None,
-                                then: None,
-                            },
-                        ),
-                    ]),
-                ),
+                &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
                 &EffectDef::counter_target(TargetIndex::PRIMARY),
             )
             .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
@@ -2222,7 +2189,7 @@ pub(in crate::card::sets) static MECHAN_ASSEMBLER: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))),
         )
         .triggering_at_most(1)]),
 );
@@ -2869,38 +2836,7 @@ pub(in crate::card::sets) static BEAMSAW_PROSPECTOR: CardRecord = CardRecord::ne
              artifact with \"{2}, {T}, Sacrifice this token: Search your \
              library for a basic land card, put it onto the battlefield \
              tapped, then shuffle.\")",
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                    AbilityDef::activated(
-                        "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
-                        &[
-                            CostDef::Mana(mana_cost!("{2}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]),
-                            minimum: 0,
-                            maximum: ValueDef::Constant(1),
-                            reveal: true,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: true,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
-                    ),
-                ]),
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
         ),
     ]),
 );
@@ -3288,7 +3224,9 @@ pub(in crate::card::sets) static GRAVPACK_MONOIST: CardRecord = CardRecord::new(
         abilities::dies_trigger(
             "When this creature dies, create a tapped 2/2 colorless Robot \
              artifact creature token.",
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2).entering_tapped(),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN)).entering_tapped(),
+            ),
         ),
     ]),
 );
@@ -3521,38 +3459,7 @@ pub(in crate::card::sets) static SCROUNGE_FOR_ETERNITY: CardRecord = CardRecord:
                 ZoneKind::Battlefield,
                 ZonePlacement::Top,
             ),
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                    AbilityDef::activated(
-                        "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
-                        &[
-                            CostDef::Mana(mana_cost!("{2}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]),
-                            minimum: 0,
-                            maximum: ValueDef::Constant(1),
-                            reveal: true,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: true,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
-                    ),
-                ]),
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
         ]),
     )
     .with_spell_additional_cost(&CostDef::sacrifice_permanent(ObjectPredicateDef::AnyOf(&[
@@ -4079,33 +3986,37 @@ pub(in crate::card::sets) static DEVASTATING_ONSLAUGHT: CardRecord = CardRecord:
                     owner: None,
                 },
             )],
-            EffectDef::create_token_from_copy(&TokenCopyDef {
-                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                exceptions: CopyExceptionsDef::NONE,
-            })
-            .with_count(ValueDef::ChosenX)
-            .with_created_tokens(CreatedTokensDef {
-                binding: crate::Binding!("created"),
-                then: &EffectDef::Sequence(&[
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("created"),
-                        )),
-                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-                        "Sacrifice those tokens.",
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::End,
-                            player: PlayerRelation::Any,
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Copy(&TokenCopyDef {
+                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    exceptions: CopyExceptionsDef::NONE,
+                }))
+                .with_count(ValueDef::ChosenX)
+                .with_created_tokens(CreatedTokensDef {
+                    binding: crate::Binding!("created"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("created"),
+                            )),
+                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                         },
-                        EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            crate::Binding!("created"),
-                        ))),
-                    ))),
-                ]),
-            }),
+                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "Sacrifice those tokens.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::sacrifice(EffectRecipientDef::objects(
+                                    ObjectSetDef::Binding(crate::Binding!("created")),
+                                )),
+                            ),
+                        )),
+                    ]),
+                }),
+            ),
         ),
     ]),
 );
@@ -4285,24 +4196,26 @@ pub(in crate::card::sets) static KAVARON_HARRIER: CardRecord = CardRecord::new(
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                &EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2)
-                    .entering_tapped()
-                    .entering_attacking()
-                    .with_created_tokens(CreatedTokensDef {
-                        binding: crate::Binding!("created"),
-                        then: &EffectDef::Sequence(&[EffectDef::InstallTrigger(
-                            InstalledTriggerDef::once(&AbilityDef::triggered(
-                                "Sacrifice those tokens.",
-                                TriggerEventDef::StepBegins {
-                                    step: TurnStepDef::EndOfCombat,
-                                    player: PlayerRelation::Any,
-                                },
-                                EffectDef::sacrifice(EffectRecipientDef::objects(
-                                    ObjectSetDef::Binding(crate::Binding!("created")),
+                &EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                        .entering_tapped()
+                        .entering_attacking()
+                        .with_created_tokens(CreatedTokensDef {
+                            binding: crate::Binding!("created"),
+                            then: &EffectDef::Sequence(&[EffectDef::InstallTrigger(
+                                InstalledTriggerDef::once(&AbilityDef::triggered(
+                                    "Sacrifice those tokens.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::EndOfCombat,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::sacrifice(EffectRecipientDef::objects(
+                                        ObjectSetDef::Binding(crate::Binding!("created")),
+                                    )),
                                 )),
-                            )),
-                        )]),
-                    }),
+                            )]),
+                        }),
+                ),
             )),
         )]),
 );
@@ -4376,7 +4289,9 @@ pub(in crate::card::sets) static MELDED_MOXITE: CardRecord = CardRecord::new(
             "{3}, Sacrifice this artifact: Create a tapped 2/2 colorless \
              Robot artifact creature token.",
             &[CostDef::Mana(mana_cost!("{3}")), CostDef::SacrificeSource],
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2).entering_tapped(),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN)).entering_tapped(),
+            ),
         ),
     ]),
 );
@@ -4895,39 +4810,10 @@ pub(in crate::card::sets) static TERRAPACT_INTIMIDATOR: CardRecord = CardRecord:
                 choices: &[
                     EffectChoiceDef {
                         label: "Give two Landers",
-                        effect: EffectDef::create_token(
-                            TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                                AbilityDef::activated(
-                                    "{2}, {T}, Sacrifice this token: Search your library for a \
-                                     basic land card, put it onto the battlefield tapped, then \
-                                     shuffle.",
-                                    &[
-                                        CostDef::Mana(mana_cost!("{2}")),
-                                        CostDef::TapSource,
-                                        CostDef::SacrificeSource,
-                                    ],
-                                    EffectDef::SearchZone {
-                                        player: EffectRecipientDef::Controller,
-                                        source: ZoneKind::Library,
-                                        object: ObjectPredicateDef::All(&[
-                                            ObjectPredicateDef::HasType(CardType::Land),
-                                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                        ]),
-                                        minimum: 0,
-                                        maximum: ValueDef::Constant(1),
-                                        reveal: true,
-                                        destination: ZoneKind::Battlefield,
-                                        placement: ZonePlacement::Top,
-                                        shuffle: true,
-                                        enters_tapped: true,
-                                        attachment: None,
-                                        binding: None,
-                                        then: None,
-                                    },
-                                ),
-                            ]),
-                        )
-                        .with_count(ValueDef::Constant(2)),
+                        effect: EffectDef::CreateToken(
+                            CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))
+                                .with_count(ValueDef::Constant(2)),
+                        ),
                     },
                     EffectChoiceDef {
                         label: "Decline",
@@ -5115,24 +5001,26 @@ pub(in crate::card::sets) static WEAPONS_MANUFACTURING: CardRecord = CardRecord:
             None,
             Some(ZoneKind::Battlefield),
         ),
-        EffectDef::create_artifact_token(&[], &[])
-            .with_name("Munitions")
-            .with_abilities(&[AbilityDef::triggered_with_targets(
-                "When this token leaves the battlefield, it deals 2 damage to \
+        EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+            TokenCharacteristics::artifact(&[], &[])
+                .with_name("Munitions")
+                .with_abilities(&[AbilityDef::triggered_with_targets(
+                    "When this token leaves the battlefield, it deals 2 damage to \
                  any target.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    Some(ZoneKind::Battlefield),
-                    None,
-                ),
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )],
-                EffectDef::damage(
-                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ValueDef::Constant(2),
-                ),
-            )]),
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        Some(ZoneKind::Battlefield),
+                        None,
+                    ),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::AnyTarget,
+                    )],
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(2),
+                    ),
+                )]),
+        ))),
     )]),
 );
 
@@ -5397,71 +5285,11 @@ pub(in crate::card::sets) static EDGE_ROVER: CardRecord = CardRecord::new(
                  Search your library for a basic land card, put it onto the \
                  battlefield tapped, then shuffle.\")",
                 EffectDef::Sequence(&[
-                    EffectDef::create_token(
-                        TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                            AbilityDef::activated(
-                                "{2}, {T}, Sacrifice this token: Search your library for a \
-                                 basic land card, put it onto the battlefield tapped, then \
-                                 shuffle.",
-                                &[
-                                    CostDef::Mana(mana_cost!("{2}")),
-                                    CostDef::TapSource,
-                                    CostDef::SacrificeSource,
-                                ],
-                                EffectDef::SearchZone {
-                                    player: EffectRecipientDef::Controller,
-                                    source: ZoneKind::Library,
-                                    object: ObjectPredicateDef::All(&[
-                                        ObjectPredicateDef::HasType(CardType::Land),
-                                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                    ]),
-                                    minimum: 0,
-                                    maximum: ValueDef::Constant(1),
-                                    reveal: true,
-                                    destination: ZoneKind::Battlefield,
-                                    placement: ZonePlacement::Top,
-                                    shuffle: true,
-                                    enters_tapped: true,
-                                    attachment: None,
-                                    binding: None,
-                                    then: None,
-                                },
-                            ),
-                        ]),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
+                    EffectDef::CreateToken(
+                        CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))
+                            .with_controller(PlayerRefDef::Opponent),
                     ),
-                    EffectDef::create_token(
-                        TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                            AbilityDef::activated(
-                                "{2}, {T}, Sacrifice this token: Search your library for a \
-                                 basic land card, put it onto the battlefield tapped, then \
-                                 shuffle.",
-                                &[
-                                    CostDef::Mana(mana_cost!("{2}")),
-                                    CostDef::TapSource,
-                                    CostDef::SacrificeSource,
-                                ],
-                                EffectDef::SearchZone {
-                                    player: EffectRecipientDef::Controller,
-                                    source: ZoneKind::Library,
-                                    object: ObjectPredicateDef::All(&[
-                                        ObjectPredicateDef::HasType(CardType::Land),
-                                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                    ]),
-                                    minimum: 0,
-                                    maximum: ValueDef::Constant(1),
-                                    reveal: true,
-                                    destination: ZoneKind::Battlefield,
-                                    placement: ZonePlacement::Top,
-                                    shuffle: true,
-                                    enters_tapped: true,
-                                    attachment: None,
-                                    binding: None,
-                                    then: None,
-                                },
-                            ),
-                        ]),
-                    )
-                    .with_controller(PlayerRefDef::Opponent),
                 ]),
             ),
         ],
@@ -5568,38 +5396,7 @@ pub(in crate::card::sets) static GALACTIC_WAYFARER: CardRecord = CardRecord::new
              artifact with \"{2}, {T}, Sacrifice this token: Search your \
              library for a basic land card, put it onto the battlefield \
              tapped, then shuffle.\")",
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                    AbilityDef::activated(
-                        "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
-                        &[
-                            CostDef::Mana(mana_cost!("{2}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]),
-                            minimum: 0,
-                            maximum: ValueDef::Constant(1),
-                            reveal: true,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: true,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
-                    ),
-                ]),
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
         ),
     ]),
 );
@@ -5634,38 +5431,7 @@ pub(in crate::card::sets) static GLACIER_GODMAW: CardRecord = CardRecord::new(
              artifact with \"{2}, {T}, Sacrifice this token: Search your \
              library for a basic land card, put it onto the battlefield \
              tapped, then shuffle.\")",
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                    AbilityDef::activated(
-                        "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
-                        &[
-                            CostDef::Mana(mana_cost!("{2}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]),
-                            minimum: 0,
-                            maximum: ValueDef::Constant(1),
-                            reveal: true,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: true,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
-                    ),
-                ]),
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
         ),
         AbilityDef::triggered(
             "Landfall — Whenever a land you control enters, creatures you \
@@ -6158,38 +5924,7 @@ pub(in crate::card::sets) static SAMI_S_CURIOSITY: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
             },
-            EffectDef::create_token(
-                TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                    AbilityDef::activated(
-                        "{2}, {T}, Sacrifice this token: Search your library for a \
-                         basic land card, put it onto the battlefield tapped, then \
-                         shuffle.",
-                        &[
-                            CostDef::Mana(mana_cost!("{2}")),
-                            CostDef::TapSource,
-                            CostDef::SacrificeSource,
-                        ],
-                        EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]),
-                            minimum: 0,
-                            maximum: ValueDef::Constant(1),
-                            reveal: true,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: true,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
-                    ),
-                ]),
-            ),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
         ]),
     )]),
 );
@@ -6207,38 +5942,7 @@ pub(in crate::card::sets) static SEEDSHIP_AGRARIAN: CardRecord = CardRecord::new
                  Search your library for a basic land card, put it onto the \
                  battlefield tapped, then shuffle.\")",
                 TriggerEventDef::tapped(ObjectPredicateDef::Source),
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                        AbilityDef::activated(
-                            "{2}, {T}, Sacrifice this token: Search your library for a \
-                             basic land card, put it onto the battlefield tapped, then \
-                             shuffle.",
-                            &[
-                                CostDef::Mana(mana_cost!("{2}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            EffectDef::SearchZone {
-                                player: EffectRecipientDef::Controller,
-                                source: ZoneKind::Library,
-                                object: ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                ]),
-                                minimum: 0,
-                                maximum: ValueDef::Constant(1),
-                                reveal: true,
-                                destination: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                                shuffle: true,
-                                enters_tapped: true,
-                                attachment: None,
-                                binding: None,
-                                then: None,
-                            },
-                        ),
-                    ]),
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
             ),
             AbilityDef::triggered(
                 "Landfall — Whenever a land you control enters, put a +1/+1 \
@@ -6288,38 +5992,7 @@ pub(in crate::card::sets) static SEEDSHIP_IMPACT: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
                 },
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                        AbilityDef::activated(
-                            "{2}, {T}, Sacrifice this token: Search your library for a \
-                             basic land card, put it onto the battlefield tapped, then \
-                             shuffle.",
-                            &[
-                                CostDef::Mana(mana_cost!("{2}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            EffectDef::SearchZone {
-                                player: EffectRecipientDef::Controller,
-                                source: ZoneKind::Library,
-                                object: ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                ]),
-                                minimum: 0,
-                                maximum: ValueDef::Constant(1),
-                                reveal: true,
-                                destination: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                                shuffle: true,
-                                enters_tapped: true,
-                                attachment: None,
-                                binding: None,
-                                then: None,
-                            },
-                        ),
-                    ]),
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
             ]),
             otherwise: &EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -6598,38 +6271,7 @@ pub(in crate::card::sets) static BIOMECHAN_ENGINEER: CardRecord = CardRecord::ne
                  artifact with \"{2}, {T}, Sacrifice this token: Search your \
                  library for a basic land card, put it onto the battlefield \
                  tapped, then shuffle.\")",
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                        AbilityDef::activated(
-                            "{2}, {T}, Sacrifice this token: Search your library for a \
-                             basic land card, put it onto the battlefield tapped, then \
-                             shuffle.",
-                            &[
-                                CostDef::Mana(mana_cost!("{2}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            EffectDef::SearchZone {
-                                player: EffectRecipientDef::Controller,
-                                source: ZoneKind::Library,
-                                object: ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                ]),
-                                minimum: 0,
-                                maximum: ValueDef::Constant(1),
-                                reveal: true,
-                                destination: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                                shuffle: true,
-                                enters_tapped: true,
-                                attachment: None,
-                                binding: None,
-                                then: None,
-                            },
-                        ),
-                    ]),
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
             ),
             AbilityDef::activated(
                 "{8}: Draw two cards and create a 2/2 colorless Robot artifact \
@@ -6637,7 +6279,7 @@ pub(in crate::card::sets) static BIOMECHAN_ENGINEER: CardRecord = CardRecord::ne
                 &[CostDef::Mana(mana_cost!("{8}"))],
                 EffectDef::Sequence(&[
                     abilities::draw_cards(ValueDef::Constant(2)),
-                    EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN_2))),
                 ]),
             ),
         ],
@@ -6656,38 +6298,7 @@ pub(in crate::card::sets) static BIOTECH_SPECIALIST: CardRecord = CardRecord::ne
                  artifact with \"{2}, {T}, Sacrifice this token: Search your \
                  library for a basic land card, put it onto the battlefield \
                  tapped, then shuffle.\")",
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                        AbilityDef::activated(
-                            "{2}, {T}, Sacrifice this token: Search your library for a \
-                             basic land card, put it onto the battlefield tapped, then \
-                             shuffle.",
-                            &[
-                                CostDef::Mana(mana_cost!("{2}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            EffectDef::SearchZone {
-                                player: EffectRecipientDef::Controller,
-                                source: ZoneKind::Library,
-                                object: ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                ]),
-                                minimum: 0,
-                                maximum: ValueDef::Constant(1),
-                                reveal: true,
-                                destination: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                                shuffle: true,
-                                enters_tapped: true,
-                                attachment: None,
-                                binding: None,
-                                then: None,
-                            },
-                        ),
-                    ]),
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
             ),
             AbilityDef::triggered_with_targets(
                 "Whenever you sacrifice an artifact, this creature deals 2 \
@@ -6825,16 +6436,18 @@ pub(in crate::card::sets) static INFINITE_GUIDELINE_STATION: CardRecord = CardRe
                 "When Infinite Guideline Station enters, create a tapped 2/2 \
                  colorless Robot artifact creature token for each multicolored \
                  permanent you control.",
-                EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2)
-                    .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(0)),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(1)),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    )))
-                    .entering_tapped(),
+                EffectDef::CreateToken(
+                    CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN))
+                        .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(0)),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::ColorCount(1)),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )))
+                        .entering_tapped(),
+                ),
             ),
             station(
                 "Station (Tap another creature you control: Put charge \
@@ -7054,7 +6667,9 @@ pub(in crate::card::sets) static SAMI_SHIP_S_ENGINEER: CardRecord = CardRecord::
                 comparison: ComparisonDef::GreaterOrEqual,
                 right: ValueDef::Constant(2),
             }),
-            EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2).entering_tapped(),
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(ROBOT_TOKEN)).entering_tapped(),
+            ),
         )]),
 );
 
@@ -7215,18 +6830,20 @@ pub(in crate::card::sets) static STATION_MONITOR: CardRecord = CardRecord::new(
                 comparison: ComparisonDef::Equal,
                 amount: 2,
             },
-            EffectDef::create_artifact_creature_token(&["Drone"], &[], 1, 1).with_abilities(&[
-                abilities::flying(),
-                AbilityDef::static_ability(
-                    "This token can block only creatures with flying.",
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
-                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-                        )),
-                    },
-                ),
-            ]),
+            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                TokenCharacteristics::artifact_creature(&["Drone"], &[], 1, 1).with_abilities(&[
+                    abilities::flying(),
+                    AbilityDef::static_ability(
+                        "This token can block only creatures with flying.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                            )),
+                        },
+                    ),
+                ]),
+            ))),
         )],
     ),
 );
@@ -7467,38 +7084,7 @@ pub(in crate::card::sets) static DAUNTLESS_SCRAPBOT: CardRecord = CardRecord::ne
                     ZoneKind::Exile,
                     ZonePlacement::Top,
                 ),
-                EffectDef::create_token(
-                    TokenCharacteristics::artifact(&["Lander"], &[]).with_abilities(&[
-                        AbilityDef::activated(
-                            "{2}, {T}, Sacrifice this token: Search your library for a \
-                             basic land card, put it onto the battlefield tapped, then \
-                             shuffle.",
-                            &[
-                                CostDef::Mana(mana_cost!("{2}")),
-                                CostDef::TapSource,
-                                CostDef::SacrificeSource,
-                            ],
-                            EffectDef::SearchZone {
-                                player: EffectRecipientDef::Controller,
-                                source: ZoneKind::Library,
-                                object: ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Land),
-                                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                                ]),
-                                minimum: 0,
-                                maximum: ValueDef::Constant(1),
-                                reveal: true,
-                                destination: ZoneKind::Battlefield,
-                                placement: ZonePlacement::Top,
-                                shuffle: true,
-                                enters_tapped: true,
-                                attachment: None,
-                                binding: None,
-                                then: None,
-                            },
-                        ),
-                    ]),
-                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(LANDER_TOKEN))),
             ]),
         ),
     ]),
@@ -7854,8 +7440,15 @@ pub(in crate::card::sets) static THRUMMING_HIVEPOOL: CardRecord = CardRecord::ne
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::create_creature_token(&["Sliver"], &[], 1, 1)
+            EffectDef::CreateToken(
+                CreateTokenDef::new(TokenDef::Literal(TokenCharacteristics::creature(
+                    &["Sliver"],
+                    &[],
+                    1,
+                    1,
+                )))
                 .with_count(ValueDef::Constant(2)),
+            ),
         ),
     ]),
 );
@@ -7967,13 +7560,15 @@ pub(in crate::card::sets) static ADAGIA_WINDSWEPT_BASTION: CardRecord = CardReco
                                     owner: None,
                                 },
                             )],
-                            EffectDef::create_token_from_copy(&TokenCopyDef {
-                                object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                exceptions: CopyExceptionsDef {
-                                    added_supertypes: &[CardSupertype::Legendary],
-                                    ..CopyExceptionsDef::NONE
+                            EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
+                                &TokenCopyDef {
+                                    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    exceptions: CopyExceptionsDef {
+                                        added_supertypes: &[CardSupertype::Legendary],
+                                        ..CopyExceptionsDef::NONE
+                                    },
                                 },
-                            }),
+                            ))),
                         )
                         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
                     )]),
@@ -8157,7 +7752,9 @@ pub(in crate::card::sets) static KAVARON_MEMORIAL_WORLD: CardRecord = CardRecord
                                 )),
                             ],
                             EffectDef::Sequence(&[
-                                EffectDef::create_artifact_creature_token(&["Robot"], &[], 2, 2),
+                                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                                    ROBOT_TOKEN_2,
+                                ))),
                                 EffectDef::Apply {
                                     recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
                                         ObjectQueryDef::matching(

@@ -124,7 +124,14 @@ pub(in crate::card::sets) static FELIDAR_RETREAT: CardRecord = CardRecord::new(
             &[
                 AbilityDef::spell(
                     "Create a 2/2 white Cat Beast creature token.",
-                    EffectDef::create_creature_token(&["Cat", "Beast"], &[ManaColor::White], 2, 2),
+                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                        TokenCharacteristics::creature(
+                            &["Cat", "Beast"],
+                            &[ManaColor::White],
+                            2,
+                            2,
+                        ),
+                    ))),
                 ),
                 AbilityDef::spell(
                     "Put a +1/+1 counter on each creature you control. Those \

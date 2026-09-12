@@ -1,7 +1,7 @@
 //! Permission to play a card from exile.
 //!
-//! Two shapes reach this: a card on an adventure, which its owner may cast
-//! later as the creature half and which never lapses; and a card somebody
+//! Two shapes reach this: a card on an adventure, whose spell controller
+//! may cast its main half later without expiry; and a card somebody
 //! else's effect exiled and handed to a player for a while, which is played
 //! for free and expires.
 
@@ -35,8 +35,8 @@ pub(super) enum ExilePlayCost {
 #[allow(clippy::struct_excessive_bools)]
 pub(super) struct ExilePlayPermission {
     pub(super) card: GameObjectId,
-    /// Who may play it. An adventure returns to its owner; a card taken off
-    /// the top of somebody's library is played by whoever took it.
+    /// Who may play it. An Adventure returns to its spell controller; a card
+    /// taken off somebody's library is played by whoever took it.
     pub(super) player: PlayerId,
     /// What playing it costs, which need not be what the card prints.
     pub(super) cost: ExilePlayCost,

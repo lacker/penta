@@ -250,7 +250,7 @@ pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::ne
 .with_composition(faerie_guidemother_composition);
 
 // ELD 15 — Glass Casket
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an immediate linked return when the source leaves, without a return trigger using the stack; the available exile-until helper installs a triggered return.
 pub(in crate::card::sets) static GLASS_CASKET: CardRecord = CardRecord::new(
     "Glass Casket",
     "562f1c51-d245-4771-bf61-415297e4f9d5",

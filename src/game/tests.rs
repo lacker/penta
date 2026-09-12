@@ -480,7 +480,6 @@ mod vintage_cube_abrade;
 mod vintage_cube_adeline;
 mod vintage_cube_adventure;
 mod vintage_cube_aether_spellbomb;
-mod vintage_cube_agathas_soul_cauldron;
 mod vintage_cube_ajani;
 mod vintage_cube_amped_raptor;
 mod vintage_cube_ancient_tomb;
@@ -948,3 +947,4 @@ pub(in crate::game) mod composed_mechanic_programs;
 mod playtest_regressions;
 
 mod lost_caverns_of_ixalan;
+mod wilds_of_eldraine;

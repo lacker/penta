@@ -110,12 +110,25 @@ pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new
 );
 
 // KTK 37 — Disdainful Stroke
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISDAINFUL_STROKE: CardRecord = CardRecord::new(
     "Disdainful Stroke",
     "180425c9-1898-48d4-9932-ddfb1a28e6b0",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Counter target spell with mana value 4 or greater.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::counter_target(TargetIndex::PRIMARY),
+    )]),
 );
 
 // KTK 59 — Treasure Cruise

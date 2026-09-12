@@ -1,6 +1,9 @@
 //! Dominaria United cards cataloged for the Vintage Cube pool.
 
 use super::CardRecord;
+use crate::card::ManaColor;
+use crate::card::CostDef;
+use crate::card::AddManaEffectDef;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
@@ -362,12 +365,22 @@ pub(in crate::card::sets) static GARNA_BLOODFIST_OF_KELD: CardRecord = CardRecor
 );
 
 // DMU 246 — Crystal Grotto
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYSTAL_GROTTO: CardRecord = CardRecord::new(
     "Crystal Grotto",
     "bd250c9d-c65f-4293-a6b0-007fac634d3d",
     "Piotr Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, scry 1.",
+            abilities::scry(ValueDef::Constant(1)),
+        ),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // DMU 282 — Serra Redeemer

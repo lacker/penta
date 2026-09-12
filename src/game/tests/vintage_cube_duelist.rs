@@ -192,12 +192,12 @@ fn the_ability_pays_out_only_once_each_turn() {
 
 /// "At least one card in an opponent's graveyard": the crime need not be a
 /// spell and need not touch anything they control on the battlefield.
-/// Tapping a Cauldron for a card in their graveyard is enough.
+/// Activating Scavenging Ooze for a card in their graveyard is enough.
 #[test]
 fn eating_a_card_from_their_graveyard_is_a_crime() {
     let (mut game, _duelist) = staged();
-    let cauldron = game
-        .put_onto_battlefield(PlayerId::One, cards::AGATHAS_SOUL_CAULDRON)
+    let ooze = game
+        .put_onto_battlefield(PlayerId::One, cards::SCAVENGING_OOZE)
         .expect("cataloged");
     for permanent in &mut game.battlefield {
         permanent.entered_controller_turn = 0;
@@ -215,6 +215,7 @@ fn eating_a_card_from_their_graveyard_is_a_crime() {
     game.cards_drawn_this_turn = [0; 2];
     let hand_before = game.players[0].hand.len();
 
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 1);
     let activate = game
         .legal_actions(PlayerId::One)
         .into_iter()
@@ -222,7 +223,7 @@ fn eating_a_card_from_their_graveyard_is_a_crime() {
             Action::ActivateAbility {
                 source, targets, ..
             } => {
-                *source == cauldron
+                *source == ooze
                     && targets
                         .iter()
                         .flat_map(crate::casting::TargetSelection::targets)
@@ -230,7 +231,7 @@ fn eating_a_card_from_their_graveyard_is_a_crime() {
             }
             _ => false,
         })
-        .expect("the Cauldron can point at a card in their graveyard");
+        .expect("Scavenging Ooze can point at a card in their graveyard");
     game.apply(PlayerId::One, activate).expect("it activates");
     settle(&mut game);
     drain_pending(&mut game);

@@ -197,12 +197,21 @@ CardRules::new_instant(mana_cost!("{4}{R}"))
 );
 
 // CHK 204 — Commune with Nature
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COMMUNE_WITH_NATURE: CardRecord = CardRecord::new(
     "Commune with Nature",
     "ce0b706e-017d-4f82-b280-cf9fdf75aef8",
     "Edward P. Beard, Jr.",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&[AbilityDef::spell(
+        "Look at the top five cards of your library. You may reveal a \
+creature card from among them and put it into your hand. Put \
+the rest on the bottom of your library in any order.",
+        abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(
+            ValueDef::Constant(5),
+            ObjectPredicateDef::HasType(CardType::Creature),
+            0,
+            1,
+        ),
+    )]),
 );
 
 // CHK 239 — Sakura-Tribe Elder

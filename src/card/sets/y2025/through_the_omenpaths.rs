@@ -1,4 +1,7 @@
 //! Through the Omenpaths card inventory.
+//!
+//! This set has no independent card definitions. Its printings share canonical
+//! rules and unsupported-capability audits with Marvel's Spider-Man and Stronghold.
 
 use super::CardRecord;
 use super::PrintingRecord;

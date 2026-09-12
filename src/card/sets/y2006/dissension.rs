@@ -58,12 +58,25 @@ pub(in crate::card::sets) static GUARDIAN_OF_THE_GUILDPACT: CardRecord = CardRec
 );
 
 // DIS 33 — Spell Snare
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPELL_SNARE: CardRecord = CardRecord::new(
     "Spell Snare",
     "35554fdf-c70a-4baa-a35a-414caa9978be",
     "Hideaki Takamura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Counter target spell with mana value 2.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(2)),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::counter_target(TargetIndex::PRIMARY),
+    )]),
 );
 
 // DIS 47 — Macabre Waltz

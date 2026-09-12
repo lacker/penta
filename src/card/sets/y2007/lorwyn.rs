@@ -44,12 +44,12 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // LRW 11 — Crib Swap
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static CRIB_SWAP: CardRecord = CardRecord::new(
     "Crib Swap",
     "a9044585-4d44-42fb-ad7b-e0e224fbc502",
     "Brandon Dorman",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // LRW 34 — Oblivion Ring
@@ -244,12 +244,12 @@ pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new(
 );
 
 // LRW 128 — Nameless Inversion
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static NAMELESS_INVERSION: CardRecord = CardRecord::new(
     "Nameless Inversion",
     "94b4e4d2-2358-48d2-9a2a-3d17afea28f5",
     "Jeff Miracola",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // LRW 145 — Thoughtseize
@@ -415,12 +415,12 @@ pub(in crate::card::sets) static IMPERIOUS_PERFECT: CardRecord = CardRecord::new
 );
 
 // LRW 261 — Springleaf Drum
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an immediate mana-ability payment combining TapSource with a chosen untapped creature; ordinary nonmana activations support that tap payment but the immediate mana path does not.
 pub(in crate::card::sets) static SPRINGLEAF_DRUM: CardRecord = CardRecord::new(
     "Springleaf Drum",
     "fa8b09d0-fbd2-4441-9d87-02450412e0db",
     "Cyril Van Der Haegen",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // LRW 262 — Thorn of Amethyst

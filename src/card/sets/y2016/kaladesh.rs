@@ -287,12 +287,34 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
 );
 
 // KLD 146 — Blossoming Defense
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOSSOMING_DEFENSE: CardRecord = CardRecord::new(
     "Blossoming Defense",
     "5c026c39-b09c-408a-844f-fb5eb785862a",
     "Anastasia Ovchinnikova",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature you control gets +2/+2 and gains hexproof \
+         until end of turn. (It can't be the target of spells or \
+         abilities your opponents control.)",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                AppliedEffectDef::add_ability(&abilities::hexproof()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // KLD 176 — Cloudblazer

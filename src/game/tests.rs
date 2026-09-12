@@ -960,4 +960,5 @@ mod final_fantasy;
 
 mod spider_man;
 
+mod lorwyn_eclipsed;
 mod tarkir_dragonstorm;

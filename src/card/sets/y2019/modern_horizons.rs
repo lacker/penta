@@ -18,6 +18,7 @@ use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ColorChoiceOperationDef;
 use crate::card::ComparisonDef;
+use crate::card::ControlDurationDef;
 use crate::card::CostDef;
 use crate::card::CostQuantityDef;
 use crate::card::CounterKind;
@@ -42,6 +43,7 @@ use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealAndClassifyCardsDef;
+use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
@@ -515,12 +517,12 @@ pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord
 );
 
 // MH1 94 — Graveshifter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an all-zone creature-type characteristic-defining ability whose all-types value is copiable; battlefield all-type modifiers do not implement changeling.
 pub(in crate::card::sets) static GRAVESHIFTER: CardRecord = CardRecord::new(
     "Graveshifter",
     "128c516b-7eb1-4f81-8b54-428bd0649d92",
     "Jakub Kasper",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MH1 101 — Putrid Goblin
@@ -572,12 +574,47 @@ pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::
 );
 
 // MH1 126 — Goatnap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOATNAP: CardRecord = CardRecord::new(
     "Goatnap",
     "709d4928-e976-4c7c-ba09-cce95d1797b2",
     "Mark Zug",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Gain control of target creature until end of turn. Untap that \
+         creature. It gains haste until end of turn. If that creature \
+         is a Goat, it also gets +3/+0 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::gain_control(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                PlayerRefDef::EffectController,
+                ControlDurationDef::UntilEndOfTurn,
+            ),
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goat")),
+                },
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            },
+        ]),
+    )]),
 );
 
 // MH1 130 — Goblin Oriflamme

@@ -241,12 +241,12 @@ pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new
 );
 
 // MOM 80 — Temporal Cleansing
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a library insertion at the second position from the top; ZonePlacement supports top and bottom but not an indexed position.
 pub(in crate::card::sets) static TEMPORAL_CLEANSING: CardRecord = CardRecord::new(
     "Temporal Cleansing",
     "6e67031a-8216-4c66-b6fb-6628bd02d279",
     "Dominik Mayer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MOM 98 — Corrupted Conviction

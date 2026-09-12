@@ -123,12 +123,12 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
 );
 
 // EVE 66 — Bloom Tender
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs conditional immediate mana production once per represented color in a single mana ability; nonmana IfCondition composition cannot resolve inside an immediate mana activation.
 pub(in crate::card::sets) static BLOOM_TENDER: CardRecord = CardRecord::new(
     "Bloom Tender",
     "d7cc2828-dfe7-410b-9735-10bb7211f0f5",
     "Chippy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // EVE 67 — Duskdale Wurm

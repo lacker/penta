@@ -349,8 +349,10 @@ impl Game {
 
     pub(super) fn discard_cards(&mut self, player: PlayerId, cards: &[GameObjectId]) {
         self.discard_cards_with_cause(player, cards, ZoneMoveCause::Rules);
-        self.cleanup_pending = false;
-        self.complete_cleanup();
+        if self.cleanup_pending {
+            self.cleanup_pending = false;
+            self.complete_cleanup();
+        }
     }
 
     /// Where a card headed for one zone actually goes, when a permanent on the

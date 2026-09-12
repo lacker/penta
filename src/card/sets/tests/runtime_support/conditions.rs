@@ -43,7 +43,8 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         | ValueDef::StartingLifeTotal
         | ValueDef::CardTypesAmongGraveyards(_)
         // Static and triggered conditions read the same stored turn tally.
-        | ValueDef::CardsDrawnThisTurn(_) => true,
+        | ValueDef::CardsDrawnThisTurn(_)
+        | ValueDef::LifeGainedThisTurn(_) => true,
         ValueDef::Sum(sum) => {
             shared_condition_value(sum.left, static_context)
                 && shared_condition_value(sum.right, static_context)
@@ -63,7 +64,6 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         // computed.
         ValueDef::SourcePower
         | ValueDef::LandsPlayedThisTurn(_)
-        | ValueDef::LifeGainedThisTurn(_)
         | ValueDef::DevotionTo(_)
         | ValueDef::LibrarySize(_)
         | ValueDef::SpellsCastThisGame(_)

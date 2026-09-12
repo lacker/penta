@@ -256,12 +256,24 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
 );
 
 // RAV 93 — Last Gasp
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LAST_GASP: CardRecord = CardRecord::new(
     "Last Gasp",
     "34e035b3-bd83-43a4-8f31-d2393d29cd94",
     "Thomas M. Baxa",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets -3/-3 until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-3),
+                ValueDef::Constant(-3),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // RAV 125 — Frenzied Goblin

@@ -6,15 +6,19 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
 use crate::card::BattlefieldArrivalDef;
 use crate::card::BattlefieldEntryModificationDef;
 use crate::card::CardArt;
+use crate::card::CardNameDef;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ComparisonDef;
+use crate::card::ConditionDef;
 use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
@@ -23,6 +27,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ExilePlayDurationDef;
 use crate::card::ManaColor;
 use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCountConditionDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
 use crate::card::ObjectRefDef;
@@ -30,10 +35,12 @@ use crate::card::ObjectSetDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
+use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::ScaledValueDef;
 use crate::card::SubtypeDef;
 use crate::card::TokenCharacteristics;
+use crate::card::SumValueDef;
 use crate::card::TokenCountersDef;
 use crate::card::TokenDef;
 use crate::card::TriggerEventDef;
@@ -264,12 +271,41 @@ pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
 );
 
 // VOW 142 — Ancestral Anger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTRAL_ANGER: CardRecord = CardRecord::new(
     "Ancestral Anger",
     "5dee47ab-d603-4346-97f4-a25dc3f47765",
     "Randy Vargas",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gains trample and gets +X/+0 until end of \
+         turn, where X is 1 plus the number of cards named Ancestral \
+         Anger in your graveyard.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Sum(&SumValueDef {
+                            left: ValueDef::Constant(1),
+                            right: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                ObjectPredicateDef::NameEquals(CardNameDef::Literal(
+                                    "Ancestral Anger",
+                                )),
+                                &[ZoneKind::Graveyard],
+                                PlayerRelation::You,
+                            )),
+                        }),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::draw_cards(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // VOW 174 — Reckless Impulse
@@ -461,48 +497,195 @@ pub(in crate::card::sets) static HALANA_AND_ALENA_PARTNERS: CardRecord = CardRec
 );
 
 // VOW 261 — Deathcap Glade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATHCAP_GLADE: CardRecord = CardRecord::new(
     "Deathcap Glade",
     "d5523659-98a8-4ae2-9ec7-d77e7352c374",
     "Sam Burley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other \
+             lands.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 2,
+                }),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {G}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // VOW 262 — Dreamroot Cascade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DREAMROOT_CASCADE: CardRecord = CardRecord::new(
     "Dreamroot Cascade",
     "eb604455-c411-414d-a2ef-e7567ee86a4d",
     "Sam Burley",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other \
+             lands.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 2,
+                }),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {U}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // VOW 264 — Shattered Sanctum
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHATTERED_SANCTUM: CardRecord = CardRecord::new(
     "Shattered Sanctum",
     "ad44c9aa-eb8f-4200-8dfe-2af728d80083",
     "Muhammad Firdaus",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other \
+             lands.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 2,
+                }),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {B}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // VOW 265 — Stormcarved Coast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STORMCARVED_COAST: CardRecord = CardRecord::new(
     "Stormcarved Coast",
     "299f1dee-b3d7-472b-aa0b-2f9b46a96da5",
     "Sarah Finnigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other \
+             lands.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 2,
+                }),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {R}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
+        ),
+    ]),
 );
 
 // VOW 266 — Sundown Pass
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNDOWN_PASS: CardRecord = CardRecord::new(
     "Sundown Pass",
     "8f3fddd7-ede4-41c7-a645-a6af298a3d35",
     "Muhammad Firdaus",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control two or more other \
+             lands.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 2,
+                }),
+                if_true: &[],
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {W}.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // VOW 310 — Bloodtithe Harvester

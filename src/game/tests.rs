@@ -964,3 +964,5 @@ mod lorwyn_eclipsed;
 mod tarkir_dragonstorm;
 
 mod marvel_super_heroes;
+
+mod secrets_of_strixhaven;

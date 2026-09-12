@@ -366,6 +366,18 @@ impl Game {
             }
             visitor(candidate)
         };
+        // A plan is selected for the complete predicate before visiting any
+        // candidate. Prospective and resolving-effect contexts retain their
+        // distinct reference characteristic semantics.
+        let prepared = if prospective.is_none()
+            && effect_context.is_none()
+            && query.relative_position.is_none()
+            && query.zones.contains(&ZoneKind::Battlefield)
+        {
+            self.prepared_engine.predicate(query.object)
+        } else {
+            None
+        };
         if query.relative_position.is_none() && query.zones.contains(&ZoneKind::Battlefield) {
             for permanent in &self.battlefield {
                 if !self.query_player_constraints_match(
@@ -376,6 +388,14 @@ impl Game {
                     context,
                     effect_context,
                 ) {
+                    continue;
+                }
+                if let Some(plan) = &prepared {
+                    if self.prepared_battlefield_predicate_matches(plan, permanent, source)
+                        && visitor(Target::Permanent(permanent.card.id)).is_break()
+                    {
+                        return ControlFlow::Break(());
+                    }
                     continue;
                 }
                 let characteristics = prospective.map_or_else(

@@ -98,10 +98,30 @@ fn compile_static_program(abilities: &[AbilityDef]) -> PreparedStaticProgram {
         has_static_effects,
         lanes,
         abilities: prepared_abilities.into_boxed_slice(),
+        base_abilities: abilities
+            .iter()
+            .copied()
+            .enumerate()
+            .map(|(index, ability)| {
+                (
+                    crate::AbilityId::from_index(index).expect("validated ability index"),
+                    ability,
+                )
+            })
+            .collect(),
+        base_keywords: abilities.iter().fold(0, |mask, ability| {
+            if let DeclarativeAbilityDef::Keyword(keyword) = ability.definition {
+                keyword
+                    .simple_index()
+                    .map_or(mask, |index| mask | (1 << index))
+            } else {
+                mask
+            }
+        }),
     }
 }
 
-fn collect_effect_lanes(effect: EffectDef, lanes: &mut u8, has_static_effects: &mut bool) {
+fn collect_effect_lanes(effect: EffectDef, lanes: &mut u16, has_static_effects: &mut bool) {
     match effect {
         EffectDef::Sequence(effects) => {
             for effect in effects {
@@ -129,7 +149,7 @@ fn collect_effect_lanes(effect: EffectDef, lanes: &mut u8, has_static_effects: &
 
 fn collect_applied_effect_lanes(
     effect: AppliedEffectDef,
-    lanes: &mut u8,
+    lanes: &mut u16,
     has_static_effects: &mut bool,
 ) {
     match effect {
@@ -140,7 +160,7 @@ fn collect_applied_effect_lanes(
         }
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => {
             *has_static_effects = true;
-            *lanes |= static_lane(effect).mask();
+            *lanes |= component_lanes(effect);
         }
     }
 }
@@ -219,7 +239,7 @@ impl StaticAbilityCompiler {
         &mut self,
         effect: AppliedEffectDef,
         components: &mut Vec<PreparedStaticComponent>,
-        lanes: &mut u8,
+        lanes: &mut u16,
     ) {
         match effect {
             AppliedEffectDef::Composite(effects) => {
@@ -246,17 +266,40 @@ impl StaticAbilityCompiler {
                 } else {
                     None
                 };
-                let lane = static_lane(effect);
-                *lanes |= lane.mask();
+                let component_lanes = component_lanes(effect);
+                *lanes |= component_lanes;
                 components.push(PreparedStaticComponent {
                     effect,
                     grant,
                     component_order,
-                    lane,
+                    lanes: component_lanes,
                 });
             }
         }
     }
+}
+
+fn component_lanes(effect: AppliedEffectDef) -> u16 {
+    use crate::{AppliedRuleDef, PowerToughnessOperationDef};
+    let extra = match effect {
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+            PowerToughnessOperationDef::Define { .. }
+            | PowerToughnessOperationDef::SetBase { .. }
+            | PowerToughnessOperationDef::SetBasePower(_)
+            | PowerToughnessOperationDef::SetBaseToughness(_),
+        )) => PreparedStaticLane::BasePowerToughness.mask(),
+        AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(_)) => {
+            PreparedStaticLane::PlayRestrictions.mask()
+        }
+        AppliedEffectDef::Rule(
+            AppliedRuleDef::MayPlayFromGraveyard(_)
+            | AppliedRuleDef::MayPlayFromTopOfLibrary { .. }
+            | AppliedRuleDef::GrantsAlternativeCastFromGraveyard { .. }
+            | AppliedRuleDef::MayCastAsThoughItHadFlash(_),
+        ) => PreparedStaticLane::PlayPermissions.mask(),
+        _ => 0,
+    };
+    static_lane(effect).mask() | extra
 }
 
 fn static_lane(effect: AppliedEffectDef) -> PreparedStaticLane {

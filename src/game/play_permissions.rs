@@ -520,6 +520,14 @@ impl Game {
         affected_player: PlayerId,
         visitor: &mut impl FnMut(AbilitySourceRef, PlayPermission) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
+        if self
+            .prepared_static_program(Self::effective_rules_source(source))
+            .is_some_and(|program| {
+                !program.supplies(crate::prepared_engine::PreparedStaticLane::PlayPermissions)
+            })
+        {
+            return ControlFlow::Continue(());
+        }
         let Some(rules) = self.effective_rules(source) else {
             return ControlFlow::Continue(());
         };

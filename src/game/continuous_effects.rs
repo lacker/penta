@@ -52,10 +52,22 @@ pub(super) enum StaticEffectKind {
     Abilities,
     Subtypes,
     PowerToughness,
+    BasePowerToughness,
 }
 
 impl StaticEffectKind {
     const fn includes(self, effect: AppliedEffectDef) -> bool {
+        if matches!(self, Self::BasePowerToughness) {
+            return matches!(
+                effect,
+                AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+                    super::PowerToughnessOperationDef::Define { .. }
+                        | super::PowerToughnessOperationDef::SetBase { .. }
+                        | super::PowerToughnessOperationDef::SetBasePower(_)
+                        | super::PowerToughnessOperationDef::SetBaseToughness(_)
+                ))
+            );
+        }
         matches!(
             (self, effect),
             (
@@ -107,6 +119,7 @@ impl StaticEffectKind {
             Self::Abilities => PreparedStaticLane::Abilities,
             Self::Subtypes => PreparedStaticLane::Subtypes,
             Self::PowerToughness => PreparedStaticLane::PowerToughness,
+            Self::BasePowerToughness => PreparedStaticLane::BasePowerToughness,
         }
     }
 }

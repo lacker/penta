@@ -229,6 +229,14 @@ impl Game {
 
         let land_type_sources = self.land_type_effect_sources(None);
         for source in self.battlefield.iter().chain(self.emblems.iter()) {
+            if self
+                .prepared_static_program(Self::effective_rules_source(source))
+                .is_some_and(|program| {
+                    !program.supplies(crate::prepared_engine::PreparedStaticLane::PlayRestrictions)
+                })
+            {
+                continue;
+            }
             let Some(rules) = self.effective_rules(source) else {
                 continue;
             };

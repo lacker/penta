@@ -354,6 +354,7 @@ fn prepared_static_program_matches_reference_lanes_and_component_identity() {
             StaticEffectKind::Abilities,
             StaticEffectKind::Subtypes,
             StaticEffectKind::PowerToughness,
+            StaticEffectKind::BasePowerToughness,
         ] {
             let reference = static_effects(&mut game, affected, kind, false);
             let prepared = static_effects(&mut game, affected, kind, true);
@@ -361,3 +362,6 @@ fn prepared_static_program_matches_reference_lanes_and_component_identity() {
         }
     }
 }
+
+#[path = "prepared_queries.rs"]
+mod prepared_queries;

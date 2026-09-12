@@ -580,7 +580,6 @@ mod vintage_cube_elvish_reclaimer;
 mod vintage_cube_emperor_of_bones;
 mod vintage_cube_emry;
 mod vintage_cube_endurance;
-mod vintage_cube_enduring_innocence;
 mod vintage_cube_ephemerate;
 mod vintage_cube_ertai_resurrected;
 mod vintage_cube_esikas_chariot;
@@ -621,7 +620,6 @@ mod vintage_cube_gau;
 mod vintage_cube_generous_ent;
 mod vintage_cube_generous_plunderer;
 mod vintage_cube_get_lost;
-mod vintage_cube_ghost_vacuum;
 mod vintage_cube_gitaxian_probe;
 mod vintage_cube_giver_of_runes;
 mod vintage_cube_glimmer_lens;
@@ -903,7 +901,6 @@ mod vintage_cube_vivi_ornitier;
 mod vintage_cube_voice_of_victory;
 mod vintage_cube_voldaren_epicure;
 mod vintage_cube_vote;
-mod vintage_cube_walk_in_closet;
 mod vintage_cube_walking_ballista;
 mod vintage_cube_wandering_emperor;
 mod vintage_cube_wasteland;
@@ -945,6 +942,8 @@ pub(in crate::game) mod composed_mechanic_programs;
 
 mod playtest_regressions;
 
+mod bloomburrow;
 mod lost_caverns_of_ixalan;
 mod wilds_of_eldraine;
-mod bloomburrow;
+
+mod duskmourn;

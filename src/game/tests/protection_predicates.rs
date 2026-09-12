@@ -134,7 +134,7 @@ fn azorius_first_wing_applies_every_part_of_protection_from_enchantments() {
     let mut game = ready_game();
     let first_wing = creature(20_100, cards::AZORIUS_FIRST_WING, PlayerId::One);
     let first_wing_id = first_wing.card.id;
-    let enchantment_creature = creature(20_101, cards::ENDURING_INNOCENCE, PlayerId::Two);
+    let enchantment_creature = creature(20_101, cards::FEAR_OF_SURVEILLANCE, PlayerId::Two);
     let enchantment_creature_id = enchantment_creature.card.id;
     let bear = creature(20_102, cards::GRIZZLY_BEARS, PlayerId::Two);
     let bear_id = bear.card.id;

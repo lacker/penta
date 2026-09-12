@@ -328,14 +328,14 @@ fn the_shuffle_waits_on_the_stack_with_the_wurm_in_the_graveyard() {
 
 /// The ruling's own example, taken up: "players can respond to this ability,
 /// for example, by trying to exile Worldspine Wurm from the graveyard before
-/// it's shuffled into a library." A Ghost Vacuum does exactly that, and the
+/// it's shuffled into a library." A Scavenging Ooze does exactly that, and the
 /// shuffle then resolves onto nothing. The three Wurms still arrive -- that
 /// trigger belongs to the permanent that died and asks nothing of the card.
 #[test]
 fn a_wurm_exiled_before_the_shuffle_never_goes_home() {
     let mut game = staged();
     let vacuum = game
-        .put_onto_battlefield(PlayerId::Two, cards::GHOST_VACUUM)
+        .put_onto_battlefield(PlayerId::Two, cards::SCAVENGING_OOZE)
         .expect("cataloged");
     let wurm = game
         .put_onto_battlefield(PlayerId::One, cards::WORLDSPINE_WURM)
@@ -397,7 +397,8 @@ fn a_wurm_exiled_before_the_shuffle_never_goes_home() {
         "and the Wurm is still sitting in the graveyard",
     );
 
-    // Their Vacuum answers it in the window the trigger leaves open.
+    // Their Ooze answers it in the window the trigger leaves open.
+    game.add_unrestricted_mana(PlayerId::Two, ManaColor::Green, 1);
     game.priority = PlayerId::Two;
     let action = game
         .legal_actions(PlayerId::Two)
@@ -413,7 +414,7 @@ fn a_wurm_exiled_before_the_shuffle_never_goes_home() {
             }
             _ => false,
         })
-        .expect("the Vacuum can point at a card in a graveyard");
+        .expect("the Ooze can point at a card in a graveyard");
     game.apply(PlayerId::Two, action).expect("it activates");
     settle(&mut game);
 

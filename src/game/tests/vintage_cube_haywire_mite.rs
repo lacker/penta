@@ -152,7 +152,7 @@ fn it_exiles_a_noncreature_enchantment() {
         .put_onto_battlefield(PlayerId::Two, cards::OATH_OF_DRUIDS)
         .expect("cataloged");
     let innocence = game
-        .put_onto_battlefield(PlayerId::Two, cards::ENDURING_INNOCENCE)
+        .put_onto_battlefield(PlayerId::Two, cards::FEAR_OF_SURVEILLANCE)
         .expect("cataloged");
     drain_pending(&mut game);
 

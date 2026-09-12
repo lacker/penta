@@ -372,18 +372,18 @@ fn a_split_card_off_the_top_costs_both_halves() {
 
 /// "While in any zone other than the stack or the battlefield, a Room card's
 /// characteristics are a combination of its two doors." Off the top of a
-/// library that is {2}{G} and {3}{G}{G} together: eight, not three.
+/// library that is {1}{R} and {3}{U}{U} together: seven, not two.
 #[test]
 fn a_room_card_off_the_top_costs_both_doors() {
-    let (mut game, bronco) = staged(&[], &[cards::WALK_IN_CLOSET_FORGOTTEN_CELLAR]);
+    let (mut game, bronco) = staged(&[], &[cards::ROARING_FURNACE]);
     let before = game.players[PlayerId::One.index()].life;
 
     attack(&mut game, bronco);
 
     assert_eq!(
         game.players[PlayerId::One.index()].life,
-        before - 8,
-        "three for the Closet and five for the Cellar",
+        before - 7,
+        "two for the Furnace and five for the Sauna",
     );
 }
 

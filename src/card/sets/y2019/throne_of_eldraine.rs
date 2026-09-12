@@ -809,12 +809,32 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
 );
 
 // ELD 139 — Scorching Dragonfire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCORCHING_DRAGONFIRE: CardRecord = CardRecord::new(
     "Scorching Dragonfire",
     "3b74a806-ed74-458e-8903-d3d084e9f507",
     "Eric Velhagen",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Scorching Dragonfire deals 3 damage to target creature or \
+         planeswalker. If that creature or planeswalker would die this \
+         turn, exile it instead.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )]),
 );
 
 // ELD 146 — Thrill of Possibility

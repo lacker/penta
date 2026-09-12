@@ -24,6 +24,7 @@ struct DeckFile {
     #[serde(default)]
     commanders: Mapping,
     main: Mapping,
+    #[serde(default)]
     sideboard: Mapping,
 }
 
@@ -271,6 +272,22 @@ mod tests {
     }
 
     #[test]
+    fn omitted_sideboard_generates_the_same_deck_as_an_empty_mapping() {
+        let path = "decks/premodern/example.yaml";
+        let omitted = Source::parse(path, &YAML.replace("sideboard: {}\n", ""));
+        assert_eq!(
+            registry(vec![omitted]),
+            registry(vec![Source::parse(path, YAML)])
+        );
+
+        let populated = Source::parse(
+            path,
+            &YAML.replace("sideboard: {}", "sideboard:\n  Island: 2"),
+        );
+        assert_eq!(entries(&populated.deck.sideboard, path), [("Island", 2)]);
+    }
+
+    #[test]
     fn yaml_accepts_optional_commander_mapping() {
         let source = Source::parse(
             "decks/cedh/example.yaml",
@@ -313,7 +330,8 @@ mod tests {
             YAML.replace("Mountain: 2", "Mountain: -1"),
             YAML.replace("Mountain: 2", "Mountain: 1.5"),
             YAML.replace("Mountain: 2", "Mountain: 1\n  Mountain: 2"),
-            YAML.replace("sideboard: {}\n", ""),
+            YAML.replace("sideboard: {}", "sideboard: []"),
+            YAML.replace("sideboard: {}", "sideboard:\n  Island: 0"),
             format!("{YAML}id: other\n"),
             format!("{YAML}order: 1\n"),
         ] {

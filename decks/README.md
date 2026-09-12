@@ -14,16 +14,15 @@ format profile is registered; `make deck-report` reports that separately.
 name: Example Deck
 id: example_deck
 aliases: [Example]
-commanders: {}
 main:
   Mountain: 60
-sideboard: {}
 ```
 
 - `name` is the required display name and case-insensitive lookup name.
-- `main` and `sideboard` are required card-name mappings with positive integer
-  counts. Use `{}` for an empty section. Quote names containing a colon,
-  such as `"Circle of Protection: Red"`.
+- `main` is a required card-name mapping with positive integer counts.
+  Quote names containing a colon, such as `"Circle of Protection: Red"`.
+- `sideboard` is an optional card-name mapping with positive integer counts.
+  Omit it when the deck has no sideboard; an omitted section defaults to empty.
 - `commanders` optionally names the physical card or cards designated for the
   command zone. Like the other sections, it is a card-name mapping with
   positive counts; use it only for Commander-family formats. A commander is

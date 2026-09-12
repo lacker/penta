@@ -110,7 +110,7 @@ fn print_deck_report() {
 }
 
 #[test]
-fn cedh_corpus_preserves_all_imported_command_zones_and_provenance() {
+fn cedh_seed_decks_keep_commanders_separate() {
     let catalog = card::catalog().expect("built-in catalog");
     assert!(Format::Cedh.defers_deck_legality());
     let metadata = Format::Cedh
@@ -126,11 +126,7 @@ fn cedh_corpus_preserves_all_imported_command_zones_and_provenance() {
         .iter()
         .filter(|source| source.format == Some(Format::Cedh))
         .collect::<Vec<_>>();
-    assert_eq!(
-        decks.len(),
-        119,
-        "one built-in deck for every imported list"
-    );
+    assert!(!decks.is_empty(), "cEDH has seed decklists");
 
     for source in decks {
         assert!(
@@ -157,35 +153,4 @@ fn cedh_corpus_preserves_all_imported_command_zones_and_provenance() {
         deck.validate_for_format(&catalog, Format::Cedh)
             .unwrap_or_else(|error| panic!("{}: {error}", source.source));
     }
-
-    let provenance: serde_json::Value = serde_json::from_str(include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/decks/cedh/provenance.json"
-    )))
-    .expect("cEDH provenance is valid JSON");
-    assert_eq!(provenance["event"]["entry_count"], 123);
-    let entries = provenance["entries"]
-        .as_array()
-        .expect("cEDH provenance has entries");
-    assert_eq!(entries.len(), 123);
-    let imported = entries
-        .iter()
-        .filter(|entry| entry["status"] == "imported")
-        .collect::<Vec<_>>();
-    let unavailable = entries
-        .iter()
-        .filter(|entry| entry["status"] == "unavailable")
-        .collect::<Vec<_>>();
-    assert_eq!(imported.len(), 119);
-    assert_eq!(unavailable.len(), 4);
-    assert!(imported.iter().all(|entry| {
-        entry["sections"]["Commanders"].is_object()
-            && entry["sections"]["Mainboard"].is_object()
-            && entry["sections"]["Sideboard"].is_object()
-    }));
-    assert!(unavailable.iter().all(|entry| {
-        entry["reason"]
-            .as_str()
-            .is_some_and(|reason| !reason.is_empty())
-    }));
 }

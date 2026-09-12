@@ -5,7 +5,7 @@
 name: "Nacional de cEDH 100K @ WolfCon 2026 — 24th place, Andres alejandro solarte"
 id: nacional_024_338694_andres_alejandro_solarte
 description: "Exact tournament decklist for Andres alejandro solarte, 24th place at Nacional de cEDH 100K @ WolfCon 2026."
-# Auxiliary source sections retained in provenance.json and unsupported by gameplay: Stickers.
+# Auxiliary source sections omitted because gameplay does not support them: Stickers.
 commanders:
   "Urabrask // The Great Work": 1
 main:
@@ -98,4 +98,3 @@ main:
   "Wheel of Misfortune": 1
   "Wooded Foothills": 1
   "Wrenn's Resolve": 1
-sideboard: {}

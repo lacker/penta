@@ -5,7 +5,7 @@
 name: "Nacional de cEDH 100K @ WolfCon 2026 — 5th place, Richie Rich"
 id: nacional_005_338675_richie_rich
 description: "Exact tournament decklist for Richie Rich, 5th place at Nacional de cEDH 100K @ WolfCon 2026."
-# Auxiliary source sections retained in provenance.json and unsupported by gameplay: Stickers.
+# Auxiliary source sections omitted because gameplay does not support them: Stickers.
 commanders:
   "Kraum, Ludevic's Opus": 1
   "Tymna the Weaver": 1
@@ -108,4 +108,3 @@ main:
   "Wheel of Fortune": 1
   "Windswept Heath": 1
   "Wishclaw Talisman": 1
-sideboard: {}

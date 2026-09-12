@@ -53,14 +53,13 @@ battlefield exit-replacement pipeline, checkpoints paused inside a hand/library
 replacement choice are not yet reconstructible. Command journals can replay
 those choices through the authoritative action interface.
 
-## Tournament corpus
+## Seed decklists
 
-[`decks/cedh`](../decks/cedh/README.md) contains all 119 downloadable lists from
-the 123-entry Nacional de cEDH 100K @ WolfCon 2026 tournament. Its provenance
-records all entries, the four unavailable lists, original deck text, links and
-auxiliary sticker sections. Importing a list does not imply complete card
-support or legality. Catalog coverage reports measure the union of the imported
-cards, not the full Commander-legal card pool.
+[`decks/cedh`](../decks/cedh/README.md) seeds the format with 119 competitive
+lists from Nacional de cEDH 100K @ WolfCon 2026. These are starting points for
+the deck catalog and can evolve independently of the event. Including a list
+does not imply complete card support or legality. Catalog coverage reports
+measure the cards used by these decks.
 
 ## Sources
 

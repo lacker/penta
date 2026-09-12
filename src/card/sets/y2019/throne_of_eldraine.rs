@@ -578,12 +578,24 @@ pub(in crate::card::sets) static BAKE_INTO_A_PIE: CardRecord = CardRecord::new(
 );
 
 // ELD 85 — Epic Downfall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EPIC_DOWNFALL: CardRecord = CardRecord::new(
     "Epic Downfall",
     "63da83fe-fa59-40cb-a42e-e1b14b650bc8",
     "Eric Deschamps",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Exile target creature with mana value 3 or greater.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(2)),
+            ]),
+        )],
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
+    )]),
 );
 
 // ELD 110 — Wishclaw Talisman

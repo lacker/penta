@@ -114,12 +114,12 @@ pub(in crate::card::sets) static VORACIOUS_GREATSHARK: CardRecord = CardRecord::
 );
 
 // IKO 91 — Heartless Act
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs one up-to-three counter-removal choice distributed among any counter kinds on the target; current removal effects specify one kind or remove every counter.
 pub(in crate::card::sets) static HEARTLESS_ACT: CardRecord = CardRecord::new(
     "Heartless Act",
     "e4e6794a-feeb-4fc8-a2ee-38c75c18aaae",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // IKO 134 — Rumbling Rockslide

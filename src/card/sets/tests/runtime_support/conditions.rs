@@ -41,7 +41,9 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         ValueDef::Constant(_)
         | ValueDef::LifeTotal(_)
         | ValueDef::StartingLifeTotal
-        | ValueDef::CardTypesAmongGraveyards(_) => true,
+        | ValueDef::CardTypesAmongGraveyards(_)
+        // Static and triggered conditions read the same stored turn tally.
+        | ValueDef::CardsDrawnThisTurn(_) => true,
         ValueDef::Sum(sum) => {
             shared_condition_value(sum.left, static_context)
                 && shared_condition_value(sum.right, static_context)
@@ -60,7 +62,6 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         // sizing a creature by its own power would read the layer being
         // computed.
         ValueDef::SourcePower
-        | ValueDef::CardsDrawnThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)
         | ValueDef::DevotionTo(_)

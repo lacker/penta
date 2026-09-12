@@ -100,6 +100,14 @@ fn shared_spell_cost_value(value: ValueDef) -> bool {
     match value {
         ValueDef::Constant(_) | ValueDef::DistinctTargets => true,
         ValueDef::CountMatchingObjects(query) => shared_static_query(*query),
+        // Battlefield spell discounts use the same conditional count
+        // evaluator as a card's own discount.
+        ValueDef::IfMatchingObjectCount(condition) => {
+            shared_static_query(condition.query)
+                && shared_object_predicate(condition.query.object)
+                && shared_spell_cost_value(condition.then)
+                && shared_spell_cost_value(condition.otherwise)
+        }
         ValueDef::CountSpellsCastThisTurn(query) => {
             shared_object_predicate(query.spell) && shared_cost_modifier_caster(query.player, true)
         }

@@ -953,3 +953,5 @@ mod karlov_manor;
 mod thunder_junction;
 
 mod aetherdrift;
+
+mod avatar;

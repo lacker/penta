@@ -163,14 +163,14 @@ fn infusion_static_bonuses_follow_life_gain_and_turn_reset() {
 
 #[test]
 fn converge_entry_counts_colors_actually_paid() {
-    for color_count in [1, 3, 5] {
+    for color_count in [1_u16, 3, 5] {
         let mut game = board(&[]);
         let id = held(&mut game, cards::RANCOROUS_ARCHAIC);
         game.players[0].mana_pool = ManaPool::default();
-        for color in ManaColor::COLORS.into_iter().take(color_count) {
+        for color in ManaColor::COLORS.into_iter().take(usize::from(color_count)) {
             game.add_unrestricted_mana(PlayerId::One, color, 1);
         }
-        game.add_unrestricted_mana(PlayerId::One, ManaColor::COLORS[0], 5 - color_count as u16);
+        game.add_unrestricted_mana(PlayerId::One, ManaColor::COLORS[0], 5 - color_count);
         let action = game
             .legal_actions(PlayerId::One)
             .into_iter()
@@ -180,7 +180,7 @@ fn converge_entry_counts_colors_actually_paid() {
         settle(&mut game);
         assert_eq!(
             permanent(&game, cards::RANCOROUS_ARCHAIC).counters(CounterKind::PlusOnePlusOne),
-            color_count as u16
+            color_count
         );
     }
 }

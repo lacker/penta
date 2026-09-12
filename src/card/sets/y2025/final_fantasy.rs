@@ -141,7 +141,7 @@ pub const fn tiered(
 fn adventure_land(
     record: &CardRecord,
     name: &'static str,
-    alternate: CardRules,
+    alternate: &CardRules,
 ) -> crate::card::CardComposition {
     use crate::card::{
         AlternateSpellKind, CardComposition, CardEffectStatus, CardPart, CardStructure,
@@ -156,7 +156,7 @@ fn adventure_land(
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, primary_name, record.rules),
-            CardPart::new(CardPartId(1), name, alternate),
+            CardPart::new(CardPartId(1), name, *alternate),
         ],
         structure: CardStructure::AlternateSpell {
             main: CardPartId::PRIMARY,
@@ -8666,7 +8666,7 @@ pub(in crate::card::sets) static ISHGARD_THE_HOLY_SEE: CardRecord = CardRecord::
     adventure_land(
         &ISHGARD_THE_HOLY_SEE,
         "Faith & Grief",
-        const {
+        &const {
             CardRules::new_sorcery(mana_cost!("{3}{W}{W}"))
                 .with_subtypes(&const { ["Adventure"] })
                 .with_ability(
@@ -8718,7 +8718,7 @@ pub(in crate::card::sets) static JIDOOR_ARISTOCRATIC_CAPITAL: CardRecord = CardR
     adventure_land(
         &JIDOOR_ARISTOCRATIC_CAPITAL,
         "Overture",
-        const {
+        &const {
             CardRules::new_sorcery(mana_cost!("{4}{U}{U}"))
                 .with_subtypes(&const { ["Adventure"] })
                 .with_ability(
@@ -8762,7 +8762,7 @@ pub(in crate::card::sets) static LINDBLUM_INDUSTRIAL_REGENCY: CardRecord = CardR
     adventure_land(
         &LINDBLUM_INDUSTRIAL_REGENCY,
         "Mage Siege",
-        const {
+        &const {
             CardRules::new_instant(mana_cost!("{2}{R}"))
                 .with_subtypes(&const { ["Adventure"] })
                 .with_ability(
@@ -8827,7 +8827,7 @@ pub(in crate::card::sets) static MIDGAR_CITY_OF_MAKO: CardRecord = CardRecord::n
     adventure_land(
         &MIDGAR_CITY_OF_MAKO,
         "Reactor Raid",
-        const {
+        &const {
             CardRules::new_sorcery(mana_cost!("{2}{B}"))
                 .with_subtypes(&const { ["Adventure"] })
                 .with_ability(
@@ -8989,7 +8989,7 @@ pub(in crate::card::sets) static ZANARKAND_ANCIENT_METROPOLIS: CardRecord = Card
     adventure_land(
         &ZANARKAND_ANCIENT_METROPOLIS,
         "Lasting Fayth",
-        const {
+        &const {
             CardRules::new_sorcery(mana_cost!("{4}{G}{G}"))
                 .with_subtypes(&const { ["Adventure"] })
                 .with_ability(

@@ -348,7 +348,7 @@ less, put a +1/+1 counter on it.",
                 )]
             },
         );
-fn adventure(record: &CardRecord, name: &'static str, alternate: CardRules) -> CardComposition {
+fn adventure(record: &CardRecord, name: &'static str, alternate: &CardRules) -> CardComposition {
     let primary_name = record
         .name
         .split(" // ")
@@ -357,7 +357,7 @@ fn adventure(record: &CardRecord, name: &'static str, alternate: CardRules) -> C
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, primary_name, record.rules),
-            CardPart::new(CardPartId(1), name, alternate),
+            CardPart::new(CardPartId(1), name, *alternate),
         ],
         structure: CardStructure::AlternateSpell {
             main: CardPartId::PRIMARY,
@@ -468,7 +468,7 @@ pub(in crate::card::sets) static BESOTTED_KNIGHT: CardRecord = CardRecord::new(
     adventure(
         &BESOTTED_KNIGHT,
         "Betroth the Beast",
-        CardRules::new_sorcery(mana_cost!("{W}"))
+        &CardRules::new_sorcery(mana_cost!("{W}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -545,7 +545,7 @@ pub(in crate::card::sets) static CHEEKY_HOUSE_MOUSE: CardRecord = CardRecord::ne
     adventure(
         &CHEEKY_HOUSE_MOUSE,
         "Squeak By",
-        CardRules::new_sorcery(mana_cost!("{W}"))
+        &CardRules::new_sorcery(mana_cost!("{W}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -1748,7 +1748,7 @@ turn, this creature gets +2/+0 until end of turn.",
     adventure(
         &AQUATIC_ALCHEMIST,
         "Bubble Up",
-        CardRules::new_sorcery(mana_cost!("{2}{U}"))
+        &CardRules::new_sorcery(mana_cost!("{2}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -1820,7 +1820,7 @@ pub(in crate::card::sets) static BELUNA_S_GATEKEEPER: CardRecord = CardRecord::n
     adventure(
         &BELUNA_S_GATEKEEPER,
         "Entry Denied",
-        CardRules::new_sorcery(mana_cost!("{1}{U}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -2090,7 +2090,7 @@ on it.",
     adventure(
         &GALVANIC_GIANT,
         "Storm Reading",
-        CardRules::new_instant(mana_cost!("{5}{U}{U}"))
+        &CardRules::new_instant(mana_cost!("{5}{U}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -2380,7 +2380,7 @@ pub(in crate::card::sets) static OBYRA_S_ATTENDANTS: CardRecord = CardRecord::ne
     adventure(
         &OBYRA_S_ATTENDANTS,
         "Desperate Parry",
-        CardRules::new_instant(mana_cost!("{1}{U}"))
+        &CardRules::new_instant(mana_cost!("{1}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -2418,7 +2418,7 @@ pub(in crate::card::sets) static PICKLOCK_PRANKSTER: CardRecord =
         adventure(
             &PICKLOCK_PRANKSTER,
             "Free the Fae",
-            CardRules::new_instant(mana_cost!("{1}{U}"))
+            &CardRules::new_instant(mana_cost!("{1}{U}"))
                 .with_subtypes(&const { ["Adventure"] })
                 .with_ability(
                     AbilityDef::spell(
@@ -2727,7 +2727,7 @@ pub(in crate::card::sets) static VANTRESS_TRANSMUTER: CardRecord = CardRecord::n
     adventure(
         &VANTRESS_TRANSMUTER,
         "Croaking Curse",
-        CardRules::new_sorcery(mana_cost!("{1}{U}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -2822,7 +2822,7 @@ additional time.",
     adventure(
         &VIRTUE_OF_KNOWLEDGE,
         "Vantress Visions",
-        CardRules::new_instant(mana_cost!("{1}{U}"))
+        &CardRules::new_instant(mana_cost!("{1}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -3105,7 +3105,7 @@ pub(in crate::card::sets) static CONCEITED_WITCH: CardRecord = CardRecord::new(
     adventure(
         &CONCEITED_WITCH,
         "Price of Beauty",
-        CardRules::new_sorcery(mana_cost!("{B}"))
+        &CardRules::new_sorcery(mana_cost!("{B}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -3363,7 +3363,7 @@ library.",
     adventure(
         &FELL_HORSEMAN,
         "Deathly Ride",
-        CardRules::new_sorcery(mana_cost!("{1}{B}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{B}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -3447,7 +3447,7 @@ gained this turn.",
     adventure(
         &GUMDROP_POISONER,
         "Tempt with Treats",
-        CardRules::new_instant(mana_cost!("{B}"))
+        &CardRules::new_instant(mana_cost!("{B}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -4269,7 +4269,7 @@ from a graveyard onto the battlefield under your control.",
     adventure(
         &VIRTUE_OF_PERSISTENCE,
         "Locthwain Scorn",
-        CardRules::new_sorcery(mana_cost!("{1}{B}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{B}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -4472,7 +4472,7 @@ pub(in crate::card::sets) static BELLOWING_BRUISER: CardRecord = CardRecord::new
     adventure(
         &BELLOWING_BRUISER,
         "Beat a Path",
-        CardRules::new_sorcery(mana_cost!("{2}{R}"))
+        &CardRules::new_sorcery(mana_cost!("{2}{R}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -4846,7 +4846,7 @@ pub(in crate::card::sets) static GRABBY_GIANT: CardRecord = CardRecord::new(
     adventure(
         &GRABBY_GIANT,
         "That's Mine",
-        CardRules::new_instant(mana_cost!("{1}{R}"))
+        &CardRules::new_instant(mana_cost!("{1}{R}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -5016,7 +5016,7 @@ pub(in crate::card::sets) static MINECART_DAREDEVIL: CardRecord = CardRecord::ne
     adventure(
         &MINECART_DAREDEVIL,
         "Ride the Rails",
-        CardRules::new_instant(mana_cost!("{1}{R}"))
+        &CardRules::new_instant(mana_cost!("{1}{R}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -5112,7 +5112,7 @@ abilities::first_strike()}
 
 ).with_composition(|| adventure(&RATCATCHER_TRAINEE,
 "Pest Problem",
-CardRules::new_instant(mana_cost!("{2}{R}")).with_subtypes(&const {
+&CardRules::new_instant(mana_cost!("{2}{R}")).with_subtypes(&const {
 [
 "Adventure"]}
 ).with_ability(AbilityDef::spell("Create two 1/1 black Rat creature tokens with \"This token \
@@ -5483,7 +5483,7 @@ pub(in crate::card::sets) static TWO_HEADED_HUNTER: CardRecord = CardRecord::new
     adventure(
         &TWO_HEADED_HUNTER,
         "Twice the Rage",
-        CardRules::new_instant(mana_cost!("{1}{R}"))
+        &CardRules::new_instant(mana_cost!("{1}{R}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -5789,7 +5789,7 @@ owner's hand.",
     adventure(
         &BRAMBLE_FAMILIAR,
         "Fetch Quest",
-        CardRules::new_sorcery(mana_cost!("{5}{G}{G}"))
+        &CardRules::new_sorcery(mana_cost!("{5}{G}{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -6017,7 +6017,7 @@ pub(in crate::card::sets) static FEROCIOUS_WEREFOX: CardRecord = CardRecord::new
     adventure(
         &FEROCIOUS_WEREFOX,
         "Guard Change",
-        CardRules::new_instant(mana_cost!("{1}{G}"))
+        &CardRules::new_instant(mana_cost!("{1}{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -6147,7 +6147,7 @@ turn. Activate only once each turn.",
     adventure(
         &HOLLOW_SCAVENGER,
         "Bakery Raid",
-        CardRules::new_sorcery(mana_cost!("{G}"))
+        &CardRules::new_sorcery(mana_cost!("{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -6595,7 +6595,7 @@ pub(in crate::card::sets) static STORMKELD_VANGUARD: CardRecord = CardRecord::ne
     adventure(
         &STORMKELD_VANGUARD,
         "Bear Down",
-        CardRules::new_sorcery(mana_cost!("{1}{G}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -7674,7 +7674,7 @@ number of creature cards in all graveyards.",
     adventure(
         &CRUEL_SOMNOPHAGE,
         "Can't Wake Up",
-        CardRules::new_sorcery(mana_cost!("{1}{U}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -7750,7 +7750,7 @@ creature.",
     adventure(
         &DEVOURING_SUGARMAW,
         "Have for Dinner",
-        CardRules::new_instant(mana_cost!("{1}{W}"))
+        &CardRules::new_instant(mana_cost!("{1}{W}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -7808,7 +7808,7 @@ block it.",
     adventure(
         &ELUSIVE_OTTER,
         "Grove's Bounty",
-        CardRules::new_sorcery(mana_cost!("{X}{G}"))
+        &CardRules::new_sorcery(mana_cost!("{X}{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -7884,7 +7884,7 @@ gets +1/+1 until end of turn.",
     adventure(
         &FROLICKING_FAMILIAR,
         "Blow Off Steam",
-        CardRules::new_instant(mana_cost!("{R}"))
+        &CardRules::new_instant(mana_cost!("{R}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -7928,7 +7928,7 @@ life.\")",
     adventure(
         &GINGERBREAD_HUNTER,
         "Puny Snack",
-        CardRules::new_instant(mana_cost!("{2}{B}"))
+        &CardRules::new_instant(mana_cost!("{2}{B}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -8002,7 +8002,7 @@ and gain haste until end of turn.",
     adventure(
         &IMODANE_S_RECRUITER,
         "Train Troops",
-        CardRules::new_sorcery(mana_cost!("{4}{W}"))
+        &CardRules::new_sorcery(mana_cost!("{4}{W}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -8102,7 +8102,7 @@ Equipment attached to Kellan.",
     adventure(
         &KELLAN_THE_FAE_BLOODED,
         "Birthright Boon",
-        CardRules::new_sorcery(mana_cost!("{1}{W}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{W}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -8193,7 +8193,7 @@ until end of turn.",
     adventure(
         &PICNIC_RUINER,
         "Stolen Goodies",
-        CardRules::new_sorcery(mana_cost!("{3}{G}"))
+        &CardRules::new_sorcery(mana_cost!("{3}{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -8260,7 +8260,7 @@ pub(in crate::card::sets) static POLLEN_SHIELD_HARE: CardRecord = CardRecord::ne
     adventure(
         &POLLEN_SHIELD_HARE,
         "Hare Raising",
-        CardRules::new_sorcery(mana_cost!("{G}"))
+        &CardRules::new_sorcery(mana_cost!("{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -8361,7 +8361,7 @@ this creature deals 1 damage to that player.",
     adventure(
         &SCALDING_VIPER,
         "Steam Clean",
-        CardRules::new_sorcery(mana_cost!("{1}{U}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -8422,7 +8422,7 @@ pub(in crate::card::sets) static SHROUDED_SHEPHERD: CardRecord = CardRecord::new
     adventure(
         &SHROUDED_SHEPHERD,
         "Cleave Shadows",
-        CardRules::new_sorcery(mana_cost!("{1}{B}"))
+        &CardRules::new_sorcery(mana_cost!("{1}{B}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -8476,7 +8476,7 @@ pub(in crate::card::sets) static SPELLSCORN_COVEN: CardRecord = CardRecord::new(
     adventure(
         &SPELLSCORN_COVEN,
         "Take It Back",
-        CardRules::new_instant(mana_cost!("{2}{U}"))
+        &CardRules::new_instant(mana_cost!("{2}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -8540,7 +8540,7 @@ pub(in crate::card::sets) static TEMPEST_HART: CardRecord = CardRecord::new(
     adventure(
         &TEMPEST_HART,
         "Scan the Clouds",
-        CardRules::new_instant(mana_cost!("{1}{U}"))
+        &CardRules::new_instant(mana_cost!("{1}{U}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell(
@@ -8577,7 +8577,7 @@ pub(in crate::card::sets) static THREADBIND_CLIQUE: CardRecord = CardRecord::new
     adventure(
         &THREADBIND_CLIQUE,
         "Rip the Seams",
-        CardRules::new_instant(mana_cost!("{2}{W}"))
+        &CardRules::new_instant(mana_cost!("{2}{W}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -8630,7 +8630,7 @@ pub(in crate::card::sets) static TWINING_TWINS: CardRecord = CardRecord::new(
     adventure(
         &TWINING_TWINS,
         "Swift Spiral",
-        CardRules::new_instant(mana_cost!("{1}{W}"))
+        &CardRules::new_instant(mana_cost!("{1}{W}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -8677,7 +8677,7 @@ pub(in crate::card::sets) static WOODLAND_ACOLYTE: CardRecord = CardRecord::new(
     adventure(
         &WOODLAND_ACOLYTE,
         "Mend the Wilds",
-        CardRules::new_instant(mana_cost!("{G}"))
+        &CardRules::new_instant(mana_cost!("{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(
@@ -10068,7 +10068,7 @@ gain 3 life.\")",
     adventure(
         &INTREPID_TRUFFLESNOUT,
         "Go Hog Wild",
-        CardRules::new_instant(mana_cost!("{1}{G}"))
+        &CardRules::new_instant(mana_cost!("{1}{G}"))
             .with_subtypes(&const { ["Adventure"] })
             .with_ability(
                 AbilityDef::spell_with_targets(

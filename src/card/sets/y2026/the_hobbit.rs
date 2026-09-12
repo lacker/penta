@@ -1,6 +1,6 @@
 //! The Hobbit card inventory.
 
-fn adventure(record: &CardRecord, name: &'static str, alternate: CardRules) -> CardComposition {
+fn adventure(record: &CardRecord, name: &'static str, alternate: &CardRules) -> CardComposition {
     let primary_name = record
         .name
         .split(" // ")
@@ -9,7 +9,7 @@ fn adventure(record: &CardRecord, name: &'static str, alternate: CardRules) -> C
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, primary_name, record.rules),
-            CardPart::new(CardPartId(1), name, alternate),
+            CardPart::new(CardPartId(1), name, *alternate),
         ],
         structure: CardStructure::AlternateSpell {
             main: CardPartId::PRIMARY,
@@ -396,7 +396,7 @@ pub(in crate::card::sets) static BOFUR_RELIABLE_GUARDIAN: CardRecord = CardRecor
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&BOFUR_RELIABLE_GUARDIAN, "Concerted Care", ALTERNATE)
+    adventure(&BOFUR_RELIABLE_GUARDIAN, "Concerted Care", &ALTERNATE)
 });
 
 // HOB 7 — Celebrate the Mountain-king
@@ -1124,7 +1124,7 @@ pub(in crate::card::sets) static AN_UNEXPECTED_PARTY: CardRecord = CardRecord::n
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&AN_UNEXPECTED_PARTY, "At the Door", ALTERNATE)
+    adventure(&AN_UNEXPECTED_PARTY, "At the Door", &ALTERNATE)
 });
 
 // HOB 30 — Velvetwing Butterflies // Gaze in Wonder
@@ -1155,7 +1155,7 @@ pub(in crate::card::sets) static VELVETWING_BUTTERFLIES: CardRecord = CardRecord
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&VELVETWING_BUTTERFLIES, "Gaze in Wonder", ALTERNATE)
+    adventure(&VELVETWING_BUTTERFLIES, "Gaze in Wonder", &ALTERNATE)
 });
 
 // HOB 31 — Vow to Erebor
@@ -1208,7 +1208,7 @@ pub(in crate::card::sets) static BILBO_BAGGINS_BURGLAR: CardRecord = CardRecord:
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&BILBO_BAGGINS_BURGLAR, "Take a Glance", ALTERNATE)
+    adventure(&BILBO_BAGGINS_BURGLAR, "Take a Glance", &ALTERNATE)
 });
 
 // HOB 35 — Confusticate and Bebother
@@ -1540,7 +1540,7 @@ pub(in crate::card::sets) static LAKE_TOWN_MARINERS: CardRecord = CardRecord::ne
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&LAKE_TOWN_MARINERS, "Gone Fishing", ALTERNATE)
+    adventure(&LAKE_TOWN_MARINERS, "Gone Fishing", &ALTERNATE)
 });
 
 // HOB 45 — Long Lake Nuisance
@@ -1757,7 +1757,7 @@ pub(in crate::card::sets) static MOST_DECREPIT_OLD_BIRD: CardRecord = CardRecord
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&MOST_DECREPIT_OLD_BIRD, "Speak Secrets", ALTERNATE)
+    adventure(&MOST_DECREPIT_OLD_BIRD, "Speak Secrets", &ALTERNATE)
 });
 
 // HOB 50 — Old Fat Spider Can't See Me
@@ -2502,7 +2502,7 @@ pub(in crate::card::sets) static GOLLUM_SILENT_SLINKER: CardRecord = CardRecord:
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&GOLLUM_SILENT_SLINKER, "Meager Meal", ALTERNATE)
+    adventure(&GOLLUM_SILENT_SLINKER, "Meager Meal", &ALTERNATE)
 });
 
 // HOB 72 — Gollum the Abandoned
@@ -2620,7 +2620,7 @@ pub(in crate::card::sets) static GREAT_UGLY_LOOKING_GOBLIN: CardRecord = CardRec
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&GREAT_UGLY_LOOKING_GOBLIN, "Clap! Snap!", ALTERNATE)
+    adventure(&GREAT_UGLY_LOOKING_GOBLIN, "Clap! Snap!", &ALTERNATE)
 });
 
 // HOB 75 — Head of the Hunt
@@ -3352,7 +3352,7 @@ pub(in crate::card::sets) static GLOIN_THE_MIGHTY: CardRecord = CardRecord::new(
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&GLOIN_THE_MIGHTY, "Easy Pickings", ALTERNATE)
+    adventure(&GLOIN_THE_MIGHTY, "Easy Pickings", &ALTERNATE)
 });
 
 // HOB 100 — Goblin-town Flunkies
@@ -3849,7 +3849,7 @@ pub(in crate::card::sets) static SMAUG_THE_GREAT_CALAMITY: CardRecord = CardReco
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&SMAUG_THE_GREAT_CALAMITY, "Spew Flame", ALTERNATE)
+    adventure(&SMAUG_THE_GREAT_CALAMITY, "Spew Flame", &ALTERNATE)
 });
 
 // HOB 110 — Smaug the Magnificent
@@ -6104,7 +6104,7 @@ pub(in crate::card::sets) static THRANDUIL_SINDARIN_LIEGE: CardRecord = CardReco
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&THRANDUIL_SINDARIN_LIEGE, "Silvan Rally", ALTERNATE)
+    adventure(&THRANDUIL_SINDARIN_LIEGE, "Silvan Rally", &ALTERNATE)
 });
 
 // HOB 167 — Thranduil, the Elvenking
@@ -6252,7 +6252,7 @@ pub(in crate::card::sets) static THE_ARKENSTONE: CardRecord = CardRecord::new(
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&THE_ARKENSTONE, "Seek the Heart", ALTERNATE)
+    adventure(&THE_ARKENSTONE, "Seek the Heart", &ALTERNATE)
 });
 
 // HOB 171 — The Black Arrow
@@ -6406,7 +6406,7 @@ pub(in crate::card::sets) static MY_PRECIOUS: CardRecord = CardRecord::new(
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
         );
-    adventure(&MY_PRECIOUS, "Allure of Power", ALTERNATE)
+    adventure(&MY_PRECIOUS, "Allure of Power", &ALTERNATE)
 });
 
 // HOB 177 — Orcrist, Goblin-cleaver

@@ -1943,7 +1943,6 @@ pub(in crate::card::sets) static SYGG_WANDERWINE_WISDOM: CardRecord = CardRecord
                                     ),
                                     recipient: DamageRecipientMatcherDef::PlayerOrPlaneswalker,
                                     kind: DamageKindDef::Combat,
-                                    ..DamageEventMatcherDef::ANY
                                 }),
                                 abilities::draw_cards(ValueDef::Constant(1)),
                             )),

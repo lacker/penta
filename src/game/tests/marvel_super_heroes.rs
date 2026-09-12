@@ -188,7 +188,7 @@ fn alien_invasion_counts_existing_invasion_counters_before_adding_the_next() {
         .filter(|p| p.card.definition.is_token())
         .map(|p| game.power(p).unwrap())
         .collect::<Vec<_>>();
-    sizes.sort();
+    sizes.sort_unstable();
     assert_eq!(sizes, [1, 2]);
     assert_eq!(
         permanent(&game, cards::ALIEN_INVASION).counters(CounterKind::named("invasion")),

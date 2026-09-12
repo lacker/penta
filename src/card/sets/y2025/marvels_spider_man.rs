@@ -110,6 +110,7 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
 
 pub const WEB_SLINGING: crate::card::MechanicId =
     crate::card::MechanicId::from_name("mtg:web-slinging");
+#[must_use]
 pub const fn web_slinging(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
     AbilityDef::alternative_cast(
         costs,

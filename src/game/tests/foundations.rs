@@ -298,7 +298,7 @@ fn garna_remembers_whether_a_dead_creature_was_attacking() {
         game.destroy_permanent(bear);
         settle(&mut game);
         assert_eq!(game.players[0].hand.len(), usize::from(attacking));
-        assert_eq!(game.players[1].life, before - if attacking { 0 } else { 1 });
+        assert_eq!(game.players[1].life, before - i16::from(!attacking));
     }
 }
 

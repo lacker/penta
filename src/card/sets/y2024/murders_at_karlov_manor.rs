@@ -4,32 +4,79 @@ use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityPredicateDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::ActivationTimingDef;
+use crate::card::AddManaEffectDef;
+use crate::card::AggregateOperationDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::ArrivalAttachmentDef;
 use crate::card::BasicLandType;
+use crate::card::BattlefieldArrivalDef;
+use crate::card::BattlefieldEntryModificationDef;
+use crate::card::BindObjectsDef;
+use crate::card::BlockRestrictionDef;
+use crate::card::BlockRestrictionMatchDef;
+use crate::card::BlockRestrictionSubjectDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseCardsFromCollectionDef;
+use crate::card::ChooseDef;
+use crate::card::ChooseForEachPlayerDef;
+use crate::card::CollectionInspectionDef;
 use crate::card::ColorSet;
 use crate::card::ComparisonDef;
+use crate::card::ControlDurationDef;
+use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CostModificationDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
+use crate::card::CreatedTokensDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::DiscardSelectionDef;
+use crate::card::DrawEventMatcherDef;
+use crate::card::EffectChoiceDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::KeywordAbility;
 use crate::card::ManaColor;
+use crate::card::MoveObjectsDef;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
+use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetCountConditionDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::ObjectSetPredicateDef;
+use crate::card::ObjectValueAggregateDef;
+use crate::card::ObjectValueDef;
+use crate::card::PayOrDef;
+use crate::card::PerPlayerSelectionDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::PlayerSetDef;
+use crate::card::PutObjectsOntoBattlefieldFaceDownDef;
+use crate::card::RandomizeObjectOrderDef;
+use crate::card::ReplacementAbilityDef;
+use crate::card::ReplacementConditionDef;
+use crate::card::ReplacementEffectDef;
+use crate::card::ReplacementEventDef;
 use crate::card::ResolvedEffectDurationDef;
+use crate::card::RevealObjectsDef;
+use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::TokenCopyDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -79,66 +126,83 @@ const CLUE_TOKEN: TokenCharacteristics = tokens::clue().with_art(CardArt::new(
 ));
 
 // MKM 1 — Case of the Shattered Pact
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_SHATTERED_PACT: CardRecord = CardRecord::new(
     "Case of the Shattered Pact",
     "2a70f0ae-d49b-4cc8-9f76-895039c3dc39",
     "Peter Polach",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 2 — Absolving Lammasu
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static ABSOLVING_LAMMASU: CardRecord = CardRecord::new(
     "Absolving Lammasu",
     "bd6e71a1-713e-4eca-bd65-9f0638c16794",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 3 — Assemble the Players
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a once-per-turn allowance on top-of-library creature casting; the existing top-card play permission has no per-turn use limit.
 pub(in crate::card::sets) static ASSEMBLE_THE_PLAYERS: CardRecord = CardRecord::new(
     "Assemble the Players",
     "f5bcb21a-8559-4791-8cd0-482e7b8dcfd2",
     "Evyn Fong",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 4 — Aurelia's Vindicator
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a face-up trigger event retaining the variable X paid for disguise, so the later trigger can choose up to that many targets even after the source leaves.
 pub(in crate::card::sets) static AURELIA_S_VINDICATOR: CardRecord = CardRecord::new(
     "Aurelia's Vindicator",
     "5901dff4-e09b-4747-9297-797a1a057cd5",
     "Victor Adame Minguez",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 5 — Auspicious Arrival
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AUSPICIOUS_ARRIVAL: CardRecord = CardRecord::new(
     "Auspicious Arrival",
     "5180c85c-6add-4066-83c4-27fb1fd4de16",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets +2/+2 until end of turn. Investigate. \
+         (Create a Clue token. It's an artifact with \"{2}, Sacrifice \
+         this token: Draw a card.\")",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // MKM 6 — Call a Surprise Witness
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs battlefield arrival characteristics that add the Spirit type to the returned creature before entry replacements and triggers inspect it.
 pub(in crate::card::sets) static CALL_A_SURPRISE_WITNESS: CardRecord = CardRecord::new(
     "Call a Surprise Witness",
     "f5148def-cf1a-460e-8dfd-856103940892",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 7 — Case File Auditor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed solve-a-Case event observed by other permanents; the engine currently has neither solved Case state nor a solve event.
 pub(in crate::card::sets) static CASE_FILE_AUDITOR: CardRecord = CardRecord::new(
     "Case File Auditor",
     "70a52038-9d1c-4be1-8dbe-6f0ee916ba94",
     "Ryan Valle",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 7† — Case File Auditor (alternate printing)
@@ -150,129 +214,283 @@ const CASE_FILE_AUDITOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 8 — Case of the Gateway Express
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_GATEWAY_EXPRESS: CardRecord = CardRecord::new(
     "Case of the Gateway Express",
     "0862bf07-8a76-4e80-bba2-20d22f8eee30",
     "Edgar Sánchez Hidalgo",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 9 — Case of the Pilfered Proof
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs committed turn-face-up events, persistent solved-Case state with an end-step solve check, and a token-creation replacement that adds a Clue to each creation batch while solved.
 pub(in crate::card::sets) static CASE_OF_THE_PILFERED_PROOF: CardRecord = CardRecord::new(
     "Case of the Pilfered Proof",
     "32927bf2-63c1-4402-99dc-3a0f2f8e0f9c",
     "Joshua Cairos",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 10 — Case of the Uneaten Feast
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_UNEATEN_FEAST: CardRecord = CardRecord::new(
     "Case of the Uneaten Feast",
     "ac63941b-3f78-4bd3-8b05-ca12aaaa006c",
     "Titus Lunter",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 11 — Defenestrated Phantom
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEFENESTRATED_PHANTOM: CardRecord = CardRecord::new(
     "Defenestrated Phantom",
     "8b284304-c3bf-4413-9fd3-b44eb4eb642a",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Spirit"], 4, 3)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some(
+                    "Disguise {4}{W} (You may cast this card face down for {3} as \
+                     a 2/2 creature with ward {2}. Turn it face up any time for \
+                     its disguise cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{W}"))]),
 );
 
 // MKM 12 — Delney, Streetwise Lookout
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs doubling of arbitrary triggered abilities from creatures selected by effective power; the existing additional-trigger rule only covers enters triggers.
 pub(in crate::card::sets) static DELNEY_STREETWISE_LOOKOUT: CardRecord = CardRecord::new(
     "Delney, Streetwise Lookout",
     "be219928-3d0e-4d00-b124-152ce8a8c13b",
     "Darren Tan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 13 — Doorkeeper Thrull
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs suppression of triggered abilities caused by artifact or creature entry, including triggers on other permanents.
 pub(in crate::card::sets) static DOORKEEPER_THRULL: CardRecord = CardRecord::new(
     "Doorkeeper Thrull",
     "80a1cd28-d2a5-4d1a-aa03-a6a5958ae432",
     "Camille Alquier",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 14 — Due Diligence
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DUE_DILIGENCE: CardRecord = CardRecord::new(
     "Due Diligence",
     "076d9f76-a247-4727-9e0f-a0289c51059e",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enters_trigger_with_targets(
+                "When this Aura enters, target creature you control other than \
+                 enchanted creature gets +2/+2 and gains vigilance until end \
+                 of turn.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::AttachedToSource),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and has vigilance.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MKM 15 — Essence of Antiquity
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static ESSENCE_OF_ANTIQUITY: CardRecord = CardRecord::new(
     "Essence of Antiquity",
     "aee2945d-bf6d-4328-a482-df24c2973b56",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 16 — Forum Familiar
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static FORUM_FAMILIAR: CardRecord = CardRecord::new(
     "Forum Familiar",
     "b06a243d-acc8-42cd-926c-98a4cc96ab21",
     "Ilse Gort",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 17 — Griffnaut Tracker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards to have the same owner, while allowing either player's graveyard.
 pub(in crate::card::sets) static GRIFFNAUT_TRACKER: CardRecord = CardRecord::new(
     "Griffnaut Tracker",
     "95f5d048-226f-49a4-a2ce-a6fa99aa9e8a",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 18 — Haazda Vigilante
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAAZDA_VIGILANTE: CardRecord = CardRecord::new(
     "Haazda Vigilante",
     "5277fe72-dc33-4d19-a439-63b5344c6034",
     "Tomas Duchek",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Giant", "Soldier"], 4, 4).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature enters or attacks, put a +1/+1 counter \
+             on target creature you control with power 2 or less.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            ]),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MKM 19 — Inside Source
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSIDE_SOURCE: CardRecord = CardRecord::new(
     "Inside Source",
     "1548d181-3f83-457a-b2d3-eb88cfb2afda",
     "John Stanko",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Citizen"], 1, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, create a 2/2 white and blue \
+             Detective creature token.",
+            EffectDef::create_creature_token(
+                &["Detective"],
+                &[ManaColor::White, ManaColor::Blue],
+                2,
+                2,
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}, {T}: Target Detective you control gets +2/+0 and gains \
+             vigilance until end of turn. Activate only as a sorcery.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Detective")),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::vigilance()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // MKM 20 — Karlov Watchdog
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rule prohibiting opponents' permanents from being turned face up during your turn, checked by both turn-up special actions and effect-driven turn-up operations.
 pub(in crate::card::sets) static KARLOV_WATCHDOG: CardRecord = CardRecord::new(
     "Karlov Watchdog",
     "79cfb366-ae2a-4b3d-9a80-383a32db1509",
     "Craig J Spearing",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 21 — Krovod Haunch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROVOD_HAUNCH: CardRecord = CardRecord::new(
     "Krovod Haunch",
     "f663cd86-39e6-467b-85b7-dd27536251a6",
     "Craig J Spearing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{W}"))
+        .with_subtypes(&["Food", "Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, {T}, Sacrifice this Equipment: You gain 3 life.",
+                &[
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::TapSource,
+                    CostDef::SacrificeSource,
+                ],
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            abilities::dies_trigger(
+                "When this Equipment is put into a graveyard from the \
+                 battlefield, you may pay {1}{W}. If you do, create two 1/1 \
+                 white Dog creature tokens.",
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::Mana(mana_cost!("{1}{W}"))],
+                    &EffectDef::create_creature_token(&["Dog"], &[ManaColor::White], 1, 1)
+                        .with_count(ValueDef::Constant(2)),
+                )),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MKM 22 — Make Your Move
@@ -301,57 +519,200 @@ pub(in crate::card::sets) static MAKE_YOUR_MOVE: CardRecord = CardRecord::new(
 );
 
 // MKM 23 — Makeshift Binding
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); a leaves trigger would incorrectly delay the return through the stack.
 pub(in crate::card::sets) static MAKESHIFT_BINDING: CardRecord = CardRecord::new(
     "Makeshift Binding",
     "e45d2e0c-d70d-40e5-8c3d-db6803393516",
     "Matt Stewart",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 24 — Marketwatch Phantom
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARKETWATCH_PHANTOM: CardRecord = CardRecord::new(
     "Marketwatch Phantom",
     "daf6a392-3fc4-45d1-b85d-3b1381b3ab7d",
     "Bram Sels",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Spirit", "Detective"], 2, 2).with_abilities(
+        &[AbilityDef::triggered(
+            "Whenever another creature you control with power 2 or less \
+             enters, this creature gains flying until end of turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )],
+    ),
 );
 
 // MKM 25 — Museum Nightwatch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MUSEUM_NIGHTWATCH: CardRecord = CardRecord::new(
     "Museum Nightwatch",
     "37860682-4973-4a0f-a43a-3056037bd2dc",
     "Alix Branwyn",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Centaur", "Soldier"], 3, 2)
+        .with_abilities(&[
+            abilities::dies_trigger(
+                "When this creature dies, create a 2/2 white and blue \
+                 Detective creature token.",
+                EffectDef::create_creature_token(
+                    &["Detective"],
+                    &[ManaColor::White, ManaColor::Blue],
+                    2,
+                    2,
+                ),
+            ),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some(
+                    "Disguise {1}{W} (You may cast this card face down for {3} as \
+                     a 2/2 creature with ward {2}. Turn it face up any time for \
+                     its disguise cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{1}{W}"))]),
 );
 
 // MKM 26 — Neighborhood Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEIGHBORHOOD_GUARDIAN: CardRecord = CardRecord::new(
     "Neighborhood Guardian",
     "0438d482-b74c-4d5e-a2bc-7063c1ae73fa",
     "Daren Bader",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Unicorn"], 2, 2).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "Whenever another creature you control with power 2 or less \
+             enters, target creature you control gets +1/+1 until end of \
+             turn.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MKM 27 — No Witnesses
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NO_WITNESSES: CardRecord = CardRecord::new(
     "No Witnesses",
     "f98db67a-c39c-45a8-ae21-85133be46ed5",
     "Michele Giorgi",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{W}{W}")).with_abilities(&[AbilityDef::spell(
+        "Each player who controls the most creatures investigates. \
+         Then destroy all creatures. (To investigate, create a Clue \
+         token. It's an artifact with \"{2}, Sacrifice this token: \
+         Draw a card.\")",
+        EffectDef::Sequence(&[
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::Equal,
+                    right: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
+                }),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                    EffectDef::create_token(tokens::clue())
+                        .with_count(ValueDef::Constant(1))
+                        .with_controller(PlayerRefDef::Opponent),
+                ]),
+                otherwise: &EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        comparison: ComparisonDef::Greater,
+                        right: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Opponent,
+                        )),
+                    }),
+                    then: &EffectDef::create_token(tokens::clue())
+                        .with_count(ValueDef::Constant(1)),
+                    otherwise: &EffectDef::create_token(tokens::clue())
+                        .with_count(ValueDef::Constant(1))
+                        .with_controller(PlayerRefDef::Opponent),
+                },
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ))),
+                then: None,
+            },
+        ]),
+    )]),
 );
 
 // MKM 28 — Not on My Watch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOT_ON_MY_WATCH: CardRecord = CardRecord::new(
     "Not on My Watch",
     "700294fc-7c16-4f7d-bce0-7452d8e9c401",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Exile target attacking creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Attacking,
+            ]),
+        )],
+        EffectDef::move_to_zone(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ZoneKind::Exile,
+            ZonePlacement::Top,
+        ),
+    )]),
 );
 
 // MKM 29 — Novice Inspector
@@ -372,66 +733,165 @@ pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
 );
 
 // MKM 30 — On the Job
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ON_THE_JOB: CardRecord = CardRecord::new(
     "On the Job",
     "48b92629-4196-4943-91fd-8c8d5f3fcaef",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{W}{W}")).with_abilities(&[AbilityDef::spell(
+        "Creatures you control get +2/+1 until end of turn. \
+         Investigate. (Create a Clue token. It's an artifact with \
+         \"{2}, Sacrifice this token: Draw a card.\")",
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // MKM 31 — Perimeter Enforcer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static PERIMETER_ENFORCER: CardRecord = CardRecord::new(
     "Perimeter Enforcer",
     "1f88d077-5082-4a67-91e4-97aafb9a5e91",
     "Josh Hass",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 32 — Sanctuary Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANCTUARY_WALL: CardRecord = CardRecord::new(
     "Sanctuary Wall",
     "4a009ba2-c7b9-4cf6-bb90-9d6fd589e932",
     "Josu Solano",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{W}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{2}{W}, {T}: Tap target creature. You may put a stun counter \
+             on it. If you do, put a stun counter on this creature. (If a \
+             permanent with a stun counter would become untapped, remove \
+             one from it instead.)",
+            &[CostDef::Mana(mana_cost!("{2}{W}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Sequence(&[
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            kind: CounterKind::Stun,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::Source,
+                            kind: CounterKind::Stun,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // MKM 33 — Seasoned Consultant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEASONED_CONSULTANT: CardRecord = CardRecord::new(
     "Seasoned Consultant",
     "c0ebfe5d-8819-495d-bf72-b9c28c6fd23e",
     "Andreas Zafiratos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Detective"], 1, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you attack with three or more creatures, this \
+             creature gets +2/+0 until end of turn.",
+            TriggerEventDef::attack_declared(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                3,
+                None,
+            ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MKM 34 — Tenth District Hero
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static TENTH_DISTRICT_HERO: CardRecord = CardRecord::new(
     "Tenth District Hero",
     "7c65a79e-f28a-4f30-95a4-1ea55fd84564",
     "Kai Carpenter",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 35 — Unyielding Gatekeeper
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static UNYIELDING_GATEKEEPER: CardRecord = CardRecord::new(
     "Unyielding Gatekeeper",
     "f3a0d597-d2df-4aaf-8084-c8eeda64ce60",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 36 — Wojek Investigator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WOJEK_INVESTIGATOR: CardRecord = CardRecord::new(
     "Wojek Investigator",
     "296574c6-3933-4ab3-b591-72514b244da9",
     "Ben Hill",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Angel", "Detective"], 2, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, investigate once for each \
+             opponent who has more cards in hand than you. (To \
+             investigate, create a Clue token. It's an artifact with \
+             \"{2}, Sacrifice this token: Draw a card.\")",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerRelation::Opponent,
+                    )),
+                    comparison: ComparisonDef::Greater,
+                    right: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerRelation::You,
+                    )),
+                }),
+                then: &EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            },
+        ),
+    ]),
 );
 
 // MKM 36† — Wojek Investigator (alternate printing)
@@ -443,183 +903,455 @@ const WOJEK_INVESTIGATOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate
 );
 
 // MKM 37 — Wrench
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRENCH: CardRecord = CardRecord::new(
     "Wrench",
     "c36cc39b-8f3b-4297-b118-86fa624308b4",
     "Edgar Sánchez Hidalgo",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{W}"))
+        .with_subtypes(&["Clue", "Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has vigilance and \"{3}, \
+                 {T}: Tap target creature.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                        AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                            "{3}, {T}: Tap target creature.",
+                            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+                            &[AbilityTargetDef::exactly_one_permanent(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            )],
+                            EffectDef::Tap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        )),
+                    ]),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MKM 38 — Agency Outfitter
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a single search spanning any selected subset of hand, graveyard, and library, selecting at most one card of each named identity and shuffling only when the library was searched.
 pub(in crate::card::sets) static AGENCY_OUTFITTER: CardRecord = CardRecord::new(
     "Agency Outfitter",
     "8112f133-535e-4264-8357-9cbf97957710",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 39 — Behind the Mask
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static BEHIND_THE_MASK: CardRecord = CardRecord::new(
     "Behind the Mask",
     "e522b043-fbd8-48a4-9f20-39e2a66a35ec",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 40 — Benthic Criminologists
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BENTHIC_CRIMINOLOGISTS: CardRecord = CardRecord::new(
     "Benthic Criminologists",
     "283b6b5a-acdf-4255-a294-0964d9c62686",
     "Johan Grenier",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Merfolk", "Wizard"], 4, 5).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature enters or attacks, you may sacrifice \
+             an artifact. If you do, draw a card.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            ]),
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                    CardType::Artifact,
+                ))],
+                &abilities::draw_cards(ValueDef::Constant(1)),
+            )),
+        ),
+    ]),
 );
 
 // MKM 41 — Bubble Smuggler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs prospective turn-face-up modifications that place counters as the permanent is turned face up, before state-based actions or face-up triggers inspect its characteristics.
 pub(in crate::card::sets) static BUBBLE_SMUGGLER: CardRecord = CardRecord::new(
     "Bubble Smuggler",
     "6b863ee0-d9f3-4b1e-993d-5212731d9353",
     "Leesha Hannigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 42 — Burden of Proof
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BURDEN_OF_PROOF: CardRecord = CardRecord::new(
     "Burden of Proof",
     "4ea29c34-4b55-4170-9120-0a8dda61f2eb",
     "Deruchenko Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 as long as it's a Detective you \
+                 control. Otherwise, it has base power and toughness 1/1 and \
+                 can't block Detectives.",
+                EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::AttachedPermanentMatches {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Detective")),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                    },
+                    otherwise: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::set_base_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(1),
+                            ),
+                            AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                                BlockRestrictionDef::prohibit(
+                                    BlockRestrictionSubjectDef::Blocker,
+                                    BlockRestrictionMatchDef::Matching(
+                                        ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                                            "Detective",
+                                        )),
+                                    ),
+                                ),
+                            )),
+                        ]),
+                    },
+                },
+            ),
+        ]),
 );
 
 // MKM 43 — Candlestick
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANDLESTICK: CardRecord = CardRecord::new(
     "Candlestick",
     "5aeae6fb-3834-4891-924e-3d1fb3e19e09",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{U}"))
+        .with_subtypes(&["Clue", "Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has \"Whenever this creature \
+                 attacks, surveil 2.\" (Look at the top two cards of your \
+                 library, then put any number of them into your graveyard and \
+                 the rest on top of your library in any order.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                            "Whenever this creature attacks, surveil 2.",
+                            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                            abilities::surveil(ValueDef::Constant(2)),
+                        )),
+                    ]),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MKM 44 — Case of the Filched Falcon
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_FILCHED_FALCON: CardRecord = CardRecord::new(
     "Case of the Filched Falcon",
     "266be5bd-71ba-4511-8b71-d0b03885a28d",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 45 — Case of the Ransacked Lab
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_RANSACKED_LAB: CardRecord = CardRecord::new(
     "Case of the Ransacked Lab",
     "16a9a596-61de-4fcf-aae0-41836c3deca5",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 46 — Cold Case Cracker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COLD_CASE_CRACKER: CardRecord = CardRecord::new(
     "Cold Case Cracker",
     "f082111b-9b1c-4a25-8c5d-d6ef77533a9b",
     "Wayne Wu",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Spirit", "Detective"], 3, 3).with_abilities(
+        &[
+            abilities::flying(),
+            abilities::dies_trigger(
+                "When this creature dies, investigate. (Create a Clue token. \
+                 It's an artifact with \"{2}, Sacrifice this token: Draw a \
+                 card.\")",
+                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            ),
+        ],
+    ),
 );
 
 // MKM 47 — Conspiracy Unraveler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static CONSPIRACY_UNRAVELER: CardRecord = CardRecord::new(
     "Conspiracy Unraveler",
     "88e791fc-bf9f-49b6-b5f2-a24d4b3e360e",
     "Wayne Reynolds",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 48 — Coveted Falcon
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static COVETED_FALCON: CardRecord = CardRecord::new(
     "Coveted Falcon",
     "bc936987-d58b-4e7c-870f-379bcae77727",
     "Madeline Boni",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 49 — Crimestopper Sprite
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static CRIMESTOPPER_SPRITE: CardRecord = CardRecord::new(
     "Crimestopper Sprite",
     "dc4ac597-38f0-48b5-ac2d-dfb0b169f834",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 50 — Cryptic Coat
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYPTIC_COAT: CardRecord = CardRecord::new(
     "Cryptic Coat",
     "0c3d7e2c-a104-4757-9984-fb31088f92c4",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}{U}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this Equipment enters, cloak the top card of your \
+                 library, then attach this Equipment to it. (To cloak a card, \
+                 put it onto the battlefield face down as a 2/2 creature with \
+                 ward {2}. Turn it face up any time for its mana cost if it's \
+                 a creature card.)",
+                EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::EffectController,
+                        count: ValueDef::Constant(1),
+                    },
+                    binding: crate::Binding!("top"),
+                    then: &EffectDef::PutObjectsOntoBattlefieldFaceDown(
+                        PutObjectsOntoBattlefieldFaceDownDef {
+                            input: ObjectSetDef::Binding(crate::Binding!("top")),
+                            controller: PlayerRefDef::EffectController,
+                            characteristics: crate::card::face_down::cloak(),
+                            turn_up_for_mana_cost: true,
+                            moved: Some(crate::Binding!("cloaked")),
+                            then: &EffectDef::Attach {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("cloaked"),
+                                )),
+                            },
+                        },
+                    ),
+                }),
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+0 and can't be blocked.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                    ]),
+                },
+            ),
+            AbilityDef::activated(
+                "{1}{U}: Return this Equipment to its owner's hand.",
+                &[CostDef::Mana(mana_cost!("{1}{U}"))],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ]),
 );
 
 // MKM 51 — Curious Inquiry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CURIOUS_INQUIRY: CardRecord = CardRecord::new(
     "Curious Inquiry",
     "5a3603c6-92df-45c7-b402-1f0a552ea398",
     "Ekaterina Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and has \"Whenever this \
+                 creature deals combat damage to a player, investigate.\" \
+                 (Create a Clue token. It's an artifact with \"{2}, Sacrifice \
+                 this token: Draw a card.\")",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                            "Whenever this creature deals combat damage to a player, \
+                             investigate.",
+                            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                            EffectDef::create_token(tokens::clue())
+                                .with_count(ValueDef::Constant(1)),
+                        )),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MKM 52 — Deduce
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEDUCE: CardRecord = CardRecord::new(
     "Deduce",
     "7cbb17af-e17e-438a-ad72-0c942e6706b6",
     "Quintin Gleim",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell(
+        "Draw a card. Investigate. (Create a Clue token. It's an \
+         artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+        EffectDef::Sequence(&[
+            abilities::draw_cards(ValueDef::Constant(1)),
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // MKM 53 — Dramatic Accusation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAMATIC_ACCUSATION: CardRecord = CardRecord::new(
     "Dramatic Accusation",
     "2ca93438-a132-45ca-9fa8-364aeb519594",
     "Evyn Fong",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, tap enchanted creature.",
+                EffectDef::Tap {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature doesn't untap during its controller's \
+                 untap step.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                },
+            ),
+            AbilityDef::activated(
+                "{U}{U}: Shuffle enchanted creature into its owner's library.",
+                &[CostDef::Mana(mana_cost!("{U}{U}"))],
+                EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::AttachedPermanent,
+                        ZoneKind::Library,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
+                            ObjectRefDef::AttachedToSource,
+                        )),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // MKM 54 — Eliminate the Impossible
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static ELIMINATE_THE_IMPOSSIBLE: CardRecord = CardRecord::new(
     "Eliminate the Impossible",
     "486f1cc2-c162-448e-91a9-577d7d796584",
     "Carlos Palma Cruchaga",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 55 — Exit Specialist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static EXIT_SPECIALIST: CardRecord = CardRecord::new(
     "Exit Specialist",
     "268f142d-9fb1-4673-b804-add1f08dacb9",
     "Mila Pesic",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 56 — Fae Flight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAE_FLIGHT: CardRecord = CardRecord::new(
     "Fae Flight",
     "d9caa4eb-ed8c-4d05-8029-2a42163938a7",
     "Durion",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, enchanted creature gains hexproof \
+                 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+0 and has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MKM 57 — Forensic Gadgeteer
@@ -658,84 +1390,213 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
 );
 
 // MKM 58 — Forensic Researcher
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static FORENSIC_RESEARCHER: CardRecord = CardRecord::new(
     "Forensic Researcher",
     "1384df5d-d705-49cb-a982-1588cbf303d8",
     "Aldo Domínguez",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 59 — Furtive Courier
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs controller-relative history recording whether an artifact was sacrificed this turn, including sacrifices before this permanent entered, for the printed condition.
 pub(in crate::card::sets) static FURTIVE_COURIER: CardRecord = CardRecord::new(
     "Furtive Courier",
     "6f359fc2-b9e4-4a01-9d04-442bb160b01e",
     "Mark Behm",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 60 — Hotshot Investigators
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOTSHOT_INVESTIGATORS: CardRecord = CardRecord::new(
     "Hotshot Investigators",
     "8dc3b23b-04d6-4ac0-b698-596ea90b7781",
     "Jodie Muir",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}"), &["Vedalken", "Detective"], 4, 4).with_abilities(
+        &[abilities::enters_trigger_with_targets(
+            "When this creature enters, return up to one other target \
+             creature to its owner's hand. If you controlled it, \
+             investigate. (Create a Clue token. It's an artifact with \
+             \"{2}, Sacrifice this token: Draw a card.\")",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                },
+                then: &EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                ]),
+                otherwise: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            },
+        )],
+    ),
 );
 
 // MKM 61 — Intrude on the Mind
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs pile division with the opponent choosing the retained pile and a bound result for the cards actually put into the graveyard, so the created token receives the correct number of counters.
 pub(in crate::card::sets) static INTRUDE_ON_THE_MIND: CardRecord = CardRecord::new(
     "Intrude on the Mind",
     "fbe62f47-df17-4646-88ca-89a8ec4deee9",
     "Magali Villeneuve",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 62 — Jaded Analyst
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JADED_ANALYST: CardRecord = CardRecord::new(
     "Jaded Analyst",
     "2807dcfb-d99c-483b-835f-2606eae4bd30",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Detective"], 3, 2).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::triggered(
+            "Whenever you draw your second card each turn, this creature \
+             loses defender and gains vigilance until end of turn.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(PlayerRelation::You, 2)),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                        KeywordAbility::Defender,
+                    )),
+                    AppliedEffectDef::add_ability(&abilities::vigilance()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MKM 63 — Living Conundrum
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIVING_CONUNDRUM: CardRecord = CardRecord::new(
     "Living Conundrum",
     "97fb11c7-7b7f-4bdb-a022-53e28ebadecc",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Elemental"], 2, 5).with_abilities(&[
+        abilities::hexproof(),
+        AbilityDef::defined_replacement(
+            "If you would draw a card while your library has no cards in \
+             it, skip that draw instead.",
+            ReplacementAbilityDef::new()
+                .with_event(ReplacementEventDef::WouldDraw {
+                    player: PlayerRelation::You,
+                    during_own_draw_step: false,
+                    except_first_in_draw_step: false,
+                })
+                .with_condition(ReplacementConditionDef::ControllerLibraryEmpty),
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ReplaceEventWithNothing,
+                ReplacementEffectDef::Perform(&EffectDef::None),
+            ]),
+        ),
+        AbilityDef::static_ability(
+            "As long as there are no cards in your library, this creature \
+             has base power and toughness 10/10 and has flying and \
+             vigilance.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Library],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::Equal,
+                    amount: 0,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(10),
+                            ValueDef::Constant(10),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                },
+            },
+        ),
+    ]),
 );
 
 // MKM 64 — Lost in the Maze
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an enters-trigger target count derived from the source spell's retained X value; cast-target-count validation currently rejects SourceCastX, and the live-source value is lost if the enchantment leaves before its trigger resolves.
 pub(in crate::card::sets) static LOST_IN_THE_MAZE: CardRecord = CardRecord::new(
     "Lost in the Maze",
     "6308dc62-d945-4761-aa4c-ef8e9271e901",
     "Julian Kok Joon Wen",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 65 — Mistway Spy
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static MISTWAY_SPY: CardRecord = CardRecord::new(
     "Mistway Spy",
     "e8578839-046f-4afd-a0e7-4737ded9e6eb",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 66 — Out Cold
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OUT_COLD: CardRecord = CardRecord::new(
     "Out Cold",
     "aabfada0-3c1b-4237-b06c-573071ccd68d",
     "Tuan Duong Chu",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{U}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "This spell can't be countered.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Stack]),
+        AbilityDef::spell_with_targets(
+            "Tap up to two target creatures and put a stun counter on each \
+             of them. Investigate. (If a permanent with a stun counter \
+             would become untapped, remove one from it instead.)",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                2,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::Stun,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            ]),
+        ),
+    ]),
 );
 
 // MKM 67 — Proft's Eidetic Memory (alternate printing)
@@ -747,48 +1608,114 @@ const PROFT_S_EIDETIC_MEMORY_ALTERNATE_1: PrintingRecord = PrintingRecord::alter
 );
 
 // MKM 68 — Projektor Inspector
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static PROJEKTOR_INSPECTOR: CardRecord = CardRecord::new(
     "Projektor Inspector",
     "ad378843-e2b0-48d6-90dc-b584e857473d",
     "Leonardo Santanna",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 69 — Reasonable Doubt
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static REASONABLE_DOUBT: CardRecord = CardRecord::new(
     "Reasonable Doubt",
     "270570a3-8637-4e4e-92d9-e985474cd5d2",
     "Betty Jiang",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 70 — Reenact the Crime
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs typed zone-change history identifying cards put into graveyards this turn from any zone; present graveyard contents cannot establish when or how a card arrived.
 pub(in crate::card::sets) static REENACT_THE_CRIME: CardRecord = CardRecord::new(
     "Reenact the Crime",
     "d942e4ce-f582-4264-89aa-9b4a743e6b29",
     "Daarken",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 71 — Steamcore Scholar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEAMCORE_SCHOLAR: CardRecord = CardRecord::new(
     "Steamcore Scholar",
     "6bbf7394-9b17-45f8-a25b-d865e8452b2c",
     "David Astruga",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Weird", "Detective"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        abilities::enters_trigger(
+            "When this creature enters, draw two cards. Then discard two \
+             cards unless you discard an instant or sorcery card or a \
+             creature card with flying.",
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(2)),
+                EffectDef::PayOr(PayOrDef::unless(
+                    &[CostDef::discard(ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                    ]))],
+                    &EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                )),
+            ]),
+        ),
+    ]),
 );
 
 // MKM 72 — Sudden Setback
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUDDEN_SETBACK: CardRecord = CardRecord::new(
     "Sudden Setback",
     "0b9e5fd6-a5ea-4ae5-83f5-89ed6a658dd3",
     "Olivier Bernard",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "The owner of target spell or nonland permanent puts it on \
+             their choice of the top or bottom of their library.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    ]),
+                    zones: &[ZoneKind::Stack, ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ChooseEffect {
+                player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Top",
+                        effect: EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Library,
+                            ZonePlacement::Top,
+                        ),
+                    },
+                    EffectChoiceDef {
+                        label: "Bottom",
+                        effect: EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Library,
+                            ZonePlacement::Bottom,
+                        ),
+                    },
+                ],
+            },
+        ),
+    ]),
 );
 
 // MKM 72† — Sudden Setback (alternate printing)
@@ -800,12 +1727,12 @@ const SUDDEN_SETBACK_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 73 — Surveillance Monitor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static SURVEILLANCE_MONITOR: CardRecord = CardRecord::new(
     "Surveillance Monitor",
     "703b874d-6739-4063-9891-e9c040dd9618",
     "Scott Murphy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 73† — Surveillance Monitor (alternate printing)
@@ -817,57 +1744,97 @@ const SURVEILLANCE_MONITOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // MKM 74 — Unauthorized Exit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNAUTHORIZED_EXIT: CardRecord = CardRecord::new(
     "Unauthorized Exit",
     "8a458474-d721-46d7-b487-6a47dc063cfd",
     "Andreas Zafiratos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Return target nonland permanent to its owner's hand. Surveil \
+         1. (Look at the top card of your library. You may put it into \
+         your graveyard.)",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Hand,
+                ZonePlacement::Top,
+            ),
+            abilities::surveil(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // MKM 75 — Agency Coroner
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static AGENCY_CORONER: CardRecord = CardRecord::new(
     "Agency Coroner",
     "d63f2c23-e877-42e3-9362-5d003a173c6d",
     "Uriah Voth",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 76 — Alley Assailant
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static ALLEY_ASSAILANT: CardRecord = CardRecord::new(
     "Alley Assailant",
     "edf238c9-61de-4f3a-b82f-05af46e5e81b",
     "Warren Mahy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 77 — Barbed Servitor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static BARBED_SERVITOR: CardRecord = CardRecord::new(
     "Barbed Servitor",
     "1c34e4ae-9bf3-4098-88f1-267e7d6cfa35",
     "Simon Dominic",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 78 — Basilica Stalker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASILICA_STALKER: CardRecord = CardRecord::new(
     "Basilica Stalker",
     "fdafea8f-283d-4f19-a74a-669bfbdfed98",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{B}"), &["Vampire", "Detective"], 3, 4)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, you \
+                 gain 1 life and surveil 1. (Look at the top card of your \
+                 library. You may put it into your graveyard.)",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    abilities::surveil(ValueDef::Constant(1)),
+                ]),
+            ),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some(
+                    "Disguise {4}{B} (You may cast this card face down for {3} as \
+                     a 2/2 creature with ward {2}. Turn it face up any time for \
+                     its disguise cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{B}"))]),
 );
 
 // MKM 79 — Case of the Gorgon's Kiss
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_GORGON_S_KISS: CardRecord = CardRecord::new(
     "Case of the Gorgon's Kiss",
     "45e4c07a-3205-4193-8163-b0e63e6242a4",
     "Peter Polach",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 79† — Case of the Gorgon's Kiss (alternate printing)
@@ -879,30 +1846,74 @@ const CASE_OF_THE_GORGON_S_KISS_ALTERNATE_1: PrintingRecord = PrintingRecord::al
 );
 
 // MKM 80 — Case of the Stashed Skeleton
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_STASHED_SKELETON: CardRecord = CardRecord::new(
     "Case of the Stashed Skeleton",
     "4b120cbe-f0af-46c5-863f-03ecadf0435c",
     "Camille Alquier",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 81 — Cerebral Confiscation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEREBRAL_CONFISCATION: CardRecord = CardRecord::new(
     "Cerebral Confiscation",
     "3c3c3d15-b775-44a2-91ea-4abcc3cf2dba",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Target opponent discards two cards.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target opponent reveals their hand. You choose a nonland card \
+                 from it. That player discards that card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::RevealHand {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            &[ZoneKind::Hand],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        )),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::discard_cards(EffectRecipientDef::objects(
+                            ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        )),
+                    }),
+                ]),
+            ),
+        ],
+    )]),
 );
 
 // MKM 82 — Clandestine Meddler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static CLANDESTINE_MEDDLER: CardRecord = CardRecord::new(
     "Clandestine Meddler",
     "2e069de0-3218-456c-b191-93e755634783",
     "Jodie Muir",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 82† — Clandestine Meddler (alternate printing)
@@ -914,111 +1925,243 @@ const CLANDESTINE_MEDDLER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternat
 );
 
 // MKM 83 — Deadly Cover-Up
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static DEADLY_COVER_UP: CardRecord = CardRecord::new(
     "Deadly Cover-Up",
     "3876aa0f-b199-43f5-8a91-c2d620b8ef84",
     "Sam Guay",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 84 — Extract a Confession
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static EXTRACT_A_CONFESSION: CardRecord = CardRecord::new(
     "Extract a Confession",
     "256c8b6e-4031-458b-8eb9-bbfe58405a0c",
     "Peter Polach",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 85 — Festerleech
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FESTERLEECH: CardRecord = CardRecord::new(
     "Festerleech",
     "83a6fa37-8351-403b-ae05-b67e9bf74bbb",
     "Helge C. Balzer",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}"), &["Zombie", "Leech"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, you \
+             mill two cards.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::Mill {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+        AbilityDef::activated(
+            "{1}{B}: This creature gets +2/+2 until end of turn. Activate \
+             only once each turn.",
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .once_each_turn(),
+    ]),
 );
 
 // MKM 86 — Homicide Investigator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOMICIDE_INVESTIGATOR: CardRecord = CardRecord::new(
     "Homicide Investigator",
     "21d6accd-167a-4b21-a488-44d54cdfa608",
     "Jodie Muir",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Detective"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever one or more nontoken creatures you control die, \
+             investigate. This ability triggers only once each turn. \
+             (Create a Clue token. It's an artifact with \"{2}, Sacrifice \
+             this token: Draw a card.\")",
+            TriggerEventDef::ObjectsDied {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+            },
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        )
+        .triggering_at_most(1),
+    ]),
 );
 
 // MKM 87 — Hunted Bonebrute
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HUNTED_BONEBRUTE: CardRecord = CardRecord::new(
     "Hunted Bonebrute",
     "a4ca0e10-8b7c-4ce2-888b-752fc909757a",
     "Maxime Minard",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Skeleton", "Beast"], 6, 2)
+        .with_abilities(&[
+            abilities::menace(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, target opponent creates two 1/1 \
+                 white Dog creature tokens.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::create_creature_token(&["Dog"], &[ManaColor::White], 1, 1)
+                    .with_count(ValueDef::Constant(2))
+                    .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+            ),
+            abilities::dies_trigger(
+                "When this creature dies, each opponent loses 3 life.",
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some("Disguise {1}{B}"),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{1}{B}"))]),
 );
 
 // MKM 88 — Illicit Masquerade
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a target exclusion for the particular dying card's new graveyard incarnation; ordinary target exclusion identifies this enchantment, not the event's zone-change successor.
 pub(in crate::card::sets) static ILLICIT_MASQUERADE: CardRecord = CardRecord::new(
     "Illicit Masquerade",
     "2a7a3ec4-afaa-45e1-8cde-f15bf4bd7379",
     "Valera Lutfullina",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 89 — It Doesn't Add Up
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static IT_DOESN_T_ADD_UP: CardRecord = CardRecord::new(
     "It Doesn't Add Up",
     "fa02dbc2-ad01-47fd-b39e-f0a695029f26",
     "Anastasia Ovchinnikova",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 90 — Lead Pipe
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEAD_PIPE: CardRecord = CardRecord::new(
     "Lead Pipe",
     "87f69249-c6e4-40c1-9870-b9c45ce24c39",
     "Igor Krstic",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{B}"))
+        .with_subtypes(&["Clue", "Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever equipped creature dies, each opponent loses 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::AttachedToSource,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MKM 91 — Leering Onlooker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEERING_ONLOOKER: CardRecord = CardRecord::new(
     "Leering Onlooker",
     "dc687588-9c57-411d-b666-b9699949d48f",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Vampire"], 1, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{2}{B}{B}, Exile this card from your graveyard: Create two \
+             tapped 1/1 black Bat creature tokens with flying.",
+            &[CostDef::Mana(mana_cost!("{2}{B}{B}")), CostDef::ExileSource],
+            EffectDef::create_creature_token(&["Bat"], &[ManaColor::Black], 1, 1)
+                .with_count(ValueDef::Constant(2))
+                .with_abilities(&[abilities::flying()])
+                .entering_tapped(),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // MKM 92 — Long Goodbye
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LONG_GOODBYE: CardRecord = CardRecord::new(
     "Long Goodbye",
     "c3896705-bbd2-4ffb-a590-ee78e0eabdc5",
     "Jarel Threat",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "This spell can't be countered.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Stack]),
+        AbilityDef::spell_with_targets(
+            "Destroy target creature or planeswalker with mana value 3 or \
+             less.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    ObjectPredicateDef::ManaValueAtMost(3),
+                ]),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MKM 93 — Macabre Reconstruction
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs typed zone-change history identifying cards put into graveyards this turn from any zone; present graveyard contents cannot establish when or how a card arrived.
 pub(in crate::card::sets) static MACABRE_RECONSTRUCTION: CardRecord = CardRecord::new(
     "Macabre Reconstruction",
     "abb6184c-e3d0-4275-b25b-95e4a64b26f3",
     "Sam Guay",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 94 — Massacre Girl, Known Killer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs wither damage semantics: damage to creatures must place -1/-1 counters instead of marking damage, including damage from dynamically granted wither.
 pub(in crate::card::sets) static MASSACRE_GIRL_KNOWN_KILLER: CardRecord = CardRecord::new(
     "Massacre Girl, Known Killer",
     "cb1c8800-9d33-485c-b776-042003b9ea92",
     "Billy Christian",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 95 — Murder (reprint)
@@ -1029,84 +2172,181 @@ const MURDER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MKM 96 — Nightdrinker Moroii
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NIGHTDRINKER_MOROII: CardRecord = CardRecord::new(
     "Nightdrinker Moroii",
     "ce043cba-aea4-4156-b1d0-545eda06c400",
     "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Vampire"], 4, 2)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::enters_trigger(
+                "When this creature enters, you lose 3 life.",
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some(
+                    "Disguise {B}{B} (You may cast this card face down for {3} as \
+                     a 2/2 creature with ward {2}. Turn it face up any time for \
+                     its disguise cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{B}{B}"))]),
 );
 
 // MKM 97 — Outrageous Robbery
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs exile-play permission that privately reveals face-down exiled cards to its grantee; the existing face-down exile operation grants visibility only to the cards' owner.
 pub(in crate::card::sets) static OUTRAGEOUS_ROBBERY: CardRecord = CardRecord::new(
     "Outrageous Robbery",
     "b87813fa-ad12-4062-bb9e-436d8418fba5",
     "Kai Carpenter",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 98 — Persuasive Interrogators
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PERSUASIVE_INTERROGATORS: CardRecord = CardRecord::new(
     "Persuasive Interrogators",
     "f0713025-581f-451b-97a3-97d891285dcc",
     "Dmitry Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Gorgon", "Detective"], 5, 6)
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this creature enters, investigate. (Create a Clue token. \
+                 It's an artifact with \"{2}, Sacrifice this token: Draw a \
+                 card.\")",
+                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever you sacrifice a Clue, target opponent gets two \
+                 poison counters. (A player with ten or more poison counters \
+                 loses the game.)",
+                TriggerEventDef::Sacrificed {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Clue")),
+                    player: PlayerRelation::You,
+                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::AddPlayerCounters {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::Poison,
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // MKM 99 — Polygraph Orb
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static POLYGRAPH_ORB: CardRecord = CardRecord::new(
     "Polygraph Orb",
     "a6cc4c6f-4a84-4d42-89fa-7405f7ad6ba0",
     "Jokubas Uogintas",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 100 — Presumed Dead
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static PRESUMED_DEAD: CardRecord = CardRecord::new(
     "Presumed Dead",
     "4dd64e5c-ea0b-4ea0-aba3-88e7e96ac7ba",
     "Matt Forsyth",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 101 — Repeat Offender
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static REPEAT_OFFENDER: CardRecord = CardRecord::new(
     "Repeat Offender",
     "0c2ca1e7-e0de-4d29-a81b-62185ccd295f",
     "Joshua Cairos",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 102 — Rot Farm Mortipede
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
 pub(in crate::card::sets) static ROT_FARM_MORTIPEDE: CardRecord = CardRecord::new(
     "Rot Farm Mortipede",
     "023b0142-663a-47e7-a9f1-0b565a172b60",
     "Loïc Canavaggia",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 103 — Slice from the Shadows
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLICE_FROM_THE_SHADOWS: CardRecord = CardRecord::new(
     "Slice from the Shadows",
     "317800b3-6b2d-4de6-8e44-7e54dd623055",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{B}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "This spell can't be countered.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+            },
+        )
+        .with_source_zones(&[ZoneKind::Stack]),
+        AbilityDef::spell_with_targets(
+            "Target creature gets -X/-X until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Negate(&ValueDef::ChosenX),
+                    ValueDef::Negate(&ValueDef::ChosenX),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MKM 104 — Slimy Dualleech
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLIMY_DUALLEECH: CardRecord = CardRecord::new(
     "Slimy Dualleech",
     "4bc803ad-f8a2-4198-a8a6-8d987b3d00fb",
     "Igor Krstic",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Leech"], 2, 4).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "At the beginning of combat on your turn, target creature you \
+             control with power 2 or less gets +1/+0 and gains deathtouch \
+             until end of turn.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MKM 105 — Snarling Gorehound
@@ -1139,345 +2379,719 @@ pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::ne
 );
 
 // MKM 106 — Soul Enervation
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
 pub(in crate::card::sets) static SOUL_ENERVATION: CardRecord = CardRecord::new(
     "Soul Enervation",
     "6f22ac67-06ce-47cc-a515-d216d30b9cae",
     "Domenico Cava",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 107 — Toxin Analysis
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOXIN_ANALYSIS: CardRecord = CardRecord::new(
     "Toxin Analysis",
     "0eda1aff-c1f4-4171-a800-605396cc8168",
     "Irina Nordsol",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gains deathtouch and lifelink until end of \
+         turn. Investigate. (Create a Clue token. It's an artifact \
+         with \"{2}, Sacrifice this token: Draw a card.\")",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // MKM 108 — Undercity Eliminator
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
 pub(in crate::card::sets) static UNDERCITY_ELIMINATOR: CardRecord = CardRecord::new(
     "Undercity Eliminator",
     "a67a4c5e-215b-4f03-87f7-c1af4f9f0a63",
     "Quintin Gleim",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 109 — Unscrupulous Agent
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNSCRUPULOUS_AGENT: CardRecord = CardRecord::new(
     "Unscrupulous Agent",
     "37692f9a-3825-43aa-aacb-1bb92cb5bd07",
     "Michal Ivan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Elf", "Detective"], 1, 1).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent exiles a card from \
+             their hand.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                unchosen: None,
+                chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Private,
+                then: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!("chosen"))),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            }),
+        ),
+    ]),
 );
 
 // MKM 110 — Vein Ripper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VEIN_RIPPER: CardRecord = CardRecord::new(
     "Vein Ripper",
     "078933b3-6d82-45f2-94e8-addf54cf1704",
     "Bastien L. Deharme",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{B}"), &["Vampire", "Assassin"], 6, 5)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::ward(
+                &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                ))],
+                "Ward—Sacrifice a creature.",
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever a creature dies, target opponent loses 2 life and \
+                 you gain 2 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // MKM 111 — Anzrag's Rampage
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-turn history counting artifacts put into graveyards from the battlefield, independently of their current zones and of when this spell was cast.
 pub(in crate::card::sets) static ANZRAG_S_RAMPAGE: CardRecord = CardRecord::new(
     "Anzrag's Rampage",
     "9dc52b53-3e4f-4d7d-851f-86c6e0ac67b2",
     "Lucas Graciano",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 112 — Bolrac-Clan Basher
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOLRAC_CLAN_BASHER: CardRecord = CardRecord::new(
     "Bolrac-Clan Basher",
     "b87683f7-8a61-4e4a-8b8b-3bf812454096",
     "Warren Mahy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Cyclops", "Warrior"], 3, 2)
+        .with_abilities(&[
+            abilities::double_strike(),
+            abilities::trample(),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some(
+                    "Disguise {3}{R}{R} (You may cast this card face down for {3} \
+                     as a 2/2 creature with ward {2}. Turn it face up any time for \
+                     its disguise cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{3}{R}{R}"))]),
 );
 
 // MKM 113 — Case of the Burning Masks
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_BURNING_MASKS: CardRecord = CardRecord::new(
     "Case of the Burning Masks",
     "29ee07df-215f-45a6-9a5a-708143d73e45",
     "Bastien L. Deharme",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 114 — Case of the Crimson Pulse
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_CRIMSON_PULSE: CardRecord = CardRecord::new(
     "Case of the Crimson Pulse",
     "bb18b1de-bc08-4522-b891-6117a8271534",
     "Adam Paquette",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 115 — Caught Red-Handed
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static CAUGHT_RED_HANDED: CardRecord = CardRecord::new(
     "Caught Red-Handed",
     "95bc5f89-2f01-40c4-9883-4c90ab89fcbb",
     "Donato Giancola",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 116 — The Chase Is On
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THE_CHASE_IS_ON: CardRecord = CardRecord::new(
     "The Chase Is On",
     "1d54d596-f7aa-4b05-ab13-19b246698c04",
     "Diego Gisbert",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets +3/+0 and gains first strike until end \
+         of turn. Investigate. (Create a Clue token. It's an artifact \
+         with \"{2}, Sacrifice this token: Draw a card.\")",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // MKM 117 — Concealed Weapon
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static CONCEALED_WEAPON: CardRecord = CardRecord::new(
     "Concealed Weapon",
     "38e31fa6-a445-47c6-a73f-135087f6d760",
     "Nicholas Elias",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 118 — Connecting the Dots
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs linked face-down exile that conceals cards even from their owner; the existing face-down exile visibility policy permits the owner to inspect them.
 pub(in crate::card::sets) static CONNECTING_THE_DOTS: CardRecord = CardRecord::new(
     "Connecting the Dots",
     "8e02731a-8698-4b41-99c3-f0a19fc31430",
     "Aaron J. Riley",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 119 — Convenient Target
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static CONVENIENT_TARGET: CardRecord = CardRecord::new(
     "Convenient Target",
     "2d2cf2ae-9152-41c4-9dc4-a19da5812869",
     "Gaboleps",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 120 — Cornered Crook
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
 pub(in crate::card::sets) static CORNERED_CROOK: CardRecord = CardRecord::new(
     "Cornered Crook",
     "a3aff1ea-1d25-49c3-a2d9-f435124a5969",
     "Gabor Szikszai",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 121 — Crime Novelist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRIME_NOVELIST: CardRecord = CardRecord::new(
     "Crime Novelist",
     "14a5cd7c-b0b1-4ffa-a806-bb0e73baffad",
     "Izzy",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Bard"], 1, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever you sacrifice an artifact, put a +1/+1 counter on \
+             this creature and add {R}.",
+            TriggerEventDef::Sacrificed {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                player: PlayerRelation::You,
+            },
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
+            ]),
+        ),
+    ]),
 );
 
 // MKM 122 — Demand Answers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEMAND_ANSWERS: CardRecord = CardRecord::new(
     "Demand Answers",
     "eca092fc-7c67-4a73-989e-5297bbaaea76",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell(
+        "Draw two cards.",
+        abilities::draw_cards(ValueDef::Constant(2)),
+    )
+    .with_spell_additional_cost(&CostDef::Choice(&[
+        CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Artifact)),
+        CostDef::discard(ObjectPredicateDef::Any),
+    ]))]),
 );
 
 // MKM 123 — Expedited Inheritance
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs exile-play permission ending at cleanup of the affected player's next turn; the existing turn-count duration also remains usable during the following opponent turn.
 pub(in crate::card::sets) static EXPEDITED_INHERITANCE: CardRecord = CardRecord::new(
     "Expedited Inheritance",
     "b65209da-cf48-4d37-b045-7d181070fd05",
     "Micah Epstein",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 124 — Expose the Culprit
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs effect-driven face-up turning, predicates for face-up creatures with disguise, and a concealed exile-and-shuffle operation that cloaks the mixed pile without exposing card identities.
 pub(in crate::card::sets) static EXPOSE_THE_CULPRIT: CardRecord = CardRecord::new(
     "Expose the Culprit",
     "31aadd3d-5ce1-44ba-ac6d-b192a9ea491b",
     "Ryan Valle",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 125 — Felonious Rage
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a delayed dies trigger matching the saved target incarnation for this turn and retaining the spell controller. The event predicate has no bound-object identity match, and granting a dies ability would change its controller if the creature changed control.
 pub(in crate::card::sets) static FELONIOUS_RAGE: CardRecord = CardRecord::new(
     "Felonious Rage",
     "4538d6a8-a24a-40e3-b894-45a30882c92a",
     "Justine Cruz",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 126 — Frantic Scapegoat
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static FRANTIC_SCAPEGOAT: CardRecord = CardRecord::new(
     "Frantic Scapegoat",
     "eb81e343-7242-44b1-9ce6-1dddd104f764",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 127 — Fugitive Codebreaker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a face-up trigger event and a disguise-cost reduction based on the current number of instant and sorcery cards in its controller's graveyard.
 pub(in crate::card::sets) static FUGITIVE_CODEBREAKER: CardRecord = CardRecord::new(
     "Fugitive Codebreaker",
     "b682bf8a-06dc-4828-bc46-9e1427bf981f",
     "Joseph Weston",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 128 — Galvanize
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GALVANIZE: CardRecord = CardRecord::new(
     "Galvanize",
     "64ed3bfa-3294-45dd-825e-3afc2580f0d4",
     "Matt Forsyth",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Galvanize deals 3 damage to target creature. If you've drawn \
+         two or more cards this turn, Galvanize deals 5 damage to that \
+         creature instead.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::IfElseCondition {
+            condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                left: ValueDef::CardsDrawnThisTurn(PlayerRelation::You),
+                comparison: ComparisonDef::GreaterOrEqual,
+                right: ValueDef::Constant(2),
+            }),
+            then: &EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
+            otherwise: &EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
+        },
+    )]),
 );
 
 // MKM 129 — Gearbane Orangutan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GEARBANE_ORANGUTAN: CardRecord = CardRecord::new(
     "Gearbane Orangutan",
     "6900a344-a155-4ee1-a3ac-d6c28e024270",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Ape"], 2, 2).with_abilities(&[
+        abilities::reach(),
+        AbilityDef::modal_triggered(
+            "When this creature enters, choose one —",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[
+                AbilityDef::spell_with_targets(
+                    "Destroy up to one target artifact.",
+                    &[AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Artifact),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: None,
+                            owner: None,
+                        },
+                        1,
+                    )],
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                ),
+                AbilityDef::spell(
+                    "Sacrifice an artifact. If you do, put two +1/+1 counters on \
+                     this creature.",
+                    EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                        player: EffectRecipientDef::Controller,
+                        zone: ZoneKind::Battlefield,
+                        candidates: ObjectPredicateDef::HasType(CardType::Artifact),
+                        selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                        chosen: crate::Binding!("sacrificed"),
+                        unchosen: crate::Binding!("unchosen_sacrificed"),
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::sacrifice(EffectRecipientDef::objects(
+                                ObjectSetDef::Binding(crate::Binding!("sacrificed")),
+                            )),
+                            EffectDef::IfCondition {
+                                condition: &TriggerConditionDef::ValueComparison(
+                                    &ValueComparisonDef {
+                                        left: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                                            crate::Binding!("sacrificed"),
+                                        )),
+                                        comparison: ComparisonDef::Greater,
+                                        right: ValueDef::Constant(0),
+                                    },
+                                ),
+                                then: &EffectDef::AddCounters {
+                                    object: EffectRecipientDef::Source,
+                                    kind: CounterKind::PlusOnePlusOne,
+                                    amount: ValueDef::Constant(2),
+                                },
+                            },
+                        ]),
+                    }),
+                ),
+            ],
+        ),
+    ]),
 );
 
 // MKM 130 — Goblin Maskmaker
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
 pub(in crate::card::sets) static GOBLIN_MASKMAKER: CardRecord = CardRecord::new(
     "Goblin Maskmaker",
     "6154a991-c602-4fca-91a3-3830060da60e",
     "Tomas Duchek",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 131 — Harried Dronesmith
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HARRIED_DRONESMITH: CardRecord = CardRecord::new(
     "Harried Dronesmith",
     "36cb25ee-3c84-40a8-ba45-7e44893deecf",
     "Lindsey Look",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Artificer"], 2, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "At the beginning of combat on your turn, create a 1/1 \
+             colorless Thopter artifact creature token with flying. It \
+             gains haste until end of turn. Sacrifice it at the beginning \
+             of your next end step.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_created_tokens(CreatedTokensDef {
+                    binding: crate::Binding!("thopter"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                crate::Binding!("thopter"),
+                            )),
+                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                        EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of your next end step, sacrifice it.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::You,
+                                },
+                                EffectDef::sacrifice(EffectRecipientDef::objects(
+                                    ObjectSetDef::Binding(crate::Binding!("thopter")),
+                                )),
+                            ),
+                        )),
+                    ]),
+                }),
+        ),
+    ]),
 );
 
 // MKM 132 — Incinerator of the Guilty
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static INCINERATOR_OF_THE_GUILTY: CardRecord = CardRecord::new(
     "Incinerator of the Guilty",
     "0c6aca64-a554-45c1-9f23-4f7878abeda5",
     "Lucas Graciano",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 133 — Innocent Bystander
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs damage-event matching by committed damage amount; the event-time condition evaluator cannot read TriggerEventAmount, so it cannot distinguish a single hit of 3 or more from smaller hits.
 pub(in crate::card::sets) static INNOCENT_BYSTANDER: CardRecord = CardRecord::new(
     "Innocent Bystander",
     "085f4595-4ae5-428e-a934-e918774df6fd",
     "Warren Mahy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 134 — Knife
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KNIFE: CardRecord = CardRecord::new(
     "Knife",
     "b6883788-e1ee-4ddd-add2-24d6bc367717",
     "Tony Foti",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{R}"))
+        .with_subtypes(&["Clue", "Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "During your turn, equipped creature gets +1/+0 and has first \
+                 strike.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(0),
+                            ),
+                            AppliedEffectDef::add_ability(&abilities::first_strike()),
+                        ]),
+                    },
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+        ]),
 );
 
 // MKM 135 — Krenko, Baron of Tin Street
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRENKO_BARON_OF_TIN_STREET: CardRecord = CardRecord::new(
     "Krenko, Baron of Tin Street",
     "5524b712-c67d-4d2e-9344-9e85a6ce3227",
     "Brian Valeza",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::haste(),
+            AbilityDef::activated(
+                "{T}, Sacrifice an artifact: Put a +1/+1 counter on each \
+                 Goblin you control.",
+                &[
+                    CostDef::TapSource,
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Artifact)),
+                ],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever an artifact is put into a graveyard from the \
+                 battlefield, you may pay {R}. If you do, create a 1/1 red \
+                 Goblin creature token. It gains haste until end of turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::Mana(mana_cost!("{R}"))],
+                    &EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+                        .with_created_tokens(CreatedTokensDef {
+                            binding: crate::Binding!("goblin"),
+                            then: &EffectDef::Apply {
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("goblin"),
+                                )),
+                                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        }),
+                )),
+            ),
+        ]),
 );
 
 // MKM 136 — Krenko's Buzzcrusher
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs APNAP per-player optional nonbasic-land selections retained as one group before destruction; ChooseForEachPlayer currently requires an exact count, rather than allowing each player to choose up to one.
 pub(in crate::card::sets) static KRENKO_S_BUZZCRUSHER: CardRecord = CardRecord::new(
     "Krenko's Buzzcrusher",
     "0edcda2a-071b-40c5-9fb3-8a4ff87ca00e",
     "Joshua Raphael",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 137 — Lamplight Phoenix
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static LAMPLIGHT_PHOENIX: CardRecord = CardRecord::new(
     "Lamplight Phoenix",
     "2faa0e56-527c-4be5-b8c9-b10ccde275f5",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 138 — Offender at Large
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static OFFENDER_AT_LARGE: CardRecord = CardRecord::new(
     "Offender at Large",
     "f096ff4a-85f4-46f1-9478-e8921f21309d",
     "Mike Bierek",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 139 — Person of Interest
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static PERSON_OF_INTEREST: CardRecord = CardRecord::new(
     "Person of Interest",
     "7d56ebff-67c8-4bc7-a533-ddde4ce0c2af",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 140 — Pyrotechnic Performer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static PYROTECHNIC_PERFORMER: CardRecord = CardRecord::new(
     "Pyrotechnic Performer",
     "0fa5671b-2651-4944-a50a-c768ec70229e",
     "Peter Polach",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 141 — Reckless Detective
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_DETECTIVE: CardRecord = CardRecord::new(
     "Reckless Detective",
     "18da1a1d-e6ba-47e5-a545-0bacd427b782",
     "Tuan Duong Chu",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Devil", "Detective"], 0, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature attacks, you may sacrifice an artifact \
+             or discard a card. If you do, draw a card and this creature \
+             gets +2/+0 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::ChooseEffect {
+                player: EffectRecipientDef::Controller,
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Discard a card",
+                        effect: EffectDef::PayOr(PayOrDef::optional(
+                            &[CostDef::discard(ObjectPredicateDef::Any)],
+                            &EffectDef::Sequence(&[
+                                abilities::draw_cards(ValueDef::Constant(1)),
+                                EffectDef::Apply {
+                                    recipient: EffectRecipientDef::Source,
+                                    effect: AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::Constant(2),
+                                        ValueDef::Constant(0),
+                                    ),
+                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                },
+                            ]),
+                        )),
+                    },
+                    EffectChoiceDef {
+                        label: "Sacrifice an artifact",
+                        effect: EffectDef::PayOr(PayOrDef::optional(
+                            &[CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+                                CardType::Artifact,
+                            ))],
+                            &EffectDef::Sequence(&[
+                                abilities::draw_cards(ValueDef::Constant(1)),
+                                EffectDef::Apply {
+                                    recipient: EffectRecipientDef::Source,
+                                    effect: AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::Constant(2),
+                                        ValueDef::Constant(0),
+                                    ),
+                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                },
+                            ]),
+                        )),
+                    },
+                ],
+            },
+        ),
+    ]),
 );
 
 // MKM 142 — Red Herring
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RED_HERRING: CardRecord = CardRecord::new(
     "Red Herring",
     "6c137a44-9ab6-4e59-8324-34d9dca8f5a6",
     "Iris Compiet",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{1}{R}"), &["Clue", "Fish"], 2, 2).with_abilities(
+        &[
+            abilities::haste(),
+            abilities::attacks_each_combat_if_able(),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+        ],
+    ),
 );
 
 // MKM 143 — Rubblebelt Braggart
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static RUBBLEBELT_BRAGGART: CardRecord = CardRecord::new(
     "Rubblebelt Braggart",
     "f90f8691-210a-4bf0-9fc2-fb2efcf057fb",
     "Leonardo Santanna",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 144 — Shock (reprint)
@@ -1488,21 +3102,21 @@ const SHOCK_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MKM 145 — Suspicious Detonation
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs controller-relative history recording whether an artifact was sacrificed this turn, including sacrifices before this permanent entered, for the printed condition.
 pub(in crate::card::sets) static SUSPICIOUS_DETONATION: CardRecord = CardRecord::new(
     "Suspicious Detonation",
     "6e280482-ed7e-4011-899e-096ff7bd4c41",
     "Joe Slucher",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 146 — Torch the Witness
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an ordinary damage-result continuation exposing excess damage after prevention and replacement; only the fight operation currently exposes an excess-damage follow-up.
 pub(in crate::card::sets) static TORCH_THE_WITNESS: CardRecord = CardRecord::new(
     "Torch the Witness",
     "22bbf709-d8e9-4e3b-8ec8-206f1b2162b3",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 146† — Torch the Witness (alternate printing)
@@ -1514,246 +3128,612 @@ const TORCH_THE_WITNESS_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 147 — Vengeful Tracker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VENGEFUL_TRACKER: CardRecord = CardRecord::new(
     "Vengeful Tracker",
     "a247c9a0-0c65-47bc-92fd-bebe95cd35a3",
     "Francisco Miyara",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Detective"], 2, 2).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever an opponent sacrifices an artifact, this creature \
+             deals 2 damage to them.",
+            TriggerEventDef::Sacrificed {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                player: PlayerRelation::Opponent,
+            },
+            EffectDef::damage(EffectRecipientDef::EventPlayer, ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 // MKM 148 — Aftermath Analyst
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AFTERMATH_ANALYST: CardRecord = CardRecord::new(
     "Aftermath Analyst",
     "1c1aa6f8-2d34-4f4b-9184-0eab2e4745f7",
     "Danny Schwartz",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Detective"], 1, 3).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, mill three cards. (Put the top \
+             three cards of your library into your graveyard.)",
+            EffectDef::Mill {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+        AbilityDef::activated(
+            "{3}{G}, Sacrifice this creature: Return all land cards from \
+             your graveyard to the battlefield tapped.",
+            &[
+                CostDef::Mana(mana_cost!("{3}{G}")),
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ))),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+                arrival: BattlefieldArrivalDef {
+                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                    ..BattlefieldArrivalDef::DEFAULT
+                },
+            },
+        ),
+    ]),
 );
 
 // MKM 149 — Airtight Alibi
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static AIRTIGHT_ALIBI: CardRecord = CardRecord::new(
     "Airtight Alibi",
     "bffbbe21-0a1d-48b9-903e-81c109aa11de",
     "Jeremy Wilson",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 150 — Analyze the Pollen
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static ANALYZE_THE_POLLEN: CardRecord = CardRecord::new(
     "Analyze the Pollen",
     "5563967f-09fd-4ccf-8892-4dd0c2544c98",
     "Anna Christenson",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 151 — Archdruid's Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARCHDRUID_S_CHARM: CardRecord = CardRecord::new(
     "Archdruid's Charm",
     "5caae5ae-845f-42c2-b1ae-956df2739433",
     "Liiga Smilshkalne",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}{G}{G}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Search your library for a creature or land card and reveal \
+                 it. Put it onto the battlefield tapped if it's a land card. \
+                 Otherwise, put it into your hand. Then shuffle.",
+                EffectDef::Sequence(&[
+                    EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: true,
+                        destination: ZoneKind::Library,
+                        placement: ZonePlacement::Top,
+                        shuffle: false,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: Some(crate::Binding!("found")),
+                        then: Some(&EffectDef::IfElseCondition {
+                            condition: &TriggerConditionDef::ObjectSetCount(
+                                &ObjectSetCountConditionDef {
+                                    objects: &ObjectSetDef::Binding(crate::Binding!("found")),
+                                    predicate: ObjectSetPredicateDef::contains(
+                                        &ObjectPredicateDef::HasType(CardType::Land),
+                                    ),
+                                },
+                            ),
+                            then: &EffectDef::WithBattlefieldArrival {
+                                effect: &EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        crate::Binding!("found"),
+                                    )),
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                ),
+                                arrival: BattlefieldArrivalDef {
+                                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                                    ..BattlefieldArrivalDef::DEFAULT
+                                },
+                            },
+                            otherwise: &EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    crate::Binding!("found"),
+                                )),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                        }),
+                    },
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::Controller,
+                    },
+                ]),
+            ),
+            AbilityDef::spell_with_targets(
+                "Put a +1/+1 counter on target creature you control. It deals \
+                 damage equal to its power to target creature you don't \
+                 control.",
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::NotYou),
+                        owner: None,
+                    }),
+                ],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::damage_from(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        EffectRecipientDef::Target(TargetIndex(1)),
+                        ValueDef::TargetPower(TargetIndex::PRIMARY),
+                    ),
+                ]),
+            ),
+            AbilityDef::spell_with_targets(
+                "Exile target artifact or enchantment.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                )],
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ],
+    )]),
 );
 
 // MKM 152 — Audience with Trostani
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AUDIENCE_WITH_TROSTANI: CardRecord = CardRecord::new(
     "Audience with Trostani",
     "a8e23d15-33af-4fd8-964b-8ca4efdebc37",
     "Ben Hill",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell(
+        "Create a 0/1 green Plant creature token, then draw cards \
+         equal to the number of differently named creature tokens you \
+         control.",
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Plant"], &[ManaColor::Green], 0, 1),
+            abilities::draw_cards(ValueDef::DistinctNamesAmong(&ObjectQueryDef::matching(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Token,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ))),
+        ]),
+    )]),
 );
 
 // MKM 153 — Axebane Ferox
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static AXEBANE_FEROX: CardRecord = CardRecord::new(
     "Axebane Ferox",
     "610a0de4-a4f7-446b-8477-00c917cb4789",
     "Maxime Minard",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 154 — Bite Down on Crime
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static BITE_DOWN_ON_CRIME: CardRecord = CardRecord::new(
     "Bite Down on Crime",
     "29bbfe93-8225-444c-835b-33ffa006ef66",
     "Mike Bierek",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 155 — Case of the Locked Hothouse
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_LOCKED_HOTHOUSE: CardRecord = CardRecord::new(
     "Case of the Locked Hothouse",
     "0929a1bd-e35c-4ca5-8c8c-dd304cf4b830",
     "Leanna Crossan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 156 — Case of the Trampled Garden
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Case solved designation, the rules-triggered end-step solve check, and solved-only ability gating; the engine has no Case state or solve event.
 pub(in crate::card::sets) static CASE_OF_THE_TRAMPLED_GARDEN: CardRecord = CardRecord::new(
     "Case of the Trampled Garden",
     "9e80f5c7-ae29-473c-ac64-04bcbc629385",
     "Maxime Minard",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 157 — Chalk Outline
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
 pub(in crate::card::sets) static CHALK_OUTLINE: CardRecord = CardRecord::new(
     "Chalk Outline",
     "b3ff56c1-4153-4e15-9ac6-06d93fa2ae50",
     "Julia Griffin",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 158 — Culvert Ambusher
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static CULVERT_AMBUSHER: CardRecord = CardRecord::new(
     "Culvert Ambusher",
     "2ccdc58b-1e7e-402c-88f9-c789ff1dae31",
     "Slawomir Maniak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 159 — Fanatical Strength
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FANATICAL_STRENGTH: CardRecord = CardRecord::new(
     "Fanatical Strength",
     "4941fa74-c7b9-4468-8080-de8057d3d27b",
     "Durion",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature gets +3/+3 and gains trample until end of turn.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                AppliedEffectDef::add_ability(&abilities::trample()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // MKM 160 — Flourishing Bloom-Kin
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static FLOURISHING_BLOOM_KIN: CardRecord = CardRecord::new(
     "Flourishing Bloom-Kin",
     "5ddcb31e-9301-44f1-b138-0573fbf56a47",
     "Ben Hill",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 161 — Get a Leg Up
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GET_A_LEG_UP: CardRecord = CardRecord::new(
     "Get a Leg Up",
     "34e61e0f-d0f3-492a-92f1-36f72a91583a",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Until end of turn, target creature gets +1/+1 for each \
+         creature you control and gains reach.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                ),
+                AppliedEffectDef::add_ability(&abilities::reach()),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )]),
 );
 
 // MKM 162 — Glint Weaver
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs distributing counters according to cast-time target allocations; divided damage is implemented, but AddCounters does not consume per-target allocations.
 pub(in crate::card::sets) static GLINT_WEAVER: CardRecord = CardRecord::new(
     "Glint Weaver",
     "c8eff4d0-67ad-4900-b33d-605659b59161",
     "Tuan Duong Chu",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 163 — Greenbelt Radical
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static GREENBELT_RADICAL: CardRecord = CardRecord::new(
     "Greenbelt Radical",
     "88e62346-cc62-4938-970c-b56beeb79fa6",
     "Andreia Ugrai",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 164 — Hard-Hitting Question
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HARD_HITTING_QUESTION: CardRecord = CardRecord::new(
     "Hard-Hitting Question",
     "8ad807c2-14a7-4464-bf57-c323fb3c0bd0",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target creature you control deals damage equal to its power \
+         to target creature or planeswalker you don't control.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::NotYou),
+                owner: None,
+            }),
+        ],
+        EffectDef::damage_from(
+            ObjectRefDef::Target(TargetIndex::PRIMARY),
+            EffectRecipientDef::Target(TargetIndex(1)),
+            ValueDef::TargetPower(TargetIndex::PRIMARY),
+        ),
+    )]),
 );
 
 // MKM 165 — Hedge Whisperer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static HEDGE_WHISPERER: CardRecord = CardRecord::new(
     "Hedge Whisperer",
     "4627adcd-ace7-4777-a7e6-fc80ac6b9dfe",
     "Simon Dominic",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 166 — Hide in Plain Sight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIDE_IN_PLAIN_SIGHT: CardRecord = CardRecord::new(
     "Hide in Plain Sight",
     "d87c1ed8-c644-4ad5-9a21-c7bd9a7e8d20",
     "Vincent Christiaens",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_abilities(&[AbilityDef::spell(
+        "Look at the top five cards of your library, cloak two of \
+         them, and put the rest on the bottom of your library in a \
+         random order. (To cloak a card, put it onto the battlefield \
+         face down as a 2/2 creature with ward {2}. Turn it face up \
+         any time for its mana cost if it's a creature card.)",
+        EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(5),
+            },
+            actor: PlayerRefDef::EffectController,
+            inspection: CollectionInspectionDef::Look,
+            object: ObjectPredicateDef::Any,
+            minimum: 2,
+            maximum: 2,
+            chosen: crate::Binding!("chosen"),
+            remainder: crate::Binding!("rest"),
+            then: &EffectDef::Sequence(&[
+                EffectDef::PutObjectsOntoBattlefieldFaceDown(
+                    PutObjectsOntoBattlefieldFaceDownDef {
+                        input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        controller: PlayerRefDef::EffectController,
+                        characteristics: crate::card::face_down::cloak(),
+                        turn_up_for_mana_cost: true,
+                        moved: None,
+                        then: &EffectDef::None,
+                    },
+                ),
+                EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                    input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                    randomized: crate::Binding!("random_bottom"),
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "random_bottom"
+                        ))),
+                        ZoneKind::Library,
+                        ZonePlacement::Bottom,
+                    ),
+                }),
+            ]),
+        }),
+    )]),
 );
 
 // MKM 167 — A Killer Among Us
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a private durable creature-type choice, a reveal-chosen-type activation cost, and public disclosure of that previously hidden choice.
 pub(in crate::card::sets) static A_KILLER_AMONG_US: CardRecord = CardRecord::new(
     "A Killer Among Us",
     "2c1392c5-91a5-4e6e-803d-ed032e4d594b",
     "Leesha Hannigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 168 — Loxodon Eavesdropper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOXODON_EAVESDROPPER: CardRecord = CardRecord::new(
     "Loxodon Eavesdropper",
     "bbbf8c3a-6c74-42fd-bb8d-61e3f0a77848",
     "Jesper Ejsing",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elephant", "Detective"], 3, 3).with_abilities(
+        &[
+            abilities::enters_trigger(
+                "When this creature enters, investigate. (Create a Clue token. \
+                 It's an artifact with \"{2}, Sacrifice this token: Draw a \
+                 card.\")",
+                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            ),
+            AbilityDef::triggered(
+                "Whenever you draw your second card each turn, this creature \
+                 gets +1/+1 and gains vigilance until end of turn.",
+                TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
+                    PlayerRelation::You,
+                    2,
+                )),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    ),
 );
 
 // MKM 169 — Nervous Gardener
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static NERVOUS_GARDENER: CardRecord = CardRecord::new(
     "Nervous Gardener",
     "93b747c7-b342-47f8-a190-16c393b20607",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 170 — Pick Your Poison
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PICK_YOUR_POISON: CardRecord = CardRecord::new(
     "Pick Your Poison",
     "f58cfb23-4d99-4133-bf4b-d7e7c7d17cea",
     "Julia Metzger",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{G}")).with_abilities(&[AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Each opponent sacrifices an artifact of their choice.",
+                EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::Opponent,
+                    zone: ZoneKind::Battlefield,
+                    candidates: ObjectPredicateDef::HasType(CardType::Artifact),
+                    selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                    chosen: crate::Binding!("sacrifices"),
+                    unchosen: crate::Binding!("unchosen_sacrifices"),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::sacrifice(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("sacrifices")),
+                    )),
+                }),
+            ),
+            AbilityDef::spell(
+                "Each opponent sacrifices an enchantment of their choice.",
+                EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::Opponent,
+                    zone: ZoneKind::Battlefield,
+                    candidates: ObjectPredicateDef::HasType(CardType::Enchantment),
+                    selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                    chosen: crate::Binding!("sacrifices"),
+                    unchosen: crate::Binding!("unchosen_sacrifices"),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::sacrifice(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("sacrifices")),
+                    )),
+                }),
+            ),
+            AbilityDef::spell(
+                "Each opponent sacrifices a creature with flying of their choice.",
+                EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::Opponent,
+                    zone: ZoneKind::Battlefield,
+                    candidates: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                    ]),
+                    selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                    chosen: crate::Binding!("sacrifices"),
+                    unchosen: crate::Binding!("unchosen_sacrifices"),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::sacrifice(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("sacrifices")),
+                    )),
+                }),
+            ),
+        ],
+    )]),
 );
 
 // MKM 171 — Pompous Gadabout
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a predicate for a creature having no rules-visible name; matching a display name or an empty literal is not the nameless-object rule.
 pub(in crate::card::sets) static POMPOUS_GADABOUT: CardRecord = CardRecord::new(
     "Pompous Gadabout",
     "6d803b93-c1df-4a02-9dbb-d347c841d4d7",
     "Scott Murphy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 172 — The Pride of Hull Clade
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs self spell-cost reduction from the total toughness of controlled creatures; the self-cost evaluator accepts object counts but not characteristic aggregates.
 pub(in crate::card::sets) static THE_PRIDE_OF_HULL_CLADE: CardRecord = CardRecord::new(
     "The Pride of Hull Clade",
     "edb40ab9-e552-4eb5-9c35-09094136dd4f",
     "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 173 — Rope
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROPE: CardRecord = CardRecord::new(
     "Rope",
     "6881946c-5036-4d9f-926f-932c9a592aff",
     "Matt Forsyth",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{G}"))
+        .with_subtypes(&["Clue", "Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+2, has reach, and can't be blocked \
+                 by more than one creature.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::reach()),
+                        AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                            BlockRestrictionDef::MaximumBlockers(1),
+                        )),
+                    ]),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
 );
 
 // MKM 174 — Rubblebelt Maverick
@@ -1791,111 +3771,199 @@ pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::n
 );
 
 // MKM 175 — Sample Collector
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static SAMPLE_COLLECTOR: CardRecord = CardRecord::new(
     "Sample Collector",
     "76f7480c-82cc-4ddd-b619-c1a609c29a13",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 176 — Sharp-Eyed Rookie
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an intervening-if comparison between the triggering entrant's power or toughness and the source's corresponding characteristic, checked both when triggering and resolving with last-known information.
 pub(in crate::card::sets) static SHARP_EYED_ROOKIE: CardRecord = CardRecord::new(
     "Sharp-Eyed Rookie",
     "3d5d4788-a970-4e09-89a1-740eca9331d9",
     "Jake Murray",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 177 — Slime Against Humanity
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a declarative deck-construction exception permitting any number of copies of this named card; current deck-copy validation has no card-declared unlimited-copy allowance.
 pub(in crate::card::sets) static SLIME_AGAINST_HUMANITY: CardRecord = CardRecord::new(
     "Slime Against Humanity",
     "1eb21318-d32e-4724-8908-c0d7613de2f4",
     "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 178 — They Went This Way
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THEY_WENT_THIS_WAY: CardRecord = CardRecord::new(
     "They Went This Way",
     "f4a31d4a-34bc-46b4-b20f-a5460191b35d",
     "Andreas Zafiratos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_abilities(&[AbilityDef::spell(
+        "Search your library for a basic land card, put it onto the \
+         battlefield tapped, then shuffle. Investigate. (Create a Clue \
+         token. It's an artifact with \"{2}, Sacrifice this token: \
+         Draw a card.\")",
+        EffectDef::Sequence(&[
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ]),
+    )]),
 );
 
 // MKM 179 — Topiary Panther
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOPIARY_PANTHER: CardRecord = CardRecord::new(
     "Topiary Panther",
     "03d0365e-6dee-4236-a997-6761e3cde90d",
     "Xabi Gaztelua",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Plant", "Cat"], 6, 5).with_abilities(&[
+        abilities::trample(),
+        abilities::typecycling!(
+            "Basic landcycling {1}{G}",
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic)
+            ])
+        ),
+    ]),
 );
 
 // MKM 180 — Tunnel Tipster
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
 pub(in crate::card::sets) static TUNNEL_TIPSTER: CardRecord = CardRecord::new(
     "Tunnel Tipster",
     "3e29b890-35b9-4e2a-9b4c-9417ca7db31d",
     "Leesha Hannigan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 181 — Undergrowth Recon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERGROWTH_RECON: CardRecord = CardRecord::new(
     "Undergrowth Recon",
     "4b8a22b8-368f-41e4-8d49-432c6c2ed11e",
     "Ryan Pancoast",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, return target land card from \
+             your graveyard to the battlefield tapped.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+                arrival: BattlefieldArrivalDef {
+                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                    ..BattlefieldArrivalDef::DEFAULT
+                },
+            },
+        ),
+    ]),
 );
 
 // MKM 182 — Vengeful Creeper
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static VENGEFUL_CREEPER: CardRecord = CardRecord::new(
     "Vengeful Creeper",
     "7a914416-effd-4eda-b609-2773c53a08ec",
     "Maria Poliakova",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 183 — Vitu-Ghazi Inspector
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static VITU_GHAZI_INSPECTOR: CardRecord = CardRecord::new(
     "Vitu-Ghazi Inspector",
     "664d15d7-2724-4a9b-b5a7-8042d4b7da7b",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 184 — Agrus Kos, Spirit of Justice
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static AGRUS_KOS_SPIRIT_OF_JUSTICE: CardRecord = CardRecord::new(
     "Agrus Kos, Spirit of Justice",
     "58aeac7c-1275-49d4-9915-7604ae4bfdff",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 185 — Alquist Proft, Master Sleuth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALQUIST_PROFT_MASTER_SLEUTH: CardRecord = CardRecord::new(
     "Alquist Proft, Master Sleuth",
     "41129b44-4fa7-473b-b2b7-48c6a58be03c",
     "Andreas Zafiratos",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Human", "Detective"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::enters_trigger(
+                "When Alquist Proft enters, investigate. (Create a Clue token. \
+                 It's an artifact with \"{2}, Sacrifice this token: Draw a \
+                 card.\")",
+                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            ),
+            AbilityDef::activated(
+                "{X}{W}{U}{U}, {T}, Sacrifice a Clue: You draw X cards and \
+                 gain X life.",
+                &[
+                    CostDef::Mana(mana_cost!("{X}{W}{U}{U}")),
+                    CostDef::TapSource,
+                    CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                        "Clue",
+                    ))),
+                ],
+                EffectDef::Sequence(&[
+                    abilities::draw_cards(ValueDef::ChosenX),
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::ChosenX,
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // MKM 186 — Anzrag, the Quake-Mole
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a combat requirement that this creature be blocked by at least one creature if able. MustBeBlockedBy currently requires all matching creatures to block rather than allowing any one blocker.
 pub(in crate::card::sets) static ANZRAG_THE_QUAKE_MOLE: CardRecord = CardRecord::new(
     "Anzrag, the Quake-Mole",
     "70e9d8b8-4b32-4414-b32f-1f47523239c5",
     "Helge C. Balzer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 187 — Assassin's Trophy (reprint)
@@ -1906,30 +3974,145 @@ const ASSASSIN_S_TROPHY_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MKM 188 — Aurelia, the Law Above
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AURELIA_THE_LAW_ABOVE: CardRecord = CardRecord::new(
     "Aurelia, the Law Above",
     "8f80c6e7-e9f9-4ca6-87f7-a52c96079e4a",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{W}"), &["Angel"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::vigilance(),
+            abilities::haste(),
+            AbilityDef::triggered(
+                "Whenever a player attacks with three or more creatures, you \
+                 draw a card.",
+                TriggerEventDef::attack_declared(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    3,
+                    None,
+                ),
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+            AbilityDef::triggered(
+                "Whenever a player attacks with five or more creatures, \
+                 Aurelia deals 3 damage to each of your opponents and you gain \
+                 3 life.",
+                TriggerEventDef::attack_declared(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    5,
+                    None,
+                ),
+                EffectDef::Sequence(&[
+                    EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(3)),
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // MKM 189 — Blood Spatter Analysis
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
 pub(in crate::card::sets) static BLOOD_SPATTER_ANALYSIS: CardRecord = CardRecord::new(
     "Blood Spatter Analysis",
     "2b80feb8-5cc8-4e91-ac22-a733305a67de",
     "Jokubas Uogintas",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 190 — Break Out
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BREAK_OUT: CardRecord = CardRecord::new(
     "Break Out",
     "8c628476-0987-47d4-8d2a-cfc3977b2357",
     "Daniel Correia",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}{G}")).with_abilities(&[AbilityDef::spell(
+        "Look at the top six cards of your library. You may reveal a \
+         creature card from among them. If that card has mana value 2 \
+         or less, you may put it onto the battlefield and it gains \
+         haste until end of turn. If you didn't put the revealed card \
+         onto the battlefield this way, put it into your hand. Put the \
+         rest on the bottom of your library in a random order.",
+        EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(6),
+            },
+            actor: PlayerRefDef::EffectController,
+            inspection: CollectionInspectionDef::Look,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            minimum: 0,
+            maximum: 1,
+            chosen: crate::Binding!("chosen"),
+            remainder: crate::Binding!("rest"),
+            then: &EffectDef::Sequence(&[
+                EffectDef::RevealObjects(RevealObjectsDef {
+                    input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                    then: &EffectDef::None,
+                }),
+                EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                        objects: &ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        predicate: ObjectSetPredicateDef::contains(
+                            &ObjectPredicateDef::ManaValueAtMost(2),
+                        ),
+                    }),
+                    then: &EffectDef::ChooseEffect {
+                        player: EffectRecipientDef::Controller,
+                        choices: &[
+                            EffectChoiceDef {
+                                label: "Put onto the battlefield",
+                                effect: EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                    moved: Some(crate::Binding!("arrived")),
+                                    then: &EffectDef::Apply {
+                                        recipient: EffectRecipientDef::objects(
+                                            ObjectSetDef::Binding(crate::Binding!("arrived")),
+                                        ),
+                                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                                    },
+                                }),
+                            },
+                            EffectChoiceDef {
+                                label: "Put into hand",
+                                effect: EffectDef::move_to_zone(
+                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        crate::Binding!("chosen"),
+                                    )),
+                                    ZoneKind::Hand,
+                                    ZonePlacement::Top,
+                                ),
+                            },
+                        ],
+                    },
+                    otherwise: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                },
+                EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                    input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                    randomized: crate::Binding!("random_bottom"),
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "random_bottom"
+                        ))),
+                        ZoneKind::Library,
+                        ZonePlacement::Bottom,
+                    ),
+                }),
+            ]),
+        }),
+    )]),
 );
 
 // MKM 190† — Break Out (alternate printing)
@@ -1941,210 +4124,427 @@ const BREAK_OUT_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 191 — Buried in the Garden
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs exile-until-source-leaves with immediate return when the duration ends (CR 610.3); a leaves trigger would incorrectly delay the return through the stack.
 pub(in crate::card::sets) static BURIED_IN_THE_GARDEN: CardRecord = CardRecord::new(
     "Buried in the Garden",
     "7e144609-e1f6-4bdc-8d14-b735ef4140d3",
     "Tom Babbey",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 192 — Coerced to Kill
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COERCED_TO_KILL: CardRecord = CardRecord::new(
     "Coerced to Kill",
     "2dc9f352-5076-4b5f-9815-cf47abb63d5b",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::gain_control(
+                    EffectRecipientDef::AttachedPermanent,
+                    PlayerRefDef::EffectController,
+                    ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                ),
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature has base power and toughness 1/1, has \
+                 deathtouch, and is an Assassin in addition to its other \
+                 types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                            "Assassin",
+                        ])),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MKM 193 — Crowd-Control Warden
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs prospective turn-face-up modifications that place counters as the permanent is turned face up, before state-based actions or face-up triggers inspect its characteristics.
 pub(in crate::card::sets) static CROWD_CONTROL_WARDEN: CardRecord = CardRecord::new(
     "Crowd-Control Warden",
     "cdf0578f-4966-4ecd-81e1-83ae13126f13",
     "Diego Gisbert",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 194 — Curious Cadaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CURIOUS_CADAVER: CardRecord = CardRecord::new(
     "Curious Cadaver",
     "2893aef8-835d-4935-b532-d8670585e489",
     "Peter Polach",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}{B}"), &["Zombie", "Detective"], 3, 1)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "When you sacrifice a Clue, return this card from your \
+                 graveyard to your hand.",
+                TriggerEventDef::Sacrificed {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Clue")),
+                    player: PlayerRelation::You,
+                },
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            )
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // MKM 195 — Deadly Complication
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static DEADLY_COMPLICATION: CardRecord = CardRecord::new(
     "Deadly Complication",
     "7c68981c-037c-42e7-9b7f-6f07edab5f2e",
     "Jodie Muir",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 196 — Detective's Satchel
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs controller-relative history recording whether an artifact was sacrificed this turn, including sacrifices before this permanent entered, for the printed condition.
 pub(in crate::card::sets) static DETECTIVE_S_SATCHEL: CardRecord = CardRecord::new(
     "Detective's Satchel",
     "2c05bf2d-7d4f-4717-b1ea-ec4284854f4f",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 197 — Dog Walker
-// Audit: unsupported — Needs a turned-face-up trigger. Disguise itself has a cast kind and face-down characteristics, but no event fires when a permanent is turned face up, which is when this card does everything it does.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
     "Dog Walker",
     "a6e0adb7-a030-4dcc-9284-cd91c7598a22",
     "Milivoj Ćeran",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 198 — Doppelgang
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOPPELGANG: CardRecord = CardRecord::new(
     "Doppelgang",
     "a2daec58-78ed-4da5-b3b0-b04f12b0acbd",
     "Chris Rallis",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{X}{X}{G}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "For each of X target permanents, create X tokens that are \
+             copies of that permanent.",
+            &[AbilityTargetDef {
+                minimum: 0,
+                maximum: AbilityTargetDef::UNLIMITED,
+                exact_count: Some(ValueDef::ChosenX),
+                ..AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)
+            }],
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
+                    TargetIndex::PRIMARY,
+                )),
+                binding: crate::Binding!("targets"),
+                then: &EffectDef::ForEachInBinding {
+                    objects: crate::Binding!("targets"),
+                    binding: crate::Binding!("copied"),
+                    effect: &EffectDef::create_token_from_copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::object(ObjectRefDef::Binding(
+                            crate::Binding!("copied"),
+                        )),
+                        exceptions: CopyExceptionsDef::NONE,
+                    })
+                    .with_count(ValueDef::ChosenX),
+                },
+            }),
+        ),
+    ]),
 );
 
 // MKM 199 — Drag the Canal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAG_THE_CANAL: CardRecord = CardRecord::new(
     "Drag the Canal",
     "508d7096-2be3-4d4b-a55c-d4dbd3c9019c",
     "Josh Hass",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}{B}")).with_abilities(&[AbilityDef::spell(
+        "Create a 2/2 white and blue Detective creature token. If a \
+         creature died this turn, you gain 2 life, surveil 2, then \
+         investigate. (Create a Clue token. It's an artifact with \
+         \"{2}, Sacrifice this token: Draw a card.\")",
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(
+                &["Detective"],
+                &[ManaColor::White, ManaColor::Blue],
+                2,
+                2,
+            ),
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::CreatureDiedThisTurn,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                    abilities::surveil(ValueDef::Constant(2)),
+                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                ]),
+            },
+        ]),
+    )]),
 );
 
 // MKM 200 — Etrata, Deadly Fugitive
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
 pub(in crate::card::sets) static ETRATA_DEADLY_FUGITIVE: CardRecord = CardRecord::new(
     "Etrata, Deadly Fugitive",
     "4410db5a-62af-43ac-979d-88a7c975f7bd",
     "Livia Prima",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 201 — Evidence Examiner
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static EVIDENCE_EXAMINER: CardRecord = CardRecord::new(
     "Evidence Examiner",
     "f53a6ee7-86e1-4d2d-994c-214e0ec08dad",
     "Paolo Puggioni",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 202 — Ezrim, Agency Chief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EZRIM_AGENCY_CHIEF: CardRecord = CardRecord::new(
     "Ezrim, Agency Chief",
     "9554d5f2-7a33-4734-8cf3-dfae2ccc3596",
     "Jason A. Engle",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{W}{W}{U}{U}"),
+        &["Archon", "Detective"],
+        5,
+        5,
+    )
+    .with_supertype(CardSupertype::Legendary)
+    .with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When Ezrim enters, investigate twice. (To investigate, create \
+             a Clue token. It's an artifact with \"{2}, Sacrifice this \
+             token: Draw a card.\")",
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(2)),
+        ),
+        AbilityDef::activated(
+            "{1}, Sacrifice an artifact: Ezrim gains your choice of \
+             vigilance, lifelink, or hexproof until end of turn.",
+            &[
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(CardType::Artifact)),
+            ],
+            EffectDef::ChooseEffect {
+                player: EffectRecipientDef::Controller,
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Vigilance",
+                        effect: EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    },
+                    EffectChoiceDef {
+                        label: "Lifelink",
+                        effect: EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    },
+                    EffectChoiceDef {
+                        label: "Hexproof",
+                        effect: EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    },
+                ],
+            },
+        ),
+    ]),
 );
 
 // MKM 203 — Faerie Snoop
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static FAERIE_SNOOP: CardRecord = CardRecord::new(
     "Faerie Snoop",
     "20267dab-8898-4b44-8ef4-8a239967662c",
     "Dallas Williams",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 204 — Gadget Technician
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static GADGET_TECHNICIAN: CardRecord = CardRecord::new(
     "Gadget Technician",
     "3b489a54-ee43-4962-be7b-16e0e28800e0",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 205 — Gleaming Geardrake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLEAMING_GEARDRAKE: CardRecord = CardRecord::new(
     "Gleaming Geardrake",
     "cabb5875-42ff-4e3a-a32e-aab392fccff8",
     "Filipe Pagliuso",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{U}{R}"), &["Drake"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, investigate. (Create a Clue token. \
+             It's an artifact with \"{2}, Sacrifice this token: Draw a \
+             card.\")",
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ),
+        AbilityDef::triggered(
+            "Whenever you sacrifice an artifact, put a +1/+1 counter on \
+             this creature.",
+            TriggerEventDef::Sacrificed {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MKM 206 — Granite Witness
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static GRANITE_WITNESS: CardRecord = CardRecord::new(
     "Granite Witness",
     "daee9d98-f8c6-4980-8f23-c6c636b69430",
     "Tuan Duong Chu",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 207 — Ill-Timed Explosion
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice or discard clause, retaining its source and selected objects even after the source leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
 pub(in crate::card::sets) static ILL_TIMED_EXPLOSION: CardRecord = CardRecord::new(
     "Ill-Timed Explosion",
     "0b5cdb01-eaa4-4a0a-b42a-332bcf4d6fff",
     "Aaron J. Riley",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 208 — Insidious Roots
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a batched graveyard-leave event filtered to creature cards and owner, firing once for one or more cards leaving together. The existing ZoneChanged event fires separately per card.
 pub(in crate::card::sets) static INSIDIOUS_ROOTS: CardRecord = CardRecord::new(
     "Insidious Roots",
     "0bb91a22-2040-4a37-85f8-5f22de8c5907",
     "Jeremy Wilson",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 209 — Izoni, Center of the Web
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static IZONI_CENTER_OF_THE_WEB: CardRecord = CardRecord::new(
     "Izoni, Center of the Web",
     "70ea66cd-587a-4ca9-9ca8-d7d2046bfbed",
     "Justine Cruz",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 210 — Judith, Carnage Connoisseur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JUDITH_CARNAGE_CONNOISSEUR: CardRecord = CardRecord::new(
     "Judith, Carnage Connoisseur",
     "3eaa19ce-cace-499e-8b23-ef9e56b23700",
     "Jodie Muir",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{R}"), &["Human", "Shaman"], 3, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::modal_triggered(
+            "Whenever you cast an instant or sorcery spell, choose one —",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            &[
+                AbilityDef::spell(
+                    "That spell gains deathtouch and lifelink.",
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::TriggeringObject,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                            AppliedEffectDef::add_ability(&abilities::lifelink()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+                AbilityDef::spell(
+                    "Create a 2/2 red Imp creature token with \"When this token \
+                     dies, it deals 2 damage to each opponent.\"",
+                    EffectDef::create_creature_token(&["Imp"], &[ManaColor::Red], 2, 2)
+                        .with_abilities(&[abilities::dies_trigger(
+                            "When this token dies, it deals 2 damage to each opponent.",
+                            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(2)),
+                        )]),
+                ),
+            ],
+        )]),
 );
 
 // MKM 211 — Kaya, Spirits' Justice
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a batched exile event that retains the actual exiled creatures or creature cards and their previous controller or owner, permitting a copy choice from that event rather than all cards currently exiled.
 pub(in crate::card::sets) static KAYA_SPIRITS_JUSTICE: CardRecord = CardRecord::new(
     "Kaya, Spirits' Justice",
     "a2827593-4951-4ba7-b73e-c27de56f2606",
     "Magali Villeneuve",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 212 — Kellan, Inquisitive Prodigy // Tail the Suspect
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a temporary additional-land-play allowance created by a resolving spell; MayPlayAdditionalLands currently works only as a static rule on a permanent.
 pub(in crate::card::sets) static KELLAN_INQUISITIVE_PRODIGY: CardRecord = CardRecord::new(
     "Kellan, Inquisitive Prodigy // Tail the Suspect",
     "c49690c7-c282-4eb4-8da3-5e0c46a80fc4",
     "Joshua Raphael",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 213 — Kraul Whipcracker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRAUL_WHIPCRACKER: CardRecord = CardRecord::new(
     "Kraul Whipcracker",
     "0c08ed44-2c13-4029-af2e-68585a76bb03",
     "Filip Burburan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{G}"), &["Insect", "Assassin"], 3, 2).with_abilities(&[
+        abilities::reach(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target token an opponent \
+             controls.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Token,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MKM 213† — Kraul Whipcracker (alternate printing)
@@ -2156,30 +4556,86 @@ const KRAUL_WHIPCRACKER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 214 — Kylox, Visionary Inventor
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cast-during-resolution permission restricted to instant and sorcery cards in the resulting exile group; the existing FreeWhileResolving permission offers every nonland card and has no spell-type restriction.
 pub(in crate::card::sets) static KYLOX_VISIONARY_INVENTOR: CardRecord = CardRecord::new(
     "Kylox, Visionary Inventor",
     "00faa272-91ad-407b-9175-8fa1d02585b8",
     "Lie Setiawan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 215 — Kylox's Voltstrider
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static KYLOX_S_VOLTSTRIDER: CardRecord = CardRecord::new(
     "Kylox's Voltstrider",
     "86a8a1af-b1cf-47fc-ab42-7efa07a1c95b",
     "Volkan Baǵa",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 216 — Lazav, Wearer of Faces
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LAZAV_WEARER_OF_FACES: CardRecord = CardRecord::new(
     "Lazav, Wearer of Faces",
     "cc264d1d-689d-41ac-b624-3fc7bb890e58",
     "Wisnu Tan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}{B}"), &["Shapeshifter", "Detective"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "Whenever Lazav attacks, exile target card from a graveyard, \
+                 then investigate. (Create a Clue token. It's an artifact with \
+                 \"{2}, Sacrifice this token: Draw a card.\")",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::ExileLinkedToSource {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        face_down: false,
+                        until_source_leaves: false,
+                        then: None,
+                    },
+                    EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+                ]),
+            ),
+            AbilityDef::triggered(
+                "Whenever you sacrifice a Clue, you may have Lazav become a \
+                 copy of a creature card exiled with it until end of turn.",
+                TriggerEventDef::Sacrificed {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Clue")),
+                    player: PlayerRelation::You,
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::LinkedExiles,
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    },
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::BecomeCopyOf {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                        copier: None,
+                        exceptions: CopyExceptionsDef::NONE,
+                        duration: Some(ResolvedEffectDurationDef::UntilEndOfTurn),
+                    },
+                }),
+            ),
+        ]),
 );
 
 // MKM 217 — Leyline of the Guildpact
@@ -2234,21 +4690,38 @@ const LIGHTNING_HELIX_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MKM 219 — Meddling Youths
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MEDDLING_YOUTHS: CardRecord = CardRecord::new(
     "Meddling Youths",
     "af12417c-b082-4379-a850-c72e2652c6fb",
     "Matt Forsyth",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{W}"), &["Human", "Detective"], 4, 5).with_abilities(
+        &[
+            abilities::haste(),
+            AbilityDef::triggered(
+                "Whenever you attack with three or more creatures, \
+                 investigate. (Create a Clue token. It's an artifact with \
+                 \"{2}, Sacrifice this token: Draw a card.\")",
+                TriggerEventDef::attack_declared(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    3,
+                    None,
+                ),
+                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            ),
+        ],
+    ),
 );
 
 // MKM 220 — Niv-Mizzet, Guildpact
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs counting distinct color pairs among exactly two-colored permanents; color count and individual color predicates cannot express that aggregate.
 pub(in crate::card::sets) static NIV_MIZZET_GUILDPACT: CardRecord = CardRecord::new(
     "Niv-Mizzet, Guildpact",
     "32a8fda6-8614-45cd-879c-0cb7fa29647e",
     "Chris Rallis",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 221 — No More Lies
@@ -2276,165 +4749,493 @@ pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
 );
 
 // MKM 222 — Officious Interrogation
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an additional colored mana cost calculated from the number of declared player targets beyond the first; existing target-count values do not feed a printed per-target mana surcharge.
 pub(in crate::card::sets) static OFFICIOUS_INTERROGATION: CardRecord = CardRecord::new(
     "Officious Interrogation",
     "a433ca4c-82d0-4e49-bc8e-98e18dd174e9",
     "Borja Pindado",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 223 — Private Eye
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIVATE_EYE: CardRecord = CardRecord::new(
     "Private Eye",
     "b6a50807-058e-45dc-847c-8ffd13b1bd48",
     "Vincent Christiaens",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Homunculus", "Detective"], 3, 3)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Other Detectives you control get +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Detective")),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever you draw your second card each turn, target \
+                 Detective can't be blocked this turn.",
+                TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
+                    PlayerRelation::You,
+                    2,
+                )),
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Detective")),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // MKM 224 — Rakdos, Patron of Chaos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAKDOS_PATRON_OF_CHAOS: CardRecord = CardRecord::new(
     "Rakdos, Patron of Chaos",
     "cc6fd2d5-8eb2-4265-a1bf-d4ae635285af",
     "Joshua Raphael",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}{R}"), &["Demon"], 6, 6)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::trample(),
+            AbilityDef::triggered_with_targets(
+                "At the beginning of your end step, target opponent may \
+                 sacrifice two nonland, nontoken permanents of their choice. \
+                 If they don't, you draw two cards.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::You,
+                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::PayOr(
+                    PayOrDef::unless(
+                        &[crate::card::actions::choose_sacrifice(2)
+                            .matching(ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                    CardType::Land,
+                                )),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                            ]))
+                            .as_cost()],
+                        &abilities::draw_cards(ValueDef::Constant(2)),
+                    )
+                    .with_payer(PlayerSetDef::One(PlayerRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                ),
+            ),
+        ]),
 );
 
 // MKM 225 — Rakish Scoundrel
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static RAKISH_SCOUNDREL: CardRecord = CardRecord::new(
     "Rakish Scoundrel",
     "6aaa8c6b-7ef7-45db-99c9-4a6e7f177b94",
     "Ina Wong",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 226 — Relive the Past
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs battlefield arrival characteristics that make the returned permanents 5/5 Elemental creatures before entry replacements and triggers inspect them.
 pub(in crate::card::sets) static RELIVE_THE_PAST: CardRecord = CardRecord::new(
     "Relive the Past",
     "20948cd2-e40c-4648-832f-ab0f1cc21610",
     "Randy Vargas",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 227 — Repulsive Mutation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REPULSIVE_MUTATION: CardRecord = CardRecord::new(
     "Repulsive Mutation",
     "71701c28-f113-4d38-8fd3-a19cd9749661",
     "Filip Burburan",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{G}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Put X +1/+1 counters on target creature you control. Then \
+             counter up to one target spell unless its controller pays \
+             mana equal to the greatest power among creatures you control.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+                AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                ),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::ChosenX,
+                },
+                EffectDef::PayOr(
+                    PayOrDef::unless(
+                        &[CostDef::GenericMana(ValueDef::AggregateObjectValues(
+                            &ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Battlefield],
+                                    PlayerRelation::You,
+                                )),
+                                select: ObjectValueDef::Power,
+                                operation: AggregateOperationDef::Maximum,
+                            },
+                        ))],
+                        &EffectDef::counter_target(TargetIndex(1)),
+                    )
+                    .with_payer(PlayerSetDef::One(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::Target(TargetIndex(1)),
+                    ))),
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // MKM 228 — Riftburst Hellion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIFTBURST_HELLION: CardRecord = CardRecord::new(
     "Riftburst Hellion",
     "9fae9044-a859-434d-8dc6-4f9d455ca5e1",
     "Brent Hollowell",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}{G}"), &["Hellion"], 6, 7)
+        .with_abilities(&[
+            abilities::reach(),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some(
+                    "Disguise {4}{R/G}{R/G} (You may cast this card face down for \
+                     {3} as a 2/2 creature with ward {2}. Turn it face up any time \
+                     for its disguise cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{4}{R/G}{R/G}"))]),
 );
 
 // MKM 229 — Rune-Brand Juggler
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs durable suspected status with its inherent menace and cannot-block rules, plus operations and predicates to suspect a creature, clear that status, and observe it independently of granted abilities.
 pub(in crate::card::sets) static RUNE_BRAND_JUGGLER: CardRecord = CardRecord::new(
     "Rune-Brand Juggler",
     "5288cf17-9d79-4d35-85f1-bf4d0a73494b",
     "Mila Pesic",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 230 — Sanguine Savior
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static SANGUINE_SAVIOR: CardRecord = CardRecord::new(
     "Sanguine Savior",
     "9cba5503-ba99-43d8-8062-66d905e0d86b",
     "Valera Lutfullina",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 231 — Shady Informant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHADY_INFORMANT: CardRecord = CardRecord::new(
     "Shady Informant",
     "0de36e63-8190-415f-b65b-bae1e595845d",
     "Caio Monteiro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{R}"), &["Ogre", "Rogue"], 4, 2)
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "When this creature dies, it deals 2 damage to any target.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(2),
+                ),
+            ),
+            AbilityDef::alternative_cast(
+                &[CostDef::Mana(mana_cost!("{3}"))],
+                crate::card::face_down::disguise_cast(),
+                Some(
+                    "Disguise {2}{B/R}{B/R} (You may cast this card face down for \
+                     {3} as a 2/2 creature with ward {2}. Turn it face up any time \
+                     for its disguise cost.)",
+                ),
+                EffectDef::None,
+            ),
+        ])
+        .with_morph(&[CostDef::Mana(mana_cost!("{2}{B/R}{B/R}"))]),
 );
 
 // MKM 232 — Soul Search
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOUL_SEARCH: CardRecord = CardRecord::new(
     "Soul Search",
     "0f852937-381d-4445-99d3-2ecb8af6bb6a",
     "A. M. Sartor",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{W}{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Target opponent reveals their hand. You choose a nonland card \
+         from it. Exile that card. If the card's mana value is 1 or \
+         less, create a 1/1 white and black Spirit creature token with \
+         flying.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::RevealHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                        objects: &ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        predicate: ObjectSetPredicateDef::contains(
+                            &ObjectPredicateDef::ManaValueAtMost(1),
+                        ),
+                    }),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "chosen"
+                            ))),
+                            ZoneKind::Exile,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::create_creature_token(
+                            &["Spirit"],
+                            &[ManaColor::White, ManaColor::Black],
+                            1,
+                            1,
+                        )
+                        .with_abilities(&[abilities::flying()]),
+                    ]),
+                    otherwise: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                },
+            }),
+        ]),
+    )]),
 );
 
 // MKM 233 — Sumala Sentry
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static SUMALA_SENTRY: CardRecord = CardRecord::new(
     "Sumala Sentry",
     "3b9d4691-59d1-4e97-9b5d-8017788fbcb3",
     "Nicholas Elias",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 234 — Teysa, Opulent Oligarch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEYSA_OPULENT_OLIGARCH: CardRecord = CardRecord::new(
     "Teysa, Opulent Oligarch",
     "9b5a13dd-c2fd-432e-bc49-cc62d94d62a0",
     "Chris Rallis",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{B}"), &["Human", "Advisor"], 2, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::deathtouch(),
+            AbilityDef::triggered(
+                "At the beginning of your end step, investigate for each \
+                 opponent who lost life this turn.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::OpponentLostLifeThisTurn,
+                    then: &EffectDef::create_token(tokens::clue())
+                        .with_count(ValueDef::Constant(1)),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever a Clue you control is put into a graveyard from the \
+                 battlefield, create a 1/1 white and black Spirit creature \
+                 token with flying. This ability triggers only once each turn.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Clue")),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::create_creature_token(
+                    &["Spirit"],
+                    &[ManaColor::White, ManaColor::Black],
+                    1,
+                    1,
+                )
+                .with_abilities(&[abilities::flying()]),
+            )
+            .triggering_at_most(1),
+        ]),
 );
 
 // MKM 235 — Tin Street Gossip
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
 pub(in crate::card::sets) static TIN_STREET_GOSSIP: CardRecord = CardRecord::new(
     "Tin Street Gossip",
     "4094b13f-28d4-48b6-8cce-3c44656745b7",
     "Tony Foti",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 236 — Tolsimir, Midnight's Light
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a source-specific attacked-this-combat fact and an individual blocker requirement tied to the triggering Wolf; attacked-this-turn also counts earlier combats.
 pub(in crate::card::sets) static TOLSIMIR_MIDNIGHT_S_LIGHT: CardRecord = CardRecord::new(
     "Tolsimir, Midnight's Light",
     "08d22402-c41d-43d7-be1f-42be1e300726",
     "Uriah Voth",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 237 — Treacherous Greed
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREACHEROUS_GREED: CardRecord = CardRecord::new(
     "Treacherous Greed",
     "e4b9260b-0993-42c5-9bcf-87ab394d51db",
     "Eli Minaya",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}{B}")).with_abilities(&[AbilityDef::spell(
+        "Draw three cards. Each opponent loses 3 life and you gain 3 life.",
+        EffectDef::Sequence(&[
+            abilities::draw_cards(ValueDef::Constant(3)),
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Opponent,
+                amount: ValueDef::Constant(3),
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ]),
+    )
+    .with_spell_additional_cost(&CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::DealtDamageThisTurn,
+    ])))]),
 );
 
 // MKM 238 — Trostani, Three Whispers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TROSTANI_THREE_WHISPERS: CardRecord = CardRecord::new(
     "Trostani, Three Whispers",
     "329f3aca-6db7-41d3-95b2-c479d14b7fa3",
     "Jodie Muir",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{G/W}{W}"), &["Dryad"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "{1}{G}: Target creature gains deathtouch until end of turn.",
+                &[CostDef::Mana(mana_cost!("{1}{G}"))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{G/W}: Target creature gains vigilance until end of turn.",
+                &[CostDef::Mana(mana_cost!("{G/W}"))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{2}{W}: Target creature gains double strike until end of turn.",
+                &[CostDef::Mana(mana_cost!("{2}{W}"))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // MKM 239 — Undercover Crocodelf
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERCOVER_CROCODELF: CardRecord = CardRecord::new(
     "Undercover Crocodelf",
     "5bc669c8-6f39-4d52-82d3-a4005d41c8a5",
     "Nicholas Gregory",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{4}{G}{U}"),
+        &["Elf", "Crocodile", "Detective"],
+        5,
+        5,
+    )
+    .with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, \
+             investigate. (Create a Clue token. It's an artifact with \
+             \"{2}, Sacrifice this token: Draw a card.\")",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ),
+        AbilityDef::alternative_cast(
+            &[CostDef::Mana(mana_cost!("{3}"))],
+            crate::card::face_down::disguise_cast(),
+            Some(
+                "Disguise {3}{G/U}{G/U} (You may cast this card face down for \
+                 {3} as a 2/2 creature with ward {2}. Turn it face up any time \
+                 for its disguise cost.)",
+            ),
+            EffectDef::None,
+        ),
+    ])
+    .with_morph(&[CostDef::Mana(mana_cost!("{3}{G/U}{G/U}"))]),
 );
 
 // MKM 239† — Undercover Crocodelf (alternate printing)
@@ -2446,138 +5247,367 @@ const UNDERCOVER_CROCODELF_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // MKM 240 — Urgent Necropsy
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static URGENT_NECROPSY: CardRecord = CardRecord::new(
     "Urgent Necropsy",
     "d2ac346a-fc46-4023-aa60-4d55170697dc",
     "Uriah Voth",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 241 — Vannifar, Evolved Enigma
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VANNIFAR_EVOLVED_ENIGMA: CardRecord = CardRecord::new(
     "Vannifar, Evolved Enigma",
     "f6d381eb-6cb6-4505-aebe-995c1ddc8527",
     "Uriah Voth",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{U}"), &["Elf", "Ooze", "Wizard"], 3, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[AbilityDef::modal_triggered(
+            "At the beginning of combat on your turn, choose one —",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            &[
+                AbilityDef::spell(
+                    "Cloak a card from your hand. (Put it onto the battlefield \
+                     face down as a 2/2 creature with ward {2}. Turn it face up \
+                     any time for its mana cost if it's a creature card.)",
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerRelation::You,
+                        )),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::PutObjectsOntoBattlefieldFaceDown(
+                            PutObjectsOntoBattlefieldFaceDownDef {
+                                input: ObjectSetDef::Binding(crate::Binding!("chosen")),
+                                controller: PlayerRefDef::EffectController,
+                                characteristics: crate::card::face_down::cloak(),
+                                turn_up_for_mana_cost: true,
+                                moved: Some(crate::Binding!("cloaked")),
+                                then: &EffectDef::None,
+                            },
+                        ),
+                    }),
+                ),
+                AbilityDef::spell(
+                    "Put a +1/+1 counter on each colorless creature you control.",
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::ColorCount(0),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ),
+            ],
+        )]),
 );
 
 // MKM 242 — Warleader's Call
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARLEADER_S_CALL: CardRecord = CardRecord::new(
     "Warleader's Call",
     "b3e8f8bd-1c8b-4a7c-96c4-57a247ce9ccc",
     "Aldo Domínguez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}{W}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Creatures you control get +1/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a creature you control enters, this enchantment \
+             deals 1 damage to each opponent.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::damage(EffectRecipientDef::Opponent, ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // MKM 243 — Wispdrinker Vampire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WISPDRINKER_VAMPIRE: CardRecord = CardRecord::new(
     "Wispdrinker Vampire",
     "a3490c05-d12c-4483-acbc-1b4ae68877f0",
     "Zara Alfonso",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{B}"), &["Vampire", "Rogue"], 2, 4).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever another creature you control with power 2 or less \
+                 enters, each opponent loses 1 life and you gain 1 life.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Opponent,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "{5}{W}{B}: Creatures you control with power 2 or less gain \
+                 deathtouch and lifelink until end of turn.",
+                &[CostDef::Mana(mana_cost!("{5}{W}{B}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                        AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    ),
 );
 
 // MKM 244 — Worldsoul's Rage
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a resolution-time up-to-X object selection spanning hand and graveyard; Choose has fixed bounds and game-action object choices require an exact count.
 pub(in crate::card::sets) static WORLDSOUL_S_RAGE: CardRecord = CardRecord::new(
     "Worldsoul's Rage",
     "fc3340bd-1d8c-4c21-a59d-e092fcbe02e3",
     "Lius Lasahido",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 245 — Yarus, Roar of the Old Gods
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rules-visible face-down object predicate; existing face-down characteristics do not expose face-down status to object queries, cast reductions, mana restrictions, or event filters.
 pub(in crate::card::sets) static YARUS_ROAR_OF_THE_OLD_GODS: CardRecord = CardRecord::new(
     "Yarus, Roar of the Old Gods",
     "326845a7-7502-4dc3-8f3e-867d6c84e931",
     "Dmitry Burmak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 246 — Cease // Desist
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards to have the same owner, while allowing either player's graveyard.
 pub(in crate::card::sets) static CEASE: CardRecord = CardRecord::new(
     "Cease // Desist",
     "cb59130a-a134-4383-b983-e4b526d11fb4",
     "Dominik Mayer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 247 — Flotsam // Jetsam
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cast-during-resolution offer from an opponent's graveyard with a graveyard-only exile replacement on the resulting spell; existing graveyard permission defers casting to ordinary timing.
 pub(in crate::card::sets) static FLOTSAM: CardRecord = CardRecord::new(
     "Flotsam // Jetsam",
     "c1500cbf-5619-465e-a97b-75e676ce789b",
     "Anastasia Ovchinnikova",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 248 — Fuss // Bother
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static FUSS: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FUSS: CardRecord = CardRecord::new_split(
     "Fuss // Bother",
     "269a031e-0b89-40e1-b11b-ae870d72161c",
     "Dominik Mayer",
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Fuss",
+            CardRules::new_instant(mana_cost!("{2}{R/W}")).with_ability(AbilityDef::spell(
+                "Put a +1/+1 counter on each attacking creature you control.",
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Attacking,
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            )),
+        ),
+        (
+            "Bother",
+            CardRules::new_sorcery(mana_cost!("{4}{W/U}{W/U}")).with_ability(AbilityDef::spell(
+                "Create three 1/1 colorless Thopter artifact creature tokens \
+                 with flying. Surveil 2.",
+                EffectDef::Sequence(&[
+                    EffectDef::create_artifact_creature_token(&["Thopter"], &[], 1, 1)
+                        .with_abilities(&[abilities::flying()])
+                        .with_count(ValueDef::Constant(3)),
+                    abilities::surveil(ValueDef::Constant(2)),
+                ]),
+            )),
+        ),
+    ],
 );
 
 // MKM 249 — Hustle // Bustle
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an effect that turns a chosen face-down permanent face up without paying its turn-up cost, and reports whether turning it face up was possible.
 pub(in crate::card::sets) static HUSTLE: CardRecord = CardRecord::new(
     "Hustle // Bustle",
     "5f664827-e22e-43af-82f1-861b3c7607f1",
     "Valera Lutfullina",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 250 — Push // Pull
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cross-target constraint requiring all selected graveyard cards to have the same owner, while allowing either player's graveyard.
 pub(in crate::card::sets) static PUSH: CardRecord = CardRecord::new(
     "Push // Pull",
     "85835473-b9b6-4f4a-bb93-fef93d5ec57b",
     "Eli Minaya",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 251 — Cryptex
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs collect-evidence selection allowing any card set with total mana value at least the threshold, including nonminimal sets, and named-action completion; current aggregate payment selections require a minimal set.
 pub(in crate::card::sets) static CRYPTEX: CardRecord = CardRecord::new(
     "Cryptex",
     "f92a2563-6cfb-4d12-9513-b44d1a7a20ab",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 252 — Gravestone Strider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRAVESTONE_STRIDER: CardRecord = CardRecord::new(
     "Gravestone Strider",
     "1f952d8d-c089-432c-822a-8ef1e605ae38",
     "Tom Babbey",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Golem"], 1, 3).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{1}: Add one mana of any color. Activate only once each turn.",
+            &[CostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        )
+        .once_each_turn(),
+        AbilityDef::activated_with_targets(
+            "{2}, Exile this card from your graveyard: Exile target card \
+             from a graveyard.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::ExileSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::move_to_zone(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ZoneKind::Exile,
+                ZonePlacement::Top,
+            ),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // MKM 253 — Lumbering Laundry
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs temporary permission to inspect opponents' face-down battlefield objects without revealing them publicly.
 pub(in crate::card::sets) static LUMBERING_LAUNDRY: CardRecord = CardRecord::new(
     "Lumbering Laundry",
     "080ad039-1669-4735-9864-76f4c61fc59e",
     "Michal Ivan",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 254 — Magnetic Snuffler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGNETIC_SNUFFLER: CardRecord = CardRecord::new(
     "Magnetic Snuffler",
     "70476534-2fc7-4872-a009-3380dd5ce2ab",
     "Daniel Ljunggren",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Construct"], 4, 4).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, return target Equipment card from \
+             your graveyard to the battlefield attached to this creature.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Equipment")),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
+                arrival: BattlefieldArrivalDef {
+                    attachment: Some(ArrivalAttachmentDef::ArrivalToHost(ObjectRefDef::Source)),
+                    ..BattlefieldArrivalDef::DEFAULT
+                },
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever you sacrifice an artifact, put a +1/+1 counter on \
+             this creature.",
+            TriggerEventDef::Sacrificed {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MKM 255 — Magnifying Glass (reprint)
@@ -2588,30 +5618,67 @@ const MAGNIFYING_GLASS_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // MKM 256 — Sanitation Automaton
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANITATION_AUTOMATON: CardRecord = CardRecord::new(
     "Sanitation Automaton",
     "52608ba4-c47d-44e4-b624-dee2a3a42ae2",
     "Mike Burns",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 2, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, surveil 1. (Look at the top card \
+             of your library. You may put it into your graveyard.)",
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // MKM 257 — Thinking Cap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THINKING_CAP: CardRecord = CardRecord::new(
     "Thinking Cap",
     "6d2565e1-dd7b-462b-8270-a17913277793",
     "Tony Foti",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "Equip Detective {1}",
+                &[CostDef::Mana(mana_cost!("{1}"))],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Detective")),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            )
+            .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
 );
 
 // MKM 258 — Branch of Vitu-Ghazi
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a committed turn-face-up event carrying the affected permanent and its controller, dispatched to source and observing abilities; the current turn-up special action emits no such trigger event.
 pub(in crate::card::sets) static BRANCH_OF_VITU_GHAZI: CardRecord = CardRecord::new(
     "Branch of Vitu-Ghazi",
     "73a8169f-b858-47a5-9c76-2e7c50ad4ecd",
     "Alayna Danner",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 259 — Commercial District
@@ -2625,12 +5692,18 @@ pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::n
 );
 
 // MKM 260 — Elegant Parlor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELEGANT_PARLOR: CardRecord = CardRecord::new(
     "Elegant Parlor",
     "72c6d541-e2cb-4d6e-acac-90a8f53b7006",
     "Kamila Szutenberg",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&["Mountain", "Plains"]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, surveil 1. (Look at the top card of \
+             your library. You may put it into your graveyard.)",
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // MKM 261 — Escape Tunnel
@@ -2716,12 +5789,58 @@ pub(in crate::card::sets) static METICULOUS_ARCHIVE: CardRecord = CardRecord::ne
 );
 
 // MKM 265 — Public Thoroughfare
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PUBLIC_THOROUGHFARE: CardRecord = CardRecord::new(
     "Public Thoroughfare",
     "1f8b915f-3e82-4b05-b963-01ebff7a8f7b",
     "Anthony Devine",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, sacrifice it unless you tap an \
+             untapped artifact or land you control.",
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                        objects: &ObjectSetDef::Binding(crate::Binding!("chosen")),
+                        predicate: ObjectSetPredicateDef {
+                            filter: None,
+                            comparison: ComparisonDef::Greater,
+                            amount: 0,
+                        },
+                    }),
+                    then: &EffectDef::Tap {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("chosen"),
+                        )),
+                    },
+                    otherwise: &EffectDef::sacrifice(EffectRecipientDef::Source),
+                },
+            }),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add one mana of any color.",
+            &[CostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // MKM 266 — Raucous Theater (alternate printing)
@@ -2733,12 +5852,12 @@ const RAUCOUS_THEATER_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // MKM 267 — Scene of the Crime
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a mana-ability payment that selects and taps another untapped creature. The mana activation enumerator rejects TapPermanents and cannot carry that selected object through an immediate mana payment.
 pub(in crate::card::sets) static SCENE_OF_THE_CRIME: CardRecord = CardRecord::new(
     "Scene of the Crime",
     "de039992-631b-4feb-a522-acdb0a6d1f26",
     "Jokubas Uogintas",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 268 — Shadowy Backstreet (alternate printing)
@@ -4166,30 +7285,65 @@ const WOJEK_INVESTIGATOR_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate
 );
 
 // MKM 430 — Melek, Reforged Researcher
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a spell-cost condition selecting the first instant or sorcery cast each turn. Matching spell-cast history exists, but cost adjustments cannot gate a fixed discount on that history being empty.
 pub(in crate::card::sets) static MELEK_REFORGED_RESEARCHER: CardRecord = CardRecord::new(
     "Melek, Reforged Researcher",
     "01c5ede0-a098-4f21-8b7e-795a83e75aae",
     "Andreas Zafiratos",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 431 — Tomik, Wielder of Law
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an attack-declaration count filtered to creatures attacking you or your planeswalkers, excluding attacks against battles; the current batch matcher filters attackers without inspecting their attack defender.
 pub(in crate::card::sets) static TOMIK_WIELDER_OF_LAW: CardRecord = CardRecord::new(
     "Tomik, Wielder of Law",
     "2c5a7550-fe1a-4797-9583-70ab56cfac0d",
     "Valera Lutfullina",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // MKM 432 — Voja, Jaws of the Conclave
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VOJA_JAWS_OF_THE_CONCLAVE: CardRecord = CardRecord::new(
     "Voja, Jaws of the Conclave",
     "bfa1bd2f-25bd-4fbd-877b-cef00ab7f92f",
     "Valera Lutfullina",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{G}{W}"), &["Wolf"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::trample(),
+            abilities::ward(&[CostDef::Mana(mana_cost!("{3}"))], "Ward {3}"),
+            AbilityDef::triggered(
+                "Whenever Voja attacks, put X +1/+1 counters on each creature \
+                 you control, where X is the number of Elves you control. Draw \
+                 a card for each Wolf you control.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    },
+                    abilities::draw_cards(ValueDef::CountMatchingObjects(
+                        &ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wolf")),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                ]),
+            ),
+        ]),
 );
 
 // MKM 433 — Vein Ripper (alternate printing)

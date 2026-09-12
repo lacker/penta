@@ -8,10 +8,12 @@ use crate::card::AbilityTargetPredicate;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardType;
+use crate::card::CostDef;
 use crate::card::CounterKind;
 use crate::card::CreateTokenDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
 use crate::card::PlayerRelation;
@@ -155,12 +157,19 @@ pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
 );
 
 // SOI 258 — Magnifying Glass
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGNIFYING_GLASS: CardRecord = CardRecord::new(
     "Magnifying Glass",
     "f7a708d5-f757-4fcf-a167-5b5920c6adeb",
     "Dan Murayama Scott",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{4}, {T}: Investigate. (Create a Clue token. It's an artifact \
+             with \"{2}, Sacrifice this token: Draw a card.\")",
+            &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
+            EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

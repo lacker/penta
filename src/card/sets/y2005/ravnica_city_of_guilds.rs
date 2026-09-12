@@ -378,12 +378,26 @@ CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
 );
 
 // RAV 213 — Lightning Helix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_HELIX: CardRecord = CardRecord::new(
     "Lightning Helix",
     "1b2ecf55-c1cc-4b28-b7ce-e1b25305155e",
     "Kev Walker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Lightning Helix deals 3 damage to any target and you gain 3 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ]),
+    )]),
 );
 
 // RAV 221 — Putrefy

@@ -4127,37 +4127,12 @@ pub(in crate::card::sets) static BETRAYER_S_BARGAIN: CardRecord = CardRecord::ne
 );
 
 // DSK 127 — Boilerbilges Ripper
+// Audit: unsupported — Needs a reflexive trigger installed by the resolving sacrifice clause, retaining its source even after it leaves. SacrificePerformed currently only comes from the legacy sacrifice-of-choice path and requires a live source.
 pub(in crate::card::sets) static BOILERBILGES_RIPPER: CardRecord = CardRecord::new(
     "Boilerbilges Ripper",
     "1a68009c-83cd-455f-81e9-bdd720d23a43",
     "Kai Carpenter",
-    CardRules::new_creature(mana_cost!("{4}{R}"), &["Human", "Assassin"], 4, 4).with_abilities(&[
-        abilities::enters_trigger(
-            "When this creature enters, you may sacrifice another creature \
-             or enchantment.",
-            EffectDef::PayOr(PayOrDef::optional(
-                &[CostDef::sacrifice_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                    ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::HasType(CardType::Enchantment),
-                    ]),
-                ]))],
-                &EffectDef::None,
-            )),
-        ),
-        AbilityDef::triggered_with_targets(
-            "When you do, this creature deals 2 damage to any target.",
-            TriggerEventDef::SacrificePerformed(ObjectPredicateDef::Source),
-            &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::AnyTarget,
-            )],
-            EffectDef::damage(
-                EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                ValueDef::Constant(2),
-            ),
-        ),
-    ]),
+    CardRules::unsupported(),
 );
 
 // DSK 128 — Chainsaw (alternate printing)

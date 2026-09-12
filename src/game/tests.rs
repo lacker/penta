@@ -949,3 +949,4 @@ mod wilds_of_eldraine;
 mod duskmourn;
 
 mod foundations;
+mod karlov_manor;

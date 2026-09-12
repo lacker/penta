@@ -17,6 +17,7 @@ use crate::card::EffectRecipientDef;
 use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectRefDef;
+use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
 use crate::card::SpellCastQueryDef;
 use crate::card::TokenCharacteristics;
@@ -233,12 +234,54 @@ pub(in crate::card::sets) static CIRCUITOUS_ROUTE: CardRecord = CardRecord::new(
 );
 
 // GRN 152 — Assassin's Trophy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ASSASSIN_S_TROPHY: CardRecord = CardRecord::new(
     "Assassin's Trophy",
     "906b6e99-128f-4c11-8daf-16099d35b0d4",
     "Seb McKinnon",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}{G}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Destroy target permanent an opponent controls. Its controller \
+         may search their library for a basic land card, put it onto \
+         the battlefield, then shuffle.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ]),
+    )]),
 );
 
 // GRN 203 — Swiftblade Vindicator

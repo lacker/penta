@@ -372,7 +372,7 @@ pub(in super::super) fn shared_draw_replacement_effect(effect: ReplacementEffect
                 ReplacementEffectDef::Perform(effect) => Some(**effect),
                 _ => None,
             })
-            .all(shared_stack_effect)
+            .all(|effect| effect == EffectDef::None || shared_stack_effect(effect))
         && effects
             .iter()
             .filter(|effect| matches!(effect, ReplacementEffectDef::Perform(_)))

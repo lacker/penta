@@ -82,20 +82,15 @@ const FOOD_TOKEN: TokenCharacteristics = tokens::food().with_art(CardArt::new(
 
 // ELD 5 — Ardenvale Tactician
 const fn ardenvale_tactician_rules() -> CardRules {
-    CardRules::new_creature(
-        mana_cost!("{1}{W}{W}"),
-        &const { ["Human", "Knight"] },
-        2,
-        3,
-    )
-    .with_ability(abilities::flying())
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 2, 3)
+        .with_ability(abilities::flying())
 }
 
 fn ardenvale_tactician_composition() -> CardComposition {
     let knight = ardenvale_tactician_rules();
     let swoop = const {
         CardRules::new_instant(mana_cost!("{1}{W}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell_with_targets(
                     "Tap up to two target creatures.",
@@ -105,7 +100,7 @@ fn ardenvale_tactician_composition() -> CardComposition {
                         [AbilityTargetDef::up_to(
                             AbilityTargetPredicate::Object {
                                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                                zones: &const { [ZoneKind::Battlefield] },
+                                zones: &[ZoneKind::Battlefield],
                                 controller: None,
                                 owner: None,
                             },
@@ -165,15 +160,14 @@ pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::n
 
 // ELD 11 — Faerie Guidemother
 const fn faerie_guidemother_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{W}"), &const { ["Faerie"] }, 1, 1)
-        .with_ability(abilities::flying())
+    CardRules::new_creature(mana_cost!("{W}"), &["Faerie"], 1, 1).with_ability(abilities::flying())
 }
 
 fn faerie_guidemother_composition() -> CardComposition {
     let faerie = faerie_guidemother_rules();
     let gift = const {
         CardRules::new_sorcery(mana_cost!("{1}{W}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell_with_targets(
                     "Target creature gets +2/+1 and gains flying until end of turn.",
@@ -273,7 +267,7 @@ fn brazen_borrower_composition() -> CardComposition {
     let borrower = brazen_borrower_rules();
     let theft = const {
         CardRules::new_instant(mana_cost!("{1}{U}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell_with_targets(
                     "Return target nonland permanent an opponent controls to its owner's hand.",
@@ -283,7 +277,7 @@ fn brazen_borrower_composition() -> CardComposition {
                                 object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
                                     CardType::Land,
                                 )),
-                                zones: &const { [ZoneKind::Battlefield] },
+                                zones: &[ZoneKind::Battlefield],
                                 controller: Some(PlayerRelation::Opponent),
                                 owner: None,
                             },
@@ -558,21 +552,22 @@ pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord = CardRecord
 
 // ELD 137 — Rimrock Knight
 const fn rimrock_knight_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{1}{R}"), &const { ["Dwarf", "Knight"] }, 3, 1)
-        .with_ability(AbilityDef::static_ability(
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf", "Knight"], 3, 1).with_ability(
+        AbilityDef::static_ability(
             "This creature can't block.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
             },
-        ))
+        ),
+    )
 }
 
 fn rimrock_knight_composition() -> CardComposition {
     let knight = rimrock_knight_rules();
     let rush = const {
         CardRules::new_instant(mana_cost!("{R}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell_with_targets(
                     "Target creature gets +2/+0 until end of turn.",
@@ -901,30 +896,22 @@ pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
         AbilityDef::as_enters(
             "This land enters tapped unless you control three or more other Islands.",
             ReplacementEffectDef::Conditional {
-                condition: ConditionDef::ObjectCount(
-                    &const {
-                        ObjectCountConditionDef {
-                            query: ObjectQueryDef::matching(
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasAnyBasicLandType(&[
-                                        BasicLandType::Island,
-                                    ]),
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ]),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            ),
-                            comparison: ComparisonDef::GreaterOrEqual,
-                            amount: 3,
-                        }
-                    },
-                ),
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 3,
+                }),
                 if_true: &[],
-                if_false: &const {
-                    [ReplacementEffectDef::ModifyBattlefieldEntry(
-                        BattlefieldEntryModificationDef::Tapped,
-                    )]
-                },
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
             },
         ),
         AbilityDef::triggered_if_with_targets(
@@ -951,13 +938,11 @@ pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Library,
-                        ZonePlacement::Top,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
             },
         ),
     ]),
@@ -974,26 +959,22 @@ pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
         AbilityDef::as_enters(
             "This land enters tapped unless you control three or more other Swamps.",
             ReplacementEffectDef::Conditional {
-                condition: ConditionDef::ObjectCount(&const {
-                    ObjectCountConditionDef {
-                        query: ObjectQueryDef::matching(
-                            ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
-                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                            ]),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        ),
-                        comparison: ComparisonDef::GreaterOrEqual,
-                        amount: 3,
-                    }
+                condition: ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 3,
                 }),
                 if_true: &[],
-                if_false: &const {
-                    [ReplacementEffectDef::ModifyBattlefieldEntry(
-                        BattlefieldEntryModificationDef::Tapped,
-                    )]
-                },
+                if_false: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::Tapped,
+                )],
             },
         ),
         AbilityDef::triggered_if_with_targets(
@@ -1016,13 +997,11 @@ pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Library,
-                        ZonePlacement::Top,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
             },
         ),
     ]),

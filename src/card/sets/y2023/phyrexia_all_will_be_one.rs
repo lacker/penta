@@ -60,15 +60,13 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
         .with_abilities(&[
             abilities::aura_spell(
                 "Enchant artifact, creature, or planeswalker",
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::HasType(CardType::Planeswalker),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                )],
             ),
             abilities::enchanted_permanent_subdued(),
         ]),
@@ -289,13 +287,11 @@ pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new
                 // off what the choice above bound, so declining and finding
                 // no land both reach the proliferate.
                 EffectDef::IfCondition {
-                    condition: &const {
-                        TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-                            left: ValueDef::BoundObjectCount(Binding!("top_card_chosen")),
-                            comparison: ComparisonDef::LessOrEqual,
-                            right: ValueDef::Constant(0),
-                        })
-                    },
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::BoundObjectCount(Binding!("top_card_chosen")),
+                        comparison: ComparisonDef::LessOrEqual,
+                        right: ValueDef::Constant(0),
+                    }),
                     then: &EffectDef::Proliferate,
                 },
             ]),
@@ -333,62 +329,56 @@ pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(10),
-                    &const {
-                        EffectDef::Sequence(&[
-                            EffectDef::RevealObjects(RevealObjectsDef {
+                    &EffectDef::Sequence(&[
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
+                                actor: PlayerRefDef::EffectController,
                                 input: ObjectSetDef::Binding(ParentBinding),
-                                then: &EffectDef::None,
-                            }),
-                            EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
-                                    actor: PlayerRefDef::EffectController,
-                                    input: ObjectSetDef::Binding(ParentBinding),
-                                    predicates: &const {
-                                        [
-                                            ObjectPredicateDef::HasType(CardType::Artifact),
-                                            ObjectPredicateDef::HasType(CardType::Creature),
-                                            ObjectPredicateDef::HasType(CardType::Enchantment),
-                                            ObjectPredicateDef::HasType(CardType::Instant),
-                                            ObjectPredicateDef::HasType(CardType::Land),
-                                            ObjectPredicateDef::HasType(CardType::Planeswalker),
-                                            ObjectPredicateDef::HasType(CardType::Sorcery),
-                                        ]
-                                    },
-                                    chosen: ATRAXA_CHOSEN,
-                                    remainder: ATRAXA_REST,
-                                    visibility: ChoiceVisibilityDef::Public,
-                                    then: &const {
-                                        EffectDef::Sequence(&[
-                                            EffectDef::MoveObjects(MoveObjectsDef {
-                                                input: ObjectSetDef::Binding(ATRAXA_CHOSEN),
-                                                from: Some(ZoneKind::Library),
-                                                zone: ZoneKind::Hand,
-                                                placement: ZonePlacement::Top,
-                                                moved: None,
-                                                then: &EffectDef::None,
-                                            }),
-                                                EffectDef::RandomizeObjectOrder(
-                                                    RandomizeObjectOrderDef {
-                                                        input: ObjectSetDef::Binding(ATRAXA_REST),
-                                                        randomized: ParentBinding,
-                                                        then: &EffectDef::MoveObjects(
-                                                            MoveObjectsDef {
-                                                                input: ObjectSetDef::Binding(
-                                                                    ParentBinding,
-                                                                ),
-                                                                from: Some(ZoneKind::Library),
-                                                                zone: ZoneKind::Library,
-                                                                placement: ZonePlacement::Bottom,
-                                                                moved: None,
-                                                                then: &EffectDef::None,
-                                                            },
-                                                        ),
-                                                    },
-                                                )
-                                        ])
-                                    },
-                            }),
-                        ])
-                    },
+                                predicates: &[
+                                        ObjectPredicateDef::HasType(CardType::Artifact),
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                                        ObjectPredicateDef::HasType(CardType::Instant),
+                                        ObjectPredicateDef::HasType(CardType::Land),
+                                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                                    ],
+                                chosen: ATRAXA_CHOSEN,
+                                remainder: ATRAXA_REST,
+                                visibility: ChoiceVisibilityDef::Public,
+                                then: &EffectDef::Sequence(&[
+                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                            input: ObjectSetDef::Binding(ATRAXA_CHOSEN),
+                                            from: Some(ZoneKind::Library),
+                                            zone: ZoneKind::Hand,
+                                            placement: ZonePlacement::Top,
+                                            moved: None,
+                                            then: &EffectDef::None,
+                                        }),
+                                            EffectDef::RandomizeObjectOrder(
+                                                RandomizeObjectOrderDef {
+                                                    input: ObjectSetDef::Binding(ATRAXA_REST),
+                                                    randomized: ParentBinding,
+                                                    then: &EffectDef::MoveObjects(
+                                                        MoveObjectsDef {
+                                                            input: ObjectSetDef::Binding(
+                                                                ParentBinding,
+                                                            ),
+                                                            from: Some(ZoneKind::Library),
+                                                            zone: ZoneKind::Library,
+                                                            placement: ZonePlacement::Bottom,
+                                                            moved: None,
+                                                            then: &EffectDef::None,
+                                                        },
+                                                    ),
+                                                },
+                                            )
+                                    ]),
+                        }),
+                    ]),
                 ),
             ),
         ]),

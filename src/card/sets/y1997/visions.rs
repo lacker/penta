@@ -131,14 +131,12 @@ pub(in crate::card::sets) static DARAJA_GRIFFIN: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "Sacrifice this creature: Destroy target black creature.",
             &[CostDef::SacrificeSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Color(ManaColor::Black),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::Black),
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
@@ -275,7 +273,7 @@ pub(in crate::card::sets) static HOPE_CHARM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -510,18 +508,16 @@ pub(in crate::card::sets) static RETRIBUTION_OF_THE_MEEK: CardRecord = CardRecor
         "Destroy all creatures with power 4 or greater. They can't be regenerated.",
         EffectDef::WithRule {
             rule: AppliedRuleDef::CannotRegenerate,
-            effect: &const {
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::PowerAtLeast(4),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Any,
-                    ),
-                    then: None,
-                }
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerAtLeast(4),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
             },
         },
     )),
@@ -1319,9 +1315,9 @@ pub(in crate::card::sets) static FUNERAL_CHARM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(
-                        &const { abilities::landwalk(BasicLandType::Swamp) },
-                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::landwalk(
+                        BasicLandType::Swamp,
+                    )),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -1406,7 +1402,7 @@ pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new(
                 // the trigger resolves: an enchantment answered in that window
                 // reanimates nothing rather than pulling a creature out of a
                 // graveyard from somewhere else.
-                &const { TriggerConditionDef::SourceOnBattlefield },
+                &TriggerConditionDef::SourceOnBattlefield,
                 &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -1416,44 +1412,36 @@ pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new(
                 },
             // The reanimation and the attachment are one step: what arrives is a new
             // object, so a following effect would have nothing left to name.
-            )], EffectDef::Sequence(&const {
-                [
-                    // The reanimation and the attachment are one step: what arrives is a new
-                    // object, so a following effect would have nothing left to name.
-                    EffectDef::WithBattlefieldArrival {
-                        effect: &const {
-                            EffectDef::move_to_zone(
-                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                ZoneKind::Battlefield,
-                                ZonePlacement::Top,
-                            )
-                        },
-                        arrival: crate::card::BattlefieldArrivalDef {
-                            controller: Some(PlayerRelation::You),
-                            attachment: Some(ArrivalAttachmentDef::SourceToArrival),
-                            ..crate::card::BattlefieldArrivalDef::DEFAULT
-                        },
+            )], EffectDef::Sequence(&[
+                // The reanimation and the attachment are one step: what arrives is a new
+                // object, so a following effect would have nothing left to name.
+                EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::move_to_zone(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ZoneKind::Battlefield,
+                            ZonePlacement::Top,
+                        ),
+                    arrival: crate::card::BattlefieldArrivalDef {
+                        controller: Some(PlayerRelation::You),
+                        attachment: Some(ArrivalAttachmentDef::SourceToArrival),
+                        ..crate::card::BattlefieldArrivalDef::DEFAULT
                     },
-                    EffectDef::IfCondition {
-                        condition: &const { TriggerConditionDef::SourceCastAtInstantSpeed },
-                        // "The controller of the permanent it becomes sacrifices it at the
-                        // beginning of the next cleanup step" -- the price of casting it at
-                        // instant speed, and nothing at all when it was cast on your own turn.
-                        then: &const {
-                            EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
-                                AbilityDef::triggered(
-                                    "At the beginning of the next cleanup step, sacrifice this enchantment.",
-                                    TriggerEventDef::StepBegins {
-                                        step: TurnStepDef::Cleanup,
-                                        player: PlayerRelation::Any,
-                                    },
-                                    EffectDef::sacrifice(EffectRecipientDef::Source),
-                                )
-                            }))
-                        },
-                    },
-                ]
-            })),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceCastAtInstantSpeed,
+                    // "The controller of the permanent it becomes sacrifices it at the
+                    // beginning of the next cleanup step" -- the price of casting it at
+                    // instant speed, and nothing at all when it was cast on your own turn.
+                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                                "At the beginning of the next cleanup step, sacrifice this enchantment.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::Cleanup,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::sacrifice(EffectRecipientDef::Source),
+                            ))),
+                },
+            ])),
             AbilityDef::triggered(
                 "When this enchantment leaves the battlefield, that creature's controller sacrifices it.",
                 TriggerEventDef::zone_changed(
@@ -1739,11 +1727,9 @@ pub(in crate::card::sets) static WICKED_REWARD: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a creature.\nTarget creature \
              gets +4/+2 until end of turn.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
@@ -1993,9 +1979,9 @@ pub(in crate::card::sets) static KEEPER_OF_KOOKUS: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(
-                    &const { abilities::protection_from_color(ManaColor::Red) },
-                ),
+                effect: AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                    ManaColor::Red,
+                )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

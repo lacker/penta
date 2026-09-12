@@ -192,7 +192,7 @@ pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new
     "Gnawing Crescendo",
     "254fc64a-9734-44a6-8869-ab03512f1a99",
     "Alexey Kruglov",
-// The pump is what wins the combat; the watcher is what stops the
+    // The pump is what wins the combat; the watcher is what stops the
     // opponent from blocking profitably to answer it.
     CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
         "Creatures you control get +2/+0 until end of turn. Whenever a nontoken creature you \
@@ -214,22 +214,22 @@ pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new
             // A watcher installed for the rest of the turn rather than a
             // one-shot: every nontoken creature that dies makes its own Rat,
             // and the Rats it makes are excluded from feeding it.
-            EffectDef::InstallTrigger(InstalledTriggerDef::this_turn(&const {
-                AbilityDef::triggered(
-                    "Whenever a nontoken creature you control dies this turn, create a 1/1 black \
-                     Rat creature token with \"This token can't block.\"",
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                        ]),
-                        Some(ZoneKind::Battlefield),
-                        Some(ZoneKind::Graveyard),
-                    ),
-                    EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(DEFENSELESS_RAT_TOKEN))),
-                )
-            })),
+            EffectDef::InstallTrigger(InstalledTriggerDef::this_turn(&AbilityDef::triggered(
+                "Whenever a nontoken creature you control dies this turn, create a 1/1 black \
+                 Rat creature token with \"This token can't block.\"",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
+                    DEFENSELESS_RAT_TOKEN,
+                ))),
+            ))),
         ]),
     )),
 );
@@ -250,54 +250,40 @@ pub(in crate::card::sets) static MONSTROUS_RAGE: CardRecord = CardRecord::new(
         )],
         // The pump is until end of turn and the Role is not: the +2/+0 lapses with
         // the turn and the +1/+1 stays for as long as the token does.
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(2),
-                            ValueDef::Constant(0),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                    EffectDef::CreateAttachedToken {
-                        // The Monster Role: an Aura token that is never cast, so it carries no
-                        // enchant clause of its own -- what it attaches to is decided by the effect
-                        // that creates it. Two Roles from one player on one creature is the older
-                        // one's problem, which the Role rule settles.
-                        token: TokenCharacteristics::enchantment(&["Aura", "Role"], &[])
-                            // What a Role may be attached to. Held as a static because the token
-                            // carries it by reference.
-                            .enchanting(&ObjectPredicateDef::HasType(CardType::Creature))
-                            .with_abilities(
-                                &const {
-                                    [AbilityDef::static_ability(
-                                        "Enchanted creature gets +1/+1 and has trample.",
-                                        EffectDef::StaticApply {
-                                            recipient: EffectRecipientDef::AttachedPermanent,
-                                            effect: AppliedEffectDef::Composite(
-                                                &const {
-                                                    [
-                                                        AppliedEffectDef::modify_power_toughness(
-                                                            ValueDef::Constant(1),
-                                                            ValueDef::Constant(1),
-                                                        ),
-                                                        AppliedEffectDef::add_ability(
-                                                            &const { abilities::trample() },
-                                                        ),
-                                                    ]
-                                                },
-                                            ),
-                                        },
-                                    )]
-                                },
-                            ),
-                        host: Some(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
-                    },
-                ]
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-        ),
+            EffectDef::CreateAttachedToken {
+                // The Monster Role: an Aura token that is never cast, so it carries no
+                // enchant clause of its own -- what it attaches to is decided by the effect
+                // that creates it. Two Roles from one player on one creature is the older
+                // one's problem, which the Role rule settles.
+                token: TokenCharacteristics::enchantment(&["Aura", "Role"], &[])
+                    // What a Role may be attached to. Held as a static because the token
+                    // carries it by reference.
+                    .enchanting(&ObjectPredicateDef::HasType(CardType::Creature))
+                    .with_abilities(&[AbilityDef::static_ability(
+                        "Enchanted creature gets +1/+1 and has trample.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::AttachedPermanent,
+                            effect: AppliedEffectDef::Composite(&[
+                                AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(1),
+                                    ValueDef::Constant(1),
+                                ),
+                                AppliedEffectDef::add_ability(&abilities::trample()),
+                            ]),
+                        },
+                    )]),
+                host: Some(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+            },
+        ]),
     )),
 );
 
@@ -474,18 +460,13 @@ fn virtue_of_loyalty_composition() -> CardComposition {
     let virtue = virtue_of_loyalty_rules();
     let fealty = const {
         CardRules::new_instant(mana_cost!("{1}{W}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell(
                     "Create a 2/2 white Knight creature token with vigilance.",
                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                        TokenCharacteristics::creature(
-                            &const { ["Knight"] },
-                            &const { [ManaColor::White] },
-                            2,
-                            2,
-                        )
-                        .with_abilities(&const { [abilities::vigilance()] }),
+                        TokenCharacteristics::creature(&["Knight"], &[ManaColor::White], 2, 2)
+                            .with_abilities(&const { [abilities::vigilance()] }),
                     ))),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),

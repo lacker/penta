@@ -140,14 +140,12 @@ pub(in crate::card::sets) static PETRIFY: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::aura_spell(
                 "Enchant artifact or creature",
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                )],
             ),
             abilities::enchanted_permanent_subdued(),
         ]),

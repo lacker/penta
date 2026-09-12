@@ -218,7 +218,7 @@ pub const fn karoo_bounce() -> AbilityDef {
 pub const fn campus_scry() -> AbilityDef {
     AbilityDef::activated(
         "{4}, {T}: Scry 1.",
-        &const { [CostDef::Mana(crate::mana_cost!("{4}")), CostDef::TapSource] },
+        &[CostDef::Mana(crate::mana_cost!("{4}")), CostDef::TapSource],
         scry(ValueDef::Constant(1)),
     )
 }

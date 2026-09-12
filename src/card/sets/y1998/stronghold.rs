@@ -483,15 +483,11 @@ pub(in crate::card::sets) static HAMMERHEAD_SHARK: CardRecord = CardRecord::new(
             "This creature can't attack unless defending player controls an Island.",
             // Read at declaration, and off the defending player rather
             // than the controller: it is their Islands that let it swim.
-            EffectDef::CannotAttackUnless(
-                &const {
-                    ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Opponent,
-                    )
-                },
-            ),
+            EffectDef::CannotAttackUnless(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            )),
         ),
     ),
 );
@@ -2109,15 +2105,15 @@ pub(in crate::card::sets) static ACIDIC_SLIVER: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::add_ability(&const { AbilityDef::activated_with_targets(
+                effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
                     "{2}, Sacrifice this permanent: This permanent deals 2 damage to any target.",
                     &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
-                    &const { [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)] },
+                    &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
                     EffectDef::damage(
                         EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         ValueDef::Constant(2),
                     ),
-                ) }),
+                )),
             },
         ),
     ),
@@ -2145,7 +2141,7 @@ pub(in crate::card::sets) static CRYSTALLINE_SLIVER: CardRecord = CardRecord::ne
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                effect: AppliedEffectDef::add_ability(&abilities::shroud()),
             },
         ),
     ),
@@ -2169,19 +2165,15 @@ pub(in crate::card::sets) static HIBERNATION_SLIVER: CardRecord = CardRecord::ne
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::add_ability(
-                    &const {
-                        AbilityDef::activated(
-                            "Pay 2 life: Return this permanent to its owner's hand.",
-                            &[CostDef::PayLife(2)],
-                            EffectDef::move_to_zone(
-                                EffectRecipientDef::Source,
-                                ZoneKind::Hand,
-                                ZonePlacement::Top,
-                            ),
-                        )
-                    },
-                ),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                    "Pay 2 life: Return this permanent to its owner's hand.",
+                    &[CostDef::PayLife(2)],
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                )),
             },
         ),
     ),
@@ -2230,18 +2222,14 @@ pub(in crate::card::sets) static VICTUAL_SLIVER: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::add_ability(
-                    &const {
-                        AbilityDef::activated(
-                            "{2}, Sacrifice this permanent: You gain 4 life.",
-                            &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
-                            EffectDef::GainLife {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::Constant(4),
-                            },
-                        )
+                effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                    "{2}, Sacrifice this permanent: You gain 4 life.",
+                    &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(4),
                     },
-                ),
+                )),
             },
         ),
     ),

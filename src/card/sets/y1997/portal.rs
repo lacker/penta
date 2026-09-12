@@ -85,7 +85,7 @@ pub(in crate::card::sets) static ANGELIC_BLESSING: CardRecord = CardRecord::new(
                     ValueDef::Constant(3),
                     ValueDef::Constant(3),
                 ),
-                AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                AppliedEffectDef::add_ability(&abilities::flying()),
             ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -243,10 +243,8 @@ pub(in crate::card::sets) static SEASONED_MARSHAL: CardRecord = CardRecord::new(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::Tap {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    }
+                effect: &EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             },
         ),
@@ -262,32 +260,22 @@ pub(in crate::card::sets) static STARLIGHT: CardRecord = CardRecord::new(
     // is what the price of three life a creature buys.
     CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "You gain 3 life for each black creature target opponent controls.",
-        &const {
-            [AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-            )]
-        },
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Scaled(
-                &const {
-                    ScaledValueDef::new(
-                        ValueDef::CountMatchingObjects(
-                            &const {
-                                ObjectQueryDef::matching(
-                                    ObjectPredicateDef::All(&[
-                                        ObjectPredicateDef::HasType(CardType::Creature),
-                                        ObjectPredicateDef::Color(ManaColor::Black),
-                                    ]),
-                                    &[ZoneKind::Battlefield],
-                                    PlayerRelation::Opponent,
-                                )
-                            },
-                        ),
-                        3,
-                    )
-                },
-            ),
+            amount: ValueDef::Scaled(&ScaledValueDef::new(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                )),
+                3,
+            )),
         },
     )),
 );
@@ -436,18 +424,14 @@ pub(in crate::card::sets) static THEFT_OF_DREAMS: CardRecord = CardRecord::new(
             recipient: EffectRecipientDef::Controller,
             // Counted as the spell resolves, and only that opponent's tapped
             // creatures, which is why it is cast after they attack.
-            amount: ValueDef::CountMatchingObjects(
-                &const {
-                    ObjectQueryDef::controlled_by(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Tapped,
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                    )
-                },
-            ),
+            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::controlled_by(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Tapped,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+            )),
         },
     )),
 );
@@ -538,13 +522,11 @@ pub(in crate::card::sets) static GRAVEDIGGER: CardRecord = CardRecord::new(
             // was exiled in response still asks.
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Hand,
-                        ZonePlacement::Top,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             },
         ),
     ),

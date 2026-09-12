@@ -59,14 +59,12 @@ pub(in crate::card::sets) static DAKMOR_LANCER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Human", "Knight"], 3, 3).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, destroy target nonblack creature.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,

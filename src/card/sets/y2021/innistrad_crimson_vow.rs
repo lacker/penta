@@ -131,31 +131,30 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
         (
             "Concealing Curtains",
             const {
-                CardRules::new_creature(mana_cost!("{B}"), &const { ["Wall"] }, 0, 4)
-                    .with_abilities(
-                        &const {
-                            [
-                                abilities::defender(),
-                                AbilityDef::activated(
-                                    "{2}{B}: Transform this creature. Activate only as a sorcery.",
-                                    &const { [CostDef::Mana(mana_cost!("{2}{B}"))] },
-                                    EffectDef::Transform {
-                                        object: EffectRecipientDef::Source,
-                                    },
-                                )
-                                .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-                            ]
-                        },
-                    )
+                CardRules::new_creature(mana_cost!("{B}"), &["Wall"], 0, 4).with_abilities(
+                    &const {
+                        [
+                            abilities::defender(),
+                            AbilityDef::activated(
+                                "{2}{B}: Transform this creature. Activate only as a sorcery.",
+                                &[CostDef::Mana(mana_cost!("{2}{B}"))],
+                                EffectDef::Transform {
+                                    object: EffectRecipientDef::Source,
+                                },
+                            )
+                            .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                        ]
+                    },
+                )
             },
         ),
         (
             "Revealing Eye",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Eye", "Horror"] }, 3, 4)
+                CardRules::new_creature_without_mana_cost(&["Eye", "Horror"], 3, 4)
                     // A back face has no mana cost to read a colour off; the
                     // colour indicator is what says she is still black.
-                    .printed_colors(&const { [ManaColor::Black] })
+                    .printed_colors(&[ManaColor::Black])
                 .with_abilities(&const { [
                     abilities::menace(),
                     AbilityDef::triggered_with_targets(
@@ -178,7 +177,7 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
                                 chooser: PlayerRefDef::EffectController,
                                 candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                                    &const { [ZoneKind::Hand] },
+                                    &[ZoneKind::Hand],
                                     PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                                 )),
                                 exclude: None,
@@ -229,40 +228,34 @@ pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
             // Granted to the creature rather than kept on this spell, which
             // is what the printed quotation marks mean: the ability leaves
             // with the creature and comes back with the new object.
-            effect: AppliedEffectDef::add_ability(
-                &const {
-                    AbilityDef::triggered(
-                        "When this creature dies, return it to the battlefield tapped under its \
-                     owner's control with a +1/+1 counter on it.",
-                        TriggerEventDef::zone_changed(
-                            ObjectPredicateDef::Source,
-                            Some(ZoneKind::Battlefield),
-                            Some(ZoneKind::Graveyard),
-                        ),
-                        // Tapped and countered on arrival rather than afterwards:
-                        // the permanent is never briefly untapped.
-                        EffectDef::WithBattlefieldArrival {
-                            effect: &const {
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::Source,
-                                    ZoneKind::Battlefield,
-                                    ZonePlacement::Top,
-                                )
-                            },
-                            arrival: BattlefieldArrivalDef {
-                                modifications: &[BattlefieldEntryModificationDef::Tapped],
-                                counters: Some(TokenCountersDef {
-                                    kind: CounterKind::PlusOnePlusOne,
-                                    amount: ValueDef::Constant(1),
-                                }),
-                                // "Under its owner's control", which the default
-                                // already is.
-                                ..BattlefieldArrivalDef::DEFAULT
-                            },
-                        },
-                    )
+            effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                "When this creature dies, return it to the battlefield tapped under its \
+                 owner's control with a +1/+1 counter on it.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                // Tapped and countered on arrival rather than afterwards:
+                // the permanent is never briefly untapped.
+                EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
+                    arrival: BattlefieldArrivalDef {
+                        modifications: &[BattlefieldEntryModificationDef::Tapped],
+                        counters: Some(TokenCountersDef {
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        }),
+                        // "Under its owner's control", which the default
+                        // already is.
+                        ..BattlefieldArrivalDef::DEFAULT
+                    },
                 },
-            ),
+            )),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),
@@ -355,30 +348,29 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_
         (
             "Ulvenwald Oddity",
             const {
-                CardRules::new_creature(mana_cost!("{2}{G}{G}"), &const { ["Beast"] }, 4, 4)
-                    .with_abilities(
-                        &const {
-                            [
-                                abilities::trample(),
-                                abilities::haste(),
-                                AbilityDef::activated(
-                                    "{5}{G}{G}: Transform this creature.",
-                                    &const { [CostDef::Mana(mana_cost!("{5}{G}{G}"))] },
-                                    EffectDef::Transform {
-                                        object: EffectRecipientDef::Source,
-                                    },
-                                ),
-                            ]
-                        },
-                    )
+                CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 4, 4).with_abilities(
+                    &const {
+                        [
+                            abilities::trample(),
+                            abilities::haste(),
+                            AbilityDef::activated(
+                                "{5}{G}{G}: Transform this creature.",
+                                &[CostDef::Mana(mana_cost!("{5}{G}{G}"))],
+                                EffectDef::Transform {
+                                    object: EffectRecipientDef::Source,
+                                },
+                            ),
+                        ]
+                    },
+                )
             },
         ),
         (
             "Ulvenwald Behemoth",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Beast", "Horror"] }, 8, 8)
+                CardRules::new_creature_without_mana_cost(&["Beast", "Horror"], 8, 8)
                     // Same again: the indicator keeps the Behemoth green.
-                    .printed_colors(&const { [ManaColor::Green] })
+                    .printed_colors(&[ManaColor::Green])
                 .with_abilities(&const { [
                     abilities::trample(),
                     abilities::haste(),
@@ -388,12 +380,12 @@ pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_
                             recipient: EffectRecipientDef::matching_objects(
                                 // "Other creatures you control", which excludes the Behemoth itself: it
                                 // already has both keywords and does not need the counters.
-                                ObjectPredicateDef::All(&const { [
+                                ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Creature),
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
                                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                                ] }),
-                                &const { [ZoneKind::Battlefield] },
+                                ]),
+                                &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
                             ),
                             // What the back face hands the rest of the board. The keywords are the ones

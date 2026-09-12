@@ -72,25 +72,19 @@ pub(in crate::card::sets) static AURA_BLAST: CardRecord = CardRecord::new(
     // card, which is the whole point of the cycle.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target enchantment.\nDraw a card.",
-        &const {
-            [AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Enchantment),
-            )]
-        },
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::Destroy {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        then: None,
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Enchantment),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
             },
-        ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -192,41 +186,33 @@ pub(in crate::card::sets) static ORIM_S_CHANT: CardRecord = CardRecord::new(
         AbilityDef::spell_with_targets(
             "Target player can't cast spells this turn. If this spell was kicked, creatures \
              can't attack this turn.",
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Any),
-                )]
-            },
-            EffectDef::Sequence(
-                &const {
-                    [
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
-                                PlayRestrictionDef::new(
-                                    PlayActionMatcherDef::CastSpell,
-                                    ObjectPredicateDef::Any,
-                                ),
-                            )),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                        EffectDef::IfCondition {
-                            condition: &TriggerConditionDef::SourceCastWith(
-                                AlternativeCastKindDef::Kicked,
-                            ),
-                            then: &EffectDef::Apply {
-                                recipient: EffectRecipientDef::matching_objects(
-                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                    &[ZoneKind::Battlefield],
-                                    PlayerRelation::Any,
-                                ),
-                                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                            },
-                        },
-                    ]
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::Any,
+                        ),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
-            ),
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
         ),
     ]),
 );
@@ -313,18 +299,12 @@ pub(in crate::card::sets) static VOICE_OF_ALL: CardRecord = CardRecord::new(
             "This creature has protection from the chosen color.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(
-                    &const {
-                        AbilityDef::keyword(
-                            "Protection from the chosen color",
-                            KeywordAbility::ProtectionFrom(
-                                &ObjectPredicateDef::HasSourcesChosenScalar(
-                                    BattlefieldEntryChoiceDestinationDef::Color,
-                                ),
-                            ),
-                        )
-                    },
-                ),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::keyword(
+                    "Protection from the chosen color",
+                    KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasSourcesChosenScalar(
+                        BattlefieldEntryChoiceDestinationDef::Color,
+                    )),
+                )),
             },
         ),
     ]),
@@ -339,11 +319,9 @@ pub(in crate::card::sets) static ALLIED_STRATEGIES: CardRecord = CardRecord::new
     // whole reason to play a mana base that bad.
     CardRules::new_sorcery(mana_cost!("{4}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Domain — Target player draws a card for each basic land type among lands they control.",
-        &const {
-            [AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Player(PlayerRelation::Any),
-            )]
-        },
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::DrawCards {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::BasicLandTypesControlled(PlayerRelation::You),
@@ -369,36 +347,30 @@ pub(in crate::card::sets) static CONFOUND: CardRecord = CardRecord::new(
     // at your creature and replaces itself either way.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell that targets a creature.\nDraw a card.",
-        &const {
-            [AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Spell,
-                        ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::HasType(
-                            CardType::Creature,
-                        )),
-                    ]),
-                    zones: &[ZoneKind::Stack],
-                    controller: None,
-                    owner: None,
-                },
-            )]
-        },
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::Counter {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Graveyard,
-                        placement: ZonePlacement::Top,
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
             },
-        ),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -431,18 +403,16 @@ pub(in crate::card::sets) static ESCAPE_ROUTES: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{2}{U}: Return target white or black creature you control to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{2}{U}"))],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Color(ManaColor::White),
-                            ObjectPredicateDef::Color(ManaColor::Black),
-                        ]),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::White),
+                        ObjectPredicateDef::Color(ManaColor::Black),
                     ]),
-                )]
-            },
+                ]),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -636,37 +606,31 @@ pub(in crate::card::sets) static DEATH_BOMB: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a creature.\nDestroy target \
              nonblack creature. It can't be regenerated. Its controller loses 2 life.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            )],
             CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
             ),
-            EffectDef::Sequence(
-                &const {
-                    [
-                        EffectDef::WithRule {
-                            rule: AppliedRuleDef::CannotRegenerate,
-                            effect: &EffectDef::Destroy {
-                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                then: None,
-                            },
-                        },
-                        EffectDef::LoseLife {
-                            recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                                ObjectRefDef::Target(TargetIndex::PRIMARY),
-                            )),
-                            amount: ValueDef::Constant(2),
-                        },
-                    ]
+            EffectDef::Sequence(&[
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
                 },
-            ),
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
         ),
     ),
 );
@@ -744,16 +708,14 @@ pub(in crate::card::sets) static LORD_OF_THE_UNDEAD: CardRecord = CardRecord::ne
         AbilityDef::activated_with_targets(
             "{1}{B}, {T}: Return target Zombie card from your graveyard to your hand.",
             &[CostDef::Mana(mana_cost!("{1}{B}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: Some(PlayerRelation::You),
-                    },
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -892,31 +854,25 @@ pub(in crate::card::sets) static SLAY: CardRecord = CardRecord::new(
     // regenerate.
     CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target green creature. It can't be regenerated.\nDraw a card.",
-        &const {
-            [AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Color(ManaColor::Green),
-                ]),
-            )]
-        },
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::WithRule {
-                        rule: AppliedRuleDef::CannotRegenerate,
-                        effect: &EffectDef::Destroy {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            then: None,
-                        },
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Color(ManaColor::Green),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
             },
-        ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -934,7 +890,7 @@ pub(in crate::card::sets) static VOLCANO_IMP: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{1}{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -997,11 +953,9 @@ pub(in crate::card::sets) static FLAMETONGUE_KAVU: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Kavu"], 4, 2).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, it deals 4 damage to target creature.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(4),
@@ -1028,25 +982,19 @@ pub(in crate::card::sets) static IMPLODE: CardRecord = CardRecord::new(
     // counted, and then it is merely a slow one.
     CardRules::new_sorcery(mana_cost!("{4}{R}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target land.\nDraw a card.",
-        &const {
-            [AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Land),
-            )]
-        },
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::Destroy {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        then: None,
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
             },
-        ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -1185,14 +1133,12 @@ pub(in crate::card::sets) static SLINGSHOT_GOBLIN: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{R}, {T}: This creature deals 2 damage to target blue creature.",
             &[CostDef::Mana(mana_cost!("{R}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Color(ManaColor::Blue),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                ]),
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(2),
@@ -1269,14 +1215,12 @@ pub(in crate::card::sets) static ALPHA_KAVU: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{G}: Target Kavu creature gets -1/+1 until end of turn.",
             &[CostDef::Mana(mana_cost!("{1}{G}"))],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kavu")),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Kavu")),
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1358,15 +1302,11 @@ pub(in crate::card::sets) static MULTANI_S_HARMONY: CardRecord = CardRecord::new
                 "Enchanted creature has \"{T}: Add one mana of any color.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(
-                        &const {
-                            AbilityDef::activated_mana(
-                                "{T}: Add one mana of any color.",
-                                &[CostDef::TapSource],
-                                EffectDef::AddMana(AddManaEffectDef::any_color()),
-                            )
-                        },
-                    ),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                        "{T}: Add one mana of any color.",
+                        &[CostDef::TapSource],
+                        EffectDef::AddMana(AddManaEffectDef::any_color()),
+                    )),
                 },
             ),
         ]),
@@ -1698,8 +1638,8 @@ pub(in crate::card::sets) static DARING_LEAP: CardRecord = CardRecord::new(
                     ValueDef::Constant(1),
                     ValueDef::Constant(1),
                 ),
-                AppliedEffectDef::add_ability(&const { abilities::flying() }),
-                AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                AppliedEffectDef::add_ability(&abilities::flying()),
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
             ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -2008,11 +1948,9 @@ pub(in crate::card::sets) static PHYREXIAN_TYRANNY: CardRecord = CardRecord::new
         EffectDef::PayOr(
             PayOrDef::unless(
                 &[CostDef::Mana(mana_cost!("{2}"))],
-                &const {
-                    EffectDef::LoseLife {
-                        recipient: EffectRecipientDef::EventPlayer,
-                        amount: ValueDef::Constant(2),
-                    }
+                &EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(2),
                 },
             )
             .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
@@ -2157,26 +2095,22 @@ pub(in crate::card::sets) static URZA_S_GUILT: CardRecord = CardRecord::new(
     // chose the turn, and the other one did not.
     CardRules::new_sorcery(mana_cost!("{2}{U}{B}")).with_ability(AbilityDef::spell(
         "Each player draws two cards, then discards three cards, then loses 4 life.",
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::EachPlayer,
-                        amount: ValueDef::Constant(2),
-                    },
-                    EffectDef::Discard {
-                        recipient: EffectRecipientDef::EachPlayer,
-                        amount: ValueDef::Constant(3),
-                        selection: DiscardSelectionDef::RecipientChooses,
-                        then: None,
-                    },
-                    EffectDef::LoseLife {
-                        recipient: EffectRecipientDef::EachPlayer,
-                        amount: ValueDef::Constant(4),
-                    },
-                ]
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(2),
             },
-        ),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(3),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(4),
+            },
+        ]),
     )),
 );
 
@@ -2362,40 +2296,34 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new(
             },
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(ParentBinding),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        // A card from your own hand, whichever you can spare. The exile is the
-                        // upkeep cost of a land that would otherwise stay tapped forever.
-                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                            ObjectPredicateDef::Any,
-                            &const { [ZoneKind::Hand] },
-                            PlayerSetDef::Related(PlayerRelation::You),
-                        )),
-                        exclude: None,
-                        minimum: 1,
-                        maximum: 1,
-                        visibility: ChoiceVisibilityDef::Public,
-                        then: &const {
-                            EffectDef::Sequence(&const {
-                                [
-                                    EffectDef::move_to_zone(
-                                        EffectRecipientDef::object(ObjectRefDef::Binding(
-                                            ParentBinding,
-                                        )),
-                                        ZoneKind::Exile,
-                                        ZonePlacement::Top,
-                                    ),
-                                    EffectDef::Untap {
-                                        object: EffectRecipientDef::Source,
-                                    },
-                                ]
-                            })
-                        },
-                    })
-                },
+                effect: &EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    // A card from your own hand, whichever you can spare. The exile is the
+                    // upkeep cost of a land that would otherwise stay tapped forever.
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::Sequence(&[
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::object(ObjectRefDef::Binding(
+                                        ParentBinding,
+                                    )),
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
+                                EffectDef::Untap {
+                                    object: EffectRecipientDef::Source,
+                                },
+                            ]),
+                }),
             },
         ),
         AbilityDef::activated_mana(

@@ -3779,47 +3779,45 @@ CardRules::new_sorcery(mana_cost!("{X}{U}{R}")).with_ability(AbilityDef::spell(
         abilities::bind_top_cards_then(
             PlayerRefDef::EffectController,
             ValueDef::ChosenX,
-            &const {
-                EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(ParentBinding),
-                    from: Some(ZoneKind::Library),
-                    zone: ZoneKind::Exile,
-                    placement: ZonePlacement::Top,
-                    moved: Some(Binding!("epic_experiment_exiled")),
-                    then: &EffectDef::ClassifyObjects(ClassifyObjectsDef {
-                        input: ObjectSetDef::Binding(Binding!("epic_experiment_exiled")),
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Instant),
-                                ObjectPredicateDef::HasType(CardType::Sorcery),
-                            ]),
-                            ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+            &EffectDef::MoveObjects(MoveObjectsDef {
+                input: ObjectSetDef::Binding(ParentBinding),
+                from: Some(ZoneKind::Library),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+                moved: Some(Binding!("epic_experiment_exiled")),
+                then: &EffectDef::ClassifyObjects(ClassifyObjectsDef {
+                    input: ObjectSetDef::Binding(Binding!("epic_experiment_exiled")),
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
                         ]),
-                        matching: Binding!("epic_experiment_castable"),
-                        remainder: Binding!("epic_experiment_rest"),
-                        then: &EffectDef::Sequence(&[
-                            EffectDef::MayPlayWithoutPaying(FreePlayDef {
-                                objects: ObjectSetDef::Binding(Binding!(
-                                    "epic_experiment_castable"
-                                )),
-                                duration: FreePlayDurationDef::WhileResolving,
-                                mandatory: false,
-                                grants_haste: false,
-                            }),
-                            EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(Binding!(
-                                    "epic_experiment_exiled"
-                                )),
-                                from: Some(ZoneKind::Exile),
-                                zone: ZoneKind::Graveyard,
-                                placement: ZonePlacement::Top,
-                                moved: None,
-                                then: &EffectDef::None,
-                            }),
-                        ]),
-                    }),
-                })
-            },
+                        ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                    ]),
+                    matching: Binding!("epic_experiment_castable"),
+                    remainder: Binding!("epic_experiment_rest"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                            objects: ObjectSetDef::Binding(Binding!(
+                                "epic_experiment_castable"
+                            )),
+                            duration: FreePlayDurationDef::WhileResolving,
+                            mandatory: false,
+                            grants_haste: false,
+                        }),
+                        EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(Binding!(
+                                "epic_experiment_exiled"
+                            )),
+                            from: Some(ZoneKind::Exile),
+                            zone: ZoneKind::Graveyard,
+                            placement: ZonePlacement::Top,
+                            moved: None,
+                            then: &EffectDef::None,
+                        }),
+                    ]),
+                }),
+            }),
         ),
     )),
 );

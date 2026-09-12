@@ -225,7 +225,7 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
         (
             "Etali, Primal Conqueror",
             const {
-                CardRules::new_creature(mana_cost!("{5}{R}{R}"), &const { ["Elder", "Dinosaur"] }, 7, 7)
+                CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Elder", "Dinosaur"], 7, 7)
                 .with_supertype(CardSupertype::Legendary)
                 .with_abilities(&const { [
                     abilities::trample(),
@@ -248,7 +248,7 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
                     ),
                     AbilityDef::activated(
                         "{9}{G/P}: Transform this creature. Activate only as a sorcery.",
-                        &const { [CostDef::Mana(mana_cost!("{9}{G/P}"))] },
+                        &[CostDef::Mana(mana_cost!("{9}{G/P}"))],
                         EffectDef::Transform {
                             object: EffectRecipientDef::Source,
                         },
@@ -260,9 +260,9 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
         (
             "Etali, Primal Sickness",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Phyrexian", "Elder", "Dinosaur"] }, 11, 11)
+                CardRules::new_creature_without_mana_cost(&["Phyrexian", "Elder", "Dinosaur"], 11, 11)
                 .with_supertype(CardSupertype::Legendary)
-                .printed_colors(&const { [ManaColor::Green] })
+                .printed_colors(&[ManaColor::Green])
                 .with_abilities(&const { [
                     abilities::trample(),
                     abilities::indestructible(),

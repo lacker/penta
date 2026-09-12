@@ -313,32 +313,28 @@ macro_rules! consult_choice {
             minimum: $cards,
             maximum: $cards,
             visibility: ChoiceVisibilityDef::Private,
-            then: &const {
-                EffectDef::Sequence(&[
-                    EffectDef::MoveObjects(MoveObjectsDef {
-                        input: ObjectSetDef::Binding($chosen),
+            then: &EffectDef::Sequence(&[
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding($chosen),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+                EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                    input: ObjectSetDef::Binding($rest),
+                    randomized: ParentBinding,
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
                         from: Some(ZoneKind::Library),
-                        zone: ZoneKind::Hand,
-                        placement: ZonePlacement::Top,
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Bottom,
                         moved: None,
                         then: &EffectDef::None,
                     }),
-                    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
-                        input: ObjectSetDef::Binding($rest),
-                        randomized: ParentBinding,
-                        then: &const {
-                            EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(ParentBinding),
-                                from: Some(ZoneKind::Library),
-                                zone: ZoneKind::Library,
-                                placement: ZonePlacement::Bottom,
-                                moved: None,
-                                then: &EffectDef::None,
-                            })
-                        },
-                    }),
-                ])
-            },
+                }),
+            ]),
         })
     };
 }

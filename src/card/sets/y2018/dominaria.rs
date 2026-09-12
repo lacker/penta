@@ -83,50 +83,46 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(2),
-                    &const {
-                        EffectDef::Sequence(&[
-                            EffectDef::RevealObjects(RevealObjectsDef {
-                                input: ObjectSetDef::Binding(ParentBinding),
-                                then: &EffectDef::None,
-                            }),
-                                EffectDef::Choose(ChooseDef {
-                                    binding: ObjectChoiceBindingDef::Objects(KARN_CHOSEN),
-                                    unchosen: Some(KARN_REST),
-                                    chooser: PlayerRefDef::Opponent,
-                                    candidates: ObjectSetDef::Binding(ParentBinding),
-                                    exclude: None,
-                                    minimum: 1,
-                                    maximum: 1,
-                                    visibility: ChoiceVisibilityDef::Public,
-                                    then: &const {
-                                        EffectDef::Sequence(&[
+                    &EffectDef::Sequence(&[
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
+                            then: &EffectDef::None,
+                        }),
+                            EffectDef::Choose(ChooseDef {
+                                binding: ObjectChoiceBindingDef::Objects(KARN_CHOSEN),
+                                unchosen: Some(KARN_REST),
+                                chooser: PlayerRefDef::Opponent,
+                                candidates: ObjectSetDef::Binding(ParentBinding),
+                                exclude: None,
+                                minimum: 1,
+                                maximum: 1,
+                                visibility: ChoiceVisibilityDef::Public,
+                                then: &EffectDef::Sequence(&[
+                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                            input: ObjectSetDef::Binding(KARN_CHOSEN),
+                                            from: Some(ZoneKind::Library),
+                                            zone: ZoneKind::Hand,
+                                            placement: ZonePlacement::Top,
+                                            moved: None,
+                                            then: &EffectDef::None,
+                                        }),
                                             EffectDef::MoveObjects(MoveObjectsDef {
-                                                input: ObjectSetDef::Binding(KARN_CHOSEN),
+                                                input: ObjectSetDef::Binding(KARN_REST),
                                                 from: Some(ZoneKind::Library),
-                                                zone: ZoneKind::Hand,
+                                                zone: ZoneKind::Exile,
                                                 placement: ZonePlacement::Top,
-                                                moved: None,
-                                                then: &EffectDef::None,
+                                                moved: Some(ParentBinding),
+                                                then: &EffectDef::AddCounters {
+                                                    object: EffectRecipientDef::objects(
+                                                        ObjectSetDef::Binding(ParentBinding),
+                                                    ),
+                                                    kind: CounterKind::named("silver"),
+                                                    amount: ValueDef::Constant(1),
+                                                },
                                             }),
-                                                EffectDef::MoveObjects(MoveObjectsDef {
-                                                    input: ObjectSetDef::Binding(KARN_REST),
-                                                    from: Some(ZoneKind::Library),
-                                                    zone: ZoneKind::Exile,
-                                                    placement: ZonePlacement::Top,
-                                                    moved: Some(ParentBinding),
-                                                    then: &EffectDef::AddCounters {
-                                                        object: EffectRecipientDef::objects(
-                                                            ObjectSetDef::Binding(ParentBinding),
-                                                        ),
-                                                        kind: CounterKind::named("silver"),
-                                                        amount: ValueDef::Constant(1),
-                                                    },
-                                                }),
-                                        ])
-                                    },
-                                }),
-                        ])
-                    },
+                                    ]),
+                            }),
+                    ]),
                 ),
             ),
             AbilityDef::activated(

@@ -157,12 +157,10 @@ pub(in crate::card::sets) static EXPENDABLE_TROOPS: CardRecord = CardRecord::new
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: It deals 2 damage to target attacking or blocking creature.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::AttackingOrBlocking,
-                ]))]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AttackingOrBlocking,
+            ]))],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(2),
@@ -190,11 +188,9 @@ pub(in crate::card::sets) static IRON_WILL: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Target creature gets +0/+4 until end of turn.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -235,7 +231,7 @@ pub(in crate::card::sets) static KNIGHTHOOD: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             ),
-            effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+            effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
         },
     )),
 );
@@ -440,14 +436,12 @@ pub(in crate::card::sets) static TRAGIC_POET: CardRecord = CardRecord::new(
             "{T}, Sacrifice this creature: Return target enchantment card from your graveyard to your \
              hand.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &const {
-                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Enchantment),
-                    zones: &[ZoneKind::Graveyard],
-                    controller: None,
-                    owner: Some(PlayerRelation::You),
-                })]
-            },
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Enchantment),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            })],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -1026,11 +1020,9 @@ pub(in crate::card::sets) static PHYREXIAN_DEBASER: CardRecord = CardRecord::new
             AbilityDef::activated_with_targets(
                 "{T}, Sacrifice this creature: Target creature gets -2/-2 until end of turn.",
                 &[CostDef::TapSource, CostDef::SacrificeSource],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -1108,11 +1100,9 @@ pub(in crate::card::sets) static PHYREXIAN_PLAGUELORD: CardRecord = CardRecord::
             AbilityDef::activated_with_targets(
                 "{T}, Sacrifice this creature: Target creature gets -4/-4 until end of turn.",
                 &[CostDef::TapSource, CostDef::SacrificeSource],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -1128,11 +1118,9 @@ pub(in crate::card::sets) static PHYREXIAN_PLAGUELORD: CardRecord = CardRecord::
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     controller: PlayerRelation::You,
                 }],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -1347,11 +1335,9 @@ pub(in crate::card::sets) static GHITU_FIRE_EATER: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: It deals damage equal to its power to any target.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::SourcePower,
@@ -1403,11 +1389,9 @@ pub(in crate::card::sets) static GOBLIN_MEDICS: CardRecord = CardRecord::new(
         AbilityDef::triggered_with_targets(
             "Whenever this creature becomes tapped, it deals 1 damage to any target.",
             TriggerEventDef::tapped(ObjectPredicateDef::Source),
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(1),
@@ -1834,38 +1818,22 @@ pub(in crate::card::sets) static GANG_OF_ELK: CardRecord = CardRecord::new(
                 // has already left is not counted and one added by a
                 // later effect is.
                 effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Scaled(
-                        &const {
-                            ScaledValueDef {
-                                value: ValueDef::CountMatchingObjects(
-                                    &const {
-                                        ObjectQueryDef::matching(
-                                            ObjectPredicateDef::BlockingSource,
-                                            &[ZoneKind::Battlefield],
-                                            PlayerRelation::Any,
-                                        )
-                                    },
-                                ),
-                                factor: 2,
-                            }
-                        },
-                    ),
-                    ValueDef::Scaled(
-                        &const {
-                            ScaledValueDef {
-                                value: ValueDef::CountMatchingObjects(
-                                    &const {
-                                        ObjectQueryDef::matching(
-                                            ObjectPredicateDef::BlockingSource,
-                                            &[ZoneKind::Battlefield],
-                                            PlayerRelation::Any,
-                                        )
-                                    },
-                                ),
-                                factor: 2,
-                            }
-                        },
-                    ),
+                    ValueDef::Scaled(&ScaledValueDef {
+                        value: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::BlockingSource,
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )),
+                        factor: 2,
+                    }),
+                    ValueDef::Scaled(&ScaledValueDef {
+                        value: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::BlockingSource,
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )),
+                        factor: 2,
+                    }),
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -2017,7 +1985,7 @@ pub(in crate::card::sets) static SILK_NET: CardRecord = CardRecord::new(
                     ValueDef::Constant(1),
                     ValueDef::Constant(1),
                 ),
-                AppliedEffectDef::add_ability(&const { abilities::reach() }),
+                AppliedEffectDef::add_ability(&abilities::reach()),
             ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -2065,7 +2033,7 @@ pub(in crate::card::sets) static WEATHERSEED_ELF: CardRecord = CardRecord::new(
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2297,62 +2265,56 @@ pub(in crate::card::sets) static MEMORY_JAR: CardRecord = CardRecord::new(
          and draws seven cards. At the beginning of the next end step, each player discards \
          their hand and returns to their hand each card they exiled this way.",
         &[CostDef::TapSource, CostDef::SacrificeSource],
-        EffectDef::Sequence(&const {
-            [
-                // Face down: the point of the clause is that nobody learns what the
-                // other player put away, only how much of it there was.
-                EffectDef::ExileLinkedToSource {
-                    until_source_leaves: false,
-                    // Everything in both hands, wherever it came from. The exile is linked to
-                    // the Jar so the end step can name exactly these cards rather than
-                    // everything that happens to be in exile by then.
-                    object: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::Any,
-                        &const { [ZoneKind::Hand] },
-                        PlayerRelation::Any,
-                    ),
-                    face_down: true,
-                    then: None,
-                },
-                EffectDef::DrawCards {
-                    recipient: EffectRecipientDef::EachPlayer,
-                    amount: ValueDef::Constant(7),
-                },
-                // The discard comes first and the return second, which is what makes
-                // the seven new cards a loan rather than a hand: whatever is left of
-                // them at the end step is thrown away.
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
-                    AbilityDef::triggered(
-                        "At the beginning of the next end step, each player discards their hand and returns to \
-                         their hand each card they exiled this way.",
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::End,
-                            player: PlayerRelation::Any,
-                        },
-                        EffectDef::Sequence(&const {
-                            [
-                                EffectDef::Discard {
-                                    recipient: EffectRecipientDef::EachPlayer,
-                                    // `Discard` saturates at the recipient's hand size, so the largest amount
-                                    // is how "their hand" is said.
-                                    amount: ValueDef::Constant(i32::MAX),
-                                    selection: DiscardSelectionDef::RecipientChooses,
-                                    then: None,
-                                },
-                                EffectDef::ReturnLinkedExiles {
-                                    object: ObjectPredicateDef::Any,
-                                    counters: None,
-                                    zone: ZoneKind::Hand,
-                                    grant: None,
-                                    controller: None,
-                                    transformed: false,
-                                },
-                            ]
-                        }),
-                    )
-                })),
-            ]
-        }),
+        EffectDef::Sequence(&[
+            // Face down: the point of the clause is that nobody learns what the
+            // other player put away, only how much of it there was.
+            EffectDef::ExileLinkedToSource {
+                until_source_leaves: false,
+                // Everything in both hands, wherever it came from. The exile is linked to
+                // the Jar so the end step can name exactly these cards rather than
+                // everything that happens to be in exile by then.
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand],
+                    PlayerRelation::Any,
+                ),
+                face_down: true,
+                then: None,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::EachPlayer,
+                amount: ValueDef::Constant(7),
+            },
+            // The discard comes first and the return second, which is what makes
+            // the seven new cards a loan rather than a hand: whatever is left of
+            // them at the end step is thrown away.
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next end step, each player discards their hand and returns to \
+                     their hand each card they exiled this way.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::End,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::Sequence(&[
+                            EffectDef::Discard {
+                                recipient: EffectRecipientDef::EachPlayer,
+                                // `Discard` saturates at the recipient's hand size, so the largest amount
+                                // is how "their hand" is said.
+                                amount: ValueDef::Constant(i32::MAX),
+                                selection: DiscardSelectionDef::RecipientChooses,
+                                then: None,
+                            },
+                            EffectDef::ReturnLinkedExiles {
+                                object: ObjectPredicateDef::Any,
+                                counters: None,
+                                zone: ZoneKind::Hand,
+                                grant: None,
+                                controller: None,
+                                transformed: false,
+                            },
+                        ]),
+                ))),
+        ]),
     )),
 );
 
@@ -2381,13 +2343,11 @@ pub(in crate::card::sets) static QUICKSILVER_AMULET: CardRecord = CardRecord::ne
             minimum: 0,
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
-            then: &const {
-                EffectDef::move_to_zone(
-                    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                    ZoneKind::Battlefield,
-                    ZonePlacement::Top,
-                )
-            },
+            then: &EffectDef::move_to_zone(
+                EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
         }),
     )),
 );
@@ -2459,7 +2419,7 @@ pub(in crate::card::sets) static TICKING_GNOMES: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
         "Sacrifice this creature: It deals 1 damage to any target.",
         &[CostDef::SacrificeSource],
-        &const { [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)] },
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
         EffectDef::damage(
             EffectRecipientDef::Target(TargetIndex::PRIMARY),
             ValueDef::Constant(1),
@@ -2508,7 +2468,7 @@ pub(in crate::card::sets) static FAERIE_CONCLAVE: CardRecord = CardRecord::new(
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Faerie"])),
                     AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
-                    AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -2567,7 +2527,7 @@ pub(in crate::card::sets) static GHITU_ENCAMPMENT: CardRecord = CardRecord::new(
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Warrior"])),
                     AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
-                    AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -2606,7 +2566,7 @@ pub(in crate::card::sets) static TREETOP_VILLAGE: CardRecord = CardRecord::new(
                     AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
                     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Ape"])),
                     AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
-                    AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },

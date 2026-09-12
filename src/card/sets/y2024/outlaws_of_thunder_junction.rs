@@ -176,7 +176,7 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
                 "Create a 2/2 white Spirit creature token with flying.",
                 EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                     TokenCharacteristics::creature(&["Spirit"], &[ManaColor::White], 2, 2)
-                        .with_abilities(&const { [abilities::flying()] }),
+                        .with_abilities(&[abilities::flying()]),
                 ))),
             ),
         ),
@@ -219,46 +219,44 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(1),
-                    &const {
-                        EffectDef::Sequence(&[
-                            EffectDef::RevealObjects(RevealObjectsDef {
-                                input: ObjectSetDef::Binding(ParentBinding),
-                                then: &EffectDef::None,
-                            }),
-                            EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(ParentBinding),
-                                from: Some(ZoneKind::Library),
-                                zone: ZoneKind::Hand,
-                                placement: ZonePlacement::Top,
-                                moved: Some(ParentBinding),
-                                then: &EffectDef::IfElseCondition {
-                                    condition: &TriggerConditionDef::SourceMatches {
-                                        object: ObjectPredicateDef::Saddled,
-                                    },
-                                    then: &EffectDef::LoseLife {
-                                        recipient: EffectRecipientDef::Opponent,
-                                        amount: ValueDef::AggregateObjectValues(
-                                            &ObjectValueAggregateDef {
-                                                objects: ObjectSetDef::Binding(ParentBinding),
-                                                select: ObjectValueDef::ManaValue,
-                                                operation: AggregateOperationDef::Maximum,
-                                            },
-                                        ),
-                                    },
-                                    otherwise: &EffectDef::LoseLife {
-                                        recipient: EffectRecipientDef::Controller,
-                                        amount: ValueDef::AggregateObjectValues(
-                                            &ObjectValueAggregateDef {
-                                                objects: ObjectSetDef::Binding(ParentBinding),
-                                                select: ObjectValueDef::ManaValue,
-                                                operation: AggregateOperationDef::Maximum,
-                                            },
-                                        ),
-                                    },
+                    &EffectDef::Sequence(&[
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
+                            from: Some(ZoneKind::Library),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                            moved: Some(ParentBinding),
+                            then: &EffectDef::IfElseCondition {
+                                condition: &TriggerConditionDef::SourceMatches {
+                                    object: ObjectPredicateDef::Saddled,
                                 },
-                            }),
-                        ])
-                    },
+                                then: &EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::Opponent,
+                                    amount: ValueDef::AggregateObjectValues(
+                                        &ObjectValueAggregateDef {
+                                            objects: ObjectSetDef::Binding(ParentBinding),
+                                            select: ObjectValueDef::ManaValue,
+                                            operation: AggregateOperationDef::Maximum,
+                                        },
+                                    ),
+                                },
+                                otherwise: &EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::AggregateObjectValues(
+                                        &ObjectValueAggregateDef {
+                                            objects: ObjectSetDef::Binding(ParentBinding),
+                                            select: ObjectValueDef::ManaValue,
+                                            operation: AggregateOperationDef::Maximum,
+                                        },
+                                    ),
+                                },
+                            },
+                        }),
+                    ]),
                 ),
             ),
             abilities::saddle(
@@ -492,22 +490,14 @@ pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
             abilities::look_at_top_cards_choose_to_hand_rest_random_bottom(
                 // "Twice the number of lands you control", which is what makes the card a
                 // land-count payoff rather than a fixed dig: six lands look at twelve.
-                ValueDef::Scaled(
-                    &const {
-                        ScaledValueDef::new(
-                            ValueDef::CountMatchingObjects(
-                                &const {
-                                    ObjectQueryDef::matching(
-                                        ObjectPredicateDef::HasType(CardType::Land),
-                                        &[ZoneKind::Battlefield],
-                                        PlayerRelation::You,
-                                    )
-                                },
-                            ),
-                            2,
-                        )
-                    },
-                ),
+                ValueDef::Scaled(&ScaledValueDef::new(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    2,
+                )),
                 ObjectPredicateDef::Any,
                 1,
                 1,

@@ -62,11 +62,9 @@ pub(in crate::card::sets) static FAITH_S_FETTERS: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::aura_spell(
                 "Enchant permanent",
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::Any,
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )],
             ),
             abilities::enters_trigger(
                 "When this Aura enters, you gain 4 life.",
@@ -228,32 +226,30 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::Constant(1),
-                &const {
-                    EffectDef::Sequence(&[
-                        EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(ParentBinding),
-                            then: &EffectDef::None,
-                        }),
-                        EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(ParentBinding),
-                            from: Some(ZoneKind::Library),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                            moved: Some(ParentBinding),
-                            // "You lose life equal to its mana value." The card is in your hand by the
-                            // time this is asked, so what the reveal hands on is the number rather than
-                            // the card.
-                            then: &EffectDef::LoseLife {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                                    objects: ObjectSetDef::Binding(ParentBinding),
-                                    select: ObjectValueDef::ManaValue,
-                                    operation: AggregateOperationDef::Maximum,
-                                }),
-                            },
-                        }),
-                    ])
-                },
+                &EffectDef::Sequence(&[
+                    EffectDef::RevealObjects(RevealObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        moved: Some(ParentBinding),
+                        // "You lose life equal to its mana value." The card is in your hand by the
+                        // time this is asked, so what the reveal hands on is the number rather than
+                        // the card.
+                        then: &EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Binding(ParentBinding),
+                                select: ObjectValueDef::ManaValue,
+                                operation: AggregateOperationDef::Maximum,
+                            }),
+                        },
+                    }),
+                ]),
             ),
         ),
     ),
@@ -281,14 +277,12 @@ pub(in crate::card::sets) static FRENZIED_GOBLIN: CardRecord = CardRecord::new(
                     color: ManaColor::Red,
                     amount: ValueDef::Constant(1),
                 }],
-                &const {
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
-                            BlockRestrictionDef::CANNOT_BLOCK,
-                        )),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    }
+                &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                        BlockRestrictionDef::CANNOT_BLOCK,
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             )),
         ),

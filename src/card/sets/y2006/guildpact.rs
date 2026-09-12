@@ -358,21 +358,17 @@ pub(in crate::card::sets) static PILLORY_OF_THE_SLEEPLESS: CardRecord = CardReco
                     // which is what the printed quotation marks mean: "your"
                     // upkeep is the creature's controller's, and an effect
                     // that strips the creature's abilities turns this off.
-                    effect: AppliedEffectDef::add_ability(
-                        &const {
-                            AbilityDef::triggered(
-                                "At the beginning of your upkeep, you lose 1 life.",
-                                TriggerEventDef::StepBegins {
-                                    step: TurnStepDef::Upkeep,
-                                    player: PlayerRelation::You,
-                                },
-                                EffectDef::LoseLife {
-                                    recipient: EffectRecipientDef::Controller,
-                                    amount: ValueDef::Constant(1),
-                                },
-                            )
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                        "At the beginning of your upkeep, you lose 1 life.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::Upkeep,
+                            player: PlayerRelation::You,
                         },
-                    ),
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    )),
                 },
             ),
         ]),

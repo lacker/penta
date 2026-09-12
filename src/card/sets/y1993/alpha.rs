@@ -1960,19 +1960,17 @@ pub(in crate::card::sets) static ANIMATE_DEAD: CardRecord = CardRecord::new(
                 // "If it's on the battlefield" is an intervening if, and it is what makes
                 // the clause safe to write at all: an Aura answered in response does
                 // nothing rather than reanimating from a graveyard.
-                &const { TriggerConditionDef::SourceOnBattlefield },
+                &TriggerConditionDef::SourceOnBattlefield,
                 // The reanimation and the attachment are one step: what arrives is a new
                 // object, so a following effect would have nothing left to name.
                 EffectDef::WithBattlefieldArrival {
-                    effect: &const {
-                        EffectDef::move_to_zone(
-                            // "Return enchanted creature card": what the Aura is already attached
-                            // to, which is the card its own spell targeted.
-                            EffectRecipientDef::AttachedPermanent,
-                            ZoneKind::Battlefield,
-                            ZonePlacement::Top,
-                        )
-                    },
+                    effect: &EffectDef::move_to_zone(
+                        // "Return enchanted creature card": what the Aura is already attached
+                        // to, which is the card its own spell targeted.
+                        EffectRecipientDef::AttachedPermanent,
+                        ZoneKind::Battlefield,
+                        ZonePlacement::Top,
+                    ),
                     arrival: crate::card::BattlefieldArrivalDef {
                         controller: Some(PlayerRelation::You),
                         attachment: Some(ArrivalAttachmentDef::SourceToArrival),

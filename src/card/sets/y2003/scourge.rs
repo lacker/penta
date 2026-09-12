@@ -467,11 +467,9 @@ pub(in crate::card::sets) static WIPE_CLEAN: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Exile target enchantment.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Exile,
@@ -560,32 +558,26 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
             // Counter the spell, mark the enchantment, and go when the third mark
             // lands. The sacrifice is checked in the same resolution rather than as a
             // state trigger, which is what the printed clause says.
-            EffectDef::Sequence(&const {
-                [
-                    EffectDef::Counter {
-                        object: EffectRecipientDef::TriggeringObject,
-                        zone: ZoneKind::Graveyard,
-                        placement: ZonePlacement::Top,
-                    },
-                    EffectDef::AddCounters {
-                        object: EffectRecipientDef::Source,
-                        kind: CounterKind::named("depletion"),
-                        amount: ValueDef::Constant(1),
-                    },
-                    EffectDef::IfCondition {
-                        condition: &const {
-                            TriggerConditionDef::SourceCounters {
-                                kind: CounterKind::named("depletion"),
-                                comparison: ComparisonDef::GreaterOrEqual,
-                                amount: 3,
-                            }
+            EffectDef::Sequence(&[
+                EffectDef::Counter {
+                    object: EffectRecipientDef::TriggeringObject,
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("depletion"),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceCounters {
+                            kind: CounterKind::named("depletion"),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 3,
                         },
-                        then: &const {
-                            EffectDef::sacrifice(EffectRecipientDef::Source)
-                        },
-                    },
-                ]
-            }),
+                    then: &EffectDef::sacrifice(EffectRecipientDef::Source),
+                },
+            ]),
         ),
         abilities::cycling!(
             "Cycling {4}{U}{U} ({4}{U}{U}, Discard this card: Draw a card.)",
@@ -1141,11 +1133,9 @@ pub(in crate::card::sets) static UNBURDEN: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{1}{B}{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Target player discards two cards.",
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Any),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::Discard {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
@@ -1415,11 +1405,9 @@ pub(in crate::card::sets) static EXTRA_ARMS: CardRecord = CardRecord::new(
             AbilityDef::triggered_with_targets(
                 "Whenever enchanted creature attacks, it deals 2 damage to any target.",
                 TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
-                &const {
-                    [AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::AnyTarget,
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(2),
@@ -1647,11 +1635,9 @@ pub(in crate::card::sets) static SPARK_SPRAY: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Spark Spray deals 1 damage to any target.",
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(1),
@@ -1737,14 +1723,12 @@ pub(in crate::card::sets) static BREAK_ASUNDER: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Destroy target artifact or enchantment.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                        ObjectPredicateDef::HasType(CardType::Enchantment),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
@@ -1767,24 +1751,20 @@ pub(in crate::card::sets) static CLAWS_OF_WIREWOOD: CardRecord = CardRecord::new
     CardRules::new_sorcery(mana_cost!("{3}{G}")).with_abilities(&[
         AbilityDef::spell(
             "Claws of Wirewood deals 3 damage to each creature with flying and each player.",
-            EffectDef::Sequence(
-                &const {
-                    [
-                        EffectDef::damage(
-                            EffectRecipientDef::matching_objects(
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-                                ]),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::Any,
-                            ),
-                            ValueDef::Constant(3),
-                        ),
-                        EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(3)),
-                    ]
-                },
-            ),
+            EffectDef::Sequence(&[
+                EffectDef::damage(
+                    EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    ValueDef::Constant(3),
+                ),
+                EffectDef::damage(EffectRecipientDef::EachPlayer, ValueDef::Constant(3)),
+            ]),
         ),
         abilities::cycling!(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -1897,11 +1877,9 @@ pub(in crate::card::sets) static KROSAN_WARCHIEF: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{G}: Regenerate target Beast.",
             &[CostDef::Mana(mana_cost!("{1}{G}"))],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
+            )],
             EffectDef::Regenerate {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },

@@ -1492,20 +1492,18 @@ CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::modal_activa
                 ))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&const {
-                        AbilityDef::defined_replacement(
-                            "The next time this land would be destroyed this turn, remove all damage marked on it instead.",
-                            ReplacementAbilityDef::new()
-                                .with_event(ReplacementEventDef::WouldBeDestroyed {
-                                    object: ObjectPredicateDef::Source,
-                                })
-                                .once(),
-                            ReplacementEffectDef::Sequence(&[
-                                ReplacementEffectDef::ReplaceEventWithNothing,
-                                ReplacementEffectDef::RemoveDamageFromDestroyedObject,
-                            ]),
-                        )
-                    }),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::defined_replacement(
+                        "The next time this land would be destroyed this turn, remove all damage marked on it instead.",
+                        ReplacementAbilityDef::new()
+                            .with_event(ReplacementEventDef::WouldBeDestroyed {
+                                object: ObjectPredicateDef::Source,
+                            })
+                            .once(),
+                        ReplacementEffectDef::Sequence(&[
+                            ReplacementEffectDef::ReplaceEventWithNothing,
+                            ReplacementEffectDef::RemoveDamageFromDestroyedObject,
+                        ]),
+                    )),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -1530,39 +1528,31 @@ CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
         ],
         EffectDef::ReplaceNextDrawThisTurn {
             player: EffectRecipientDef::Controller,
-            effect: &const {
-                EffectDef::IfFormat {
-                    format: Format::OldSchool9394,
-                    then: &const {
-                        EffectDef::ChooseCards {
-                            player: EffectRecipientDef::Controller,
-                            sources: &const {
-                                [
-                                    CardChoiceSourceDef::Zone(ZoneKind::Exile),
-                                    CardChoiceSourceDef::OutsideGame,
-                                ]
-                            },
-                            object: ObjectPredicateDef::Any,
-                            minimum: 1,
-                            maximum: 1,
-                            reveal: false,
-                            destination: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        }
+            effect: &EffectDef::IfFormat {
+                format: Format::OldSchool9394,
+                then: &EffectDef::ChooseCards {
+                        player: EffectRecipientDef::Controller,
+                        sources: &[
+                                CardChoiceSourceDef::Zone(ZoneKind::Exile),
+                                CardChoiceSourceDef::OutsideGame,
+                            ],
+                        object: ObjectPredicateDef::Any,
+                        minimum: 1,
+                        maximum: 1,
+                        reveal: false,
+                        destination: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
                     },
-                    otherwise: &const {
-                        EffectDef::ChooseCards {
-                            player: EffectRecipientDef::Controller,
-                            sources: &const { [CardChoiceSourceDef::OutsideGame] },
-                            object: ObjectPredicateDef::Any,
-                            minimum: 1,
-                            maximum: 1,
-                            reveal: false,
-                            destination: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                        }
+                otherwise: &EffectDef::ChooseCards {
+                        player: EffectRecipientDef::Controller,
+                        sources: &[CardChoiceSourceDef::OutsideGame],
+                        object: ObjectPredicateDef::Any,
+                        minimum: 1,
+                        maximum: 1,
+                        reveal: false,
+                        destination: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
                     },
-                }
             },
         },
     )),

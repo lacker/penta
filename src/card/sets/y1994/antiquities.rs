@@ -249,21 +249,17 @@ CardRules::new_enchantment(mana_cost!("{2}{U}"))
         "All artifacts have \"At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.\"",
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Any),
-            effect: AppliedEffectDef::add_ability(&const {
-                AbilityDef::triggered(
-                    "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
-                    TriggerEventDef::StepBegins {
-                        step: TurnStepDef::Upkeep,
-                        player: PlayerRelation::You,
-                    },
-                    EffectDef::PayOr(PayOrDef::unless(
-                        &[CostDef::Mana(mana_cost!("{2}"))],
-                        &const {
-                            EffectDef::sacrifice(EffectRecipientDef::Source)
-                        },
-                    )),
-                )
-            }),
+            effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::PayOr(PayOrDef::unless(
+                    &[CostDef::Mana(mana_cost!("{2}"))],
+                    &EffectDef::sacrifice(EffectRecipientDef::Source),
+                )),
+            )),
         },
     )]),
 );
@@ -1127,24 +1123,20 @@ pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new(
         &[CostDef::TapSource, CostDef::ExileSource],
         // The documented composition: move the then shuffle the library they
         // arrived in.
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::Any,
-                            &const { [ZoneKind::Graveyard] },
-                            PlayerRelation::You,
-                        ),
-                        ZoneKind::Library,
-                        ZonePlacement::Top,
-                    ),
-                    EffectDef::ShuffleLibrary {
-                        player: EffectRecipientDef::Controller,
-                    },
-                ]
+        EffectDef::Sequence(&[
+            EffectDef::move_to_zone(
+                EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                ),
+                ZoneKind::Library,
+                ZonePlacement::Top,
+            ),
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::Controller,
             },
-        ),
+        ]),
     )),
 );
 
@@ -1385,38 +1377,34 @@ pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new(
     "Rakalite",
     "0fd7c711-3ff4-4691-914f-242e6737066c",
     "Christopher Rush",
-CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated_with_targets(
+    CardRules::new_artifact(mana_cost!("{6}")).with_ability(AbilityDef::activated_with_targets(
         "{2}: Prevent the next 1 damage that would be dealt to any target this turn. Return \
          this artifact to its owner's hand at the beginning of the next end step.",
         &[CostDef::Mana(mana_cost!("{2}"))],
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::Sequence(&const {
-            [
-                EffectDef::PreventDamage {
-                    prevention: DamagePreventionDef::amount(
-                        DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
-                        ValueDef::Constant(1),
-                    ),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        EffectDef::Sequence(&[
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of the next end step, return this artifact to its owner's hand.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::Any,
                 },
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
-                    AbilityDef::triggered(
-                        "At the beginning of the next end step, return this artifact to its owner's hand.",
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::End,
-                            player: PlayerRelation::Any,
-                        },
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::Source,
-                            ZoneKind::Hand,
-                            ZonePlacement::Top,
-                        ),
-                    )
-                })),
-            ]
-        }),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            ))),
+        ]),
     )),
 );
 

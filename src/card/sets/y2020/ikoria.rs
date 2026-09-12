@@ -71,19 +71,17 @@ pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::
             EffectDef::IfCondition {
                 // One count over both types rather than two, since the
                 // printed clause adds them together.
-                condition: &const {
-                    TriggerConditionDef::ObjectCount {
-                        query: ObjectQueryDef::matching(
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Instant),
-                                ObjectPredicateDef::HasType(CardType::Sorcery),
-                            ]),
-                            &[ZoneKind::Graveyard],
-                            PlayerRelation::You,
-                        ),
-                        comparison: ComparisonDef::GreaterOrEqual,
-                        amount: 3,
-                    }
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 3,
                 },
                 then: &EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,

@@ -544,11 +544,9 @@ pub(in crate::card::sets) static AVEN_FOGBRINGER: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::enters_trigger_with_targets(
             "When this creature enters, return target land to its owner's hand.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -595,14 +593,12 @@ pub(in crate::card::sets) static DEFY_GRAVITY: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Target creature gains flying until end of turn.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -744,20 +740,16 @@ pub(in crate::card::sets) static MENTAL_NOTE: CardRecord = CardRecord::new(
     // price, which is exactly backwards from how it reads.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
         "Mill two cards.\nDraw a card.",
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::Mill {
-                        player: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(2),
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        EffectDef::Sequence(&[
+            EffectDef::Mill {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
             },
-        ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -1165,19 +1157,15 @@ pub(in crate::card::sets) static ARCANE_TEACHINGS: CardRecord = CardRecord::new(
                         ValueDef::Constant(2),
                         ValueDef::Constant(2),
                     ),
-                    AppliedEffectDef::add_ability(&const {
-                        AbilityDef::activated_with_targets(
-                            "{T}: This creature deals 1 damage to any target.",
-                            &[CostDef::TapSource],
-                            &const {
-                                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)]
-                            },
-                            EffectDef::damage(
-                                EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                ValueDef::Constant(1),
-                            ),
-                        )
-                    }),
+                    AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                        "{T}: This creature deals 1 damage to any target.",
+                        &[CostDef::TapSource],
+                        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+                        EffectDef::damage(
+                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            ValueDef::Constant(1),
+                        ),
+                    )),
                 ]),
             },
         ),
@@ -1247,11 +1235,9 @@ pub(in crate::card::sets) static DWARVEN_BLOODBOILER: CardRecord = CardRecord::n
                 controller: PlayerRelation::You,
                 count: 1,
             }],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1378,11 +1364,9 @@ pub(in crate::card::sets) static JESKA_WARRIOR_ADEPT: CardRecord = CardRecord::n
             AbilityDef::activated_with_targets(
                 "{T}: Jeska, Warrior Adept deals 1 damage to any target.",
                 &[CostDef::TapSource],
-                &const {
-                    [AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::AnyTarget,
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(1),
@@ -1542,25 +1526,21 @@ pub(in crate::card::sets) static ANURID_BARKRIPPER: CardRecord = CardRecord::new
                 // Threshold (CR 702.15a) counts cards you own, not every
                 // graveyard on the table. Written out here because Judgment
                 // has only this one card that reads it.
-                condition: &const {
-                    TriggerConditionDef::ObjectCount {
-                        query: ObjectQueryDef::owned_by(
-                            ObjectPredicateDef::Any,
-                            &[ZoneKind::Graveyard],
-                            PlayerSetDef::Related(PlayerRelation::You),
-                        ),
-                        comparison: ComparisonDef::GreaterOrEqual,
-                        amount: 7,
-                    }
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 7,
                 },
-                then: &const {
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(2),
-                            ValueDef::Constant(2),
-                        ),
-                    }
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
                 },
             },
         ),
@@ -1729,20 +1709,16 @@ pub(in crate::card::sets) static EXOSKELETAL_ARMOR: CardRecord = CardRecord::new
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::AttachedPermanent,
                 effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::CountMatchingObjects(&const {
-                        ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Graveyard],
-                            PlayerRelation::Any,
-                        )
-                    }),
-                    ValueDef::CountMatchingObjects(&const {
-                        ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Graveyard],
-                            PlayerRelation::Any,
-                        )
-                    }),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Any,
+                    )),
                 ),
             },
         ),
@@ -1761,15 +1737,11 @@ pub(in crate::card::sets) static FOLK_MEDICINE: CardRecord = CardRecord::new(
             "You gain 1 life for each creature you control.",
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::CountMatchingObjects(
-                    &const {
-                        ObjectQueryDef::matching(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        )
-                    },
-                ),
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
             },
         ),
         abilities::flashback(&[CostDef::Mana(mana_cost!("{1}{W}"))]),
@@ -1833,11 +1805,9 @@ pub(in crate::card::sets) static IRONSHELL_BEETLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 1, 1).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, put a +1/+1 counter on target creature.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: CounterKind::PlusOnePlusOne,
@@ -1879,22 +1849,18 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
                 visibility: ChoiceVisibilityDef::Public,
                 // The chosen shuffled back in. The shuffle follows the move so the
                 // library the cards join is the one that gets randomized.
-                then: &const {
-                    EffectDef::Sequence(&const {
-                        [
-                            EffectDef::move_to_zone(
-                                EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                    ParentBinding,
-                                )),
-                                ZoneKind::Library,
-                                ZonePlacement::Top,
-                            ),
-                            EffectDef::ShuffleLibrary {
-                                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            },
-                        ]
-                    })
-                },
+                then: &EffectDef::Sequence(&[
+                        EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
+                            ZoneKind::Library,
+                            ZonePlacement::Top,
+                        ),
+                        EffectDef::ShuffleLibrary {
+                            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    ]),
             }),
         ),
         AbilityDef::alternative_cast(
@@ -1934,23 +1900,19 @@ pub(in crate::card::sets) static NANTUKO_TRACER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect", "Druid"], 2, 1).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, you may put target card from a graveyard on the bottom of its owner's library.",
-            &const {
-                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::Any,
-                    zones: &[ZoneKind::Graveyard],
-                    controller: None,
-                    owner: None,
-                })]
-            },
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: None,
+            })],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Library,
-                        ZonePlacement::Bottom,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Library,
+                    ZonePlacement::Bottom,
+                ),
             },
         ),
     ),

@@ -255,57 +255,51 @@ pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::
         abilities::bind_top_cards_then(
             PlayerRefDef::EffectController,
             ValueDef::Constant(3),
-            &const {
-                EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(ITERATION_HAND),
-                    unchosen: Some(ITERATION_AFTER_HAND),
-                    chooser: PlayerRefDef::EffectController,
-                    candidates: ObjectSetDef::Binding(ParentBinding),
-                    exclude: None,
-                    minimum: 1,
-                    maximum: 1,
-                    visibility: ChoiceVisibilityDef::Private,
-                    then: &const {
-                        EffectDef::Sequence(&[
+            &EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(ITERATION_HAND),
+                unchosen: Some(ITERATION_AFTER_HAND),
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Binding(ParentBinding),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Private,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(ITERATION_HAND),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(ITERATION_BOTTOM),
+                        unchosen: Some(ITERATION_EXILE),
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Binding(ITERATION_AFTER_HAND),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::Sequence(&[
                             EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(ITERATION_HAND),
+                                input: ObjectSetDef::Binding(ITERATION_BOTTOM),
                                 from: Some(ZoneKind::Library),
-                                zone: ZoneKind::Hand,
-                                placement: ZonePlacement::Top,
+                                zone: ZoneKind::Library,
+                                placement: ZonePlacement::Bottom,
                                 moved: None,
                                 then: &EffectDef::None,
                             }),
-                            EffectDef::Choose(ChooseDef {
-                                binding: ObjectChoiceBindingDef::Objects(ITERATION_BOTTOM),
-                                unchosen: Some(ITERATION_EXILE),
-                                chooser: PlayerRefDef::EffectController,
-                                candidates: ObjectSetDef::Binding(ITERATION_AFTER_HAND),
-                                exclude: None,
-                                minimum: 1,
-                                maximum: 1,
-                                visibility: ChoiceVisibilityDef::Private,
-                                then: &const {
-                                    EffectDef::Sequence(&[
-                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                            input: ObjectSetDef::Binding(ITERATION_BOTTOM),
-                                            from: Some(ZoneKind::Library),
-                                            zone: ZoneKind::Library,
-                                            placement: ZonePlacement::Bottom,
-                                            moved: None,
-                                            then: &EffectDef::None,
-                                        }),
-                                        EffectDef::ExileGrantingControllerPlayThisTurn {
-                                            object: EffectRecipientDef::objects(
-                                                ObjectSetDef::Binding(ITERATION_EXILE),
-                                            ),
-                                        },
-                                    ])
-                                },
-                            }),
-                        ])
-                    },
-                })
-            },
+                            EffectDef::ExileGrantingControllerPlayThisTurn {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    ITERATION_EXILE,
+                                )),
+                            },
+                        ]),
+                    }),
+                ]),
+            }),
         ),
     )),
 );

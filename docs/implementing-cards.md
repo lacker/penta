@@ -56,6 +56,14 @@ Ordinary Rust functions, local variables, loops, and branches
 are acceptable authoring syntax; keep timing, costs, targets, and the ordered
 ability clauses apparent at the card.
 
+Prefer ordinary borrows such as `&[abilities::flying()]` and
+`&EffectDef::None` when they compile with the required lifetime. Retain
+`&const { ... }` where it is needed to back a static reference, such as
+constructor results inside helper functions or inline const blocks, and blocks
+that compute a borrowed value using local bindings. A `const fn`
+does not make its temporaries static; top-level static initializers and inline
+const blocks do not have identical temporary lifetime behavior.
+
 An incomplete identity uses `blocked` when it has no declaration or
 `unsupported` when it has a whole-card `CardRules::unsupported()` declaration.
 Blocked header-and-audit pairs stand alone at the identity's collector

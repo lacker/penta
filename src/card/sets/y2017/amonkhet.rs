@@ -83,11 +83,9 @@ pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
         AbilityDef::static_ability(
             "This spell costs {3} less to cast if a creature died this turn.",
             EffectDef::ReduceGenericCostBy(ValueDef::IfCreatureDiedThisTurn(
-                &const {
-                    ConditionalValueDef {
-                        then: ValueDef::Constant(3),
-                        otherwise: ValueDef::Constant(0),
-                    }
+                &ConditionalValueDef {
+                    then: ValueDef::Constant(3),
+                    otherwise: ValueDef::Constant(0),
                 },
             )),
         )

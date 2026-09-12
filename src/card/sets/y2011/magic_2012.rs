@@ -359,7 +359,7 @@ pub(in crate::card::sets) static GRIFFIN_RIDER: CardRecord = CardRecord::new(
                             ValueDef::Constant(3),
                             ValueDef::Constant(3),
                         ),
-                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
                     ]),
                 },
             }),
@@ -1073,7 +1073,7 @@ CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Sphinx"], 5, 6).with_abiliti
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::Constant(5),
-                &const { EffectDef::Sequence(&[
+                &EffectDef::Sequence(&[
                     EffectDef::RevealObjects(RevealObjectsDef {
                         input: ObjectSetDef::Binding(ParentBinding),
                         then: &EffectDef::None,
@@ -1084,14 +1084,14 @@ CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Sphinx"], 5, 6).with_abiliti
                         first: SPHINX_FIRST,
                         second: SPHINX_SECOND,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &const { EffectDef::ChooseGroup(ChooseGroupDef {
+                        then: &EffectDef::ChooseGroup(ChooseGroupDef {
                             actor: PlayerRefDef::EffectController,
                             first: ObjectSetDef::Binding(SPHINX_FIRST),
                             second: ObjectSetDef::Binding(SPHINX_SECOND),
                             chosen: SPHINX_CHOSEN,
                             unchosen: SPHINX_UNCHOSEN,
                             visibility: ChoiceVisibilityDef::Public,
-                            then: &const { EffectDef::Sequence(&[
+                            then: &EffectDef::Sequence(&[
                                 EffectDef::MoveObjects(MoveObjectsDef {
                                     input: ObjectSetDef::Binding(SPHINX_CHOSEN),
                                     from: Some(ZoneKind::Library),
@@ -1108,10 +1108,10 @@ CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Sphinx"], 5, 6).with_abiliti
                                     moved: None,
                                     then: &EffectDef::None,
                                 }),
-                            ]) },
-                        }) },
+                            ]),
+                        }),
                     }),
-                ]) },
+                ]),
             ),
         ),
     ]),
@@ -3001,14 +3001,12 @@ pub(in crate::card::sets) static BURIED_RUIN: CardRecord = CardRecord::new(
             CostDef::TapSource,
             CostDef::SacrificeSource,
         ],
-        &const {
-                    [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasType(CardType::Artifact),
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: Some(PlayerRelation::You),
-                    })]
-                },
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                })],
         EffectDef::move_to_zone(
             EffectRecipientDef::Target(TargetIndex::PRIMARY),
             ZoneKind::Hand,

@@ -3005,47 +3005,41 @@ pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new(
                 CostDef::Mana(mana_cost!("{1}")),
                 CostDef::TapSource,
             ],
-            EffectDef::Sequence(&const {
-                [
-                    EffectDef::SearchZone {
-                        player: EffectRecipientDef::Controller,
-                        source: ZoneKind::Library,
-                        object: ObjectPredicateDef::All(&const {
-                            [
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]
-                        }),
-                        minimum: 0,
-                        maximum: ValueDef::Constant(1),
-                        reveal: false,
-                        destination: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                        shuffle: true,
-                        enters_tapped: true,
-                        attachment: None,
-                        binding: None,
-                        then: None,
+            EffectDef::Sequence(&[
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+                // The land fetches, and then leaves: the return is a delayed trigger so
+                // that the land is available to tap again next turn rather than staying to
+                // be tapped twice in one.
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next cleanup step, return this land to its owner's hand.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Cleanup,
+                        player: PlayerRelation::Any,
                     },
-                    // The land fetches, and then leaves: the return is a delayed trigger so
-                    // that the land is available to tap again next turn rather than staying to
-                    // be tapped twice in one.
-                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
-                        AbilityDef::triggered(
-                        "At the beginning of the next cleanup step, return this land to its owner's hand.",
-                        TriggerEventDef::StepBegins {
-                            step: TurnStepDef::Cleanup,
-                            player: PlayerRelation::Any,
-                        },
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::Source,
-                            ZoneKind::Hand,
-                            ZonePlacement::Top,
-                        ),
-                    )
-                    })),
-                ]
-            }),
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::Source,
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                ))),
+            ]),
         ),
     ]),
 );

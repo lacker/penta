@@ -556,32 +556,30 @@ pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord:
             // spell can be cast with an empty graveyard at all.
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::HasType(CardType::Land),
-                            ]),
-                            &[ZoneKind::Graveyard],
-                            PlayerSetDef::Related(PlayerRelation::You),
+                effect: &EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ParentBinding,
                         )),
-                        exclude: None,
-                        minimum: 1,
-                        maximum: 1,
-                        visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::move_to_zone(
-                            EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                ParentBinding,
-                            )),
-                            ZoneKind::Hand,
-                            ZonePlacement::Top,
-                        ),
-                    })
-                },
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                }),
             },
         ]),
     )),

@@ -44,12 +44,12 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
         (
             "Jace, Vryn's Prodigy",
             const {
-                CardRules::new_creature(mana_cost!("{1}{U}"), &const { ["Human", "Wizard"] }, 0, 2)
+                CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Wizard"], 0, 2)
                 .with_supertype(CardSupertype::Legendary)
                 .with_abilities(&const { [AbilityDef::activated(
                     "{T}: Draw a card, then discard a card. If there are five or more cards in your graveyard, \
                      exile Jace, then return him to the battlefield transformed under his owner's control.",
-                    &const { [CostDef::TapSource] },
+                    &[CostDef::TapSource],
                     EffectDef::Sequence(&const { [
                         EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
@@ -68,7 +68,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                             condition: &TriggerConditionDef::ObjectCount {
                                 query: ObjectQueryDef::matching(
                                     ObjectPredicateDef::Any,
-                                    &const { [ZoneKind::Graveyard] },
+                                    &[ZoneKind::Graveyard],
                                     PlayerRelation::You,
                                 ),
                                 comparison: ComparisonDef::GreaterOrEqual,
@@ -77,7 +77,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                             // The same exile-and-return every flip creature uses: one resolution, so he
                             // is gone and back before anything else happens, and what comes back is a
                             // new object with the loyalty the back face prints.
-                            then: &EffectDef::Sequence(&const { [
+                            then: &EffectDef::Sequence(&[
                                 EffectDef::ExileLinkedToSource {
                                     until_source_leaves: false,
                                     object: EffectRecipientDef::Source,
@@ -92,7 +92,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                                     controller: None,
                                     transformed: true,
                                 },
-                            ] }),
+                            ]),
                         },
                     ] }),
                 )] })
@@ -101,19 +101,19 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
         (
             "Jace, Telepath Unbound",
             const {
-                CardRules::new_planeswalker_without_mana_cost(&const { ["Jace"] })
+                CardRules::new_planeswalker_without_mana_cost(&["Jace"])
                 .with_supertype(CardSupertype::Legendary)
                 .with_starting_loyalty(5)
-                .printed_colors(&const { [crate::card::ManaColor::Blue] })
+                .printed_colors(&[crate::card::ManaColor::Blue])
                 .with_abilities(&const { [
                     AbilityDef::activated_with_targets(
                         "+1: Up to one target creature gets -2/-0 until your next turn.",
-                        &const { [CostDef::Loyalty(1)] },
+                        &[CostDef::Loyalty(1)],
                         // "Up to one", so a Jace with nothing worth shrinking still ticks up.
                         &const { [AbilityTargetDef::up_to(
                             AbilityTargetPredicate::Object {
                                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                                zones: &const { [ZoneKind::Battlefield] },
+                                zones: &[ZoneKind::Battlefield],
                                 controller: None,
                                 owner: None,
                             },
@@ -136,14 +136,14 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                     AbilityDef::activated_with_targets(
                         "\u{2212}3: You may cast target instant or sorcery card from your graveyard this turn. \
                          If that spell would be put into your graveyard, exile it instead.",
-                        &const { [CostDef::Loyalty(-3)] },
+                        &[CostDef::Loyalty(-3)],
                         &const { [AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::Object {
-                                    object: ObjectPredicateDef::AnyOf(&const { [
+                                    object: ObjectPredicateDef::AnyOf(&[
                                         ObjectPredicateDef::HasType(CardType::Instant),
                                         ObjectPredicateDef::HasType(CardType::Sorcery),
-                                    ] }),
-                                    zones: &const { [ZoneKind::Graveyard] },
+                                    ]),
+                                    zones: &[ZoneKind::Graveyard],
                                     controller: None,
                                     owner: Some(PlayerRelation::You),
                                 },
@@ -159,7 +159,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                     AbilityDef::activated(
                         "\u{2212}9: You get an emblem with \"Whenever you cast a spell, target opponent mills \
                          five cards.\"",
-                        &const { [CostDef::Loyalty(-9)] },
+                        &[CostDef::Loyalty(-9)],
                         EffectDef::create_emblem("Jace, Telepath Unbound emblem", &const { [AbilityDef::triggered_with_targets(
                             "Whenever you cast a spell, target opponent mills five cards.",
                             TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),

@@ -124,10 +124,8 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
                 "When this Aura enters, you may pay {3}. If you do, tap enchanted permanent.",
                 EffectDef::PayOr(PayOrDef::optional(
                     &[CostDef::GenericMana(ValueDef::Constant(3))],
-                    &const {
-                        EffectDef::Tap {
-                            object: EffectRecipientDef::AttachedPermanent,
-                        }
+                    &EffectDef::Tap {
+                        object: EffectRecipientDef::AttachedPermanent,
                     },
                 )),
             ),

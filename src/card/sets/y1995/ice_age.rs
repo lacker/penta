@@ -751,14 +751,12 @@ pub(in crate::card::sets) static ARNJLOT_S_ASCENT: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}: Target creature gains flying until end of turn.",
             &[CostDef::Mana(mana_cost!("{1}"))],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1840,20 +1838,16 @@ pub(in crate::card::sets) static ICEQUAKE: CardRecord = CardRecord::new(
             // "Was a snow land" is read after the destruction, so the slot is
             // asked about a land that has already left.
             EffectDef::IfCondition {
-                condition: &const {
-                    TriggerConditionDef::TargetMatches {
-                        slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::Supertype(CardSupertype::Snow),
-                    }
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::Supertype(CardSupertype::Snow),
                 },
-                then: &const {
-                    EffectDef::damage(
-                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                            ObjectRefDef::Target(TargetIndex::PRIMARY),
-                        )),
-                        ValueDef::Constant(1),
-                    )
-                },
+                then: &EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    ValueDef::Constant(1),
+                ),
             },
         ]),
     )),
@@ -2675,19 +2669,17 @@ pub(in crate::card::sets) static JOKULHAUPS: CardRecord = CardRecord::new(
         "Destroy all artifacts, creatures, and lands. They can't be regenerated.",
         EffectDef::WithRule {
             rule: AppliedRuleDef::CannotRegenerate,
-            effect: &const {
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::HasType(CardType::Land),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Any,
-                    ),
-                    then: None,
-                }
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
             },
         },
     )),
@@ -3344,27 +3336,21 @@ pub(in crate::card::sets) static FORBIDDEN_LORE: CardRecord = CardRecord::new(
                 "Enchanted land has \"{T}: Target creature gets +2/+1 until end of turn.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(
-                        &const {
-                            AbilityDef::activated_with_targets(
-                                "{T}: Target creature gets +2/+1 until end of turn.",
-                                &[CostDef::TapSource],
-                                &const {
-                                    [AbilityTargetDef::exactly_one_permanent(
-                                        ObjectPredicateDef::HasType(CardType::Creature),
-                                    )]
-                                },
-                                EffectDef::Apply {
-                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                    effect: AppliedEffectDef::modify_power_toughness(
-                                        ValueDef::Constant(2),
-                                        ValueDef::Constant(1),
-                                    ),
-                                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                                },
-                            )
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                        "{T}: Target creature gets +2/+1 until end of turn.",
+                        &[CostDef::TapSource],
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(1),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                         },
-                    ),
+                    )),
                 },
             ),
         ]),
@@ -3580,12 +3566,8 @@ pub(in crate::card::sets) static JOHTULL_WURM: CardRecord = CardRecord::new(
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Scaled(
-                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -2) },
-                    ),
-                    ValueDef::Scaled(
-                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -1) },
-                    ),
+                    ValueDef::Scaled(&ScaledValueDef::new(ValueDef::TriggerEventAmount, -2)),
+                    ValueDef::Scaled(&ScaledValueDef::new(ValueDef::TriggerEventAmount, -1)),
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -3846,17 +3828,13 @@ pub(in crate::card::sets) static THERMOKARST: CardRecord = CardRecord::new(
             // "Was a snow land" is read after the destruction, so the slot is
             // asked about a land that has already left.
             EffectDef::IfCondition {
-                condition: &const {
-                    TriggerConditionDef::TargetMatches {
-                        slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::Supertype(CardSupertype::Snow),
-                    }
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::Supertype(CardSupertype::Snow),
                 },
-                then: &const {
-                    EffectDef::GainLife {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    }
+                then: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
                 },
             },
         ]),
@@ -4224,31 +4202,25 @@ pub(in crate::card::sets) static FUMAROLE: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, pay 3 life.\nDestroy target creature and \
              target land.",
-            &const {
-                [
-                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
-                        CardType::Creature,
-                    )),
-                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
-                        CardType::Land,
-                    )),
-                ]
-            },
+            &[
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Land,
+                )),
+            ],
             CostDef::pay_life(CostQuantityDef::Fixed(3)),
-            EffectDef::Sequence(
-                &const {
-                    [
-                        EffectDef::Destroy {
-                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            then: None,
-                        },
-                        EffectDef::Destroy {
-                            object: EffectRecipientDef::Target(TargetIndex(1)),
-                            then: None,
-                        },
-                    ]
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
                 },
-            ),
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex(1)),
+                    then: None,
+                },
+            ]),
         ),
     ),
 );
@@ -4633,17 +4605,13 @@ pub(in crate::card::sets) static HEMATITE_TALISMAN: CardRecord = CardRecord::new
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
         "Whenever a player casts a red spell, you may pay {3}. If you do, untap target permanent.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Red)),
-        &const {
-            [AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Any,
-            )]
-        },
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )],
         EffectDef::PayOr(PayOrDef::optional(
             &[CostDef::Mana(mana_cost!("{3}"))],
-            &const {
-                EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }
+            &EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
         )),
     )),
@@ -4711,17 +4679,13 @@ pub(in crate::card::sets) static LAPIS_LAZULI_TALISMAN: CardRecord = CardRecord:
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
         "Whenever a player casts a blue spell, you may pay {3}. If you do, untap target permanent.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Blue)),
-        &const {
-            [AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Any,
-            )]
-        },
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Any,
+        )],
         EffectDef::PayOr(PayOrDef::optional(
             &[CostDef::Mana(mana_cost!("{3}"))],
-            &const {
-                EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }
+            &EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
         )),
     )),
@@ -4737,13 +4701,11 @@ pub(in crate::card::sets) static MALACHITE_TALISMAN: CardRecord = CardRecord::ne
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
         "Whenever a player casts a green spell, you may pay {3}. If you do, untap target permanent.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Green)),
-        &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
         EffectDef::PayOr(PayOrDef::optional(
             &[CostDef::Mana(mana_cost!("{3}"))],
-            &const {
-                EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }
+            &EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
         )),
     )),
@@ -4759,13 +4721,11 @@ pub(in crate::card::sets) static NACRE_TALISMAN: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
         "Whenever a player casts a white spell, you may pay {3}. If you do, untap target permanent.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::White)),
-        &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
         EffectDef::PayOr(PayOrDef::optional(
             &[CostDef::Mana(mana_cost!("{3}"))],
-            &const {
-                EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }
+            &EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
         )),
     )),
@@ -4790,13 +4750,11 @@ pub(in crate::card::sets) static ONYX_TALISMAN: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered_with_targets(
         "Whenever a player casts a black spell, you may pay {3}. If you do, untap target permanent.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Black)),
-        &const { [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)] },
+        &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
         EffectDef::PayOr(PayOrDef::optional(
             &[CostDef::Mana(mana_cost!("{3}"))],
-            &const {
-                EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                }
+            &EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
         )),
     )),

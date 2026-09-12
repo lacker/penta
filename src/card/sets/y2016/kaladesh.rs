@@ -78,40 +78,30 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
             crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
                 TargetIndex::PRIMARY,
             )),
-            &const {
-                EffectDef::BindObjects(crate::card::BindObjectsDef {
-                    source: crate::card::ObjectCollectionSourceDef::ObjectSet(
-                        ObjectSetDef::MatchingBinding {
-                            binding: ParentBinding,
-                            object: ObjectPredicateDef::OwnedBy(PlayerRelation::You),
-                        },
+            &EffectDef::BindObjects(crate::card::BindObjectsDef {
+                source: crate::card::ObjectCollectionSourceDef::ObjectSet(
+                    ObjectSetDef::MatchingBinding {
+                        binding: ParentBinding,
+                        object: ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                    },
+                ),
+                binding: Binding!("outcome_owned_by_you"),
+                // The draw counts what reached your hand, which is not always what left the
+                // battlefield: a permanent you control but do not own goes back to somebody
+                // else's hand and pays you nothing. The count is taken before the move,
+                // because afterwards the cards have new identities.
+                then: &EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
                     ),
-                    binding: Binding!("outcome_owned_by_you"),
-                    // The draw counts what reached your hand, which is not always what left the
-                    // battlefield: a permanent you control but do not own goes back to somebody
-                    // else's hand and pays you nothing. The count is taken before the move,
-                    // because afterwards the cards have new identities.
-                    then: &EffectDef::Sequence(
-                        &const {
-                            [
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ParentBinding,
-                                    )),
-                                    ZoneKind::Hand,
-                                    ZonePlacement::Top,
-                                ),
-                                EffectDef::DrawCards {
-                                    recipient: EffectRecipientDef::Controller,
-                                    amount: ValueDef::BoundObjectCount(Binding!(
-                                        "outcome_owned_by_you"
-                                    )),
-                                },
-                            ]
-                        },
-                    ),
-                })
-            },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::BoundObjectCount(Binding!("outcome_owned_by_you")),
+                    },
+                ]),
+            }),
         ),
     )),
 );
@@ -200,12 +190,10 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::Energy(2)],
-                &const {
-                    EffectDef::AddCounters {
-                        object: EffectRecipientDef::Source,
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::Constant(1),
-                    }
+                &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
                 },
             )),
         ),

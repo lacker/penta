@@ -417,14 +417,12 @@ pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::aura_spell(
                 "Enchant artifact or creature",
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                )],
             ),
             AbilityDef::static_ability(
                 "As long as enchanted permanent is a creature, it gets -1/-1 and can't block.",
@@ -432,10 +430,8 @@ pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
                 // unconditionally: this can land on an artifact, and the
                 // clause only starts once that artifact is also a creature.
                 EffectDef::IfCondition {
-                    condition: &const {
-                        TriggerConditionDef::AttachedPermanentMatches {
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                        }
+                    condition: &TriggerConditionDef::AttachedPermanentMatches {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
                     },
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::AttachedPermanent,
@@ -455,21 +451,17 @@ pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::AttachedPermanent,
                     // Granted to the permanent, so "your" upkeep is its
                     // controller's -- this drains whoever it landed on.
-                    effect: AppliedEffectDef::add_ability(
-                        &const {
-                            AbilityDef::triggered(
-                                "At the beginning of your upkeep, you lose 1 life.",
-                                TriggerEventDef::StepBegins {
-                                    step: TurnStepDef::Upkeep,
-                                    player: PlayerRelation::You,
-                                },
-                                EffectDef::LoseLife {
-                                    recipient: EffectRecipientDef::Controller,
-                                    amount: ValueDef::Constant(1),
-                                },
-                            )
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                        "At the beginning of your upkeep, you lose 1 life.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::Upkeep,
+                            player: PlayerRelation::You,
                         },
-                    ),
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    )),
                 },
             ),
         ]),
@@ -832,7 +824,7 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
             "Fable of the Mirror-Breaker",
             const {
                 CardRules::new_enchantment(mana_cost!("{2}{R}"))
-                .with_subtypes(&const { ["Saga"] })
+                .with_subtypes(&["Saga"])
                 .with_abilities(&const { [
                     abilities::saga_chapter(
                         1,
@@ -840,8 +832,8 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                          create a Treasure token.\"",
                         EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                             TokenCharacteristics::creature(
-                                &const { ["Goblin", "Shaman"] },
-                                &const { [ManaColor::Red] },
+                                &["Goblin", "Shaman"],
+                                &[ManaColor::Red],
                                 2,
                                 2,
                             )
@@ -866,7 +858,7 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                             chooser: PlayerRefDef::EffectController,
                             candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
                                 ObjectPredicateDef::Any,
-                                &const { [ZoneKind::Hand] },
+                                &[ZoneKind::Hand],
                                 PlayerSetDef::One(PlayerRefDef::EffectController),
                             )),
                             exclude: None,
@@ -898,26 +890,26 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
         (
             "Reflection of Kiki-Jiki",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Goblin", "Shaman"] }, 2, 2)
+                CardRules::new_creature_without_mana_cost(&["Goblin", "Shaman"], 2, 2)
                 .with_type(CardType::Enchantment)
-                .printed_colors(&const { [ManaColor::Red] })
+                .printed_colors(&[ManaColor::Red])
                 .with_abilities(&const { [AbilityDef::activated_with_targets(
                     "{1}, {T}: Create a token that's a copy of another target nonlegendary creature you control, \
                      except it has haste. Sacrifice it at the beginning of the next end step.",
-                    &const { [
+                    &[
                         CostDef::Mana(mana_cost!("{1}")),
                         CostDef::TapSource,
-                    ] },
+                    ],
                     // "Another target nonlegendary creature you control": the Reflection may
                     // not copy itself, and a legendary copy would be put into a graveyard by
                     // the legend rule the moment it arrived.
                     &const { [
                         AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::All(&const { [
+                            object: ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
-                            ] }),
-                            zones: &const { [ZoneKind::Battlefield] },
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
                             controller: Some(PlayerRelation::You),
                             owner: None,
                         })

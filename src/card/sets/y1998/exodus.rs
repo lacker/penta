@@ -859,7 +859,7 @@ pub(in crate::card::sets) static KILLER_WHALE: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1034,7 +1034,7 @@ pub(in crate::card::sets) static ROBE_OF_MIRRORS: CardRecord = CardRecord::new(
                 "Enchanted creature has shroud.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
                 },
             ),
         ]),
@@ -1121,7 +1121,7 @@ pub(in crate::card::sets) static THALAKOS_DRIFTERS: CardRecord = CardRecord::new
             &[CostDef::discard(ObjectPredicateDef::Any)],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::shadow() }),
+                effect: AppliedEffectDef::add_ability(&abilities::shadow()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1209,7 +1209,7 @@ pub(in crate::card::sets) static WHIPTONGUE_FROG: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1320,14 +1320,12 @@ pub(in crate::card::sets) static DAUTHI_CUTTHROAT: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{B}, {T}: Destroy target creature with shadow.",
             &[CostDef::Mana(mana_cost!("{1}{B}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::HasKeyword(KeywordAbility::Shadow),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Shadow),
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
@@ -1351,14 +1349,12 @@ pub(in crate::card::sets) static DAUTHI_JACKAL: CardRecord = CardRecord::new(
                 CostDef::Mana(mana_cost!("{B}{B}")),
                 CostDef::SacrificeSource,
             ],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Blocking,
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Blocking,
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 then: None,
@@ -2539,24 +2535,16 @@ pub(in crate::card::sets) static ELVISH_BERSERKER: CardRecord = CardRecord::new(
                 // has already left is not counted and one added by a
                 // later effect is.
                 effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::CountMatchingObjects(
-                        &const {
-                            ObjectQueryDef::matching(
-                                ObjectPredicateDef::BlockingSource,
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::Any,
-                            )
-                        },
-                    ),
-                    ValueDef::CountMatchingObjects(
-                        &const {
-                            ObjectQueryDef::matching(
-                                ObjectPredicateDef::BlockingSource,
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::Any,
-                            )
-                        },
-                    ),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::BlockingSource,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::BlockingSource,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -3276,7 +3264,7 @@ pub(in crate::card::sets) static SKYSHAPER: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             ),
-            effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+            effect: AppliedEffectDef::add_ability(&abilities::flying()),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),

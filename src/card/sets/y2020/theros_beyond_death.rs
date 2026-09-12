@@ -84,65 +84,59 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::DevotionTo(ManaColor::Blue),
-                &const {
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(ORACLE_TOP),
-                        unchosen: Some(ORACLE_REST),
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Binding(ParentBinding),
-                        exclude: None,
-                        minimum: 0,
-                        maximum: 1,
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &const {
-                            EffectDef::Sequence(&[
-                                EffectDef::MoveObjects(MoveObjectsDef {
-                                    input: ObjectSetDef::Binding(ORACLE_TOP),
-                                    from: Some(ZoneKind::Library),
-                                    zone: ZoneKind::Library,
-                                    placement: ZonePlacement::Top,
-                                    moved: None,
-                                    then: &EffectDef::None,
-                                }),
-                                    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
-                                        input: ObjectSetDef::Binding(ORACLE_REST),
-                                        randomized: ParentBinding,
-                                        then: &const {
-                                            EffectDef::Sequence(&[
-                                                EffectDef::MoveObjects(MoveObjectsDef {
-                                                    input: ObjectSetDef::Binding(ParentBinding),
-                                                    from: Some(ZoneKind::Library),
-                                                    zone: ZoneKind::Library,
-                                                    placement: ZonePlacement::Bottom,
-                                                    moved: None,
-                                                    then: &EffectDef::None,
-                                                }),
-                                                EffectDef::IfCondition {
-                                                    // Both sides are read as the trigger resolves,
-                                                    // which is what makes an empty library and a
-                                                    // single blue permanent enough.
-                                                    condition: &TriggerConditionDef::ValueComparison(
-                                                        &ValueComparisonDef {
-                                                            left: ValueDef::DevotionTo(
-                                                                ManaColor::Blue,
-                                                            ),
-                                                            comparison: ComparisonDef::GreaterOrEqual,
-                                                            right: ValueDef::LibrarySize(
-                                                                PlayerRelation::You,
-                                                            ),
-                                                        },
-                                                    ),
-                                                    then: &EffectDef::WinTheGame {
-                                                        player: EffectRecipientDef::Controller,
+                &EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ORACLE_TOP),
+                    unchosen: Some(ORACLE_REST),
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Binding(ParentBinding),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::Sequence(&[
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(ORACLE_TOP),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Library,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                                EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                                    input: ObjectSetDef::Binding(ORACLE_REST),
+                                    randomized: ParentBinding,
+                                    then: &EffectDef::Sequence(&[
+                                            EffectDef::MoveObjects(MoveObjectsDef {
+                                                input: ObjectSetDef::Binding(ParentBinding),
+                                                from: Some(ZoneKind::Library),
+                                                zone: ZoneKind::Library,
+                                                placement: ZonePlacement::Bottom,
+                                                moved: None,
+                                                then: &EffectDef::None,
+                                            }),
+                                            EffectDef::IfCondition {
+                                                // Both sides are read as the trigger resolves,
+                                                // which is what makes an empty library and a
+                                                // single blue permanent enough.
+                                                condition: &TriggerConditionDef::ValueComparison(
+                                                    &ValueComparisonDef {
+                                                        left: ValueDef::DevotionTo(
+                                                            ManaColor::Blue,
+                                                        ),
+                                                        comparison: ComparisonDef::GreaterOrEqual,
+                                                        right: ValueDef::LibrarySize(
+                                                            PlayerRelation::You,
+                                                        ),
                                                     },
+                                                ),
+                                                then: &EffectDef::WinTheGame {
+                                                    player: EffectRecipientDef::Controller,
                                                 },
-                                            ])
-                                        },
-                                    })
-                            ])
-                        },
-                    })
-                },
+                                            },
+                                        ]),
+                                })
+                        ]),
+                }),
             ),
         ),
     ),

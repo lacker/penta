@@ -91,11 +91,9 @@ pub(in crate::card::sets) static UTOPIA_SPRAWL: CardRecord = CardRecord::new(
             // and a nonbasic without it does not.
             abilities::aura_spell(
                 "Enchant Forest",
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                )],
             ),
             AbilityDef::as_enters(
                 "As this Aura enters, choose a color.",
@@ -147,43 +145,39 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::Constant(1),
-                &const {
-                    EffectDef::Sequence(&[
-                        EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(ParentBinding),
-                            then: &EffectDef::None,
-                        }),
-                        // One card split into two bindings, exactly one of
-                        // which is nonempty, so both moves below can run
-                        // unconditionally.
-                        EffectDef::ClassifyObjects(ClassifyObjectsDef {
-                            input: ObjectSetDef::Binding(ParentBinding),
-                            object: ObjectPredicateDef::HasType(CardType::Land),
-                            matching: ORACLE_LAND,
-                            remainder: ORACLE_NONLAND,
-                            then: &const {
-                                EffectDef::Sequence(&[
-                                    EffectDef::MoveObjects(MoveObjectsDef {
-                                        input: ObjectSetDef::Binding(ORACLE_LAND),
-                                        from: Some(ZoneKind::Library),
-                                        zone: ZoneKind::Battlefield,
-                                        placement: ZonePlacement::Top,
-                                        moved: None,
-                                        then: &EffectDef::None,
-                                    }),
-                                    EffectDef::MoveObjects(MoveObjectsDef {
-                                        input: ObjectSetDef::Binding(ORACLE_NONLAND),
-                                        from: Some(ZoneKind::Library),
-                                        zone: ZoneKind::Hand,
-                                        placement: ZonePlacement::Top,
-                                        moved: None,
-                                        then: &EffectDef::None,
-                                    }),
-                                ])
-                            },
-                        }),
-                    ])
-                },
+                &EffectDef::Sequence(&[
+                    EffectDef::RevealObjects(RevealObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
+                        then: &EffectDef::None,
+                    }),
+                    // One card split into two bindings, exactly one of
+                    // which is nonempty, so both moves below can run
+                    // unconditionally.
+                    EffectDef::ClassifyObjects(ClassifyObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
+                        object: ObjectPredicateDef::HasType(CardType::Land),
+                        matching: ORACLE_LAND,
+                        remainder: ORACLE_NONLAND,
+                        then: &EffectDef::Sequence(&[
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(ORACLE_LAND),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(ORACLE_NONLAND),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Hand,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                            ]),
+                    }),
+                ]),
             ),
         ),
     ),

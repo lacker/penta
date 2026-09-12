@@ -99,12 +99,10 @@ pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
             .with_supertype(CardSupertype::Legendary)
             .with_abilities(&[
                 abilities::bushido(ValueDef::CountMatchingObjects(
-                    &const {
-                        crate::card::ObjectQueryDef::new(
-                            ObjectPredicateDef::Attacking,
-                            &[crate::card::ZoneKind::Battlefield],
-                        )
-                    },
+                    &crate::card::ObjectQueryDef::new(
+                        ObjectPredicateDef::Attacking,
+                        &[crate::card::ZoneKind::Battlefield],
+                    ),
                 ))
                 .override_text("Bushido X, where X is the number of attacking creatures."),
                 AbilityDef::static_ability(

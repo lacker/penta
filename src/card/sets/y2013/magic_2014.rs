@@ -2284,7 +2284,7 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new(
         abilities::bind_top_cards_then(
             PlayerRefDef::EffectController,
             ValueDef::Constant(1),
-            &const { EffectDef::ClassifyObjects(ClassifyObjectsDef {
+            &EffectDef::ClassifyObjects(ClassifyObjectsDef {
                 input: ObjectSetDef::Binding(ParentBinding),
                 object: ObjectPredicateDef::HasType(CardType::Land),
                 matching: WILDS_LAND,
@@ -2307,7 +2307,7 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new(
                         then: &EffectDef::None,
                     }),
                 }),
-            }) },
+            }),
         ),
     )),
 );

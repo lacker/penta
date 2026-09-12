@@ -3905,48 +3905,38 @@ CardRules::new_enchantment(mana_cost!("{1}{G}"))
         },
         EffectDef::May {
             player: EffectRecipientDef::Controller,
-            effect: &const {
-                EffectDef::Sequence(&const {
-                    [
-                        EffectDef::DrawCards {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(2),
-                        },
-                        EffectDef::Choose(ChooseDef {
-                            binding: ObjectChoiceBindingDef::OrderedObjects(
-                                ParentBinding,
-                            ),
-                            unchosen: None,
-                            chooser: PlayerRefDef::EffectController,
-                            candidates: ObjectSetDef::CardsDrawnThisTurnInHand(
-                                PlayerRefDef::EffectController,
-                            ),
-                            exclude: None,
-                            minimum: 2,
-                            maximum: 2,
-                            visibility: ChoiceVisibilityDef::Private,
-                            then: &const {
-                                EffectDef::ForEachInBinding {
-                                    objects: ParentBinding,
-                                    binding: ParentBinding,
-                                    effect: &const {
-                                        EffectDef::PayOr(PayOrDef::unless(
-                                            &[CostDef::PayLife(4)],
-                                            &const {
-                                                EffectDef::move_to_zone(
-                                                    EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                                                    ZoneKind::Library,
-                                                    ZonePlacement::Top,
-                                                )
-                                            },
-                                        ))
-                                    },
-                                }
+            effect: &EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::OrderedObjects(
+                            ParentBinding,
+                        ),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::CardsDrawnThisTurnInHand(
+                            PlayerRefDef::EffectController,
+                        ),
+                        exclude: None,
+                        minimum: 2,
+                        maximum: 2,
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::ForEachInBinding {
+                                objects: ParentBinding,
+                                binding: ParentBinding,
+                                effect: &EffectDef::PayOr(PayOrDef::unless(
+                                        &[CostDef::PayLife(4)],
+                                        &EffectDef::move_to_zone(
+                                                EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                                                ZoneKind::Library,
+                                                ZonePlacement::Top,
+                                            ),
+                                    )),
                             },
-                        }),
-                    ]
-                })
-            },
+                    }),
+                ]),
         },
     )]),
 );

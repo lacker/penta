@@ -751,14 +751,12 @@ pub(in crate::card::sets) static ZHALFIRIN_COMMANDER: CardRecord = CardRecord::n
         AbilityDef::activated_with_targets(
             "{1}{W}{W}: Target Knight creature gets +1/+1 until end of turn.",
             &[CostDef::Mana(mana_cost!("{1}{W}{W}"))],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Knight")),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Knight")),
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -785,7 +783,7 @@ pub(in crate::card::sets) static ZHALFIRIN_KNIGHT: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{W}{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1067,34 +1065,26 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
             minimum: 0,
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
-            then: &const {
-                EffectDef::PutOntoBattlefieldThen {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                    binding: ParentBinding,
-                    counters: None,
-                    // "Its mana cost reduced by {2}", which is a discount on the generic half
-                    // and nothing else: the coloured pips are still paid in their colours.
-                    then: &const {
-                        EffectDef::PayOr(
-                            PayOrDef::unless(
-                                &[CostDef::ObjectManaCostReducedBy {
-                                    object: &const {
-                                        EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                            ParentBinding,
-                                        ))
-                                    },
-                                    generic: 2,
-                                }],
-                                &const {
-                                    EffectDef::sacrifice(EffectRecipientDef::objects(
-                                        ObjectSetDef::Binding(ParentBinding),
-                                    ))
-                                },
-                            )
-                            .with_visibility(ChoiceVisibilityDef::Public),
-                        )
-                    },
-                }
+            then: &EffectDef::PutOntoBattlefieldThen {
+                object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                binding: ParentBinding,
+                counters: None,
+                // "Its mana cost reduced by {2}", which is a discount on the generic half
+                // and nothing else: the coloured pips are still paid in their colours.
+                then: &EffectDef::PayOr(
+                    PayOrDef::unless(
+                        &[CostDef::ObjectManaCostReducedBy {
+                            object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
+                            generic: 2,
+                        }],
+                        &EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ParentBinding,
+                        ))),
+                    )
+                    .with_visibility(ChoiceVisibilityDef::Public),
+                ),
             },
         }),
     )),
@@ -1232,17 +1222,15 @@ pub(in crate::card::sets) static MIND_HARNESS: CardRecord = CardRecord::new(
         .with_abilities(&[
             abilities::aura_spell(
                 "Enchant red or green creature",
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::Color(ManaColor::Red),
-                                ObjectPredicateDef::Color(ManaColor::Green),
-                            ]),
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Color(ManaColor::Red),
+                            ObjectPredicateDef::Color(ManaColor::Green),
                         ]),
-                    )]
-                },
+                    ]),
+                )],
             ),
             abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{1}"))]),
             AbilityDef::static_ability(
@@ -1533,22 +1521,18 @@ pub(in crate::card::sets) static TIDAL_WAVE: CardRecord = CardRecord::new(
                 // Bound as it is created, so the delayed clause sacrifices
                 // this Wall rather than any Wall on the board.
                 binding: ParentBinding,
-                then: &const {
-                    EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                        &const {
-                            AbilityDef::triggered(
-                                "At the beginning of the next end step, sacrifice that token.",
-                                TriggerEventDef::StepBegins {
-                                    step: TurnStepDef::End,
-                                    player: PlayerRelation::Any,
-                                },
-                                EffectDef::sacrifice(EffectRecipientDef::objects(
-                                    ObjectSetDef::Binding(ParentBinding),
-                                )),
-                            )
+                then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                    &AbilityDef::triggered(
+                        "At the beginning of the next end step, sacrifice that token.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
                         },
-                    ))
-                },
+                        EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ParentBinding,
+                        ))),
+                    ),
+                )),
             }),
         ),
     )),
@@ -1784,22 +1768,18 @@ pub(in crate::card::sets) static CHOKING_SANDS: CardRecord = CardRecord::new(
             // Read after the destruction, from last-known information about
             // the land that just left.
             EffectDef::IfCondition {
-                condition: &const {
-                    TriggerConditionDef::TargetMatches {
-                        slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
-                            CardSupertype::Basic,
-                        )),
-                    }
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                        CardSupertype::Basic,
+                    )),
                 },
-                then: &const {
-                    EffectDef::damage(
-                        EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                            ObjectRefDef::Target(TargetIndex::PRIMARY),
-                        )),
-                        ValueDef::Constant(2),
-                    )
-                },
+                then: &EffectDef::damage(
+                    EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    ValueDef::Constant(2),
+                ),
             },
         ]),
     )),
@@ -2038,14 +2018,10 @@ pub(in crate::card::sets) static INFERNAL_CONTRACT: CardRecord = CardRecord::new
             // drawing, so the order costs nothing here.
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Halved(
-                    &const {
-                        HalvedValueDef {
-                            value: ValueDef::LifeTotal(PlayerRelation::You),
-                            rounding: RoundingDef::Up,
-                        }
-                    },
-                ),
+                amount: ValueDef::Halved(&HalvedValueDef {
+                    value: ValueDef::LifeTotal(PlayerRelation::You),
+                    rounding: RoundingDef::Up,
+                }),
             },
         ]),
     )),
@@ -2132,11 +2108,9 @@ pub(in crate::card::sets) static PHYREXIAN_TRIBUTE: CardRecord = CardRecord::new
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice two creatures.\nDestroy target \
              artifact.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
             CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(2),
@@ -2235,45 +2209,37 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell(
         "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
         EffectDef::WithZoneMoveResult {
-            effect: &const {
-                EffectDef::move_to_zone(
-                    EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
-                        player: PlayerRefDef::EffectController,
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                    }),
-                    ZoneKind::Battlefield,
-                    ZonePlacement::Top,
-                )
-            },
+            effect: &EffectDef::move_to_zone(
+                EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                    player: PlayerRefDef::EffectController,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                }),
+                ZoneKind::Battlefield,
+                ZonePlacement::Top,
+            ),
             binding: ParentBinding,
-            then: &const {
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::binding_zone_change_successors(
-                        ParentBinding,
-                    ),
-                    effect: AppliedEffectDef::Composite(&const {
-                        [
-                            AppliedEffectDef::add_ability(&const { abilities::haste() }),
-                            // The creature exiles itself rather than being named by a delayed trigger:
-                            // it is the object that arrived, and it carries the clause with it.
-                            AppliedEffectDef::add_ability(&const {
-                                AbilityDef::triggered(
-                                    "At the beginning of the next end step, exile this creature.",
-                                    TriggerEventDef::StepBegins {
-                                        step: TurnStepDef::End,
-                                        player: PlayerRelation::Any,
-                                    },
-                                    EffectDef::move_to_zone(
-                                        EffectRecipientDef::Source,
-                                        ZoneKind::Exile,
-                                        ZonePlacement::Top,
-                                    ),
-                                )
-                            }),
-                        ]
-                    }),
-                    duration: crate::card::ResolvedEffectDurationDef::Permanent,
-                }
+            then: &EffectDef::Apply {
+                recipient: EffectRecipientDef::binding_zone_change_successors(
+                    ParentBinding,
+                ),
+                effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                        // The creature exiles itself rather than being named by a delayed trigger:
+                        // it is the object that arrived, and it carries the clause with it.
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                                "At the beginning of the next end step, exile this creature.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::Source,
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
+                            )),
+                    ]),
+                duration: crate::card::ResolvedEffectDurationDef::Permanent,
             },
         },
     )),
@@ -3397,12 +3363,8 @@ pub(in crate::card::sets) static JUNGLE_WURM: CardRecord = CardRecord::new(
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Scaled(
-                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -1) },
-                    ),
-                    ValueDef::Scaled(
-                        &const { ScaledValueDef::new(ValueDef::TriggerEventAmount, -1) },
-                    ),
+                    ValueDef::Scaled(&ScaledValueDef::new(ValueDef::TriggerEventAmount, -1)),
+                    ValueDef::Scaled(&ScaledValueDef::new(ValueDef::TriggerEventAmount, -1)),
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -3645,7 +3607,7 @@ pub(in crate::card::sets) static SEEDLING_CHARM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -3787,14 +3749,12 @@ pub(in crate::card::sets) static UNSEEN_WALKER: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{G}{G}: Target creature gains forestwalk until end of turn.",
             &[CostDef::Mana(mana_cost!("{1}{G}{G}"))],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -4282,14 +4242,10 @@ pub(in crate::card::sets) static VITALIZING_CASCADE: CardRecord = CardRecord::ne
         "You gain X plus 3 life.",
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Sum(
-                &const {
-                    SumValueDef {
-                        left: ValueDef::ChosenX,
-                        right: ValueDef::Constant(3),
-                    }
-                },
-            ),
+            amount: ValueDef::Sum(&SumValueDef {
+                left: ValueDef::ChosenX,
+                right: ValueDef::Constant(3),
+            }),
         },
     )),
 );

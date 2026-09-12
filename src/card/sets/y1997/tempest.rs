@@ -134,7 +134,7 @@ pub(in crate::card::sets) static ADVANCE_SCOUT: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -197,16 +197,14 @@ pub(in crate::card::sets) static ARMOR_SLIVER: CardRecord = CardRecord::new(
         AbilityDef::static_ability(
             "All Sliver creatures have \"{2}: This creature gets +0/+1 until end of turn.\"",
             all_slivers_get(AppliedEffectDef::add_ability(
-                &const {
-                    abilities::apply_to_self_until_end_of_turn(
-                        "{2}: This creature gets +0/+1 until end of turn.",
-                        &[CostDef::Mana(mana_cost!("{2}"))],
-                        AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(0),
-                            ValueDef::Constant(1),
-                        ),
-                    )
-                },
+                &abilities::apply_to_self_until_end_of_turn(
+                    "{2}: This creature gets +0/+1 until end of turn.",
+                    &[CostDef::Mana(mana_cost!("{2}"))],
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(0),
+                        ValueDef::Constant(1),
+                    ),
+                ),
             )),
         ),
     ),
@@ -487,7 +485,7 @@ pub(in crate::card::sets) static HANNA_S_CUSTODY: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+            effect: AppliedEffectDef::add_ability(&abilities::shroud()),
         },
     )),
 );
@@ -856,7 +854,7 @@ pub(in crate::card::sets) static SOLTARI_EMISSARY: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::shadow() }),
+                effect: AppliedEffectDef::add_ability(&abilities::shadow()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1018,9 +1016,7 @@ pub(in crate::card::sets) static TALON_SLIVER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Sliver"], 1, 1).with_ability(
         AbilityDef::static_ability(
             "All Sliver creatures have first strike.",
-            all_slivers_get(AppliedEffectDef::add_ability(
-                &const { abilities::first_strike() },
-            )),
+            all_slivers_get(AppliedEffectDef::add_ability(&abilities::first_strike())),
         ),
     ),
 );
@@ -1054,18 +1050,16 @@ pub(in crate::card::sets) static WINDS_OF_RATH: CardRecord = CardRecord::new(
         "Destroy all creatures that aren't enchanted. They can't be regenerated.",
         EffectDef::WithRule {
             rule: AppliedRuleDef::CannotRegenerate,
-            effect: &const {
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Enchanted),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Any,
-                    ),
-                    then: None,
-                }
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Enchanted),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
             },
         },
     )),
@@ -1237,7 +1231,7 @@ pub(in crate::card::sets) static GIANT_CRAB: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                effect: AppliedEffectDef::add_ability(&abilities::shroud()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1308,41 +1302,35 @@ pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new(
             binding: Some(ParentBinding),
             // The opponent picks which of the three is worth giving up, out of the
             // cards the search found rather than out of the library it found them in.
-            then: Some(&const {
-                EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Object(Binding!("intuition_chosen")),
-                    unchosen: Some(Binding!("intuition_unchosen")),
-                    chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                    candidates: ObjectSetDef::Binding(ParentBinding),
-                    exclude: None,
-                    minimum: 1,
-                    maximum: 1,
-                    visibility: ChoiceVisibilityDef::Public,
-                    // The one the opponent hands over, and the two they keep back. Both halves
-                    // are one partition of the three that were found, which is why the choice
-                    // names the rest as well as the pick.
-                    then: &const {
-                        EffectDef::Sequence(&const {
-                            [
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::object(ObjectRefDef::Binding(
-                                        Binding!("intuition_chosen"),
-                                    )),
-                                    ZoneKind::Hand,
-                                    ZonePlacement::Top,
-                                ),
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        Binding!("intuition_unchosen"),
-                                    )),
-                                    ZoneKind::Graveyard,
-                                    ZonePlacement::Top,
-                                ),
-                            ]
-                        })
-                    },
-                })
-            }),
+            then: Some(&EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(Binding!("intuition_chosen")),
+                unchosen: Some(Binding!("intuition_unchosen")),
+                chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                candidates: ObjectSetDef::Binding(ParentBinding),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                // The one the opponent hands over, and the two they keep back. Both halves
+                // are one partition of the three that were found, which is why the choice
+                // names the rest as well as the pick.
+                then: &EffectDef::Sequence(&[
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::object(ObjectRefDef::Binding(
+                                    Binding!("intuition_chosen"),
+                                )),
+                                ZoneKind::Hand,
+                                ZonePlacement::Top,
+                            ),
+                            EffectDef::move_to_zone(
+                                EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    Binding!("intuition_unchosen"),
+                                )),
+                                ZoneKind::Graveyard,
+                                ZonePlacement::Top,
+                            ),
+                        ]),
+            })),
         },
     )),
 );
@@ -1407,7 +1395,7 @@ pub(in crate::card::sets) static MANTA_RIDERS: CardRecord = CardRecord::new(
             &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1455,18 +1443,14 @@ pub(in crate::card::sets) static MNEMONIC_SLIVER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Sliver"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "All Slivers have \"{2}, Sacrifice this permanent: Draw a card.\"",
-            all_slivers_get(AppliedEffectDef::add_ability(
-                &const {
-                    AbilityDef::activated(
-                        "{2}, Sacrifice this permanent: Draw a card.",
-                        &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
-                        EffectDef::DrawCards {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(1),
-                        },
-                    )
+            all_slivers_get(AppliedEffectDef::add_ability(&AbilityDef::activated(
+                "{2}, Sacrifice this permanent: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
                 },
-            )),
+            ))),
         ),
     ),
 );
@@ -1507,14 +1491,12 @@ pub(in crate::card::sets) static ROOTWATER_DIVER: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: Return target artifact card from your graveyard to your hand.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &const {
-                [AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Artifact),
-                    zones: &[ZoneKind::Graveyard],
-                    controller: None,
-                    owner: Some(PlayerRelation::You),
-                })]
-            },
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            })],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -1576,15 +1558,11 @@ pub(in crate::card::sets) static SEA_MONSTER: CardRecord = CardRecord::new(
             "This creature can't attack unless defending player controls an Island.",
             // Read at declaration, and off the defending player rather
             // than the controller: it is their Islands that let it swim.
-            EffectDef::CannotAttackUnless(
-                &const {
-                    ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Opponent,
-                    )
-                },
-            ),
+            EffectDef::CannotAttackUnless(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            )),
         ),
     ),
 );
@@ -1628,7 +1606,7 @@ pub(in crate::card::sets) static SHIMMERING_WINGS: CardRecord = CardRecord::new(
                 "Enchanted creature has flying.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 },
             ),
             AbilityDef::activated(
@@ -1913,7 +1891,7 @@ pub(in crate::card::sets) static WIND_DANCER: CardRecord = CardRecord::new(
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1937,9 +1915,7 @@ pub(in crate::card::sets) static WINGED_SLIVER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Sliver"], 1, 1).with_ability(
         AbilityDef::static_ability(
             "All Sliver creatures have flying.",
-            all_slivers_get(AppliedEffectDef::add_ability(
-                &const { abilities::flying() },
-            )),
+            all_slivers_get(AppliedEffectDef::add_ability(&abilities::flying())),
         ),
     ),
 );
@@ -2006,14 +1982,10 @@ pub(in crate::card::sets) static CLOT_SLIVER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Sliver"], 1, 1).with_ability(
         AbilityDef::static_ability(
             "All Slivers have \"{2}: Regenerate this permanent.\"",
-            all_slivers_get(AppliedEffectDef::add_ability(
-                &const {
-                    abilities::regenerate_self(
-                        "{2}: Regenerate this permanent.",
-                        &[CostDef::Mana(mana_cost!("{2}"))],
-                    )
-                },
-            )),
+            all_slivers_get(AppliedEffectDef::add_ability(&abilities::regenerate_self(
+                "{2}: Regenerate this permanent.",
+                &[CostDef::Mana(mana_cost!("{2}"))],
+            ))),
         ),
     ),
 );
@@ -2058,45 +2030,37 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new(
         AbilityDef::spell(
             "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
             EffectDef::WithZoneMoveResult {
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
-                            player: PlayerRefDef::EffectController,
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                        }),
-                        ZoneKind::Battlefield,
-                        ZonePlacement::Top,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                        player: PlayerRefDef::EffectController,
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                    }),
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 binding: ParentBinding,
-                then: &const {
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::binding_zone_change_successors(
-                            ParentBinding,
-                        ),
-                        effect: AppliedEffectDef::Composite(&const {
-                            [
-                                AppliedEffectDef::add_ability(&const { abilities::haste() }),
-                                // The creature exiles itself rather than being named by a delayed trigger:
-                                // it is the object that arrived, and it carries the clause with it.
-                                AppliedEffectDef::add_ability(&const {
-                                    AbilityDef::triggered(
-                                        "At the beginning of the next end step, exile this creature.",
-                                        TriggerEventDef::StepBegins {
-                                            step: TurnStepDef::End,
-                                            player: PlayerRelation::Any,
-                                        },
-                                        EffectDef::move_to_zone(
-                                            EffectRecipientDef::Source,
-                                            ZoneKind::Exile,
-                                            ZonePlacement::Top,
-                                        ),
-                                    )
-                                }),
-                            ]
-                        }),
-                        duration: crate::card::ResolvedEffectDurationDef::Permanent,
-                    }
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::binding_zone_change_successors(
+                        ParentBinding,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::add_ability(&abilities::haste()),
+                            // The creature exiles itself rather than being named by a delayed trigger:
+                            // it is the object that arrived, and it carries the clause with it.
+                            AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                                    "At the beginning of the next end step, exile this creature.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::End,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::move_to_zone(
+                                        EffectRecipientDef::Source,
+                                        ZoneKind::Exile,
+                                        ZonePlacement::Top,
+                                    ),
+                                )),
+                        ]),
+                    duration: crate::card::ResolvedEffectDurationDef::Permanent,
                 },
             },
         ),
@@ -2508,10 +2472,8 @@ pub(in crate::card::sets) static IMPS_TAUNT: CardRecord = CardRecord::new(
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::add_ability(
-                    &const {
-                        abilities::attacks_each_combat_if_able()
-                            .override_text("This creature attacks this turn if able.")
-                    },
+                    &abilities::attacks_each_combat_if_able()
+                        .override_text("This creature attacks this turn if able."),
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -2625,27 +2587,23 @@ pub(in crate::card::sets) static MINDWHIP_SLIVER: CardRecord = CardRecord::new(
 CardRules::new_creature(mana_cost!("{2}{B}"), &["Sliver"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "All Slivers have \"{2}, Sacrifice this permanent: Target player discards a card at random. Activate only as a sorcery.\"",
-            all_slivers_get(AppliedEffectDef::add_ability(&const {
-                AbilityDef::activated_with_targets(
-                    "{2}, Sacrifice this permanent: Target player discards a card at random. Activate only as a sorcery.",
-                    &[
-                        CostDef::Mana(mana_cost!("{2}")),
-                        CostDef::SacrificeSource,
-                    ],
-                    &const {
-                        [AbilityTargetDef::exactly_one(
-                            AbilityTargetPredicate::Player(PlayerRelation::Any),
-                        )]
-                    },
-                    EffectDef::Discard {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(1),
-                        selection: DiscardSelectionDef::Random,
-                        then: None,
-                    },
-                )
-                .with_activation_timing(ActivationTimingDef::SorcerySpeed)
-            })),
+            all_slivers_get(AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                "{2}, Sacrifice this permanent: Target player discards a card at random. Activate only as a sorcery.",
+                &[
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::SacrificeSource,
+                ],
+                &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )],
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::Random,
+                    then: None,
+                },
+            )
+            .with_activation_timing(ActivationTimingDef::SorcerySpeed))),
         ),
     ),
 );
@@ -2670,18 +2628,16 @@ pub(in crate::card::sets) static PERISH: CardRecord = CardRecord::new(
         "Destroy all green creatures. They can't be regenerated.",
         EffectDef::WithRule {
             rule: AppliedRuleDef::CannotRegenerate,
-            effect: &const {
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Color(ManaColor::Green),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Any,
-                    ),
-                    then: None,
-                }
+            effect: &EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Green),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                then: None,
             },
         },
     )),
@@ -3082,16 +3038,14 @@ pub(in crate::card::sets) static BARBED_SLIVER: CardRecord = CardRecord::new(
         AbilityDef::static_ability(
             "All Sliver creatures have \"{2}: This creature gets +1/+0 until end of turn.\"",
             all_slivers_get(AppliedEffectDef::add_ability(
-                &const {
-                    abilities::apply_to_self_until_end_of_turn(
-                        "{2}: This creature gets +1/+0 until end of turn.",
-                        &[CostDef::Mana(mana_cost!("{2}"))],
-                        AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(0),
-                        ),
-                    )
-                },
+                &abilities::apply_to_self_until_end_of_turn(
+                    "{2}: This creature gets +1/+0 until end of turn.",
+                    &[CostDef::Mana(mana_cost!("{2}"))],
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                ),
             )),
         ),
     ),
@@ -3475,7 +3429,7 @@ pub(in crate::card::sets) static HEART_SLIVER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Sliver"], 1, 1).with_ability(
         AbilityDef::static_ability(
             "All Sliver creatures have haste.",
-            all_slivers_get(AppliedEffectDef::add_ability(&const { abilities::haste() })),
+            all_slivers_get(AppliedEffectDef::add_ability(&abilities::haste())),
         ),
     ),
 );
@@ -4205,14 +4159,12 @@ pub(in crate::card::sets) static EARTHCRAFT: CardRecord = CardRecord::new(
                 controller: PlayerRelation::You,
                 count: 1,
             }],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Land),
-                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+            )],
             EffectDef::Untap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
@@ -4251,7 +4203,7 @@ pub(in crate::card::sets) static ELADAMRI_LORD_OF_LEAVES: CardRecord = CardRecor
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
                 },
             ),
             AbilityDef::static_ability(
@@ -4266,7 +4218,7 @@ pub(in crate::card::sets) static ELADAMRI_LORD_OF_LEAVES: CardRecord = CardRecor
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
                 },
             ),
         ]),
@@ -4359,7 +4311,7 @@ pub(in crate::card::sets) static FROG_TONGUE: CardRecord = CardRecord::new(
                 "Enchanted creature has reach.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&const { abilities::reach() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::reach()),
                 },
             ),
             abilities::enters_trigger(
@@ -4411,14 +4363,10 @@ pub(in crate::card::sets) static HARROW: CardRecord = CardRecord::new(
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
-                object: ObjectPredicateDef::All(
-                    &const {
-                        [
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                        ]
-                    },
-                ),
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
                 minimum: 0,
                 maximum: ValueDef::Constant(2),
                 reveal: false,
@@ -4490,9 +4438,7 @@ pub(in crate::card::sets) static HORNED_SLIVER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Sliver"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "All Sliver creatures have trample.",
-            all_slivers_get(AppliedEffectDef::add_ability(
-                &const { abilities::trample() },
-            )),
+            all_slivers_get(AppliedEffectDef::add_ability(&abilities::trample())),
         ),
     ),
 );
@@ -4637,7 +4583,7 @@ pub(in crate::card::sets) static OVERRUN: CardRecord = CardRecord::new(
                     ValueDef::Constant(3),
                     ValueDef::Constant(3),
                 ),
-                AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                AppliedEffectDef::add_ability(&abilities::trample()),
             ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -4801,11 +4747,9 @@ pub(in crate::card::sets) static SEEKER_OF_SKYBREAK: CardRecord = CardRecord::ne
         AbilityDef::activated_with_targets(
             "{T}: Untap target creature.",
             &[CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Untap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
@@ -4887,11 +4831,9 @@ pub(in crate::card::sets) static SPIKE_DRONE: CardRecord = CardRecord::new(
                     amount: 1,
                 },
             ],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
-                    CardType::Creature,
-                ))]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            ))],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: CounterKind::PlusOnePlusOne,
@@ -5843,7 +5785,7 @@ pub(in crate::card::sets) static TELETHOPTER: CardRecord = CardRecord::new(
             }],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

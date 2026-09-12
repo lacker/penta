@@ -3019,21 +3019,17 @@ pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new
                     owner: None,
                 },
             )],
-            EffectDef::Sequence(
-                &const {
-                    [
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            ZoneKind::Exile,
-                            ZonePlacement::Top,
-                        ),
-                        EffectDef::DrawCards {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(1),
-                        },
-                    ]
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
                 },
-            ),
+            ]),
         ),
     ]),
 );

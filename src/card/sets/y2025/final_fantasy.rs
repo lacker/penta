@@ -64,7 +64,7 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
         (
             "Cecil, Dark Knight",
             const {
-                CardRules::new_creature(mana_cost!("{B}"), &const { ["Human", "Knight"] }, 2, 3)
+                CardRules::new_creature(mana_cost!("{B}"), &["Human", "Knight"], 2, 3)
                 .with_supertype(CardSupertype::Legendary)
                 .with_abilities(&const { [
                     abilities::deathtouch(),
@@ -78,7 +78,7 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
                         // "You lose that much life. Then if ..." is one clause resolving in order:
                         // the life is lost first, so the very damage that cost it can be what brings
                         // the total low enough to turn the card over.
-                        EffectDef::Sequence(&const { [
+                        EffectDef::Sequence(&[
                             EffectDef::LoseLife {
                                 recipient: EffectRecipientDef::Controller,
                                 amount: ValueDef::TriggerEventAmount,
@@ -89,16 +89,16 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
                                 // enough to halve your own life is what turns Cecil over. Untapping is part
                                 // of the same clause, so a Cecil that traded its attack for the transform
                                 // comes back ready to block.
-                                then: &EffectDef::Sequence(&const { [
+                                then: &EffectDef::Sequence(&[
                                     EffectDef::Untap {
                                         object: EffectRecipientDef::Source,
                                     },
                                     EffectDef::Transform {
                                         object: EffectRecipientDef::Source,
                                     },
-                                ] }),
+                                ]),
                             },
-                        ] }),
+                        ]),
                     ),
                 ] })
             },
@@ -108,8 +108,8 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
         (
             "Cecil, Redeemed Paladin",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Human", "Knight"] }, 4, 4)
-                .printed_colors(&const { [ManaColor::White] })
+                CardRules::new_creature_without_mana_cost(&["Human", "Knight"], 4, 4)
+                .printed_colors(&[ManaColor::White])
                 .with_supertype(CardSupertype::Legendary)
                 .with_abilities(&const { [
                     abilities::lifelink(),
@@ -120,12 +120,12 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
                             // "Other attacking creatures" excludes Cecil and takes in the opponent's
                             // too, on the rare turn both sides are attacking at once.
                             recipient: EffectRecipientDef::matching_objects(
-                                ObjectPredicateDef::All(&const { [
+                                ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Creature),
                                     ObjectPredicateDef::Attacking,
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ] }),
-                                &const { [ZoneKind::Battlefield] },
+                                ]),
+                                &[ZoneKind::Battlefield],
                                 PlayerRelation::Any,
                             ),
                             effect: AppliedEffectDef::add_ability(&const {

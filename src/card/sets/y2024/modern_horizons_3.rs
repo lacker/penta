@@ -532,22 +532,14 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     // Counted as this resolves, and the target itself counts
                     // when it is one of yours.
-                    ValueDef::Scaled(
-                        &const {
-                            ScaledValueDef {
-                                value: ValueDef::CountMatchingObjects(
-                                    &const {
-                                        ObjectQueryDef::matching(
-                                            ObjectPredicateDef::HasType(CardType::Creature),
-                                            &[ZoneKind::Battlefield],
-                                            PlayerRelation::You,
-                                        )
-                                    },
-                                ),
-                                factor: 2,
-                            }
-                        },
-                    ),
+                    ValueDef::Scaled(&ScaledValueDef {
+                        value: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        factor: 2,
+                    }),
                 ),
             ),
             AbilityDef::spell_with_targets(
@@ -749,18 +741,16 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new(
                             kind: CounterKind::Finality,
                             amount: ValueDef::Constant(1),
                         }),
-                        then: &EffectDef::Sequence(&const { [
+                        then: &EffectDef::Sequence(&[
                             EffectDef::Apply {
                                 recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
                                     ParentBinding,
                                 )),
-                                effect: AppliedEffectDef::add_ability(&const {
-                                    abilities::haste()
-                                }),
+                                effect: AppliedEffectDef::add_ability(&abilities::haste()),
                                 duration: ResolvedEffectDurationDef::Permanent,
                             },
                             EffectDef::InstallTrigger(InstalledTriggerDef::once(
-                                &const { AbilityDef::triggered(
+                                &AbilityDef::triggered(
                                     "At the beginning of the next end step, sacrifice that creature.",
                                     TriggerEventDef::StepBegins {
                                         step: TurnStepDef::End,
@@ -769,9 +759,9 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new(
                                     EffectDef::sacrifice(EffectRecipientDef::objects(
                                             ObjectSetDef::Binding(ParentBinding),
                                         )),
-                                ) },
+                                ),
                             )),
-                        ] }),
+                        ]),
                     },
                 }),
             ),
@@ -841,13 +831,11 @@ pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardReco
              +1/+1 counters on it.",
             &[CostDef::Mana(mana_cost!("{3}{B}"))],
             EffectDef::WithBattlefieldArrival {
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Source,
-                        ZoneKind::Battlefield,
-                        ZonePlacement::Top,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
                 arrival: BattlefieldArrivalDef {
                     modifications: &[BattlefieldEntryModificationDef::Tapped],
                     counters: Some(TokenCountersDef {
@@ -1375,16 +1363,14 @@ pub(in crate::card::sets) static HORRIFIC_ASSAULT: CardRecord = CardRecord::new(
             EffectDef::IfCondition {
                 // Read as this resolves, and the creature that dealt the
                 // damage may itself be the Eldrazi being counted.
-                condition: &const {
-                    TriggerConditionDef::ObjectCount {
-                        query: ObjectQueryDef::matching(
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Eldrazi")),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        ),
-                        comparison: ComparisonDef::GreaterOrEqual,
-                        amount: 1,
-                    }
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Eldrazi")),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
                 },
                 then: &EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
@@ -1478,8 +1464,8 @@ pub(in crate::card::sets) static NYXBORN_HYDRA: CardRecord = CardRecord::new(
                             ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
                             ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
                         ),
-                        AppliedEffectDef::add_ability(&const { abilities::reach() }),
-                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                        AppliedEffectDef::add_ability(&abilities::reach()),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
                     ]),
                 },
             ),
@@ -1751,18 +1737,16 @@ pub(in crate::card::sets) static CONDUIT_GOBLIN: CardRecord = CardRecord::new(
             )],
             EffectDef::PayOr(PayOrDef::optional(
                 &[CostDef::Energy(1)],
-                &const {
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::modify_power_toughness(
-                                ValueDef::Constant(1),
-                                ValueDef::Constant(0),
-                            ),
-                            AppliedEffectDef::add_ability(&const { abilities::haste() }),
-                        ]),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    }
+                &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             )),
         ),
@@ -2352,16 +2336,10 @@ pub(in crate::card::sets) static TWISTED_LANDSCAPE: CardRecord = CardRecord::new
 );
 
 // MH3 237 — Ajani, Nacatl Pariah // Ajani, Nacatl Avenger
-const CAT_WARRIOR_TOKEN: TokenCharacteristics = TokenCharacteristics::creature(
-    &const { ["Cat", "Warrior"] },
-    &const { [ManaColor::White] },
-    2,
-    1,
-)
-.with_art(CardArt::new(
-    "ce5c5bcf-1fdd-4d73-a92b-223292da00ca",
-    "Ben Wootten",
-));
+const CAT_WARRIOR_TOKEN: TokenCharacteristics =
+    TokenCharacteristics::creature(&["Cat", "Warrior"], &[ManaColor::White], 2, 1).with_art(
+        CardArt::new("ce5c5bcf-1fdd-4d73-a92b-223292da00ca", "Ben Wootten"),
+    );
 
 pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::new_dfc(
     "Ajani, Nacatl Pariah // Ajani, Nacatl Avenger",
@@ -2371,7 +2349,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
         (
             "Ajani, Nacatl Pariah",
             const {
-                CardRules::new_creature(mana_cost!("{1}{W}"), &const { ["Cat", "Warrior"] }, 1, 2)
+                CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Warrior"], 1, 2)
                     .with_supertype(CardSupertype::Legendary)
                     .with_abilities(&const { [
                         abilities::enters_trigger(
@@ -2389,11 +2367,11 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                             TriggerEventDef::zone_changed(
                                 // The Cats that matter are the other ones: Ajani dying alongside them does
                                 // not turn him over, and neither does his own death.
-                                ObjectPredicateDef::All(&const { [
+                                ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
                                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ] }),
+                                ]),
                                 Some(ZoneKind::Battlefield),
                                 Some(ZoneKind::Graveyard),
                             ),
@@ -2402,7 +2380,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                 // "Exile Ajani, then return him to the battlefield transformed." One
                                 // resolution: the exile links him to himself and the return brings him
                                 // straight back on the other face, under his owner's control.
-                                effect: &EffectDef::Sequence(&const { [
+                                effect: &EffectDef::Sequence(&[
                                     EffectDef::ExileLinkedToSource {
                                         until_source_leaves: false,
                                         object: EffectRecipientDef::Source,
@@ -2417,7 +2395,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                         controller: None,
                                         transformed: true,
                                     },
-                                ] }),
+                                ]),
                             },
                         ),
                     ] })
@@ -2426,17 +2404,17 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
         (
             "Ajani, Nacatl Avenger",
             const {
-                CardRules::new_planeswalker_without_mana_cost(&const { ["Ajani"] })
+                CardRules::new_planeswalker_without_mana_cost(&["Ajani"])
                     .with_supertype(CardSupertype::Legendary)
                     .with_starting_loyalty(3)
                     .with_abilities(&const { [
                         AbilityDef::activated(
                             "+2: Put a +1/+1 counter on each Cat you control.",
-                            &const { [CostDef::Loyalty(2)] },
+                            &[CostDef::Loyalty(2)],
                             EffectDef::AddCounters {
                                 object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
                                     ObjectPredicateDef::Subtype(SubtypeDef::Literal("Cat")),
-                                    &const { [ZoneKind::Battlefield] },
+                                    &[ZoneKind::Battlefield],
                                     PlayerRelation::You,
                                 ))),
                                 kind: CounterKind::PlusOnePlusOne,
@@ -2445,7 +2423,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                         ),
                         AbilityDef::activated_with_targets(
                             "0: Create a 2/1 white Cat Warrior creature token. When you do, if you control a red permanent other than Ajani, he deals damage equal to the number of creatures you control to any target.",
-                            &const { [CostDef::Loyalty(0)] },
+                            &[CostDef::Loyalty(0)],
                             &const { [AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::AnyTarget,
                             )] },
@@ -2464,11 +2442,11 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                     // white, so the clause is about a second permanent rather than about him.
                                     condition: &TriggerConditionDef::ObjectCount {
                                         query: ObjectQueryDef::matching(
-                                            ObjectPredicateDef::All(&const { [
+                                            ObjectPredicateDef::All(&[
                                                 ObjectPredicateDef::Color(ManaColor::Red),
                                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                            ] }),
-                                            &const { [ZoneKind::Battlefield] },
+                                            ]),
+                                            &[ZoneKind::Battlefield],
                                             PlayerRelation::You,
                                         ),
                                         comparison: ComparisonDef::GreaterOrEqual,
@@ -2480,7 +2458,7 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                                             &const {
                                                 ObjectQueryDef::matching(
                                                     ObjectPredicateDef::HasType(CardType::Creature),
-                                                    &const { [ZoneKind::Battlefield] },
+                                                    &[ZoneKind::Battlefield],
                                                     PlayerRelation::You,
                                                 )
                                             },
@@ -2491,19 +2469,19 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord = CardRecord::n
                         ),
                         AbilityDef::activated(
                             "−4: Each opponent chooses an artifact, a creature, an enchantment, and a planeswalker from among the nonland permanents they control, then sacrifices the rest.",
-                            &const { [CostDef::Loyalty(-4)] },
+                            &[CostDef::Loyalty(-4)],
                             EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                                 player: EffectRecipientDef::Opponent,
                                 candidates: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                                 zone: ZoneKind::Battlefield,
                                 // The four roles the ultimate lets each opponent fill. Order is printed
                                 // order, which is also APNAP choice order within one player's selection.
-                                selection: PerPlayerSelectionDef::OneOfEach(&const { [
+                                selection: PerPlayerSelectionDef::OneOfEach(&[
                                     ObjectPredicateDef::HasType(CardType::Artifact),
                                     ObjectPredicateDef::HasType(CardType::Creature),
                                     ObjectPredicateDef::HasType(CardType::Enchantment),
                                     ObjectPredicateDef::HasType(CardType::Planeswalker),
-                                ] }),
+                                ]),
                                 visibility: ChoiceVisibilityDef::Public,
                                 chosen: Binding!("ugin_spared_permanents"),
                                 unchosen: Binding!("ugin_sacrificed_permanents"),
@@ -2529,19 +2507,19 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
         (
             "Witch Enchanter",
             const {
-                CardRules::new_creature(mana_cost!("{3}{W}"), &const { ["Human", "Warlock"] }, 2, 2)
+                CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Warlock"], 2, 2)
                 .with_abilities(&const { [abilities::enters_trigger_with_targets(
                     "When this creature enters, destroy target artifact or enchantment an opponent controls.",
                     // "Target artifact or enchantment an opponent controls": two types and a
                     // controller, which together are the whole restriction.
                     &const { [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::All(&const { [
-                            ObjectPredicateDef::AnyOf(&const { [
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
                                 ObjectPredicateDef::HasType(CardType::Artifact),
                                 ObjectPredicateDef::HasType(CardType::Enchantment),
-                            ] }),
+                            ]),
                             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-                        ] }),
+                        ]),
                     )] },
                     EffectDef::destroy_target(TargetIndex::PRIMARY),
                 )] })
@@ -2550,7 +2528,7 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
         (
             "Witch-Blessed Meadow",
             const {
-                CardRules::new_land(&const { [] }).with_abilities(&const { [
+                CardRules::new_land(&[]).with_abilities(&const { [
                 AbilityDef::replacement(
                     "As this land enters, you may pay 3 life. If you don't, it enters tapped.",
                     ReplacementEffectDef::PayOr {
@@ -2558,17 +2536,17 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
                             PlayerSetDef::Related(PlayerRelation::You),
                             &[CostDef::PayLife(3)],
                         ),
-                        if_paid: &const { [] },
+                        if_paid: &[],
                         // Declining is what taps it, so the paid branch does nothing and the
                         // declined branch is the whole of the cost.
-                        if_declined: &const { [ReplacementEffectDef::ModifyBattlefieldEntry(
+                        if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(
                                 BattlefieldEntryModificationDef::Tapped,
-                            )] },
+                            )],
                     },
                 ),
                 AbilityDef::activated_mana(
                     "{T}: Add {W}.",
-                    &const { [CostDef::TapSource] },
+                    &[CostDef::TapSource],
                     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
                 ),
             ] })
@@ -2589,7 +2567,7 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
                 CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
                 "Return target spell or nonland permanent an opponent controls to its owner's hand.",
                 &const { [AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::AnyOf(&const { [
+                        AbilityTargetPredicate::AnyOf(&[
                             AbilityTargetPredicate::Object {
                                 object: ObjectPredicateDef::Spell,
                                 zones: &[ZoneKind::Stack],
@@ -2602,7 +2580,7 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
                                 controller: Some(PlayerRelation::Opponent),
                                 owner: None,
                             },
-                        ] }),
+                        ]),
                     )] },
                 // Returning a spell is not countering it: one that cannot be countered is
                 // answered all the same, and its controller keeps the card.
@@ -2617,7 +2595,7 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
         (
             "Soporific Springs",
             const {
-                CardRules::new_land(&const { [] }).with_abilities(&const { [
+                CardRules::new_land(&[]).with_abilities(&const { [
                 AbilityDef::replacement(
                     "As this land enters, you may pay 3 life. If you don't, it enters tapped.",
                     ReplacementEffectDef::PayOr {
@@ -2625,15 +2603,15 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
                             PlayerSetDef::Related(PlayerRelation::You),
                             &[CostDef::PayLife(3)],
                         ),
-                        if_paid: &const { [] },
-                        if_declined: &const { [ReplacementEffectDef::ModifyBattlefieldEntry(
+                        if_paid: &[],
+                        if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(
                                 BattlefieldEntryModificationDef::Tapped,
-                            )] },
+                            )],
                     },
                 ),
                 AbilityDef::activated_mana(
                     "{T}: Add {U}.",
-                    &const { [CostDef::TapSource] },
+                    &[CostDef::TapSource],
                     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
                 ),
             ] })
@@ -2729,57 +2707,51 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
                     // The granted ability, carried by each creature rather than by Nadu: the
                     // cap is on one creature's copy of it, so every creature you control has
                     // two of these a turn.
-                    effect: AppliedEffectDef::add_ability(&const {
-                        AbilityDef::triggered(
-                            "Whenever this creature becomes the target of a spell or ability, reveal the top card of \
-                             your library. If it's a land card, put it onto the battlefield. Otherwise, put it into your \
-                             hand. This ability triggers only twice each turn.",
-                            TriggerEventDef::becomes_targeted(
-                                ObjectPredicateDef::Any,
-                            ),
-                            abilities::bind_top_cards_then(
-                                PlayerRefDef::EffectController,
-                                ValueDef::Constant(1),
-                                &const {
-                                    EffectDef::Sequence(&[
-                                        EffectDef::RevealObjects(RevealObjectsDef {
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                        "Whenever this creature becomes the target of a spell or ability, reveal the top card of \
+                         your library. If it's a land card, put it onto the battlefield. Otherwise, put it into your \
+                         hand. This ability triggers only twice each turn.",
+                        TriggerEventDef::becomes_targeted(
+                            ObjectPredicateDef::Any,
+                        ),
+                        abilities::bind_top_cards_then(
+                            PlayerRefDef::EffectController,
+                            ValueDef::Constant(1),
+                            &EffectDef::Sequence(&[
+                                    EffectDef::RevealObjects(RevealObjectsDef {
+                                        input: ObjectSetDef::Binding(ParentBinding),
+                                        then: &EffectDef::None,
+                                    }),
+                                    EffectDef::ClassifyObjects(ClassifyObjectsDef {
                                             input: ObjectSetDef::Binding(ParentBinding),
-                                            then: &EffectDef::None,
-                                        }),
-                                        EffectDef::ClassifyObjects(ClassifyObjectsDef {
-                                                input: ObjectSetDef::Binding(ParentBinding),
-                                                object: ObjectPredicateDef::HasType(CardType::Land),
-                                                matching: NADU_LAND,
-                                                remainder: NADU_NONLAND,
-                                                then: &const {
-                                                    EffectDef::Sequence(&[
-                                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                                            input: ObjectSetDef::Binding(NADU_LAND),
+                                            object: ObjectPredicateDef::HasType(CardType::Land),
+                                            matching: NADU_LAND,
+                                            remainder: NADU_NONLAND,
+                                            then: &EffectDef::Sequence(&[
+                                                    EffectDef::MoveObjects(MoveObjectsDef {
+                                                        input: ObjectSetDef::Binding(NADU_LAND),
+                                                        from: Some(ZoneKind::Library),
+                                                        zone: ZoneKind::Battlefield,
+                                                        placement: ZonePlacement::Top,
+                                                        moved: None,
+                                                        then: &EffectDef::None,
+                                                    }),
+                                                    EffectDef::MoveObjects(MoveObjectsDef {
+                                                            input: ObjectSetDef::Binding(
+                                                                NADU_NONLAND,
+                                                            ),
                                                             from: Some(ZoneKind::Library),
-                                                            zone: ZoneKind::Battlefield,
+                                                            zone: ZoneKind::Hand,
                                                             placement: ZonePlacement::Top,
                                                             moved: None,
                                                             then: &EffectDef::None,
-                                                        }),
-                                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                                                input: ObjectSetDef::Binding(
-                                                                    NADU_NONLAND,
-                                                                ),
-                                                                from: Some(ZoneKind::Library),
-                                                                zone: ZoneKind::Hand,
-                                                                placement: ZonePlacement::Top,
-                                                                moved: None,
-                                                                then: &EffectDef::None,
-                                                        }),
-                                                    ])
-                                                },
-                                        }),
-                                    ])
-                                },
-                            ),
-                        )
-                        .triggering_at_most(2)
-                    }),
+                                                    }),
+                                                ]),
+                                    }),
+                                ]),
+                        ),
+                    )
+                    .triggering_at_most(2)),
                 },
             ),
         ]),
@@ -2794,7 +2766,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
         (
             "Tamiyo, Inquisitive Student",
             const {
-                CardRules::new_creature(mana_cost!("{U}"), &const { ["Moonfolk", "Wizard"] }, 0, 3)
+                CardRules::new_creature(mana_cost!("{U}"), &["Moonfolk", "Wizard"], 0, 3)
                     .with_supertype(CardSupertype::Legendary)
                     .with_abilities(&const { [
                         abilities::flying(),
@@ -2814,7 +2786,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                             // Exile and return, which is how a permanent turns over into a new object
                             // rather than merely flipping: the Tamiyo that comes back has no counters,
                             // no summoning history, and a fresh set of loyalty.
-                            EffectDef::Sequence(&const { [
+                            EffectDef::Sequence(&[
                                 EffectDef::ExileLinkedToSource {
                                     until_source_leaves: false,
                                     object: EffectRecipientDef::Source,
@@ -2829,7 +2801,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                     controller: None,
                                     transformed: true,
                                 },
-                            ] }),
+                            ]),
                         ),
                     ] })
             },
@@ -2837,18 +2809,18 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
         (
             "Tamiyo, Seasoned Scholar",
             const {
-                CardRules::new_planeswalker_without_mana_cost(&const { ["Tamiyo"] })
+                CardRules::new_planeswalker_without_mana_cost(&["Tamiyo"])
                 .with_supertype(CardSupertype::Legendary)
                 // The back face has no mana cost to read a colour off, and
                 // prints a colour indicator instead: she is blue on both
                 // sides.
-                .printed_colors(&const { [ManaColor::Blue] })
+                .printed_colors(&[ManaColor::Blue])
                 .with_starting_loyalty(2)
                 .with_abilities(&const { [
                     AbilityDef::activated(
                         "+2: Until your next turn, whenever a creature attacks you or a planeswalker you \
                          control, it gets -1/-0 until end of turn.",
-                        &const { [CostDef::Loyalty(2)] },
+                        &[CostDef::Loyalty(2)],
                         EffectDef::InstallTrigger(InstalledTriggerDef {
                             // The attackers her plus ability shrinks. It is installed on resolution and
                             // watches until her controller's next turn, so it catches the attack it was
@@ -2875,14 +2847,14 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                     AbilityDef::activated_with_targets(
                         "−3: Return target instant or sorcery card from your graveyard to your hand. If it's a \
                          green card, add one mana of any color.",
-                        &const { [CostDef::Loyalty(-3)] },
+                        &[CostDef::Loyalty(-3)],
                         &const { [AbilityTargetDef::exactly_one(
                                 AbilityTargetPredicate::Object {
-                                    object: ObjectPredicateDef::AnyOf(&const { [
+                                    object: ObjectPredicateDef::AnyOf(&[
                                         ObjectPredicateDef::HasType(CardType::Instant),
                                         ObjectPredicateDef::HasType(CardType::Sorcery),
-                                    ] }),
-                                    zones: &const { [ZoneKind::Graveyard] },
+                                    ]),
+                                    zones: &[ZoneKind::Graveyard],
                                     controller: None,
                                     owner: Some(PlayerRelation::You),
                                 },
@@ -2910,7 +2882,7 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                     AbilityDef::activated(
                         "−7: Draw cards equal to half the number of cards in your library, rounded up. You get \
                          an emblem with \"You have no maximum hand size.\"",
-                        &const { [CostDef::Loyalty(-7)] },
+                        &[CostDef::Loyalty(-7)],
                         EffectDef::Sequence(&const { [
                             EffectDef::DrawCards {
                                 recipient: EffectRecipientDef::Controller,
@@ -2944,7 +2916,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
         (
             "Sorin of House Markov",
             const {
-                CardRules::new_creature(mana_cost!("{1}{B}"), &const { ["Human", "Noble"] }, 1, 4)
+                CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Noble"], 1, 4)
                 .with_supertype(CardSupertype::Legendary)
                 .with_abilities(&const { [
                     abilities::lifelink(),
@@ -2968,7 +2940,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                         // The same exile-and-return Ajani uses: one resolution, so he is gone and
                         // back before anything else happens, and he comes back a new object with
                         // his printed loyalty.
-                        EffectDef::Sequence(&const { [
+                        EffectDef::Sequence(&[
                             EffectDef::ExileLinkedToSource {
                                 until_source_leaves: false,
                                 object: EffectRecipientDef::Source,
@@ -2983,7 +2955,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                                 controller: None,
                                 transformed: true,
                             },
-                        ] }),
+                        ]),
                     ),
                 ] })
             },
@@ -2994,15 +2966,15 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                 // The back face has no mana cost, so its colours come from the printed
                 // indicator. They matter to his own ultimate: he is a white permanent,
                 // and the clause has to say "other than Sorin" precisely because of it.
-                CardRules::new_planeswalker_without_mana_cost(&const { ["Sorin"] })
+                CardRules::new_planeswalker_without_mana_cost(&["Sorin"])
                 .with_supertype(CardSupertype::Legendary)
                 .with_starting_loyalty(3)
-                .printed_colors(&const { [ManaColor::White, ManaColor::Black] })
+                .printed_colors(&[ManaColor::White, ManaColor::Black])
                 .with_abilities(&const { [
                     abilities::extort(),
                     AbilityDef::activated(
                         "+2: Create a Food token.",
-                        &const { [CostDef::Loyalty(2)] },
+                        &[CostDef::Loyalty(2)],
                         EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(FOOD_TOKEN))),
                     ),
                     // The same tally the front face reads to turn over, spent here as
@@ -3010,7 +2982,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                     AbilityDef::activated_with_targets(
                         "\u{2212}1: Sorin deals damage equal to the amount of life you gained this turn to any \
                          target.",
-                        &const { [CostDef::Loyalty(-1)] },
+                        &[CostDef::Loyalty(-1)],
                         &const { [AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
                         )] },
@@ -3023,7 +2995,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                         "\u{2212}6: Gain control of target creature. It becomes a Vampire in addition to its \
                          other types. Put a lifelink counter on it if you control a white permanent other than \
                          that creature or Sorin.",
-                        &const { [CostDef::Loyalty(-6)] },
+                        &[CostDef::Loyalty(-6)],
                         &const { [AbilityTargetDef::exactly_one_permanent(
                             ObjectPredicateDef::HasType(CardType::Creature),
                         )] },
@@ -3038,7 +3010,7 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                                 // "It becomes a Vampire in addition to its other types": added rather than
                                 // set, and with no duration, so what it was stays and the Vampire sticks.
                                 effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-                                        SetOperationDef::Add(CreatureTypeSetDef::named(&const { ["Vampire"] })),
+                                        SetOperationDef::Add(CreatureTypeSetDef::named(&["Vampire"])),
                                     )),
                                 duration: ResolvedEffectDurationDef::Permanent,
                             },
@@ -3049,11 +3021,11 @@ pub(in crate::card::sets) static SORIN_OF_HOUSE_MARKOV: CardRecord = CardRecord:
                                 // control.
                                 condition: &TriggerConditionDef::ObjectCount {
                                     query: ObjectQueryDef::matching(
-                                        ObjectPredicateDef::All(&const { [
+                                        ObjectPredicateDef::All(&[
                                             ObjectPredicateDef::Color(ManaColor::White),
                                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                        ] }),
-                                        &const { [ZoneKind::Battlefield] },
+                                        ]),
+                                        &[ZoneKind::Battlefield],
                                         PlayerRelation::You,
                                     )
                                     .excluding_target(TargetIndex::PRIMARY),

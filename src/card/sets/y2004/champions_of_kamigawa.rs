@@ -134,45 +134,37 @@ CardRules::new_instant(mana_cost!("{4}{R}"))
                 EffectDef::WithZoneMoveResult {
                     // A minimum of zero is the printed "you may": the offer may be answered
                     // with nothing, and with no creature in hand it is never made at all.
-                    effect: &const {
-                        EffectDef::ChooseCards {
-                            player: EffectRecipientDef::Controller,
-                            sources: &const { [CardChoiceSourceDef::Zone(ZoneKind::Hand)] },
-                            object: ObjectPredicateDef::HasType(CardType::Creature),
-                            minimum: 0,
-                            maximum: 1,
-                            reveal: false,
-                            destination: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                        }
+                    effect: &EffectDef::ChooseCards {
+                        player: EffectRecipientDef::Controller,
+                        sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        minimum: 0,
+                        maximum: 1,
+                        reveal: false,
+                        destination: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
                     },
                     binding: ParentBinding,
-                    then: &const {
-                        EffectDef::Apply {
-                            recipient: EffectRecipientDef::binding_zone_change_successors(
-                                ParentBinding,
-                            ),
-                            effect: AppliedEffectDef::Composite(&const {
-                                [
-                                    AppliedEffectDef::add_ability(&const { abilities::haste() }),
-                                    // The creature sacrifices itself rather than being named by a delayed
-                                    // trigger the spell installs: it is the object that arrived, and it carries
-                                    // the clause with it. Nothing else can name it -- the card was chosen only
-                                    // as this spell resolved, and what entered is a new object.
-                                    AppliedEffectDef::add_ability(&const {
-                                        AbilityDef::triggered(
-                                            "At the beginning of the next end step, sacrifice this creature.",
-                                            TriggerEventDef::StepBegins {
-                                                step: TurnStepDef::End,
-                                                player: PlayerRelation::Any,
-                                            },
-                                            EffectDef::sacrifice(EffectRecipientDef::Source),
-                                        )
-                                    }),
-                                ]
-                            }),
-                            duration: ResolvedEffectDurationDef::Permanent,
-                        }
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::binding_zone_change_successors(
+                            ParentBinding,
+                        ),
+                        effect: AppliedEffectDef::Composite(&[
+                                AppliedEffectDef::add_ability(&abilities::haste()),
+                                // The creature sacrifices itself rather than being named by a delayed
+                                // trigger the spell installs: it is the object that arrived, and it carries
+                                // the clause with it. Nothing else can name it -- the card was chosen only
+                                // as this spell resolved, and what entered is a new object.
+                                AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                                        "At the beginning of the next end step, sacrifice this creature.",
+                                        TriggerEventDef::StepBegins {
+                                            step: TurnStepDef::End,
+                                            player: PlayerRelation::Any,
+                                        },
+                                        EffectDef::sacrifice(EffectRecipientDef::Source),
+                                    )),
+                            ]),
+                        duration: ResolvedEffectDurationDef::Permanent,
                     },
                 },
             ),
@@ -246,21 +238,17 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
             // The draw and the trip back to the library are one clause: the Top is on
             // the battlefield as the card is drawn and gone by the time anything could
             // answer it, which is why it is never really spent.
-            EffectDef::Sequence(
-                &const {
-                    [
-                        EffectDef::DrawCards {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(1),
-                        },
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::Source,
-                            ZoneKind::Library,
-                            ZonePlacement::Top,
-                        ),
-                    ]
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
                 },
-            ),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Library,
+                    ZonePlacement::Top,
+                ),
+            ]),
         ),
     ]),
 );

@@ -215,13 +215,11 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new(
             // still asks, and taking it back is what the answer refuses.
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        ZoneKind::Hand,
-                        ZonePlacement::Top,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
             },
         ),
     ),

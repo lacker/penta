@@ -476,7 +476,7 @@ CardRules::new_planeswalker(mana_cost!("{2}{W}{W}"), &["Gideon"], 4)
                                     CounterKind::Loyalty,
                                 )),
                             ),
-                            AppliedEffectDef::add_ability(&const { abilities::indestructible() }),
+                            AppliedEffectDef::add_ability(&abilities::indestructible()),
                         ]),
                         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                     },
@@ -2209,7 +2209,7 @@ pub(in crate::card::sets) static FURIOUS_RESISTANCE: CardRecord = CardRecord::ne
                     ValueDef::Constant(3),
                     ValueDef::Constant(0),
                 ),
-                AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                AppliedEffectDef::add_ability(&abilities::first_strike()),
             ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -2329,8 +2329,8 @@ CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Soldier"], 1, 1).with_ab
                     PlayerRelation::You,
                 ),
                 effect: AppliedEffectDef::Composite(&[
-                    AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
-                    AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
                     AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
                         ObjectPredicateDef::Token,
                     )),
@@ -3330,7 +3330,7 @@ pub(in crate::card::sets) static ALMS_BEAST: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::add_ability(&const { abilities::lifelink() }),
+                effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
             },
         ),
     ),
@@ -3802,7 +3802,7 @@ CardRules::new_planeswalker(mana_cost!("{1}{R}{G}"), &["Domri"], 3)
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(1),
-                    &const { EffectDef::ClassifyObjects(ClassifyObjectsDef {
+                    &EffectDef::ClassifyObjects(ClassifyObjectsDef {
                         input: ObjectSetDef::Binding(ParentBinding),
                         object: ObjectPredicateDef::HasType(CardType::Creature),
                         matching: DOMRI_CREATURE,
@@ -3842,7 +3842,7 @@ CardRules::new_planeswalker(mana_cost!("{1}{R}{G}"), &["Domri"], 3)
                                 ]),
                             }),
                         }),
-                    }) },
+                    }),
                 ),
             ),
             AbilityDef::activated_with_targets(
@@ -3881,12 +3881,10 @@ CardRules::new_planeswalker(mana_cost!("{1}{R}{G}"), &["Domri"], 3)
                             PlayerRelation::You,
                         ),
                         effect: AppliedEffectDef::Composite(&[
-                            AppliedEffectDef::add_ability(&const {
-                                abilities::double_strike()
-                            }),
-                            AppliedEffectDef::add_ability(&const { abilities::trample() }),
-                            AppliedEffectDef::add_ability(&const { abilities::hexproof() }),
-                            AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                            AppliedEffectDef::add_ability(&abilities::double_strike()),
+                            AppliedEffectDef::add_ability(&abilities::trample()),
+                            AppliedEffectDef::add_ability(&abilities::hexproof()),
+                            AppliedEffectDef::add_ability(&abilities::haste()),
                         ]),
                     },
                 )]),
@@ -4290,7 +4288,7 @@ CardRules::new_instant(mana_cost!("{G}{U}")).with_ability(AbilityDef::spell_with
                     ValueDef::Constant(3),
                     ValueDef::Constant(3),
                 ),
-                AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                AppliedEffectDef::add_ability(&abilities::flying()),
             ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -4879,7 +4877,7 @@ CardRules::new_creature(mana_cost!("{R}{G}"), &["Human", "Shaman"], 2, 2).with_a
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
-                effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -5077,7 +5075,7 @@ pub(in crate::card::sets) static VIZKOPA_GUILDMAGE: CardRecord = CardRecord::new
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::lifelink() }),
+                effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

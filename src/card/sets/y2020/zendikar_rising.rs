@@ -72,33 +72,29 @@ pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
             // branch rather than the kicked mode stacking on the base one.
             EffectDef::IfElseCondition {
                 condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
-                then: &const {
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        ),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(2),
-                            ValueDef::Constant(1),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    }
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
-                otherwise: &const {
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::You,
-                        ),
-                        effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::Constant(1),
-                            ValueDef::Constant(1),
-                        ),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    }
+                otherwise: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             },
         ),

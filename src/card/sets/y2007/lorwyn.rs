@@ -180,24 +180,22 @@ pub(in crate::card::sets) static PESTERMITE: CardRecord = CardRecord::new(
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::ChooseEffect {
-                        player: EffectRecipientDef::Controller,
-                        choices: &[
-                            EffectChoiceDef {
-                                label: "Tap it",
-                                effect: EffectDef::Tap {
-                                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                },
+                effect: &EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Tap it",
+                            effect: EffectDef::Tap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             },
-                            EffectChoiceDef {
-                                label: "Untap it",
-                                effect: EffectDef::Untap {
-                                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                },
+                        },
+                        EffectChoiceDef {
+                            label: "Untap it",
+                            effect: EffectDef::Untap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             },
-                        ],
-                    }
+                        },
+                    ],
                 },
             },
         ),

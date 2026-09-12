@@ -156,13 +156,11 @@ CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 1, 1).with_abilitie
             ),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &const {
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::Source,
-                        ZoneKind::Battlefield,
-                        ZonePlacement::Top,
-                    )
-                },
+                effect: &EffectDef::move_to_zone(
+                    EffectRecipientDef::Source,
+                    ZoneKind::Battlefield,
+                    ZonePlacement::Top,
+                ),
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -474,25 +472,23 @@ CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 1, 1).with_a
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            EffectDef::Sequence(&const {
-                [
-                    EffectDef::move_to_zone(
-                        EffectRecipientDef::TriggeringZoneChangeResult,
-                        ZoneKind::Exile,
-                        ZonePlacement::Top,
-                    ),
-                    EffectDef::AddCounters {
-                        object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
-                        kind: CounterKind::named("time"),
-                        amount: ValueDef::Constant(3),
-                    },
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
-                        effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
-                        duration: ResolvedEffectDurationDef::Permanent,
-                    },
-                ]
-            }),
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Exile,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+                    kind: CounterKind::named("time"),
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+                    effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
         ),
     ]),
 );
@@ -528,14 +524,12 @@ pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new
                 // is already on the battlefield still counts, and a 2/2 shrunk to 1/1 does
                 // too.
                 TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::All(&const {
-                        [
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::PowerExactly(1),
-                            ObjectPredicateDef::ToughnessExactly(1),
-                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ]
-                    }),
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerExactly(1),
+                        ObjectPredicateDef::ToughnessExactly(1),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
@@ -544,22 +538,18 @@ pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new
                     // The attachment rides the return rather than following it: what comes back
                     // from the graveyard is a new object, so a later effect would have nothing
                     // left to name.
-                    effect: &const {
-                        EffectDef::WithBattlefieldArrival {
-                            effect: &const {
-                                EffectDef::move_to_zone(
-                                    EffectRecipientDef::Source,
-                                    ZoneKind::Battlefield,
-                                    ZonePlacement::Top,
-                                )
-                            },
-                            arrival: crate::card::BattlefieldArrivalDef {
-                                attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
-                                    ObjectRefDef::TriggeringObject,
-                                )),
-                                ..crate::card::BattlefieldArrivalDef::DEFAULT
-                            },
-                        }
+                    effect: &EffectDef::WithBattlefieldArrival {
+                        effect: &EffectDef::move_to_zone(
+                                EffectRecipientDef::Source,
+                                ZoneKind::Battlefield,
+                                ZonePlacement::Top,
+                            ),
+                        arrival: crate::card::BattlefieldArrivalDef {
+                            attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
+                                ObjectRefDef::TriggeringObject,
+                            )),
+                            ..crate::card::BattlefieldArrivalDef::DEFAULT
+                        },
                     },
                 },
             )

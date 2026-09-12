@@ -3162,7 +3162,7 @@ pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord = CardRecor
         (
             "Huntmaster of the Fells",
             const {
-                CardRules::new_creature(mana_cost!("{2}{R}{G}"), &const { ["Human", "Werewolf"] }, 2, 2)
+                CardRules::new_creature(mana_cost!("{2}{R}{G}"), &["Human", "Werewolf"], 2, 2)
                     // Entering and transforming into this face do the same thing, so the printed
                     // sentence is two triggers watching two different events.
                     .with_abilities(&const { [
@@ -3198,8 +3198,8 @@ pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord = CardRecor
         (
             "Ravager of the Fells",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 4, 4)
-                    .printed_colors(&const { [ManaColor::Red, ManaColor::Green] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 4, 4)
+                    .printed_colors(&[ManaColor::Red, ManaColor::Green])
                     .with_abilities(&const { [
                         abilities::trample(),
                         AbilityDef::triggered_with_targets(

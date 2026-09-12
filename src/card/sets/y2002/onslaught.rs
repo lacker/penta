@@ -160,11 +160,9 @@ pub(in crate::card::sets) static AURA_EXTRACTION: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Put target enchantment on top of its owner's library.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Library,
@@ -273,11 +271,9 @@ pub(in crate::card::sets) static CATAPULT_MASTER: CardRecord = CardRecord::new(
                 controller: PlayerRelation::You,
                 count: 5,
             }],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Exile,
@@ -532,12 +528,10 @@ pub(in crate::card::sets) static DIVE_BOMBER: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: It deals 2 damage to target attacking or blocking creature.",
             &[CostDef::TapSource, CostDef::SacrificeSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::AttackingOrBlocking,
-                ]))]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AttackingOrBlocking,
+            ]))],
             EffectDef::damage(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(2),
@@ -624,17 +618,15 @@ pub(in crate::card::sets) static GRASSLAND_CRUSADER: CardRecord = CardRecord::ne
         AbilityDef::activated_with_targets(
             "{T}: Target Elf or Soldier creature gets +2/+2 until end of turn.",
             &[CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
-                        ]),
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
                     ]),
-                )]
-            },
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1091,11 +1083,9 @@ pub(in crate::card::sets) static WHIPCORDER: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{W}, {T}: Tap target creature.",
                 &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
                 EffectDef::Tap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -1178,14 +1168,12 @@ pub(in crate::card::sets) static APHETTO_ALCHEMIST: CardRecord = CardRecord::new
             AbilityDef::activated_with_targets(
                 "{T}: Untap target artifact or creature.",
                 &[CostDef::TapSource],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                )],
                 EffectDef::Untap {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -1211,11 +1199,9 @@ pub(in crate::card::sets) static APHETTO_GRIFTER: CardRecord = CardRecord::new(
                 controller: PlayerRelation::You,
                 count: 2,
             }],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Any,
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
             EffectDef::Tap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
@@ -1455,16 +1441,14 @@ pub(in crate::card::sets) static DISRUPTIVE_PITMAGE: CardRecord = CardRecord::ne
             AbilityDef::activated_with_targets(
                 "{T}: Counter target spell unless its controller pays {1}.",
                 &[CostDef::TapSource],
-                &const {
-                    [AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::Spell,
-                            zones: &[ZoneKind::Stack],
-                            controller: None,
-                            owner: None,
-                        },
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
                 abilities::counter_target_unless_paid(&[CostDef::GenericMana(ValueDef::Constant(
                     1,
                 ))]),
@@ -1482,32 +1466,26 @@ pub(in crate::card::sets) static ESSENCE_FRACTURE: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Return two target creatures to their owners' hands.",
-            &const {
-                [
-                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
-                        CardType::Creature,
-                    )),
-                    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
-                        CardType::Creature,
-                    )),
-                ]
-            },
-            EffectDef::Sequence(
-                &const {
-                    [
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            ZoneKind::Hand,
-                            ZonePlacement::Top,
-                        ),
-                        EffectDef::move_to_zone(
-                            EffectRecipientDef::Target(TargetIndex(1)),
-                            ZoneKind::Hand,
-                            ZonePlacement::Top,
-                        ),
-                    ]
-                },
-            ),
+            &[
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::Target(TargetIndex(1)),
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            ]),
         ),
         abilities::cycling!(
             "Cycling {2}{U} ({2}{U}, Discard this card: Draw a card.)",
@@ -1598,14 +1576,12 @@ pub(in crate::card::sets) static MAGE_S_GUILE: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Target creature gains shroud until end of turn.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                effect: AppliedEffectDef::add_ability(&abilities::shroud()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1987,11 +1963,9 @@ pub(in crate::card::sets) static BONEKNITTER: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{1}{B}: Regenerate target Zombie.",
                 &[CostDef::Mana(mana_cost!("{1}{B}"))],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                )],
                 EffectDef::Regenerate {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -2219,16 +2193,14 @@ pub(in crate::card::sets) static DOOMED_NECROMANCER: CardRecord = CardRecord::ne
             CostDef::TapSource,
             CostDef::SacrificeSource,
         ],
-        &const {
-            [AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    zones: &[ZoneKind::Graveyard],
-                    controller: None,
-                    owner: Some(PlayerRelation::You),
-                },
-            )]
-        },
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            },
+        )],
         EffectDef::move_to_zone(
             EffectRecipientDef::Target(TargetIndex::PRIMARY),
             ZoneKind::Battlefield,
@@ -2274,16 +2246,14 @@ pub(in crate::card::sets) static FADE_FROM_MEMORY: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Exile target card from a graveyard.",
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Any,
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: None,
-                    },
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Exile,
@@ -3032,16 +3002,14 @@ pub(in crate::card::sets) static DWARVEN_BLASTMINER: CardRecord = CardRecord::ne
             AbilityDef::activated_with_targets(
                 "{2}{R}, {T}: Destroy target nonbasic land.",
                 &[CostDef::Mana(mana_cost!("{2}{R}")), CostDef::TapSource],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
-                                CardSupertype::Basic,
-                            )),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                            CardSupertype::Basic,
+                        )),
+                    ]),
+                )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     then: None,
@@ -3093,7 +3061,7 @@ pub(in crate::card::sets) static FEVER_CHARM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -3327,14 +3295,12 @@ pub(in crate::card::sets) static GOBLIN_TASKMASTER: CardRecord = CardRecord::new
             AbilityDef::activated_with_targets(
                 "{1}{R}: Target Goblin creature gets +1/+0 until end of turn.",
                 &[CostDef::Mana(mana_cost!("{1}{R}"))],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                    ]),
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -3932,7 +3898,7 @@ pub(in crate::card::sets) static ELVISH_PATHCUTTER: CardRecord = CardRecord::new
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::forestwalk() }),
+                effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -4146,7 +4112,7 @@ pub(in crate::card::sets) static KROSAN_GROUNDSHAKER: CardRecord = CardRecord::n
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -4225,7 +4191,7 @@ pub(in crate::card::sets) static MYTHIC_PROPORTIONS: CardRecord = CardRecord::ne
                             ValueDef::Constant(8),
                             ValueDef::Constant(8),
                         ),
-                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
                     ]),
                 },
             ),
@@ -4369,14 +4335,12 @@ pub(in crate::card::sets) static SNARLING_UNDORAK: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{2}{G}: Target Beast creature gets +1/+1 until end of turn.",
                 &[CostDef::Mana(mana_cost!("{2}{G}"))],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
+                    ]),
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -4466,7 +4430,7 @@ pub(in crate::card::sets) static STEELY_RESOLVE: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::add_ability(&const { abilities::shroud() }),
+                effect: AppliedEffectDef::add_ability(&abilities::shroud()),
             },
         ),
     ]),
@@ -4622,7 +4586,7 @@ pub(in crate::card::sets) static VITALITY_CHARM: CardRecord = CardRecord::new(
                             ValueDef::Constant(1),
                             ValueDef::Constant(1),
                         ),
-                        AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
                     ]),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
@@ -4833,19 +4797,17 @@ pub(in crate::card::sets) static CONTESTED_CLIFFS: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
         "{R}{G}, {T}: Target Beast creature you control fights target creature an opponent controls.",
         &[CostDef::Mana(mana_cost!("{R}{G}")), CostDef::TapSource],
-        &const {
-            [
-                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                ])),
-                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-                ])),
-            ]
-        },
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Beast")),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+            ])),
+        ],
         EffectDef::Fight {
             first: ObjectRefDef::Target(TargetIndex::PRIMARY),
             second: ObjectRefDef::Target(TargetIndex(1)),
@@ -4867,14 +4829,12 @@ pub(in crate::card::sets) static DARU_ENCAMPMENT: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{W}, {T}: Target Soldier creature gets +1/+1 until end of turn.",
             &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Soldier")),
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -4927,14 +4887,12 @@ pub(in crate::card::sets) static GOBLIN_BURROWS: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{R}, {T}: Target Goblin creature gets +2/+0 until end of turn.",
             &[CostDef::Mana(mana_cost!("{1}{R}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -5005,14 +4963,12 @@ pub(in crate::card::sets) static RIPTIDE_LABORATORY: CardRecord = CardRecord::ne
         AbilityDef::activated_with_targets(
             "{1}{U}, {T}: Return target Wizard you control to its owner's hand.",
             &[CostDef::Mana(mana_cost!("{1}{U}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wizard")),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -5108,16 +5064,14 @@ pub(in crate::card::sets) static UNHOLY_GROTTO: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{B}, {T}: Put target Zombie card from your graveyard on top of your library.",
             &[CostDef::Mana(mana_cost!("{B}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: Some(PlayerRelation::You),
-                    },
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype(SubtypeDef::Literal("Zombie")),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Library,
@@ -5150,11 +5104,9 @@ pub(in crate::card::sets) static WIREWOOD_LODGE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{G}, {T}: Untap target Elf.",
             &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype(SubtypeDef::Literal("Elf")),
+            )],
             EffectDef::Untap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },

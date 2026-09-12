@@ -102,7 +102,7 @@ CardRules::new_enchantment(mana_cost!("{3}{W}")).with_abilities(&[
 
 // CLB 11 — Blessed Hippogriff
 const fn blessed_hippogriff_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{3}{W}"), &const { ["Hippogriff"] }, 2, 3).with_abilities(
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Hippogriff"], 2, 3).with_abilities(
         &const {
             [
                 abilities::flying(),
@@ -115,17 +115,13 @@ const fn blessed_hippogriff_rules() -> CardRules {
                     // attacker through.
                     &const {
                         [AbilityTargetDef::exactly_one_permanent(
-                            ObjectPredicateDef::All(
-                                &const {
-                                    [
-                                        ObjectPredicateDef::HasType(CardType::Creature),
-                                        ObjectPredicateDef::Attacking,
-                                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
-                                            KeywordAbility::Flying,
-                                        )),
-                                    ]
-                                },
-                            ),
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Attacking,
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                    KeywordAbility::Flying,
+                                )),
+                            ]),
                         )]
                     },
                     EffectDef::Apply {
@@ -143,7 +139,7 @@ fn blessed_hippogriff_composition() -> CardComposition {
     let hippogriff = blessed_hippogriff_rules();
     let blessing = const {
         CardRules::new_instant(mana_cost!("{W}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell_with_targets(
                     "Target creature gains indestructible until end of turn.",
@@ -253,50 +249,34 @@ pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new
 
 // CLB 99 — Sword Coast Serpent
 const fn sword_coast_serpent_rules() -> CardRules {
-    CardRules::new_creature(
-        mana_cost!("{5}{U}{U}"),
-        &const { ["Serpent", "Dragon"] },
-        6,
-        6,
-    )
-    .with_ability(AbilityDef::static_ability(
-        "This creature can't be blocked as long as you've cast a noncreature spell this turn.",
-        EffectDef::IfCondition {
-            // Counted as they are cast rather than read off the stack:
-            // the spell that switched this on has usually resolved.
-            condition: &const {
-                TriggerConditionDef::ValueComparison(
-                    &const {
-                        ValueComparisonDef {
-                            left: ValueDef::CountSpellsCastThisTurn(
-                                &const {
-                                    SpellCastQueryDef {
-                                        player: PlayerRelation::You,
-                                        spell: ObjectPredicateDef::NoncreatureSpell,
-                                    }
-                                },
-                            ),
-                            comparison: ComparisonDef::GreaterOrEqual,
-                            right: ValueDef::Constant(1),
-                        }
-                    },
-                )
-            },
-            then: &const {
-                EffectDef::StaticApply {
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Serpent", "Dragon"], 6, 6).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked as long as you've cast a noncreature spell this turn.",
+            EffectDef::IfCondition {
+                // Counted as they are cast rather than read off the stack:
+                // the spell that switched this on has usually resolved.
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                        player: PlayerRelation::You,
+                        spell: ObjectPredicateDef::NoncreatureSpell,
+                    }),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(1),
+                }),
+                then: &EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
-                }
+                },
             },
-        },
-    ))
+        ),
+    )
 }
 
 fn sword_coast_serpent_composition() -> CardComposition {
     let serpent = sword_coast_serpent_rules();
     let wave = const {
         CardRules::new_instant(mana_cost!("{1}{U}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell_with_targets(
                     "Return target creature to its owner's hand.",
@@ -359,7 +339,7 @@ pub(in crate::card::sets) static SWORD_COAST_SERPENT: CardRecord = CardRecord::n
 
 // CLB 106 — Young Blue Dragon
 const fn young_blue_dragon_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{4}{U}"), &const { ["Dragon"] }, 3, 3)
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Dragon"], 3, 3)
         .with_ability(abilities::flying())
 }
 
@@ -367,7 +347,7 @@ fn young_blue_dragon_composition() -> CardComposition {
     let dragon = young_blue_dragon_rules();
     let augury = const {
         CardRules::new_sorcery(mana_cost!("{1}{U}"))
-            .with_subtypes(&const { ["Adventure"] })
+            .with_subtypes(&["Adventure"])
             .with_ability(
                 AbilityDef::spell(
                     "Scry 1, then draw a card.",
@@ -489,10 +469,8 @@ pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::ne
             ),
             // Read off the creature as it left, so trading it away on
             // your own attack draws and chump-blocking with it does not.
-            &const {
-                TriggerConditionDef::SourceMatches {
-                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::Blocking),
-                }
+            &TriggerConditionDef::SourceMatches {
+                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Blocking),
             },
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

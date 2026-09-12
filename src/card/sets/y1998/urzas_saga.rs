@@ -678,8 +678,8 @@ pub(in crate::card::sets) static SERRA_S_EMBRACE: CardRecord = CardRecord::new(
                             ValueDef::Constant(2),
                             ValueDef::Constant(2),
                         ),
-                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
-                        AppliedEffectDef::add_ability(&const { abilities::vigilance() }),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
                     ]),
                 },
             ),
@@ -886,11 +886,9 @@ pub(in crate::card::sets) static BARRIN_MASTER_WIZARD: CardRecord = CardRecord::
                     controller: PlayerRelation::You,
                 },
             ],
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::move_to_zone(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 ZoneKind::Hand,
@@ -2501,20 +2499,16 @@ pub(in crate::card::sets) static YAWGMOTH_S_EDICT: CardRecord = CardRecord::new(
             ObjectPredicateDef::Color(ManaColor::White),
             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
         ])),
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::LoseLife {
-                        recipient: EffectRecipientDef::ControllerOfTriggeringObject,
-                        amount: ValueDef::Constant(1),
-                    },
-                    EffectDef::GainLife {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        EffectDef::Sequence(&[
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                amount: ValueDef::Constant(1),
             },
-        ),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -2830,20 +2824,14 @@ pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new(
                 // "A Goblin permanent card": Gempalm Incinerator is a Goblin card that is
                 // also a creature, and nothing in the pool is a Goblin instant, but the
                 // clause names permanents rather than creatures and so does this.
-                sources: &const { [CardChoiceSourceDef::Zone(ZoneKind::Hand)] },
-                object: ObjectPredicateDef::All(&const {
-                    [
-                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
-                        ObjectPredicateDef::Not(&const {
-                            ObjectPredicateDef::AnyOf(&const {
-                                [
-                                    ObjectPredicateDef::HasType(CardType::Instant),
-                                    ObjectPredicateDef::HasType(CardType::Sorcery),
-                                ]
-                            })
-                        }),
-                    ]
-                }),
+                sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype(SubtypeDef::Literal("Goblin")),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ])),
+                ]),
                 minimum: 0,
                 maximum: 1,
                 reveal: false,
@@ -2952,7 +2940,7 @@ pub(in crate::card::sets) static HEADLONG_RUSH: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+            effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),
@@ -3082,11 +3070,9 @@ pub(in crate::card::sets) static RAZE: CardRecord = CardRecord::new(
     // the land it kills is doing more work than the one it cost.
     CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_additional_cost(
         "As an additional cost to cast this spell, sacrifice a land.\nDestroy target land.",
-        &const {
-            [AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Land),
-            )]
-        },
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )],
         CostDef::sacrifice(
             ObjectPredicateDef::HasType(CardType::Land),
             CostQuantityDef::Fixed(1),
@@ -3113,7 +3099,7 @@ pub(in crate::card::sets) static REFLEXES: CardRecord = CardRecord::new(
                 "Enchanted creature has first strike.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
+                    effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
                 },
             ),
         ]),
@@ -3254,7 +3240,7 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
     "Sneak Attack",
     "d07dc95d-82a8-4a58-8ea2-d4513bd7316d",
     "Jerry Tiritilli",
-// One red mana per creature, as often as you like: what the deck is
+    // One red mana per creature, as often as you like: what the deck is
     // paying four mana for is permission to stop casting things.
     CardRules::new_enchantment(mana_cost!("{3}{R}")).with_ability(AbilityDef::activated(
         "{R}: You may put a creature card from your hand onto the battlefield. That creature \
@@ -3277,46 +3263,35 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
             visibility: ChoiceVisibilityDef::Public,
             // Haste and the delayed sacrifice are separate effects on the permanent
             // created by the move.
-            then: &const {
-                EffectDef::PutOntoBattlefieldThen {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                        ParentBinding,
-                    )),
-                    binding: ParentBinding,
-                    counters: None,
-                    then: &const {
-                        EffectDef::Sequence(&const {
-                            [
-                                EffectDef::Apply {
-                                    recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ParentBinding,
-                                    )),
-                                    effect: AppliedEffectDef::add_ability(&const {
-                                        abilities::haste()
-                                    }),
-                                    duration: ResolvedEffectDurationDef::Permanent,
-                                },
-                                // Installed as the creature arrives, so it names that permanent rather than
-                                // whatever is on the battlefield when the end step comes.
-                                EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
-                                    // "At the beginning of the next end step", whoever's turn it is: a creature
-                                    // cheated in on their turn is sacrificed at the end of that turn rather
-                                    // than surviving to yours.
-                                    AbilityDef::triggered(
-                                        "Sacrifice the creature at the beginning of the next end step.",
-                                        TriggerEventDef::StepBegins {
-                                            step: TurnStepDef::End,
-                                            player: PlayerRelation::Any,
-                                        },
-                                        EffectDef::sacrifice_yours(EffectRecipientDef::objects(
-                                                ObjectSetDef::Binding(ParentBinding),
-                                            )),
-                                    )
-                                })),
-                            ]
-                        })
+            then: &EffectDef::PutOntoBattlefieldThen {
+                object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                binding: ParentBinding,
+                counters: None,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::Permanent,
                     },
-                }
+                    // Installed as the creature arrives, so it names that permanent rather than
+                    // whatever is on the battlefield when the end step comes.
+                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&
+                                // "At the beginning of the next end step", whoever's turn it is: a creature
+                                // cheated in on their turn is sacrificed at the end of that turn rather
+                                // than surviving to yours.
+                                AbilityDef::triggered(
+                                    "Sacrifice the creature at the beginning of the next end step.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::End,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::sacrifice_yours(EffectRecipientDef::objects(
+                                            ObjectSetDef::Binding(ParentBinding),
+                                        )),
+                                ))),
+                ]),
             },
         }),
     )),
@@ -4373,7 +4348,7 @@ pub(in crate::card::sets) static HOPPING_AUTOMATON: CardRecord = CardRecord::new
                         ValueDef::Constant(-1),
                         ValueDef::Constant(-1),
                     ),
-                    AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },

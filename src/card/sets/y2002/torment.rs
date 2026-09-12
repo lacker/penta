@@ -162,11 +162,9 @@ pub(in crate::card::sets) static MILITANT_MONK: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
                 &[CostDef::TapSource],
-                &const {
-                    [AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::AnyTarget,
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
                 EffectDef::PreventDamage {
                     prevention: DamagePreventionDef::amount(
                         DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
@@ -535,7 +533,7 @@ pub(in crate::card::sets) static GHOSTLY_WINGS: CardRecord = CardRecord::new(
                             ValueDef::Constant(1),
                             ValueDef::Constant(1),
                         ),
-                        AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
                     ]),
                 },
             ),
@@ -777,11 +775,9 @@ pub(in crate::card::sets) static CHAINER_S_EDICT: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Target player sacrifices a creature of their choice.",
-            &const {
-                [AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Any),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::SacrificeOfChoice {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -920,7 +916,7 @@ CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            &const { TriggerConditionDef::SourceInZone(ZoneKind::Graveyard) },
+            &TriggerConditionDef::SourceInZone(ZoneKind::Graveyard),
             EffectDef::Choose(ChooseDef {
                 binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
@@ -937,33 +933,25 @@ CardRules::new_creature(mana_cost!("{3}{B}"), &["Horror"], 3, 1).with_abilities(
                 minimum: 0,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &const {
-                    EffectDef::IfCondition {
-                        condition: &const {
-                            TriggerConditionDef::BoundObjectMatches {
-                                binding: ParentBinding,
-                                object: ObjectPredicateDef::Any,
-                            }
+                then: &EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::BoundObjectMatches {
+                            binding: ParentBinding,
+                            object: ObjectPredicateDef::Any,
                         },
-                        then: &const {
-                            EffectDef::Sequence(&const {
-                                [
-                                    EffectDef::move_to_zone(
-                                        EffectRecipientDef::object(ObjectRefDef::Binding(
-                                            ParentBinding,
-                                        )),
-                                        ZoneKind::Exile,
-                                        ZonePlacement::Top,
-                                    ),
-                                    EffectDef::move_to_zone(
-                                        EffectRecipientDef::Source,
-                                        ZoneKind::Battlefield,
-                                        ZonePlacement::Top,
-                                    ),
-                                ]
-                            })
-                        },
-                    }
+                    then: &EffectDef::Sequence(&[
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::object(ObjectRefDef::Binding(
+                                        ParentBinding,
+                                    )),
+                                    ZoneKind::Exile,
+                                    ZonePlacement::Top,
+                                ),
+                                EffectDef::move_to_zone(
+                                    EffectRecipientDef::Source,
+                                    ZoneKind::Battlefield,
+                                    ZonePlacement::Top,
+                                ),
+                            ]),
                 },
             }),
         )
@@ -1201,27 +1189,21 @@ pub(in crate::card::sets) static UNHINGE: CardRecord = CardRecord::new(
     // is ever happy to draw late.
     CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Target player discards a card.\nDraw a card.",
-        &const {
-            [AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::Player(PlayerRelation::Any),
-            )]
-        },
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::Discard {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(1),
-                        selection: DiscardSelectionDef::RecipientChooses,
-                        then: None,
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
             },
-        ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -1236,11 +1218,9 @@ pub(in crate::card::sets) static WASTE_AWAY: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, discard a card.\nTarget creature gets \
              -5/-5 until end of turn.",
-            &const {
-                [AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )]
-            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             CostDef::discard(ObjectPredicateDef::Any),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1272,26 +1252,20 @@ pub(in crate::card::sets) static ACCELERATE: CardRecord = CardRecord::new(
     // replace it -- which is what makes it a free attack.
     CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gains haste until end of turn.\nDraw a card.",
-        &const {
-            [AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )]
-        },
-        EffectDef::Sequence(
-            &const {
-                [
-                    EffectDef::Apply {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
-                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
-        ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -1326,15 +1300,13 @@ pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new
             AbilityDef::activated_with_targets(
                 "{R}: Another target Barbarian creature gets +1/+0 until end of turn.",
                 &[CostDef::Mana(mana_cost!("{R}"))],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Subtype(SubtypeDef::Literal("Barbarian")),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype(SubtypeDef::Literal("Barbarian")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -1380,11 +1352,9 @@ pub(in crate::card::sets) static CRACKLING_CLUB: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "Sacrifice this Aura: It deals 1 damage to target creature.",
                 &[CostDef::SacrificeSource],
-                &const {
-                    [AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )]
-                },
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
                 EffectDef::damage(
                     EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     ValueDef::Constant(1),

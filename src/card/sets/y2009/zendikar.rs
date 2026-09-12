@@ -630,7 +630,7 @@ pub(in crate::card::sets) static GOBLIN_WAR_PAINT: CardRecord = CardRecord::new(
                             ValueDef::Constant(2),
                             ValueDef::Constant(2),
                         ),
-                        AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
                     ]),
                 },
             ),

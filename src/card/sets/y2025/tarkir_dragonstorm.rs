@@ -277,7 +277,7 @@ pub(in crate::card::sets) static FORTRESS_KIN_GUARD: CardRecord = CardRecord::ne
 
 // TDM 21 — Riling Dawnbreaker
 const fn riling_dawnbreaker_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{4}{W}"), &const { ["Dragon"] }, 3, 4).with_abilities(
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Dragon"], 3, 4).with_abilities(
         &const {
             [
                 abilities::flying(),
@@ -294,15 +294,11 @@ const fn riling_dawnbreaker_rules() -> CardRules {
                     &const {
                         [AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::Object {
-                                object: ObjectPredicateDef::All(
-                                    &const {
-                                        [
-                                            ObjectPredicateDef::HasType(CardType::Creature),
-                                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                        ]
-                                    },
-                                ),
-                                zones: &const { [ZoneKind::Battlefield] },
+                                object: ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                zones: &[ZoneKind::Battlefield],
                                 controller: Some(PlayerRelation::You),
                                 owner: None,
                             },
@@ -326,17 +322,12 @@ fn riling_dawnbreaker_composition() -> CardComposition {
     let dragon = riling_dawnbreaker_rules();
     let roar = const {
         CardRules::new_sorcery(mana_cost!("{1}{W}"))
-            .with_subtypes(&const { ["Omen"] })
+            .with_subtypes(&["Omen"])
             .with_ability(
                 AbilityDef::spell(
                     "Create a 2/2 white Soldier creature token.",
                     EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                        TokenCharacteristics::creature(
-                            &const { ["Soldier"] },
-                            &const { [ManaColor::White] },
-                            2,
-                            2,
-                        ),
+                        TokenCharacteristics::creature(&["Soldier"], &[ManaColor::White], 2, 2),
                     ))),
                 )
                 .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled),
@@ -697,7 +688,7 @@ pub(in crate::card::sets) static CHAMPION_OF_DUSAN: CardRecord = CardRecord::new
 
 // TDM 157 — Sagu Wildling
 const fn sagu_wildling_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{4}{G}"), &const { ["Dragon"] }, 3, 3).with_abilities(
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Dragon"], 3, 3).with_abilities(
         &const {
             [
                 abilities::flying(),
@@ -715,10 +706,9 @@ const fn sagu_wildling_rules() -> CardRules {
 
 fn sagu_wildling_composition() -> CardComposition {
     let wildling = sagu_wildling_rules();
-    let seek =
-        const {
-            CardRules::new_sorcery(mana_cost!("{G}"))
-            .with_subtypes(&const { ["Omen"] })
+    let seek = const {
+        CardRules::new_sorcery(mana_cost!("{G}"))
+            .with_subtypes(&["Omen"])
             .with_ability(
                 AbilityDef::spell(
                     "Search your library for a basic land card, reveal it, put it into your hand, \
@@ -726,12 +716,10 @@ fn sagu_wildling_composition() -> CardComposition {
                     EffectDef::SearchZone {
                         player: EffectRecipientDef::Controller,
                         source: ZoneKind::Library,
-                        object: ObjectPredicateDef::All(&const {
-                            [
-                                ObjectPredicateDef::HasType(CardType::Land),
-                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                            ]
-                        }),
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ]),
                         minimum: 0,
                         maximum: ValueDef::Constant(1),
                         reveal: true,
@@ -749,7 +737,7 @@ fn sagu_wildling_composition() -> CardComposition {
                 // drawn again later instead of waiting in exile.
                 .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled),
             )
-        };
+    };
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, "Sagu Wildling", wildling),

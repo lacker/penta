@@ -223,11 +223,10 @@ const ZOMBIE_TOKEN: TokenCharacteristics =
     ));
 
 const WOLF_TOKEN: TokenCharacteristics =
-    TokenCharacteristics::creature(&const { ["Wolf"] }, &const { [ManaColor::Green] }, 2, 2)
-        .with_art(CardArt::new(
-            "a53f8031-aaa8-424c-929a-5478538a8cc6",
-            "David Palumbo",
-        ));
+    TokenCharacteristics::creature(&["Wolf"], &[ManaColor::Green], 2, 2).with_art(CardArt::new(
+        "a53f8031-aaa8-424c-929a-5478538a8cc6",
+        "David Palumbo",
+    ));
 
 // ISD 1 — Abbey Griffin
 pub(in crate::card::sets) static ABBEY_GRIFFIN: CardRecord = CardRecord::new(
@@ -394,8 +393,8 @@ pub(in crate::card::sets) static CLOISTERED_YOUTH: CardRecord = CardRecord::new_
         (
             "Cloistered Youth",
             const {
-                CardRules::new_creature(mana_cost!("{1}{W}"), &const { ["Human"] }, 1, 1)
-                    .with_ability(AbilityDef::triggered(
+                CardRules::new_creature(mana_cost!("{1}{W}"), &["Human"], 1, 1).with_ability(
+                    AbilityDef::triggered(
                         "At the beginning of your upkeep, you may transform this creature.",
                         TriggerEventDef::StepBegins {
                             step: crate::card::TurnStepDef::Upkeep,
@@ -407,14 +406,15 @@ pub(in crate::card::sets) static CLOISTERED_YOUTH: CardRecord = CardRecord::new_
                                 object: EffectRecipientDef::Source,
                             },
                         },
-                    ))
+                    ),
+                )
             },
         ),
         (
             "Unholy Fiend",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Horror"] }, 3, 3)
-                    .printed_colors(&const { [ManaColor::Black] })
+                CardRules::new_creature_without_mana_cost(&["Horror"], 3, 3)
+                    .printed_colors(&[ManaColor::Black])
                     .with_ability(AbilityDef::triggered(
                         "At the beginning of your end step, you lose 1 life.",
                         TriggerEventDef::StepBegins {
@@ -1140,16 +1140,16 @@ pub(in crate::card::sets) static THRABEN_SENTRY: CardRecord = CardRecord::new_df
         (
             "Thraben Sentry",
             const {
-                CardRules::new_creature(mana_cost!("{3}{W}"), &const { ["Human", "Soldier"] }, 2, 2).with_abilities(&const { [
+                CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Soldier"], 2, 2).with_abilities(&const { [
                 abilities::vigilance(),
                 AbilityDef::triggered(
                     "Whenever another creature you control dies, you may transform this creature.",
                     TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::All(&const { [
+                        ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
                             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ] }),
+                        ]),
                         Some(ZoneKind::Battlefield),
                         Some(ZoneKind::Graveyard),
                     ),
@@ -1166,8 +1166,8 @@ pub(in crate::card::sets) static THRABEN_SENTRY: CardRecord = CardRecord::new_df
         (
             "Thraben Militia",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Human", "Soldier"] }, 5, 4)
-                    .printed_colors(&const { [ManaColor::White] })
+                CardRules::new_creature_without_mana_cost(&["Human", "Soldier"], 5, 4)
+                    .printed_colors(&[ManaColor::White])
                     .with_ability(abilities::trample())
             },
         ),
@@ -1435,7 +1435,7 @@ pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new
         (
             "Delver of Secrets",
             const {
-                CardRules::new_creature(mana_cost!("{U}"), &const { ["Human", "Wizard"] }, 1, 1).with_ability(
+                CardRules::new_creature(mana_cost!("{U}"), &["Human", "Wizard"], 1, 1).with_ability(
                 AbilityDef::triggered(
                     "At the beginning of your upkeep, look at the top card of your library. You may reveal that card. If an instant or sorcery card is revealed this way, transform this creature.",
                     TriggerEventDef::StepBegins {
@@ -1506,8 +1506,8 @@ pub(in crate::card::sets) static DELVER_OF_SECRETS: CardRecord = CardRecord::new
         (
             "Insectile Aberration",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Human", "Insect"] }, 3, 2)
-                    .printed_colors(&const { [ManaColor::Blue] })
+                CardRules::new_creature_without_mana_cost(&["Human", "Insect"], 3, 2)
+                    .printed_colors(&[ManaColor::Blue])
                     .with_ability(abilities::flying())
             },
         ),
@@ -1743,11 +1743,11 @@ pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord
         (
             "Ludevic's Test Subject",
             const {
-                CardRules::new_creature(mana_cost!("{1}{U}"), &const { ["Lizard", "Egg"] }, 0, 3)
+                CardRules::new_creature(mana_cost!("{1}{U}"), &["Lizard", "Egg"], 0, 3)
                 .with_abilities(&const { [abilities::defender(), AbilityDef::activated(
                         "{1}{U}: Put a hatchling counter on this creature. Then if there are five or more hatchling counters on it, remove all of them and transform it.",
-                        &const { [CostDef::Mana(mana_cost!("{1}{U}"))] },
-                        EffectDef::Sequence(&const { [
+                        &[CostDef::Mana(mana_cost!("{1}{U}"))],
+                        EffectDef::Sequence(&[
                             EffectDef::AddCounters {
                                 object: EffectRecipientDef::Source,
                                 kind: HATCHLING_COUNTER,
@@ -1759,7 +1759,7 @@ pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord
                                         comparison: ComparisonDef::GreaterOrEqual,
                                         amount: 5,
                                     },
-                                then: &EffectDef::Sequence(&const { [
+                                then: &EffectDef::Sequence(&[
                                     EffectDef::RemoveAllCounters {
                                         object: EffectRecipientDef::Source,
                                         kind: Some(HATCHLING_COUNTER),
@@ -1767,17 +1767,17 @@ pub(in crate::card::sets) static LUDEVIC_S_TEST_SUBJECT: CardRecord = CardRecord
                                     EffectDef::Transform {
                                         object: EffectRecipientDef::Source,
                                     },
-                                ] }),
+                                ]),
                             },
-                        ] }),
+                        ]),
                     )] })
             },
         ),
         (
             "Ludevic's Abomination",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Lizard", "Horror"] }, 13, 13)
-                    .printed_colors(&const { [ManaColor::Blue] })
+                CardRules::new_creature_without_mana_cost(&["Lizard", "Horror"], 13, 13)
+                    .printed_colors(&[ManaColor::Blue])
                     .with_ability(abilities::trample())
             },
         ),
@@ -2944,7 +2944,7 @@ CardRules::new_planeswalker(mana_cost!("{1}{B}{B}"), &["Liliana"], 3)
                     first: LILIANA_FIRST_PILE,
                     second: LILIANA_SECOND_PILE,
                     visibility: ChoiceVisibilityDef::Public,
-                    then: &const { EffectDef::ChooseGroup(ChooseGroupDef {
+                    then: &EffectDef::ChooseGroup(ChooseGroupDef {
                         actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
                         first: ObjectSetDef::Binding(LILIANA_FIRST_PILE),
                         second: ObjectSetDef::Binding(LILIANA_SECOND_PILE),
@@ -2954,7 +2954,7 @@ CardRules::new_planeswalker(mana_cost!("{1}{B}{B}"), &["Liliana"], 3)
                         then: &EffectDef::sacrifice(EffectRecipientDef::objects(
                             ObjectSetDef::Binding(LILIANA_CHOSEN_PILE),
                         )),
-                    }) },
+                    }),
                 }),
             ),
         ]),
@@ -3130,15 +3130,15 @@ pub(in crate::card::sets) static SCREECHING_BAT: CardRecord = CardRecord::new_df
         (
             "Screeching Bat",
             const {
-                CardRules::new_creature(mana_cost!("{2}{B}"), &const { ["Bat"] }, 2, 2)
+                CardRules::new_creature(mana_cost!("{2}{B}"), &["Bat"], 2, 2)
                     .with_abilities(&const { [abilities::flying(), SCREECHING_BAT_UPKEEP_ABILITY] })
             },
         ),
         (
             "Stalking Vampire",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Vampire"] }, 5, 5)
-                    .printed_colors(&const { [ManaColor::Black] })
+                CardRules::new_creature_without_mana_cost(&["Vampire"], 5, 5)
+                    .printed_colors(&[ManaColor::Black])
                     .with_ability(SCREECHING_BAT_UPKEEP_ABILITY)
             },
         ),
@@ -3848,7 +3848,7 @@ pub(in crate::card::sets) static HANWEIR_WATCHKEEP: CardRecord = CardRecord::new
             const {
                 CardRules::new_creature(
                     mana_cost!("{2}{R}"),
-                    &const { ["Human", "Warrior", "Werewolf"] },
+                    &["Human", "Warrior", "Werewolf"],
                     1,
                     5,
                 )
@@ -3858,8 +3858,8 @@ pub(in crate::card::sets) static HANWEIR_WATCHKEEP: CardRecord = CardRecord::new
         (
             "Bane of Hanweir",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 5, 5)
-                    .printed_colors(&const { [ManaColor::Red] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 5, 5)
+                    .printed_colors(&[ManaColor::Red])
                     .with_abilities(
                         &const {
                             [
@@ -3954,47 +3954,38 @@ pub(in crate::card::sets) static INSTIGATOR_GANG: CardRecord = CardRecord::new_d
         (
             "Instigator Gang",
             const {
-                CardRules::new_creature(
-                    mana_cost!("{3}{R}"),
-                    &const { ["Human", "Werewolf"] },
-                    2,
-                    3,
-                )
-                .with_abilities(
-                    &const {
-                        [
-                            AbilityDef::static_ability(
-                                "Attacking creatures you control get +1/+0.",
-                                EffectDef::StaticApply {
-                                    recipient: EffectRecipientDef::matching_objects(
-                                        ObjectPredicateDef::All(
-                                            &const {
-                                                [
-                                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                                    ObjectPredicateDef::Attacking,
-                                                ]
-                                            },
+                CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Werewolf"], 2, 3)
+                    .with_abilities(
+                        &const {
+                            [
+                                AbilityDef::static_ability(
+                                    "Attacking creatures you control get +1/+0.",
+                                    EffectDef::StaticApply {
+                                        recipient: EffectRecipientDef::matching_objects(
+                                            ObjectPredicateDef::All(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::Attacking,
+                                            ]),
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::You,
                                         ),
-                                        &const { [ZoneKind::Battlefield] },
-                                        PlayerRelation::You,
-                                    ),
-                                    effect: AppliedEffectDef::modify_power_toughness(
-                                        ValueDef::Constant(1),
-                                        ValueDef::Constant(0),
-                                    ),
-                                },
-                            ),
-                            WEREWOLF_FRONT_TRANSFORM,
-                        ]
-                    },
-                )
+                                        effect: AppliedEffectDef::modify_power_toughness(
+                                            ValueDef::Constant(1),
+                                            ValueDef::Constant(0),
+                                        ),
+                                    },
+                                ),
+                                WEREWOLF_FRONT_TRANSFORM,
+                            ]
+                        },
+                    )
             },
         ),
         (
             "Wildblood Pack",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 5, 5)
-                    .printed_colors(&const { [ManaColor::Red] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 5, 5)
+                    .printed_colors(&[ManaColor::Red])
                     .with_abilities(
                         &const {
                             [
@@ -4003,17 +3994,11 @@ pub(in crate::card::sets) static INSTIGATOR_GANG: CardRecord = CardRecord::new_d
                                     "Attacking creatures you control get +3/+0.",
                                     EffectDef::StaticApply {
                                         recipient: EffectRecipientDef::matching_objects(
-                                            ObjectPredicateDef::All(
-                                                &const {
-                                                    [
-                                                        ObjectPredicateDef::HasType(
-                                                            CardType::Creature,
-                                                        ),
-                                                        ObjectPredicateDef::Attacking,
-                                                    ]
-                                                },
-                                            ),
-                                            &const { [ZoneKind::Battlefield] },
+                                            ObjectPredicateDef::All(&[
+                                                ObjectPredicateDef::HasType(CardType::Creature),
+                                                ObjectPredicateDef::Attacking,
+                                            ]),
+                                            &[ZoneKind::Battlefield],
                                             PlayerRelation::You,
                                         ),
                                         effect: AppliedEffectDef::modify_power_toughness(
@@ -4262,20 +4247,15 @@ pub(in crate::card::sets) static RECKLESS_WAIF: CardRecord = CardRecord::new_dfc
         (
             "Reckless Waif",
             const {
-                CardRules::new_creature(
-                    mana_cost!("{R}"),
-                    &const { ["Human", "Rogue", "Werewolf"] },
-                    1,
-                    1,
-                )
-                .with_ability(WEREWOLF_FRONT_TRANSFORM)
+                CardRules::new_creature(mana_cost!("{R}"), &["Human", "Rogue", "Werewolf"], 1, 1)
+                    .with_ability(WEREWOLF_FRONT_TRANSFORM)
             },
         ),
         (
             "Merciless Predator",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 3, 2)
-                    .printed_colors(&const { [ManaColor::Red] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 3, 2)
+                    .printed_colors(&[ManaColor::Red])
                     .with_ability(WEREWOLF_BACK_TRANSFORM)
             },
         ),
@@ -4406,7 +4386,7 @@ pub(in crate::card::sets) static TORMENTED_PARIAH: CardRecord = CardRecord::new_
             const {
                 CardRules::new_creature(
                     mana_cost!("{3}{R}"),
-                    &const { ["Human", "Warrior", "Werewolf"] },
+                    &["Human", "Warrior", "Werewolf"],
                     3,
                     2,
                 )
@@ -4416,8 +4396,8 @@ pub(in crate::card::sets) static TORMENTED_PARIAH: CardRecord = CardRecord::new_
         (
             "Rampaging Werewolf",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 6, 4)
-                    .printed_colors(&const { [ManaColor::Red] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 6, 4)
+                    .printed_colors(&[ManaColor::Red])
                     .with_ability(WEREWOLF_BACK_TRANSFORM)
             },
         ),
@@ -4507,20 +4487,17 @@ pub(in crate::card::sets) static VILLAGE_IRONSMITH: CardRecord = CardRecord::new
         (
             "Village Ironsmith",
             const {
-                CardRules::new_creature(
-                    mana_cost!("{1}{R}"),
-                    &const { ["Human", "Werewolf"] },
-                    1,
-                    1,
-                )
-                .with_abilities(&const { [abilities::first_strike(), WEREWOLF_FRONT_TRANSFORM] })
+                CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Werewolf"], 1, 1)
+                    .with_abilities(
+                        &const { [abilities::first_strike(), WEREWOLF_FRONT_TRANSFORM] },
+                    )
             },
         ),
         (
             "Ironfang",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 3, 1)
-                    .printed_colors(&const { [ManaColor::Red] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 3, 1)
+                    .printed_colors(&[ManaColor::Red])
                     .with_abilities(&const { [abilities::first_strike(), WEREWOLF_BACK_TRANSFORM] })
             },
         ),
@@ -4625,7 +4602,7 @@ pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord = CardRecord::new_d
             const {
                 CardRules::new_creature(
                     mana_cost!("{2}{G}"),
-                    &const { ["Human", "Archer", "Ranger", "Werewolf"] },
+                    &["Human", "Archer", "Ranger", "Werewolf"],
                     2,
                     2,
                 )
@@ -4634,19 +4611,15 @@ pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord = CardRecord::new_d
                         [
                             AbilityDef::activated_with_targets(
                                 "{T}: This creature deals 2 damage to target creature with flying.",
-                                &const { [CostDef::TapSource] },
+                                &[CostDef::TapSource],
                                 &const {
                                     [AbilityTargetDef::exactly_one_permanent(
-                                        ObjectPredicateDef::All(
-                                            &const {
-                                                [
-                                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                                    ObjectPredicateDef::HasKeyword(
-                                                        crate::card::KeywordAbility::Flying,
-                                                    ),
-                                                ]
-                                            },
-                                        ),
+                                        ObjectPredicateDef::All(&[
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                            ObjectPredicateDef::HasKeyword(
+                                                crate::card::KeywordAbility::Flying,
+                                            ),
+                                        ]),
                                     )]
                                 },
                                 EffectDef::damage(
@@ -4663,43 +4636,40 @@ pub(in crate::card::sets) static DAYBREAK_RANGER: CardRecord = CardRecord::new_d
         (
             "Nightfall Predator",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 4, 4)
-                        .printed_colors(&const { [ManaColor::Green] })
-                        .with_abilities(
-                            &const {
-                                [
-                                    AbilityDef::activated_with_targets(
-                                        "{R}, {T}: This creature fights target creature.",
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 4, 4)
+                    .printed_colors(&[ManaColor::Green])
+                    .with_abilities(
+                        &const {
+                            [
+                                AbilityDef::activated_with_targets(
+                                    "{R}, {T}: This creature fights target creature.",
+                                    &[CostDef::Mana(mana_cost!("{R}")), CostDef::TapSource],
+                                    &const {
+                                        [AbilityTargetDef::exactly_one_permanent(
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                        )]
+                                    },
+                                    EffectDef::Sequence(
                                         &const {
                                             [
-                                                CostDef::Mana(mana_cost!("{R}")),
-                                                CostDef::TapSource,
+                                                EffectDef::damage(
+                                                    EffectRecipientDef::Target(
+                                                        TargetIndex::PRIMARY,
+                                                    ),
+                                                    ValueDef::SourcePower,
+                                                ),
+                                                EffectDef::damage(
+                                                    EffectRecipientDef::Source,
+                                                    ValueDef::TargetPower(TargetIndex::PRIMARY),
+                                                ),
                                             ]
                                         },
-                                        &const {
-                                            [AbilityTargetDef::exactly_one_permanent(
-                                                ObjectPredicateDef::HasType(CardType::Creature),
-                                            )]
-                                        },
-                                        EffectDef::Sequence(
-                                            &const {
-                                                [
-                                                    EffectDef::damage(
-                                                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                                                        ValueDef::SourcePower,
-                                                    ),
-                                                    EffectDef::damage(
-                                                        EffectRecipientDef::Source,
-                                                        ValueDef::TargetPower(TargetIndex::PRIMARY),
-                                                    ),
-                                                ]
-                                            },
-                                        ),
                                     ),
-                                    WEREWOLF_BACK_TRANSFORM,
-                                ]
-                            },
-                        )
+                                ),
+                                WEREWOLF_BACK_TRANSFORM,
+                            ]
+                        },
+                    )
             },
         ),
     ],
@@ -4812,7 +4782,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
         (
             "Garruk Relentless",
             const {
-                CardRules::new_planeswalker(mana_cost!("{3}{G}"), &const { ["Garruk"] }, 3)
+                CardRules::new_planeswalker(mana_cost!("{3}{G}"), &["Garruk"], 3)
                 .with_supertype(CardSupertype::Legendary)
                 .with_abilities(&const { [
                     AbilityDef::triggered_if(
@@ -4830,7 +4800,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                     ),
                     AbilityDef::activated_with_targets(
                         "0: Garruk deals 3 damage to target creature. That creature deals damage equal to its power to him.",
-                        &const { [CostDef::Loyalty(0)] },
+                        &[CostDef::Loyalty(0)],
                         &const { [AbilityTargetDef::exactly_one_permanent(
                             ObjectPredicateDef::HasType(CardType::Creature),
                         )] },
@@ -4850,7 +4820,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                     ),
                     AbilityDef::activated(
                         "0: Create a 2/2 green Wolf creature token.",
-                        &const { [CostDef::Loyalty(0)] },
+                        &[CostDef::Loyalty(0)],
                         EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
                             WOLF_TOKEN,
                         ))),
@@ -4861,15 +4831,15 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
         (
             "Garruk, the Veil-Cursed",
             const {
-                CardRules::new_planeswalker_without_mana_cost(&const { ["Garruk"] })
+                CardRules::new_planeswalker_without_mana_cost(&["Garruk"])
                 .with_supertype(CardSupertype::Legendary)
-                .printed_colors(&const { [ManaColor::Black, ManaColor::Green] })
+                .printed_colors(&[ManaColor::Black, ManaColor::Green])
                 .with_abilities(&const { [
                     AbilityDef::activated(
                         "+1: Create a 1/1 black Wolf creature token with deathtouch.",
-                        &const { [CostDef::Loyalty(1)] },
+                        &[CostDef::Loyalty(1)],
                         EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                            TokenCharacteristics::creature(&const { ["Wolf"] }, &const { [ManaColor::Black] }, 1, 1)
+                            TokenCharacteristics::creature(&["Wolf"], &[ManaColor::Black], 1, 1)
                                 .with_abilities(&const { [abilities::deathtouch()] })
                                 .with_art(CardArt::new(
                                     "7a49607c-427a-474c-ad77-60cd05844b3c",
@@ -4879,7 +4849,7 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                     ),
                     AbilityDef::activated(
                         "−1: Sacrifice a creature. If you do, search your library for a creature card, reveal it, put it into your hand, then shuffle.",
-                        &const { [CostDef::Loyalty(-1)] },
+                        &[CostDef::Loyalty(-1)],
                         EffectDef::SacrificeOfChoice {
                             count: ValueDef::Constant(1),
                             player: EffectRecipientDef::Controller,
@@ -4906,11 +4876,11 @@ pub(in crate::card::sets) static GARRUK_RELENTLESS: CardRecord = CardRecord::new
                     ),
                     AbilityDef::activated(
                         "−3: Creatures you control gain trample and get +X/+X until end of turn, where X is the number of creature cards in your graveyard.",
-                        &const { [CostDef::Loyalty(-3)] },
+                        &[CostDef::Loyalty(-3)],
                         EffectDef::Apply {
                             recipient: EffectRecipientDef::matching_objects(
                                 ObjectPredicateDef::HasType(CardType::Creature),
-                                &const { [ZoneKind::Battlefield] },
+                                &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
                             ),
                             effect: AppliedEffectDef::Composite(&const { [
@@ -4938,20 +4908,15 @@ pub(in crate::card::sets) static GATSTAF_SHEPHERD: CardRecord = CardRecord::new_
         (
             "Gatstaf Shepherd",
             const {
-                CardRules::new_creature(
-                    mana_cost!("{1}{G}"),
-                    &const { ["Human", "Werewolf"] },
-                    2,
-                    2,
-                )
-                .with_ability(WEREWOLF_FRONT_TRANSFORM)
+                CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Werewolf"], 2, 2)
+                    .with_ability(WEREWOLF_FRONT_TRANSFORM)
             },
         ),
         (
             "Gatstaf Howler",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 3, 3)
-                    .printed_colors(&const { [ManaColor::Green] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 3, 3)
+                    .printed_colors(&[ManaColor::Green])
                     .with_abilities(&const { [abilities::intimidate(), WEREWOLF_BACK_TRANSFORM] })
             },
         ),
@@ -4994,20 +4959,15 @@ pub(in crate::card::sets) static GRIZZLED_OUTCASTS: CardRecord = CardRecord::new
         (
             "Grizzled Outcasts",
             const {
-                CardRules::new_creature(
-                    mana_cost!("{4}{G}"),
-                    &const { ["Human", "Werewolf"] },
-                    4,
-                    4,
-                )
-                .with_ability(WEREWOLF_FRONT_TRANSFORM)
+                CardRules::new_creature(mana_cost!("{4}{G}"), &["Human", "Werewolf"], 4, 4)
+                    .with_ability(WEREWOLF_FRONT_TRANSFORM)
             },
         ),
         (
             "Krallenhorde Wantons",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 7, 7)
-                    .printed_colors(&const { [ManaColor::Green] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 7, 7)
+                    .printed_colors(&[ManaColor::Green])
                     .with_ability(WEREWOLF_BACK_TRANSFORM)
             },
         ),
@@ -5201,7 +5161,7 @@ pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new
             const {
                 CardRules::new_creature(
                     mana_cost!("{1}{G}"),
-                    &const { ["Human", "Advisor", "Werewolf"] },
+                    &["Human", "Advisor", "Werewolf"],
                     1,
                     1,
                 )
@@ -5212,20 +5172,14 @@ pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new
                                 "Other Human creatures you control get +1/+1.",
                                 EffectDef::StaticApply {
                                     recipient: EffectRecipientDef::matching_objects(
-                                        ObjectPredicateDef::All(
-                                            &const {
-                                                [
-                                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                                    ObjectPredicateDef::Subtype(
-                                                        SubtypeDef::Literal("Human"),
-                                                    ),
-                                                    ObjectPredicateDef::Not(
-                                                        &ObjectPredicateDef::Source,
-                                                    ),
-                                                ]
-                                            },
-                                        ),
-                                        &const { [ZoneKind::Battlefield] },
+                                        ObjectPredicateDef::All(&[
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                            ObjectPredicateDef::Subtype(SubtypeDef::Literal(
+                                                "Human",
+                                            )),
+                                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                        ]),
+                                        &[ZoneKind::Battlefield],
                                         PlayerRelation::You,
                                     ),
                                     effect: AppliedEffectDef::modify_power_toughness(
@@ -5243,22 +5197,22 @@ pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new
         (
             "Howlpack Alpha",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 3, 3)
-                .printed_colors(&const { [ManaColor::Green] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 3, 3)
+                .printed_colors(&[ManaColor::Green])
                 .with_abilities(&const { [
                     AbilityDef::static_ability(
                         "Each other creature you control that's a Werewolf or a Wolf gets +1/+1.",
                         EffectDef::StaticApply {
                             recipient: EffectRecipientDef::matching_objects(
-                                ObjectPredicateDef::All(&const { [
+                                ObjectPredicateDef::All(&[
                                     ObjectPredicateDef::HasType(CardType::Creature),
-                                    ObjectPredicateDef::AnyOf(&const { [
+                                    ObjectPredicateDef::AnyOf(&[
                                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Werewolf")),
                                         ObjectPredicateDef::Subtype(SubtypeDef::Literal("Wolf")),
-                                    ] }),
+                                    ]),
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                                ] }),
-                                &const { [ZoneKind::Battlefield] },
+                                ]),
+                                &[ZoneKind::Battlefield],
                                 PlayerRelation::You,
                             ),
                             effect: AppliedEffectDef::modify_power_toughness(
@@ -5556,7 +5510,7 @@ pub(in crate::card::sets) static ULVENWALD_MYSTICS: CardRecord = CardRecord::new
             const {
                 CardRules::new_creature(
                     mana_cost!("{2}{G}{G}"),
-                    &const { ["Human", "Shaman", "Werewolf"] },
+                    &["Human", "Shaman", "Werewolf"],
                     3,
                     3,
                 )
@@ -5566,14 +5520,14 @@ pub(in crate::card::sets) static ULVENWALD_MYSTICS: CardRecord = CardRecord::new
         (
             "Ulvenwald Primordials",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 5, 5)
-                    .printed_colors(&const { [ManaColor::Green] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 5, 5)
+                    .printed_colors(&[ManaColor::Green])
                     .with_abilities(
                         &const {
                             [
                                 abilities::regenerate_self(
                                     "{G}: Regenerate this creature.",
-                                    &const { [CostDef::Mana(mana_cost!("{G}"))] },
+                                    &[CostDef::Mana(mana_cost!("{G}"))],
                                 ),
                                 WEREWOLF_BACK_TRANSFORM,
                             ]
@@ -5593,20 +5547,15 @@ pub(in crate::card::sets) static VILLAGERS_OF_ESTWALD: CardRecord = CardRecord::
         (
             "Villagers of Estwald",
             const {
-                CardRules::new_creature(
-                    mana_cost!("{2}{G}"),
-                    &const { ["Human", "Werewolf"] },
-                    2,
-                    3,
-                )
-                .with_ability(WEREWOLF_FRONT_TRANSFORM)
+                CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Werewolf"], 2, 3)
+                    .with_ability(WEREWOLF_FRONT_TRANSFORM)
             },
         ),
         (
             "Howlpack of Estwald",
             const {
-                CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 4, 6)
-                    .printed_colors(&const { [ManaColor::Green] })
+                CardRules::new_creature_without_mana_cost(&["Werewolf"], 4, 6)
+                    .printed_colors(&[ManaColor::Green])
                     .with_ability(WEREWOLF_BACK_TRANSFORM)
             },
         ),

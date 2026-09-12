@@ -3840,12 +3840,12 @@ CardRules::new_artifact(mana_cost!("{3}"))
 );
 
 // NPH 162 — Torpor Orb
-// Audit: unsupported — Needs a player rule that suppresses triggered abilities caused by creatures entering the battlefield without suppressing other entry events.
+// Audit: unsupported — Needs suppression of triggers caused by creature entries across all listener types; trigger doubling exists, but no declarative rule suppresses the matching entry-caused triggers.
 pub(in crate::card::sets) static TORPOR_ORB: CardRecord = CardRecord::new(
     "Torpor Orb",
     "953610f6-ea96-4e71-969f-50ecac09c091",
     "Svetlin Velinov",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // NPH 163 — Trespassing Souleater

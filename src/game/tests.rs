@@ -618,7 +618,6 @@ mod vintage_cube_galvanic_blast;
 mod vintage_cube_galvanic_discharge;
 mod vintage_cube_gau;
 mod vintage_cube_generous_ent;
-mod vintage_cube_generous_plunderer;
 mod vintage_cube_get_lost;
 mod vintage_cube_gitaxian_probe;
 mod vintage_cube_giver_of_runes;
@@ -948,6 +947,7 @@ mod wilds_of_eldraine;
 
 mod duskmourn;
 
+mod big_score;
 mod foundations;
 mod karlov_manor;
 mod thunder_junction;

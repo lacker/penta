@@ -354,12 +354,12 @@ pub(in crate::card::sets) static GIDEON_S_LAWKEEPER: CardRecord = CardRecord::ne
 );
 
 // M12 19 — Grand Abolisher
-// Audit: unsupported — Needs a turn-gated opponent restriction that permits mana abilities but bars other artifact, creature, and enchantment-card abilities in every zone.
+// Audit: unsupported — Needs a player-specific activation prohibition restricted to artifact, creature, and enchantment permanents on the battlefield; current type predicates also prohibit abilities of matching cards in hand and graveyards, while permanent ability prohibitions cannot distinguish which player activates them.
 pub(in crate::card::sets) static GRAND_ABOLISHER: CardRecord = CardRecord::new(
     "Grand Abolisher",
     "67e35a40-37dd-436c-b4ac-b17b04508c1f",
     "Eric Deschamps",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // M12 20 — Griffin Rider

@@ -4,31 +4,63 @@ use super::CardRecord;
 use super::PrintingRecord;
 use crate::TargetIndex;
 use crate::card::AbilityDef;
+use crate::card::AbilityOperationDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
+use crate::card::AddManaEffectDef;
 use crate::card::AppliedEffectDef;
+use crate::card::AppliedRuleDef;
+use crate::card::BindObjectsDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
+use crate::card::CardSupertype;
 use crate::card::CardType;
 use crate::card::CardTypeSet;
+use crate::card::CharacteristicOperationDef;
+use crate::card::ChoiceVisibilityDef;
+use crate::card::ChooseCardsFromCollectionDef;
+use crate::card::ChooseDef;
+use crate::card::ChooseForEachPlayerDef;
+use crate::card::CollectionInspectionDef;
 use crate::card::CopyExceptionsDef;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
+use crate::card::CounterKind;
+use crate::card::CreatedTokensDef;
+use crate::card::CreatureTypeSetDef;
+use crate::card::DamageEventMatcherDef;
+use crate::card::DamageKindDef;
+use crate::card::DamageSourceMatcherDef;
+use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
+use crate::card::InstalledTriggerDef;
+use crate::card::ManaColor;
+use crate::card::ObjectChoiceBindingDef;
+use crate::card::ObjectCollectionSourceDef;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectQueryDef;
+use crate::card::ObjectRefDef;
+use crate::card::ObjectSetDef;
+use crate::card::ObjectSetFilterDef;
+use crate::card::PayOrDef;
+use crate::card::PerPlayerSelectionDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::RandomizeObjectOrderDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
+use crate::card::SubtypeDef;
+use crate::card::TokenCopyDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
+use crate::card::tokens;
 use crate::mana_cost;
 
 static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -53,12 +85,12 @@ const TREASURE_TOKEN: TokenCharacteristics = crate::card::tokens::treasure().wit
 );
 
 // BIG 1 — Collector's Cage
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs counting distinct current powers among controlled creatures to gate the hideaway cast; sum/minimum/maximum scalar aggregates do not implement distinct-value cardinality.
 pub(in crate::card::sets) static COLLECTOR_S_CAGE: CardRecord = CardRecord::new(
     "Collector's Cage",
     "a33703bb-51c0-4d57-9d06-1148507ddc4f",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 2 — Grand Abolisher (reprint)
@@ -69,12 +101,44 @@ const GRAND_ABOLISHER_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // BIG 3 — Oltec Matterweaver
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OLTEC_MATTERWEAVER: CardRecord = CardRecord::new(
     "Oltec Matterweaver",
     "f4f2a818-9fd1-41db-967e-7d2c9b4e4c2f",
     "Villarrte",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Artificer"], 2, 4).with_abilities(&[
+        AbilityDef::modal_triggered(
+            "Whenever you cast a creature spell, choose one —",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            &[
+                AbilityDef::spell(
+                    "Create a 1/1 colorless Gnome artifact creature token.",
+                    EffectDef::create_artifact_creature_token(&["Gnome"], &[], 1, 1),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Create a token that's a copy of target artifact token you \
+                     control.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::Token,
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::create_token_from_copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    }),
+                ),
+            ],
+        ),
+    ]),
 );
 
 // BIG 4 — Rest in Peace (reprint)
@@ -85,39 +149,202 @@ const REST_IN_PEACE_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // BIG 5 — Esoteric Duplicator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ESOTERIC_DUPLICATOR: CardRecord = CardRecord::new(
     "Esoteric Duplicator",
     "3dbb2755-97d9-492e-8697-5548160678c8",
     "Anton Solovianchyk",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}{U}"))
+        .with_subtypes(&["Clue"])
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you sacrifice this artifact or another artifact, you \
+                 may pay {2}. If you do, at the beginning of the next end \
+                 step, create a token that's a copy of that artifact.",
+                TriggerEventDef::Sacrificed {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    player: PlayerRelation::You,
+                },
+                EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
+                        ObjectRefDef::TriggeringObject,
+                    )),
+                    binding: crate::Binding!("artifact"),
+                    then: &EffectDef::PayOr(PayOrDef::optional(
+                        &[CostDef::Mana(mana_cost!("{2}"))],
+                        &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                            &AbilityDef::triggered(
+                                "At the beginning of the next end step, create a token that is \
+                                 a copy of that artifact.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::create_token_from_copy(&TokenCopyDef {
+                                    object: &EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        crate::Binding!("artifact"),
+                                    )),
+                                    exceptions: CopyExceptionsDef::NONE,
+                                }),
+                            ),
+                        )),
+                    )),
+                }),
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Draw a card.",
+                &[CostDef::Mana(mana_cost!("{2}")), CostDef::SacrificeSource],
+                abilities::draw_cards(ValueDef::Constant(1)),
+            ),
+        ]),
 );
 
 // BIG 6 — Simulacrum Synthesizer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIMULACRUM_SYNTHESIZER: CardRecord = CardRecord::new(
     "Simulacrum Synthesizer",
     "aaa05ad1-5cda-4edd-b6bf-562ae3e5011a",
     "Anton Solovianchyk",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}{U}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, scry 2.",
+            abilities::scry(ValueDef::Constant(2)),
+        ),
+        AbilityDef::triggered(
+            "Whenever another artifact you control with mana value 3 or \
+             greater enters, create a 0/0 colorless Construct artifact \
+             creature token with \"This token gets +1/+1 for each artifact \
+             you control.\"",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(2)),
+                    ]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::create_artifact_creature_token(&["Construct"], &[], 0, 0).with_abilities(&[
+                AbilityDef::static_ability(
+                    "This token gets +1/+1 for each artifact you control.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                            ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            )),
+                        ),
+                    },
+                ),
+            ]),
+        ),
+    ]),
 );
 
 // BIG 7 — Worldwalker Helm
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a prospective token-creation replacement that appends one token of another kind to the original creation batch; existing token replacements multiply counts or change token characteristics.
 pub(in crate::card::sets) static WORLDWALKER_HELM: CardRecord = CardRecord::new(
     "Worldwalker Helm",
     "b74ad496-05bc-4c5a-9027-b14df9c387ab",
     "Camille Alquier",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 8 — Greed's Gambit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREED_S_GAMBIT: CardRecord = CardRecord::new(
     "Greed's Gambit",
     "5b60a1a6-b2ca-4dc2-a6d9-eff97092079a",
     "Inkognit",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{B}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this enchantment enters, you draw three cards, gain 6 \
+             life, and create three 2/1 black Bat creature tokens with \
+             flying.",
+            EffectDef::Sequence(&[
+                abilities::draw_cards(ValueDef::Constant(3)),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(6),
+                },
+                EffectDef::create_creature_token(&["Bat"], &[ManaColor::Black], 2, 1)
+                    .with_count(ValueDef::Constant(3))
+                    .with_abilities(&[abilities::flying()]),
+            ]),
+        ),
+        AbilityDef::triggered(
+            "At the beginning of your end step, you discard a card, lose 2 \
+             life, and sacrifice a creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::End,
+                player: PlayerRelation::You,
+            },
+            EffectDef::Sequence(&[
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::Controller,
+                    zone: ZoneKind::Battlefield,
+                    candidates: ObjectPredicateDef::HasType(CardType::Creature),
+                    selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                    chosen: crate::Binding!("sacrifices"),
+                    unchosen: crate::Binding!("unchosen_sacrifices"),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::sacrifice(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("sacrifices")),
+                    )),
+                }),
+            ]),
+        ),
+        AbilityDef::triggered(
+            "When this enchantment leaves the battlefield, you discard \
+             three cards, lose 6 life, and sacrifice three creatures.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                None,
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(6),
+                },
+                EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::Controller,
+                    zone: ZoneKind::Battlefield,
+                    candidates: ObjectPredicateDef::HasType(CardType::Creature),
+                    selection: PerPlayerSelectionDef::Count(ValueDef::Constant(3)),
+                    chosen: crate::Binding!("sacrifices"),
+                    unchosen: crate::Binding!("unchosen_sacrifices"),
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::sacrifice(EffectRecipientDef::objects(
+                        ObjectSetDef::Binding(crate::Binding!("sacrifices")),
+                    )),
+                }),
+            ]),
+        ),
+    ]),
 );
 
 // BIG 9 — Harvester of Misery
@@ -171,12 +398,34 @@ pub(in crate::card::sets) static HARVESTER_OF_MISERY: CardRecord = CardRecord::n
 );
 
 // BIG 10 — Hostile Investigator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOSTILE_INVESTIGATOR: CardRecord = CardRecord::new(
     "Hostile Investigator",
     "158c000e-7960-4518-b034-a529622b7bf1",
     "Andrew Mar",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Ogre", "Rogue", "Detective"], 4, 3)
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, target opponent discards a card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever one or more players discard one or more cards, \
+                 investigate. This ability triggers only once each turn. \
+                 (Create a Clue token. It's an artifact with \"{2}, Sacrifice \
+                 this token: Draw a card.\")",
+                TriggerEventDef::DiscardedCards(PlayerRelation::Any),
+                EffectDef::create_token(tokens::clue()).with_count(ValueDef::Constant(1)),
+            )
+            .triggering_at_most(1),
+        ]),
 );
 
 // BIG 11 — Generous Plunderer (alternate printing)
@@ -230,66 +479,234 @@ pub(in crate::card::sets) static LEGION_EXTRUDER: CardRecord = CardRecord::new(
 );
 
 // BIG 13 — Memory Vessel
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs per-player exile-play permissions and hand-play prohibitions that expire as the activating player's next turn begins; the exile permission duration vocabulary does not express that boundary.
 pub(in crate::card::sets) static MEMORY_VESSEL: CardRecord = CardRecord::new(
     "Memory Vessel",
     "2e37a5cd-887d-4b41-97f7-ae0bba85436b",
     "Diego Gisbert",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 14 — Molten Duplication
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOLTEN_DUPLICATION: CardRecord = CardRecord::new(
     "Molten Duplication",
     "fdbe1ac1-461f-4746-a8d8-6c8dea2c97c6",
     "Justyna Dura",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Create a token that's a copy of target artifact or creature \
+         you control, except it's an artifact in addition to its other \
+         types. It gains haste until end of turn. Sacrifice it at the \
+         beginning of the next end step.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::create_token_from_copy(&TokenCopyDef {
+            object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            exceptions: CopyExceptionsDef::NONE
+                .with_added_types(CardTypeSet::single(CardType::Artifact)),
+        })
+        .with_created_tokens(CreatedTokensDef {
+            binding: crate::Binding!("copy"),
+            then: &EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                        "copy"
+                    ))),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next end step, sacrifice this permanent.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::End,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::sacrifice(EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        crate::Binding!("copy"),
+                    ))),
+                ))),
+            ]),
+        }),
+    )]),
 );
 
 // BIG 15 — Territory Forge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRITORY_FORGE: CardRecord = CardRecord::new(
     "Territory Forge",
     "71059bc8-f63a-4d9c-9d08-2e995e74cc59",
     "Mirko Failoni",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}{R}")).with_abilities(&[
+        AbilityDef::triggered_if_with_targets(
+            "When this artifact enters, if you cast it, exile target \
+             artifact or land.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::SourceWasCast,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+            )],
+            EffectDef::ExileLinkedToSource {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                face_down: false,
+                until_source_leaves: false,
+                then: None,
+            },
+        ),
+        AbilityDef::static_ability(
+            "This artifact has all activated abilities of the exiled card.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                    AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
+                        ObjectPredicateDef::Any,
+                    ),
+                )),
+            },
+        ),
+    ]),
 );
 
 // BIG 16 — Ancient Cornucopia
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a once-per-turn use limit consumed only when the optional life gain is accepted; trigger limits are consumed when an ability triggers, including triggers whose optional effect is declined.
 pub(in crate::card::sets) static ANCIENT_CORNUCOPIA: CardRecord = CardRecord::new(
     "Ancient Cornucopia",
     "f977975d-0439-4731-b129-270cc4cdbb23",
     "Bartek Fedyczak",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 17 — Bristlebud Farmer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRISTLEBUD_FARMER: CardRecord = CardRecord::new(
     "Bristlebud Farmer",
     "d498c4de-5e80-4baa-9fcb-70f164880c84",
     "Adrián Rodríguez Pérez",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Plant", "Druid"], 5, 5).with_abilities(&[
+        abilities::trample(),
+        abilities::enters_trigger(
+            "When this creature enters, create two Food tokens. (They're \
+             artifacts with \"{2}, {T}, Sacrifice this token: You gain 3 \
+             life.\")",
+            EffectDef::create_token(tokens::food()).with_count(ValueDef::Constant(2)),
+        ),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, you may sacrifice a Food. If \
+             you do, mill three cards. You may put a permanent card from \
+             among them into your hand.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::sacrifice_permanent(ObjectPredicateDef::Subtype(
+                    SubtypeDef::Literal("Food"),
+                ))],
+                &EffectDef::Sequence(&[
+                    EffectDef::BindOutput {
+                        binding: crate::Binding!("milled"),
+                        effect: &EffectDef::Mill {
+                            player: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(3),
+                        },
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Matching {
+                            objects: &ObjectSetDef::Binding(crate::Binding!("milled")),
+                            object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ])),
+                        },
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "chosen"
+                            ))),
+                            ZoneKind::Hand,
+                            ZonePlacement::Top,
+                        ),
+                    }),
+                ]),
+            )),
+        ),
+    ]),
 );
 
 // BIG 18 — Omenpath Journey
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a library search constrained to distinct selected names and a random selection from this source's linked exiles; current bounded searches and random zone selections do not compose those group constraints.
 pub(in crate::card::sets) static OMENPATH_JOURNEY: CardRecord = CardRecord::new(
     "Omenpath Journey",
     "c49c9b72-61c0-4e3a-a3a6-994b149398a9",
     "Nereida",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 19 — Sandstorm Salvager
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDSTORM_SALVAGER: CardRecord = CardRecord::new(
     "Sandstorm Salvager",
     "13b0f27c-a359-4702-833a-82fec161eeec",
     "Francis Tneh",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Artificer"], 1, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, create a 3/3 colorless Golem \
+             artifact creature token.",
+            EffectDef::create_artifact_creature_token(&["Golem"], &[], 3, 3),
+        ),
+        AbilityDef::activated(
+            "{2}, {T}: Put a +1/+1 counter on each creature token you \
+             control. They gain trample until end of turn.",
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Token,
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Token,
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // BIG 20 — Vaultborn Tyrant (alternate printing)
@@ -301,57 +718,243 @@ const VAULTBORN_TYRANT_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
 );
 
 // BIG 21 — Loot, the Key to Everything
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOOT_THE_KEY_TO_EVERYTHING: CardRecord = CardRecord::new(
     "Loot, the Key to Everything",
     "fb169fa2-c92e-45f7-89a2-0ca0e3910a1c",
     "Rudy Siswanto",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{U}{R}"), &["Beast", "Noble"], 1, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::ward(&[CostDef::Mana(mana_cost!("{1}"))], "Ward {1}"),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, exile the top X cards of \
+                 your library, where X is the number of card types among other \
+                 nonland permanents you control. You may play those cards this \
+                 turn.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::EffectController,
+                        count: ValueDef::CardTypesAmongObjects(&ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                        CardType::Land,
+                                    )),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                    },
+                    binding: crate::Binding!("top"),
+                    then: &EffectDef::ExileGrantingControllerPlayThisTurn {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            crate::Binding!("top"),
+                        )),
+                    },
+                }),
+            ),
+        ]),
 );
 
 // BIG 22 — Pest Control
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PEST_CONTROL: CardRecord = CardRecord::new(
     "Pest Control",
     "a4a01b92-dafb-4ea6-8eff-29f881f6be24",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{W}{B}")).with_abilities(&[
+        AbilityDef::spell(
+            "Destroy all nonland permanents with mana value 1 or less.",
+            EffectDef::Destroy {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::ManaValueAtMost(1),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ))),
+                then: None,
+            },
+        ),
+        abilities::cycling!(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            &[CostDef::Mana(mana_cost!("{2}"))]
+        ),
+    ]),
 );
 
 // BIG 23 — Lost Jitte
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOST_JITTE: CardRecord = CardRecord::new(
     "Lost Jitte",
     "c936504c-4e90-408f-ba98-0fb8c0378471",
     "Yeong-Hao Han",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}"))
+        .with_subtypes(&["Equipment"])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever equipped creature deals combat damage, put a charge \
+                 counter on Lost Jitte.",
+                TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                    source: DamageSourceMatcherDef::Object(ObjectRefDef::AttachedToSource),
+                    kind: DamageKindDef::Combat,
+                    ..DamageEventMatcherDef::ANY
+                }),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("charge"),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::modal_activated(
+                "Remove a charge counter from Lost Jitte: Choose one —",
+                &[CostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("charge"),
+                    amount: 1,
+                }],
+                &[
+                    AbilityDef::spell_with_targets(
+                        "Untap target land.",
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                        )],
+                        EffectDef::Untap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    ),
+                    AbilityDef::spell_with_targets(
+                        "Target creature can't block this turn.",
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ),
+                    AbilityDef::spell(
+                        "Put a +1/+1 counter on equipped creature.",
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::AttachedPermanent,
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ),
+                ],
+                1,
+                1,
+                false,
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+        ]),
 );
 
 // BIG 24 — Lotus Ring
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOTUS_RING: CardRecord = CardRecord::new(
     "Lotus Ring",
     "02267717-66e0-41f7-8009-75586a4aa4be",
     "Alayna Danner",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::indestructible(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +3/+3 and has vigilance and \"{T}, \
+                 Sacrifice this creature: Add three mana of any one color.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                        AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                            "{T}, Sacrifice this creature: Add three mana of any one color.",
+                            &[CostDef::TapSource, CostDef::SacrificeSource],
+                            EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
+                        )),
+                    ]),
+                },
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+        ]),
 );
 
 // BIG 25 — Nexus of Becoming
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEXUS_OF_BECOMING: CardRecord = CardRecord::new(
     "Nexus of Becoming",
     "b0f61742-522c-4b36-97db-41d0c412a072",
     "Adam Volker",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[AbilityDef::triggered(
+        "At the beginning of combat on your turn, draw a card. Then \
+         you may exile an artifact or creature card from your hand. If \
+         you do, create a token that's a copy of the exiled card, \
+         except it's a 3/3 Golem artifact creature in addition to its \
+         other types.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::BeginningOfCombat,
+            player: PlayerRelation::You,
+        },
+        EffectDef::Sequence(&[
+            abilities::draw_cards(ValueDef::Constant(1)),
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(crate::Binding!("chosen")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                    &[ZoneKind::Hand],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Private,
+                then: &EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Exile,
+                        ZonePlacement::Top,
+                    ),
+                    binding: crate::Binding!("exiled"),
+                    then: &EffectDef::create_token_from_copy(&TokenCopyDef {
+                        object: &EffectRecipientDef::objects(
+                            ObjectSetDef::ZoneChangeSuccessorsOfBinding(crate::Binding!("exiled")),
+                        ),
+                        exceptions: CopyExceptionsDef {
+                            base_power_toughness: Some((3, 3)),
+                            added_types: CardTypeSet::single(CardType::Artifact)
+                                .union(CardTypeSet::single(CardType::Creature)),
+                            added_creature_types: CreatureTypeSetDef::named(&["Golem"]),
+                            ..CopyExceptionsDef::NONE
+                        },
+                    }),
+                },
+            }),
+        ]),
+    )]),
 );
 
 // BIG 26 — Sword of Wealth and Power
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a delayed trigger that is consumed by the next matching cast and also expires at end of turn; installed triggers support Once or ThisTurn separately and discard nested per-turn trigger limits, so the latter copies every matching spell.
 pub(in crate::card::sets) static SWORD_OF_WEALTH_AND_POWER: CardRecord = CardRecord::new(
     "Sword of Wealth and Power",
     "ed9e5041-3c05-4a8a-9f00-081b01685d0c",
     "Dominik Mayer",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 27 — Torpor Orb (reprint)
@@ -362,30 +965,79 @@ const TORPOR_ORB_REPRINT: PrintingRecord = PrintingRecord::reprint(
 );
 
 // BIG 28 — Transmutation Font
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an activation cost selecting exactly three artifact tokens with pairwise distinct names; existing sacrifice selections constrain count and individual objects but not names across the chosen group.
 pub(in crate::card::sets) static TRANSMUTATION_FONT: CardRecord = CardRecord::new(
     "Transmutation Font",
     "e6cfe673-d688-499a-882b-4fe5418739e3",
     "Mark Poole",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 29 — Fomori Vault
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOMORI_VAULT: CardRecord = CardRecord::new(
     "Fomori Vault",
     "a5433b98-4657-4bbe-9e72-d3c94c6aa8ef",
     "Jonas De Ro",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{3}, {T}, Discard a card: Look at the top X cards of your \
+             library, where X is the number of artifacts you control. Put \
+             one of those cards into your hand and the rest on the bottom \
+             of your library in a random order.",
+            &[
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+                CostDef::discard(ObjectPredicateDef::Any),
+            ],
+            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::EffectController,
+                    count: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                },
+                actor: PlayerRefDef::EffectController,
+                inspection: CollectionInspectionDef::Look,
+                object: ObjectPredicateDef::Any,
+                minimum: 1,
+                maximum: 1,
+                chosen: crate::Binding!("chosen"),
+                remainder: crate::Binding!("rest"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::move_to_zone(
+                        EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                            "chosen"
+                        ))),
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+                        input: ObjectSetDef::Binding(crate::Binding!("rest")),
+                        randomized: crate::Binding!("random_bottom"),
+                        then: &EffectDef::move_to_zone(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(crate::Binding!(
+                                "random_bottom"
+                            ))),
+                            ZoneKind::Library,
+                            ZonePlacement::Bottom,
+                        ),
+                    }),
+                ]),
+            }),
+        ),
+    ]),
 );
 
 // BIG 30 — Tarnation Vista
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a single mana activation producing one mana of each color represented by monocolored controlled permanents; the mana planner does not execute a sequence of independently conditional mana outputs.
 pub(in crate::card::sets) static TARNATION_VISTA: CardRecord = CardRecord::new(
     "Tarnation Vista",
     "962552a1-ec34-49e2-a23d-85dfb405d5e0",
     "Alayna Danner",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // BIG 31 — Collector's Cage (alternate printing)
@@ -469,63 +1121,12 @@ const HOSTILE_INVESTIGATOR_ALTERNATE_1: PrintingRecord = PrintingRecord::alterna
 );
 
 // BIG 41 — Generous Plunderer
+// Audit: unsupported — Needs a reflexive trigger created by accepting this particular upkeep effect and retained after the Plunderer leaves; OptionalEffectTaken currently finds only battlefield listeners, losing the targeted Treasure gift when the source is gone.
 pub(in crate::card::sets) static GENEROUS_PLUNDERER: CardRecord = CardRecord::new(
     "Generous Plunderer",
     "351eea06-f5be-4044-b3b3-cc6bf805abb1",
     "Josiah \"Jo\" Cameron",
-// Two mana for a 2/2 that hands the other player a Treasure every
-    // upkeep and then bills them for it on the attack.
-    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Rogue"], 2, 2)
-        .with_abilities(&[
-            abilities::menace(),
-            // Nobody is named here: "you may create a Treasure token" is all this
-            // half does, and declining it ends the matter.
-            AbilityDef::triggered(
-                "At the beginning of your upkeep, you may create a Treasure token.",
-                TriggerEventDef::StepBegins {
-                    step: TurnStepDef::Upkeep,
-                    player: PlayerRelation::You,
-                },
-                EffectDef::May {
-                    player: EffectRecipientDef::Controller,
-                    // Yours is untapped, so the Treasure you keep is usable this turn.
-                    effect: &EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Literal(
-                        TREASURE_TOKEN,
-                    ))),
-                },
-            ),
-            // "When you do": a reflexive trigger, which is why the opponent is named
-            // only once the Treasure exists, and why either player may respond to
-            // the gift without touching the Treasure that prompted it.
-            AbilityDef::triggered_with_targets(
-                "When you do, target opponent creates a tapped Treasure token.",
-                TriggerEventDef::OptionalEffectTaken(ObjectPredicateDef::Source),
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                )],
-                EffectDef::CreateToken(
-                    CreateTokenDef::new(TokenDef::Literal(TREASURE_TOKEN))
-                        .with_controller(PlayerRefDef::Target(TargetIndex::PRIMARY))
-                        .entering_tapped(),
-                ),
-            ),
-            // "Defending player" is the opponent in a two-player game, whether the
-            // attack is aimed at them or at something they control.
-            AbilityDef::triggered(
-                "Whenever this creature attacks, it deals damage to defending player equal to the number \
-                 of artifacts they control.",
-                TriggerEventDef::attack_declared(ObjectPredicateDef::Source, 1, None),
-                EffectDef::damage(
-                    EffectRecipientDef::Opponent, // Artifacts they control as the trigger resolves, which is what makes the
-                    // Treasure handed over on the upkeep into damage on the attack.
-                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Opponent,
-                    )),
-                ),
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 // BIG 42 — Legion Extruder (alternate printing)
@@ -877,63 +1478,55 @@ pub(in crate::card::sets) static VAULTBORN_TYRANT: CardRecord = CardRecord::new(
     "Vaultborn Tyrant",
     "07ca436a-e992-40a9-978a-501a82e443ed",
     "Loïc Canavaggia",
-// Seven mana that draws a card the moment it lands, and killing it hands
-    // the same body back once.
-    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Dinosaur"], 6, 6)
-        .with_abilities(&[
-            abilities::trample(),
-            AbilityDef::triggered(
-                "Whenever this creature or another creature you control with power 4 or greater enters, \
-                 you gain 3 life and draw a card.",
-                TriggerEventDef::zone_changed(
-                    // "This creature or another creature you control with power 4 or greater":
-                    // one predicate covers both halves, because the Tyrant is a 6/6 and so
-                    // matches the size clause itself.
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                        ObjectPredicateDef::PowerAtLeast(4),
-                    ]),
-                    None,
-                    Some(ZoneKind::Battlefield),
-                ),
-                EffectDef::Sequence(&[
-                    EffectDef::GainLife {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(3),
-                    },
-                    EffectDef::DrawCards {
-                        recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(1),
-                    },
-                ]),
-            ),
-            AbilityDef::triggered_if(
-                "When this creature dies, if it's not a token, create a token that's a copy of it, \
-                 except it's an artifact in addition to its other types.",
-                TriggerEventDef::zone_changed(
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Dinosaur"], 6, 6).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered(
+            "Whenever this creature or another creature you control with \
+             power 4 or greater enters, you gain 3 life and draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Source,
-                    Some(ZoneKind::Battlefield),
-                    Some(ZoneKind::Graveyard),
-                ),
-                // "If it's not a token", read off the creature that died rather than off
-                // the card in the graveyard: without it every copy would make another copy
-                // and the Tyrant would never stay dead.
-                &TriggerConditionDef::SourceMatches {
-                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                },
-                // The copy is of the creature as it last existed on the battlefield
-                // (CR 608.2h), which is why a Tyrant that grew before it died comes back
-                // the size it was.
-                EffectDef::CreateToken(CreateTokenDef::new(TokenDef::Copy(
-                    &crate::card::TokenCopyDef {
-                        object: &EffectRecipientDef::Source,
-                        exceptions: CopyExceptionsDef::NONE
-                            .with_added_types(CardTypeSet::single(CardType::Artifact)),
-                    },
-                ))),
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::PowerAtLeast(4),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
             ),
-        ]),
+            EffectDef::Sequence(&[
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+        AbilityDef::triggered_if(
+            "When this creature dies, if it's not a token, create a token \
+             that's a copy of it, except it's an artifact in addition to \
+             its other types.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            &TriggerConditionDef::SourceMatches {
+                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+            },
+            EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                object: &EffectRecipientDef::Source,
+                exceptions: CopyExceptionsDef::NONE
+                    .with_added_types(CardTypeSet::single(CardType::Artifact)),
+            }),
+        ),
+    ]),
 );
 
 // BIG 86 — Loot, the Key to Everything (alternate printing)

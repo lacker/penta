@@ -250,12 +250,17 @@ pub(in crate::card::sets) static TEMPORAL_CLEANSING: CardRecord = CardRecord::ne
 );
 
 // MOM 98 — Corrupted Conviction
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CORRUPTED_CONVICTION: CardRecord = CardRecord::new(
     "Corrupted Conviction",
     "ce133ad5-8748-4a3d-ae8c-7b2a5938927d",
     "Joseph Weston",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell(
+        "Draw two cards.",
+        abilities::draw_cards(ValueDef::Constant(2)),
+    )
+    .with_spell_additional_cost(&CostDef::sacrifice_permanent(ObjectPredicateDef::HasType(
+        CardType::Creature,
+    )))]),
 );
 
 // MOM 173 — Wrenn's Resolve

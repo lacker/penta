@@ -150,12 +150,12 @@ pub(in crate::card::sets) static HEARTFIRE_IMMOLATOR: CardRecord = CardRecord::n
 );
 
 // M21 164 — Terror of the Peaks
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an additional life payment imposed on opposing spells that target this creature; current external spell-cost adjustments add or subtract mana only.
 pub(in crate::card::sets) static TERROR_OF_THE_PEAKS: CardRecord = CardRecord::new(
     "Terror of the Peaks",
     "432ecd5f-966f-4403-a973-51e175a524a0",
     "Andrey Kuzinskiy",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // M21 186 — Garruk's Uprising

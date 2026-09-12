@@ -170,12 +170,33 @@ pub(in crate::card::sets) static RESOLUTE_REINFORCEMENTS: CardRecord = CardRecor
 );
 
 // DMU 35 — Take Up the Shield
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAKE_UP_THE_SHIELD: CardRecord = CardRecord::new(
     "Take Up the Shield",
     "851e842e-a497-4c36-90ee-8d64f806c378",
     "Manuel Castañón",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Put a +1/+1 counter on target creature. It gains lifelink and \
+         indestructible until end of turn. (Damage and effects that \
+         say \"destroy\" don't destroy it.)",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                    AppliedEffectDef::add_ability(&abilities::indestructible()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )]),
 );
 
 // DMU 57 — Micromancer

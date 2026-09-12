@@ -950,3 +950,4 @@ mod duskmourn;
 
 mod foundations;
 mod karlov_manor;
+mod thunder_junction;

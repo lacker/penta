@@ -39,12 +39,12 @@ pub(in crate::card::sets) const DEFINITION: crate::card::sets::SetDefinition =
     crate::card::sets::SetDefinition::new(SET, CARDS, ADDITIONAL_PRINTINGS, file!());
 
 // ORI 4 — Archangel of Tithes
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs attack/block declaration taxes conditioned on this source being untapped or attacking, including the planeswalkers it protects; costed declarations lack this conditional source-state composition.
 pub(in crate::card::sets) static ARCHANGEL_OF_TITHES: CardRecord = CardRecord::new(
     "Archangel of Tithes",
     "1af50bf1-c51e-4592-86bf-4197ec85a45d",
     "Cynthia Sheppard",
-    crate::card::CardRules::unsupported(),
+    CardRules::unsupported(),
 );
 
 // ORI 58 — Harbinger of the Tides

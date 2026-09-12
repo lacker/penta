@@ -213,12 +213,46 @@ CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Pirate"], 1, 2)
 );
 
 // XLN 123 — Skulduggery
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKULDUGGERY: CardRecord = CardRecord::new(
     "Skulduggery",
     "ba30343b-1637-490f-810e-d614219789e3",
     "Deruchenko Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[AbilityDef::spell_with_targets(
+        "Until end of turn, target creature you control gets +1/+1 and \
+         target creature an opponent controls gets -1/-1.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            }),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )]),
 );
 
 // XLN 191 — Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun
